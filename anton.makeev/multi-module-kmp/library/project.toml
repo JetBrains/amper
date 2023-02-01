@@ -1,0 +1,21 @@
+# need to speficy that it's a library, not an executable
+type = "library"
+
+#in order for lib to be published/it must have coordinates.
+# should we follow Maven coordinates notation?
+name="my-lib"  # artifactId="my-lib"
+group="org.my" # groupId="org.my"
+version="0.1"  # version="1.0"
+
+# To enable platform support to the library, just add a [platform.<name>]
+[platform.ios]
+# iosVersion = 15
+
+[platform.android]
+# sdkVersion = 17
+
+[platform.jvm]
+# jdkVersion = 17
+
+[dependencies] #common dependencies
+"kotlin:kotlin-logging"="1.2" # multi-platform library

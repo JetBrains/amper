@@ -1,0 +1,24 @@
+# We can let user use plain directory layout, tagging platform in the file names
+#  - src/
+#    - file@platform1.kt
+#    - file@platform2.kt
+#    - file.kt -- common part
+#  - module.toml
+# It's easier to use, especially on a smaller projects
+# But it's harder to support on the tooling side (special handling in file renaming and displaying).
+
+# No need to speficy the type explicitly, by default we create executable
+# type = "executable"
+
+
+
+[dependencies] #common dependencies
+
+# depend on the local library by id, not by path
+# simplifies mental model and tooling (no need to update paths then moving/refactoring
+"org.my:my-lib"="current" # not sure how to refer to the local dependency's version,
+                          # need to consider, how it would work in CI scenario, and remote binary cache
+
+
+[platform.ios]
+[platform.android]

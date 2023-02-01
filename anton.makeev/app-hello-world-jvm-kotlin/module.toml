@@ -1,0 +1,29 @@
+# When the module has only one platform the default layout is
+#  - src/
+#  - module.toml
+
+# No need to speficy the type explicitly, by default we create executable.
+# In case of JVM executable means a jar with main class.
+# type = "executable"
+
+# By default we use JVM platform.
+# Build tool will take the latest and put it  'lock' file.
+# [platform.jvm]
+# jdk=17
+# sourceVersion=13
+# targetVersion=17
+
+# no need to specify koltin and it's version explicitly.
+# Build tool will take the latest and put it  'lock' file.
+# [kotlin]
+# version = 1.7
+
+[dependencies]
+# koltin-stdlib will be added automatically by the tool, based on the [kotlin setting] and presence of koltin files
+#  is it OK for the IDE support that it's can only be only determined on the runtme? How to determite it on read-time?
+#  how about it's performen once on run-time and added to `lock` (so it's not different from dependency resolution in general)?
+
+# Depend on multi-platform library. Tool will figure out platform-specific version
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
+
+
