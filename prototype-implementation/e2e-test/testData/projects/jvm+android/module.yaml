@@ -1,0 +1,9 @@
+product:
+  type: app
+  platforms: [ jvm, android ]
+
+settings:
+  jvm:
+    mainClass: MainKt
+  android:
+    compileSdk: 31

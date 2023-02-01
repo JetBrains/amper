@@ -1,0 +1,11 @@
+product:
+  type: app
+  platforms: [ iosArm64 ]
+
+
+apply:
+  - ./16-templates/16-template.yaml
+
+dependencies:
+  - org.yaml:snakeyaml:2.0
+  - ./some-dep

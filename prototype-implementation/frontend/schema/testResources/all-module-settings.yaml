@@ -1,0 +1,56 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - android
+    - iosArm64
+
+aliases:
+  - jvmAndAndroid:
+      - jvm
+      - android
+
+apply:
+  - templates/empty.module-template.yaml
+
+dependencies:
+  - ./subModule
+
+dependencies@jvmAndAndroid:
+  - org.jetbrains.compose.runtime:runtime:1.4.1
+
+dependencies@jvm:
+  - io.ktor:ktor-server-core:2.3.2
+  - org.jetbrains.compose.material3:material3:1.4.1
+
+dependencies@android:
+  - androidx.compose.animation:animation-graphics:1.4.3
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.20
+
+settings:
+  android:
+    compileSdk: 33
+    minSdk: 30
+    applicationId: my-application
+    namespace: com.example.namespace
+    maxSdk: 33
+    targetSdk: 33
+  compose:
+    enabled: true
+  jvm:
+    mainClass: MainKt
+  junit: none
+  kotlin:
+    apiVersion: 1.8
+    languageVersion: 1.8
+    allWarningsAsError: false
+    debug: false
+    progressiveMode: false
+    suppressWarnings: false
+    verbose: true
+    freeCompilerArgs:
+      - -Xinline-classes
+    optIns:
+      - kotlinx.Experimental

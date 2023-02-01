@@ -1,0 +1,10 @@
+dependencies:
+  - org.yaml:snakeyaml:2.0
+
+settings:
+  kotlin:
+    sdk:
+      version: 1.8.21
+    languageVersion: 1.9
+    features:
+      - dataObjects

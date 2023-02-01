@@ -1,0 +1,26 @@
+import kotlin.Boolean;
+
+CREATE TABLE Breed (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL UNIQUE,
+favorite INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+selectAll:
+SELECT * FROM Breed;
+
+selectById:
+SELECT * FROM Breed WHERE id = ?;
+
+selectByName:
+SELECT * FROM Breed WHERE name = ?;
+
+insertBreed:
+INSERT OR IGNORE INTO Breed(name)
+VALUES (?);
+
+deleteAll:
+DELETE FROM Breed;
+
+updateFavorite:
+UPDATE Breed SET favorite = ? WHERE id = ?;

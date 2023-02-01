@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  kotlin:
+    serialization: json

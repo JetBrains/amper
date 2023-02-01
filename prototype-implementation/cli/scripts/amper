@@ -1,0 +1,161 @@
+#!/bin/sh
+
+# TODO gradlew also tries to set ulimit -n (max files), probably we should too
+# TODO Script could be run in parallel for the first time, so download/extract code should not fail in that case
+
+set -e
+
+script_dir="$(dirname -- "$0")"
+script_dir="$(cd -- "$script_dir" && pwd)"
+
+die () {
+  echo >&2
+  echo "$@" >&2
+  echo >&2
+  exit 1
+}
+
+download_and_extract() {
+  file_url="$1"
+  cache_dir="$2"
+  extract_dir="$3"
+
+  if [ -e "$extract_dir/.flag" ] && [ -n "$(ls "$extract_dir")" ] && [ "x$(cat "$extract_dir/.flag")" = "x${file_url}" ]; then
+    # Everything is up-to-date in $extract_dir, do nothing
+    true
+  else
+    mkdir -p "$cache_dir"
+    temp_file="$cache_dir/download-file-$$.bin"
+    ### todo: add automatic $temp_file cleanup by trap
+
+    echo "Downloading $file_url"
+
+    rm -f "$temp_file"
+    if command -v curl >/dev/null 2>&1; then
+      if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
+      # shellcheck disable=SC2086
+      curl $CURL_PROGRESS -L --fail --output "${temp_file}" "$file_url" 2>&1
+    elif command -v wget >/dev/null 2>&1; then
+      if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
+      wget $WGET_PROGRESS -O "${temp_file}" "$file_url" 2>&1
+    else
+      die "ERROR: Please install wget or curl"
+    fi
+
+    echo "Extracting $temp_file to $extract_dir"
+    rm -rf "$extract_dir"
+    mkdir -p "$extract_dir"
+
+    case "$file_url" in
+      *".zip") (cd "$extract_dir" && "$JAVA_HOME/bin/jar" --extract --file "$temp_file") ;;
+      *) tar -x -f "$temp_file" -C "$extract_dir" ;;
+    esac
+
+    rm -f "$temp_file"
+
+    echo "$file_url" >"$extract_dir/.flag"
+
+    ### todo checksum checking
+  fi
+}
+
+find_upwards() {
+  current_dir="$script_dir"
+
+  while [ "$current_dir" != "/" ]; do
+    if [ -s "$current_dir/$1" ]; then
+      echo "$current_dir"
+      return 0
+    fi
+    current_dir=$(dirname "$current_dir")
+  done
+
+  die "ERROR: Can't find '$1' upwards from '$script_dir'"
+}
+
+### JVM
+sys=$(uname -s)
+jvm_arch=$(uname -m)
+if [ "$sys" = "Darwin" ]; then
+  amper_cache_dir="$HOME/Library/Caches/JetBrains/Amper"
+  case $jvm_arch in
+  x86_64)
+    jvm_url=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_macos-x64_bin.tar.gz
+    jvm_target_dir="$amper_cache_dir/jdk-17.0.3.1_macos-x64_bin-1bcf03"
+    ;;
+  arm64)
+    jvm_url=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_macos-aarch64_bin.tar.gz
+    jvm_target_dir="$amper_cache_dir/jdk-17.0.3.1_macos-aarch64_bin-297fa2"
+    ;;
+  *)
+    die "Unknown architecture $jvm_arch"
+    ;;
+  esac
+elif [ "$sys" = "cygwin" ] || [ "$sys" = "mingw" ]; then
+  # TODO FIXME
+  amper_cache_dir="where?"
+  jvm_url=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_windows-x64_bin.zip
+  jvm_target_dir="$amper_cache_dir/jdk-17.0.3.1_windows-x64_bin-d6ede5"
+elif [ "$sys" = "Linux" ]; then
+  amper_cache_dir="$HOME/.cache/JetBrains/Amper"
+  # shellcheck disable=SC2046
+  jvm_arch=$(linux$(getconf LONG_BIT) uname -m)
+  case $jvm_arch in
+    x86_64)
+      jvm_url=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_linux-x64_bin.tar.gz
+      jvm_target_dir="$amper_cache_dir/jdk-17.0.3.1_linux-x64_bin-9324ae"
+      ;;
+    aarch64)
+      jvm_url=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_linux-aarch64_bin.tar.gz
+      jvm_target_dir="$amper_cache_dir/jdk-17.0.3.1_linux-aarch64_bin-319da6"
+      ;;
+    *)
+      die "Unknown architecture $jvm_arch"
+      ;;
+  esac
+else
+  die "Unsupported platform $sys"
+fi
+
+download_and_extract "$jvm_url" "$amper_cache_dir" "$jvm_target_dir"
+
+# TODO: in the future we'd like not to override user-specified JAVA_HOME
+
+JAVA_HOME=
+for d in "$jvm_target_dir" "$jvm_target_dir"/* "$jvm_target_dir"/Contents/Home "$jvm_target_dir"/*/Contents/Home; do
+  if [ -e "$d/bin/java" ]; then
+    JAVA_HOME="$d"
+  fi
+done
+
+if [ '!' -x "$JAVA_HOME/bin/java" ]; then
+  die "Unable to find bin/java under $jvm_target_dir"
+fi
+
+### AMPER
+amper_version=0.2.0-dev-294
+amper_url="https://packages.jetbrains.team/maven/p/deft/deft-prototype/org/jetbrains/amper/cli/cli/$amper_version/cli-$amper_version-dist.zip"
+amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
+
+from_sources=false
+for arg in "$@"; do
+  if [ "$arg" = "--from-sources" ]; then
+    from_sources=true
+  fi
+done
+
+if [ "$from_sources" = "true" ]; then
+  dev_root="$(find_upwards "prototype-implementation/gradle-integration/module.yaml")"
+
+  echo "*** Compiling Amper CLI"
+  (cd "$dev_root/prototype-implementation" && ./gradlew --quiet ":cli:unpackedDistribution" ":cli:publishToMavenLocal")
+
+  echo "*** Starting Amper CLI"
+  amper_target_dir="$dev_root/prototype-implementation/cli/build/unpackedDistribution"
+
+  time "$JAVA_HOME/bin/java" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+  echo "Amper exit code: $?"
+else
+  download_and_extract "$amper_url" "$amper_cache_dir" "$amper_target_dir"
+  exec "$JAVA_HOME/bin/java" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+fi

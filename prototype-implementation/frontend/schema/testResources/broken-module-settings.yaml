@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - android
+    - iosArm64
+
+dependencies: error
+
+settings: error

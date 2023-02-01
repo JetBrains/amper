@@ -1,0 +1,11 @@
+product: jvm/app
+
+dependencies:
+  - ../shared
+  - $compose.desktop.currentOs
+
+test-dependencies:
+  - $kotlin-test
+
+settings:
+  compose: enabled

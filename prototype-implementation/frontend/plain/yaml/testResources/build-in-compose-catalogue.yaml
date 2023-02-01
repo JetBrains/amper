@@ -1,0 +1,27 @@
+product: android/app
+
+dependencies:
+  - $compose.animation
+  - $compose.animationGraphics
+  - $compose.foundation
+  - $compose.material
+  - $compose.material3
+  - $compose.runtime
+  - $compose.runtimeSaveable
+  - $compose.ui
+  - $compose.uiTooling
+  - $compose.preview
+  - $compose.materialIconsExtended
+  - $compose.components.resources
+  - $compose.html.svg
+  - $compose.html.testUtils
+  - $compose.html.core
+  - $compose.desktop.components.splitPane
+  - $compose.desktop.components.animatedImage
+  - $compose.desktop.common
+  - $compose.desktop.linux_x64
+  - $compose.desktop.linux_arm64
+  - $compose.desktop.windows_x64
+  - $compose.desktop.macos_x64
+  - $compose.desktop.macos_arm64
+  - $compose.desktop.uiTestJUnit4

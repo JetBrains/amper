@@ -1,0 +1,25 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../../common.module-template.yaml
+
+settings:
+  publishing:
+    group: org.jetbrains.amper.frontend.yaml.parser
+
+repositories:
+  - https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases
+  - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
+
+dependencies:
+  - com.jetbrains.intellij.platform:core-ui:232.10203.20
+  - com.jetbrains.intellij.platform:core-impl:232.10203.20
+  - com.jetbrains.intellij.platform:core:232.10203.20
+  - com.jetbrains.intellij.platform:util:232.10203.20
+  - com.jetbrains.intellij.platform:util-base:232.10203.20
+  - com.jetbrains.intellij.platform:util-ui:232.10203.20
+  - com.jetbrains.intellij.platform:util-ex:232.10203.20
+  - com.jetbrains.intellij.platform:indexing:232.10203.20
+  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18

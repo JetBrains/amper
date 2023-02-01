@@ -1,0 +1,12 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - ../../frontend-api
+  - ../../core
+  - org.yaml:snakeyaml:2.0
+  - org.jetbrains.kotlin:kotlin-reflect:1.9.20

@@ -1,0 +1,5 @@
+product: android/app
+
+settings:
+  android:
+    namespace: namespace

@@ -1,0 +1,15 @@
+product: android/app
+
+dependencies:
+  - ../shared
+
+settings:
+    android:
+        applicationId: "com.myapplication.MyApplication"
+        namespace: "com.myapplication"
+        compileSdk: 34
+        minSdk: 34
+        targetSdk: 34
+    jvm: 
+        target: 17
+    compose: enabled

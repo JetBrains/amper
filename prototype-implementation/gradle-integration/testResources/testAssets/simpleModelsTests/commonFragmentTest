@@ -1,0 +1,21 @@
+:
+  commonMain:
+   depends()
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmMain:
+   depends(commonMain)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()

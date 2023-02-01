@@ -1,0 +1,44 @@
+product: jvm/app
+
+apply:
+  - ../common.module-template.yaml
+
+repositories:
+  - id: gradle-libs
+    url: https://repo.gradle.org/gradle/libs-releases
+
+dependencies:
+  - info.picocli:picocli:4.7.5
+  - ../core
+  - ../frontend-api
+  - ../frontend/plain/yaml
+  - org.tinylog:tinylog-api-kotlin:2.6.2
+  - org.tinylog:tinylog-impl:2.6.2
+  - org.tinylog:slf4j-tinylog:2.6.2
+  - org.tinylog:jsl-tinylog:2.6.2
+  - org.tinylog:jul-tinylog:2.6.2
+  - io.opentelemetry:opentelemetry-api:1.32.0
+  - io.opentelemetry:opentelemetry-extension-kotlin:1.32.0
+  # for files downloading
+  - io.ktor:ktor-client-cio-jvm:2.3.6
+  - io.ktor:ktor-client-encoding:2.3.6
+  - io.ktor:ktor-client-auth:2.3.6
+  - io.ktor:ktor-client:2.3.6
+  - net.java.dev.jna:jna:5.13.0
+  - net.java.dev.jna:jna-platform:5.13.0
+  # for debugging, serialize frontend model to json to read and understand
+  - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
+  - com.fasterxml.jackson.core:jackson-databind:2.16.0
+  # for dependency resolving
+  - org.apache.maven:maven-compat:3.9.4
+  - org.apache.maven:maven-core:3.9.4
+  - org.apache.maven.resolver:maven-resolver-connector-basic:1.9.15
+  - org.apache.maven.resolver:maven-resolver-transport-file:1.9.15
+  - org.apache.maven.resolver:maven-resolver-transport-http:1.9.15
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
+  - org.apache.commons:commons-compress:1.24.0
+  - commons-io:commons-io:2.15.0
+
+settings:
+  publishing:
+    group: org.jetbrains.amper.cli

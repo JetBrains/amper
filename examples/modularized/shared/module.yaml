@@ -1,0 +1,11 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product:
+  type: lib
+  platforms: [jvm]
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.0
