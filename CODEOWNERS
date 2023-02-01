@@ -1,0 +1,25 @@
+# Each line represents a rule, followed by a list of members.
+# These members are the default owners for all files that match the specified pattern.
+# The pattern generally follows the same syntax used for .gitignore files.
+# The last matching rule always wins; those that appear lower in the file take precedence over rules that appear higher up.
+# Specify owners by their username, email, or role assignment in the project.
+
+# Examples:
+
+# Member with username "john.smith" and member with email "alex@mycompany.com"
+# own any JavaScript file in repository
+# *.js john.smith alex@mycompany.com
+
+# Bob owns all files under "subdir" directory at the repository root and all its subdirectories
+# /subdir/ Bob
+
+# All members from team named "Product Team" file under root "Product Documentation" directory
+# "/Product Documentation" "Product Team"
+
+# All members who are assigned the Project Collaborator role own any file under docs/ directory
+# anywhere in the repository, but not further nested files
+# docs/* "Project Collaborator"
+
+# This file itself is owned by members who are assigned the Project Admin role in this project.
+CODEOWNERS "Project Admin"
+``
