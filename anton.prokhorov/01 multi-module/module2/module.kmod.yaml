@@ -1,0 +1,7 @@
+# Seems irrelevant because in dependent modules you anyway need to make changes in both modules
+# Clone until artifact haven't pushed yet
+# release to artifact storage every possible module is not cheap
+# refactoring will become harder
+# how to reference local repos and git repos
+dependencies:
+  - org.jetbrains.kmod:module1:0.1.0-SNAPSHOT

@@ -1,0 +1,47 @@
+default-architectures:
+  - x64
+  - arm64
+
+platforms:
+  - type: native
+    platforms:
+      - type: linux
+        platforms:
+          - x64
+          - arm64
+          - type: x86
+            compiler-settings:
+              target: i686-linux-gnu
+      - type: macos
+        platforms: ${.default-architectures}
+      - type: windows
+        platforms: ${.default-architectures}
+    compiler-settings:
+      runtime-logs:
+        - type: gc
+          level: debug
+      allocator: std
+      memory-model: strict
+    artifacts:
+      - type: library
+        test-launcher: testLauncher.mainBackground
+
+dependencies:
+  common:
+    - org.jetbrains.compose:runtime:0.5.0-build217 # there is version for all targets described
+  native:
+    value:
+      - com.example:mylib:1.0.0
+    linux:
+      arm64:
+        value:
+          - com.example:mylib1:1.0.0
+          - type: conan
+            notation: poco/1.9.4
+            cinterop-settings:
+              headers: poco.h
+              header-filter: poco.h
+              package: poco
+              compiler-options: -DFOO=bar
+              linker-options: -lpng
+          - boost/1.81.0

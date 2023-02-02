@@ -1,0 +1,20 @@
+# source-binary hot switch
+external-references:
+  - type: jar
+    url: file://${project-root}/libs/postgres-jdbc-driver.jar
+    produces: org.example:postgres-jdbc-driver:0.0.1
+    # git repository should be kotlin module, therefore there is no need to produce GAV
+  - type: git
+    url: https://github.com/singleton11/klox-improved
+    # local repository is kotlin module, too
+  - type: local
+    url: file://${project-root}/../local-project
+
+
+dependencies:
+  # maven
+  - org.slf4j:slf4j-api:2.0.6
+  # produced gav
+  - org.example:postgres-jdbc-driver:0.0.1
+  - org.singleton:klox-improved:0.0.1
+  - org.local:local-project:0.0.1

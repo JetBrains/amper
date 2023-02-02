@@ -1,0 +1,12 @@
+# can we union conception template with parent?
+
+templates:
+  - ktor@1.2:
+      version: 1.3.2
+      features:
+        - server:
+            engine: netty
+        - rate-limit
+        - auth
+        - content-negotiation:
+            serialization: kotlinx-json

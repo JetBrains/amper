@@ -1,0 +1,4 @@
+my-platforms:
+  - native
+
+platforms: ${my-platforms + default-platforms}

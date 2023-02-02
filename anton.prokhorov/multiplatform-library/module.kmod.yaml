@@ -1,0 +1,26 @@
+platforms:
+  - ios
+  - android
+
+artifacts:
+  - type: library
+
+dependencies:
+  common:
+    - org.jetbrains.kotlin:kotlin-stdlib:1.8.0
+    - org.jetbrains.kotlin:kotlin-test:1.8.0
+  ios:
+    value:
+      - AFNetworking ~> 4.0.1
+  android:
+    value:
+      - com.amitshekhar.android:android-networking:1.0.2
+
+publish:
+  repositories:
+    - type: maven
+      name: bintray
+      url: https://dl.bintray.com/kotlin/kotlin-dev
+      credentials:
+        username: ${BINTRAY_USER}
+        password: ${BINTRAY_KEY}

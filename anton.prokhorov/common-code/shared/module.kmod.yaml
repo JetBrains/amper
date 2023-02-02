@@ -1,0 +1,34 @@
+# we can hide knowledge about frameworks/artifacts/etc
+# we can even generate xcode project and android app
+# hypothesis: knowledge about frameworks may be should exist only on edge between kotlin -> native world
+
+platforms:
+  - type: ios
+    platforms:
+      - type: simulator
+        platforms:
+          - type: x64
+            key: value
+            additional-capabilities:
+              key: value
+      - type: device
+        platforms:
+          - arm64
+    artifacts:
+      - type: library
+        framework:
+          base-name: MyFramework
+          bundle-id: com.example.myframework
+          bundle-version: 1.0.0
+  - type: android
+    platforms:
+      - type: emulator
+        platforms:
+          - x64
+      - type: device
+        platforms:
+          - arm64
+          - arm32
+    artifacts:
+      - type: library
+        odex: true
