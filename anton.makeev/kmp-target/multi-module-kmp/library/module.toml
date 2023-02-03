@@ -1,0 +1,14 @@
+type = "library" # need to speficy that it's a library, not an binary
+
+# in order for lib to be published or used, it must have coordinates.
+# todo should we follow Maven coordinates notation?
+name="my-lib"  # artifactId="my-lib"
+group="org.my" # groupId="org.my"
+version="0.1"  # version="1.0"
+
+# By default we produce an mpp library, so we need to explicitly declare it
+# [target]
+# platform="*"
+
+[dependencies] #common dependencies
+"kotlin:kotlin-logging"="1.2" # multi-platform library

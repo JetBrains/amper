@@ -1,0 +1,27 @@
+# By default we create a binary
+# type = "binary"
+
+# By default we create a single JVM target
+# todo or maybe at least one target should be explicitly specified/auto generated?
+# [target]
+# platform = "jvm"
+
+#No need to specify koltin and it's version explicitly.
+#[kotlin]
+#version = 1.7 # if not specified, the build tool will take the latest and put it  'lock' file.
+
+#[java] default settings for the java tool
+#jdk=17 # if not specified, the build tool will take the latest and put it  'lock' file.
+#sourceVersion=13
+#targetVersion=17
+
+
+[dependencies]
+# todo koltin-stdlib will be added automatically by the tool, based on the [kotlin] and presence of koltin files
+#  is it OK for the IDE support that it's can only be only determined on the runtme? How to determite it on read-time?
+#  how about it's performen once on run-time and added to `lock` (so it's not different from dependency resolution in general)?
+
+# Depend on multi-platform library. Tool will figure out platform-specific version
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
+
+

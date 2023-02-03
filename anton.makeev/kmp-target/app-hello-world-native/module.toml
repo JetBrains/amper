@@ -1,0 +1,16 @@
+# When the module has only one platform the default module layout is
+#  - src/
+#  - module.toml
+
+# By default we create a binary
+# type = "binary"
+
+# todo how about cross-compilation?
+[target]
+platform = "current" # todo Or maybe it should be specified esplicitly?
+
+[dependencies]
+# Depend on multi-platform library. Tool will figure out platform-specific version
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
+
+

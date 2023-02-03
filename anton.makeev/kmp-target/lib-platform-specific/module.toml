@@ -1,0 +1,24 @@
+# When the module has only one platform the default layout is
+#  - src/
+#  - module.toml
+
+type = "library" # need to speficy that it's a library, not an binary
+
+# in order for lib to be published or used, it must have coordinates.
+# todo should we follow Maven coordinates notation?
+name="my-lib"  # artifactId="my-lib"
+group="org.my" # groupId="org.my"
+version="0.1"  # version="1.0"
+
+
+# By default we produce an mpp library, so we need to explicitly declare it
+[target]
+platform=["ios", "android", "jvm"] # To enable platform support to the library, add it to the list
+# todo how to specify compatible architectures?
+
+
+[dependencies]
+# Depend on multi-platform library. Tool will figure out platform-specific version
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
+
+

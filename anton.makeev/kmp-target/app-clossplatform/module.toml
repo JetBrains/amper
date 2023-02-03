@@ -1,0 +1,25 @@
+# By default we create a binary
+# type = "binary"
+
+[kotlin]
+# version=1.7
+
+[target]
+platform = "ios"
+sdk = "15" # use most recent is not specified
+architecture = ["arm64", "armv7"] # use default, if not specified
+
+[target]
+platform = "android"
+sdkVersion = 17
+
+
+[dependencies] #common dependencies
+
+[dependencies.ios] # ... ios-specific deps
+
+[dependencies.ios+armv7] # ... ios-specific deps for armv7 arch only
+
+[dependencies.android]  # android-specific library
+
+[dependencies.ios+android]

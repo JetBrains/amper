@@ -1,0 +1,23 @@
+# By default we create a binary
+# type = "binary"
+
+[target]
+platform = "ios"
+deploymentTarget = "..." # ios-specific settings
+
+[target]
+platform = "android"
+manifestFile = "..."
+
+
+[dependencies] #common dependencies
+"kotlin:kotlin-logging"="1.2" # multi-platform library
+
+[dependencies.ios]
+"kotlin:kotlin-ios-support"="2.3" # ios-specific library
+
+[dependencies.android]
+"kotlin:kotlin-android-support"="2.3" # android-specific library
+
+[dependencies.ios+android] # don't like qioting hete
+"ktor:ktor-core"="2.3"

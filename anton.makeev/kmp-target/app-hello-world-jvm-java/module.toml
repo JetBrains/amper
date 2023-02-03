@@ -1,0 +1,17 @@
+# By default we create a binary
+# type = "binary"
+
+#[java] default settings for the java tool
+#jdk=17   # if not specified, the build tool will take the latest and put it  'lock' file.
+#sourceVersion=13
+#targetVersion=17
+
+# By default we create a single JVM target
+# todo or maybe at least one target should be explicitly specified/auto generated?
+# [target]
+# platform = "jvm"
+
+[dependencies]
+"log4j:log4j-common"="1.2" # by default we use koltin/java distribution (Maven central)
+
+

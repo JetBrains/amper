@@ -1,0 +1,16 @@
+# When the module has only one platform the default layout is
+#  - src/
+#  - module.toml
+
+type = "binary" # iosFramework is a binary in a sense that it can't be reused as library in KMP
+
+[target]
+platform="ios"
+packaging="Framework" # ios-specific settings
+linker = "..."
+
+[dependencies]
+# Depend on multi-platform library. Tool will figure out platform-specific version
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
+
+
