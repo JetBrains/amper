@@ -1,0 +1,19 @@
+// By default we create a binary
+// type = "binary"
+
+// By default we create a single JVM target
+// todo or maybe at least one target should be explicitly specified/auto generated?
+// target {
+//   platform = "jvm"
+// }
+
+// No need to specify koltin and it's version explicitly.
+// kotlin {
+//   version = 1.7 // if not specified, the build tool will take the latest and put it  'lock' file.
+// }
+
+
+dependencies {
+    "kotlin:kotlin-logging:1.2"
+}
+
