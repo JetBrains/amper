@@ -7,18 +7,24 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.plugins.JavaPlugin
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMultiplatformPlugin
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import java.nio.file.Path
 
 var Gradle.knownModel: Model?
     get() = (this as ExtensionAware).extensions.extraProperties["org.example.knownModel"] as? Model
-    set(value) { (this as ExtensionAware).extensions.extraProperties["org.example.knownModel"] = value }
+    set(value) {
+        (this as ExtensionAware).extensions.extraProperties["org.example.knownModel"] = value
+    }
 
 @Suppress("UNCHECKED_CAST")
 var Gradle.moduleIdMap: Map<String, String>?
     get() = (this as ExtensionAware).extensions.extraProperties["org.example.linkedModuleId"] as? Map<String, String>
-    set(value) { (this as ExtensionAware).extensions.extraProperties["org.example.linkedModuleId"] = value }
+    set(value) {
+        (this as ExtensionAware).extensions.extraProperties["org.example.linkedModuleId"] = value
+    }
 
 @Suppress("unused")
 class BindingSettingsPlugin : Plugin<Settings> {
@@ -60,11 +66,16 @@ class BindingSettingsPlugin : Plugin<Settings> {
         settings.gradle.knownModel = model
 
         settings.gradle.beforeProject {
-            it.plugins.apply(JavaPlugin::class.java)
+            val connectedModuleId = moduleIdMap[it.path]!!
+            if (model.getTargets(connectedModuleId).size == 1 && model.getTargets(connectedModuleId)
+                    .contains(Model.defaultTarget)
+            ) {
+                it.plugins.apply(KotlinPluginWrapper::class.java)
+            } else {
+                it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+            }
             it.plugins.apply(BindingProjectPlugin::class.java)
-//            it.plugins.apply(KotlinMultiplatformPlugin::class.java)
         }
-
     }
 }
 
@@ -74,11 +85,41 @@ class BindingProjectPlugin : Plugin<Project> {
         val moduleIdMap = project.gradle.moduleIdMap ?: return
         val linkedModuleId = moduleIdMap[project.path] ?: return
 
+        project.repositories.google()
+        project.repositories.jcenter()
+
+//        model.getDeclaredDependencies(linkedModuleId, Model.defaultTarget).forEach { dependencyNotation ->
+//            project.dependencies.add("implementation", dependencyNotation)
+//        }
+
         val targets = model.getTargets(linkedModuleId)
-        targets.forEach { targetId ->
-            model.getDeclaredDependencies(linkedModuleId, targetId).forEach { dependencyNotation ->
-                project.dependencies.add("implementation", dependencyNotation)
+
+        (project as ExtensionAware).extensions.configure(KotlinMultiplatformExtension::class.java) { kmpp ->
+            targets.forEach {
+                when (it) {
+                    "jvm" -> {
+                        kmpp.jvm { }
+                        val jvmMainSourceSet = project.extensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName("jvmMain")
+                        model.getDeclaredDependencies(linkedModuleId, it).forEach { dependency ->
+                            jvmMainSourceSet.dependencies {
+                                implementation(dependency)
+                            }
+                        }
+                    }
+
+                    "ios" -> kmpp.ios()
+                    "js" -> kmpp.js()
+                    Model.defaultTarget -> {
+                        val commonSourceSet = project.extensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName("commonMain")
+                        model.getDeclaredDependencies(linkedModuleId, it).forEach { dependency ->
+                            commonSourceSet.dependencies {
+                                implementation(dependency)
+                            }
+                        }
+                    }
+                }
             }
         }
+
     }
 }
