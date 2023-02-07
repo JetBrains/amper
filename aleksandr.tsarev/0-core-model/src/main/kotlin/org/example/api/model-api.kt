@@ -24,6 +24,14 @@ interface ModelInit {
 
 interface Model {
 
+    companion object {
+
+        /**
+         * When no target is specified.
+         */
+        const val defaultTarget = "default-target"
+    }
+
     /**
      * Get modules (module ids) list for project.
      */

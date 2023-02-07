@@ -4,9 +4,10 @@ import cc.ekblad.toml.decode
 import cc.ekblad.toml.tomlMapper
 import org.example.api.Model
 import org.example.api.ModelInit
+import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.name
+import kotlin.io.path.*
+import kotlin.streams.toList
 
 data class SimpleModule(
     val id: String,
@@ -38,7 +39,7 @@ class SimpleModelInit : ModelInit {
             ?.map { it.first }
             ?: emptyList()
 
-        val sources = mapOf("default-target" to (defaultSources + "src" + "test"))
+        val sources = mapOf(Model.defaultTarget to (defaultSources + "src" + "test"))
 
         // Dependencies.
         @Suppress("UNCHECKED_CAST")
@@ -66,42 +67,47 @@ class SimpleModelInit : ModelInit {
             ?: emptyMap()
 
         val dependencies = mutableMapOf<String, List<String>>().apply {
-            put("default-target", defaultDependencies)
+            put(Model.defaultTarget, defaultDependencies)
             putAll(targetDependencies)
         }
 
         val targets = buildList {
-            add("default-target")
+            add(Model.defaultTarget)
             addAll(targetDependencies.keys)
         }
 
         return SimpleModule(moduleId, this, targets, sources, dependencies)
     }
 
+    @OptIn(ExperimentalPathApi::class)
     override fun getModel(root: Path): Model {
-        val module = root.getModule()
-        val foundModules = if (module != null) mapOf(module.id to module) else emptyMap()
-        return SimpleModel(foundModules)
+        val allModuleRoots = Files.walk(root)
+            .filter { it.name == "build.toml" }
+            .toList()
+            .mapNotNull { it.parent }
+        val allModules = allModuleRoots.mapNotNull { it.getModule() }
+        return SimpleModel(allModules)
     }
-
 }
 
 class SimpleModel(
-    private val simpleModules: Map<String, SimpleModule>
+    private val simpleModules: List<SimpleModule>
 ) : Model {
 
+    private val modulesMap by lazy { simpleModules.associateBy { it.id } }
+
     override val modules: List<Pair<String, Path>> =
-        simpleModules.values.map { it.id to it.path }
+        simpleModules.map { it.id to it.path }
 
     override fun getTargets(moduleId: String) =
-        simpleModules[moduleId]?.targets ?: error("No module $moduleId")
+        modulesMap[moduleId]?.targets ?: error("No module $moduleId")
 
     override fun getSources(moduleId: String, targetId: String) =
-        simpleModules[moduleId]?.sources?.get(targetId)
+        modulesMap[moduleId]?.sources?.get(targetId)
             ?: error("No module $moduleId or target $targetId")
 
     override fun getDeclaredDependencies(moduleId: String, targetId: String) =
-        simpleModules[moduleId]?.dependencies?.get(targetId)
+        modulesMap[moduleId]?.dependencies?.get(targetId)
             ?: error("No module $moduleId or target $targetId")
 
 }
