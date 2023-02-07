@@ -1,0 +1,7 @@
+[module]
+target = "js"
+linked = [ "second-module" ]
+
+[dependencies]
+module-js = "local"
+"org.example.some-js" = "1.2.3"

@@ -1,0 +1,9 @@
+[module]
+target = "js"
+# Here we declare, that module and module-js are single unit of conmilation,
+# thus declaring module-js build target.
+linked = [ "module" ]
+
+[dependencies]
+module = "local"
+"org.example.some-js" = "1.2.3"

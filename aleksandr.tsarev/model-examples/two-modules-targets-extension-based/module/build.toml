@@ -1,0 +1,3 @@
+# Example of extension based target specified code detection.
+[dependencies]
+"org.example.dependency" = "1.2.3"

@@ -1,0 +1,18 @@
+# Example of extension based target specified code detection.
+[sources]
+# Path can be skipped if is equal to name?
+# How can we differ relative path from absolute? From path from project root?
+second-sources = { path = "second-sources" }
+integration-test = { path = "integration-test", test = true }
+
+# [sources.js]
+# [sources.target.js]
+[target.js.sources]
+second-sources = { path = "second-sources" }
+integration-test = { path = "integration-test", test = true }
+
+[dependencies]
+"org.example.dependency" = "1.2.3"
+
+[targets.js.dependencies]
+"org.example.dependency" = "1.2.3"

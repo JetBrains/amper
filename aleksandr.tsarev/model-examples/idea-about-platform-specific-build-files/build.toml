@@ -1,0 +1,10 @@
+#@ gradle(ios)
+[module]
+id = "my-module"
+group-id = "org.example"
+version = "1.2.3"
+# Maybe we need to auto discover specific build files?
+targets = [ "ios" ]
+
+[dependencies]
+# Dependencies from shared code.

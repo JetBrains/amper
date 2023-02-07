@@ -1,0 +1,47 @@
+package org.example.api
+
+import java.nio.file.Path
+import java.util.ServiceLoader
+
+interface ModelInit {
+
+    companion object {
+        fun getModel(root: Path): Model {
+            val services = ServiceLoader.load(ModelInit::class.java)
+            val foundService = services.iterator().run {
+                assert(hasNext()) { "No ModelInit service found" }
+                val result = next()
+                assert(!hasNext()) { "Only one Model init service should be present" }
+                result
+            }
+            return foundService.getModel(root)
+        }
+    }
+
+    fun getModel(root: Path): Model
+
+}
+
+interface Model {
+
+    /**
+     * Get modules (module ids) list for project.
+     */
+    val modules: List<Pair<String, Path>>
+
+    /**
+     * Get available targets for module. Must return at least one target.
+     */
+    fun getTargets(moduleId: String): List<String>
+
+    /**
+     * Get source directories for target and module.
+     */
+    fun getSources(moduleId: String, targetId: String): List<String>
+
+    /**
+     * Get dependencies (moduleId list) for specified module and specified target.
+     */
+    fun getDeclaredDependencies(moduleId: String, targetId: String): List<String>
+
+}

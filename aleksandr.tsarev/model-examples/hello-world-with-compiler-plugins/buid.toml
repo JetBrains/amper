@@ -1,0 +1,16 @@
+#@ gradle
+[module]
+id = "my-module"
+group-id = "org.example"
+version = "1.2.3"
+type = "application"
+
+# How can kotlin compiler plugins be distrinuted?
+# By gradle plugins only? By some separate way? Etc.?
+[kotlin.plugins]
+"some.kotlin.plugin" = "2.6.1"
+# Do we need to specify some other options for plugins?
+"some.kotlin.plugin.2" = { version = "2.6.1", somePuginOption = "x" }
+
+[dependencies]
+"io.github.aakira:napier" = "2.6.1"

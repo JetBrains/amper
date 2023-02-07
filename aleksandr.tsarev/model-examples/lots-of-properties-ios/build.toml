@@ -1,0 +1,27 @@
+#@ gradle
+[module]
+id = "my-module"
+group-id = "org.example"
+version = "1.2.3"
+
+[kotlin]
+version = "1.2.3"
+compilerOptions = "-Xenable-opt-in -Xother-option"
+
+[target.ios]
+targetVersion = "11"
+optimized = true
+# We need this?
+baseName = "my-module"
+
+
+[dependencies]
+"org.example:my-dependency" = "1.2.3"
+
+[target.ios.dependencies]
+"org.example:my-dependency-1" = "1.2.3"
+# "org.example:my-dependency-2" = { version = "1.2.3", packageManager = "cocoa" }
+# "org.example:my-dependency-3" = { version = "1.2.3", packages = "cocoa" }
+
+[target.ios.dependencies."packageManager(cocoa)"]
+"org.example:my-dependency-4" = "1.2.3"

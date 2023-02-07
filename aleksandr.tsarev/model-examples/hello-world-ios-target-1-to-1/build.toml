@@ -1,0 +1,28 @@
+#@ gradle(ios)
+[module]
+id = "my-module"
+group-id = "org.example"
+version = "1.2.3"
+
+# Type can limit available targets?
+# Type can limit number of targets?
+# Maybe it can be unnecessary.
+type = "application"
+
+# Default target is common.
+# Exclude targets?
+# Multiple modules can leak into "multiple applications" for single module. ??
+# target = [ "ios", "!ios-arm64" ]
+# target = [ "ios" ]
+# What target should be default? Should default exist? Maybe target should be explicit.
+# Virtual targets? Is it understandable?
+target = "ios"
+
+[dependencies]
+"io.github.aakira:napier" = "2.6.1"
+"curl" = { native = true, defFile = "ios/src/defFiles/curl.def", packageName = "curl.api" }
+"NWLogging" = { version = "1.2.6", package = "cocoa" }
+
+[target.ios]
+sceneDelegateClass = "SceneDelegate"
+launchStoryboard = "LaunchScreen"

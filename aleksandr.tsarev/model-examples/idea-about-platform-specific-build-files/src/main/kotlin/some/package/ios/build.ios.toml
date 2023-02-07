@@ -1,0 +1,10 @@
+# Can be expensive for performance, scanning lots of files.
+# Can be workarounded by specifing targets in "root" build file.
+
+# Specific ios properties
+type = "binary"
+sceneDelegateClass = "SceneDelegate"
+launchStoryboard = "LaunchScreen"
+
+[dependencies]
+# Specific ios dependencies
