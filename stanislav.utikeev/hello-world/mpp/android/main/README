@@ -1,0 +1,1 @@
+JVM has deep folder structure due to the packages. Maybe, we can avoid additional nesting (aka src/../(java|kotlin), e.g.).

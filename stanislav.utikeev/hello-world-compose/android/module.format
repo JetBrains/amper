@@ -1,0 +1,13 @@
+[module]
+# Targets can extend module description. E.g. adding android to targets should add support for android section.
+target = android
+dependencies = [
+    "shared",
+]
+
+[android]
+compile-sdk = 33
+
+[android.compose-options]
+# Some inner properties
+kotlin-compiler-extension-version = "1.3.0"

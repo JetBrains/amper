@@ -1,0 +1,9 @@
+# ---
+# Hello World for JVM
+# ---
+
+[project]
+name = "hello-world-jvm"
+
+[kotlin]
+version = "1.8.0"

@@ -1,0 +1,31 @@
+[module]
+target = multiplatform
+type = library
+
+# Kotlin-test should be available by default in test source set
+
+# JVM + Android targets aren't supported yet (https://kotlinlang.org/docs/multiplatform-share-on-platforms.html#configure-the-hierarchical-structure-manually) so one has to choose.
+# Basically, Android should be an extension to JVM plugin.
+[multiplatform]
+# TODO: some platforms might not be available for build on this exact machine. How to make it explicit when building/publishing?
+platforms = [android, ios]
+# Here we can have common dependencies. They should be targeting all the platform mentioned in multiplatform.platforms.
+dependencies = [
+    # e.g.
+    # for the first version we can use Gradle metadata for using proper variants, but the dedicated package format seems more viable solution
+    maven("io.ktor:ktor-client-core:2.2.2"),
+]
+
+# In case of multiplatform, dependencies can be set for each platform
+[jvm]
+dependencies = [
+    maven("org.apache.logging.log4j:log4j-api-kotlin:1.3.0"),
+]
+
+[jvm.test]
+framework = junit5 # or junit for (junit4) or testNG
+
+[ios]
+dependencies = [
+    cocoapods(name = "Logging", version = "1.5.2", url = "https://github.com/apple/swift-log.git"),
+]

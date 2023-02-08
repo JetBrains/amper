@@ -1,0 +1,5 @@
+[module]
+target = jvm
+dependencies = [
+    "common",
+]

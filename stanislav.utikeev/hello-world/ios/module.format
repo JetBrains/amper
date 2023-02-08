@@ -1,0 +1,20 @@
+[module]
+# Targets can extend module description. E.g. setting iOS as target should add support for cocoapods and iOS sections.
+targets = iOS
+dependencies = [
+    cocoapods(name = "Logging", version = "1.5.2", url = "https://github.com/apple/swift-log.git"),
+]
+
+[iOS]
+# Platforms available for iOS in https://kotlinlang.org/docs/multiplatform-dsl-reference.html#targets
+platforms = [
+    x64,
+    arm64,
+    simulatorArm64,
+]
+
+[cocoapods]
+version = "1.0"
+
+[cocoapods.iOS]
+deployment-target = "13.5"

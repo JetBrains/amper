@@ -1,0 +1,8 @@
+# ---
+# Hello World for iOS.
+# ---
+[project]
+name = "hello-world-native"
+
+[kotlin]
+version = "1.8.0"

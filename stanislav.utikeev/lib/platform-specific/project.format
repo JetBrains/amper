@@ -1,0 +1,8 @@
+# ---
+# Library with platform-specific code.
+# ---
+[project]
+name = "library-platform"
+
+[kotlin]
+version = "1.8.0"

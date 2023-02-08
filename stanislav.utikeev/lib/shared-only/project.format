@@ -1,0 +1,8 @@
+# ---
+# Cross-platform library without platform-specific code.
+# ---
+[project]
+name = "library-shared"
+
+[kotlin]
+version = "1.8.0"

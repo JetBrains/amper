@@ -1,0 +1,13 @@
+[module]
+target = iOS
+dependencies = [
+    "shared",
+]
+
+[iOS]
+# Platforms available for iOS in https://kotlinlang.org/docs/multiplatform-dsl-reference.html#targets
+platforms = [
+    x64,
+    arm64,
+    simulatorArm64,
+]
