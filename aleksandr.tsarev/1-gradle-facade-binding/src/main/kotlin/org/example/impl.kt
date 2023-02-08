@@ -26,6 +26,12 @@ var Gradle.moduleIdMap: Map<String, String>?
         (this as ExtensionAware).extensions.extraProperties["org.example.linkedModuleId"] = value
     }
 
+/**
+ * Gradle setting plugin, that is responsible for:
+ * 1. Initializing gradle projects, based on model.
+ * 2. Applying kotlin or KMP plugins.
+ * 3. Associate gradle projects with modules.
+ */
 @Suppress("unused")
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
@@ -34,6 +40,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
 
         val moduleIdMap = mutableMapOf<String, String>()
 
+        // Function to create valid gradle project paths.
         val path2ProjectPath = mutableMapOf<Path, String>()
         fun getProjectPathAndMemoize(currentModulePath: Path, currentModuleId: String): String {
             // Check if we are root module.
@@ -54,6 +61,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
             return resultProjectPath
         }
 
+        // Go by ascending path length and generate projects.
         model.modules.sortedBy { it.second }.forEach {
             val projectPath = getProjectPathAndMemoize(it.second, it.first)
             settings.include(projectPath)
@@ -62,9 +70,11 @@ class BindingSettingsPlugin : Plugin<Settings> {
             moduleIdMap[projectPath] = it.first
         }
 
+        // Associate gradle projects with modules.
         settings.gradle.moduleIdMap = moduleIdMap
         settings.gradle.knownModel = model
 
+        // Initialize plugins for each module.
         settings.gradle.beforeProject {
             val connectedModuleId = moduleIdMap[it.path]!!
             if (model.getTargets(connectedModuleId).size == 1 && model.getTargets(connectedModuleId)
@@ -79,47 +89,63 @@ class BindingSettingsPlugin : Plugin<Settings> {
     }
 }
 
+/**
+ * Gradle project plugin entry point.
+ */
 class BindingProjectPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val model = project.gradle.knownModel ?: return
         val moduleIdMap = project.gradle.moduleIdMap ?: return
         val linkedModuleId = moduleIdMap[project.path] ?: return
+        ModulePlugin(model, linkedModuleId, project).apply()
+    }
+}
 
+/**
+ * Plugin logic, bind to specific module.
+ */
+class ModulePlugin(
+    private val model: Model,
+    private val moduleId: String,
+    private val project: Project,
+) {
+
+    private val targets by lazy { model.getTargets(moduleId) }
+
+    private val projectExtensions = project.extensions
+
+    fun apply() {
+        // Add repositories for KMPP to work.
         project.repositories.google()
         project.repositories.jcenter()
 
-//        model.getDeclaredDependencies(linkedModuleId, Model.defaultTarget).forEach { dependencyNotation ->
-//            project.dependencies.add("implementation", dependencyNotation)
-//        }
+        // Initialize targets and add dependencies.
+        targets.forEach { target ->
+            when (target) {
+                "jvm" -> configureAndAddDependenciesForTarget(target, "jvmMain") { jvm() }
+                "ios" -> configureAndAddDependenciesForTarget(target, "iosMain") { ios() }
+                "js" -> configureAndAddDependenciesForTarget(target, "jsMain") { js() }
+                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "commonMain") { }
+            }
+        }
+    }
 
-        val targets = model.getTargets(linkedModuleId)
-
-        (project as ExtensionAware).extensions.configure(KotlinMultiplatformExtension::class.java) { kmpp ->
-            targets.forEach {
-                when (it) {
-                    "jvm" -> {
-                        kmpp.jvm { }
-                        val jvmMainSourceSet = project.extensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName("jvmMain")
-                        model.getDeclaredDependencies(linkedModuleId, it).forEach { dependency ->
-                            jvmMainSourceSet.dependencies {
-                                implementation(dependency)
-                            }
-                        }
-                    }
-
-                    "ios" -> kmpp.ios()
-                    "js" -> kmpp.js()
-                    Model.defaultTarget -> {
-                        val commonSourceSet = project.extensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName("commonMain")
-                        model.getDeclaredDependencies(linkedModuleId, it).forEach { dependency ->
-                            commonSourceSet.dependencies {
-                                implementation(dependency)
-                            }
-                        }
-                    }
+    /**
+     * Perform specific configurations for module targets and add dependencies.
+     */
+    private fun configureAndAddDependenciesForTarget(
+        target: String,
+        sourceSetName: String,
+        targetSpecific: KotlinMultiplatformExtension.() -> Unit
+    ) {
+        projectExtensions.configure(KotlinMultiplatformExtension::class.java) { kmpp ->
+            kmpp.targetSpecific()
+            val sourceSet = projectExtensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName(sourceSetName)
+            sourceSet.dependencies {
+                model.getDeclaredDependencies(moduleId, target).forEach { dependency ->
+                    this.implementation(dependency)
                 }
             }
         }
-
     }
 }
