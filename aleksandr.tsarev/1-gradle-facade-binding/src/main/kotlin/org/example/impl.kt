@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.nio.file.Path
 
 var Gradle.knownModel: Model?
@@ -25,6 +26,12 @@ var Gradle.moduleIdMap: Map<String, String>?
     set(value) {
         (this as ExtensionAware).extensions.extraProperties["org.example.linkedModuleId"] = value
     }
+
+/**
+ * Check is module contains only default target.
+ */
+fun Model.isOnlyKotlinModule(moduleId: String) =
+    getTargets(moduleId).size == 1 && getTargets(moduleId).contains(Model.defaultTarget)
 
 /**
  * Gradle setting plugin, that is responsible for:
@@ -77,9 +84,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
         // Initialize plugins for each module.
         settings.gradle.beforeProject {
             val connectedModuleId = moduleIdMap[it.path]!!
-            if (model.getTargets(connectedModuleId).size == 1 && model.getTargets(connectedModuleId)
-                    .contains(Model.defaultTarget)
-            ) {
+            if (model.isOnlyKotlinModule(connectedModuleId)) {
                 it.plugins.apply(KotlinPluginWrapper::class.java)
             } else {
                 it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
@@ -97,14 +102,38 @@ class BindingProjectPlugin : Plugin<Project> {
         val model = project.gradle.knownModel ?: return
         val moduleIdMap = project.gradle.moduleIdMap ?: return
         val linkedModuleId = moduleIdMap[project.path] ?: return
-        ModulePlugin(model, linkedModuleId, project).apply()
+        if (model.isOnlyKotlinModule(linkedModuleId))
+            OnlyKotlinModulePlugin(model, linkedModuleId, project).apply()
+        else
+            KMPPModulePlugin(model, linkedModuleId, project).apply()
     }
 }
 
 /**
- * Plugin logic, bind to specific module.
+ * Plugin logic, bind to specific module, when only default target is available.
  */
-class ModulePlugin(
+class OnlyKotlinModulePlugin(
+    private val model: Model,
+    private val moduleId: String,
+    project: Project,
+) {
+
+    private val kotlinPE = project.extensions.getByType(KotlinProjectExtension::class.java)
+
+    fun apply() {
+        // Add dependencies for main source set.
+        kotlinPE.sourceSets.getByName("main").dependencies {
+            model.getDeclaredDependencies(moduleId, Model.defaultTarget).forEach { dependency ->
+                this.implementation(dependency)
+            }
+        }
+    }
+}
+
+/**
+ * Plugin logic, bind to specific module, when multiple targets are available.
+ */
+class KMPPModulePlugin(
     private val model: Model,
     private val moduleId: String,
     private val project: Project,
@@ -112,12 +141,17 @@ class ModulePlugin(
 
     private val targets by lazy { model.getTargets(moduleId) }
 
-    private val projectExtensions = project.extensions
+    private val kotlinMPE = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
         // Add repositories for KMPP to work.
         project.repositories.google()
         project.repositories.jcenter()
+
+        forSourceSet("commonMain") {
+            kotlin.srcDirs.clear()
+            kotlin.setSrcDirs(mutableListOf("src/main/kotlin"))
+        }
 
         // Initialize targets and add dependencies.
         targets.forEach { target ->
@@ -138,14 +172,17 @@ class ModulePlugin(
         sourceSetName: String,
         targetSpecific: KotlinMultiplatformExtension.() -> Unit
     ) {
-        projectExtensions.configure(KotlinMultiplatformExtension::class.java) { kmpp ->
-            kmpp.targetSpecific()
-            val sourceSet = projectExtensions.getByType(KotlinProjectExtension::class.java).sourceSets.getByName(sourceSetName)
-            sourceSet.dependencies {
+        kotlinMPE.targetSpecific()
+        forSourceSet(sourceSetName) {
+            dependencies {
                 model.getDeclaredDependencies(moduleId, target).forEach { dependency ->
                     this.implementation(dependency)
                 }
             }
         }
     }
+
+    private fun forSourceSet(sourceSetName: String, action: KotlinSourceSet.() -> Unit) =
+        kotlinMPE.sourceSets.getByName(sourceSetName).action()
+
 }
