@@ -22,6 +22,8 @@ interface ModelInit {
 
 }
 
+typealias CollapsedMap = Map<String, List<String>>
+
 interface Model {
 
     companion object {
@@ -43,13 +45,12 @@ interface Model {
     fun getTargets(moduleId: String): List<String>
 
     /**
-     * Get source directories for target and module.
-     */
-    fun getSources(moduleId: String, targetId: String): List<String>
-
-    /**
      * Get dependencies (moduleId list) for specified module and specified target.
      */
     fun getDeclaredDependencies(moduleId: String, targetId: String): List<String>
+
+    fun getModuleInfo(moduleId: String): CollapsedMap
+
+    fun getKotlinInfo(moduleId: String): CollapsedMap
 
 }

@@ -56,6 +56,7 @@ for ios and android simultaneously, for example).
 23. Do we need to be able to build effective build files? 
 24. Do we need some scopes for dependencies? If yes, how should they look?
 25. Should we support environment variables? Interop with common parameters?
+26. How to create file specific IJ modules while we are facade mode for Gradle?
 
 # Detail questions
  -- Questions about some specific details, like compiler options or single module parameters.

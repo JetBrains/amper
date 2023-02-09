@@ -1,27 +1,15 @@
 #@ gradle
 [module]
-id = "my-module"
-group-id = "org.example"
+group = "org.example"
 version = "1.2.3"
 
 [kotlin]
-version = "1.2.3"
-compilerOptions = "-Xenable-opt-in -Xother-option"
-
-[target.jvm]
-targetVersion = "11"
-optimized = true
-# We need this?
-baseName = "my-module"
+freeCompilerArgs = [ ]
+apiVersion = "1.6"
+languageVersion = "1.6"
 
 [dependencies]
 "org.jetbrains.kotlinx:kotlinx-coroutines-core" = "1.6.4"
 
 [target.jvm.dependencies]
 "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm" = "1.6.4"
-
-# "org.example:my-dependency-2" = { version = "1.2.3", packageManager = "cocoa" }
-# "org.example:my-dependency-3" = { version = "1.2.3", packages = "cocoa" }
-
-#[target.ios.dependencies."packageManager(cocoa)"]
-#"org.example:my-dependency-4" = "1.2.3"

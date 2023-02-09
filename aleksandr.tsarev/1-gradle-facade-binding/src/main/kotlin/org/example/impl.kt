@@ -9,10 +9,10 @@ import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompileCommon
 import java.nio.file.Path
 import kotlin.io.path.isSameFileAs
 
@@ -130,10 +130,45 @@ class BindingProjectPlugin : Plugin<Project> {
         val pathToModuleId = project.gradle.pathToModuleId ?: return
         val moduleIdToPath = project.gradle.moduleIdToPath ?: return
         val linkedModuleId = pathToModuleId[project.path] ?: return
+
+        applyModule(model, linkedModuleId, project)
+        applyKotlin(model, linkedModuleId, project)
+
         if (model.isOnlyKotlinModule(linkedModuleId))
             OnlyKotlinModulePlugin(model, linkedModuleId, moduleIdToPath, project).apply()
         else
             KMPPModulePlugin(model, linkedModuleId, moduleIdToPath, project).apply()
+    }
+
+    private fun applyModule(model: Model, moduleId: String, project: Project) {
+        val moduleInfo = model.getModuleInfo(moduleId)
+        val specifiedGroup = moduleInfo["group"]?.first()
+        specifiedGroup?.let { project.group = it }
+        val specifiedVersion = moduleInfo["version"]?.first()
+        specifiedVersion?.let { project.version = it }
+
+        if (specifiedGroup != null && specifiedVersion != null) {
+            // Do publish configuration here.
+        }
+    }
+
+    private fun applyKotlin(model: Model, moduleId: String, project: Project) {
+        val kotlinInfo = model.getKotlinInfo(moduleId)
+        project.tasks.withType(KotlinCompile::class.java).forEach { task ->
+            task.kotlinOptions {
+                kotlinInfo["freeCompilerArgs"]?.let { freeCompilerArgs += it }
+                kotlinInfo["apiVersion"]?.first()?.let { apiVersion = it }
+                kotlinInfo["languageVersion"]?.first()?.let { languageVersion = it }
+            }
+        }
+
+        project.tasks.withType(KotlinCompileCommon::class.java).forEach { task ->
+            task.kotlinOptions {
+                kotlinInfo["freeCompilerArgs"]?.let { freeCompilerArgs += it }
+                kotlinInfo["apiVersion"]?.first()?.let { apiVersion = it }
+                kotlinInfo["languageVersion"]?.first()?.let { languageVersion = it }
+            }
+        }
     }
 }
 
