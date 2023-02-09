@@ -1,0 +1,27 @@
+# Implicit or explicit?
+inherit: ../module.yaml
+
+platforms:
+  - type: ios
+    iosVersion: 42
+    entryPoint: "somePoint"
+    compiler-options: "--optimize-smth"
+
+# How would it be merged with inherited one?
+# And, I cant place it in top module, since I dont need it in shared-ui-elements.
+kotlin:
+  compiler-settings:
+    plugins:
+      - org.jetbrains:kotlinx-serialization-plugin:{.kotlinx-serialization.version}
+
+dependencies:
+  - ios:
+      - org.jetbrains:kotlinx-serialization:{.kotlinx-serialization.version}
+      - type: cocoa
+        notation: some:cocoa
+      - some-compose:theme:1.0.0
+      - model:local # Here is dependency on local modules. What group to specify? I only see directory name from file tree.
+      - shared-ui-elements:local # What version to specify? I don't remember it, for example.
+      - type: local # Can I write like this?
+        notation: shared-ui-elements:local
+

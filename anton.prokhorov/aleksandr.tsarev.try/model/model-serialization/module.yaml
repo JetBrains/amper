@@ -1,0 +1,8 @@
+# What should I specify here?
+# platforms:
+#   - ???
+
+# Somehow I need to apply protobuf plugin.
+
+dependencies:
+  - io.swagger:swagger-annotations:1.6.9

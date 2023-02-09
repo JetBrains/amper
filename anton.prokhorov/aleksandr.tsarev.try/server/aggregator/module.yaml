@@ -1,0 +1,16 @@
+inherit: ../module.yaml
+
+platform:
+  - type: native
+    linker-options: --some-option
+
+# Seems inconsistent with
+# dependencies:
+#  - common:
+#    - core:local
+
+dependencies:
+  - core:local
+  - model-serialization:local
+  - type: native-local
+    notation: some-def-file.def
