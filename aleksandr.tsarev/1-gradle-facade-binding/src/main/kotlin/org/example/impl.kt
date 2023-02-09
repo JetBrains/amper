@@ -148,9 +148,10 @@ class KMPPModulePlugin(
         project.repositories.google()
         project.repositories.jcenter()
 
+        val mainSourceSet = getOrCreateSourceSet("main")
+
         forSourceSet("commonMain") {
-            kotlin.srcDirs.clear()
-            kotlin.setSrcDirs(mutableListOf("src/main/kotlin"))
+            dependsOn(mainSourceSet)
         }
 
         // Initialize targets and add dependencies.
@@ -183,6 +184,9 @@ class KMPPModulePlugin(
     }
 
     private fun forSourceSet(sourceSetName: String, action: KotlinSourceSet.() -> Unit) =
-        kotlinMPE.sourceSets.getByName(sourceSetName).action()
+        getOrCreateSourceSet(sourceSetName).action()
+
+    private fun getOrCreateSourceSet(sourceSetName: String) =
+        kotlinMPE.sourceSets.maybeCreate(sourceSetName)
 
 }
