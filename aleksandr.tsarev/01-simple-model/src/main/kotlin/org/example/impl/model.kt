@@ -45,12 +45,15 @@ class SimpleModelInit : ModelInit {
         @Suppress("UNCHECKED_CAST")
         val dependenciesRaw = decoded["dependencies"] as? Map<String, *>
 
-        fun Map<String, *>.getPlaintDependencies() = entries
+        fun Map<String, *>.getPlainDependencies() = entries
             .filter { it.value is String }
-            .map { "${it.key}:${it.value}" }
+            .map {
+                if (it.value == "local") "[local]${it.key}"
+                else "${it.key}:${it.value}"
+            }
 
         val defaultDependencies = dependenciesRaw
-            ?.getPlaintDependencies()
+            ?.getPlainDependencies()
             ?: emptyList()
 
         // Targets.
@@ -63,7 +66,7 @@ class SimpleModelInit : ModelInit {
             ?.filter { it.value is Map<*, *> }
             ?.map { it.key to it.value as Map<String, *> }
             ?.filter { it.second["dependencies"] is Map<*, *> }
-            ?.associate { it.first to (it.second["dependencies"] as Map<String, *>).getPlaintDependencies() }
+            ?.associate { it.first to (it.second["dependencies"] as Map<String, *>).getPlainDependencies() }
             ?: emptyMap()
 
         val dependencies = mutableMapOf<String, List<String>>().apply {
