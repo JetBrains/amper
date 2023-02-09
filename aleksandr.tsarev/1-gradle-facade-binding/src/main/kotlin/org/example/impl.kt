@@ -230,7 +230,7 @@ class KMPPModulePlugin(
                 "jvm" -> configureAndAddDependenciesForTarget(target, "jvmMain") { jvm() }
                 "ios" -> configureAndAddDependenciesForTarget(target, "iosMain") { ios() }
                 "js" -> configureAndAddDependenciesForTarget(target, "jsMain") { js() }
-                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "commonMain") { }
+                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "main") { }
             }
         }
     }
