@@ -21,18 +21,6 @@ interface ModulePlugin {
 
     fun KotlinProjectExtension.getOrCreateSourceSet(sourceSetName: String): KotlinSourceSet =
         sourceSets.maybeCreate(sourceSetName)
-
-    // Various shortcuts for source sets.
-
-    /**
-     * Get or create main source set.
-     */
-    val KotlinProjectExtension.mainSourceSet get() = getOrCreateSourceSet("main")
-
-    /**
-     * Get or create commonMain source set.
-     */
-    val KotlinProjectExtension.commonMainSourceSet get() = getOrCreateSourceSet("commonMain")
 }
 
 

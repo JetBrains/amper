@@ -11,5 +11,9 @@ languageVersion = "1.6"
 [dependencies]
 "org.jetbrains.kotlinx:kotlinx-coroutines-core" = "1.6.4"
 
-[target.jvm.dependencies]
-"org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm" = "1.6.4"
+[target.android]
+compileSdkVersion = "33"
+minSdkVersion = "24"
+targetSdkVersion = "33"
+sourceCompatibility = "VERSION_1_8"
+targetCompatibility = "VERSION_1_8"

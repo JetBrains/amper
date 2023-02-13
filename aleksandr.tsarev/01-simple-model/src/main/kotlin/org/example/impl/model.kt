@@ -63,8 +63,8 @@ class SimpleModel(
         modulesMap[moduleId]?.targets ?: error("No module $moduleId")
 
     override fun getDeclaredDependencies(moduleId: String, targetId: String) =
-        modulesMap[moduleId]?.dependencies?.get(targetId)
-            ?: error("No module $moduleId or target $targetId")
+        (modulesMap[moduleId] ?: error("No module $moduleId")).dependencies.get(targetId)
+            ?: emptyList()
 
     override fun getModuleInfo(moduleId: String) =
         modulesMap[moduleId]?.moduleInfo

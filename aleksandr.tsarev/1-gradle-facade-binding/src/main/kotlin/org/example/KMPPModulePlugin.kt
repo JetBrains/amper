@@ -17,10 +17,6 @@ class KMPPModulePlugin(
     private val kotlinMPE: KotlinMultiplatformExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
-        kotlinMPE.commonMainSourceSet.apply {
-            dependsOn(kotlinMPE.mainSourceSet)
-        }
-
         // Initialize targets and add dependencies.
         targets.forEach { target ->
             when (target) {
@@ -28,7 +24,7 @@ class KMPPModulePlugin(
                 "jvm" -> configureAndAddDependenciesForTarget(target, "jvmMain") { jvm { doConfigure() } }
                 "ios" -> configureAndAddDependenciesForTarget(target, "iosMain") { ios { doConfigure() } }
                 "js" -> configureAndAddDependenciesForTarget(target, "jsMain") { js { doConfigure() } }
-                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "main") { }
+                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "commonMain") { }
             }
         }
     }

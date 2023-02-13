@@ -96,9 +96,9 @@ class BindingSettingsPlugin : Plugin<Settings> {
             // Apply Android plugin.
             if (model.hasAndroid(connectedModuleId)) {
                 if (model.isApplication(connectedModuleId)) {
-                    it.plugins.apply(AppPlugin::class.java)
+                    it.plugins.apply("com.android.application")
                 } else {
-                    it.plugins.apply(LibraryPlugin::class.java)
+                    it.plugins.apply("com.android.library")
                 }
             }
 

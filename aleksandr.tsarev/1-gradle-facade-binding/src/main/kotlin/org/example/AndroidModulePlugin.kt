@@ -17,7 +17,9 @@ class AndroidModulePlugin(
 
     fun apply() {
         androidPE.apply {
-            allCollapsed["target.android.compileSkdVersion"]?.first()?.let { compileSdkVersion(it) }
+            sourceSets.maybeCreate("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
+
+            allCollapsed["target.android.compileSdkVersion"]?.first()?.let { compileSdkVersion(it.toInt()) }
             defaultConfig {
                 allCollapsed["target.android.minSdkVersion"]?.first()?.let { minSdkVersion(it) }
                 allCollapsed["target.android.targetSdkVersion"]?.first()?.let { targetSdkVersion(it) }

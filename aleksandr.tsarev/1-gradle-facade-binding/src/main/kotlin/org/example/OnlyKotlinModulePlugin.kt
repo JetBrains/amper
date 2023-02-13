@@ -15,7 +15,7 @@ class OnlyKotlinModulePlugin(
 
     fun apply() {
         // Add dependencies for main source set.
-        kotlinPE.mainSourceSet.dependencies {
+        kotlinPE.getOrCreateSourceSet("main").dependencies {
             model.getDeclaredDependencies(moduleId, Model.defaultTarget).forEach { dependency ->
                 addDependency(moduleIdToPath, dependency)
             }
