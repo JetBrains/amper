@@ -1,0 +1,32 @@
+[kotlin.compilerPlugins]
+"org.jetbrains.compose.compiler:compiler" = "42"
+
+[target.android]
+minSdkVersion = 42
+
+# Need to specify?
+[target.ios]
+
+[dependencies]
+# inter project
+model = "local"
+# external
+"org.jetbrains.compose.ui:ui" = "42"
+"org.jetbrains.compose.foundation:foundation" = "42"
+"org.jetbrains.compose.material:material" = "42"
+"org.jetbrains.compose.runtime:runtime" = "42"
+
+[target.android.dependencies]
+"com.github.ajalt.colormath.extensions:colormath-ext-jetpack-compose" = "42"
+
+[target.android_ios.dependencies]
+"some.shared.dependency" = "42"
+
+[test.dependencies]
+"org.junit:junit" = "42"
+
+[target.android.test.dependencies]
+"org.junit:junit" = "42"
+
+[target.android_ios.test.dependencies]
+"org.junit:junit" = "42"

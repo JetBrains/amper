@@ -25,6 +25,8 @@ for ios and android simultaneously, for example).
 3. Do we need a way to declare specific sources for target with specific parameters? 
    Like, tests or integration tests. Should this additional sources have same amount of parametrization?
    This question is a core question, because its answer will clarify if "sources" actually exist.
+4. How can we implement, for example, fat jar production?
+5. Should we provide some API for external tools?
 
 # Features questions
  -- Questions of some abstract features that should or should not be available, 
@@ -57,6 +59,11 @@ for ios and android simultaneously, for example).
 24. Do we need some scopes for dependencies? If yes, how should they look?
 25. Should we support environment variables? Interop with common parameters?
 26. How to create file specific IJ modules while we are facade mode for Gradle?
+27. How to reference some variables? How to define them? (For example for repo secrets)
+28. How to inherit one config from another? Do we need inheritance?
+29. Should we discover test modules (or tests sources) by convention?
+30. Should we support general build cycle triggers? (beforeBuild, afterBuild, beforeAllBuild, afterAllBuild)?
+31. Should we have cpecial conventions for single-target modules?
 
 # Detail questions
  -- Questions about some specific details, like compiler options or single module parameters.
