@@ -17,11 +17,11 @@ import org.example.api.CollapsedMap
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun Map<String, *>.collapse(separator: String = ".", prefix: String = ""): CollapsedMap {
+fun Map<String, *>.collapse(separator: String = "."): CollapsedMap {
     val maps: List<Map<String, List<String>>> = entries.map {
         when (val entryValue = it.value) {
             is Map<*, *> -> (entryValue as Map<String, Any>)
-                .collapse(separator = separator, prefix = it.key)
+                .collapse(separator = separator)
                 .map { mapIt -> "${it.key}$separator${mapIt.key}" to mapIt.value }
                 .toMap()
             is List<*> -> mapOf(it.key to entryValue.map { "$it" })

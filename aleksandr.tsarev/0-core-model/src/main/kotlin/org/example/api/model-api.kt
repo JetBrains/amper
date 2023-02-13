@@ -53,4 +53,6 @@ interface Model {
 
     fun getKotlinInfo(moduleId: String): CollapsedMap
 
+    fun getAllCollapsed(moduleId: String): CollapsedMap
+
 }

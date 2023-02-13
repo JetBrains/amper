@@ -7,7 +7,8 @@ import org.example.api.Model
 import org.example.api.ModelInit
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.streams.toList
 
 data class SimpleModule(
@@ -17,6 +18,7 @@ data class SimpleModule(
     val dependencies: Map<String, List<String>>,
     val moduleInfo: CollapsedMap,
     val kotlinInfo: CollapsedMap,
+    val allCollapsed: CollapsedMap,
 )
 
 class SimpleModelInit : ModelInit {
@@ -33,8 +35,9 @@ class SimpleModelInit : ModelInit {
         val targets = parseTargets(decoded)
         val module = parseCollapsed(decoded, "module")
         val kotlin = parseCollapsed(decoded, "kotlin")
+        val allCollapsed = decoded.collapse()
 
-        return SimpleModule(moduleId, this, targets, dependencies, module, kotlin)
+        return SimpleModule(moduleId, this, targets, dependencies, module, kotlin, allCollapsed)
     }
 
     override fun getModel(root: Path): Model {
@@ -71,4 +74,7 @@ class SimpleModel(
         modulesMap[moduleId]?.kotlinInfo
             ?: error("No module $moduleId")
 
+    override fun getAllCollapsed(moduleId: String) =
+        modulesMap[moduleId]?.allCollapsed
+            ?: error("No module $moduleId")
 }
