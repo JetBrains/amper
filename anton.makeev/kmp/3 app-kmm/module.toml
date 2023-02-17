@@ -1,11 +1,10 @@
-# By default we create a binary
-# type = "binary"
-
 [target]
 platform = "ios"
+deploymentTarget = "..." # ios-specific settings
 
 [target]
 platform = "android"
+manifestFile = "..."
 
 
 [dependencies] #common dependencies

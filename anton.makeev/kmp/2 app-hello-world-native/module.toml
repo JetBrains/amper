@@ -1,15 +1,8 @@
-# When the module has only one platform the default module layout is
-#  - src/
-#  - module.toml
-
-# By default we create a binary
-# type = "binary"
-
 [target]
-platform = "macos"
+platform = "current" # todo see QUESTIONS.md#Defaults
+# todo see QUESTIONS.md#Build pipeline
 
 [dependencies]
-
 # Depend on multi-platform library. Tool will figure out platform-specific version
 "kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
 

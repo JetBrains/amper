@@ -19,6 +19,36 @@
 
 - What makes defining a new module a simple and lightweight process?
     - The need to define version, coordinates, and anything else just increases heaviness
+    - Maybe by default empty module.toml should define a single library target?
+
+# Schema
+
+- We might want to have model versioning in order to offer some automated assistance,
+  like compatibility and schema checks, migration etc.
+  It can be either schema version or a required build tool version, or both.
+
+# Defaults
+
+- Default 'JVM binary' target (when no other is defined) can be confusing.
+  It also means that to create a library module one need to explicitly declare a library target
+
+- Different defaults for binary targets (with is jvm) and library targets (with is multi-platform) could be confusing.
+  Should we by default always target JVM? Or maybe it's not a problem at all?
+
+- Should the native targets have explicitly specified platform, or can we have 'current platform' as default? 
+
+# Dependencies
+
+- Is it OK for the IDE support that the presence of koltin-stdlib can only be determined on the runtime?
+    - How can it be determined it on read-time?
+    - Or maybe it ok, since we anyway need to resolve and download dependencies
+    - And once the dependency in the lock file, it can be done in read-time
+
+# Toolchain
+
+- will the required toolchain (like JDK) be always downloaded or also can be found in local installations?
+  Maybe a user can override the used tools (e.g. path to JDK) in their .workspace.user.toml-like file?
+
 
 # Locking
 
@@ -32,8 +62,12 @@
 - How to configure integration tests
 
 # Build pipeline
-
+                                                   
+- How do we do cross-compilation for native binary targets, multiplatform libraries?
 - How to manage resources (E.g. android)
+
+# IDE support
+- Would it be possible/scalable to determine the list of files that belong to a target by their @tags?
 
 # Aleksandr.Tsarev questions
 
