@@ -1,0 +1,26 @@
+
+
+multiplatform-parts:
+    - name: common
+      parts:
+        - name: jvm
+        - name: js-native
+          parts:
+            - name: js
+            - name: ios
+              parts:
+                - name: ios-x64
+                - name: ios-arm64
+
+multiplatform-parts:
+    - name: common
+    - name: jvm
+      extends: common
+      
+        - name: js-native
+          parts:
+              - name: js
+            - name: ios
+              parts:
+                  - name: ios-x64
+                - name: ios-arm64

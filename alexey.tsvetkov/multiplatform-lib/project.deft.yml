@@ -1,0 +1,19 @@
+kotlin-multiplatform:
+    language-version: 1.7
+    repositories:
+      - url: https://maven.pkg.jetbrains.space/public/p/space/maven
+    maven-publishing:
+        group-id: com.example
+        version: ${{ arg.version }}
+        repositories:
+            - name: maven-central
+              url: https://oss.sonatype.org
+              credentials:
+                  user: ${{ env.MAVEN_CENTRAL_USER }}
+                  password: ${{ env.MAVEN_CENTRAL_PASSWORD }}
+
+jvm:
+    toolchains:
+        - name: default
+          vendor: amazon
+          version: 17
