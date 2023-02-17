@@ -27,7 +27,7 @@
 
 - Should product type (library vs binary) be a property of a module or of a specific target?
   If it's a property of a module, then how to define test additional executable targets?
--
+
 - Can a single module several targets?
   Can we have several libraries, or only one? (e.g. in case of libraries for several platform)
   Can we have several binaries? (e.g. app+testing)
@@ -48,6 +48,10 @@
 
 - Can a library also have different packaging type (klib, jar) and dependency mechanism could in future be extended
   to support such dependencies directly?
+
+- Do we need additional library packaging types (such as WAR?)
+- Consider replacing 'target type' (library/binary) with 'packaging type' (war, jar, framework, app)
+  It could allow extensible list of dependency types (e.g. module could depend on jar, war, framework).
 
 # Schema/Language
 
