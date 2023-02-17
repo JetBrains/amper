@@ -4,21 +4,30 @@
 [kotlin]
 # version=1.7
 
-[target]
+# TODO are platform-dependent settings module-specific or target-specific?
+[[target]]
 platform = "ios"
 sdk = "15" # use most recent is not specified
 architecture = ["arm64", "armv7"] # use default, if not specified
 
-[target]
+[target.koltin] # ios-specific koltin options
+optimize=true
+[target.mach-o-settings] # ios-specific linker options
+options="..."
+
+[[target]]
 platform = "android"
 sdkVersion = 17
+[target.koltin] # android-specific koltin options
+optimize=false
 
 
 [dependencies] #common dependencies
 
 [dependencies.ios] # ... ios-specific deps
 
-[dependencies.ios+armv7] # ... ios-specific deps for armv7 arch only
+# what's the difference between tag here and '[target] platform = "ios"'
+[dependencies."platform=ios+arch=armv7"] # ... ios-specific deps for armv7 arch only
 
 [dependencies.android]  # android-specific library
 

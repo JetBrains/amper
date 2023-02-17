@@ -6,9 +6,12 @@ name="my-lib"  # artifactId="my-lib"
 group="org.my" # groupId="org.my"
 version="0.1"  # version="1.0"
 
+# todo what about source-dependency coordinates? (could be commit hash?)
+
 # By default we produce an mpp library, so we need to explicitly declare it
 # [target]
 # platform="*"
 
 [dependencies] #common dependencies
 "kotlin:kotlin-logging"="1.2" # multi-platform library
+# todo dependency spec could also include hash sum to avoid main-in-the-middle attach

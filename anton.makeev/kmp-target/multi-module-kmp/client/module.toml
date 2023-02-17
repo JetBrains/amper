@@ -11,6 +11,6 @@ platform = "android"
 
 # depend on the local library by id, not by path
 # simplifies mental model and tooling (no need to update paths then moving/refactoring
-"org.my:my-lib"="current" # not sure how to refer to the local dependency's version,
+"org.my:my-lib"="current" # todo not sure how to refer to the local dependency's version,
                           # need to consider, how it would work in CI scenario, and remote binary cache
 

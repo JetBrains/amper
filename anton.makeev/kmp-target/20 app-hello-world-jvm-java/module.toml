@@ -1,8 +1,11 @@
 # By default we create a binary
 # type = "binary"
 
+# Since there is no kotlin files, only Jaa toolchain will be enabled
+
 #[java] default settings for the java tool
 #jdk=17   # if not specified, the build tool will take the latest and put it  'lock' file.
+# todo will JDk be always downloaded or also resolved locally?
 #sourceVersion=13
 #targetVersion=17
 
