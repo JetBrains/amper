@@ -1,11 +1,7 @@
-# By default we create a binary
-# type = "binary"
-
-[target]
+[[target]]
 platform = "jvm"
+# type = "binary" # By default we create a binary
 
 [dependencies]
 "ktor:ktor-server"="1.2"
-
-"my.org:my-lib"="current" # or we can have a shortcurt for local libraries "my.org:my-lib"=snapshot,
-                      #  but need to consider, how it would work in CI scenario, and remote binary cache
+"org.my:my-lib"="current" # todo see QUESTIONS.md#Coordinates -- regarding referencing local dependenceis

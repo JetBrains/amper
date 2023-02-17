@@ -23,6 +23,11 @@ version = 1.7
 [java]
 version = 17
 
+[kotlin.android] #koltin toolchain settings for all Android targets 
+version = 1.8
+
+
+
 # list of targets
 [[target]]
 platform = "ios" # can be ios, watchos, android, jvm, linux, wasm, etc.

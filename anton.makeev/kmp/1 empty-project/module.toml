@@ -2,4 +2,4 @@
 # Also an empty project means a Kotlin/JVM module with a single binary target
 # So just by adding any single file user can create a hello world app.
 
-# todo see QUESTIONS.md#Defaults
+# todo see QUESTIONS.md#Defaults -- about implicit targets

@@ -1,33 +1,16 @@
-# When the module has only one platform the default layout is
-#  - src/
-#  - module.toml
-
-type = "library" # need to speficy that it's a library, not an binary
-
-# todo what is JVm vs common library?
-# todo JVM and crossplatform libs have different distribution format
-
-# todo do we really need coordinates as opposite to lical paths
 # in order for lib to be published or used, it must have coordinates.
-# todo should we follow Maven coordinates notation?
-name="my-lib"  # artifactId="my-lib"
-group="org.my" # groupId="org.my"
-version="0.1"  # version="1.0"
+# todo see QUESTIONS.md#Coordinates -- regarding local dependenceis
+id="org.my.my-lib:0.1"
+version="0.1"
+# or
+# groupId="org.my"
+# artifactId="my-lib"
+# todo see QUESTIONS.md#Coordinates -- regarding schema
 
-
-# By default we produce an mpp library, so we need to explicitly declare it
-## [target]
-# platform="*" # todo that '*' is weird. How to tell that's it's a kmp library?
-# todo there is no such thing in KMP as cross-platform/common-only library
-
-# todo can we have several targets in one module for libraries? Can we have library and app together?
-
+[[target]]
+type = "library"
+# platform="multiplatform" # By default we produce an mpp library, so we need to explicitly declare it
 
 [dependencies]
 # Depend on multi-platform library. Tool will figure out platform-specific version
 "kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
-
-[dependencies.ios]
-"NSLogging"= "cocoapods" { linker="..."} # platform-dependent settings to build/link with the native dependency
-# todo how is platform-specific dependencies are supposefd to be distributed?
-

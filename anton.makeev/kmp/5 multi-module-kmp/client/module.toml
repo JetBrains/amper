@@ -1,16 +1,11 @@
-# By default we create a binary
-# type = "binary"
-
 [target]
 platform = "ios"
+# type = "binary" # By default we create a binary
 
 [target]
 platform = "android"
+# type = "binary" # By default we create a binary
 
 [dependencies] #common dependencies
-
-# depend on the local library by id, not by path
-# simplifies mental model and tooling (no need to update paths then moving/refactoring
-"org.my:my-lib"="current" # todo not sure how to refer to the local dependency's version,
-                          # need to consider, how it would work in CI scenario, and remote binary cache
+"org.my:my-lib"="current" # todo see QUESTIONS.md#Coordinates -- regarding referencing local dependenceis
 

@@ -1,13 +1,15 @@
+
+[[target]]
+platform = "ios"
+# test = ... - test target is automatically created for each platform. 
 # By default we create a binary
 # type = "binary"
 
-[target]
-platform = "ios"
-# test = ... - test target is automatically created for each platform. 
-
-[target]
+[[target]]
 platform = "jvm"
 # test = ... - test target is automatically created for each platform
+# By default we create a binary
+# type = "binary"
 
 [dependencies]
 

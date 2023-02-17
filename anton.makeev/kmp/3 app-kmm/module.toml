@@ -1,20 +1,38 @@
-[target]
+[kotlin]
+# version=1.7
+
+
+[[target]]
 platform = "ios"
+sdk = "15" # use most recent is not specified
+architecture = ["arm64", "armv7"] # use default, if not specified
 deploymentTarget = "..." # ios-specific settings
 
-[target]
+[[target.koltin]] # ios-specific koltin options # todo see QUESTIONS.md#Misc -- about target and module tool settings
+optimize = true
+[[target.linker]] # ios-specific linker options
+options = "..."
+
+[[target]]
 platform = "android"
 manifestFile = "..."
+[[target.koltin]] # Android-specific koltin options
+optimize = true
 
+
+# todo see QUESTIONS.md#Misc -- regarding tags vs platform='ios' in [[target]]
 
 [dependencies] #common dependencies
-"kotlin:kotlin-logging"="1.2" # multi-platform library
+"kotlin:kotlin-logging" = "1.2" # multi-platform library
 
 [dependencies.ios]
-"kotlin:kotlin-ios-support"="2.3" # ios-specific library
+"kotlin:kotlin-ios-support" = "2.3" # ios-specific library
+"SPUtility" = { type = "cocoapods", name="SPUtility.framework" }
 
 [dependencies.android]
-"kotlin:kotlin-android-support"="2.3" # android-specific library
+"kotlin:kotlin-android-support" = "2.3" # android-specific library
 
-[dependencies.ios+android] # don't like qioting hete
-"ktor:ktor-core"="2.3"
+[dependencies."ios+android"] # don't like qioting hete
+"ktor:ktor-core" = "2.3"
+
+[dependencies."platform=ios+arch=armv7"] # ... ios-specific deps for armv7 arch only

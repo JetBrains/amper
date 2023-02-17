@@ -1,15 +1,15 @@
 # Since there is no kotlin files, only Java toolchain will be enabled
 
 #[java] default settings for the java tool
-# todo see QUESTIONS.md#Toolchain
+# todo see QUESTIONS.md#Toolchain -- regarding discovering java versions
 #jdk=17   # if not specified, the build tool will take the latest and put it  'lock' file.
 #sourceVersion=13
 #targetVersion=17
 
-# By default we create a single JVM target # todo see QUESTIONS.md#Defaults
-# [target]
+# By default we create a single JVM target # todo see QUESTIONS.md#Defaults -- regarding default target platform
+# [[target]]
 # platform = "jvm"
-# type = "binary" # By default we create a binary target # todo see QUESTIONS.md#Defaults
+# type = "binary" # By default we create a binary target # todo see QUESTIONS.md#Defaults -- regarding defauld target type
 
 [dependencies]
 "log4j:log4j-common"="1.2" # by default we use koltin/java distribution (Maven central)

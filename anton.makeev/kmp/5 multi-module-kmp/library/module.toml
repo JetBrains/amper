@@ -1,17 +1,15 @@
-type = "library" # need to speficy that it's a library, not an binary
-
 # in order for lib to be published or used, it must have coordinates.
-# todo should we follow Maven coordinates notation?
-name="my-lib"  # artifactId="my-lib"
-group="org.my" # groupId="org.my"
-version="0.1"  # version="1.0"
+# todo see QUESTIONS.md#Coordinates -- regarding local dependenceis
+id="org.my.my-lib:0.1"
+version="0.1"
+# or
+# groupId="org.my"
+# artifactId="my-lib"
+# todo see QUESTIONS.md#Coordinates -- regarding schema
 
-# todo what about source-dependency coordinates? (could be commit hash?)
-
-# By default we produce an mpp library, so we need to explicitly declare it
-# [target]
-# platform="*"
+[[target]]
+type="library"
+# platform="multiplatform" # By default we produce an mpp library, so we need to explicitly declare it
 
 [dependencies] #common dependencies
 "kotlin:kotlin-logging"="1.2" # multi-platform library
-# todo dependency spec could also include hash sum to avoid main-in-the-middle attach

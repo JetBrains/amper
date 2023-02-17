@@ -1,6 +1,6 @@
-[target]
-platform = "current" # todo see QUESTIONS.md#Defaults
-# todo see QUESTIONS.md#Build pipeline
+[[target]]
+platform = "current" # or "macos"  # todo see QUESTIONS.md#Defaults -- about specifying the current platform
+# todo see QUESTIONS.md#Build pipeline -- regarding crosscompilation
 
 [dependencies]
 # Depend on multi-platform library. Tool will figure out platform-specific version
