@@ -1,4 +1,9 @@
 # Misc
+- What the scope of the tool? 
+  - building/assembling?
+  - packaging (e.g. create docker image)?
+  - deployment(to ios device or web server)?
+  - distribution? (what does it mean for libs and binaries?)
 
 - What makes defining a new module a simple and lightweight process?
   - The need to define version, coordinates, and anything else just increases heaviness
@@ -12,6 +17,11 @@
   Is it 'target define the set of constraints, like platform or arch' which are applied to files and settings?
 
 - Should build type(Debug/Release) or flavor also be tags along with platform (os and arch)?
+  Are Android's flavors and build types the same thing? (https://developer.android.com/studio/build/build-variants)
+
+- What aspects of the model could affect feedback loop? (e.g. files layout, tools discoverability etc.)
+
+- Multi-stack: how to connect different build tools in one project? (for running, dependencies, tooling etc)
 
 # Targets
 
@@ -19,7 +29,7 @@
   If it's a property of a module, then how to define test additional executable targets?
 -
 - Can a single module several targets?
-  Can we have several libraries, or only one? (e.g in case of libraries for several platform)
+  Can we have several libraries, or only one? (e.g. in case of libraries for several platform)
   Can we have several binaries? (e.g. app+testing)
   Can we have library and binary together? (e.g. lib+testing)
 
@@ -36,14 +46,24 @@
   - Problematic case: a JVM-only  *.jar library )
     - idea (from Max): such reusable library can be 'instantiated' into jar when we build the main JVM module
 
-- Can a library also have different packaging type (KLIB, jar) and dependency mechanism could in future be extended
+- Can a library also have different packaging type (klib, jar) and dependency mechanism could in future be extended
   to support such dependencies directly?
 
-# Schema
+# Schema/Language
 
 - We might want to have model versioning in order to offer some automated assistance,
   like compatibility and schema checks, migration etc.
   It can be either schema version or a required build tool version, or both.
+
+- How expressive should language be?
+  Language could affect the number of concepts (e.g. need for templates)
+- How the model could look like in Deft language?
+- Consider TeamCity templates inheritance
+
+# Files layout
+- Would it be possible/fast for IDE to determine the list of files that belong to a target by their @tags?
+- Do we even need src/ folder?
+- How to better 'tag' files (@ looks somewhat heavy)
 
 # Defaults
 
@@ -55,6 +75,14 @@
 
 - Should the native targets have explicitly specified platform, or can we have 'current platform' as default?
 
+# Workpsace
+- How to define all modules in the workspace? Could the IDE or tool do it automatically?
+- Should we allow extracting parts of module.toml into additional files (e.g. module.dependencies.toml)
+- How Workspace vs project vs user-local settings are configured?
+  - How to configure repository urls, proxies etc. dependency-patches/overrides?
+  - How and which settings are inherited from workspace?
+  - Where is remote cache configured? 
+
 # Dependencies
 
 - Is it OK for the IDE support that the presence of koltin-stdlib can only be determined on the runtime?
@@ -64,6 +92,16 @@
 - Should dependency always explicitly specify the source if it's not default Maven cenral? (to avoid attack)
 - Should dependency spec also include hash sum to avoid main-in-the-middle attack?
   Probably it won't help since there are also transitive deps
+
+- How to specify dependency scope?
+- Do we need version catalogs?
+- How to add kotlin serialization (K compiler plugin , plugin, compiler settings, dependencies). Could it be via templating?
+- Can we describe SDK/JDK/Runtime as dependency, instead of a separate setting?
+- How to add dependency on IntelliJ module?
+- How IntelliJ/Fleet plugins are described? (How to add dependency on SDK?, how to run?)
+- Do we need to integrate with other tools (Gradle/Maven), e.g as dependency consumer/provider?
+- Shall we reconsider source-dependencies?
+
 
 # Coordinates
 
@@ -75,6 +113,7 @@
   - Can be useful for partial-checkout/opening, but versioning is unclear.
   - Coordinates also simplifies mental model and tooling (no need to update paths then moving/refactoring)
   - need to consider CI, remote build/cache etc.
+  - Cons: need to invent a new id every time - make creating a module look heavier
 
 
 - What about source-dependency coordinates? (could be commit hash?)
@@ -97,15 +136,17 @@
 
 # Testing
 
-- How to configure integration tests
+- How to configure integration tests, where sources will reside?
 
 # Build pipeline
                                                    
 - How do we do cross-compilation for native binary targets, multiplatform libraries?
 - How to manage resources (E.g. android)
 
-# IDE support
-- Would it be possible/scalable to determine the list of files that belong to a target by their @tags?
+- How to describe toolchain for cross-compilation?
+- Should build isolation be supported? Is it about model or a separate aspect?
+- How to configure remote/build cache? Is it about model or a separate aspect?
+
 
 # Aleksandr.Tsarev questions
 

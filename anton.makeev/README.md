@@ -43,10 +43,12 @@ version = 1.8
 type = "binary" # or "library"
 
 [dependencies] #common dependencies
+"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
 
 [dependencies.android] # android-specific (if there is such target) 
 
 [dependencies."ios+armv7"] # only for iOS and armv7 (if there is such target) 
+"SPUtility" = { type = "cocoapods", name="SPUtility.framework" } # Cocoapods dependency
 
 ```
 
