@@ -2,7 +2,7 @@ default-architectures:
   - x64
   - arm64
 
-platforms:
+build-for:
   - type: native
     platforms:
       - type: linux
@@ -13,9 +13,9 @@ platforms:
             compiler-settings:
               target: i686-linux-gnu
       - type: macos
-        platforms: ${.default-architectures}
+        platforms: $default-architectures
       - type: windows
-        platforms: ${.default-architectures}
+        platforms: $default-architectures
     compiler-settings:
       runtime-logs:
         - type: gc

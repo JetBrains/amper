@@ -1,27 +1,10 @@
-platforms:
-  - type: jvm
-  - type: ios
-    compiler-arguments:
-      - "-linker-option -framework -linker-option Metal"
-      - "-linker-option -framework -linker-option CoreText"
-      - "-linker-option -framework -linker-option CoreGraphics"
-      - "-linker-option -framework -linker-option CoreFoundation"
-  - type: android
-    namespace: com.example.myapplication
-    target-sdk: 33
-    min-sdk: 24
-
-kotlin:
-  compiler-settings:
-    plugins:
-      - org.jetbrains.compose.compiler:compiler:1.4.0-rc01
-
-# how to differentiate extracted keys from build-tool used key
-compose-version: 1.3.0-rc05
-
-dependencies:
-  common:
-    - org.jetbrains.compose.ui:ui:${.compose-version}
-    - org.jetbrains.compose.foundation:foundation:${.compose-version}
-    - org.jetbrains.compose.material:material:${.compose-version}
-    - org.jetbrains.compose.runtime:runtime:${.compose-version}
+templates:
+  compose:
+    version: 1.3.0-rc05
+    build-for:
+      - ios
+      - android
+    components:
+      - iu
+      - foundation
+      - material

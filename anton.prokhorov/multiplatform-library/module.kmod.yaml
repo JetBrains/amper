@@ -1,4 +1,4 @@
-platforms:
+build-for:
   - ios
   - android
 

@@ -1,0 +1,16 @@
+val kotlinVersion = "1.8.0"
+
+KotlinModule(
+    platforms=Jvm(
+
+    ),
+    toolchain = Toolchain(
+        kotlinSdkVersion = kotlinVersion
+    ),
+    dependencies = Dependencies(
+        conflictManager = GradleLike,
+        dependencies = listOf(
+           KotlinStdlib(version = kotlinVersion),
+        )
+    )
+)

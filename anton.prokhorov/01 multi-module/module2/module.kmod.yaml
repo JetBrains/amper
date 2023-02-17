@@ -1,3 +1,5 @@
+parent: ../root.kmod.yaml
+
 # Seems irrelevant because in dependent modules you anyway need to make changes in both modules
 # Clone until artifact haven't pushed yet
 # release to artifact storage every possible module is not cheap

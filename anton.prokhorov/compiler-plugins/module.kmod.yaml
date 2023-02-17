@@ -1,8 +1,8 @@
 kotlin:
   compiler-settings:
     plugins:
-      - coordinates: org.jetbrains.kotlin:kotlinx-serialization:${.toolchain.kotlin-sdk}
-      - coordinates: org.jetbrains.kotlin:kotlin-allopen:${.toolchain.kotlin-sdk}
+      - coordinates: org.jetbrains.kotlin:kotlinx-serialization:$toolchain.kotlin-sdk
+      - coordinates: org.jetbrains.kotlin:kotlin-allopen:$toolchain.kotlin-sdk
         annotation: com.my.Annotation
 
 toolchain:

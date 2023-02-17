@@ -1,3 +1,5 @@
+#
+
 # see teamcity parameters (how it looks like (inherited))
 # maybe it makes sense to create types of modules and different defaults depend on type
 # reference to default
@@ -19,26 +21,25 @@ kotlin:
       api-version: 1.8
       language-version: 1.8
 
-platforms:
-  - type: jvm
-    kotlin:
-      # unobvious
-      compiler-settings:
-        jdk-release: 8
-    artifacts:
-      - type: binary
-        name: main
-        main-class: ${.main-class}
-      - type: binary
-        name: test
-        main-class: ${.test-main-class}
-      - type: container
-        main-class: ${.main-class}
-        test-platform-coordinates: junit-jupiter-engine:org.junit.jupiter:5.3.2
-        tag: dsfds
-        vm-settings:
-          xms: 256m
-          xmx: 768m
+build-for:
+  - jvm:
+      kotlin:
+        # unobvious
+        compiler-settings:
+          jdk-release: 8
+      artifacts:
+        - type: binary
+          name: main
+          main-class: $main-class
+          vm-settings:
+            xms: 256m
+            xmx: 768m
+        - type: binary
+          name: test
+          main-class: $test-main-class
+          vm-settings:
+            xms: 256m
+            xmx: 768m
 
 # reference to name maybe
 # what does it mean to switch between toolchains and between kmod versions
@@ -79,16 +80,17 @@ kotlin-dependencies:
     hosted-by: maven-central
 
 
-runtime-classpath: ${native-implementation} # resolve(dependencies.jvm + kotlin-dependencies)
-runtime-test-classpath: ${native-implementation} # resolve(select(dependencies.jvm + kotlin-dependencies)
-compile-classpath: ${native-implementation} # resolve(dependencies.jvm + kotlin-dependencies)
+runtime-classpath: $native-implementation
+runtime-test-classpath: $native-implementation
+compile-classpath: $native-implementation
 
 # potential for mistakes
 main-class: MainKt
+test-main-class: JunitKmodEngine
 
 module:
-   project-layout: thin
-   source:
+  project-layout: thin
+  source:
     - path-pattern: src/commonMain/kotlin/*
       test: false
       type: source
