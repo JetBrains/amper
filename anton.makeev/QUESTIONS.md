@@ -8,7 +8,10 @@
 - What makes defining a new module a simple and lightweight process?
   - The need to define version, coordinates, and anything else just increases heaviness
   - Maybe by default empty module.toml should define a single library target?
--
+
+- Should a scenario 'mostly common code with a few/none platform-specific files' be the main supported path?
+  Intuitively, the more platform-specific code there is, the more likely a user will extract it into separate platform-specific modules. 
+
 - Are platform-dependent settings module-specific or target-specific?
   Why it can be both? Module have default settings for tools for platform e.g. using tags: `[koltin.jvm+ios]` Though,
   it can be confusing see `kotlin`, `[koltin.android]` `[target.koltin]`, `[android.koltin]`
@@ -45,6 +48,9 @@
     multi-step)
   - Problematic case: a JVM-only  *.jar library )
     - idea (from Max): such reusable library can be 'instantiated' into jar when we build the main JVM module
+ 
+- How to define a universal target with have platform-specific for only one platform, and universal implementation for all others?
+  That is, how to declare 'default' actuals?
 
 - Can a library also have different packaging type (klib, jar) and dependency mechanism could in future be extended
   to support such dependencies directly?
