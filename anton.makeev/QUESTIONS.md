@@ -118,6 +118,7 @@
 - Should we follow Maven schema or invent a new?
   E.g. replace group/name with a single FQN e.g. `com.my.group.my-id:version`
 - Are library coordinates part of a target declaration or a module declaration?
+- How do we depend on IJ module/Project library (when integrating into IntelliJ Project)?
 - Do we need coordinates for local dependencies?
   - How do we refer to a local dependency with coordinates? What should be 'version'?
   - Can be useful for partial-checkout/opening, but versioning is unclear.
