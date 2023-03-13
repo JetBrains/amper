@@ -39,7 +39,7 @@ interface Artifact {
  */
 interface PotatoModule {
     val buildFilePath: Path
-    val moduleDir get() = buildFilePath.parent
+    val moduleDir get() = buildFilePath.parent // TODO: not sure it's needed
     val fragments: List<Fragment>
     val artifacts: List<Artifact>
 }

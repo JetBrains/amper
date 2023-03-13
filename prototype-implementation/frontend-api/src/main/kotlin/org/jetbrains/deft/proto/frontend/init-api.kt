@@ -9,9 +9,9 @@ interface ModelInit {
         fun getModel(root: Path): Model {
             val services = ServiceLoader.load(ModelInit::class.java)
             val foundService = services.iterator().run {
-                assert(hasNext()) { "No ModelInit service found" }
+                check(hasNext()) { "No ModelInit service found" }
                 val result = next()
-                assert(!hasNext()) { "Only one Model init service should be present" }
+                check(!hasNext()) { "Only one Model init service should be present" }
                 result
             }
             return foundService.getModel(root)
