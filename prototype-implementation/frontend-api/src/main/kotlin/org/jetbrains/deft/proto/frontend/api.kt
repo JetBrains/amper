@@ -1,7 +1,5 @@
 package org.jetbrains.deft.proto.frontend
 
-import java.nio.file.Path
-
 
 /**
  * Dependency between fragments.
@@ -9,6 +7,7 @@ import java.nio.file.Path
  */
 interface FragmentDependency {
     val target: Fragment
+
     // TODO Think about type: enum?
     val type: String
 }
@@ -19,8 +18,6 @@ interface FragmentDependency {
  */
 interface Fragment {
     val dependsOn: FragmentDependency?
-    // TODO Think about type: enum?
-    val platforms: List<String>
 }
 
 /**
@@ -30,6 +27,7 @@ interface Artifact {
     // TODO Think about type: enum?
     val type: String
     val fragments: List<Fragment>
+
     // TODO Think about type: enum?
     val platforms: List<String>
 }
@@ -38,8 +36,6 @@ interface Artifact {
  * Just an aggregator for fragments and artifacts.
  */
 interface PotatoModule {
-    val buildFilePath: Path
-    val moduleDir get() = buildFilePath.parent // TODO: not sure it's needed
     val fragments: List<Fragment>
     val artifacts: List<Artifact>
 }
