@@ -1,6 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
-
+typealias Notation = String
 /**
  * Dependency between fragments.
  * Can differ by type (refines dependency, test on sources dependency, etc.).
@@ -18,18 +18,15 @@ interface FragmentDependency {
  */
 interface Fragment {
     val dependsOn: FragmentDependency?
+
+    val dependencies: List<Notation>
 }
 
 /**
  * Some resulting artifact that is built from several fragments.
  */
 interface Artifact {
-    // TODO Think about type: enum?
-    val type: String
     val fragments: List<Fragment>
-
-    // TODO Think about type: enum?
-    val platforms: List<String>
 }
 
 /**
@@ -42,5 +39,4 @@ interface PotatoModule {
 
 interface Model {
     val modules: List<PotatoModule>
-    // TODO add get by path
 }
