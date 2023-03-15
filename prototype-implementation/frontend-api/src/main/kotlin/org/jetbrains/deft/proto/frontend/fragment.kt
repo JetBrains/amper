@@ -1,13 +1,13 @@
 package org.jetbrains.deft.proto.frontend
 
 /**
- * Just a renaming for possible future class introduction.
+ * Just a renaming for a possible future class introduction.
  */
 typealias Notation = String
 
 enum class FragmentDependencyType {
     REFINE,
-    FRIEND
+    FRIEND,
 }
 
 /**
@@ -20,13 +20,13 @@ interface FragmentDependency {
 }
 
 /**
- * Some part of module, that supports "single resolve context" invariant for
- * every source and resource file, that is included.
+ * Some part of the module that supports "single resolve context" invariant for
+ * every source and resource file that is included.
  */
 interface Fragment {
-    val dependsOn: FragmentDependency?
+    val fragmentDependencies: List<FragmentDependency>
 
-    val dependencies: List<Notation>
+    val externalDependencies: List<Notation>
 
     val platforms: Set<Platform>
 }
