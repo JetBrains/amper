@@ -2,8 +2,11 @@ package org.jetbrains.deft.proto.frontend
 
 import java.nio.file.Path
 
-sealed class PotatoModuleSource
-data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource()
+sealed interface PotatoModuleSource
+
+object PotatoModuleProgrammaticSource : PotatoModuleSource
+
+data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource
 
 enum class PotatoModuleType {
     LIBRARY,
