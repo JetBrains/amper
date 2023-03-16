@@ -1,0 +1,26 @@
+kModulesVersion = "42"
+
+# Just an idea of using templating and configurations deduplicating.
+[templates]
+defaultAndroid = "buildTemplates/defaultAndroid.toml"
+defaultKotlin = "https://some.repo/file.toml"
+# or
+# and these files must have special template format.
+templates.from = [
+    "buildTemplates/defaultAndroid.toml",
+    "https://some.repo/file.toml"
+]
+
+# Inherited in all modules.
+[repositories]
+mavenCentral = "defalt"
+google = "https://maven.google.com"
+privateCocoa = { type = "cocoa", url = "https://my,private.cocoa.org/", username = "{{USERNAME}}", password = "{{PASSWORD}}" }
+
+# Inherited in all modules.
+[kotlin]
+version = "1.8"
+toolchainVersion = "42"
+targetJvmVersion = "42"
+apiVersion = "1.8"
+languageVersion = "1.8"
