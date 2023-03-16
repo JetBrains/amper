@@ -9,10 +9,10 @@ package org.jetbrains.deft.proto.frontend
 enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     COMMON,
 
-    JS(COMMON),
-    JVM(COMMON),
-    WASM(COMMON),
-    ANDROID(COMMON),
+    JS(COMMON, isLeaf = true),
+    JVM(COMMON, isLeaf = true),
+    WASM(COMMON, isLeaf = true),
+    ANDROID(COMMON, isLeaf = true),
     NATIVE(COMMON),
 
     LINUX(NATIVE),
