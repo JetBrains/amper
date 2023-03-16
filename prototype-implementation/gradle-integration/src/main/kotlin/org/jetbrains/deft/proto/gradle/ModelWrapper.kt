@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.jetbrains.deft.proto.frontend.Artifact
+import org.jetbrains.deft.proto.frontend.Fragment
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PotatoModule
 
@@ -10,14 +12,27 @@ import org.jetbrains.deft.proto.frontend.PotatoModule
 data class ModelWrapper(
     val model: Model
 ) : Model {
-
     override val modules = ArrayList(model.modules)
 }
 
 class PotatoModuleWrapper(
-    val passedModule: PotatoModule
+    private val passedModule: PotatoModule
 ) : PotatoModule by passedModule {
-
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
+    override val fragments = passedModule.fragments.map { FragmentWrapper(it) }
+    override val artifacts = passedModule.artifacts.map { ArtifactWrapper(it) }
+}
 
+class ArtifactWrapper(
+    private val artifact: Artifact
+) : Artifact by artifact {
+    private val partsByClass = parts.associate { it.clazz to it.value }
+    operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
+}
+
+class FragmentWrapper(
+    private val fragment: Fragment
+) : Fragment by fragment {
+    private val partsByClass = parts.associate { it.clazz to it.value }
+    operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
 }

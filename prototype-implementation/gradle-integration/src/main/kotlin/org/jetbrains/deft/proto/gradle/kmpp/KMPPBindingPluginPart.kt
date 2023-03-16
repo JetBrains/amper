@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.jetbrains.deft.proto.frontend.Fragment
+import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.PluginPartCtx
@@ -9,6 +10,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -30,13 +32,15 @@ class KMPPBindingPluginPart(
 
     private fun initTargets() {
         module.artifactPlatforms.forEach { target ->
+            check(target.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $target" }
             when (target) {
                 Platform.ANDROID -> kotlinMPE.android { doConfigure() }
                 Platform.JVM -> kotlinMPE.jvm { doConfigure() }
-                Platform.IOS_ARM_SIMULATOR -> kotlinMPE.ios { doConfigure() }
-                Platform.IOS_X_64 -> kotlinMPE.ios { doConfigure() }
-                Platform.IOS_ARM_X64 -> kotlinMPE.ios { doConfigure() }
+                Platform.IOS_ARM64 -> kotlinMPE.iosArm64 { doConfigure() }
+                Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64 { doConfigure() }
+                Platform.IOS_X64 -> kotlinMPE.iosX64 { doConfigure() }
                 Platform.JS -> kotlinMPE.js { doConfigure() }
+                else -> error("Unsupported platform: $target")
             }
         }
     }
@@ -63,6 +67,16 @@ class KMPPBindingPluginPart(
                 sourceSet.dependsOn(it.target.sourceSet)
             }
 
+            fragment[KotlinFragmentPart::class.java]?.let { kotlinPart ->
+                sourceSet.languageSettings {
+                    languageVersion = kotlinPart.languageVersion
+                    apiVersion = kotlinPart.apiVersion
+                    progressiveMode = kotlinPart.progressiveMode ?: false
+                    kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
+                    kotlinPart.optIns.forEach { optIn(it) }
+                }
+            }
+
             // Set sources and resources.
             sourceSet.kotlin.setSrcDirs(listOf(fragment.srcPath.toFile()))
             sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath.toFile()))
@@ -70,12 +84,16 @@ class KMPPBindingPluginPart(
     }
 
     private fun KotlinAndroidTarget.doConfigure() {
+
     }
 
     private fun KotlinJvmTarget.doConfigure() {
     }
 
     private fun KotlinNativeTarget.doConfigure() {
+    }
+
+    private fun KotlinNativeTargetWithSimulatorTests.doConfigure() {
     }
 
     private fun KotlinJsTargetDsl.doConfigure() {
