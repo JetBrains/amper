@@ -27,5 +27,4 @@ interface Fragment {
     val name: String
     val fragmentDependencies: List<FragmentDependency>
     val externalDependencies: List<Notation>
-    val platforms: Set<Platform>
 }
