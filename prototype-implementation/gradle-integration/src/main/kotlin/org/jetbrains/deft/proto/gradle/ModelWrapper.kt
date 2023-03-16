@@ -18,10 +18,6 @@ class PotatoModuleWrapper(
     val passedModule: PotatoModule
 ) : PotatoModule by passedModule {
 
-    val fragmentPlatforms by lazy { fragments.flatMap { it.platforms }.toSet() }
-
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
-
-    val allPlatforms by lazy { fragmentPlatforms + artifactPlatforms }
 
 }

@@ -18,9 +18,6 @@ fun initProjects(settings: Settings, model: Model) {
     doInitProjects(settings, absoluteRootPath, model.modules)
 }
 
-private val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
-private val PotatoModule.buildDir get() = buildFile.parent
-
 private fun checkCompatibility(modules: List<PotatoModule>) {
     val nonFileSource = modules.filter { it.source !is PotatoModuleFileSource }
     if (nonFileSource.isNotEmpty())
@@ -82,7 +79,7 @@ private fun doInitProjects(
         settings.include(projectPath)
         val project = settings.project(projectPath)
         project.projectDir = it.buildDir.toFile()
-        pathToModule[projectPath] = it
+        pathToModule[projectPath] = PotatoModuleWrapper(it)
         moduleToPath[it.buildDir] = projectPath
     }
 
