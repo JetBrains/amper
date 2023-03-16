@@ -1,0 +1,22 @@
+type: app
+platforms:
+  - jvm
+fragments:
+  jvm:
+    dependencies:
+      - org.yaml:snakeyaml:2.0
+
+### GOLD
+# Potato simple_app
+# Type APPLICATION
+# Created programmatically
+# Fragments:
+# - jvm
+#   Fragment dependencies: []
+#   External dependencies: [org.yaml:snakeyaml:2.0]
+# - jvmTest
+#   Fragment dependencies: [jvm [FRIEND]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [jvm]
+#   For platforms [JVM]

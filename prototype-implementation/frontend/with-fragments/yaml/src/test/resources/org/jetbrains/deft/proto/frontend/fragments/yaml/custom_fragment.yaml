@@ -1,0 +1,329 @@
+type: app
+platforms:
+  - iosArm64
+  - android
+flavors:
+  - [ "debug", "release" ]
+  - [ "paid", "free" ]
+fragments:
+  common:
+    dependencies:
+      - foo:1.0
+  commonPaid:
+    dependencies:
+      - common-paid-dependency:2.0
+  commonTest:
+    dependencies:
+      - kotlin-test:1.8.10
+  device:
+    refines:
+      - common
+    dependencies:
+      - darwin-util:1.0
+  deviceTest:
+    dependencies:
+      - darwin-test-util:1.0
+  ios:
+    refines:
+      - device
+    dependencies:
+      - ios-util:1.0
+  iosArm64Paid:
+    dependencies:
+      - ios-util-for-paid:1.0
+  android:
+    refines:
+      - device
+
+### GOLD
+# Potato custom_fragment
+# Type APPLICATION
+# Created programmatically
+# Fragments:
+# - common
+#   Fragment dependencies: []
+#   External dependencies: [foo:1.0]
+# - commonTest
+#   Fragment dependencies: [common [FRIEND]]
+#   External dependencies: [kotlin-test:1.8.10]
+# - commonDebug
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - commonTestDebug
+#   Fragment dependencies: [commonDebug [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - commonRelease
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - commonTestRelease
+#   Fragment dependencies: [commonRelease [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - commonPaid
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: [common-paid-dependency:2.0]
+# - commonTestPaid
+#   Fragment dependencies: [commonPaid [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - commonFree
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - commonTestFree
+#   Fragment dependencies: [commonFree [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - commonDebugPaid
+#   Fragment dependencies: [commonDebug [REFINE]]
+#   External dependencies: []
+# - commonTestDebugPaid
+#   Fragment dependencies: [commonDebugPaid [FRIEND], commonTestDebug [REFINE]]
+#   External dependencies: []
+# - commonDebugFree
+#   Fragment dependencies: [commonDebug [REFINE]]
+#   External dependencies: []
+# - commonTestDebugFree
+#   Fragment dependencies: [commonDebugFree [FRIEND], commonTestDebug [REFINE]]
+#   External dependencies: []
+# - commonReleasePaid
+#   Fragment dependencies: [commonRelease [REFINE]]
+#   External dependencies: []
+# - commonTestReleasePaid
+#   Fragment dependencies: [commonReleasePaid [FRIEND], commonTestRelease [REFINE]]
+#   External dependencies: []
+# - commonReleaseFree
+#   Fragment dependencies: [commonRelease [REFINE]]
+#   External dependencies: []
+# - commonTestReleaseFree
+#   Fragment dependencies: [commonReleaseFree [FRIEND], commonTestRelease [REFINE]]
+#   External dependencies: []
+# - device
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: [darwin-util:1.0]
+# - deviceTest
+#   Fragment dependencies: [device [FRIEND], commonTest [REFINE]]
+#   External dependencies: [darwin-test-util:1.0]
+# - deviceDebug
+#   Fragment dependencies: [device [REFINE], commonDebug [REFINE]]
+#   External dependencies: []
+# - deviceTestDebug
+#   Fragment dependencies: [deviceDebug [FRIEND], deviceTest [REFINE], commonTestDebug [REFINE]]
+#   External dependencies: []
+# - deviceRelease
+#   Fragment dependencies: [device [REFINE], commonRelease [REFINE]]
+#   External dependencies: []
+# - deviceTestRelease
+#   Fragment dependencies: [deviceRelease [FRIEND], deviceTest [REFINE], commonTestRelease [REFINE]]
+#   External dependencies: []
+# - devicePaid
+#   Fragment dependencies: [device [REFINE], commonPaid [REFINE]]
+#   External dependencies: []
+# - deviceTestPaid
+#   Fragment dependencies: [devicePaid [FRIEND], deviceTest [REFINE], commonTestPaid [REFINE]]
+#   External dependencies: []
+# - deviceFree
+#   Fragment dependencies: [device [REFINE], commonFree [REFINE]]
+#   External dependencies: []
+# - deviceTestFree
+#   Fragment dependencies: [deviceFree [FRIEND], deviceTest [REFINE], commonTestFree [REFINE]]
+#   External dependencies: []
+# - deviceDebugPaid
+#   Fragment dependencies: [deviceDebug [REFINE], commonDebugPaid [REFINE]]
+#   External dependencies: []
+# - deviceTestDebugPaid
+#   Fragment dependencies: [deviceDebugPaid [FRIEND], deviceTestDebug [REFINE], commonTestDebugPaid [REFINE]]
+#   External dependencies: []
+# - deviceDebugFree
+#   Fragment dependencies: [deviceDebug [REFINE], commonDebugFree [REFINE]]
+#   External dependencies: []
+# - deviceTestDebugFree
+#   Fragment dependencies: [deviceDebugFree [FRIEND], deviceTestDebug [REFINE], commonTestDebugFree [REFINE]]
+#   External dependencies: []
+# - deviceReleasePaid
+#   Fragment dependencies: [deviceRelease [REFINE], commonReleasePaid [REFINE]]
+#   External dependencies: []
+# - deviceTestReleasePaid
+#   Fragment dependencies: [deviceReleasePaid [FRIEND], deviceTestRelease [REFINE], commonTestReleasePaid [REFINE]]
+#   External dependencies: []
+# - deviceReleaseFree
+#   Fragment dependencies: [deviceRelease [REFINE], commonReleaseFree [REFINE]]
+#   External dependencies: []
+# - deviceTestReleaseFree
+#   Fragment dependencies: [deviceReleaseFree [FRIEND], deviceTestRelease [REFINE], commonTestReleaseFree [REFINE]]
+#   External dependencies: []
+# - ios
+#   Fragment dependencies: [common [REFINE], device [REFINE]]
+#   External dependencies: [ios-util:1.0]
+# - iosTest
+#   Fragment dependencies: [ios [FRIEND], commonTest [REFINE], deviceTest [REFINE]]
+#   External dependencies: []
+# - iosDebug
+#   Fragment dependencies: [ios [REFINE], commonDebug [REFINE], deviceDebug [REFINE]]
+#   External dependencies: []
+# - iosTestDebug
+#   Fragment dependencies: [iosDebug [FRIEND], iosTest [REFINE], commonTestDebug [REFINE], deviceTestDebug [REFINE]]
+#   External dependencies: []
+# - iosRelease
+#   Fragment dependencies: [ios [REFINE], commonRelease [REFINE], deviceRelease [REFINE]]
+#   External dependencies: []
+# - iosTestRelease
+#   Fragment dependencies: [iosRelease [FRIEND], iosTest [REFINE], commonTestRelease [REFINE], deviceTestRelease [REFINE]]
+#   External dependencies: []
+# - iosPaid
+#   Fragment dependencies: [ios [REFINE], commonPaid [REFINE], devicePaid [REFINE]]
+#   External dependencies: []
+# - iosTestPaid
+#   Fragment dependencies: [iosPaid [FRIEND], iosTest [REFINE], commonTestPaid [REFINE], deviceTestPaid [REFINE]]
+#   External dependencies: []
+# - iosFree
+#   Fragment dependencies: [ios [REFINE], commonFree [REFINE], deviceFree [REFINE]]
+#   External dependencies: []
+# - iosTestFree
+#   Fragment dependencies: [iosFree [FRIEND], iosTest [REFINE], commonTestFree [REFINE], deviceTestFree [REFINE]]
+#   External dependencies: []
+# - iosDebugPaid
+#   Fragment dependencies: [iosDebug [REFINE], commonDebugPaid [REFINE], deviceDebugPaid [REFINE]]
+#   External dependencies: []
+# - iosTestDebugPaid
+#   Fragment dependencies: [iosDebugPaid [FRIEND], iosTestDebug [REFINE], commonTestDebugPaid [REFINE], deviceTestDebugPaid [REFINE]]
+#   External dependencies: []
+# - iosDebugFree
+#   Fragment dependencies: [iosDebug [REFINE], commonDebugFree [REFINE], deviceDebugFree [REFINE]]
+#   External dependencies: []
+# - iosTestDebugFree
+#   Fragment dependencies: [iosDebugFree [FRIEND], iosTestDebug [REFINE], commonTestDebugFree [REFINE], deviceTestDebugFree [REFINE]]
+#   External dependencies: []
+# - iosReleasePaid
+#   Fragment dependencies: [iosRelease [REFINE], commonReleasePaid [REFINE], deviceReleasePaid [REFINE]]
+#   External dependencies: []
+# - iosTestReleasePaid
+#   Fragment dependencies: [iosReleasePaid [FRIEND], iosTestRelease [REFINE], commonTestReleasePaid [REFINE], deviceTestReleasePaid [REFINE]]
+#   External dependencies: []
+# - iosReleaseFree
+#   Fragment dependencies: [iosRelease [REFINE], commonReleaseFree [REFINE], deviceReleaseFree [REFINE]]
+#   External dependencies: []
+# - iosTestReleaseFree
+#   Fragment dependencies: [iosReleaseFree [FRIEND], iosTestRelease [REFINE], commonTestReleaseFree [REFINE], deviceTestReleaseFree [REFINE]]
+#   External dependencies: []
+# - iosArm64
+#   Fragment dependencies: [ios [REFINE]]
+#   External dependencies: []
+# - iosArm64Test
+#   Fragment dependencies: [iosArm64 [FRIEND], iosTest [REFINE]]
+#   External dependencies: []
+# - iosArm64Debug
+#   Fragment dependencies: [iosArm64 [REFINE], iosDebug [REFINE]]
+#   External dependencies: []
+# - iosArm64TestDebug
+#   Fragment dependencies: [iosArm64Debug [FRIEND], iosArm64Test [REFINE], iosTestDebug [REFINE]]
+#   External dependencies: []
+# - iosArm64Release
+#   Fragment dependencies: [iosArm64 [REFINE], iosRelease [REFINE]]
+#   External dependencies: []
+# - iosArm64TestRelease
+#   Fragment dependencies: [iosArm64Release [FRIEND], iosArm64Test [REFINE], iosTestRelease [REFINE]]
+#   External dependencies: []
+# - iosArm64Paid
+#   Fragment dependencies: [iosArm64 [REFINE], iosPaid [REFINE]]
+#   External dependencies: [ios-util-for-paid:1.0]
+# - iosArm64TestPaid
+#   Fragment dependencies: [iosArm64Paid [FRIEND], iosArm64Test [REFINE], iosTestPaid [REFINE]]
+#   External dependencies: []
+# - iosArm64Free
+#   Fragment dependencies: [iosArm64 [REFINE], iosFree [REFINE]]
+#   External dependencies: []
+# - iosArm64TestFree
+#   Fragment dependencies: [iosArm64Free [FRIEND], iosArm64Test [REFINE], iosTestFree [REFINE]]
+#   External dependencies: []
+# - iosArm64DebugPaid
+#   Fragment dependencies: [iosArm64Debug [REFINE], iosDebugPaid [REFINE]]
+#   External dependencies: []
+# - iosArm64TestDebugPaid
+#   Fragment dependencies: [iosArm64DebugPaid [FRIEND], iosArm64TestDebug [REFINE], iosTestDebugPaid [REFINE]]
+#   External dependencies: []
+# - iosArm64DebugFree
+#   Fragment dependencies: [iosArm64Debug [REFINE], iosDebugFree [REFINE]]
+#   External dependencies: []
+# - iosArm64TestDebugFree
+#   Fragment dependencies: [iosArm64DebugFree [FRIEND], iosArm64TestDebug [REFINE], iosTestDebugFree [REFINE]]
+#   External dependencies: []
+# - iosArm64ReleasePaid
+#   Fragment dependencies: [iosArm64Release [REFINE], iosReleasePaid [REFINE]]
+#   External dependencies: []
+# - iosArm64TestReleasePaid
+#   Fragment dependencies: [iosArm64ReleasePaid [FRIEND], iosArm64TestRelease [REFINE], iosTestReleasePaid [REFINE]]
+#   External dependencies: []
+# - iosArm64ReleaseFree
+#   Fragment dependencies: [iosArm64Release [REFINE], iosReleaseFree [REFINE]]
+#   External dependencies: []
+# - iosArm64TestReleaseFree
+#   Fragment dependencies: [iosArm64ReleaseFree [FRIEND], iosArm64TestRelease [REFINE], iosTestReleaseFree [REFINE]]
+#   External dependencies: []
+# - android
+#   Fragment dependencies: [common [REFINE], device [REFINE]]
+#   External dependencies: []
+# - androidTest
+#   Fragment dependencies: [android [FRIEND], commonTest [REFINE], deviceTest [REFINE]]
+#   External dependencies: []
+# - androidDebug
+#   Fragment dependencies: [android [REFINE], commonDebug [REFINE], deviceDebug [REFINE]]
+#   External dependencies: []
+# - androidTestDebug
+#   Fragment dependencies: [androidDebug [FRIEND], androidTest [REFINE], commonTestDebug [REFINE], deviceTestDebug [REFINE]]
+#   External dependencies: []
+# - androidRelease
+#   Fragment dependencies: [android [REFINE], commonRelease [REFINE], deviceRelease [REFINE]]
+#   External dependencies: []
+# - androidTestRelease
+#   Fragment dependencies: [androidRelease [FRIEND], androidTest [REFINE], commonTestRelease [REFINE], deviceTestRelease [REFINE]]
+#   External dependencies: []
+# - androidPaid
+#   Fragment dependencies: [android [REFINE], commonPaid [REFINE], devicePaid [REFINE]]
+#   External dependencies: []
+# - androidTestPaid
+#   Fragment dependencies: [androidPaid [FRIEND], androidTest [REFINE], commonTestPaid [REFINE], deviceTestPaid [REFINE]]
+#   External dependencies: []
+# - androidFree
+#   Fragment dependencies: [android [REFINE], commonFree [REFINE], deviceFree [REFINE]]
+#   External dependencies: []
+# - androidTestFree
+#   Fragment dependencies: [androidFree [FRIEND], androidTest [REFINE], commonTestFree [REFINE], deviceTestFree [REFINE]]
+#   External dependencies: []
+# - androidDebugPaid
+#   Fragment dependencies: [androidDebug [REFINE], commonDebugPaid [REFINE], deviceDebugPaid [REFINE]]
+#   External dependencies: []
+# - androidTestDebugPaid
+#   Fragment dependencies: [androidDebugPaid [FRIEND], androidTestDebug [REFINE], commonTestDebugPaid [REFINE], deviceTestDebugPaid [REFINE]]
+#   External dependencies: []
+# - androidDebugFree
+#   Fragment dependencies: [androidDebug [REFINE], commonDebugFree [REFINE], deviceDebugFree [REFINE]]
+#   External dependencies: []
+# - androidTestDebugFree
+#   Fragment dependencies: [androidDebugFree [FRIEND], androidTestDebug [REFINE], commonTestDebugFree [REFINE], deviceTestDebugFree [REFINE]]
+#   External dependencies: []
+# - androidReleasePaid
+#   Fragment dependencies: [androidRelease [REFINE], commonReleasePaid [REFINE], deviceReleasePaid [REFINE]]
+#   External dependencies: []
+# - androidTestReleasePaid
+#   Fragment dependencies: [androidReleasePaid [FRIEND], androidTestRelease [REFINE], commonTestReleasePaid [REFINE], deviceTestReleasePaid [REFINE]]
+#   External dependencies: []
+# - androidReleaseFree
+#   Fragment dependencies: [androidRelease [REFINE], commonReleaseFree [REFINE], deviceReleaseFree [REFINE]]
+#   External dependencies: []
+# - androidTestReleaseFree
+#   Fragment dependencies: [androidReleaseFree [FRIEND], androidTestRelease [REFINE], commonTestReleaseFree [REFINE], deviceTestReleaseFree [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [iosArm64DebugPaid]
+#   For platforms [IOS_ARM64]
+# - Built from [iosArm64DebugFree]
+#   For platforms [IOS_ARM64]
+# - Built from [iosArm64ReleasePaid]
+#   For platforms [IOS_ARM64]
+# - Built from [iosArm64ReleaseFree]
+#   For platforms [IOS_ARM64]
+# - Built from [androidDebugPaid]
+#   For platforms [ANDROID]
+# - Built from [androidDebugFree]
+#   For platforms [ANDROID]
+# - Built from [androidReleasePaid]
+#   For platforms [ANDROID]
+# - Built from [androidReleaseFree]
+#   For platforms [ANDROID]

@@ -1,0 +1,6 @@
+type: app
+platforms:
+  - jvm
+  - toaster
+
+### Exception

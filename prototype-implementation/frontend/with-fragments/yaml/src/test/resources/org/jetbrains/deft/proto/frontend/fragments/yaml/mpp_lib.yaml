@@ -1,0 +1,41 @@
+type: "lib"
+platforms:
+  - iosArm64
+  - android
+fragments:
+  common:
+    dependencies:
+      - foo:1.0
+  commonTest:
+    dependencies:
+      - kotlin-test:1.8.10
+  iosArm64:
+    dependencies:
+      - ios-util:1.0
+
+### GOLD
+# Potato mpp_lib
+# Type LIBRARY
+# Created programmatically
+# Fragments:
+# - common
+#   Fragment dependencies: []
+#   External dependencies: [foo:1.0]
+# - commonTest
+#   Fragment dependencies: [common [FRIEND]]
+#   External dependencies: [kotlin-test:1.8.10]
+# - iosArm64
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: [ios-util:1.0]
+# - iosArm64Test
+#   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - android
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - androidTest
+#   Fragment dependencies: [android [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [common, commonTest, iosArm64, iosArm64Test, android, androidTest]
+#   For platforms [IOS_ARM64, ANDROID]
