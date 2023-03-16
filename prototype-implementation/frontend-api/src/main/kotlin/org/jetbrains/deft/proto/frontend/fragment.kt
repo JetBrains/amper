@@ -19,6 +19,23 @@ interface FragmentDependency {
     val type: FragmentDependencyType
 }
 
+sealed interface FragmentPart<SelfT> {
+    // Do not actually sure, if it is needed.
+    fun merge(other: SelfT)
+}
+
+data class KotlinFragmentPart(
+    val languageVersion: String?,
+    val apiVersion: String?,
+    val progressiveMode: Boolean?,
+    val languageFeatures: List<String>,
+    val optIns: List<String>,
+) : FragmentPart<KotlinFragmentPart> {
+    override fun merge(other: KotlinFragmentPart) {
+        TODO("Not yet implemented")
+    }
+}
+
 /**
  * Some part of the module that supports "single resolve context" invariant for
  * every source and resource file that is included.
@@ -27,4 +44,5 @@ interface Fragment {
     val name: String
     val fragmentDependencies: List<FragmentDependency>
     val externalDependencies: List<Notation>
+    val parts: ClassBasedSet<FragmentPart<*>>
 }
