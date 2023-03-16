@@ -10,7 +10,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
             <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
             <option value="$PROJECT_DIR$/prototype-implementation/simple-frontend-yaml" />
           </set>
