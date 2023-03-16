@@ -24,9 +24,8 @@ interface FragmentDependency {
  * every source and resource file that is included.
  */
 interface Fragment {
+    val name: String
     val fragmentDependencies: List<FragmentDependency>
-
     val externalDependencies: List<Notation>
-
     val platforms: Set<Platform>
 }
