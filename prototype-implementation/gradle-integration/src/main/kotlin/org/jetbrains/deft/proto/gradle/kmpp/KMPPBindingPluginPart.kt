@@ -1,30 +1,37 @@
-package org.jetbrains.deft.proto.gradle
+package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.jetbrains.deft.proto.frontend.Model
+import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.PlatformFamily
+import org.jetbrains.deft.proto.gradle.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.addDependency
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
+fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
+
 /**
  * Plugin logic, bind to specific module, when multiple targets are available.
  */
-class KMPPModulePlugin(
-    ctx: ModulePluginCtx,
-) : ModulePlugin by ctx {
+class KMPPBindingPluginPart(
+    ctx: PluginPartCtx,
+) : BindingPluginPart by ctx {
 
     private val kotlinMPE: KotlinMultiplatformExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
         // Initialize targets and add dependencies.
-        targets.forEach { target ->
-            when (target) {
-                "android" -> configureAndAddDependenciesForTarget(target, "androidMain") { android { doConfigure() } }
-                "jvm" -> configureAndAddDependenciesForTarget(target, "jvmMain") { jvm { doConfigure() } }
-                "ios" -> configureAndAddDependenciesForTarget(target, "iosMain") { ios { doConfigure() } }
-                "js" -> configureAndAddDependenciesForTarget(target, "jsMain") { js { doConfigure() } }
-                Model.defaultTarget -> configureAndAddDependenciesForTarget(target, "commonMain") { }
+        module.artifactPlatforms.forEach { target ->
+            when (target.family) {
+                PlatformFamily.ANDROID -> configureAndAddDependenciesForTarget(target, "androidMain") { android { doConfigure() } }
+                PlatformFamily.JVM -> configureAndAddDependenciesForTarget(target, "jvmMain") { jvm { doConfigure() } }
+                PlatformFamily.IOS -> configureAndAddDependenciesForTarget(target, "iosMain") { ios { doConfigure() } }
+                PlatformFamily.JS -> configureAndAddDependenciesForTarget(target, "jsMain") { js { doConfigure() } }
+                PlatformFamily.NATIVE -> TODO()
             }
         }
     }
@@ -38,7 +45,7 @@ class KMPPModulePlugin(
         targetSpecific: KotlinMultiplatformExtension.() -> Unit
     ) {
         kotlinMPE.targetSpecific()
-        kotlinMPE.applyForSourceSet(sourceSetName) {
+        kotlinMPE.applyForKotlinSourceSet(sourceSetName) {
             dependencies {
                 model.getDeclaredDependencies(moduleId, target).forEach { dependency ->
                     addDependency(moduleIdToPath, dependency)

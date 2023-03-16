@@ -1,14 +1,18 @@
-package org.jetbrains.deft.proto.gradle
+package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.gradle.internal.dsl.DefaultConfig
+import org.jetbrains.deft.proto.gradle.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.PluginPartCtx
+
+fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 
 /**
  * Plugin logic, bind to specific module, when only default target is available.
  */
-class AndroidModulePlugin(
-    ctx: ModulePluginCtx,
-) : ModulePlugin by ctx {
+class AndroidBindingPluginPart(
+    ctx: PluginPartCtx,
+) : BindingPluginPart by ctx {
 
     private val androidPE: CommonExtension<*, *, DefaultConfig, *> =
         project.extensions.getByType(CommonExtension::class.java) as CommonExtension<*, *, DefaultConfig, *>
