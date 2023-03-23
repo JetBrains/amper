@@ -14,7 +14,7 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
         }
         append("    Parts:\n")
         for (part in fragment.parts) {
-            append("      ${part::class.simpleName}\n")
+            append("      ${part.value}\n")
         }
     }
     append("Artifacts:\n")
@@ -26,7 +26,7 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
         }
         append("    Parts:\n")
         for (part in artifact.parts) {
-            append("      ${part::class.simpleName}\n")
+            append("      ${part.value}\n")
         }
     }
 }

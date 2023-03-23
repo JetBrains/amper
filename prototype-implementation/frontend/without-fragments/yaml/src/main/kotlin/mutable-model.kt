@@ -21,7 +21,7 @@ internal data class MutableFragment(
     val languageFeatures: MutableList<String> = mutableListOf(),
     val optIns: MutableList<String> = mutableListOf()
 ) {
-    enum class KotlinVersion(val version: String) {
+    enum class KotlinVersion(private val version: String) {
         Kotlin19("1.9"),
         Kotlin18("1.8"),
         Kotlin17("1.7"),
