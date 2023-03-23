@@ -1,30 +1,30 @@
 Module {{ userReadableName }}
 Fragments:
-  [IOS_ARM64]
+  iosArm64
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [JVM]
+  jvm
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64]
+  iosSimulatorArm64
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_X64]
+  iosX64
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]
+  iosSimulatorArm64iosArm64iosX64
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
@@ -35,39 +35,39 @@ Fragments:
     Fragment dependencies:
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_ARM64]Test
+  iosArm64Test
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_ARM64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [JVM]Test
+  jvmTest
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [JVM] (REFINE)
+      jvm (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64]Test
+  iosSimulatorArm64Test
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_SIMULATOR_ARM64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosSimulatorArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_X64]Test
+  iosX64Test
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Test
+  iosSimulatorArm64iosArm64iosX64Test
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   commonTest
@@ -76,39 +76,39 @@ Fragments:
       common (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_ARM64]Paid
+  iosArm64Paid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_ARM64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [JVM]Paid
+  jvmPaid
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [JVM] (REFINE)
+      jvm (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64]Paid
+  iosSimulatorArm64Paid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_SIMULATOR_ARM64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosSimulatorArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_X64]Paid
+  iosX64Paid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Paid
+  iosSimulatorArm64iosArm64iosX64Paid
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   commonPaid
@@ -117,44 +117,44 @@ Fragments:
       common (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_ARM64]TestPaid
+  iosArm64TestPaid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_ARM64] (REFINE)
-      [IOS_ARM64]Test (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosArm64 (REFINE)
+      iosArm64Test (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [JVM]TestPaid
+  jvmTestPaid
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [JVM] (REFINE)
-      [JVM]Test (REFINE)
+      jvm (REFINE)
+      jvmTest (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64]TestPaid
+  iosSimulatorArm64TestPaid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_SIMULATOR_ARM64] (REFINE)
-      [IOS_SIMULATOR_ARM64]Test (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosSimulatorArm64 (REFINE)
+      iosSimulatorArm64Test (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_X64]TestPaid
+  iosX64TestPaid
     External dependencies: []
     Fragment dependencies:
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_X64] (REFINE)
-      [IOS_X64]Test (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosX64 (REFINE)
+      iosX64Test (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]TestPaid
+  iosSimulatorArm64iosArm64iosX64TestPaid
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
-      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Test (REFINE)
+      iosSimulatorArm64iosArm64iosX64 (REFINE)
+      iosSimulatorArm64iosArm64iosX64Test (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   commonTestPaid
@@ -167,65 +167,65 @@ Fragments:
 Artifacts:
   [JVM]
     Fragments:
-      [JVM]
+      jvm
     Parts:
   [JVM]
     Fragments:
-      [JVM]Paid
+      jvmPaid
     Parts:
   [JVM]
     Fragments:
-      [JVM]Test
+      jvmTest
     Parts:
   [JVM]
     Fragments:
-      [JVM]TestPaid
+      jvmTestPaid
     Parts:
   [IOS_SIMULATOR_ARM64]
     Fragments:
-      [IOS_SIMULATOR_ARM64]
+      iosSimulatorArm64
     Parts:
   [IOS_SIMULATOR_ARM64]
     Fragments:
-      [IOS_SIMULATOR_ARM64]Paid
+      iosSimulatorArm64Paid
     Parts:
   [IOS_SIMULATOR_ARM64]
     Fragments:
-      [IOS_SIMULATOR_ARM64]Test
+      iosSimulatorArm64Test
     Parts:
   [IOS_SIMULATOR_ARM64]
     Fragments:
-      [IOS_SIMULATOR_ARM64]TestPaid
+      iosSimulatorArm64TestPaid
     Parts:
   [IOS_ARM64]
     Fragments:
-      [IOS_ARM64]
+      iosArm64
     Parts:
   [IOS_ARM64]
     Fragments:
-      [IOS_ARM64]Paid
+      iosArm64Paid
     Parts:
   [IOS_ARM64]
     Fragments:
-      [IOS_ARM64]Test
+      iosArm64Test
     Parts:
   [IOS_ARM64]
     Fragments:
-      [IOS_ARM64]TestPaid
+      iosArm64TestPaid
     Parts:
   [IOS_X64]
     Fragments:
-      [IOS_X64]
+      iosX64
     Parts:
   [IOS_X64]
     Fragments:
-      [IOS_X64]Paid
+      iosX64Paid
     Parts:
   [IOS_X64]
     Fragments:
-      [IOS_X64]Test
+      iosX64Test
     Parts:
   [IOS_X64]
     Fragments:
-      [IOS_X64]TestPaid
+      iosX64TestPaid
     Parts:

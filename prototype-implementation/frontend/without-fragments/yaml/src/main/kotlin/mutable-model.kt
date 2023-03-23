@@ -160,7 +160,7 @@ internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
         return buildList {
             val sortedPlatformSubsets = platforms.sortedBy { it.size }
             sortedPlatformSubsets.forEach { platformSet ->
-                val fragment = MutableFragment(platformSet.toString(), platformSet)
+                val fragment = MutableFragment(platformSet.toCamelCaseString(), platformSet)
                 addFragment(fragment, platformSet)
             }
             val platformSet = platforms.reduce { acc, set -> acc + set }

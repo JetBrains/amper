@@ -30,3 +30,18 @@ fun <T> cartesian(list1: List<List<T>>, list2: List<List<T>>): List<List<T>> = b
         }
     }
 }
+
+fun Set<Platform>.toCamelCaseString(): String {
+    val platforms = this
+    return buildString {
+        for (platform in platforms) {
+            val words = platform.toString().split("_")
+            append(buildString {
+                append(words[0].lowercase())
+                for (i in 1 until words.size) {
+                    append(words[i].lowercase().replaceFirstChar { it.uppercase() })
+                }
+            })
+        }
+    }
+}
