@@ -6,7 +6,7 @@ variants:
       - name: test
         dependsOn:
           - target: main
-            type: friend
+            kind: friend
   - dimension: payment
     options:
       - name: free

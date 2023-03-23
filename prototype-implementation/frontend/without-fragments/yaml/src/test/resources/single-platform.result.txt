@@ -15,13 +15,13 @@ Fragments:
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      jvm (REFINE)
+      jvm (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   commonTest
     External dependencies: []
     Fragment dependencies:
-      common (REFINE)
+      common (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
 Artifacts:

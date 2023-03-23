@@ -83,7 +83,7 @@ internal val Settings.variants: List<Settings>
                 "dimension" to "mode",
                 "options" to listOf(
                     mapOf("name" to "main", "default" to true),
-                    mapOf("name" to "test", "dependsOn" to listOf(mapOf("target" to "main")))
+                    mapOf("name" to "test", "dependsOn" to listOf(mapOf("target" to "main", "kind" to "friend")))
                 )
             )
         } else {

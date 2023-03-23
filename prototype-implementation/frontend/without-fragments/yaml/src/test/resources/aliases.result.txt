@@ -45,48 +45,48 @@ Fragments:
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      android (REFINE)
+      android (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosSimulatorArm64Test
     External dependencies: []
     Fragment dependencies:
       iosSimulator (REFINE)
-      iosSimulatorArm64 (REFINE)
+      iosSimulatorArm64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosArm64Test
     External dependencies: []
     Fragment dependencies:
       ios (REFINE)
-      iosArm64 (REFINE)
+      iosArm64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosX64Test
     External dependencies: []
     Fragment dependencies:
       iosSimulator (REFINE)
-      iosX64 (REFINE)
+      iosX64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosSimulatorTest
     External dependencies: []
     Fragment dependencies:
       ios (REFINE)
-      iosSimulator (REFINE)
+      iosSimulator (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosTest
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
-      ios (REFINE)
+      ios (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   commonTest
     External dependencies: []
     Fragment dependencies:
-      common (REFINE)
+      common (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
 Artifacts:
