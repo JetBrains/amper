@@ -1,9 +1,4 @@
 aliases:
-  - name: ios
-    platforms:
-      - iosSimulatorArm64
-      - iosArm64
-      - iosX64
   - name: iosSimulator
     platforms:
       - iosSimulatorArm64

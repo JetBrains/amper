@@ -69,3 +69,30 @@ fun Set<Platform>.toCamelCaseString(): String {
         }
     }
 }
+
+val Platform.children: List<Platform>
+    get() {
+        val thisPlatform = this
+        return buildList {
+            for (platform in enumValues<Platform>()) {
+                if (platform.parent == thisPlatform) {
+                    add(platform)
+                }
+            }
+        }
+    }
+
+val Platform.leafChildren: List<Platform>
+    get() {
+        return buildList {
+            val queue = ArrayDeque<Platform>()
+            queue.add(this@leafChildren)
+            while (queue.isNotEmpty()) {
+                val platform = queue.removeFirst()
+                queue.addAll(platform.children)
+                if (platform.isLeaf) {
+                    add(platform)
+                }
+            }
+        }
+    }

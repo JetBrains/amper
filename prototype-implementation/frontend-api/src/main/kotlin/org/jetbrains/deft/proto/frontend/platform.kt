@@ -36,8 +36,8 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     IOS_X64(IOS, isLeaf = true),
 
     WATCHOS(APPLE),
-    WATCHOS_ARM64(WATCHOS),
-    WATCHOS_ARM32(WATCHOS),
+    WATCHOS_ARM64(WATCHOS, isLeaf = true),
+    WATCHOS_ARM32(WATCHOS, isLeaf = true),
     WATCHOS_DEVICE_ARM64(WATCHOS, isLeaf = true),
     WATCHOS_SIMULATOR_ARM64(WATCHOS, isLeaf = true),
 
