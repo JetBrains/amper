@@ -26,6 +26,13 @@ internal class ParserKtTest {
     }
 
     @Test
+    fun aliases() {
+        with(buildFile) {
+            testParse("aliases")
+        }
+    }
+
+    @Test
     fun complexTest() {
         with(buildFile) {
             testParse("complex-test")

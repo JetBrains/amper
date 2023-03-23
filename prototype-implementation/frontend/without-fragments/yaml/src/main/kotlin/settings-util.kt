@@ -20,6 +20,7 @@ internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T
     return null
 }
 
+context (Map<String, Set<Platform>>)
 internal inline fun <reified T> Settings.handleFragmentSettings(
     fragments: List<MutableFragment>,
     key: String,
@@ -51,14 +52,18 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
         val split = settingsKey.split(".")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
-        val options = specialization.filter { getPlatformFromFragmentName(it) == null }.toSet()
+        val options = specialization
+            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
+            .toSet()
         for (option in options) {
             val variant = optionMap[option] ?: error("There is no such variant option $option")
             variantSet.remove(variant)
         }
 
-        val normalizedPlatforms =
-            specialization.mapNotNull { getPlatformFromFragmentName(it) }.ifEmpty { platforms }.toSet()
+        val normalizedPlatforms = specialization
+            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
+            .ifEmpty { platforms }
+            .toSet()
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
 
         val targetFragment = fragments

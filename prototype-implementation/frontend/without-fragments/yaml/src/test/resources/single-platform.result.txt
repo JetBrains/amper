@@ -1,3 +1,4 @@
+Module {{ userReadableName }}
 Fragments:
   iosArm64
     External dependencies: []

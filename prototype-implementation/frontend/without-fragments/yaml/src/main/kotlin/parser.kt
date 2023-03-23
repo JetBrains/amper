@@ -28,14 +28,31 @@ fun parseModule(value: String): PotatoModule {
         .map { it.split("+").toSet() }
         .toSet()
 
+    val aliases = config.getValue<List<Settings>>("aliases") ?: listOf()
+    val aliasMap: Map<String, Set<Platform>> = aliases.mapNotNull {
+        val settings = it
+        val name = settings.getValue<String>("name")
+        name?.let {
+            val platformSet = settings
+                .getValue<List<String>>("platforms")
+                ?.mapNotNull { getPlatformFromFragmentName(it) }
+                ?.toSet() ?: setOf()
+            name to platformSet
+        }
+    }.toMap()
+
     val subsets = (dependencySubsets + folderSubsets)
-        .map { it.mapNotNull { getPlatformFromFragmentName(it) }.toSet() }
+        .map {
+            it.flatMap {
+                aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it))
+            }.toSet()
+        }
         .toSet() + platforms.map { setOf(it) }
 
-    var fragments = subsets.basicFragments
+    var fragments = with(aliasMap) { subsets.basicFragments }
 
     fragments = fragments.multiplyFragments(config.variants)
-    fragments.handleAdditionalKeys(config)
+    with(aliasMap) { fragments.handleAdditionalKeys(config) }
     val mutableState = object : Stateful<MutableFragment, Fragment> {}
     val immutableFragments = fragments.map { with(mutableState) { it.immutable() } }
     return object : PotatoModule {

@@ -154,6 +154,7 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
     return fragments
 }
 
+context (Map<String, Set<Platform>>)
 internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
     get() {
         val platforms = this
@@ -188,6 +189,7 @@ private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, 
     add(fragment)
 }
 
+context (Map<String, Set<Platform>>)
 internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     config.handleFragmentSettings<List<String>>(this, "dependencies") {
         externalDependencies.addAll(it)
