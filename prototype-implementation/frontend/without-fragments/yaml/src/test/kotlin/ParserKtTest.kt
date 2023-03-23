@@ -19,9 +19,16 @@ internal class ParserKtTest {
     }
 
     @Test
-    fun test() {
+    fun `single platform`() {
         with(buildFile) {
-            testParse("test")
+            testParse("single-platform")
+        }
+    }
+
+    @Test
+    fun complexTest() {
+        with(buildFile) {
+            testParse("complex-test")
         }
     }
 }

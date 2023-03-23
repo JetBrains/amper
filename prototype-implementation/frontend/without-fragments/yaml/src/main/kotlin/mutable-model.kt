@@ -76,10 +76,9 @@ internal data class MutableFragment(
     }
 }
 
-internal fun MutableList<MutableFragment>.multiplyFragments(config: Settings): List<Settings> {
-    val fragments = this
+internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): List<MutableFragment> {
+    val fragments = this.toMutableList()
     // multiply
-    val variants = config.getValue<List<Settings>>("variants") ?: listOf()
     for (variant in variants) {
         val options = variant.getValue<List<Settings>>("options") ?: listOf()
         if (options.isEmpty()) {
@@ -146,12 +145,13 @@ internal fun MutableList<MutableFragment>.multiplyFragments(config: Settings): L
             }
         }
 
+
         fragments.clear()
         for (fragmentSkeletonNodes in fragmentMap.values) {
             fragments.addAll(fragmentSkeletonNodes)
         }
     }
-    return variants
+    return fragments
 }
 
 internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
@@ -188,7 +188,7 @@ private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, 
     add(fragment)
 }
 
-internal fun MutableList<MutableFragment>.handleAdditionalKeys(config: Settings) {
+internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     config.handleFragmentSettings<List<String>>(this, "dependencies") {
         externalDependencies.addAll(it)
     }

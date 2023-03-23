@@ -27,7 +27,6 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 ) {
     val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
-    val variants = getValue<List<Settings>>("variants") ?: listOf()
     // add external dependencies, compiler flags, etc
     val optionMap = buildMap {
         for (variant in variants) {
@@ -40,7 +39,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 
     val variantSet = variants.toMutableSet()
 
-    val defaultOptionMap = buildMap {
+    val defaultOptionMap = buildMap<Settings, String> {
         for (variant in variants) {
             val option = (variant.getValue<List<Settings>>("options")
                 ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
@@ -70,3 +69,19 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         targetFragment.init(settingsValue as T)
     }
 }
+
+internal val Settings.variants: List<Settings>
+    get() {
+        val initialVariants = getValue<List<Settings>>("variants") ?: listOf()
+        return if (!initialVariants.any { it.getValue<String>("dimension") == "mode" }) {
+            initialVariants + mapOf(
+                "dimension" to "mode",
+                "options" to listOf(
+                    mapOf("name" to "main", "default" to true),
+                    mapOf("name" to "test", "dependsOn" to listOf(mapOf("target" to "main")))
+                )
+            )
+        } else {
+            initialVariants
+        }
+    }

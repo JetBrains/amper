@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import org.yaml.snakeyaml.Yaml
-import java.util.*
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
@@ -33,8 +32,9 @@ fun parseModule(value: String): PotatoModule {
         .map { it.mapNotNull { getPlatformFromFragmentName(it) }.toSet() }
         .toSet() + platforms.map { setOf(it) }
 
-    val fragments = subsets.basicFragments.toMutableList()
-    val variants = fragments.multiplyFragments(config)
+    var fragments = subsets.basicFragments
+
+    fragments = fragments.multiplyFragments(config.variants)
     fragments.handleAdditionalKeys(config)
     val mutableState = object : Stateful<MutableFragment, Fragment> {}
     val immutableFragments = fragments.map { with(mutableState) { it.immutable() } }
@@ -71,7 +71,7 @@ fun parseModule(value: String): PotatoModule {
 
         private fun application(): List<Artifact> {
             val options = buildList {
-                for (variant in variants) {
+                for (variant in config.variants) {
                     val options = variant.getValue<List<Settings>>("options") ?: listOf()
                     add(buildList {
                         for (option in options) {
@@ -107,4 +107,3 @@ fun parseModule(value: String): PotatoModule {
         }
     }
 }
-

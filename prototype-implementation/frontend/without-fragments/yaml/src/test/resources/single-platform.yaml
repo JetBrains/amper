@@ -1,0 +1,7 @@
+dependencies:
+  - org.apache.commons:commons-math3:3.6.1
+
+product:
+  type: app
+  platforms:
+    - jvm

@@ -1,5 +1,5 @@
 variants:
-  - dimension: buildType
+  - dimension: mode
     options:
       - name: main
         default: true
