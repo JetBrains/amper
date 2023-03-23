@@ -7,15 +7,11 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 context (Path)
-internal fun testParse(resourceName: String) {
+internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { directory("src") }) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
 
-    project(parent.toFile()) {
-        directory("src") {
-            directory("iosArm64+release")
-        }
-    }
+    project(parent.toFile()) { init() }
 
     // When
     val module = withBuildFile(toAbsolutePath()) { parseModule(text) }

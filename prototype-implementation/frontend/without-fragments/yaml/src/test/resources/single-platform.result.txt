@@ -1,11 +1,5 @@
 Module {{ userReadableName }}
 Fragments:
-  iosArm64
-    External dependencies: []
-    Fragment dependencies:
-      common (REFINE)
-    Parts:
-      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   jvm
     External dependencies: [org.apache.commons:commons-math3:3.6.1]
     Fragment dependencies:
@@ -15,13 +9,6 @@ Fragments:
   common
     External dependencies: []
     Fragment dependencies:
-    Parts:
-      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  iosArm64Test
-    External dependencies: []
-    Fragment dependencies:
-      common (REFINE)
-      iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   jvmTest

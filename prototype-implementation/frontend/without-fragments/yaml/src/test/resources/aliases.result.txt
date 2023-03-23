@@ -1,11 +1,5 @@
 Module {{ userReadableName }}
 Fragments:
-  iosArm64
-    External dependencies: []
-    Fragment dependencies:
-      ios (REFINE)
-    Parts:
-      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   android
     External dependencies: []
     Fragment dependencies:
@@ -16,6 +10,12 @@ Fragments:
     External dependencies: []
     Fragment dependencies:
       iosSimulator (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosX64
@@ -41,13 +41,6 @@ Fragments:
     Fragment dependencies:
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
-  iosArm64Test
-    External dependencies: []
-    Fragment dependencies:
-      ios (REFINE)
-      iosArm64 (REFINE)
-    Parts:
-      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   androidTest
     External dependencies: []
     Fragment dependencies:
@@ -60,6 +53,13 @@ Fragments:
     Fragment dependencies:
       iosSimulator (REFINE)
       iosSimulatorArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Test
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+      iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
   iosX64Test
