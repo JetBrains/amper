@@ -126,13 +126,30 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
             }
         }
 
-        // set dependencies
+        // set dependencies between potatoes
         for (option in options) {
             val dependencies = option.getValue<List<Settings>>("dependsOn") ?: listOf()
             val name = option.getValue<String>("name") ?: error("Name is required for option")
             for (dependency in dependencies) {
                 val dependencyTarget = dependency.getValue<String>("target")
                 val sourceFragments = fragmentMap[name] ?: error("Something went wrong")
+
+                // correct previous old dependencies references after copying
+                sourceFragments.forEach { fragment ->
+                    val dependenciesToRemove = mutableSetOf<MutableFragmentDependency>()
+                    val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
+                    fragment.dependencies.forEach { dependency ->
+                        val targetFragment = sourceFragments.firstOrNull { it.platforms == dependency.target.platforms && it !== fragment }
+                            ?: error("Something went wrong")
+
+                        dependenciesToRemove.add(dependency)
+                        dependenciesToAdd.add(MutableFragmentDependency(targetFragment, dependency.dependencyKind))
+                    }
+                    fragment.dependencies.removeAll(dependenciesToRemove)
+                    fragment.dependencies.addAll(dependenciesToAdd)
+                }
+
+                // add new dependencies related with copying
                 fragmentMap[dependencyTarget]?.let { targetFragments ->
                     for (i in sourceFragments.indices) {
                         val kind = when (dependency.getValue<String>("kind")) {
@@ -144,7 +161,6 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                 }
             }
         }
-
 
         fragments.clear()
         for (fragmentSkeletonNodes in fragmentMap.values) {

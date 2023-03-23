@@ -14,7 +14,7 @@ Fragments:
   jvmTest
     External dependencies: []
     Fragment dependencies:
-      common (REFINE)
+      commonTest (REFINE)
       jvm (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=1.9, progressiveMode=false, languageFeatures=[], optIns=[])
