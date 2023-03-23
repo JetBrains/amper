@@ -1,0 +1,231 @@
+Module {{ userReadableName }}
+Fragments:
+  [IOS_ARM64]
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [JVM]
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64]
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_X64]
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      ByClassWrapper
+  common
+    External dependencies: [org.apache.commons:commons-math3:3.6.1]
+    Fragment dependencies:
+    Parts:
+      ByClassWrapper
+  [IOS_ARM64]Test
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_ARM64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [JVM]Test
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [JVM] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64]Test
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_SIMULATOR_ARM64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_X64]Test
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Test
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  commonTest
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_ARM64]Paid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_ARM64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [JVM]Paid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [JVM] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64]Paid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_SIMULATOR_ARM64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_X64]Paid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Paid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+    Parts:
+      ByClassWrapper
+  commonPaid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_ARM64]TestPaid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_ARM64] (REFINE)
+      [IOS_ARM64]Test (REFINE)
+    Parts:
+      ByClassWrapper
+  [JVM]TestPaid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [JVM] (REFINE)
+      [JVM]Test (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64]TestPaid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_SIMULATOR_ARM64] (REFINE)
+      [IOS_SIMULATOR_ARM64]Test (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_X64]TestPaid
+    External dependencies: []
+    Fragment dependencies:
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_X64] (REFINE)
+      [IOS_X64]Test (REFINE)
+    Parts:
+      ByClassWrapper
+  [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]TestPaid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64] (REFINE)
+      [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS_X64]Test (REFINE)
+    Parts:
+      ByClassWrapper
+  commonTestPaid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+      commonTest (REFINE)
+    Parts:
+      ByClassWrapper
+Artifacts:
+  [JVM]
+    Fragments:
+      [JVM]
+    Parts:
+  [JVM]
+    Fragments:
+      [JVM]Paid
+    Parts:
+  [JVM]
+    Fragments:
+      [JVM]Test
+    Parts:
+  [JVM]
+    Fragments:
+      [JVM]TestPaid
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      [IOS_SIMULATOR_ARM64]
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      [IOS_SIMULATOR_ARM64]Paid
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      [IOS_SIMULATOR_ARM64]Test
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      [IOS_SIMULATOR_ARM64]TestPaid
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      [IOS_ARM64]
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      [IOS_ARM64]Paid
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      [IOS_ARM64]Test
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      [IOS_ARM64]TestPaid
+    Parts:
+  [IOS_X64]
+    Fragments:
+      [IOS_X64]
+    Parts:
+  [IOS_X64]
+    Fragments:
+      [IOS_X64]Paid
+    Parts:
+  [IOS_X64]
+    Fragments:
+      [IOS_X64]Test
+    Parts:
+  [IOS_X64]
+    Fragments:
+      [IOS_X64]TestPaid
+    Parts:

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/models-design-sandbox.iml" filepath="$PROJECT_DIR$/.idea/models-design-sandbox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/frontend/without-fragments/yaml/prototype-implementation.frontend.without-fragments.yaml.test.iml" filepath="$PROJECT_DIR$/.idea/modules/frontend/without-fragments/yaml/prototype-implementation.frontend.without-fragments.yaml.test.iml" />
     </modules>
   </component>
 </project>

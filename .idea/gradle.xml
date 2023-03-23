@@ -4,9 +4,8 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="corretto-17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
@@ -15,8 +14,9 @@
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/with-fragments" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/with-fragments/yaml" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/without-fragments" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/without-fragments/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
-            <option value="$PROJECT_DIR$/prototype-implementation/simple-frontend-yaml" />
           </set>
         </option>
       </GradleProjectSettings>
