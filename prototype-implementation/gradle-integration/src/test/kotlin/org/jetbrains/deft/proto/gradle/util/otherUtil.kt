@@ -20,7 +20,12 @@ fun WithTempDir.runGradleWithModel(model: MockModelHandle): BuildResult = Gradle
 fun setUpGradleSettings(root: File) {
     val settingsFile = root.resolve("settings.gradle.kts")
     settingsFile.createNewFile()
-    val settingsFileContent = """
+    val settingsFileContent = if (withDebug) """
+            plugins {
+                id("org.jetbrains.deft.proto.settings.plugin")
+            }
+        """
+    else """
             import org.jetbrains.deft.proto.gradle.util.PrintKotlinSpecificInfo
             plugins {
                 id("org.jetbrains.deft.proto.settings.plugin")

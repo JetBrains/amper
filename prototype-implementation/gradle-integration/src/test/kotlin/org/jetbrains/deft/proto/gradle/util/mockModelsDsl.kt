@@ -55,6 +55,7 @@ class MockFragment(
     )
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
+    fun addPart(part: FragmentPart<*>) = parts.add(ByClassWrapper(part))
 }
 
 class MockArtifact(

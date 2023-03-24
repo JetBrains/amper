@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.testkit.runner.BuildResult
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 
 /**
  * A simple plugin to print out information
@@ -26,15 +27,7 @@ private const val kotlinSourceSetInfoEndMarker = "KOTLIN SOURCE SET INFO END"
 fun String.extractSourceInfoOutput(): String {
     val startIndex = indexOf(kotlinSourceSetInfoStartMarker)
     val endIndex = indexOf(kotlinSourceSetInfoEndMarker)
-    return subSequence(startIndex + kotlinSourceSetInfoStartMarker.length, endIndex).toString()
-}
-
-fun parseSourceSetInfo(runResult: BuildResult): Map<String, String> {
-    val sourceSetsInfo = runResult.output.extractSourceInfoOutput()
-    return sourceSetsInfo.trim().split("\n").associate {
-        val index = it.indexOf(":")
-        it.substring(0, index) to it.substring(index + 1, it.length)
-    }
+    return subSequence(startIndex + kotlinSourceSetInfoStartMarker.length, endIndex).toString().trim()
 }
 
 class PrintKotlinSpecificInfoForProject : Plugin<Project> {
@@ -45,7 +38,9 @@ class PrintKotlinSpecificInfoForProject : Plugin<Project> {
             task.doLast {
                 val mpE = target.extensions.getByType(KotlinMultiplatformExtension::class.java)
                 val sourceSets = mpE.sourceSets.joinToString(separator = "\n") { sourceSet ->
-                    sourceSet.name + ":" + sourceSet.dependsOn.joinToString(separator = ";") { it.name }
+                    sourceSet.name + ":" +
+                            "depends " + sourceSet.dependsOn.joinToString(separator = "_") { it.name } +
+                            ",lang " + sourceSet.languageSettings.pretty()
                 }
                 println(
                     kotlinSourceSetInfoStartMarker +
@@ -55,4 +50,10 @@ class PrintKotlinSpecificInfoForProject : Plugin<Project> {
             }
         }
     }
+
+    fun LanguageSettingsBuilder.pretty() =
+        "api_" + apiVersion +
+                "_version_" + languageVersion +
+                "_progressive_" + progressiveMode +
+                "_features_" + enabledLanguageFeatures.joinToString(separator = "+") { it }
 }

@@ -25,6 +25,8 @@ class PotatoModuleWrapper(
 class ArtifactWrapper(
     private val artifact: Artifact
 ) : Artifact by artifact {
+    // Actually, duplicating [FragmentWrapper] objects here but ok for prototyping.
+    override val fragments = artifact.fragments.map { FragmentWrapper(it) }
     private val partsByClass = parts.associate { it.clazz to it.value }
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
 }
@@ -34,4 +36,5 @@ class FragmentWrapper(
 ) : Fragment by fragment {
     private val partsByClass = parts.associate { it.clazz to it.value }
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
+    inline fun <reified T : Any> part() = this[T::class.java]
 }

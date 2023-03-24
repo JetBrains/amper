@@ -4,6 +4,7 @@ import org.jetbrains.deft.proto.frontend.Fragment
 import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.buildDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -49,6 +50,13 @@ class KMPPBindingPluginPart(
     }
 
     private fun initFragments() {
+        // Introduced function to remember to propagate language settings.
+        fun KotlinSourceSet.doDependsOn(it: Fragment) {
+            val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
+            applyPart(wrapper.part<KotlinFragmentPart>())
+            dependsOn(wrapper.sourceSet)
+        }
+
         // First iteration - create source sets and add dependencies.
         module.fragments.forEach { fragment ->
             fragment.maybeCreateSourceSet {
@@ -65,19 +73,13 @@ class KMPPBindingPluginPart(
         module.fragments.forEach { fragment ->
             val sourceSet = fragment.sourceSet
 
+            // Apply language settings.
+            val part = fragment.part<KotlinFragmentPart>()
+            sourceSet.applyPart(part)
+
             // Set dependencies.
             fragment.fragmentDependencies.forEach {
-                sourceSet.dependsOn(it.target.sourceSet)
-            }
-
-            fragment[KotlinFragmentPart::class.java]?.let { kotlinPart ->
-                sourceSet.languageSettings {
-                    languageVersion = kotlinPart.languageVersion
-                    apiVersion = kotlinPart.apiVersion
-                    progressiveMode = kotlinPart.progressiveMode ?: false
-                    kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
-                    kotlinPart.optIns.forEach { optIn(it) }
-                }
+                sourceSet.doDependsOn(it.target)
             }
 
             // Set sources and resources.
@@ -93,7 +95,7 @@ class KMPPBindingPluginPart(
                 val mainCompilation = target.compilations.findByName("main") ?: return@inner
                 mainCompilation.defaultSourceSet.apply {
                     artifact.fragments.forEach {
-                        dependsOn(it.sourceSet)
+                        doDependsOn(it)
                     }
                 }
             }
@@ -101,9 +103,21 @@ class KMPPBindingPluginPart(
 
         module.fragments.forEach { fragment ->
             val possiblePrebuiltName = "${fragment.name}Main"
-            findSourceSet(possiblePrebuiltName)?.dependsOn(fragment.sourceSet)
+            findSourceSet(possiblePrebuiltName)?.let {
+                it.doDependsOn(fragment)
+            }
         }
 
+    }
+
+    private fun KotlinSourceSet.applyPart(kotlinPart: KotlinFragmentPart?) = languageSettings.apply {
+        // TODO Propagate properly.
+        kotlinPart ?: return@apply
+        if (languageVersion == null) languageVersion = kotlinPart.languageVersion
+        if (apiVersion == null) apiVersion = kotlinPart.apiVersion
+        if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode = kotlinPart.progressiveMode ?: false
+        kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
+        kotlinPart.optIns.forEach { optIn(it) }
     }
 
     private fun KotlinAndroidTarget.doConfigure() {

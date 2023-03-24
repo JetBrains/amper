@@ -3,7 +3,6 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.deft.proto.gradle.util.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -23,10 +22,18 @@ class SimpleModelsTests : WithTempDir {
         val printKotlinInfo = runResult.task(":$printKotlinSourcesTask")
         assertEquals(TaskOutcome.SUCCESS, printKotlinInfo?.outcome)
 
-        val parsedSourceSets = parseSourceSetInfo(runResult)
-        assertTrue(parsedSourceSets.containsKey("common")) { "No common source set" }
-        assertTrue(parsedSourceSets["commonMain"]!!.contains("common")) { "commonMain does not depend on common. " +
-                "Actual: ${parsedSourceSets["commonMain"]!!}" }
+        val extracted = runResult.output.extractSourceInfoOutput()
+
+        assertEquals(
+            """
+            common:depends ,lang api_null_version_null_progressive_false_features_
+            commonMain:depends common,lang api_null_version_null_progressive_false_features_
+            commonTest:depends ,lang api_null_version_null_progressive_false_features_
+            myAppJVMMain:depends commonMain_common,lang api_null_version_null_progressive_false_features_
+            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            """.trimIndent(),
+            extracted
+        )
     }
 
     @Test
@@ -34,30 +41,40 @@ class SimpleModelsTests : WithTempDir {
         val runResult = runGradleWithModel(Models.jvmTwoFragmentModel)
         assertEquals(TaskOutcome.SUCCESS, runResult.task(":$printKotlinSourcesTask")?.outcome)
 
-        val parsedSourceSets = parseSourceSetInfo(runResult)
-        assertTrue(parsedSourceSets.containsKey("common")) { "No common source set" }
-        assertTrue(parsedSourceSets["commonMain"]?.contains("common") ?: false) { "commonMain does not depend on common. " +
-                "All: $parsedSourceSets" }
-        assertTrue(parsedSourceSets.containsKey("jvm")) { "No jvm source set" }
-        assertTrue(parsedSourceSets["myAppJVMMain"]?.contains("jvm") ?: false) { "myAppJVMMain does not depend on jvm. " +
-                "All: $parsedSourceSets" }
+        val extracted = runResult.output.extractSourceInfoOutput()
+
+        assertEquals(
+            """
+            common:depends ,lang api_null_version_null_progressive_false_features_
+            commonMain:depends common,lang api_null_version_null_progressive_false_features_
+            commonTest:depends ,lang api_null_version_null_progressive_false_features_
+            jvm:depends common,lang api_null_version_null_progressive_false_features_
+            myAppJVMMain:depends commonMain_jvm,lang api_null_version_null_progressive_false_features_
+            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            """.trimIndent(),
+            extracted
+        )
     }
 
     @Test
-    fun threeFragmentModelTest() {
-        val runResult = runGradleWithModel(Models.threeFragmentModel)
+    fun threeFragmentsSingleArtifactModel() {
+        val runResult = runGradleWithModel(Models.threeFragmentsSingleArtifactModel)
         assertEquals(TaskOutcome.SUCCESS, runResult.task(":$printKotlinSourcesTask")?.outcome)
 
-        val parsedSourceSets = parseSourceSetInfo(runResult)
-        assertTrue(parsedSourceSets.containsKey("common")) { "No common source set" }
-        assertTrue(parsedSourceSets["commonMain"]?.contains("common") ?: false) { "commonMain does not depend on common. " +
-                "All: $parsedSourceSets" }
-        assertTrue(parsedSourceSets.containsKey("jvm")) { "No jvm source set" }
-        assertTrue(parsedSourceSets["myAppJVMMain"]?.contains("jvm") ?: false) { "myAppJVMMain does not depend on jvm. " +
-                "All: $parsedSourceSets" }
-        assertTrue(parsedSourceSets.containsKey("ios")) { "No common source set" }
-        assertTrue(parsedSourceSets["myAppJVMMain"]?.contains("ios") ?: false) { "myAppJVMMain does not depend on common. " +
-                "All: $parsedSourceSets" }
+        val extracted = runResult.output.extractSourceInfoOutput()
+
+        assertEquals(
+            """
+            common:depends ,lang api_null_version_null_progressive_false_features_
+            commonMain:depends common,lang api_null_version_null_progressive_false_features_
+            commonTest:depends ,lang api_null_version_null_progressive_false_features_
+            ios:depends common,lang api_null_version_null_progressive_false_features_
+            jvm:depends common,lang api_null_version_null_progressive_false_features_
+            myAppJVMMain:depends commonMain_jvm_ios,lang api_null_version_null_progressive_false_features_
+            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            """.trimIndent(),
+            extracted
+        )
     }
 
 }

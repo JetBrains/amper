@@ -1,11 +1,14 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.util.MockModel
 import org.jetbrains.deft.proto.gradle.util.getMockModelName
 import org.jetbrains.deft.proto.gradle.util.withDebug
+import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
 import java.nio.file.Path
+import kotlin.properties.PropertyDelegateProvider
 
 
 class MockModelInit : ModelInit by Models
@@ -20,8 +23,11 @@ object Models : ModelInit {
     private lateinit var root: Path
 
     private val modelsMap = mutableMapOf<String, MockModelHandle>()
-    fun mockModel(modelName: String, builder: MockModel.(Path) -> Unit) =
-        MockModelHandle(modelName, builder).apply { modelsMap[modelName] = this }
+    private fun mockModel(builder: MockModel.(Path) -> Unit) =
+        PropertyDelegateProvider<Models, ProviderDelegate<MockModelHandle>> { _, property ->
+            val modelHandle = MockModelHandle(property.name, builder).apply { modelsMap[property.name] = this }
+            ProviderDelegate { modelHandle }
+        }
 
     override fun getModel(root: Path): MockModel {
         val modelName = getMockModelName()
@@ -32,16 +38,16 @@ object Models : ModelInit {
         this.root = root
         val modelHandle: MockModelHandle = modelsMap[modelName] ?: error("No mock model with name $modelName is found!")
         val modelBuilder = modelHandle.builder
-        return MockModel(modelHandle.name).apply {
-            modelBuilder(root)
-        }
+        return MockModel(modelHandle.name).apply { modelBuilder(root) }
     }
+
+    private val Path.buildToml: Path get() = resolve("build.toml")
 
     // --- Models ----------------------------------------------------------------------------------------------------------
     // Need to be within [Models] class to be init.
 
-    val commonFragmentModel = mockModel("commonFragmentModel") {
-        module(it.resolve("build.toml")) {
+    val commonFragmentModel by mockModel {
+        module(it.buildToml) {
             val common = fragment("common")
             artifact(
                 "myApp",
@@ -52,8 +58,8 @@ object Models : ModelInit {
     }
 
 
-    val jvmTwoFragmentModel = mockModel("jvmTwoFragmentModel") {
-        module(it.resolve("build.toml")) {
+    val jvmTwoFragmentModel by mockModel {
+        module(it.buildToml) {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
@@ -66,8 +72,8 @@ object Models : ModelInit {
         }
     }
 
-    val threeFragmentModel = mockModel("threeFragmentModel") {
-        module(it.resolve("build.toml")) {
+    val threeFragmentsSingleArtifactModel by mockModel {
+        module(it.buildToml) {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
@@ -79,6 +85,27 @@ object Models : ModelInit {
                 "myApp",
                 setOf(Platform.JVM),
                 jvm, ios
+            )
+        }
+    }
+
+    val kotlinFragmentPartModel by mockModel {
+        module(it.buildToml) {
+            val common = fragment("common") {
+                addPart(
+                    KotlinFragmentPart(
+                        "1.8",
+                        "1.8",
+                        true,
+                        listOf("InlineClasses"),
+                        listOf("org.mylibrary.OptInAnnotation"),
+                    )
+                )
+            }
+            artifact(
+                "myApp",
+                setOf(Platform.JVM),
+                common
             )
         }
     }

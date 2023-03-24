@@ -3,7 +3,7 @@ package org.jetbrains.deft.proto.gradle.util
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.deft.proto.gradle.MockModelHandle
 
-const val withDebug = true
+const val withDebug = false
 
 private const val MOCK_MODEL_ENV = "MOCK_MODEL"
 
