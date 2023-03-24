@@ -15,12 +15,6 @@ interface BindingPluginPart {
     val model: Model
     val module: PotatoModuleWrapper
     val moduleToProject: Map<Path, String>
-
-    fun KotlinProjectExtension.applyForKotlinSourceSet(sourceSetName: String, action: KotlinSourceSet.() -> Unit) =
-        getOrCreateKotlinSourceSet(sourceSetName).action()
-
-    fun KotlinProjectExtension.getOrCreateKotlinSourceSet(sourceSetName: String): KotlinSourceSet =
-        sourceSets.maybeCreate(sourceSetName)
 }
 
 /**

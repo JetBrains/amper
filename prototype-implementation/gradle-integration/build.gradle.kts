@@ -12,13 +12,28 @@ dependencies {
     implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.0")
     implementation("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.0")
     implementation("com.android.library:com.android.library.gradle.plugin:7.4.0-beta02")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 gradlePlugin {
     plugins {
-        create("exampleSettingsPlugin") {
-            id = "org.example.settings.plugin"
-            implementationClass = "org.example.BindingSettingsPlugin"
+        create("deftProtoSettingsPlugin") {
+            id = "org.jetbrains.deft.proto.settings.plugin"
+            implementationClass = "org.jetbrains.deft.proto.gradle.BindingSettingsPlugin"
         }
     }
+}
+
+tasks.withType<Test>() {
+    useJUnitPlatform()
+}
+
+// Add also this tests classes as plugin classpath for running plugin.
+tasks.withType<PluginUnderTestMetadata>().configureEach {
+    pluginClasspath.setFrom(
+        pluginClasspath
+            .plus(files(project.buildDir.resolve("classes/kotlin/test")))
+            .plus(files(project.buildDir.resolve("resources/test")))
+    )
 }

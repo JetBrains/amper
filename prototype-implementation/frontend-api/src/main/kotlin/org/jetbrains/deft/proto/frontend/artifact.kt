@@ -17,6 +17,7 @@ data class KotlinArtifactPart(
  * Some resulting artifact that is built from several fragments.
  */
 interface Artifact {
+    val name: String
     val fragments: List<Fragment>
     val platforms: Set<Platform>
     val parts: ClassBasedSet<ArtifactPart<*>>

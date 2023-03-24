@@ -38,9 +38,11 @@ class SettingsPluginRun(
             it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
 
             // Apply Android plugin.
-            when(connectedModule.type) {
-                PotatoModuleType.APPLICATION -> it.plugins.apply("com.android.application")
-                PotatoModuleType.LIBRARY -> it.plugins.apply("com.android.library")
+            if (connectedModule.androidNeeded) {
+                when (connectedModule.type) {
+                    PotatoModuleType.APPLICATION -> it.plugins.apply("com.android.application")
+                    PotatoModuleType.LIBRARY -> it.plugins.apply("com.android.library")
+                }
             }
 
             it.plugins.apply(BindingProjectPlugin::class.java)

@@ -1,9 +1,6 @@
 package org.jetbrains.deft.proto.gradle
 
-import org.jetbrains.deft.proto.frontend.Artifact
-import org.jetbrains.deft.proto.frontend.Fragment
-import org.jetbrains.deft.proto.frontend.Model
-import org.jetbrains.deft.proto.frontend.PotatoModule
+import org.jetbrains.deft.proto.frontend.*
 
 /**
  * A class, that caches [modules] and also, adds
@@ -21,6 +18,8 @@ class PotatoModuleWrapper(
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
     override val fragments = passedModule.fragments.map { FragmentWrapper(it) }
     override val artifacts = passedModule.artifacts.map { ArtifactWrapper(it) }
+
+    val androidNeeded = artifactPlatforms.contains(Platform.ANDROID)
 }
 
 class ArtifactWrapper(

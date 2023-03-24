@@ -31,16 +31,19 @@ class KMPPBindingPluginPart(
     }
 
     private fun initTargets() {
-        module.artifactPlatforms.forEach { target ->
-            check(target.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $target" }
-            when (target) {
-                Platform.ANDROID -> kotlinMPE.android { doConfigure() }
-                Platform.JVM -> kotlinMPE.jvm { doConfigure() }
-                Platform.IOS_ARM64 -> kotlinMPE.iosArm64 { doConfigure() }
-                Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64 { doConfigure() }
-                Platform.IOS_X64 -> kotlinMPE.iosX64 { doConfigure() }
-                Platform.JS -> kotlinMPE.js { doConfigure() }
-                else -> error("Unsupported platform: $target")
+        module.artifacts.forEach { artifact ->
+            artifact.platforms.forEach { platform ->
+                check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
+                val targetName = "${artifact.name}${platform.name}"
+                when (platform) {
+                    Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure() }
+                    Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure() }
+                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName) { doConfigure() }
+                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { doConfigure() }
+                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { doConfigure() }
+                    Platform.JS -> kotlinMPE.js { doConfigure() }
+                    else -> error("Unsupported platform: $platform")
+                }
             }
         }
     }
@@ -81,6 +84,26 @@ class KMPPBindingPluginPart(
             sourceSet.kotlin.setSrcDirs(listOf(fragment.srcPath.toFile()))
             sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath.toFile()))
         }
+
+        // Third iteration - adjust kotlin prebuilt source sets to match created ones.
+        module.artifacts.forEach { artifact ->
+            artifact.platforms.forEach inner@ { platform ->
+                val targetName = "${artifact.name}${platform.name}"
+                val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
+                val mainCompilation = target.compilations.findByName("main") ?: return@inner
+                mainCompilation.defaultSourceSet.apply {
+                    artifact.fragments.forEach {
+                        dependsOn(it.sourceSet)
+                    }
+                }
+            }
+        }
+
+        module.fragments.forEach { fragment ->
+            val possiblePrebuiltName = "${fragment.name}Main"
+            findSourceSet(possiblePrebuiltName)?.dependsOn(fragment.sourceSet)
+        }
+
     }
 
     private fun KotlinAndroidTarget.doConfigure() {
@@ -103,6 +126,7 @@ class KMPPBindingPluginPart(
     private val Fragment.path get() = module.buildDir.resolve(name)
     private val Fragment.srcPath get() = path.resolve("src")
     private val Fragment.resourcesPath get() = path.resolve("resources")
+    private fun findSourceSet(name: String) = kotlinMPE.sourceSets.findByName(name)
     private val Fragment.sourceSet get() = kotlinMPE.sourceSets.getByName(name)
     private fun Fragment.maybeCreateSourceSet(block: KotlinSourceSet.() -> Unit) {
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
