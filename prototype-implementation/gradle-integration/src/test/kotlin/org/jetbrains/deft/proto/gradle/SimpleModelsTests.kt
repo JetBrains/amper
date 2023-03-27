@@ -26,11 +26,32 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
-            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
-            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
-            myAppJVMMain:depends(commonMain,common) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
-            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
+:
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs(commonMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs(commonTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMMain:
+   depends(commonMain,common)
+   sourceDirs(myAppJVMMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMTest:
+   depends(commonTest)
+   sourceDirs(myAppJVMTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )
@@ -45,12 +66,37 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
-            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
-            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
-            jvm         :depends(common          ) sourceDirs(jvm             ) lang(api=null version=null progressive=false features=)
-            myAppJVMMain:depends(commonMain,jvm  ) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
-            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
+:
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs(commonMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs(commonTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvm:
+   depends(common)
+   sourceDirs(jvm)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMMain:
+   depends(commonMain,jvm)
+   sourceDirs(myAppJVMMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMTest:
+   depends(commonTest)
+   sourceDirs(myAppJVMTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )
@@ -65,13 +111,42 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
-            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
-            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
-            ios         :depends(common          ) sourceDirs(ios             ) lang(api=null version=null progressive=false features=)
-            jvm         :depends(common          ) sourceDirs(jvm             ) lang(api=null version=null progressive=false features=)
-            myAppJVMMain:depends(commonMain,jvm,ios) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
-            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
+:
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs(commonMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs(commonTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  ios:
+   depends(common)
+   sourceDirs(ios)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvm:
+   depends(common)
+   sourceDirs(jvm)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMMain:
+   depends(commonMain,jvm,ios)
+   sourceDirs(myAppJVMMain)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMTest:
+   depends(commonTest)
+   sourceDirs(myAppJVMTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )

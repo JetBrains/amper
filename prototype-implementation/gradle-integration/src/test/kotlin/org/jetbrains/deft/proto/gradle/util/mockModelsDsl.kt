@@ -55,6 +55,7 @@ class MockFragment(
     )
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
+    fun dependency(module: MockPotatoModule) = externalDependencies.add(PotatoModuleDependency(module))
     fun addPart(part: FragmentPart<*>) = parts.add(ByClassWrapper(part))
 }
 

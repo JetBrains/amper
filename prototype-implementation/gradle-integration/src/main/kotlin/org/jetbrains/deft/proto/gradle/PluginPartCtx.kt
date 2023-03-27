@@ -1,10 +1,8 @@
 package org.jetbrains.deft.proto.gradle
 
-import org.jetbrains.deft.proto.frontend.Model
 import org.gradle.api.Project
+import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PotatoModule
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.nio.file.Path
 
 /**
@@ -15,6 +13,11 @@ interface BindingPluginPart {
     val model: Model
     val module: PotatoModuleWrapper
     val moduleToProject: Map<Path, String>
+    val PotatoModule.linkedProject
+        get() = project.project(
+            moduleToProject[buildDir]
+                ?: error("No linked Gradle project found for module $userReadableName")
+        )
 }
 
 /**

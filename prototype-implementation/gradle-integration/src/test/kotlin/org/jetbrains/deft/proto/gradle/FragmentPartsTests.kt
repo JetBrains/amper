@@ -26,11 +26,32 @@ class FragmentPartsTests : WithTempDir {
 
         assertEquals(
             """
-            common      :depends(                ) sourceDirs(common          ) lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
-            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
-            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
-            myAppJVMMain:depends(commonMain,common) sourceDirs(myAppJVMMain    ) lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
-            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
+:
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs(commonMain)
+   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs(commonTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJVMMain:
+   depends(commonMain,common)
+   sourceDirs(myAppJVMMain)
+   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
+   implDeps()
+  myAppJVMTest:
+   depends(commonTest)
+   sourceDirs(myAppJVMTest)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )

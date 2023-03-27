@@ -9,6 +9,7 @@ import org.jetbrains.deft.proto.gradle.util.getMockModelName
 import org.jetbrains.deft.proto.gradle.util.withDebug
 import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.properties.PropertyDelegateProvider
 
 
@@ -123,6 +124,55 @@ object Models : ModelInit {
                     "android-31",
                 ))
             }
+        }
+    }
+
+    val twoModulesModel by mockModel {
+        val module1 = module(it.resolve("module1/build.toml").createDirectories()) {
+            val common = fragment("common")
+            artifact(
+                "myApp",
+                setOf(Platform.JVM),
+                common
+            )
+        }
+        module(it.resolve("module2/build.toml").createDirectories()) {
+            val common = fragment("common") {
+                dependency(module1)
+            }
+            artifact(
+                "myApp",
+                setOf(Platform.JVM),
+                common
+            )
+        }
+    }
+
+    val twoModulesTwoFragmentsModel by mockModel {
+        val module1 = module(it.resolve("module1/build.toml").createDirectories()) {
+            val common = fragment("common")
+            val jvm = fragment("jvm") {
+                refines(common)
+            }
+            artifact(
+                "myApp",
+                setOf(Platform.JVM),
+                jvm
+            )
+        }
+        module(it.resolve("module2/build.toml").createDirectories()) {
+            val common = fragment("common") {
+                dependency(module1)
+            }
+            val jvm = fragment("jvm") {
+                refines(common)
+                dependency(module1)
+            }
+            artifact(
+                "myApp",
+                setOf(Platform.JVM),
+                jvm
+            )
         }
     }
 }

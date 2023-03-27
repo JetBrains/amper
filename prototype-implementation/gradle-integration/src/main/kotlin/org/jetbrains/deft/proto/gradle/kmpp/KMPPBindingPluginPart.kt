@@ -1,13 +1,8 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import com.android.build.gradle.internal.tasks.manifest.mergeManifests
-import org.jetbrains.deft.proto.frontend.Fragment
-import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
-import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.gradle.BindingPluginPart
-import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.buildDir
+import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -63,8 +58,11 @@ class KMPPBindingPluginPart(
             fragment.maybeCreateSourceSet {
                 dependencies {
                     fragment.externalDependencies.forEach { externalDependency ->
-                        if (externalDependency.startsWith(":")) implementation(project(externalDependency))
-                        else implementation(externalDependency)
+                        when(externalDependency) {
+                            is MavenDependency -> implementation(externalDependency.coordinates)
+                            is PotatoModuleDependency -> implementation(externalDependency.module.linkedProject)
+                            else -> error("Unsupported dependency type: $externalDependency")
+                        }
                     }
                 }
             }

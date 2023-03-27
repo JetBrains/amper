@@ -1,9 +1,8 @@
 package org.jetbrains.deft.proto.frontend
 
-/**
- * Just a renaming for a possible future class introduction.
- */
-typealias Notation = String
+sealed interface Notation
+data class PotatoModuleDependency(val module: PotatoModule) : Notation
+data class MavenDependency(val coordinates: String) : Notation
 
 enum class FragmentDependencyType {
     REFINE,
