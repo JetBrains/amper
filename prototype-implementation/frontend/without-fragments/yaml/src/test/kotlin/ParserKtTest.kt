@@ -21,7 +21,7 @@ internal class ParserKtTest {
     @Test
     fun `single platform`() {
         with(buildFile) {
-            testParse("single-platform")
+            testParse("0-single-platform")
         }
     }
 

@@ -33,7 +33,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         for (variant in variants) {
             for (option in (variant.getValue<List<Settings>>("options")
                 ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
-                put("option", variant)
+                put(option, variant)
             }
         }
     }

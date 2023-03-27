@@ -55,6 +55,7 @@ fun parseModule(value: String): PotatoModule {
                 aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it))
             }.toSet()
         }
+        .filter { it.isNotEmpty() }
         .toSet() + platforms.map { setOf(it) }
 
     var fragments = with(aliasMap) { subsets.basicFragments }

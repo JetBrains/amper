@@ -139,8 +139,9 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                     val dependenciesToRemove = mutableSetOf<MutableFragmentDependency>()
                     val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
                     fragment.dependencies.forEach { dependency ->
-                        val targetFragment = sourceFragments.firstOrNull { it.platforms == dependency.target.platforms && it !== fragment }
-                            ?: error("Something went wrong")
+                        val targetFragment =
+                            sourceFragments.firstOrNull { it.platforms == dependency.target.platforms && it !== fragment }
+                                ?: error("Something went wrong")
 
                         dependenciesToRemove.add(dependency)
                         dependenciesToAdd.add(MutableFragmentDependency(targetFragment, dependency.dependencyKind))
@@ -181,8 +182,10 @@ internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
                 addFragment(fragment, platformSet)
             }
             val platformSet = platforms.reduce { acc, set -> acc + set }
-            val fragment = MutableFragment("common", platformSet)
-            addFragment(fragment, platformSet)
+            if (platformSet.size > 1) {
+                val fragment = MutableFragment("common", platformSet)
+                addFragment(fragment, platformSet)
+            }
         }
     }
 
