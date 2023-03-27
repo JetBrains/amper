@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
+import com.android.build.gradle.internal.tasks.manifest.mergeManifests
 import org.jetbrains.deft.proto.frontend.Fragment
 import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.Platform

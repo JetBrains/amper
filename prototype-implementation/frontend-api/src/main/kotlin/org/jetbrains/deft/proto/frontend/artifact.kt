@@ -1,17 +1,14 @@
 package org.jetbrains.deft.proto.frontend
 
-sealed interface ArtifactPart<SelfT> {
-    // Do not actually sure, if it is needed.
-    fun merge(other: SelfT)
-}
+sealed interface ArtifactPart<SelfT>
 
 data class KotlinArtifactPart(
     val some: String
-) : ArtifactPart<KotlinFragmentPart> {
-    override fun merge(other: KotlinFragmentPart) {
-        TODO("Not yet implemented")
-    }
-}
+) : ArtifactPart<KotlinFragmentPart>
+
+data class AndroidArtifactPart(
+    val compileSdkVersion: String,
+) : ArtifactPart<AndroidArtifactPart>
 
 /**
  * Some resulting artifact that is built from several fragments.

@@ -29,6 +29,7 @@ class ArtifactWrapper(
     override val fragments = artifact.fragments.map { FragmentWrapper(it) }
     private val partsByClass = parts.associate { it.clazz to it.value }
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
+    inline fun <reified T : Any> part() = this[T::class.java]
 }
 
 class FragmentWrapper(

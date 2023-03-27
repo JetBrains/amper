@@ -2,8 +2,17 @@ package org.jetbrains.deft.proto.gradle.util
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.InvalidPluginMetadataException
 import org.jetbrains.deft.proto.gradle.MockModelHandle
 import java.io.File
+
+
+/**
+ * A flag to enter debug mode in GradleRunner.
+ * Also applies some hacks, see [bypassTestkitDebugEnvRestriction.kt]
+ * and [setUpGradleProjectDir].
+ */
+const val withDebug = false
 
 interface WithTempDir {
     var tempDir: File
@@ -17,7 +26,7 @@ fun WithTempDir.runGradleWithModel(model: MockModelHandle): BuildResult = Gradle
     .withDebug(withDebug)
     .build()
 
-fun setUpGradleSettings(root: File) {
+fun setUpGradleProjectDir(root: File) {
     val settingsFile = root.resolve("settings.gradle.kts")
     settingsFile.createNewFile()
     val settingsFileContent = if (withDebug) """

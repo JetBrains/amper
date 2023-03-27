@@ -3,8 +3,8 @@ package org.jetbrains.deft.proto.gradle.util
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-import org.gradle.testkit.runner.BuildResult
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 
 /**
@@ -33,15 +33,10 @@ fun String.extractSourceInfoOutput(): String {
 class PrintKotlinSpecificInfoForProject : Plugin<Project> {
     override fun apply(target: Project) {
         target.tasks.create(printKotlinSourcesTask) { task ->
-            task.dependsOn("build")
-
             task.doLast {
                 val mpE = target.extensions.getByType(KotlinMultiplatformExtension::class.java)
-                val sourceSets = mpE.sourceSets.joinToString(separator = "\n") { sourceSet ->
-                    sourceSet.name + ":" +
-                            "depends " + sourceSet.dependsOn.joinToString(separator = "_") { it.name } +
-                            ",lang " + sourceSet.languageSettings.pretty()
-                }
+                val namePad = mpE.sourceSets.namePad()
+                val sourceSets = mpE.sourceSets.joinToString(separator = "\n") { it.pretty(namePad) }
                 println(
                     kotlinSourceSetInfoStartMarker +
                             "\n$sourceSets" +
@@ -51,9 +46,26 @@ class PrintKotlinSpecificInfoForProject : Plugin<Project> {
         }
     }
 
-    fun LanguageSettingsBuilder.pretty() =
-        "api_" + apiVersion +
-                "_version_" + languageVersion +
-                "_progressive_" + progressiveMode +
-                "_features_" + enabledLanguageFeatures.joinToString(separator = "+") { it }
+    private fun Iterable<KotlinSourceSet>.namePad() = maxOf { it.name.length }
+
+    private fun KotlinSourceSet.pretty(namePad: Int = 32) =
+        name.padEnd(namePad) + ":" +
+                "depends(${dependsOn.joinToString(separator = ",") { it.name }.padEnd(16)})" +
+                " " +
+                "sourceDirs(${
+                    this.kotlin
+                        .srcDirs
+                        .map { it.parentFile.name }
+                        .toSet()
+                        .joinToString(separator = ",") { it }
+                        .padEnd(16)
+                })" +
+                " " +
+                "lang(${languageSettings.pretty().padEnd(32)})"
+
+    private fun LanguageSettingsBuilder.pretty() =
+        "api=" + apiVersion +
+                " version=" + languageVersion +
+                " progressive=" + progressiveMode +
+                " features=" + enabledLanguageFeatures.joinToString(separator = ",") { it }
 }

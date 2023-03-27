@@ -14,7 +14,7 @@ class SimpleModelsTests : WithTempDir {
     override lateinit var tempDir: File
 
     @BeforeEach
-    fun setUpGradleSettings() = setUpGradleSettings(tempDir)
+    fun setUpGradleSettings() = setUpGradleProjectDir(tempDir)
 
     @Test
     fun commonFragmentTest() {
@@ -26,11 +26,11 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common:depends ,lang api_null_version_null_progressive_false_features_
-            commonMain:depends common,lang api_null_version_null_progressive_false_features_
-            commonTest:depends ,lang api_null_version_null_progressive_false_features_
-            myAppJVMMain:depends commonMain_common,lang api_null_version_null_progressive_false_features_
-            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
+            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
+            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
+            myAppJVMMain:depends(commonMain,common) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
+            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
             """.trimIndent(),
             extracted
         )
@@ -45,12 +45,12 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common:depends ,lang api_null_version_null_progressive_false_features_
-            commonMain:depends common,lang api_null_version_null_progressive_false_features_
-            commonTest:depends ,lang api_null_version_null_progressive_false_features_
-            jvm:depends common,lang api_null_version_null_progressive_false_features_
-            myAppJVMMain:depends commonMain_jvm,lang api_null_version_null_progressive_false_features_
-            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
+            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
+            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
+            jvm         :depends(common          ) sourceDirs(jvm             ) lang(api=null version=null progressive=false features=)
+            myAppJVMMain:depends(commonMain,jvm  ) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
+            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
             """.trimIndent(),
             extracted
         )
@@ -65,13 +65,13 @@ class SimpleModelsTests : WithTempDir {
 
         assertEquals(
             """
-            common:depends ,lang api_null_version_null_progressive_false_features_
-            commonMain:depends common,lang api_null_version_null_progressive_false_features_
-            commonTest:depends ,lang api_null_version_null_progressive_false_features_
-            ios:depends common,lang api_null_version_null_progressive_false_features_
-            jvm:depends common,lang api_null_version_null_progressive_false_features_
-            myAppJVMMain:depends commonMain_jvm_ios,lang api_null_version_null_progressive_false_features_
-            myAppJVMTest:depends commonTest,lang api_null_version_null_progressive_false_features_
+            common      :depends(                ) sourceDirs(common          ) lang(api=null version=null progressive=false features=)
+            commonMain  :depends(common          ) sourceDirs(commonMain      ) lang(api=null version=null progressive=false features=)
+            commonTest  :depends(                ) sourceDirs(commonTest      ) lang(api=null version=null progressive=false features=)
+            ios         :depends(common          ) sourceDirs(ios             ) lang(api=null version=null progressive=false features=)
+            jvm         :depends(common          ) sourceDirs(jvm             ) lang(api=null version=null progressive=false features=)
+            myAppJVMMain:depends(commonMain,jvm,ios) sourceDirs(myAppJVMMain    ) lang(api=null version=null progressive=false features=)
+            myAppJVMTest:depends(commonTest      ) sourceDirs(myAppJVMTest    ) lang(api=null version=null progressive=false features=)
             """.trimIndent(),
             extracted
         )

@@ -18,7 +18,7 @@ class BindingProjectPlugin : Plugin<Project> {
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
         applyKotlinMPAttributes(pluginCtx)
-        applyAndroidAttributes(pluginCtx)
+        if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         applyPublicationAttributes(linkedModule, project)
     }
 

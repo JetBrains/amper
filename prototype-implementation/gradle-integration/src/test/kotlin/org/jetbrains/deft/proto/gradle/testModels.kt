@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
 import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.Platform
@@ -110,4 +111,18 @@ object Models : ModelInit {
         }
     }
 
+    val singleFragmentAndroidModel by mockModel {
+        module(it.buildToml) {
+            val common = fragment("common")
+            artifact(
+                "myApp",
+                setOf(Platform.ANDROID),
+                common
+            ) {
+                addPart(AndroidArtifactPart(
+                    "android-31",
+                ))
+            }
+        }
+    }
 }

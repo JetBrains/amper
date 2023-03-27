@@ -64,4 +64,5 @@ class MockArtifact(
     override val fragments: List<MockFragment>,
 ) : Artifact {
     override val parts = mutableSetOf<ByClassWrapper<ArtifactPart<*>>>()
+    fun addPart(part: ArtifactPart<*>) = parts.add(ByClassWrapper(part))
 }
