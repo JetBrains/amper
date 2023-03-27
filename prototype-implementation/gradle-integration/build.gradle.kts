@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "org.example"
+group = "org.jetbrains.deft.proto.settings.plugin"
 version = "1.0-SNAPSHOT"
 
 dependencies {

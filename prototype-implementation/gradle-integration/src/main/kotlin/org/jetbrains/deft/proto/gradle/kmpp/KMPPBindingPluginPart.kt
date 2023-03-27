@@ -1,10 +1,10 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
-import com.android.build.gradle.internal.tasks.manifest.mergeManifests
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
@@ -49,7 +49,8 @@ class KMPPBindingPluginPart(
         // Introduced function to remember to propagate language settings.
         fun KotlinSourceSet.doDependsOn(it: Fragment) {
             val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
-            applyPart(wrapper.part<KotlinFragmentPart>())
+            applyOtherFragmentsPartsRecursively(it)
+            System.err.println("DEPEND FROM $name ON ${it.name}")
             dependsOn(wrapper.sourceSet)
         }
 
@@ -75,8 +76,7 @@ class KMPPBindingPluginPart(
             val sourceSet = fragment.sourceSet
 
             // Apply language settings.
-            val part = fragment.part<KotlinFragmentPart>()
-            sourceSet.applyPart(part)
+            sourceSet.applyOtherFragmentsPartsRecursively(fragment)
 
             // Set dependencies.
             fragment.fragmentDependencies.forEach {
@@ -89,11 +89,14 @@ class KMPPBindingPluginPart(
         }
 
         // Third iteration - adjust kotlin prebuilt source sets to match created ones.
+        println("EXISING ARTIFACTS: ${module.artifacts.joinToString { it.name }}")
         module.artifacts.forEach { artifact ->
+            println("ADJUSTING EXISING ARTIFACT: $artifact")
             artifact.platforms.forEach inner@ { platform ->
                 val targetName = "${artifact.name}${platform.name}"
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
                 val mainCompilation = target.compilations.findByName("main") ?: return@inner
+                println("ADJUSTING EXISING: $mainCompilation")
                 mainCompilation.defaultSourceSet.apply {
                     artifact.fragments.forEach {
                         doDependsOn(it)
@@ -111,11 +114,22 @@ class KMPPBindingPluginPart(
 
     }
 
-    private fun KotlinSourceSet.applyPart(kotlinPart: KotlinFragmentPart?) = languageSettings.apply {
+    private fun KotlinSourceSet.applyOtherFragmentsPartsRecursively(
+        from: Fragment
+    ): LanguageSettingsBuilder = languageSettings.apply {
+        val wrapper = from as? FragmentWrapper ?: FragmentWrapper(from)
+        doApplyPart(wrapper.part<KotlinFragmentPart>())
+        from.fragmentDependencies.forEach {
+            applyOtherFragmentsPartsRecursively(it.target)
+        }
+    }
+
+    private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinFragmentPart?) = languageSettings.apply {
         // TODO Propagate properly.
         kotlinPart ?: return@apply
-        if (languageVersion == null) languageVersion = kotlinPart.languageVersion
-        if (apiVersion == null) apiVersion = kotlinPart.apiVersion
+        // TODO Change defaults to some merge chain. Now languageVersion checking ruins build.
+        languageVersion = kotlinPart.languageVersion ?: "1.8"
+        apiVersion = kotlinPart.apiVersion ?: "1.8"
         if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode = kotlinPart.progressiveMode ?: false
         kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
         kotlinPart.optIns.forEach { optIn(it) }

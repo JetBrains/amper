@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "org.example"
+group = "org.jetbrains.deft.proto.frontend.with-fragments.yaml"
 version = "1.0-SNAPSHOT"
 
 dependencies {

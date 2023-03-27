@@ -43,10 +43,3 @@ internal class TestDirectory(val dir: File) {
 internal inline fun project(projectDir: File, block: TestDirectory.() -> Unit): TestDirectory {
     return TestDirectory(projectDir).apply(block)
 }
-
-internal fun withBuildFile(buildFile: Path, func: BuildFileAware.() -> PotatoModule): PotatoModule =
-    with(object : BuildFileAware {
-        override val buildFile: Path = buildFile
-    }) {
-        this.func()
-    }

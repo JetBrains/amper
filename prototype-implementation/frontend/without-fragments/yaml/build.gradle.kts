@@ -3,7 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.8.10"
+    `maven-publish`
 }
+
+group = "org.jetbrains.deft.proto.frontend.without-fragments.yaml"
+version = "1.0-SNAPSHOT"
 
 val junitVersion = "5.9.2"
 dependencies {
@@ -37,5 +41,13 @@ fun KotlinCompile.applySettings() {
     compilerOptions {
         languageVersion.set(KotlinVersion.KOTLIN_1_9)
         freeCompilerArgs.add("-Xcontext-receivers")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>(project.name) {
+            from(components["java"])
+        }
     }
 }

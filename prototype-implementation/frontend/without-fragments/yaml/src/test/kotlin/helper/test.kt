@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend.helper
 
 import org.jetbrains.deft.proto.frontend.ParserKtTest
 import org.jetbrains.deft.proto.frontend.parseModule
+import org.jetbrains.deft.proto.frontend.withBuildFile
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.fail

@@ -15,8 +15,8 @@ internal data class MutableFragment(
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
     val variants: MutableSet<String> = mutableSetOf(),
-    var languageVersion: KotlinVersion = KotlinVersion.Kotlin19,
-    var apiVersion: KotlinVersion = KotlinVersion.Kotlin19,
+    var languageVersion: KotlinVersion = KotlinVersion.Kotlin18,
+    var apiVersion: KotlinVersion = KotlinVersion.Kotlin18,
     var progressiveMode: Boolean = false,
     val languageFeatures: MutableList<String> = mutableListOf(),
     val optIns: MutableList<String> = mutableListOf()
