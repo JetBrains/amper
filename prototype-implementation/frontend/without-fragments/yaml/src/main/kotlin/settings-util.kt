@@ -38,7 +38,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         }
     }
 
-    val variantSet = variants.toMutableSet()
+
 
     val defaultOptionMap = buildMap<Settings, String> {
         for (variant in variants) {
@@ -49,7 +49,9 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         }
     }
 
+    var variantSet: MutableSet<Settings>
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
+        variantSet = variants.toMutableSet()
         val split = settingsKey.split(".")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
@@ -64,7 +66,12 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
             .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
             .ifEmpty { platforms }
             .toSet()
+
+        println("Normalized platforms: $normalizedPlatforms")
+
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
+
+        println("Normalized options: $normalizedOptions")
 
         val targetFragment = fragments
             .filter { it.platforms == normalizedPlatforms }

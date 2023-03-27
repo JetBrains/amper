@@ -26,6 +26,13 @@ internal class ParserKtTest {
     }
 
     @Test
+    fun `multiplatform app`() {
+        with(buildFile) {
+            testParse("1-multiplatform-app")
+        }
+    }
+
+    @Test
     fun aliases() {
         with(buildFile) {
             testParse("aliases")
