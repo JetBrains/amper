@@ -1,0 +1,5 @@
+product:
+  type: lib
+  platforms:
+    - iosX64
+    - jvm
