@@ -1,7 +1,10 @@
 package org.jetbrains.deft.proto.frontend
 
 sealed interface Notation
-data class PotatoModuleDependency(val module: PotatoModule) : Notation
+interface PotatoModuleDependency : Notation {
+    // A dirty hack to make module resolution lazy.
+    val Model.module: PotatoModule
+}
 data class MavenDependency(val coordinates: String) : Notation
 
 enum class FragmentDependencyType {

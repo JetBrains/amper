@@ -40,6 +40,10 @@ class MockFragmentDependency(
     override val type: FragmentDependencyType
 ) : FragmentDependency
 
+class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDependency {
+    override val Model.module get() = myModule
+}
+
 class MockFragment(
     override var name: String = "fragment",
 ) : Fragment {
@@ -55,7 +59,7 @@ class MockFragment(
     )
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
-    fun dependency(module: MockPotatoModule) = externalDependencies.add(PotatoModuleDependency(module))
+    fun dependency(module: MockPotatoModule) = externalDependencies.add(MockPotatoDependency(module))
     fun addPart(part: FragmentPart<*>) = parts.add(ByClassWrapper(part))
 }
 

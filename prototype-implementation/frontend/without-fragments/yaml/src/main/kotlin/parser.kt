@@ -82,6 +82,8 @@ fun parseModule(value: String): PotatoModule {
 
         private fun library(): List<Artifact> {
             return listOf(object : Artifact {
+                override val name: String
+                    get() = buildFile.parent.name
                 override val fragments: List<Fragment>
                     get() = with(mutableState) { fragments.map { it.immutable() } }
                 override val platforms: Set<Platform>
@@ -112,6 +114,11 @@ fun parseModule(value: String): PotatoModule {
                 for (platform in platforms) {
                     for (element in cartesian) {
                         add(object : Artifact {
+                            override val name: String
+                                // TODO Handle the case, when there are several artifacts with same name. Can it be?
+                                // If it can't - so it should be expressed in API via sealed interface.
+                                // FIXME
+                                get() = buildFile.parent.name
                             override val fragments: List<Fragment>
                                 get() = with(mutableState) {
                                     listOf(fragments.filter { it.platforms == setOf(platform) }

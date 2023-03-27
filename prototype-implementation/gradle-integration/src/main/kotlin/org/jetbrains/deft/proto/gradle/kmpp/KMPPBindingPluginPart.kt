@@ -60,7 +60,9 @@ class KMPPBindingPluginPart(
                     fragment.externalDependencies.forEach { externalDependency ->
                         when(externalDependency) {
                             is MavenDependency -> implementation(externalDependency.coordinates)
-                            is PotatoModuleDependency -> implementation(externalDependency.module.linkedProject)
+                            is PotatoModuleDependency -> with(externalDependency) {
+                                implementation(model.module.linkedProject)
+                            }
                             else -> error("Unsupported dependency type: $externalDependency")
                         }
                     }

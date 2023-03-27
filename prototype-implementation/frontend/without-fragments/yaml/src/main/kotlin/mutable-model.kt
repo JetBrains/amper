@@ -13,7 +13,7 @@ internal data class MutableFragment(
     val name: String,
     val platforms: Set<Platform>,
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
-    val externalDependencies: MutableSet<String> = mutableSetOf(),
+    val externalDependencies: MutableSet<Notation> = mutableSetOf(),
     val variants: MutableSet<String> = mutableSetOf(),
     var languageVersion: KotlinVersion = KotlinVersion.Kotlin19,
     var apiVersion: KotlinVersion = KotlinVersion.Kotlin19,
@@ -207,8 +207,16 @@ private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, 
 
 context (Map<String, Set<Platform>>)
 internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
-    config.handleFragmentSettings<List<String>>(this, "dependencies") {
-        externalDependencies.addAll(it)
+    config.handleFragmentSettings<List<String>>(this, "dependencies") { depList ->
+        val resolved = depList.map { dep ->
+            if (dep.startsWith(":")) object : PotatoModuleDependency {
+                override val Model.module: PotatoModule
+                    get() = modules.find { it.userReadableName == dep.removePrefix(":") }
+                        ?: error("No module $dep found")
+            }
+            else MavenDependency(dep)
+        }
+        externalDependencies.addAll(resolved)
     }
 
     config.handleFragmentSettings<Double>(this, "languageVersion") {
