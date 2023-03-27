@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import org.yaml.snakeyaml.Yaml
-import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
@@ -25,11 +24,10 @@ fun parseModule(value: String): PotatoModule {
         .toSet()
 
     val folderSubsets = buildFile.parent
-        .resolve("src").takeIf { it.exists() }
-        ?.listDirectoryEntries()
-        ?.map { it.name }
-        ?.map { it.split("+").toSet() }
-        ?.toSet() ?: emptySet()
+        .listDirectoryEntries()
+        .map { it.name }
+        .map { it.split("+").toSet() }
+        .toSet()
 
     val naturalHierarchy = Platform.values()
         .filter { !it.isLeaf }

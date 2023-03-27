@@ -23,6 +23,7 @@ internal data class FragmentDependencyImpl(
 ) : FragmentDependency
 
 internal data class ArtifactImpl(
+    override val name: String,
     override val fragments: List<FragmentImpl>,
     override val platforms: Set<Platform>,
     override val parts: ClassBasedSet<ArtifactPart<*>> = emptySet()

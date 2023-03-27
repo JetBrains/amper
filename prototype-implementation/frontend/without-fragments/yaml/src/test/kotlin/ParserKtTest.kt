@@ -35,7 +35,9 @@ internal class ParserKtTest {
     @Test
     fun aliases() {
         with(buildFile) {
-            testParse("aliases")
+            testParse("2-aliases") {
+                directory("iosSimulator")
+            }
         }
     }
 
@@ -43,9 +45,7 @@ internal class ParserKtTest {
     fun complexTest() {
         with(buildFile) {
             testParse("complex-test") {
-                directory("src") {
-                    directory("iosArm64+jvm")
-                }
+                directory("iosArm64+jvm")
             }
         }
     }
