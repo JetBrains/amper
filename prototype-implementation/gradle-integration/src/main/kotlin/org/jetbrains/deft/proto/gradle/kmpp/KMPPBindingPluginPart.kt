@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import java.io.File
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
 
@@ -52,6 +53,13 @@ class KMPPBindingPluginPart(
             applyOtherFragmentsPartsRecursively(it)
             System.err.println("DEPEND FROM $name ON ${it.name}")
             dependsOn(wrapper.sourceSet)
+        }
+
+        // Clear sources and resources for existing source sets.
+        val existingSourceSets = kotlinMPE.sourceSets.toList()
+        existingSourceSets.forEach {
+            it.kotlin.setSrcDirs(emptyList<File>())
+            it.resources.setSrcDirs(emptyList<File>())
         }
 
         // First iteration - create source sets and add dependencies.
