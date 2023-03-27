@@ -38,8 +38,6 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         }
     }
 
-
-
     val defaultOptionMap = buildMap<Settings, String> {
         for (variant in variants) {
             val option = (variant.getValue<List<Settings>>("options")
@@ -67,11 +65,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
             .ifEmpty { platforms }
             .toSet()
 
-        println("Normalized platforms: $normalizedPlatforms")
-
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
-
-        println("Normalized options: $normalizedOptions")
 
         val targetFragment = fragments
             .filter { it.platforms == normalizedPlatforms }
