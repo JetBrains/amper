@@ -137,7 +137,8 @@ internal fun deduceFragments(
             val mainFragment = FragmentImpl(
                 name = name,
                 fragmentDependencies = mutableListOf(),
-                externalDependencies = explicitFragments[name]?.externalDependencies ?: emptyList()
+                externalDependencies = explicitFragments[name]?.externalDependencies ?: emptyList(),
+                parts = explicitFragments[name]?.fragmentParts ?: emptySet(),
             )
             val testFragment = FragmentImpl(
                 name = testName,
@@ -147,7 +148,8 @@ internal fun deduceFragments(
                         FragmentDependencyType.FRIEND
                     )
                 ),
-                externalDependencies = explicitFragments[testName]?.externalDependencies ?: emptyList()
+                externalDependencies = explicitFragments[testName]?.externalDependencies ?: emptyList(),
+                parts = explicitFragments[testName]?.fragmentParts ?: emptySet(),
             )
 
             fun addRefine(baseName: String, suffix: String) {

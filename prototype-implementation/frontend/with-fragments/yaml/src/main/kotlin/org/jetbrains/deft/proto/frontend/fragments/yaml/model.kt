@@ -32,6 +32,7 @@ internal data class ArtifactImpl(
 internal data class FragmentDefinition(
     val externalDependencies: List<Notation>,
     val fragmentDependencies: List<String>,
+    val fragmentParts: ClassBasedSet<FragmentPart<*>>,
 )
 
 internal data class Flavor(val values: List<String>)

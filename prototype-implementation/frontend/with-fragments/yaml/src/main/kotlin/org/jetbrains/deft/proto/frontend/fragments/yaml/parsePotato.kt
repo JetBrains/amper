@@ -57,6 +57,10 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
     return rawFragments.map { (name, fragment) ->
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val fragmentDependencies = fragment["refines"] as? List<String> ?: emptyList()
+        val kotlinFragmentPart = parseKotlinFragmentPart(fragment)
+        val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildSet {
+            if (kotlinFragmentPart != null) add(ByClassWrapper(kotlinFragmentPart))
+        }
         name to FragmentDefinition(
             externalDependencies.map { dependency ->
                 if (dependency.startsWith(":")) {
@@ -66,6 +70,27 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
                 }
             },
             fragmentDependencies,
+            fragmentParts,
         )
     }.toMap()
+}
+
+private fun parseKotlinFragmentPart(fragmentMap: Map<String, Any>): KotlinFragmentPart? {
+    var hasAnyKotlinArguments = false
+    fun <T> retrieveArgumentFromMap(argument: String): T? {
+        val value = fragmentMap[argument] as T?
+        if (value != null) {
+            hasAnyKotlinArguments = true
+        }
+        return value
+    }
+
+    val languageVersion = retrieveArgumentFromMap<String>("languageVersion")
+    val apiVersion = retrieveArgumentFromMap<String>("apiVersion")
+    val progressiveMode = retrieveArgumentFromMap<Boolean>("progressiveMode")
+    val languageFeatures = retrieveArgumentFromMap<List<String>>("languageFeatures") ?: emptyList()
+    val optIns = retrieveArgumentFromMap<List<String>>("optIns") ?: emptyList()
+
+    if (!hasAnyKotlinArguments) return null
+    return KotlinFragmentPart(languageVersion, apiVersion, progressiveMode, languageFeatures, optIns)
 }

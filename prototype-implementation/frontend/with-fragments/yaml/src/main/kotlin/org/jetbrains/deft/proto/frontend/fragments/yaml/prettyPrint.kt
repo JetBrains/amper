@@ -19,6 +19,9 @@ internal fun prettyPrint(potato: PotatoModule): String {
             appendLine("- ${fragment.name}")
             appendLine("  Fragment dependencies: [${fragment.fragmentDependencies.joinToString { "${it.target.name} [${it.type}]" }}]")
             appendLine("  External dependencies: ${fragment.externalDependencies}")
+            if (fragment.parts.isNotEmpty()) {
+                appendLine("  Parts: ${fragment.parts.map { it.value }}")
+            }
         }
 
         appendLine("Artifacts:")

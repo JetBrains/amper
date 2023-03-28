@@ -43,6 +43,9 @@ class PotatoParserTest {
     @Test
     fun `inner project dependency`() = testYamlParseFromFile("inner_project_dependency")
 
+    @Test
+    fun `kotlin fragment parts`() = testYamlParseFromFile("kotlin_fragment_parts")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)
