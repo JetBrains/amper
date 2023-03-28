@@ -15,7 +15,7 @@ class YamlFragmentsModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
         val modules = Files.walk(root)
-            .filter { it.name == "build.yaml" }
+            .filter { it.name == "build-wf.yaml" }
             .map(::parsePotato)
             .toList()
 
