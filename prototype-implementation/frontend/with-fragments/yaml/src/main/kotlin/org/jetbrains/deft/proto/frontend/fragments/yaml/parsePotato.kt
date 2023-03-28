@@ -85,8 +85,8 @@ private fun parseKotlinFragmentPart(fragmentMap: Map<String, Any>): KotlinFragme
         return value
     }
 
-    val languageVersion = retrieveArgumentFromMap<String>("languageVersion")
-    val apiVersion = retrieveArgumentFromMap<String>("apiVersion")
+    val languageVersion = retrieveArgumentFromMap<Double>("languageVersion")?.toString()
+    val apiVersion = retrieveArgumentFromMap<Double>("apiVersion")?.toString()
     val progressiveMode = retrieveArgumentFromMap<Boolean>("progressiveMode")
     val languageFeatures = retrieveArgumentFromMap<List<String>>("languageFeatures") ?: emptyList()
     val optIns = retrieveArgumentFromMap<List<String>>("optIns") ?: emptyList()
