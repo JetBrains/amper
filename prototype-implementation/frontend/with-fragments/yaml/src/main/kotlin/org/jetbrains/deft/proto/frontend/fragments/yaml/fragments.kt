@@ -1,26 +1,28 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
-import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.FragmentDependencyType
+import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.PotatoModuleType
 import org.jetbrains.deft.proto.frontend.util.depth
 import org.jetbrains.deft.proto.frontend.util.findCommonParent
 import org.jetbrains.deft.proto.frontend.util.fragmentName
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
 /**
- * Gets cartesian product of all flavours.
+ * Gets cartesian product of all variants.
  */
-private fun List<Flavor>.cartesian(): List<List<String>> = fold(listOf(listOf())) { acc, flavor ->
-    acc + acc.flatMap { current -> flavor.values.map { current + it } }
+private fun List<Variant>.cartesian(): List<List<String>> = fold(listOf(listOf())) { acc, variant ->
+    acc + acc.flatMap { current -> variant.values.map { current + it } }
 }
 
 /**
- * Transforms a combination of flavours into fragment suffix.
+ * Transforms a combination of variants into fragment suffix.
  */
-private fun List<String>.toFlavorSuffix(): String =
-    joinToString(separator = "") { flavorValue -> flavorValue.replaceFirstChar { it.uppercase() } }
+private fun List<String>.toVariantSuffix(): String =
+    joinToString(separator = "") { variantValue -> variantValue.replaceFirstChar { it.uppercase() } }
 
 /**
- * Trims fragment name from flavor and -Test suffixes.
+ * Trims fragment name from variant and -Test suffixes.
  */
 private fun String.trimSuffixes(suffixes: List<String>): String {
     var result = this
@@ -89,14 +91,14 @@ internal fun deduceFragments(
     potatoName: String,
     explicitFragments: Map<String, FragmentDefinition>,
     targetPlatforms: Set<Platform>,
-    flavors: List<Flavor>,
+    variants: List<Variant>,
     type: PotatoModuleType,
 ): Pair<List<FragmentImpl>, List<ArtifactImpl>> {
     val allPlatforms = targetPlatforms
         .flatMap { p1 -> targetPlatforms.map { p2 -> findCommonParent(p1, p2) } }
         .toMutableSet()
-    val fragmentSuffixes = flavors.flatMap { flavor ->
-        flavor.values.map { value ->
+    val fragmentSuffixes = variants.flatMap { variant ->
+        variant.values.map { value ->
             value.replaceFirstChar { it.uppercase() }
         }
     } + "Test"
@@ -128,12 +130,12 @@ internal fun deduceFragments(
         reverseTopologicalSort(targetPlatforms.map { it.fragmentName }.toSet(), fragmentGroupRefines)
     val resultFragments = mutableMapOf<String, FragmentImpl>()
 
-    val flavorCombinations = flavors.cartesian()
+    val variantCombinations = variants.cartesian()
     for (groupBaseName in topologicallySortedGroups) {
-        for (flavorCombination in flavorCombinations) {
-            val flavorSuffix = flavorCombination.toFlavorSuffix()
-            val name = "${groupBaseName}${flavorSuffix}"
-            val testName = "${groupBaseName}Test${flavorSuffix}"
+        for (variantCombination in variantCombinations) {
+            val variantSuffix = variantCombination.toVariantSuffix()
+            val name = "${groupBaseName}${variantSuffix}"
+            val testName = "${groupBaseName}Test${variantSuffix}"
             val mainFragment = FragmentImpl(
                 name = name,
                 fragmentDependencies = mutableListOf(),
@@ -171,15 +173,15 @@ internal fun deduceFragments(
                 )
             }
 
-            val previousFlavor = if (flavorCombination.isNotEmpty()) flavorCombination.dropLast(1) else null
-            if (previousFlavor != null) {
-                val previousFlavorSuffix = previousFlavor.toFlavorSuffix()
-                addRefine(groupBaseName, previousFlavorSuffix)
+            val previousVariant = if (variantCombination.isNotEmpty()) variantCombination.dropLast(1) else null
+            if (previousVariant != null) {
+                val previousVariantSuffix = previousVariant.toVariantSuffix()
+                addRefine(groupBaseName, previousVariantSuffix)
             }
 
             val refines = checkNotNull(fragmentGroupRefines[groupBaseName])
             for (refineBaseName in refines) {
-                addRefine(refineBaseName, flavorSuffix)
+                addRefine(refineBaseName, variantSuffix)
             }
             resultFragments[name] = mainFragment
             resultFragments[testName] = testFragment
@@ -192,10 +194,10 @@ internal fun deduceFragments(
         PotatoModuleType.LIBRARY -> listOf(ArtifactImpl(potatoName, allFragments, targetPlatforms))
         PotatoModuleType.APPLICATION -> buildList {
             for (platform in targetPlatforms) {
-                for (flavorCombination in flavorCombinations) {
-                    if (flavorCombination.size != flavors.size) continue
-                    val flavorSuffix = flavorCombination.toFlavorSuffix()
-                    val name = "${platform.fragmentName}${flavorSuffix}"
+                for (variantCombination in variantCombinations) {
+                    if (variantCombination.size != variants.size) continue
+                    val variantSuffix = variantCombination.toVariantSuffix()
+                    val name = "${platform.fragmentName}${variantSuffix}"
                     val resultFragment = checkNotNull(resultFragments[name])
                     add(ArtifactImpl(potatoName, listOf(resultFragment), setOf(platform)))
                 }

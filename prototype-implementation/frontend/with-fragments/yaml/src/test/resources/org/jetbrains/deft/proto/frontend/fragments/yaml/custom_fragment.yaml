@@ -2,7 +2,7 @@ type: app
 platforms:
   - iosArm64
   - android
-flavors:
+variants:
   - [ "debug", "release" ]
   - [ "paid", "free" ]
 fragments:

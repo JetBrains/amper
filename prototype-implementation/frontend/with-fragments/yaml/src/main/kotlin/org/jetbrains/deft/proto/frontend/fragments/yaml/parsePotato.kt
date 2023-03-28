@@ -19,9 +19,9 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
     val potatoMap = Yaml().load<Map<String, Any>?>(yaml) ?: throw ParsingException("Got empty yaml")
     val type = parseType(potatoMap)
     val targetPlatforms = parseTargetPlatforms(potatoMap)
-    val flavors = parseFlavors(potatoMap)
+    val variants = parseVariants(potatoMap)
     val explicitFragments = parseExplicitFragments(potatoMap)
-    val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, flavors, type)
+    val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, variants, type)
 
     return PotatoModuleImpl(
         name,
@@ -47,9 +47,9 @@ private fun parseTargetPlatforms(potatoMap: Map<String, Any>): Set<Platform> {
     }.toSet()
 }
 
-private fun parseFlavors(potatoMap: Map<String, Any>): List<Flavor> {
-    val rawFlavors = (potatoMap["flavors"] ?: potatoMap["flavours"]) as? List<List<String>> ?: return emptyList()
-    return rawFlavors.map(::Flavor)
+private fun parseVariants(potatoMap: Map<String, Any>): List<Variant> {
+    val rawVariants = potatoMap["variants"] as? List<List<String>> ?: return emptyList()
+    return rawVariants.map(::Variant)
 }
 
 private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {

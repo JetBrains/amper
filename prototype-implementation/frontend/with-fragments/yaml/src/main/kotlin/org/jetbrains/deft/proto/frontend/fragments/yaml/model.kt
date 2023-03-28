@@ -35,7 +35,7 @@ internal data class FragmentDefinition(
     val fragmentParts: ClassBasedSet<FragmentPart<*>>,
 )
 
-internal data class Flavor(val values: List<String>)
+internal data class Variant(val values: List<String>)
 
 internal data class InnerDependency(val dependency: String): PotatoModuleDependency {
     override val Model.module: PotatoModule
