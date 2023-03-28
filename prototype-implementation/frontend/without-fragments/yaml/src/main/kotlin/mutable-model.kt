@@ -232,7 +232,7 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
             .getOrNull()?.let { apiVersion = it }
     }
 
-    config.handleFragmentSettings<Boolean>(this, "apiVersion") {
+    config.handleFragmentSettings<Boolean>(this, "progressiveMode") {
         progressiveMode = it
     }
 
