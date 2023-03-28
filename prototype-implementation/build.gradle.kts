@@ -9,9 +9,3 @@ allprojects {
         google()
     }
 }
-
-tasks.create("publishAllToLocal") {
-    subprojects {
-        dependsOn("${this@subprojects.name}:publishToMavenLocal")
-    }
-}
