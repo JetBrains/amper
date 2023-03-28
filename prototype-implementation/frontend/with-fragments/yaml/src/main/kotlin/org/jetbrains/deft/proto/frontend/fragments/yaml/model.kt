@@ -35,3 +35,8 @@ internal data class FragmentDefinition(
 )
 
 internal data class Flavor(val values: List<String>)
+
+internal data class InnerDependency(val dependency: String): PotatoModuleDependency {
+    override val Model.module: PotatoModule
+        get() = modules.find { it.userReadableName == dependency } ?: error("No module $dependency found")
+}

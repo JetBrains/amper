@@ -86,6 +86,7 @@ private fun reverseTopologicalSort(startNodes: Set<String>, edges: Map<String, S
  * Deduces all the fragments and artifacts based on user's input.
  */
 internal fun deduceFragments(
+    potatoName: String,
     explicitFragments: Map<String, FragmentDefinition>,
     targetPlatforms: Set<Platform>,
     flavors: List<Flavor>,
@@ -186,7 +187,7 @@ internal fun deduceFragments(
     val allFragments = resultFragments.values.toList()
 
     val artifacts = when (type) {
-        PotatoModuleType.LIBRARY -> listOf(ArtifactImpl(allFragments, targetPlatforms))
+        PotatoModuleType.LIBRARY -> listOf(ArtifactImpl(potatoName, allFragments, targetPlatforms))
         PotatoModuleType.APPLICATION -> buildList {
             for (platform in targetPlatforms) {
                 for (flavorCombination in flavorCombinations) {
@@ -194,7 +195,7 @@ internal fun deduceFragments(
                     val flavorSuffix = flavorCombination.toFlavorSuffix()
                     val name = "${platform.fragmentName}${flavorSuffix}"
                     val resultFragment = checkNotNull(resultFragments[name])
-                    add(ArtifactImpl(listOf(resultFragment), setOf(platform)))
+                    add(ArtifactImpl(potatoName, listOf(resultFragment), setOf(platform)))
                 }
             }
         }

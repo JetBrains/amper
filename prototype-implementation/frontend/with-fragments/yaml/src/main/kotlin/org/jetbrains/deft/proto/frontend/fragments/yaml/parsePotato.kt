@@ -21,7 +21,7 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
     val targetPlatforms = parseTargetPlatforms(potatoMap)
     val flavors = parseFlavors(potatoMap)
     val explicitFragments = parseExplicitFragments(potatoMap)
-    val (fragments, artifacts) = deduceFragments(explicitFragments, targetPlatforms, flavors, type)
+    val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, flavors, type)
 
     return PotatoModuleImpl(
         name,
@@ -58,7 +58,13 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val fragmentDependencies = fragment["refines"] as? List<String> ?: emptyList()
         name to FragmentDefinition(
-            externalDependencies,
+            externalDependencies.map { dependency ->
+                if (dependency.startsWith(":")) {
+                    InnerDependency(dependency.removePrefix(":"))
+                } else {
+                    MavenDependency(dependency)
+                }
+            },
             fragmentDependencies,
         )
     }.toMap()

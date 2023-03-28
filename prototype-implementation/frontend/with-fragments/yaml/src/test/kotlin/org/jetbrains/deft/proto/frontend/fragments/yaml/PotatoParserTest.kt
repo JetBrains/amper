@@ -37,6 +37,12 @@ class PotatoParserTest {
     @Test
     fun `fragment cycle`() = testYamlParseFromFile("fragment_cycle")
 
+    @Test
+    fun `only ios`() = testYamlParseFromFile("only_ios")
+
+    @Test
+    fun `inner project dependency`() = testYamlParseFromFile("inner_project_dependency")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)

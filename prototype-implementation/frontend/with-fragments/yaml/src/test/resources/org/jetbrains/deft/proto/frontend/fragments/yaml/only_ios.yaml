@@ -1,0 +1,33 @@
+type: app
+platforms:
+  - iosArm64
+  - iosSimulatorArm64
+
+### GOLD
+# Potato only_ios
+# Type APPLICATION
+# Created programmatically
+# Fragments:
+# - ios
+#   Fragment dependencies: []
+#   External dependencies: []
+# - iosTest
+#   Fragment dependencies: [ios [FRIEND]]
+#   External dependencies: []
+# - iosArm64
+#   Fragment dependencies: [ios [REFINE]]
+#   External dependencies: []
+# - iosArm64Test
+#   Fragment dependencies: [iosArm64 [FRIEND], iosTest [REFINE]]
+#   External dependencies: []
+# - iosSimulatorArm64
+#   Fragment dependencies: [ios [REFINE]]
+#   External dependencies: []
+# - iosSimulatorArm64Test
+#   Fragment dependencies: [iosSimulatorArm64 [FRIEND], iosTest [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [iosArm64]
+#   For platforms [IOS_ARM64]
+# - Built from [iosSimulatorArm64]
+#   For platforms [IOS_SIMULATOR_ARM64]

@@ -20,13 +20,13 @@ fragments:
 # Fragments:
 # - common
 #   Fragment dependencies: []
-#   External dependencies: [foo:1.0]
+#   External dependencies: [MavenDependency(coordinates=foo:1.0)]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
-#   External dependencies: [kotlin-test:1.8.10]
+#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [ios-util:1.0]
+#   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
 #   External dependencies: []

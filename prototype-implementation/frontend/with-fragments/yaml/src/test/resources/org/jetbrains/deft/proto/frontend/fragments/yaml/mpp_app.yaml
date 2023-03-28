@@ -29,10 +29,10 @@ fragments:
 # Fragments:
 # - common
 #   Fragment dependencies: []
-#   External dependencies: [foo:1.0]
+#   External dependencies: [MavenDependency(coordinates=foo:1.0)]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
-#   External dependencies: [kotlin-test:1.8.10]
+#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
 # - commonDebug
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
@@ -47,7 +47,7 @@ fragments:
 #   External dependencies: []
 # - commonPaid
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [common-paid-dependency:2.0]
+#   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0)]
 # - commonTestPaid
 #   Fragment dependencies: [commonPaid [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
@@ -83,7 +83,7 @@ fragments:
 #   External dependencies: []
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [ios-util:1.0]
+#   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
@@ -101,7 +101,7 @@ fragments:
 #   External dependencies: []
 # - iosArm64Paid
 #   Fragment dependencies: [iosArm64 [REFINE], commonPaid [REFINE]]
-#   External dependencies: [ios-util-for-paid:1.0]
+#   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0)]
 # - iosArm64TestPaid
 #   Fragment dependencies: [iosArm64Paid [FRIEND], iosArm64Test [REFINE], commonTestPaid [REFINE]]
 #   External dependencies: []
