@@ -1,0 +1,16 @@
+variants:
+  buildType: [ debug, release ]
+  monetization: [ free, paid ]
+
+dependencies:
+  - org.apache.commons:commons-math3:3.6.1
+
+languageVersion.ios+release: 1.9
+
+product:
+  type: app
+  platforms:
+    - jvm
+    - iosSimulatorArm64
+    - iosArm64
+    - iosX64

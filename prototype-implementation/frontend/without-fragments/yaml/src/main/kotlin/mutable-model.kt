@@ -74,6 +74,36 @@ internal data class MutableFragment(
             fragment
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MutableFragment
+
+        if (name != other.name) return false
+        if (platforms != other.platforms) return false
+        if (externalDependencies != other.externalDependencies) return false
+        if (variants != other.variants) return false
+        if (languageVersion != other.languageVersion) return false
+        if (apiVersion != other.apiVersion) return false
+        if (progressiveMode != other.progressiveMode) return false
+        if (languageFeatures != other.languageFeatures) return false
+        return optIns == other.optIns
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + platforms.hashCode()
+        result = 31 * result + externalDependencies.hashCode()
+        result = 31 * result + variants.hashCode()
+        result = 31 * result + languageVersion.hashCode()
+        result = 31 * result + apiVersion.hashCode()
+        result = 31 * result + progressiveMode.hashCode()
+        result = 31 * result + languageFeatures.hashCode()
+        result = 31 * result + optIns.hashCode()
+        return result
+    }
 }
 
 internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): List<MutableFragment> {
@@ -150,7 +180,7 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                     fragment.dependencies.addAll(dependenciesToAdd)
                 }
 
-                // add new dependencies related with copying
+                // add new dependencies related to copying
                 fragmentMap[dependencyTarget]?.let { targetFragments ->
                     for (i in sourceFragments.indices) {
                         val kind = when (dependency.getValue<String>("kind")) {

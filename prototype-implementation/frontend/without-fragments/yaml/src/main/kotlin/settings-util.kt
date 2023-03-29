@@ -26,11 +26,12 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
     key: String,
     init: MutableFragment.(T) -> Unit
 ) {
+    val originalSettings = this
     val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
     // add external dependencies, compiler flags, etc
     val optionMap = buildMap {
-        for (variant in variants) {
+        for (variant in with(originalSettings) { variants }) {
             for (option in (variant.getValue<List<Settings>>("options")
                 ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
                 put(option, variant)
@@ -78,9 +79,22 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 
 internal val Settings.variants: List<Settings>
     get() {
-        val initialVariants = getValue<List<Settings>>("variants") ?: listOf()
-        return if (!initialVariants.any { it.getValue<String>("dimension") == "mode" }) {
-            initialVariants + mapOf(
+        val initialVariants = getValue<Settings>("variants") ?: mapOf()
+        val convertedInitialVariants: List<Settings> = initialVariants.map {
+            val dimension = it.key
+            mapOf(
+                "dimension" to dimension,
+                "options" to (initialVariants.getValue<List<String>>(dimension)?.map { optionName ->
+                    mapOf(
+                        "name" to optionName, "dependsOn" to listOf(
+                            mapOf("target" to dimension)
+                        )
+                    )
+                } ?: listOf()) + mapOf("name" to dimension, "default" to true)
+            )
+        }
+        return if (!convertedInitialVariants.any { it.getValue<String>("dimension") == "mode" }) {
+            convertedInitialVariants + mapOf(
                 "dimension" to "mode",
                 "options" to listOf(
                     mapOf("name" to "main", "default" to true),
@@ -88,6 +102,6 @@ internal val Settings.variants: List<Settings>
                 )
             )
         } else {
-            initialVariants
+            convertedInitialVariants
         }
     }

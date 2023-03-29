@@ -42,11 +42,9 @@ internal class ParserKtTest {
     }
 
     @Test
-    fun complexTest() {
+    fun variants() {
         with(buildFile) {
-            testParse("complex-test") {
-                directory("iosArm64+jvm")
-            }
+            testParse("3-variants")
         }
     }
 }
