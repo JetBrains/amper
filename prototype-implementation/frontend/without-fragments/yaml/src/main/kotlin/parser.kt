@@ -34,18 +34,14 @@ fun parseModule(value: String): PotatoModule {
         .filter { it != Platform.COMMON }
         .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString() } to it.leafChildren.toSet() }
 
-    val aliases = config.getValue<List<Settings>>("aliases") ?: listOf()
-    val aliasMap: Map<String, Set<Platform>> = aliases.mapNotNull {
-        val settings = it
-        val name = settings.getValue<String>("name")
-        name?.let {
-            val platformSet = settings
-                .getValue<List<String>>("platforms")
-                ?.mapNotNull { getPlatformFromFragmentName(it) }
-                ?.toSet() ?: setOf()
-            name to platformSet
-        }
-    }.toMap() + naturalHierarchy
+    val aliases: Settings = config.getValue<Settings>("aliases") ?: mapOf()
+    val aliasMap: Map<String, Set<Platform>> = aliases.entries.associate {
+        val name = it.key
+        val platformSet = aliases.getValue<List<String>>(it.key)
+            ?.mapNotNull { getPlatformFromFragmentName(it) }
+            ?.toSet() ?: setOf()
+        name to platformSet
+    } + naturalHierarchy
 
     val subsets = (dependencySubsets + folderSubsets)
         .map {
