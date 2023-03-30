@@ -96,3 +96,16 @@ val Platform.leafChildren: List<Platform>
             }
         }
     }
+
+
+internal tailrec fun Platform.native(): Boolean {
+    if (this == Platform.COMMON) {
+        return false
+    }
+
+    if (this == Platform.NATIVE) {
+        return true
+    }
+
+    return this.parent!!.native()
+}

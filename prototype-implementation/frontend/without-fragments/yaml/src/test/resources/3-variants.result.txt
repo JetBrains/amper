@@ -809,6 +809,7 @@ Artifacts:
     Fragments:
       jvmDebugFree
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmDebugFreeTest
@@ -817,6 +818,7 @@ Artifacts:
     Fragments:
       jvmDebugPaid
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmDebugPaidTest
@@ -825,6 +827,7 @@ Artifacts:
     Fragments:
       jvmDebug
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmDebugTest
@@ -833,6 +836,7 @@ Artifacts:
     Fragments:
       jvmReleaseFree
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleaseFreeTest
@@ -841,6 +845,7 @@ Artifacts:
     Fragments:
       jvmReleasePaid
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleasePaidTest
@@ -849,6 +854,7 @@ Artifacts:
     Fragments:
       jvmRelease
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleaseTest
@@ -857,6 +863,7 @@ Artifacts:
     Fragments:
       jvmFree
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmFreeTest
@@ -865,6 +872,7 @@ Artifacts:
     Fragments:
       jvmPaid
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmPaidTest
@@ -873,6 +881,7 @@ Artifacts:
     Fragments:
       jvm
     Parts:
+      JavaArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmTest
@@ -881,6 +890,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64DebugFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64DebugFreeTest
@@ -889,6 +899,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64DebugPaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64DebugPaidTest
@@ -897,6 +908,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64Debug
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64DebugTest
@@ -905,6 +917,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64ReleaseFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64ReleaseFreeTest
@@ -913,6 +926,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64ReleasePaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64ReleasePaidTest
@@ -921,6 +935,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64Release
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64ReleaseTest
@@ -929,6 +944,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64Free
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64FreeTest
@@ -937,6 +953,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64Paid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64PaidTest
@@ -945,6 +962,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64Test
@@ -953,6 +971,7 @@ Artifacts:
     Fragments:
       iosArm64DebugFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64DebugFreeTest
@@ -961,6 +980,7 @@ Artifacts:
     Fragments:
       iosArm64DebugPaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64DebugPaidTest
@@ -969,6 +989,7 @@ Artifacts:
     Fragments:
       iosArm64Debug
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64DebugTest
@@ -977,6 +998,7 @@ Artifacts:
     Fragments:
       iosArm64ReleaseFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64ReleaseFreeTest
@@ -985,6 +1007,7 @@ Artifacts:
     Fragments:
       iosArm64ReleasePaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64ReleasePaidTest
@@ -993,6 +1016,7 @@ Artifacts:
     Fragments:
       iosArm64Release
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64ReleaseTest
@@ -1001,6 +1025,7 @@ Artifacts:
     Fragments:
       iosArm64Free
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64FreeTest
@@ -1009,6 +1034,7 @@ Artifacts:
     Fragments:
       iosArm64Paid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64PaidTest
@@ -1017,6 +1043,7 @@ Artifacts:
     Fragments:
       iosArm64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64Test
@@ -1025,6 +1052,7 @@ Artifacts:
     Fragments:
       iosX64DebugFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64DebugFreeTest
@@ -1033,6 +1061,7 @@ Artifacts:
     Fragments:
       iosX64DebugPaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64DebugPaidTest
@@ -1041,6 +1070,7 @@ Artifacts:
     Fragments:
       iosX64Debug
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64DebugTest
@@ -1049,6 +1079,7 @@ Artifacts:
     Fragments:
       iosX64ReleaseFree
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64ReleaseFreeTest
@@ -1057,6 +1088,7 @@ Artifacts:
     Fragments:
       iosX64ReleasePaid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64ReleasePaidTest
@@ -1065,6 +1097,7 @@ Artifacts:
     Fragments:
       iosX64Release
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64ReleaseTest
@@ -1073,6 +1106,7 @@ Artifacts:
     Fragments:
       iosX64Free
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64FreeTest
@@ -1081,6 +1115,7 @@ Artifacts:
     Fragments:
       iosX64Paid
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64PaidTest
@@ -1089,6 +1124,7 @@ Artifacts:
     Fragments:
       iosX64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64Test

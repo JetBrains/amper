@@ -47,4 +47,11 @@ internal class ParserKtTest {
             testParse("3-variants")
         }
     }
+
+    @Test
+    fun `jvm run`() {
+        with(buildFile) {
+            testParse("4-jvm-run")
+        }
+    }
 }

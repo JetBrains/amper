@@ -126,7 +126,34 @@ fun parseModule(value: String): PotatoModule {
                             override val platforms: Set<Platform>
                                 get() = setOf(platform)
                             override val parts: ClassBasedSet<ArtifactPart<*>>
-                                get() = setOf()
+                                get() {
+                                    return buildSet {
+                                        val seq = fragments
+                                            .filter { it.platforms.contains(platform) }
+                                            .filter { it.variants.contains("main") }.asSequence()
+                                        if (element.contains("main")) {
+                                            if (platform == Platform.JVM) {
+
+                                                add(
+                                                    ByClassWrapper(
+                                                        JavaArtifactPart(
+                                                            seq.mapNotNull { it.mainClass }.firstOrNull() ?: "MainKt"
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                            if (platform.native()) {
+                                                add(
+                                                    ByClassWrapper(
+                                                        NativeArtifactPart(
+                                                            seq.mapNotNull { it.entryPoint }.firstOrNull() ?: "main"
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                         })
                     }
                 }

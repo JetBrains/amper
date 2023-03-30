@@ -102,6 +102,7 @@ Artifacts:
     Fragments:
       iosSimulatorArm64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64Test
@@ -110,6 +111,7 @@ Artifacts:
     Fragments:
       iosArm64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosArm64Test
@@ -118,6 +120,7 @@ Artifacts:
     Fragments:
       iosX64
     Parts:
+      NativeArtifactPart(entryPoint=main)
   [IOS_X64]
     Fragments:
       iosX64Test

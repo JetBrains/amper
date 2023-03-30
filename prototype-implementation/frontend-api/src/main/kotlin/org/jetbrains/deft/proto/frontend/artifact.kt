@@ -10,6 +10,14 @@ data class AndroidArtifactPart(
     val compileSdkVersion: String,
 ) : ArtifactPart<AndroidArtifactPart>
 
+data class JavaArtifactPart(
+    val mainClass: String?
+) : ArtifactPart<JavaArtifactPart>
+
+data class NativeArtifactPart(
+    val entryPoint: String?
+) : ArtifactPart<NativeArtifactPart>
+
 /**
  * Some resulting artifact that is built from several fragments.
  */

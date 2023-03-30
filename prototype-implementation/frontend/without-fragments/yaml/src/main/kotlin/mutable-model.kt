@@ -19,7 +19,9 @@ internal data class MutableFragment(
     var apiVersion: KotlinVersion = KotlinVersion.Kotlin18,
     var progressiveMode: Boolean = false,
     val languageFeatures: MutableList<String> = mutableListOf(),
-    val optIns: MutableList<String> = mutableListOf()
+    val optIns: MutableList<String> = mutableListOf(),
+    var mainClass: String? = null,
+    var entryPoint: String? = null,
 ) {
     enum class KotlinVersion(private val version: String) {
         Kotlin19("1.9"),
@@ -271,5 +273,12 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     }
     config.handleFragmentSettings<List<String>>(this, "optIns") {
         optIns.addAll(it)
+    }
+
+    config.handleFragmentSettings<String>(this, "mainClass") {
+        mainClass = it
+    }
+    config.handleFragmentSettings<String>(this, "entryPoint") {
+        entryPoint = it
     }
 }
