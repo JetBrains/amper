@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
+import java.util.UUID
 
 internal typealias Settings = Map<String, Any>
 
@@ -40,7 +41,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
     }
 
     val defaultOptionMap = buildMap<Settings, String> {
-        for (variant in variants) {
+        for (variant in with(originalSettings) { variants }) {
             val option = (variant.getValue<List<Settings>>("options")
                 ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
                 ?: error("Something went wrong")
@@ -50,7 +51,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 
     var variantSet: MutableSet<Settings>
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
-        variantSet = variants.toMutableSet()
+        variantSet = with(originalSettings) { variants }.toMutableSet()
         val split = settingsKey.split(".")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
@@ -79,18 +80,19 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 
 internal val Settings.variants: List<Settings>
     get() {
-        val initialVariants = getValue<Settings>("variants") ?: mapOf()
+        val initialVariants = getValue<List<List<String>>>("variants") ?: listOf()
+        var i = 0
         val convertedInitialVariants: List<Settings> = initialVariants.map {
-            val dimension = it.key
+            val dimension = "dimension${++i}"
             mapOf(
                 "dimension" to dimension,
-                "options" to (initialVariants.getValue<List<String>>(dimension)?.map { optionName ->
+                "options" to it.map { optionName ->
                     mapOf(
                         "name" to optionName, "dependsOn" to listOf(
                             mapOf("target" to dimension)
                         )
                     )
-                } ?: listOf()) + mapOf("name" to dimension, "default" to true)
+                } + mapOf("name" to dimension, "default" to true)
             )
         }
         return if (!convertedInitialVariants.any { it.getValue<String>("dimension") == "mode" }) {
