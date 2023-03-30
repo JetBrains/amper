@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
-import java.util.UUID
 
 internal typealias Settings = Map<String, Any>
 
