@@ -1,0 +1,11 @@
+dependencies:
+  - org.apache.commons:commons-math3:3.6.1
+
+dependencies.test:
+  - org.jetbrains.kotlin:kotlin-test:1.8.20
+
+product:
+  type: app
+  platforms:
+    - jvm
+    - iosSimulatorArm64

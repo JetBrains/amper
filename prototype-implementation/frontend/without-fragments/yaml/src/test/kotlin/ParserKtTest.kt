@@ -54,4 +54,15 @@ internal class ParserKtTest {
             testParse("4-jvm-run")
         }
     }
+
+    @Test
+    fun `common folder bug`() {
+        with(buildFile) {
+            testParse("5-common-folder-bug") {
+                directory("common") {
+                    directory("src")
+                }
+            }
+        }
+    }
 }

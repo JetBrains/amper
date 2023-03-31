@@ -47,7 +47,7 @@ fun parseModule(value: String): PotatoModule {
         .map {
             it.flatMap {
                 aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it))
-            }.toSet()
+            }.filter { it != Platform.COMMON }.toSet()
         }
         .filter { it.isNotEmpty() }
         .toSet() + platforms.map { setOf(it) }
