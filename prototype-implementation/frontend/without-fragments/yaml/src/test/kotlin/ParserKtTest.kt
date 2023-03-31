@@ -72,4 +72,11 @@ internal class ParserKtTest {
             testParse("6-empty-list-key")
         }
     }
+
+    @Test
+    fun `propagating artifact options`() {
+        with(buildFile) {
+            testParse("7-propagating-artifact-options")
+        }
+    }
 }

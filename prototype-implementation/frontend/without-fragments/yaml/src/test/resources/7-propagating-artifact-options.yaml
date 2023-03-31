@@ -1,0 +1,18 @@
+variants:
+  - [ debug, release ]
+  - [ free, paid ]
+
+dependencies:
+  - org.apache.commons:commons-math3:3.6.1
+
+languageVersion.ios+release: 1.9
+
+mainClass.jvm+debug+free: com.example.Main
+
+product:
+  type: app
+  platforms:
+    - jvm
+    - iosSimulatorArm64
+    - iosArm64
+    - iosX64

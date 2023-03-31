@@ -1,0 +1,1131 @@
+Module {{ userReadableName }}
+Fragments:
+  jvmDebugFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      jvmReleaseFree (REFINE)
+      jvmDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64DebugFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosSimulatorArm64ReleaseFree (REFINE)
+      iosSimulatorArm64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64DebugFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosArm64ReleaseFree (REFINE)
+      iosArm64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64DebugFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosX64ReleaseFree (REFINE)
+      iosX64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebugFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      iosReleaseFree (REFINE)
+      iosDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebugFree
+    External dependencies: []
+    Fragment dependencies:
+      commonReleaseFree (REFINE)
+      commonDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      jvmDebugFree (REFINE)
+      jvmRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64ReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosSimulatorArm64DebugFree (REFINE)
+      iosSimulatorArm64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64ReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosArm64DebugFree (REFINE)
+      iosArm64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64ReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosX64DebugFree (REFINE)
+      iosX64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      iosDebugFree (REFINE)
+      iosRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonReleaseFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      commonRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      jvm (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64Free
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosSimulatorArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Free
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64Free
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFree (REFINE)
+      iosX64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosFree
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFree (REFINE)
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonFree
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmDebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      jvmReleasePaid (REFINE)
+      jvmDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64DebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosSimulatorArm64ReleasePaid (REFINE)
+      iosSimulatorArm64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64DebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosArm64ReleasePaid (REFINE)
+      iosArm64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64DebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosX64ReleasePaid (REFINE)
+      iosX64Debug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      iosReleasePaid (REFINE)
+      iosDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebugPaid
+    External dependencies: []
+    Fragment dependencies:
+      commonReleasePaid (REFINE)
+      commonDebug (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      jvmDebugPaid (REFINE)
+      jvmRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64ReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosSimulatorArm64DebugPaid (REFINE)
+      iosSimulatorArm64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64ReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosArm64DebugPaid (REFINE)
+      iosArm64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64ReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosX64DebugPaid (REFINE)
+      iosX64Release (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      iosDebugPaid (REFINE)
+      iosRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonReleasePaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      commonRelease (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmPaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      jvm (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64Paid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosSimulatorArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Paid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64Paid
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugPaid (REFINE)
+      iosX64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosPaid
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugPaid (REFINE)
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonPaid
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmDebug
+    External dependencies: []
+    Fragment dependencies:
+      commonDebug (REFINE)
+      jvm (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64Debug
+    External dependencies: []
+    Fragment dependencies:
+      iosDebug (REFINE)
+      iosSimulatorArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Debug
+    External dependencies: []
+    Fragment dependencies:
+      iosDebug (REFINE)
+      iosArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64Debug
+    External dependencies: []
+    Fragment dependencies:
+      iosDebug (REFINE)
+      iosX64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebug
+    External dependencies: []
+    Fragment dependencies:
+      commonDebug (REFINE)
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebug
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmRelease
+    External dependencies: []
+    Fragment dependencies:
+      commonRelease (REFINE)
+      jvm (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64Release
+    External dependencies: []
+    Fragment dependencies:
+      iosRelease (REFINE)
+      iosSimulatorArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Release
+    External dependencies: []
+    Fragment dependencies:
+      iosRelease (REFINE)
+      iosArm64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64Release
+    External dependencies: []
+    Fragment dependencies:
+      iosRelease (REFINE)
+      iosX64 (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosRelease
+    External dependencies: []
+    Fragment dependencies:
+      commonRelease (REFINE)
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonRelease
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvm
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  ios
+    External dependencies: []
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  common
+    External dependencies: [MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1)]
+    Fragment dependencies:
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmDebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmReleaseFreeTest (REFINE)
+      jvmDebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64DebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64ReleaseFreeTest (REFINE)
+      iosSimulatorArm64DebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64DebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64ReleaseFreeTest (REFINE)
+      iosArm64DebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64DebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64ReleaseFreeTest (REFINE)
+      iosX64DebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosReleaseFreeTest (REFINE)
+      iosDebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebugFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonReleaseFreeTest (REFINE)
+      commonDebugFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64ReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64ReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64ReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64ReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64ReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64ReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonReleaseFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonReleaseFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64FreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64Free (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64FreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64Free (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64FreeTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64Free (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonFreeTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonFree (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmDebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmDebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64DebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64DebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64DebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64DebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64DebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64DebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosDebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebugPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonDebugPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64ReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64ReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64ReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64ReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64ReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64ReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonReleasePaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonReleasePaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64PaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64Paid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64PaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64Paid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64PaidTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64Paid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonPaidTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonPaid (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmDebugTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmDebug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64DebugTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64Debug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64DebugTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64Debug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64DebugTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64Debug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosDebugTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosDebug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonDebugTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonDebug (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvmDebugFreeTest (REFINE)
+      jvmRelease (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64ReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64DebugFreeTest (REFINE)
+      iosSimulatorArm64Release (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64ReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64DebugFreeTest (REFINE)
+      iosArm64Release (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64ReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64DebugFreeTest (REFINE)
+      iosX64Release (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      iosDebugFreeTest (REFINE)
+      iosRelease (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonReleaseTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      commonRelease (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  jvmTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      jvm (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosSimulatorArm64Test
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosSimulatorArm64 (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosArm64Test
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosArm64 (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosX64Test
+    External dependencies: []
+    Fragment dependencies:
+      iosDebugFreeTest (REFINE)
+      iosX64 (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  iosTest
+    External dependencies: []
+    Fragment dependencies:
+      commonDebugFreeTest (REFINE)
+      ios (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+  commonTest
+    External dependencies: []
+    Fragment dependencies:
+      common (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+Artifacts:
+  [JVM]
+    Fragments:
+      jvmDebugFree
+    Parts:
+      JavaArtifactPart(mainClass=com.example.Main)
+  [JVM]
+    Fragments:
+      jvmDebugFreeTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmDebugPaid
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmDebugPaidTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmDebug
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmDebugTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmReleaseFree
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmReleaseFreeTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmReleasePaid
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmReleasePaidTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmRelease
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmReleaseTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmFree
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmFreeTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvmPaid
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmPaidTest
+    Parts:
+  [JVM]
+    Fragments:
+      jvm
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64DebugFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64DebugFreeTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64DebugPaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64DebugPaidTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Debug
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64DebugTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64ReleaseFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64ReleaseFreeTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64ReleasePaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64ReleasePaidTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Release
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64ReleaseTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Free
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64FreeTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Paid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64PaidTest
+    Parts:
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Test
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64DebugFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64DebugFreeTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64DebugPaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64DebugPaidTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Debug
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64DebugTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64ReleaseFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64ReleaseFreeTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64ReleasePaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64ReleasePaidTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Release
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64ReleaseTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Free
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64FreeTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Paid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64PaidTest
+    Parts:
+  [IOS_ARM64]
+    Fragments:
+      iosArm64
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Test
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64DebugFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64DebugFreeTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64DebugPaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64DebugPaidTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64Debug
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64DebugTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64ReleaseFree
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64ReleaseFreeTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64ReleasePaid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64ReleasePaidTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64Release
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64ReleaseTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64Free
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64FreeTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64Paid
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64PaidTest
+    Parts:
+  [IOS_X64]
+    Fragments:
+      iosX64
+    Parts:
+      NativeArtifactPart(entryPoint=main)
+  [IOS_X64]
+    Fragments:
+      iosX64Test
+    Parts:

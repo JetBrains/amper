@@ -112,41 +112,35 @@ fun parseModule(value: String): PotatoModule {
                 for (platform in platforms) {
                     for (element in cartesian) {
                         add(object : Artifact {
+                            private val targetInternalFragment = fragments.filter { it.platforms == setOf(platform) }
+                                .firstOrNull { it.variants == element.toSet() } ?: error("Something went wrong")
+
                             override val name: String
                                 // TODO Handle the case, when there are several artifacts with same name. Can it be?
                                 // If it can't - so it should be expressed in API via sealed interface.
                                 // FIXME
                                 get() = buildFile.parent.name
                             override val fragments: List<Fragment>
-                                get() = with(mutableState) {
-                                    listOf(fragments.filter { it.platforms == setOf(platform) }
-                                        .firstOrNull { it.variants == element.toSet() }
-                                        ?: error("Something went wrong")).map { it.immutable() }
-                                }
+                                get() = with(mutableState) { listOf(targetInternalFragment.immutable()) }
                             override val platforms: Set<Platform>
                                 get() = setOf(platform)
                             override val parts: ClassBasedSet<ArtifactPart<*>>
                                 get() {
                                     return buildSet {
-                                        val seq = fragments
-                                            .filter { it.platforms.contains(platform) }
-                                            .filter { it.variants.contains("main") }.asSequence()
-                                        if (element.contains("main")) {
+                                        if (!element.contains("test")) {
+                                            val mainClass = targetInternalFragment.mainClass ?: "MainKt"
+                                            val entryPoint = targetInternalFragment.entryPoint ?: "main"
                                             if (platform == Platform.JVM) {
                                                 add(
                                                     ByClassWrapper(
-                                                        JavaArtifactPart(
-                                                            seq.mapNotNull { it.mainClass }.firstOrNull() ?: "MainKt"
-                                                        )
+                                                        JavaArtifactPart(mainClass)
                                                     )
                                                 )
                                             }
                                             if (platform.native()) {
                                                 add(
                                                     ByClassWrapper(
-                                                        NativeArtifactPart(
-                                                            seq.mapNotNull { it.entryPoint }.firstOrNull() ?: "main"
-                                                        )
+                                                        NativeArtifactPart(entryPoint)
                                                     )
                                                 )
                                             }
