@@ -73,7 +73,9 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
             .firstOrNull { it.variants == normalizedOptions }
             ?: error("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
-        targetFragment.init(settingsValue as T)
+        if (settingsValue is T) {
+            targetFragment.init(settingsValue)
+        }
     }
 }
 

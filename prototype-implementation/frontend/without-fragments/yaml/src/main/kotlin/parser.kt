@@ -133,7 +133,6 @@ fun parseModule(value: String): PotatoModule {
                                             .filter { it.variants.contains("main") }.asSequence()
                                         if (element.contains("main")) {
                                             if (platform == Platform.JVM) {
-
                                                 add(
                                                     ByClassWrapper(
                                                         JavaArtifactPart(

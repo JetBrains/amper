@@ -65,4 +65,11 @@ internal class ParserKtTest {
             }
         }
     }
+
+    @Test
+    fun `empty key`() {
+        with(buildFile) {
+            testParse("6-empty-list-key")
+        }
+    }
 }
