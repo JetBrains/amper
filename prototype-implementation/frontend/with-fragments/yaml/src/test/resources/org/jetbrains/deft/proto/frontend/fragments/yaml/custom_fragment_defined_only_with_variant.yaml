@@ -8,7 +8,6 @@ fragments:
     dependencies:
       - foo:1.0
   jvm:
-    refines:
-      - unknown
+    refines: unknown
 
 ### Exception

@@ -100,7 +100,8 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
     val rawFragments = potatoMap["fragments"] as? Map<String, Map<String, Any>> ?: return emptyMap()
     return rawFragments.map { (name, fragment) ->
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
-        val fragmentDependencies = fragment["refines"] as? List<String> ?: emptyList()
+        val refines = fragment["refines"]
+        val fragmentDependencies = refines as? List<String> ?: (refines as? String)?.let(::listOf) ?: emptyList()
         val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildSet {
             val kotlinFragmentPart = (fragment["kotlin"] as Map<String, Any>?)?.let { parseKotlinFragmentPart(it) }
             if (kotlinFragmentPart != null) add(ByClassWrapper(kotlinFragmentPart))

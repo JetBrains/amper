@@ -7,10 +7,8 @@ fragments:
       - jvm1
       - jvm2
   jvm1:
-    refines:
-      - jvm2
+    refines: jvm2
   jvm2:
-    refines:
-      - jvm1
+    refines: jvm1
 
 ### Exception
