@@ -28,6 +28,9 @@ internal fun prettyPrint(potato: PotatoModule): String {
         for (artifact in potato.artifacts) {
             appendLine("- Built from [${artifact.fragments.joinToString { it.name }}]")
             appendLine("  For platforms ${artifact.platforms}")
+            if (artifact.parts.isNotEmpty()) {
+                appendLine("  Parts: ${artifact.parts.map { it.value }}")
+            }
         }
     }
 }

@@ -26,13 +26,14 @@ internal data class ArtifactImpl(
     override val name: String,
     override val fragments: List<FragmentImpl>,
     override val platforms: Set<Platform>,
-    override val parts: ClassBasedSet<ArtifactPart<*>> = emptySet()
+    override val parts: ClassBasedSet<ArtifactPart<*>> = emptySet(),
 ) : Artifact
 
 internal data class FragmentDefinition(
     val externalDependencies: List<Notation>,
     val fragmentDependencies: List<String>,
     val fragmentParts: ClassBasedSet<FragmentPart<*>>,
+    val artifactParts: ClassBasedSet<ArtifactPart<*>> = emptySet(),
 )
 
 internal data class Variant(val values: List<String>)

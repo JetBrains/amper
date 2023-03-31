@@ -101,10 +101,17 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
     return rawFragments.map { (name, fragment) ->
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val fragmentDependencies = fragment["refines"] as? List<String> ?: emptyList()
-        val kotlinFragmentPart = (fragment["kotlin"] as Map<String, Any>?)?.let { parseKotlinFragmentPart(it) }
         val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildSet {
+            val kotlinFragmentPart = (fragment["kotlin"] as Map<String, Any>?)?.let { parseKotlinFragmentPart(it) }
             if (kotlinFragmentPart != null) add(ByClassWrapper(kotlinFragmentPart))
         }
+        val artifactParts: ClassBasedSet<ArtifactPart<*>> = buildSet {
+            val jvmArtifactPart = parseJvmArtifactPart(fragment)
+            if (jvmArtifactPart != null) add(ByClassWrapper(jvmArtifactPart))
+            val nativeArtifactPart = parseNativeArtifactPart(fragment)
+            if (nativeArtifactPart != null) add(ByClassWrapper(nativeArtifactPart))
+        }
+
         name to FragmentDefinition(
             externalDependencies.map { dependency ->
                 if (dependency.startsWith(":")) {
@@ -115,8 +122,19 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
             },
             fragmentDependencies,
             fragmentParts,
+            artifactParts,
         )
     }.toMap()
+}
+
+private fun parseNativeArtifactPart(fragment: Map<String, Any>): NativeArtifactPart? {
+    val entryPoint = fragment["entryPoint"] as String? ?: return null
+    return NativeArtifactPart(entryPoint)
+}
+
+private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaArtifactPart? {
+    val mainClass = fragment["mainClass"] as String? ?: return null
+    return JavaArtifactPart(mainClass)
 }
 
 private fun parseKotlinFragmentPart(kotlinSettings: Map<String, Any>): KotlinFragmentPart {

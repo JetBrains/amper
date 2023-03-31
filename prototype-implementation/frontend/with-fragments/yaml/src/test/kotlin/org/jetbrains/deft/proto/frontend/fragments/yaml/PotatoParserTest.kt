@@ -73,6 +73,9 @@ class PotatoParserTest {
     @Test
     fun `variant values should be unique`() = testYamlParseFromFile("duplicate_variant")
 
+    @Test
+    fun `artifact settings`() = testYamlParseFromFile("artifact_settings")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)

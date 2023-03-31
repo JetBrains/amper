@@ -28,7 +28,10 @@ private fun String.trimSuffixes(): String {
     return split("+").first().substringBeforeLast("Test")
 }
 
-private fun Map<String, FragmentDefinition>.findFragmentDefinition(baseName: String, variants: List<String>): FragmentDefinition? {
+private fun Map<String, FragmentDefinition>.findFragmentDefinition(
+    baseName: String,
+    variants: List<String>
+): FragmentDefinition? {
     val matchingDefinitions = filterKeys { fragmentName ->
         val fragmentParts = fragmentName.split("+")
         if (baseName != fragmentParts[0]) return@filterKeys false
@@ -202,7 +205,8 @@ internal fun deduceFragments(
                     val variantSuffix = variantCombination.toVariantSuffix()
                     val name = "${platform.fragmentName}${variantSuffix}"
                     val resultFragment = checkNotNull(resultFragments[name])
-                    add(ArtifactImpl(potatoName, listOf(resultFragment), setOf(platform)))
+                    val artifactParts = explicitFragments.findFragmentDefinition(platform.fragmentName, variantCombination)?.artifactParts ?: emptySet()
+                    add(ArtifactImpl(potatoName, listOf(resultFragment), setOf(platform), artifactParts))
                 }
             }
         }

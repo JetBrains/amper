@@ -1,0 +1,40 @@
+type: app
+platforms:
+  - jvm
+  - iosX64
+fragments:
+  jvm:
+    mainClass: CustomMainKt
+  iosX64:
+    entryPoint: customMain
+
+### GOLD
+# Potato artifact_settings
+# Type APPLICATION
+# Created programmatically
+# Fragments:
+# - common
+#   Fragment dependencies: []
+#   External dependencies: []
+# - commonTest
+#   Fragment dependencies: [common [FRIEND]]
+#   External dependencies: []
+# - jvm
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - jvmTest
+#   Fragment dependencies: [jvm [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# - iosX64
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - iosX64Test
+#   Fragment dependencies: [iosX64 [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [jvm]
+#   For platforms [JVM]
+#   Parts: [JavaArtifactPart(mainClass=CustomMainKt)]
+# - Built from [iosX64]
+#   For platforms [IOS_X64]
+#   Parts: [NativeArtifactPart(entryPoint=customMain)]
