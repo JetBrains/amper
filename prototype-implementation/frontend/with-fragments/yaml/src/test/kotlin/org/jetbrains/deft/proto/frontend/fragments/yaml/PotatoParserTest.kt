@@ -1,6 +1,6 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
-import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.PotatoModuleProgrammaticSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -45,6 +45,9 @@ class PotatoParserTest {
 
     @Test
     fun `kotlin fragment parts`() = testYamlParseFromFile("kotlin_fragment_parts")
+
+    @Test
+    fun `variants order`() = testYamlParseFromFile("variants_order")
 
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")

@@ -1,0 +1,73 @@
+type: lib
+platforms:
+  - jvm
+variants:
+  - [debug, release]
+  - [paid, free]
+fragments:
+  jvm+paid+release:
+    dependencies:
+      - org.yaml:snakeyaml:2.0
+
+### GOLD
+# Potato variants_order
+# Type LIBRARY
+# Created programmatically
+# Fragments:
+# - jvm
+#   Fragment dependencies: []
+#   External dependencies: []
+# - jvmTest
+#   Fragment dependencies: [jvm [FRIEND]]
+#   External dependencies: []
+# - jvmDebug
+#   Fragment dependencies: [jvm [REFINE]]
+#   External dependencies: []
+# - jvmTestDebug
+#   Fragment dependencies: [jvmDebug [FRIEND], jvmTest [REFINE]]
+#   External dependencies: []
+# - jvmRelease
+#   Fragment dependencies: [jvm [REFINE]]
+#   External dependencies: []
+# - jvmTestRelease
+#   Fragment dependencies: [jvmRelease [FRIEND], jvmTest [REFINE]]
+#   External dependencies: []
+# - jvmPaid
+#   Fragment dependencies: [jvm [REFINE]]
+#   External dependencies: []
+# - jvmTestPaid
+#   Fragment dependencies: [jvmPaid [FRIEND], jvmTest [REFINE]]
+#   External dependencies: []
+# - jvmFree
+#   Fragment dependencies: [jvm [REFINE]]
+#   External dependencies: []
+# - jvmTestFree
+#   Fragment dependencies: [jvmFree [FRIEND], jvmTest [REFINE]]
+#   External dependencies: []
+# - jvmDebugPaid
+#   Fragment dependencies: [jvmDebug [REFINE]]
+#   External dependencies: []
+# - jvmTestDebugPaid
+#   Fragment dependencies: [jvmDebugPaid [FRIEND], jvmTestDebug [REFINE]]
+#   External dependencies: []
+# - jvmDebugFree
+#   Fragment dependencies: [jvmDebug [REFINE]]
+#   External dependencies: []
+# - jvmTestDebugFree
+#   Fragment dependencies: [jvmDebugFree [FRIEND], jvmTestDebug [REFINE]]
+#   External dependencies: []
+# - jvmReleasePaid
+#   Fragment dependencies: [jvmRelease [REFINE]]
+#   External dependencies: [MavenDependency(coordinates=org.yaml:snakeyaml:2.0)]
+# - jvmTestReleasePaid
+#   Fragment dependencies: [jvmReleasePaid [FRIEND], jvmTestRelease [REFINE]]
+#   External dependencies: []
+# - jvmReleaseFree
+#   Fragment dependencies: [jvmRelease [REFINE]]
+#   External dependencies: []
+# - jvmTestReleaseFree
+#   Fragment dependencies: [jvmReleaseFree [FRIEND], jvmTestRelease [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [jvm, jvmTest, jvmDebug, jvmTestDebug, jvmRelease, jvmTestRelease, jvmPaid, jvmTestPaid, jvmFree, jvmTestFree, jvmDebugPaid, jvmTestDebugPaid, jvmDebugFree, jvmTestDebugFree, jvmReleasePaid, jvmTestReleasePaid, jvmReleaseFree, jvmTestReleaseFree]
+#   For platforms [JVM]

@@ -3,13 +3,13 @@ platforms:
   - iosArm64
   - android
 variants:
-  - [ "debug", "release" ]
-  - [ "paid", "free" ]
+  - [ debug, release ]
+  - [ paid, free ]
 fragments:
   common:
     dependencies:
       - foo:1.0
-  commonPaid:
+  common+paid:
     dependencies:
       - common-paid-dependency:2.0
   commonTest:
@@ -28,7 +28,7 @@ fragments:
       - device
     dependencies:
       - ios-util:1.0
-  iosArm64Paid:
+  iosArm64+paid:
     dependencies:
       - ios-util-for-paid:1.0
   android:

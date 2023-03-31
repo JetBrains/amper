@@ -22,18 +22,23 @@ private fun List<String>.toVariantSuffix(): String =
     joinToString(separator = "") { variantValue -> variantValue.replaceFirstChar { it.uppercase() } }
 
 /**
- * Trims fragment name from variant and -Test suffixes.
+ * Trims fragment name from variants and -Test suffix.
  */
-private fun String.trimSuffixes(suffixes: List<String>): String {
-    var result = this
-    var trimSuffix: String?
-    do {
-        trimSuffix = suffixes.find { result.endsWith(it) }
-        if (trimSuffix != null) {
-            result = result.substringBefore(trimSuffix)
-        }
-    } while (trimSuffix != null)
-    return result
+private fun String.trimSuffixes(): String {
+    return split("+").first().substringBeforeLast("Test")
+}
+
+private fun Map<String, FragmentDefinition>.findFragmentDefinition(baseName: String, variants: List<String>): FragmentDefinition? {
+    val matchingDefinitions = filterKeys { fragmentName ->
+        val fragmentParts = fragmentName.split("+")
+        if (baseName != fragmentParts[0]) return@filterKeys false
+        val fragmentVariants = fragmentParts.drop(1)
+        fragmentVariants.containsAll(variants) && variants.containsAll(fragmentVariants)
+    }
+    if (matchingDefinitions.size > 1) {
+        throw ParsingException("Found duplicating fragment definitions: ${matchingDefinitions.keys}")
+    }
+    return matchingDefinitions.values.singleOrNull()
 }
 
 /**
@@ -97,15 +102,10 @@ internal fun deduceFragments(
     val allPlatforms = targetPlatforms
         .flatMap { p1 -> targetPlatforms.map { p2 -> findCommonParent(p1, p2) } }
         .toMutableSet()
-    val fragmentSuffixes = variants.flatMap { variant ->
-        variant.values.map { value ->
-            value.replaceFirstChar { it.uppercase() }
-        }
-    } + "Test"
     val fragmentGroupRefines = mutableMapOf<String, MutableSet<String>>()
 
     for (explicitFragmentName in explicitFragments.keys) {
-        val trimmedName = explicitFragmentName.trimSuffixes(fragmentSuffixes)
+        val trimmedName = explicitFragmentName.trimSuffixes()
         val platform = getPlatformFromFragmentName(trimmedName)
         if (platform != null) {
             allPlatforms.add(platform)
@@ -117,7 +117,7 @@ internal fun deduceFragments(
     }
 
     explicitFragments.forEach { (name, definition) ->
-        val trimmedName = name.trimSuffixes(fragmentSuffixes)
+        val trimmedName = name.trimSuffixes()
         val platform = getPlatformFromFragmentName(trimmedName)
         if (platform == null && trimmedName == name) {
             fragmentGroupRefines[trimmedName] = definition.fragmentDependencies.toMutableSet()
@@ -134,13 +134,16 @@ internal fun deduceFragments(
     for (groupBaseName in topologicallySortedGroups) {
         for (variantCombination in variantCombinations) {
             val variantSuffix = variantCombination.toVariantSuffix()
+            val testBaseName = "${groupBaseName}Test"
             val name = "${groupBaseName}${variantSuffix}"
-            val testName = "${groupBaseName}Test${variantSuffix}"
+            val testName = "${testBaseName}${variantSuffix}"
+            val explicitMainFragment = explicitFragments.findFragmentDefinition(groupBaseName, variantCombination)
+            val explicitTestFragment = explicitFragments.findFragmentDefinition(testBaseName, variantCombination)
             val mainFragment = FragmentImpl(
                 name = name,
                 fragmentDependencies = mutableListOf(),
-                externalDependencies = explicitFragments[name]?.externalDependencies ?: emptyList(),
-                parts = explicitFragments[name]?.fragmentParts ?: emptySet(),
+                externalDependencies = explicitMainFragment?.externalDependencies ?: emptyList(),
+                parts = explicitMainFragment?.fragmentParts ?: emptySet(),
             )
             val testFragment = FragmentImpl(
                 name = testName,
@@ -150,8 +153,8 @@ internal fun deduceFragments(
                         FragmentDependencyType.FRIEND
                     )
                 ),
-                externalDependencies = explicitFragments[testName]?.externalDependencies ?: emptyList(),
-                parts = explicitFragments[testName]?.fragmentParts ?: emptySet(),
+                externalDependencies = explicitTestFragment?.externalDependencies ?: emptyList(),
+                parts = explicitTestFragment?.fragmentParts ?: emptySet(),
             )
 
             fun addRefine(baseName: String, suffix: String) {
