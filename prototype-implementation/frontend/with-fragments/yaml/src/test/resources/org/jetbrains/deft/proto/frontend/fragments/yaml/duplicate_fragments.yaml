@@ -1,3 +1,4 @@
+#file: noinspection YAMLDuplicatedKeys
 type: lib
 platforms:
   - jvm
