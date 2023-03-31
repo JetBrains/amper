@@ -27,6 +27,7 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
     val type = parseType(potatoMap)
     val targetPlatforms = parseTargetPlatforms(potatoMap)
     val variants = parseVariants(potatoMap)
+    validateVariants(variants)
     val explicitFragments = parseExplicitFragments(potatoMap)
     validateExplicitFragments(explicitFragments, variants)
     val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, variants, type)
@@ -38,6 +39,17 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
         fragments,
         artifacts,
     )
+}
+
+private fun validateVariants(variants: List<Variant>) {
+    val uniqueNamesMap = mutableMapOf<String, Variant>()
+    for (variant in variants) {
+        for (variantValue in variant.values) {
+            if ("+" in variantValue) throw ParsingException("'+' character can't be used in variants, but found in $variant")
+            if (variantValue in uniqueNamesMap) throw ParsingException("Variant \"$variantValue\" is duplicated in variants $variant and ${uniqueNamesMap[variantValue]}")
+            uniqueNamesMap[variantValue] = variant
+        }
+    }
 }
 
 private fun validateExplicitFragments(explicitFragments: Map<String, FragmentDefinition>, variants: List<Variant>) {

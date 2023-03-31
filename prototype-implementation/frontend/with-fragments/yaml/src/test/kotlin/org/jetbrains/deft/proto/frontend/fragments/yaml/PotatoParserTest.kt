@@ -67,6 +67,12 @@ class PotatoParserTest {
     @Test
     fun `fragments can't have two variants from the same dimension`() = testYamlParseFromFile("two_variants_from_same_dimension")
 
+    @Test
+    fun `plus can't be used in variant name`() = testYamlParseFromFile("plus_in_variant_name")
+
+    @Test
+    fun `variant values should be unique`() = testYamlParseFromFile("duplicate_variant")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)

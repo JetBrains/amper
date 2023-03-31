@@ -1,0 +1,9 @@
+type: lib
+platforms:
+  - jvm
+variants:
+  - [a+b, b]
+fragments:
+  ~
+
+### Exception
