@@ -119,7 +119,7 @@ fun parseModule(value: String): PotatoModule {
                                 // TODO Handle the case, when there are several artifacts with same name. Can it be?
                                 // If it can't - so it should be expressed in API via sealed interface.
                                 // FIXME
-                                get() = buildFile.parent.name
+                                get() = targetInternalFragment.name
                             override val fragments: List<Fragment>
                                 get() = with(mutableState) { listOf(targetInternalFragment.immutable()) }
                             override val platforms: Set<Platform>
