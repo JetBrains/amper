@@ -1,0 +1,11 @@
+type: lib
+platforms:
+  - jvm
+variants:
+  - [debug, release]
+fragments:
+  jvm+debug+release:
+    dependencies:
+      - foo:1.0
+
+### Exception

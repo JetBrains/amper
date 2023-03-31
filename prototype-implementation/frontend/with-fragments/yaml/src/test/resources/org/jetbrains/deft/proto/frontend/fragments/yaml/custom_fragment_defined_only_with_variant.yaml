@@ -1,0 +1,14 @@
+type: lib
+platforms:
+  - jvm
+variants:
+  - [debug, release]
+fragments:
+  unknown+debug:
+    dependencies:
+      - foo:1.0
+  jvm:
+    refines:
+      - unknown
+
+### Exception

@@ -55,6 +55,18 @@ class PotatoParserTest {
     @Test
     fun `duplicate fragments with variants`() = testYamlParseFromFile("duplicate_fragments_with_variants")
 
+    @Test
+    fun `custom fragment should have refines`() = testYamlParseFromFile("custom_fragment_without_refines")
+
+    @Test
+    fun `custom fragment should be explicitly defined without variants`() = testYamlParseFromFile("custom_fragment_defined_only_with_variant")
+
+    @Test
+    fun `unknown variant`() = testYamlParseFromFile("unknown_variant")
+
+    @Test
+    fun `fragments can't have two variants from the same dimension`() = testYamlParseFromFile("two_variants_from_same_dimension")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)

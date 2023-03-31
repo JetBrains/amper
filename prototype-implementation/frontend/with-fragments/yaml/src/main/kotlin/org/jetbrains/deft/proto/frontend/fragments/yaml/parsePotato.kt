@@ -28,6 +28,7 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
     val targetPlatforms = parseTargetPlatforms(potatoMap)
     val variants = parseVariants(potatoMap)
     val explicitFragments = parseExplicitFragments(potatoMap)
+    validateExplicitFragments(explicitFragments, variants)
     val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, variants, type)
 
     return PotatoModuleImpl(
@@ -37,6 +38,30 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
         fragments,
         artifacts,
     )
+}
+
+private fun validateExplicitFragments(explicitFragments: Map<String, FragmentDefinition>, variants: List<Variant>) {
+    for ((fragmentName, definition) in explicitFragments) {
+        val fragmentParts = fragmentName.split("+")
+        val fragmentBaseName = fragmentParts.first()
+        val fragmentTrimmedName = fragmentBaseName.substringBeforeLast("Test")
+        val possiblePlatform = getPlatformFromFragmentName(fragmentTrimmedName)
+        if (possiblePlatform == null) {
+            if (fragmentName == fragmentTrimmedName && definition.fragmentDependencies.isEmpty())
+                throw ParsingException("User-defined fragment \"$fragmentBaseName\" isn't present in the natural hierarchy and should define its refines explicitly in \"refines\" block")
+            if (fragmentTrimmedName !in explicitFragments)
+                throw ParsingException("User-defined fragment \"$fragmentName\" doesn't have its base definition of \"$fragmentTrimmedName\" in \"fragments\" section")
+        }
+
+        val fragmentVariants = fragmentParts.drop(1)
+        val usedFragments = mutableSetOf<Variant>()
+        for (fragmentVariant in fragmentVariants) {
+            val dimension = variants.find { fragmentVariant in it.values }
+                ?: throw ParsingException("Fragment \"$fragmentName\" has unknown variant: $fragmentVariant")
+            if (dimension in usedFragments) throw ParsingException("Fragment \"$fragmentName\" uses two or more variants from the same dimension \"$dimension\"")
+            usedFragments.add(dimension)
+        }
+    }
 }
 
 private fun parseType(potatoMap: Map<String, Any>): PotatoModuleType = when (val rawType = potatoMap["type"]) {
