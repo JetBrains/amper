@@ -101,7 +101,7 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
     return rawFragments.map { (name, fragment) ->
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val fragmentDependencies = fragment["refines"] as? List<String> ?: emptyList()
-        val kotlinFragmentPart = parseKotlinFragmentPart(fragment)
+        val kotlinFragmentPart = (fragment["kotlin"] as Map<String, Any>?)?.let { parseKotlinFragmentPart(it) }
         val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildSet {
             if (kotlinFragmentPart != null) add(ByClassWrapper(kotlinFragmentPart))
         }
@@ -119,22 +119,12 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
     }.toMap()
 }
 
-private fun parseKotlinFragmentPart(fragmentMap: Map<String, Any>): KotlinFragmentPart? {
-    var hasAnyKotlinArguments = false
-    fun <T> retrieveArgumentFromMap(argument: String): T? {
-        val value = fragmentMap[argument] as T?
-        if (value != null) {
-            hasAnyKotlinArguments = true
-        }
-        return value
-    }
+private fun parseKotlinFragmentPart(kotlinSettings: Map<String, Any>): KotlinFragmentPart {
+    val languageVersion = (kotlinSettings["languageVersion"] as Double?)?.toString()
+    val apiVersion = (kotlinSettings["apiVersion"] as Double?)?.toString()
+    val progressiveMode = kotlinSettings["progressiveMode"] as Boolean?
+    val languageFeatures = kotlinSettings["languageFeatures"] as List<String>? ?: emptyList()
+    val optIns = kotlinSettings["optIns"] as List<String>? ?: emptyList()
 
-    val languageVersion = retrieveArgumentFromMap<Double>("languageVersion")?.toString()
-    val apiVersion = retrieveArgumentFromMap<Double>("apiVersion")?.toString()
-    val progressiveMode = retrieveArgumentFromMap<Boolean>("progressiveMode")
-    val languageFeatures = retrieveArgumentFromMap<List<String>>("languageFeatures") ?: emptyList()
-    val optIns = retrieveArgumentFromMap<List<String>>("optIns") ?: emptyList()
-
-    if (!hasAnyKotlinArguments) return null
     return KotlinFragmentPart(languageVersion, apiVersion, progressiveMode, languageFeatures, optIns)
 }
