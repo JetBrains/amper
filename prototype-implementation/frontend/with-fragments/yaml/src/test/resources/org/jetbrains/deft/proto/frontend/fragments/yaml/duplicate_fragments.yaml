@@ -1,0 +1,12 @@
+type: lib
+platforms:
+  - jvm
+fragments:
+  jvm:
+    dependencies:
+      - foo:1.0
+  jvm:
+    dependencies:
+      - bar:1.0
+
+### Exception

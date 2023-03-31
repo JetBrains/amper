@@ -1,0 +1,15 @@
+type: lib
+platforms:
+  - jvm
+variants:
+  - [debug, release]
+  - [paid, free]
+fragments:
+  jvm+debug+paid:
+    dependencies:
+      - foo:1.0
+  jvm+paid+debug:
+    dependencies:
+      - bar:1.0
+
+### Exception

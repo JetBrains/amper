@@ -4,7 +4,9 @@ package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
+import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.DuplicateKeyException
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -16,7 +18,12 @@ internal fun parsePotato(text: String, potatoName: String): PotatoModule =
     buildPotato(text, potatoName, PotatoModuleProgrammaticSource)
 
 private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource): PotatoModule {
-    val potatoMap = Yaml().load<Map<String, Any>?>(yaml) ?: throw ParsingException("Got empty yaml")
+    val loaderOptions = LoaderOptions().apply { isAllowDuplicateKeys = false }
+    val potatoMap = try {
+        Yaml(loaderOptions).load<Map<String, Any>?>(yaml) ?: throw ParsingException("Got empty yaml")
+    } catch (e: DuplicateKeyException) {
+        throw ParsingException(e.message!!)
+    }
     val type = parseType(potatoMap)
     val targetPlatforms = parseTargetPlatforms(potatoMap)
     val variants = parseVariants(potatoMap)

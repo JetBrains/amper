@@ -49,6 +49,12 @@ class PotatoParserTest {
     @Test
     fun `variants order`() = testYamlParseFromFile("variants_order")
 
+    @Test
+    fun `duplicate fragments`() = testYamlParseFromFile("duplicate_fragments")
+
+    @Test
+    fun `duplicate fragments with variants`() = testYamlParseFromFile("duplicate_fragments_with_variants")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)
