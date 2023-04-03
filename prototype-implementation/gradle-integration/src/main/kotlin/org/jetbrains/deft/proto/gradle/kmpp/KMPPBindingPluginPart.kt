@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTes
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.io.File
+import java.util.*
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
 
@@ -36,7 +37,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.forEach { platform ->
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                val targetName = platform.name
+                val targetName = platform.name.lowercase(Locale.getDefault())
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure() }
                     Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure() }
