@@ -3,4 +3,4 @@ product:
   platforms:
     - jvm
 
-mainClass.jvm: MainKt
+mainClass@jvm: MainKt

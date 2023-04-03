@@ -11,12 +11,12 @@ dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9
   - app.cash.sqldelight:sqldelight:2.0.0-alpha05
 
-dependencies.test:
+dependencies@test:
   - org.jetbrains.kotlin:kotlin-test:1.8.20
 
-dependencies.android:
+dependencies@android:
   - app.cash.sqldelight:android-driver:2.0.0-alpha05
   - com.google.dagger:dagger:2.28.3
 
-dependencies.ios:
+dependencies@ios:
   - com.squareup.sqldelight:native-driver:1.5.5

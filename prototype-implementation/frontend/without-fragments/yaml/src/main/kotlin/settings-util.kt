@@ -51,7 +51,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
     var variantSet: MutableSet<Settings>
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
         variantSet = with(originalSettings) { variants }.toMutableSet()
-        val split = settingsKey.split(".")
+        val split = settingsKey.split("@")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
             .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }

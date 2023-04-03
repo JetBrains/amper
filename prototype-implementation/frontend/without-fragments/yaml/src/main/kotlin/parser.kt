@@ -17,7 +17,7 @@ fun parseModule(value: String): PotatoModule {
 
     val dependencySubsets = config.keys
         .asSequence()
-        .map { it.split(".") }
+        .map { it.split("@") }
         .filter { it.size > 1 }
         .map { it[1] }
         .map { it.split("+").toSet() }
