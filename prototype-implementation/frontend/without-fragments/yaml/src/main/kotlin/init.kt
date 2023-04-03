@@ -21,7 +21,7 @@ class YamlModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
         val modules = Files.walk(root)
-            .filter { it.name == "build-wof.yaml" }
+            .filter { it.name == "Pot.yaml" }
             .map { withBuildFile(it.toAbsolutePath()) { parseModule(it.readText()) } }
             .toList()
 
