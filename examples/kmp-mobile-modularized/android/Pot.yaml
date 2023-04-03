@@ -1,0 +1,16 @@
+product:
+  type: app
+  platforms: [android]
+
+dependencies:
+  - ../shared
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8
+
+settings:
+  kotlin:
+    languageVersion: 1.8
+
+settings@android:
+  manifestFile: AndroidManifest.xml

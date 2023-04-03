@@ -1,0 +1,16 @@
+product:
+  type: app
+  platforms: [android]
+
+variants: [debug, release]
+
+dependencies@debug:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+settings:
+  kotlin:
+    languageVersion: 1.8
+
+settings@debug:
+  kotlin:
+    enableDebug: true
