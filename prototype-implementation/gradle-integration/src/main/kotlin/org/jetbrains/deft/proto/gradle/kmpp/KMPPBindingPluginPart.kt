@@ -1,9 +1,11 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.deft.proto.gradle.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.FragmentWrapper
+import org.jetbrains.deft.proto.gradle.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.buildDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
