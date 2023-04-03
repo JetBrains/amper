@@ -32,7 +32,7 @@ fun parseModule(value: String): PotatoModule {
     val naturalHierarchy = Platform.values()
         .filter { !it.isLeaf }
         .filter { it != Platform.COMMON }
-        .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString() } to it.leafChildren.toSet() }
+        .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } to it.leafChildren.toSet() }
 
     val aliases: Settings = config.getValue<Settings>("aliases") ?: mapOf()
     val aliasMap: Map<String, Set<Platform>> = aliases.entries.associate {
@@ -56,6 +56,10 @@ fun parseModule(value: String): PotatoModule {
 
     fragments = fragments.multiplyFragments(config.variants)
     with(aliasMap) { fragments.handleAdditionalKeys(config) }
+    with(config) {
+        fragments.calculateSrcDir(platforms.toSet())
+    }
+
     val mutableState = object : Stateful<MutableFragment, Fragment> {}
     val immutableFragments = fragments.map { with(mutableState) { it.immutable() } }
     return object : PotatoModule {

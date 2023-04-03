@@ -32,7 +32,7 @@ fun <T> cartesian(list1: List<List<T>>, list2: List<List<T>>): List<List<T>> = b
 }
 
 context (Map<String, Set<Platform>>)
-fun Set<Platform>.toCamelCaseString(): String {
+fun Set<Platform>.toCamelCaseString(): Pair<String, String?> {
     val platforms = this.toMutableSet()
     val aliases: List<String> = buildList {
         entries.filter { platforms.containsAll(it.value) }.sortedByDescending { it.value.size }.forEach {
@@ -43,21 +43,20 @@ fun Set<Platform>.toCamelCaseString(): String {
         }
     }
 
+    var alias: String? = null
     return buildString {
-        var aliasExists = false
         for (index in aliases.indices) {
-            val alias = aliases[index]
+            alias = aliases[index]
             if (index == 0) {
-                aliasExists = true
                 append(alias)
             } else {
-                append(alias.replaceFirstChar { it.uppercase() })
+                append(alias!!.replaceFirstChar { it.uppercase() })
             }
         }
         for (platform in platforms) {
             val words = platform.toString().split("_")
             append(buildString {
-                if (aliasExists) {
+                if (alias != null) {
                     append(words[0].lowercase().replaceFirstChar { it.uppercase() })
                 } else {
                     append(words[0].lowercase())
@@ -67,7 +66,7 @@ fun Set<Platform>.toCamelCaseString(): String {
                 }
             })
         }
-    }
+    } to alias
 }
 
 val Platform.children: List<Platform>

@@ -22,6 +22,8 @@ internal data class MutableFragment(
     val optIns: MutableList<String> = mutableListOf(),
     var mainClass: String? = null,
     var entryPoint: String? = null,
+    var srcFolderName: String? = null,
+    var alias: String? = null,
 ) {
     enum class KotlinVersion(private val version: String) {
         Kotlin19("1.9"),
@@ -67,7 +69,8 @@ internal data class MutableFragment(
                                 apiVersion.toString(),
                                 progressiveMode,
                                 languageFeatures,
-                                optIns
+                                optIns,
+                                srcFolderName
                             )
                         )
                     )
@@ -130,8 +133,7 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                     for (element in fragments) {
                         val newFragment = if (option.getValue<Boolean>("default") == true) {
                             val newFragment = MutableFragment(element.name, element.platforms)
-                            newFragment.variants.addAll(element.variants)
-                            newFragment.dependencies.addAll(element.dependencies)
+                            copyFields(newFragment, element)
                             newFragment
                         } else {
                             val newFragment = MutableFragment(
@@ -146,8 +148,7 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
-                            newFragment.variants.addAll(element.variants)
-                            newFragment.dependencies.addAll(element.dependencies)
+                            copyFields(newFragment, element)
                             newFragment
                         }
                         newFragment.variants.add(name)
@@ -203,20 +204,28 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
     return fragments
 }
 
+private fun copyFields(new: MutableFragment, old: MutableFragment) {
+    new.variants.addAll(old.variants)
+    new.dependencies.addAll(old.dependencies)
+    new.alias = old.alias
+}
+
 context (Map<String, Set<Platform>>)
 internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
     get() {
         val platforms = this
         return buildList {
             val sortedPlatformSubsets = platforms.sortedBy { it.size }
+            val reducedPlatformSet = platforms.reduce { acc, set -> acc + set }
             sortedPlatformSubsets.forEach { platformSet ->
-                val fragment = MutableFragment(platformSet.toCamelCaseString(), platformSet)
+                val (name, alias) = platformSet.toCamelCaseString()
+                val fragment = MutableFragment(name, platformSet, alias = alias)
                 addFragment(fragment, platformSet)
             }
-            val platformSet = platforms.reduce { acc, set -> acc + set }
-            if (platformSet.size > 1) {
-                val fragment = MutableFragment("common", platformSet)
-                addFragment(fragment, platformSet)
+
+            if (reducedPlatformSet.size > 1) {
+                val fragment = MutableFragment("common", reducedPlatformSet)
+                addFragment(fragment, reducedPlatformSet)
             }
         }
     }
@@ -280,5 +289,49 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     }
     config.handleFragmentSettings<String>(this, "entryPoint") {
         entryPoint = it
+    }
+}
+
+context (Settings)
+internal fun List<MutableFragment>.calculateSrcDir(platforms: Set<Platform>) {
+
+    val defaultOptions = defaultOptionMap.values.toSet()
+    val nonStdOptions = optionMap.filter { it.value.getValue<String>("dimension") != "mode" }.keys
+
+    val testOption = "test"
+
+    for (fragment in this) {
+        val options = fragment.variants.filter { nonStdOptions.contains(it) }.toSet()
+        val dir = buildString {
+            if (fragment.variants.contains(testOption)) {
+                append("test")
+            } else {
+                append("src")
+            }
+
+            val optionsWithoutDefault = options.filter { !defaultOptions.contains(it) }
+
+            if (fragment.platforms != platforms || optionsWithoutDefault.isNotEmpty()) {
+                append("@")
+            }
+
+            if (fragment.platforms != platforms) {
+                if (fragment.alias != null) {
+                    append("${fragment.alias}")
+                } else {
+                    append(fragment.platforms.map { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } }
+                        .joinToString("+"))
+                }
+            }
+
+            if (optionsWithoutDefault.isNotEmpty()) {
+                if (fragment.platforms != platforms) {
+                    append("+")
+                }
+                append(optionsWithoutDefault.joinToString("+"))
+            }
+        }
+
+        fragment.srcFolderName = dir
     }
 }

@@ -30,24 +30,6 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
     val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
     // add external dependencies, compiler flags, etc
-    val optionMap = buildMap {
-        for (variant in with(originalSettings) { variants }) {
-            for (option in (variant.getValue<List<Settings>>("options")
-                ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
-                put(option, variant)
-            }
-        }
-    }
-
-    val defaultOptionMap = buildMap<Settings, String> {
-        for (variant in with(originalSettings) { variants }) {
-            val option = (variant.getValue<List<Settings>>("options")
-                ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
-                ?: error("Something went wrong")
-            put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
-        }
-    }
-
     var variantSet: MutableSet<Settings>
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
         variantSet = with(originalSettings) { variants }.toMutableSet()
@@ -57,7 +39,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
             .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
             .toSet()
         for (option in options) {
-            val variant = optionMap[option] ?: error("There is no such variant option $option")
+            val variant = originalSettings.optionMap[option] ?: error("There is no such variant option $option")
             variantSet.remove(variant)
         }
 
@@ -108,3 +90,29 @@ internal val Settings.variants: List<Settings>
             convertedInitialVariants
         }
     }
+
+internal val Settings.defaultOptionMap: Map<Settings, String> get() {
+    val originalSettings = this
+
+    return buildMap {
+        for (variant in with(originalSettings) { variants }) {
+            val option = (variant.getValue<List<Settings>>("options")
+                ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
+                ?: error("Something went wrong")
+            put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
+        }
+    }
+}
+
+internal val Settings.optionMap: Map<String, Settings> get() {
+    val originalSettings = this
+
+    return buildMap {
+        for (variant in with(originalSettings) { variants }) {
+            for (option in (variant.getValue<List<Settings>>("options")
+                ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
+                put(option, variant)
+            }
+        }
+    }
+}

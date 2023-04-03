@@ -5,38 +5,38 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@jvm)
   iosSimulatorArm64
     External dependencies: []
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@iosSimulatorArm64)
   common
     External dependencies: [MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1)]
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
   jvmTest
     External dependencies: []
     Fragment dependencies:
       commonTest (REFINE)
       jvm (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@jvm)
   iosSimulatorArm64Test
     External dependencies: []
     Fragment dependencies:
       commonTest (REFINE)
       iosSimulatorArm64 (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@iosSimulatorArm64)
   commonTest
     External dependencies: [MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20)]
     Fragment dependencies:
       common (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test)
 Artifacts:
   [JVM]
     Fragments:

@@ -29,6 +29,7 @@ data class KotlinFragmentPart(
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
+    val srcFolderName: String? = null,
 ) : FragmentPart<KotlinFragmentPart>
 
 /**
