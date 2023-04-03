@@ -3,6 +3,7 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -21,7 +22,8 @@ class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx {
 
-    private val kotlinMPE: KotlinMultiplatformExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+    private val kotlinMPE: KotlinMultiplatformExtension =
+        project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
         initTargets()
@@ -32,7 +34,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.forEach { platform ->
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                val targetName = "${artifact.name}${platform.name}"
+                val targetName = platform.name
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure() }
                     Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure() }
@@ -67,11 +69,12 @@ class KMPPBindingPluginPart(
             fragment.maybeCreateSourceSet {
                 dependencies {
                     fragment.externalDependencies.forEach { externalDependency ->
-                        when(externalDependency) {
+                        when (externalDependency) {
                             is MavenDependency -> implementation(externalDependency.coordinates)
                             is PotatoModuleDependency -> with(externalDependency) {
                                 implementation(model.module.linkedProject)
                             }
+
                             else -> error("Unsupported dependency type: $externalDependency")
                         }
                     }
@@ -100,7 +103,7 @@ class KMPPBindingPluginPart(
         println("EXISING ARTIFACTS: ${module.artifacts.joinToString { it.name }}")
         module.artifacts.forEach { artifact ->
             println("ADJUSTING EXISING ARTIFACT: $artifact")
-            artifact.platforms.forEach inner@ { platform ->
+            artifact.platforms.forEach inner@{ platform ->
                 val targetName = "${artifact.name}${platform.name}"
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
                 val mainCompilation = target.compilations.findByName("main") ?: return@inner
@@ -138,7 +141,8 @@ class KMPPBindingPluginPart(
         // TODO Change defaults to some merge chain. Now languageVersion checking ruins build.
         languageVersion = kotlinPart.languageVersion ?: "1.8"
         apiVersion = kotlinPart.apiVersion ?: "1.8"
-        if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode = kotlinPart.progressiveMode ?: false
+        if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode =
+            kotlinPart.progressiveMode ?: false
         kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
         kotlinPart.optIns.forEach { optIn(it) }
     }
