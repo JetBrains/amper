@@ -20,7 +20,7 @@ fragments:
       # list of dependencies for iosArm64
       []
   android:
-    compileSdkVersion: android-T
+    compileSdkVersion: android-33
     dependencies:
       # list of dependencies for android
       []

@@ -17,11 +17,11 @@ fragments:
     dependencies:
       - org.jetbrains.kotlin:kotlin-test:1.8.10
   android:
-    compileSdkVersion: android-T
+    compileSdkVersion: android-33
   android+debug:
     # TODO: artifact settings should be propagated from android fragment
-    compileSdkVersion: android-T
+    compileSdkVersion: android-33
   android+release:
     # TODO: artifact settings should be propagated from android fragment
-    compileSdkVersion: android-T
+    compileSdkVersion: android-33
 

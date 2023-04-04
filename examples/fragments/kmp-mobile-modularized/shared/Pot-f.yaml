@@ -5,7 +5,7 @@ platforms:
 
 fragments:
   android:
-    compileSdkVersion: android-T
+    compileSdkVersion: android-33
   common:
     kotlin:
       languageVersion: 1.8
