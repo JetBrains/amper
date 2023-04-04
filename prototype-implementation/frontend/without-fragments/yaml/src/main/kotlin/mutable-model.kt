@@ -173,7 +173,10 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                     val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
                     fragment.dependencies.forEach { dependency ->
                         val targetFragment =
-                            sourceFragments.firstOrNull { it.platforms == dependency.target.platforms && it !== fragment }
+                            sourceFragments
+                                .filter { it !== fragment }
+                                .sortedByDescending { (dependency.target.variants intersect it.variants).size }
+                                .firstOrNull { it.platforms == dependency.target.platforms }
                                 ?: error("Something went wrong")
 
                         dependenciesToRemove.add(dependency)
