@@ -1,0 +1,26 @@
+type: app
+platforms:
+  - iosArm64
+  - android
+
+fragments:
+  common:
+    kotlin:
+      languageVersion: 1.8
+    dependencies:
+      - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  commonTest:
+    dependencies:
+      - org.jetbrains.kotlin:kotlin-test:1.8.10
+  ios:
+    # TODO: A boilerplate to define intermediate fragment. Can be deduced from layout?
+    dependencies: []
+  iosArm64:
+    dependencies:
+      # list of dependencies for iosArm64
+      []
+  android:
+    compileSdkVersion: android-T
+    dependencies:
+      # list of dependencies for android
+      []

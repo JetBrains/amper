@@ -1,0 +1,27 @@
+type: app
+platforms:
+  - android
+variants:
+  - [debug, release]
+
+fragments:
+  common:
+    kotlin:
+      languageVersion: 1.8
+  common+debug:
+    kotlin:
+      enableDebug: true
+    dependencies:
+      - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  commonTest:
+    dependencies:
+      - org.jetbrains.kotlin:kotlin-test:1.8.10
+  android:
+    compileSdkVersion: android-T
+  android+debug:
+    # TODO: artifact settings should be propagated from android fragment
+    compileSdkVersion: android-T
+  android+release:
+    # TODO: artifact settings should be propagated from android fragment
+    compileSdkVersion: android-T
+
