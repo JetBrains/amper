@@ -7,7 +7,7 @@ fragments:
     kotlin:
       languageVersion: 1.8
     dependencies:
-      - ../shared
+      - :shared
   iosArm64Test:
     dependencies:
       - org.jetbrains.kotlin:kotlin-test:1.8.10

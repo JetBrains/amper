@@ -4,6 +4,8 @@ platforms:
   - iosArm64
 
 fragments:
+  android:
+    compileSdkVersion: android-T
   common:
     kotlin:
       languageVersion: 1.8

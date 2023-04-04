@@ -1,8 +1,6 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
-import org.jetbrains.deft.proto.frontend.FragmentDependencyType
-import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.frontend.PotatoModuleType
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.frontend.util.depth
 import org.jetbrains.deft.proto.frontend.util.findCommonParent
 import org.jetbrains.deft.proto.frontend.util.fragmentName
@@ -197,7 +195,17 @@ internal fun deduceFragments(
     val allFragments = resultFragments.values.toList()
 
     val artifacts = when (type) {
-        PotatoModuleType.LIBRARY -> listOf(ArtifactImpl(potatoName, allFragments, targetPlatforms))
+        PotatoModuleType.LIBRARY -> {
+            val artifactParts: ClassBasedSet<ArtifactPart<*>> = buildSet {
+                if (Platform.ANDROID in targetPlatforms) {
+                    val androidArtifactPart = explicitFragments.values.flatMap { it.artifactParts }
+                        .find { it.clazz == AndroidArtifactPart::class.java }
+                        ?.value as? AndroidArtifactPart ?: throw ParsingException("Define Android settings in any of the fragments")
+                    add(ByClassWrapper(androidArtifactPart))
+                }
+            }
+            listOf(ArtifactImpl(potatoName, allFragments, targetPlatforms, artifactParts))
+        }
         PotatoModuleType.APPLICATION -> buildList {
             for (platform in targetPlatforms) {
                 for (variantCombination in variantCombinations) {
