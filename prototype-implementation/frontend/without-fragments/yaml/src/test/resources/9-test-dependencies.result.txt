@@ -1,0 +1,23 @@
+Module {{ userReadableName }}
+Fragments:
+  jvm
+    External dependencies: []
+    Fragment dependencies:
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
+  jvmTest
+    External dependencies: [MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10)]
+    Fragment dependencies:
+      jvm (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test)
+Artifacts:
+  [JVM]
+    Fragments:
+      jvm
+    Parts:
+      JavaArtifactPart(mainClass=MainKt)
+  [JVM]
+    Fragments:
+      jvmTest
+    Parts:

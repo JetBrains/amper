@@ -58,7 +58,7 @@ fun parseModule(value: String): PotatoModule {
     var fragments = with(aliasMap) { subsets.basicFragments }
 
     fragments = fragments.multiplyFragments(config.variants)
-    with(aliasMap) { fragments.handleAdditionalKeys(config) }
+    with(aliasMap) { fragments.handleAdditionalKeys(config.transformed) }
     with(config) {
         fragments.calculateSrcDir(platforms.toSet())
     }

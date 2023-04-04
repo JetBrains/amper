@@ -112,3 +112,16 @@ internal tailrec fun Platform.native(): Boolean {
 
     return this.parent!!.native()
 }
+
+
+fun String.transformKey(): String {
+    val modeParts = split("-")
+    if (modeParts.size == 1) {
+        return this
+    }
+    val otherVariantOptionParts = modeParts[1].split("@")
+    if (otherVariantOptionParts.size == 1) {
+        return "${modeParts[1]}@${modeParts[0]}"
+    }
+    return "${otherVariantOptionParts[0]}@${otherVariantOptionParts[1]}+${modeParts[0]}"
+}

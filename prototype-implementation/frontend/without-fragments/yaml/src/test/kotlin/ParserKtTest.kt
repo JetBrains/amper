@@ -86,4 +86,11 @@ internal class ParserKtTest {
             testParse("8-variants-simplified")
         }
     }
+
+    @Test
+    fun `test-dependencies is the same as dependencies@test`() {
+        with(buildFile) {
+            testParse("9-test-dependencies")
+        }
+    }
 }

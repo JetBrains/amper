@@ -102,28 +102,37 @@ internal val Settings.variants: List<Settings>
         }
     }
 
-internal val Settings.defaultOptionMap: Map<Settings, String> get() {
-    val originalSettings = this
+internal val Settings.defaultOptionMap: Map<Settings, String>
+    get() {
+        val originalSettings = this
 
-    return buildMap {
-        for (variant in with(originalSettings) { variants }) {
-            val option = (variant.getValue<List<Settings>>("options")
-                ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
-                ?: error("Something went wrong")
-            put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
-        }
-    }
-}
-
-internal val Settings.optionMap: Map<String, Settings> get() {
-    val originalSettings = this
-
-    return buildMap {
-        for (variant in with(originalSettings) { variants }) {
-            for (option in (variant.getValue<List<Settings>>("options")
-                ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
-                put(option, variant)
+        return buildMap {
+            for (variant in with(originalSettings) { variants }) {
+                val option = (variant.getValue<List<Settings>>("options")
+                    ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
+                    ?: error("Something went wrong")
+                put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
             }
         }
     }
-}
+
+internal val Settings.optionMap: Map<String, Settings>
+    get() {
+        val originalSettings = this
+
+        return buildMap {
+            for (variant in with(originalSettings) { variants }) {
+                for (option in (variant.getValue<List<Settings>>("options")
+                    ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
+                    put(option, variant)
+                }
+            }
+        }
+    }
+
+internal val Settings.transformed: Settings
+    get() = buildMap {
+        for ((key, value) in this@transformed) {
+            put(key.transformKey(), value)
+        }
+    }
