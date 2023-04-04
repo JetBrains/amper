@@ -200,7 +200,8 @@ internal fun deduceFragments(
                 if (Platform.ANDROID in targetPlatforms) {
                     val androidArtifactPart = explicitFragments.values.flatMap { it.artifactParts }
                         .find { it.clazz == AndroidArtifactPart::class.java }
-                        ?.value as? AndroidArtifactPart ?: throw ParsingException("Define Android settings in any of the fragments")
+                        ?.value as? AndroidArtifactPart ?: AndroidArtifactPart("android-33")
+                    // TODO: default is a bit hacky here
                     add(ByClassWrapper(androidArtifactPart))
                 }
             }

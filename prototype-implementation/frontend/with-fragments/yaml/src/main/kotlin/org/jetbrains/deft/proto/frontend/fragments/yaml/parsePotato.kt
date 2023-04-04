@@ -11,6 +11,8 @@ import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.readText
 
+private val RESERVED_TOP_LEVEL_NAMES: Set<String> = setOf("type", "platforms", "variants")
+
 internal fun parsePotato(potatoYaml: Path): PotatoModule =
     buildPotato(potatoYaml.readText(), potatoYaml.parent.name, PotatoModuleFileSource(potatoYaml))
 
@@ -97,8 +99,9 @@ private fun parseVariants(potatoMap: Map<String, Any>): List<Variant> {
 }
 
 private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {
-    val rawFragments = potatoMap["fragments"] as? Map<String, Map<String, Any>> ?: return emptyMap()
+    val rawFragments = potatoMap.filterKeys { it !in RESERVED_TOP_LEVEL_NAMES } as? Map<String, Map<String, Any>?> ?: return emptyMap()
     return rawFragments.map { (name, fragment) ->
+        if (fragment == null) return@map name to FragmentDefinition(emptyList(), emptyList(), emptySet(), emptySet())
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val refines = fragment["refines"]
         val fragmentDependencies = refines as? List<String> ?: (refines as? String)?.let(::listOf) ?: emptyList()

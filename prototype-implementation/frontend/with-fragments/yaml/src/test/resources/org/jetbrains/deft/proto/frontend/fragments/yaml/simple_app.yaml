@@ -1,10 +1,9 @@
 type: app
 platforms:
   - jvm
-fragments:
-  jvm:
-    dependencies:
-      - org.yaml:snakeyaml:2.0
+jvm:
+  dependencies:
+    - org.yaml:snakeyaml:2.0
 
 ### GOLD
 # Potato simple_app

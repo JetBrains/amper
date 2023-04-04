@@ -2,15 +2,14 @@ type: app
 platforms:
   - android
 
-fragments:
+android:
+  compileSdkVersion: android-33
+  kotlin:
+    languageVersion: 1.8
   android:
-    compileSdkVersion: android-33
-    kotlin:
-      languageVersion: 1.8
-    android:
-      manifestFile: AndroidManifest.xml
-    dependencies:
-      - :shared
-  androidTest:
-    dependencies:
-      - org.jetbrains.kotlin:kotlin-test:1.8.10
+    manifestFile: AndroidManifest.xml
+  dependencies:
+    - :shared
+androidTest:
+  dependencies:
+    - org.jetbrains.kotlin:kotlin-test:1.8.10

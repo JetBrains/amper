@@ -1,14 +1,13 @@
 type: app
 platforms:
   - jvm
-fragments:
-  jvm:
-    refines:
-      - jvm1
-      - jvm2
-  jvm1:
-    refines: jvm2
-  jvm2:
-    refines: jvm1
+jvm:
+  refines:
+    - jvm1
+    - jvm2
+jvm1:
+  refines: jvm2
+jvm2:
+  refines: jvm1
 
 ### Exception

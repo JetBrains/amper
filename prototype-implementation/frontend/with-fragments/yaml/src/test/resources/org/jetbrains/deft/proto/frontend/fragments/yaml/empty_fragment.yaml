@@ -1,0 +1,26 @@
+type: app
+platforms:
+  - jvm
+
+common: ~
+
+### GOLD
+# Potato empty_fragment
+# Type APPLICATION
+# Created programmatically
+# Fragments:
+# - common
+#   Fragment dependencies: []
+#   External dependencies: []
+# - commonTest
+#   Fragment dependencies: [common [FRIEND]]
+#   External dependencies: []
+# - jvm
+#   Fragment dependencies: [common [REFINE]]
+#   External dependencies: []
+# - jvmTest
+#   Fragment dependencies: [jvm [FRIEND], commonTest [REFINE]]
+#   External dependencies: []
+# Artifacts:
+# - Built from [jvm]
+#   For platforms [JVM]

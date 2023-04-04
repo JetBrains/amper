@@ -5,32 +5,31 @@ platforms:
 variants:
   - [ debug, release ]
   - [ paid, free ]
-fragments:
-  common:
-    dependencies:
-      - foo:1.0
-  common+paid:
-    dependencies:
-      - common-paid-dependency:2.0
-  commonTest:
-    dependencies:
-      - kotlin-test:1.8.10
-  device:
-    refines: common
-    dependencies:
-      - darwin-util:1.0
-  deviceTest:
-    dependencies:
-      - darwin-test-util:1.0
-  ios:
-    refines: device
-    dependencies:
-      - ios-util:1.0
-  iosArm64+paid:
-    dependencies:
-      - ios-util-for-paid:1.0
-  android:
-    refines: device
+common:
+  dependencies:
+    - foo:1.0
+common+paid:
+  dependencies:
+    - common-paid-dependency:2.0
+commonTest:
+  dependencies:
+    - kotlin-test:1.8.10
+device:
+  refines: common
+  dependencies:
+    - darwin-util:1.0
+deviceTest:
+  dependencies:
+    - darwin-test-util:1.0
+ios:
+  refines: device
+  dependencies:
+    - ios-util:1.0
+iosArm64+paid:
+  dependencies:
+    - ios-util-for-paid:1.0
+android:
+  refines: device
 
 ### GOLD
 # Potato custom_fragment

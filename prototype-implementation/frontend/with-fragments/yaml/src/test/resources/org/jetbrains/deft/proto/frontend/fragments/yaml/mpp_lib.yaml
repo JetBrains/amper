@@ -2,16 +2,15 @@ type: "lib"
 platforms:
   - iosArm64
   - android
-fragments:
-  common:
-    dependencies:
-      - foo:1.0
-  commonTest:
-    dependencies:
-      - kotlin-test:1.8.10
-  iosArm64:
-    dependencies:
-      - ios-util:1.0
+common:
+  dependencies:
+    - foo:1.0
+commonTest:
+  dependencies:
+    - kotlin-test:1.8.10
+iosArm64:
+  dependencies:
+    - ios-util:1.0
 
 ### GOLD
 # Potato mpp_lib
@@ -39,3 +38,4 @@ fragments:
 # Artifacts:
 # - Built from [common, commonTest, iosArm64, iosArm64Test, android, androidTest]
 #   For platforms [IOS_ARM64, ANDROID]
+#   Parts: [AndroidArtifactPart(compileSdkVersion=android-33)]

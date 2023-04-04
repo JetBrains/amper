@@ -3,9 +3,8 @@ platforms:
   - jvm
 variants:
   - [debug, release]
-fragments:
-  jvm+debgu:
-    dependencies:
-      - foo:1.0
+jvm+debgu:
+  dependencies:
+    - foo:1.0
 
 ### Exception

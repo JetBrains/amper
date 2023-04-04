@@ -5,22 +5,21 @@ platforms:
 variants:
   - [ debug, release ]
   - [ paid, free ]
-fragments:
-  common:
-    dependencies:
-      - foo:1.0
-  common+paid:
-    dependencies:
-      - common-paid-dependency:2.0
-  commonTest:
-    dependencies:
-      - kotlin-test:1.8.10
-  iosArm64:
-    dependencies:
-      - ios-util:1.0
-  iosArm64+paid:
-    dependencies:
-      - ios-util-for-paid:1.0
+common:
+  dependencies:
+    - foo:1.0
+common+paid:
+  dependencies:
+    - common-paid-dependency:2.0
+commonTest:
+  dependencies:
+    - kotlin-test:1.8.10
+iosArm64:
+  dependencies:
+    - ios-util:1.0
+iosArm64+paid:
+  dependencies:
+    - ios-util-for-paid:1.0
 
 ### GOLD
 # Potato mpp_app

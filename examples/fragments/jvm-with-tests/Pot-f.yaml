@@ -2,10 +2,9 @@ type: app
 platforms:
   - jvm
 
-fragments:
-  jvm:
-    dependencies:
-      - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-  jvmTest:
-    dependencies:
-      - org.jetbrains.kotlin:kotlin-test:1.8.10
+jvm:
+  dependencies:
+    - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+jvmTest:
+  dependencies:
+    - org.jetbrains.kotlin:kotlin-test:1.8.10

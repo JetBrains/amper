@@ -3,13 +3,12 @@ platforms:
   - jvm
   - android
   - iosX64
-fragments:
-  jvm:
-    mainClass: CustomMainKt
-  iosX64:
-    entryPoint: customMain
-  android:
-    compileSdkVersion: android-31
+jvm:
+  mainClass: CustomMainKt
+iosX64:
+  entryPoint: customMain
+android:
+  compileSdkVersion: android-31
 
 ### GOLD
 # Potato artifact_settings

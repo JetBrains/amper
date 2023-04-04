@@ -2,13 +2,12 @@ type: app
 platforms:
   - android
   - iosArm64
-fragments:
-  common:
-    dependencies:
-      - :common
-  android:
-    dependencies:
-      - androidx.compose.ui:ui:1.3.3
-  iosArm64:
-    dependencies:
+common:
+  dependencies:
+    - :common
+android:
+  dependencies:
+    - androidx.compose.ui:ui:1.3.3
+iosArm64:
+  dependencies:
       - some-ios:dependency:1.0

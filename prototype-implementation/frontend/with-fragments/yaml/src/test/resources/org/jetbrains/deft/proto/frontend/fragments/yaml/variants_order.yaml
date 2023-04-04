@@ -4,10 +4,9 @@ platforms:
 variants:
   - [debug, release]
   - [paid, free]
-fragments:
-  jvm+paid+release:
-    dependencies:
-      - org.yaml:snakeyaml:2.0
+jvm+paid+release:
+  dependencies:
+    - org.yaml:snakeyaml:2.0
 
 ### GOLD
 # Potato variants_order

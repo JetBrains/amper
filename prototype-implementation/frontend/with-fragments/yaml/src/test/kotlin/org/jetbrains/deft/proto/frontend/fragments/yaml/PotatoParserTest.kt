@@ -76,6 +76,9 @@ class PotatoParserTest {
     @Test
     fun `artifact settings`() = testYamlParseFromFile("artifact_settings")
 
+    @Test
+    fun `empty fragment`() = testYamlParseFromFile("empty_fragment")
+
     private fun testYamlParseFromFile(testFile: String) {
         val resource = PotatoParserTest::class.java.getResource("${testFile}.yaml")
         checkNotNull(resource)

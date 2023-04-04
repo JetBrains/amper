@@ -33,122 +33,116 @@
         }
       }
     },
-    "fragments": {
-      "type": "object",
-      "properties": {
-        "common": {
-          "$ref": "#/$defs/fragment"
-        },
-        "commonTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "jvm": {
-          "$ref": "#/$defs/fragment"
-        },
-        "jvmTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "wasm": {
-          "$ref": "#/$defs/fragment"
-        },
-        "wasmTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "ios": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "js": {
-          "$ref": "#/$defs/fragment"
-        },
-        "jsTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "native": {
-          "$ref": "#/$defs/fragment"
-        },
-        "nativeTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "android": {
-          "$ref": "#/$defs/fragment"
-        },
-        "androidTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosArm64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosArm64Test": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosSimulatorArm64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosSimulatorArm64Test": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosX64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "iosX64Test": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linux": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linuxTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linuxArm64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linuxArm64Test": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linuxX64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "linuxX64Test": {
-          "$ref": "#/$defs/fragment"
-        },
-        "apple": {
-          "$ref": "#/$defs/fragment"
-        },
-        "appleTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "mingw": {
-          "$ref": "#/$defs/fragment"
-        },
-        "mingwTest": {
-          "$ref": "#/$defs/fragment"
-        },
-        "mingwX64": {
-          "$ref": "#/$defs/fragment"
-        },
-        "mingwX64Test": {
-          "$ref": "#/$defs/fragment"
-        }
-      },
-      "patternProperties": {
-        "^.+$": {
-          "$ref": "#/$defs/fragment"
-        }
-      },
-      "additionalProperties": false
+    "common": {
+      "$ref": "#/$defs/fragment"
+    },
+    "commonTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "jvm": {
+      "$ref": "#/$defs/fragment"
+    },
+    "jvmTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "wasm": {
+      "$ref": "#/$defs/fragment"
+    },
+    "wasmTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "ios": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "js": {
+      "$ref": "#/$defs/fragment"
+    },
+    "jsTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "native": {
+      "$ref": "#/$defs/fragment"
+    },
+    "nativeTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "android": {
+      "$ref": "#/$defs/fragment"
+    },
+    "androidTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosArm64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosArm64Test": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosSimulatorArm64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosSimulatorArm64Test": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosX64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "iosX64Test": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linux": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linuxTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linuxArm64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linuxArm64Test": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linuxX64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "linuxX64Test": {
+      "$ref": "#/$defs/fragment"
+    },
+    "apple": {
+      "$ref": "#/$defs/fragment"
+    },
+    "appleTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "mingw": {
+      "$ref": "#/$defs/fragment"
+    },
+    "mingwTest": {
+      "$ref": "#/$defs/fragment"
+    },
+    "mingwX64": {
+      "$ref": "#/$defs/fragment"
+    },
+    "mingwX64Test": {
+      "$ref": "#/$defs/fragment"
     }
   },
+  "patternProperties": {
+    "^.+$": {
+      "$ref": "#/$defs/fragment"
+    }
+  },
+  "additionalProperties": false,
   "required": [
     "type",
     "platforms"
   ],
   "$defs": {
     "fragment": {
-      "$dynamicAnchor": "Fragment",
-      "type": "object",
+      "type": ["object", "null"],
       "properties": {
         "refines": {
           "oneOf": [
@@ -170,10 +164,16 @@
           "type": "object",
           "properties": {
             "languageVersion": {
-              "type": ["number", "string"]
+              "type": [
+                "number",
+                "string"
+              ]
             },
             "apiVersion": {
-              "type": ["number", "string"]
+              "type": [
+                "number",
+                "string"
+              ]
             },
             "progressiveMode": {
               "type": "boolean"

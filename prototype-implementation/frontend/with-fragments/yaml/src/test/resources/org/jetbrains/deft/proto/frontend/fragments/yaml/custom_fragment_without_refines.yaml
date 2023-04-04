@@ -1,11 +1,10 @@
 type: lib
 platforms:
   - jvm
-fragments:
-  unknown:
-    dependencies:
-      - foo:1.0
-  jvm:
-    refines: unknown
+unknown:
+  dependencies:
+    - foo:1.0
+jvm:
+  refines: unknown
 
 ### Exception
