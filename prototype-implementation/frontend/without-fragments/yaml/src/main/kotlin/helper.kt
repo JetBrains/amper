@@ -35,12 +35,16 @@ context (Map<String, Set<Platform>>)
 fun Set<Platform>.toCamelCaseString(): Pair<String, String?> {
     val platforms = this.toMutableSet()
     val aliases: List<String> = buildList {
-        entries.filter { platforms.containsAll(it.value) }.sortedByDescending { it.value.size }.forEach {
-            if (platforms.containsAll(it.value)) {
-                add(it.key)
-                platforms -= it.value
+        entries
+            .filter { it.value.isNotEmpty() }
+            .filter { platforms.containsAll(it.value) }
+            .sortedByDescending { it.value.size }
+            .forEach {
+                if (platforms.containsAll(it.value)) {
+                    add(it.key)
+                    platforms -= it.value
+                }
             }
-        }
     }
 
     var alias: String? = null

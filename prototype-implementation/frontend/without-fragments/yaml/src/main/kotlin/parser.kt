@@ -42,6 +42,9 @@ fun parseModule(value: String): PotatoModule {
             ?.toSet() ?: setOf()
         name to platformSet
     } + naturalHierarchy
+        .entries
+        .sortedBy { it.value.size }
+        .associate { (key, value) -> key to (platforms intersect value) }
 
     val subsets = (dependencySubsets + folderSubsets)
         .map {
