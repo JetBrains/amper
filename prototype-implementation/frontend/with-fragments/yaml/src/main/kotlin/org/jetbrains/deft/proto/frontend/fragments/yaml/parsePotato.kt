@@ -111,6 +111,8 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
             if (jvmArtifactPart != null) add(ByClassWrapper(jvmArtifactPart))
             val nativeArtifactPart = parseNativeArtifactPart(fragment)
             if (nativeArtifactPart != null) add(ByClassWrapper(nativeArtifactPart))
+            val androidArtifactPart = parseAndroidArtifactPart(fragment)
+            if (androidArtifactPart != null) add(ByClassWrapper(androidArtifactPart))
         }
 
         name to FragmentDefinition(
@@ -136,6 +138,11 @@ private fun parseNativeArtifactPart(fragment: Map<String, Any>): NativeArtifactP
 private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaArtifactPart? {
     val mainClass = fragment["mainClass"] as String? ?: return null
     return JavaArtifactPart(mainClass)
+}
+
+private fun parseAndroidArtifactPart(fragment: Map<String, Any>): AndroidArtifactPart? {
+    val compileSdkVersion = fragment["compileSdkVersion"] as String? ?: return null
+    return AndroidArtifactPart(compileSdkVersion)
 }
 
 private fun parseKotlinFragmentPart(kotlinSettings: Map<String, Any>): KotlinFragmentPart {
