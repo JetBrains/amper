@@ -1,3 +1,3 @@
-expect class World {
+expect class World() {
     fun get() : String
 }

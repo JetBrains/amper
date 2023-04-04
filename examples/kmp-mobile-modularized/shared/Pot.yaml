@@ -1,6 +1,6 @@
 product:
   type: lib
-  platforms: [android, iosArm64]
+  platforms: [ android, iosArm64 ]
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0

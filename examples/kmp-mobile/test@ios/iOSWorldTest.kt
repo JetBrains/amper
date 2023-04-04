@@ -1,8 +1,9 @@
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class IOSWorldTest {
     @Test
     fun doTest() {
-        assertEquals("iOS World", World.get())
+        assertEquals("iOS World", World().get())
     }
 }

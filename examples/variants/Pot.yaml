@@ -1,11 +1,14 @@
 product:
   type: app
-  platforms: [android]
+  platforms: [ android ]
 
-variants: [debug, release]
+variants: [ debug, release ]
 
 dependencies@debug:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10
 
 settings:
   kotlin:
