@@ -4,7 +4,5 @@ platforms:
 variants:
   - [a, b]
   - [b, c]
-fragments:
-  ~
 
 ### Exception
