@@ -8,8 +8,8 @@ dependencies:
 dependencies@android:
 # list of dependencies for android
 
-dependencies@iosArm64:
-# list of dependencies for android
+dependencies@ios:
+# list of dependencies for ios
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10
