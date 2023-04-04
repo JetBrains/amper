@@ -3,7 +3,7 @@ product:
   platforms: [android]
 
 dependencies:
-  - :shared
+  - ../shared
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10

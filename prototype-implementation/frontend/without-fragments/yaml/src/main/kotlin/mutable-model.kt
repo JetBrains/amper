@@ -253,16 +253,32 @@ private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, 
     add(fragment)
 }
 
-context (Map<String, Set<Platform>>)
+context (Map<String, Set<Platform>>, BuildFileAware)
 internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     config.handleFragmentSettings<List<String>>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
-            if (dep.startsWith(":")) object : PotatoModuleDependency {
-                override val Model.module: PotatoModule
-                    get() = modules.find { it.userReadableName == dep.removePrefix(":") }
-                        ?: error("No module $dep found")
+            if (dep.startsWith(".")) {
+                object : PotatoModuleDependency {
+                    override val Model.module: PotatoModule
+                        get() = modules.find {
+                            if (it.source is PotatoModuleFileSource) {
+                                val targetModulePotFilePath = (it.source as PotatoModuleFileSource)
+                                    .buildFile
+                                    .toAbsolutePath()
+                                val sourceModulePotFilePath = buildFile.parent
+                                    .resolve("$dep/Pot.yaml")
+                                    .normalize()
+                                    .toAbsolutePath()
+                                targetModulePotFilePath == sourceModulePotFilePath
+                            } else {
+                                false
+                            }
+                        }
+                            ?: error("No module $dep found")
+                }
+            } else {
+                MavenDependency(dep)
             }
-            else MavenDependency(dep)
         }
         externalDependencies.addAll(resolved)
     }
