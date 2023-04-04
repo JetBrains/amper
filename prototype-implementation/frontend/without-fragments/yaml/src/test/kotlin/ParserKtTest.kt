@@ -93,4 +93,11 @@ internal class ParserKtTest {
             testParse("9-test-dependencies")
         }
     }
+
+    @Test
+    fun `android properties should be passed in lib`() {
+        with(buildFile) {
+            testParse("10-android-lib")
+        }
+    }
 }

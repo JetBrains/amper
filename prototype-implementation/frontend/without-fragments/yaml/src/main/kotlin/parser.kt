@@ -94,7 +94,13 @@ fun parseModule(value: String): PotatoModule {
                 override val platforms: Set<Platform>
                     get() = platforms.toSet()
                 override val parts: ClassBasedSet<ArtifactPart<*>>
-                    get() = setOf()
+                    get() = buildSet {
+                        val compileSdkVersion = fragments
+                            .filter { it.platforms.contains(Platform.ANDROID) }
+                            .map { it.androidCompileSdkVersion }
+                            .firstOrNull() ?: "android-31"
+                        add(ByClassWrapper(AndroidArtifactPart(compileSdkVersion)))
+                    }
             })
         }
 
@@ -119,8 +125,10 @@ fun parseModule(value: String): PotatoModule {
                 for (platform in platforms) {
                     for (element in cartesian) {
                         add(object : Artifact {
-                            private val targetInternalFragment = fragments.filter { it.platforms == setOf(platform) }
-                                .firstOrNull { it.variants == element.toSet() } ?: error("Something went wrong")
+                            private val targetInternalFragment = fragments
+                                .filter { it.platforms == setOf(platform) }
+                                .firstOrNull { it.variants == element.toSet() }
+                                ?: error("Something went wrong")
 
                             override val name: String
                                 // TODO Handle the case, when there are several artifacts with same name. Can it be?
