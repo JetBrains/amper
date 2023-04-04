@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
+import org.gradle.api.attributes.Attribute
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
@@ -14,7 +15,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTes
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.io.File
-import java.util.*
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
 
@@ -37,14 +37,14 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.forEach { platform ->
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                val targetName = platform.name.lowercase(Locale.getDefault())
+                val targetName = "${artifact.name}${platform.name}"
                 when (platform) {
-                    Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure() }
-                    Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure() }
-                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName) { doConfigure() }
-                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { doConfigure() }
-                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { doConfigure() }
-                    Platform.JS -> kotlinMPE.js { doConfigure() }
+                    Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure(targetName) }
+                    Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure(targetName) }
+                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName) { doConfigure(targetName) }
+                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { doConfigure(targetName) }
+                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { doConfigure(targetName) }
+                    Platform.JS -> kotlinMPE.js { doConfigure(targetName) }
                     else -> error("Unsupported platform: $platform")
                 }
             }
@@ -109,7 +109,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             println("ADJUSTING EXISING ARTIFACT: $artifact")
             artifact.platforms.forEach inner@{ platform ->
-                val targetName = platform.name.lowercase(Locale.getDefault())
+                val targetName = "${artifact.name}${platform.name}"
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
 
                 val testCompilation = target.compilations.findByName("test") ?: return@inner
@@ -121,7 +121,6 @@ class KMPPBindingPluginPart(
                     } else {
                         mainCompilation.defaultSourceSet.doDependsOn(it)
                     }
-
                 }
 
             }
@@ -131,6 +130,13 @@ class KMPPBindingPluginPart(
             val possiblePrebuiltName = "${fragment.name}Main"
             findSourceSet(possiblePrebuiltName)?.let {
                 it.doDependsOn(fragment)
+            }
+        }
+
+        project.configurations.filter { it.name.contains("CInteropApiElements") }.map {
+            val c = it
+            it.attributes {
+                it.attribute(Attribute.of("artifactName", String::class.java), c.name)
             }
         }
 
@@ -158,20 +164,19 @@ class KMPPBindingPluginPart(
         kotlinPart.optIns.forEach { optIn(it) }
     }
 
-    private fun KotlinAndroidTarget.doConfigure() {
-
+    private fun KotlinAndroidTarget.doConfigure(targetName: String) {
     }
 
-    private fun KotlinJvmTarget.doConfigure() {
+    private fun KotlinJvmTarget.doConfigure(targetName: String) {
     }
 
-    private fun KotlinNativeTarget.doConfigure() {
+    private fun KotlinNativeTarget.doConfigure(targetName: String) {
     }
 
-    private fun KotlinNativeTargetWithSimulatorTests.doConfigure() {
+    private fun KotlinNativeTargetWithSimulatorTests.doConfigure(targetName: String) {
     }
 
-    private fun KotlinJsTargetDsl.doConfigure() {
+    private fun KotlinJsTargetDsl.doConfigure(targetName: String) {
     }
 
     // ------
