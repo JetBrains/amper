@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "Deft DSL schema",
+  "title": "Deft DSL",
+  "type": "object",
+  "properties": {
+    "product": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "app",
+            "lib"
+          ]
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "jvm",
+              "android",
+              "iosArm64",
+              "iosX64",
+              "iosSimulatorArm64"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "platforms"
+      ]
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dependencies": {
+      "$ref": "#/$defs/deps"
+    },
+    "dependencies@jvm": {
+      "$ref": "#/$defs/deps"
+    },
+    "dependencies@android": {
+      "$ref": "#/$defs/deps"
+    },
+    "dependencies@ios": {
+      "$ref": "#/$defs/deps"
+    },
+    "test-dependencies": {
+      "$ref": "#/$defs/deps"
+    },
+    "test-dependencies@jvm": {
+      "$ref": "#/$defs/deps"
+    },
+    "test-dependencies@android": {
+      "$ref": "#/$defs/deps"
+    },
+    "test-dependencies@ios": {
+      "$ref": "#/$defs/deps"
+    },
+    "settings": {
+      "$ref": "#/$defs/settings"
+    },
+    "settings@jvm": {
+      "$ref": "#/$defs/settings"
+    },
+    "settings@android": {
+      "$ref": "#/$defs/settings"
+    },
+    "settings@ios": {
+      "$ref": "#/$defs/settings"
+    },
+    "test-settings": {
+      "$ref": "#/$defs/settings"
+    },
+    "test-settings@jvm": {
+      "$ref": "#/$defs/settings"
+    },
+    "test-settings@android": {
+      "$ref": "#/$defs/settings"
+    },
+    "test-settings@ios": {
+      "$ref": "#/$defs/settings"
+    }
+  },
+  "required": [
+    "product"
+  ],
+  "$defs": {
+    "deps": {
+      "type": "array"
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "manifestFile": {
+          "type": "string"
+        },
+        "kotlin": {
+          "type": "object",
+          "properties": {
+            "languageVersion": {
+              "type": "number"
+            },
+            "jvmTarget": {
+              "type": "number"
+            }
+          }
+        },
+        "java": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "number"
+            },
+            "target": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}
