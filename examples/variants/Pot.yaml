@@ -1,6 +1,6 @@
 product:
   type: app
-  platforms: [ android ]
+  platforms: [ iosArm64 ]
 
 variants: [ debug, release ]
 
