@@ -30,7 +30,7 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
     val targetPlatforms = parseTargetPlatforms(potatoMap)
     val variants = parseVariants(potatoMap)
     validateVariants(variants)
-    val explicitFragments = parseExplicitFragments(potatoMap)
+    val explicitFragments = parseExplicitFragments(source, potatoMap)
     validateExplicitFragments(explicitFragments, variants)
     val (fragments, artifacts) = deduceFragments(name, explicitFragments, targetPlatforms, variants, type)
 
@@ -98,7 +98,7 @@ private fun parseVariants(potatoMap: Map<String, Any>): List<Variant> {
     return rawVariants.map(::Variant)
 }
 
-private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {
+private fun parseExplicitFragments(source: PotatoModuleSource, potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {
     val rawFragments = potatoMap.filterKeys { it !in RESERVED_TOP_LEVEL_NAMES } as? Map<String, Map<String, Any>?> ?: return emptyMap()
     return rawFragments.map { (name, fragment) ->
         if (fragment == null) return@map name to FragmentDefinition(emptyList(), emptyList(), emptySet(), emptySet())
@@ -120,8 +120,10 @@ private fun parseExplicitFragments(potatoMap: Map<String, Any>): Map<String, Fra
 
         name to FragmentDefinition(
             externalDependencies.map { dependency ->
-                if (dependency.startsWith(":")) {
-                    InnerDependency(dependency.removePrefix(":"))
+                if (dependency.startsWith(".")) {
+                    check(source is PotatoModuleFileSource) { "Relative path syntax isn't applicable for programmatically created Pots" }
+                    val targetPath = source.buildFile.parent.resolve(dependency).resolve("Pot.yaml").normalize()
+                    InnerDependency(targetPath)
                 } else {
                     MavenDependency(dependency)
                 }

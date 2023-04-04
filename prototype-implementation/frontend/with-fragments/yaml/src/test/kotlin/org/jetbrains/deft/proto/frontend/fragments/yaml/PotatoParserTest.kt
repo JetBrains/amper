@@ -41,9 +41,6 @@ class PotatoParserTest {
     fun `only ios`() = testYamlParseFromFile("only_ios")
 
     @Test
-    fun `inner project dependency`() = testYamlParseFromFile("inner_project_dependency")
-
-    @Test
     fun `kotlin fragment parts`() = testYamlParseFromFile("kotlin_fragment_parts")
 
     @Test

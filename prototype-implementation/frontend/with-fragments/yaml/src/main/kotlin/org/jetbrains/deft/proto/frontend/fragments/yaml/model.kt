@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.*
+import java.nio.file.Path
 
 internal data class PotatoModuleImpl(
     override val userReadableName: String,
@@ -38,7 +39,10 @@ internal data class FragmentDefinition(
 
 internal data class Variant(val values: List<String>)
 
-internal data class InnerDependency(val dependency: String): PotatoModuleDependency {
+internal data class InnerDependency(val dependencyPath: Path): PotatoModuleDependency {
     override val Model.module: PotatoModule
-        get() = modules.find { it.userReadableName == dependency } ?: error("No module $dependency found")
+        get() = modules.find {
+            val source = it.source as? PotatoModuleFileSource ?: return@find false
+            source.buildFile == dependencyPath
+        } ?: error("No module found at $dependencyPath")
 }

@@ -15,7 +15,7 @@ class YamlFragmentsModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
         val modules = Files.walk(root)
-            .filter { it.name == "Pot-f.yaml" }
+            .filter { it.name == "Pot.yaml" }
             .map(::parsePotato)
             .toList()
 

@@ -4,7 +4,7 @@ platforms:
   - iosArm64
 common:
   dependencies:
-    - :common
+    - ../common
 android:
   dependencies:
     - androidx.compose.ui:ui:1.3.3
