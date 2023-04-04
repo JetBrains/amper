@@ -133,7 +133,7 @@ class KMPPBindingPluginPart(
             }
         }
 
-        project.configurations.filter { it.name.contains("CInteropApiElements") }.map {
+        project.configurations.map {
             val c = it
             it.attributes {
                 it.attribute(Attribute.of("artifactName", String::class.java), c.name)
