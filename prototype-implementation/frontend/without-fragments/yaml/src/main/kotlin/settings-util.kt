@@ -63,7 +63,18 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
 
 internal val Settings.variants: List<Settings>
     get() {
-        val initialVariants = getValue<List<List<String>>>("variants") ?: listOf()
+        val initialVariants = (this["variants"] as? List<*>)?.let {
+            if (it.isNotEmpty()) {
+                if (it[0] is String) {
+                    listOf(getValue<List<String>>("variants") ?: listOf())
+                } else {
+                    getValue<List<List<String>>>("variants") ?: listOf()
+                }
+            } else {
+                listOf()
+            }
+        } ?: listOf()
+
         var i = 0
         val convertedInitialVariants: List<Settings> = initialVariants.map {
             val dimension = "dimension${++i}"

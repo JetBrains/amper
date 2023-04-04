@@ -79,4 +79,11 @@ internal class ParserKtTest {
             testParse("7-propagating-artifact-options")
         }
     }
+
+    @Test
+    fun `variants even more simplified`() {
+        with(buildFile) {
+            testParse("8-variants-simplified")
+        }
+    }
 }
