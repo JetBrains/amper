@@ -24,6 +24,7 @@ internal data class MutableFragment(
     var entryPoint: String? = null,
     var srcFolderName: String? = null,
     var alias: String? = null,
+    var androidCompileSdkVersion: String? = null,
 ) {
     enum class KotlinVersion(private val version: String) {
         Kotlin19("1.9"),
@@ -292,6 +293,9 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     }
     config.handleFragmentSettings<String>(this, "entryPoint") {
         entryPoint = it
+    }
+    config.handleFragmentSettings<String>(this, "compileSdkVersion") {
+        androidCompileSdkVersion = it
     }
 }
 

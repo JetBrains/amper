@@ -131,6 +131,15 @@ fun parseModule(value: String): PotatoModule {
                             override val parts: ClassBasedSet<ArtifactPart<*>>
                                 get() {
                                     return buildSet {
+                                        if (platform == Platform.ANDROID) {
+                                            add(
+                                                ByClassWrapper(
+                                                    AndroidArtifactPart(
+                                                        targetInternalFragment.androidCompileSdkVersion ?: "android-31"
+                                                    )
+                                                )
+                                            )
+                                        }
                                         if (!element.contains("test")) {
                                             val mainClass = targetInternalFragment.mainClass ?: "MainKt"
                                             val entryPoint = targetInternalFragment.entryPoint ?: "main"

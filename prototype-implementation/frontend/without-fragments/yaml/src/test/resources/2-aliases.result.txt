@@ -81,10 +81,12 @@ Artifacts:
     Fragments:
       android
     Parts:
+      AndroidArtifactPart(compileSdkVersion=android-31)
   [ANDROID]
     Fragments:
       androidTest
     Parts:
+      AndroidArtifactPart(compileSdkVersion=android-31)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64
