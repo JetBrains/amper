@@ -8,8 +8,8 @@ to maven local following projects (simple "publishToMavenLocal" task will do the
 
 When it's done, just add this directory as Gradle project and it should work.
 
-**Note**: Use `build-wf.yaml` build files to use "with fragments" frontend
-and `build-wof.yaml` to use "without fragments".
+**Note**: Use `Pot-f.yaml` build files to use "with fragments" frontend
+and `Pot.yaml` to use "plain" frontend.
 To import choosen file type, see comments at [settings.gradle.kts](settings.gradle.kts).
 
 There are numbers of limitations for now, including (but not limited to):
