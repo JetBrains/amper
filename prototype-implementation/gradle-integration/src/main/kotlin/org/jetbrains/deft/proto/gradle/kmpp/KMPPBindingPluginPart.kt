@@ -109,7 +109,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             println("ADJUSTING EXISING ARTIFACT: $artifact")
             artifact.platforms.forEach inner@{ platform ->
-                val targetName = "${artifact.name}${platform.name}"
+                val targetName = platform.name.lowercase(Locale.getDefault())
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
                 val mainCompilation = target.compilations.findByName("main") ?: return@inner
                 println("ADJUSTING EXISING: $mainCompilation")
