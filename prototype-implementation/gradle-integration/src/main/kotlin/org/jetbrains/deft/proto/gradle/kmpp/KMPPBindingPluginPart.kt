@@ -111,9 +111,12 @@ class KMPPBindingPluginPart(
             artifact.platforms.forEach inner@{ platform ->
                 val targetName = platform.name.lowercase(Locale.getDefault())
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
-                val mainCompilation = target.compilations.findByName("main") ?: return@inner
-                println("ADJUSTING EXISING: $mainCompilation")
-                mainCompilation.defaultSourceSet.apply {
+
+                val compilation = (if (artifact.name.contains("Test"))
+                    target.compilations.findByName("test")
+                else target.compilations.findByName("main")) ?: return@inner
+                println("ADJUSTING EXISING: $compilation")
+                compilation.defaultSourceSet.apply {
                     artifact.fragments.forEach {
                         doDependsOn(it)
                     }
