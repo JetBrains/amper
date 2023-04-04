@@ -1,5 +1,5 @@
 actual class World {
-    fun get(): String {
+    actual fun get(): String {
         return "Debug World"
     }
 }
