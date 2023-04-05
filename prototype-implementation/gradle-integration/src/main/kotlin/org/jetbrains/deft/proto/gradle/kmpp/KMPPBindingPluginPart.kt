@@ -1,6 +1,8 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.plugins.JavaPlatformExtension
+import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
@@ -9,9 +11,7 @@ import org.jetbrains.deft.proto.gradle.buildDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.io.File
@@ -29,6 +29,9 @@ class KMPPBindingPluginPart(
     private val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
+    private val javaPE: JavaPluginExtension =
+        project.extensions.getByType(JavaPluginExtension::class.java)
+
     fun apply() {
         initTargets()
         initFragments()
@@ -38,11 +41,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.forEach { platform ->
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                val targetName =
-                    if (platform == Platform.ANDROID)
-                        platform.name.lowercase(Locale.getDefault())
-                    else
-                        "${artifact.name}${platform.name}"
+                val targetName = platform.name.lowercase(Locale.getDefault())
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure(targetName) }
                     Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure(targetName) }
@@ -104,7 +103,14 @@ class KMPPBindingPluginPart(
 
             // Set sources and resources.
             sourceSet.kotlin.srcDirs.clear()
-            sourceSet.kotlin.srcDir(fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath)
+            val srcDir = fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath
+            sourceSet.kotlin.srcDir(srcDir)
+            // TODO: only fragments, where Java is available, should contribute to Java source sets
+            if (fragment.name.contains("Test")) {
+                javaPE.sourceSets.findByName("test")?.java?.srcDir(srcDir)
+            } else {
+                javaPE.sourceSets.findByName("main")?.java?.srcDir(srcDir)
+            }
             sourceSet.resources.srcDirs.clear()
             sourceSet.resources.srcDir("${fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath}/resources")
         }
@@ -114,11 +120,7 @@ class KMPPBindingPluginPart(
         module.artifacts.forEach { artifact ->
             println("ADJUSTING EXISING ARTIFACT: $artifact")
             artifact.platforms.forEach inner@{ platform ->
-                val targetName =
-                    if (platform == Platform.ANDROID)
-                        platform.name.lowercase(Locale.getDefault())
-                    else
-                        "${artifact.name}${platform.name}"
+                val targetName = platform.name.lowercase(Locale.getDefault())
                 val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
 
                 val testCompilation = target.compilations.findByName("test") ?: return@inner
@@ -177,6 +179,7 @@ class KMPPBindingPluginPart(
     }
 
     private fun KotlinJvmTarget.doConfigure(targetName: String) {
+        withJava()
     }
 
     private fun KotlinNativeTarget.doConfigure(targetName: String) {
