@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.plugins.JavaPlatformExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
@@ -11,7 +10,9 @@ import org.jetbrains.deft.proto.gradle.buildDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
-import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.io.File
