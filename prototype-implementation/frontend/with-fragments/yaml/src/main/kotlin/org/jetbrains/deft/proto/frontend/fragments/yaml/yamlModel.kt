@@ -5,6 +5,7 @@ import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -17,7 +18,7 @@ class YamlFragmentsModelInit : ModelInit {
         val modules = Files.walk(root)
             .filter { it.name == "Pot.yaml" }
             .map(::parsePotato)
-            .toList()
+            .collect(Collectors.toList())
 
         return object : Model {
             override val modules: List<PotatoModule> = modules

@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -23,7 +24,7 @@ class YamlModelInit : ModelInit {
         val modules = Files.walk(root)
             .filter { it.name == "Pot.yaml" }
             .map { withBuildFile(it.toAbsolutePath()) { parseModule(it.readText()) } }
-            .toList()
+            .collect(Collectors.toList())
 
         return object : Model {
             override val modules: List<PotatoModule> = modules
