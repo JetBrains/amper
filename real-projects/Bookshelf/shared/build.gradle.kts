@@ -11,6 +11,7 @@ plugins {
 kotlin {
     android()
 
+    // that's complicated only to have a simulator
     val iosTarget: (String, KotlinNativeTarget.() -> Unit) -> KotlinNativeTarget = when {
         System.getenv("SDK_NAME")?.startsWith("iphoneos") == true -> ::iosArm64
         System.getenv("NATIVE_ARCH")?.startsWith("arm") == true -> ::iosSimulatorArm64
@@ -18,6 +19,7 @@ kotlin {
     }
     iosTarget("ios") {}
 
+    // could it be implemented as publication?
     cocoapods {
         summary = "Realm Kotlin Bookshelf shared Library"
         homepage = "https://github.com/realm/realm-kotlin"
@@ -74,8 +76,8 @@ android {
     }
 
     compileSdk = 33
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml") // why is it here?
+    defaultConfig {  //what does default mean here?
         minSdk = 21
         targetSdk = 33
     }

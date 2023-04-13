@@ -1,0 +1,58 @@
+type: library
+platforms: [android, ios] # should detect suitable simulator automatically + don't want to think about architectures
+
+dependencies:
+  # either need to have properties or declare not individually but as BOM
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion
+  - io.ktor:ktor-client-core:$ktorVersion
+  - io.ktor:ktor-client-content-negotiation:$ktorVersion
+  - io.ktor:ktor-serialization-kotlinx-json:$ktorVersion
+  - io.ktor:ktor-client-serialization:$ktorVersion
+  # what is a root project? Workspace? common include?
+  - io.realm.kotlin:library-base:${rootProject.extra["realmVersion"]}
+    
+dependencies@android:
+  - io.ktor:ktor-client-android:$ktorVersion #why isn't it auto added via common?
+  
+dependencies@ios:
+  - io.ktor:ktor-client-ios:$ktorVersion #why isn't it auto added?
+  
+test-dependencies:
+  - kotlin:test-common:??? #how do I know what version to use?  Should 'No version' mean latest?
+  - kotlin:test-annotations-common:???
+
+test-dependencies@android:
+  - kotlin:test-junit:???:
+      optional: true
+
+
+  - junit:junit:4.13.2 # why do I need to manually add junit? 
+
+
+# With settings it's unclear where  I should write
+#settings:
+#  android:
+#or
+settings@android:
+  compileOptions:
+    sourceCompatibility: 1.8
+    targetCompatibility: 1.8
+  compileSdk: 33
+  manifest: src/androidMain/AndroidManifest.xml #why should I manually specify it?
+  
+  defaultConfig: #What is default config here?
+    minSdk: 21
+    targetSdk: 33
+
+settings@ios: #definitely don't want to think about arch here
+  # not sure about writing cocoapods settings here
+  # maybe it's about publishing?
+  # or general integration with other build tools?
+  # should it be exposed as a CocoaPods feature instead
+  cocoapods:
+    summary: Realm Kotlin Bookshelf shared Library
+    homepage: https://github.com/realm/realm-kotlin
+    ios.deploymentTarget: 14.1
+    osx.deploymentTarget: 11.0
+    frameworkName: shared
+  
