@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Bookshelf</string>
+
+    <string name="route_search_screen">Search</string>
+    <string name="route_books_screen">Books</string>
+    <string name="route_about_screen">About</string>
+
+    <string name="search_empty_bookshelf">Your bookshelf is empty</string>
+
+    <string name="details_add_to_bookshelf">Add to bookshelf</string>
+    <string name="details_remove_from_bookshelf">Remove from bookshelf</string>
+    <string name="details_title">Title</string>
+</resources>
