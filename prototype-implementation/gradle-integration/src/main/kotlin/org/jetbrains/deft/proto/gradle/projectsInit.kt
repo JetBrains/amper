@@ -70,20 +70,13 @@ private fun doInitProjects(
         return resultProjectPath
     }
 
-    val pathToModule = mutableMapOf<String, PotatoModuleWrapper>()
-    val moduleToPath = mutableMapOf<Path, String>()
-
     // Go by ascending path length and generate projects.
     sortedByPath.forEach {
         val projectPath = getProjectPathAndMemoize(it.buildDir)
         settings.include(projectPath)
         val project = settings.project(projectPath)
         project.projectDir = it.buildDir.toFile()
-        pathToModule[projectPath] = PotatoModuleWrapper(it)
-        moduleToPath[it.buildDir] = projectPath
+        settings.gradle.projectPathToModule[projectPath] = PotatoModuleWrapper(it)
+        settings.gradle.moduleFilePathToProject[it.buildDir] = projectPath
     }
-
-    // Associate gradle projects with modules.
-    settings.gradle.projectPathToModule = pathToModule
-    settings.gradle.moduleFilePathToProject = moduleToPath
 }
