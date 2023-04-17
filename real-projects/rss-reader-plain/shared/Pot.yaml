@@ -1,0 +1,54 @@
+product:
+  type: lib
+  platforms:
+    - android
+    - iosArm64
+    - iosSimulatorArm64
+    - iosX64
+
+dependencies:
+  # Network
+  - io.ktor:ktor-client-core:2.2.4
+  - io.ktor:ktor-client-logging:2.2.4
+  # Coroutines
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+  # Logger
+  - io.github.aakira:napier:2.6.1
+  # JSON
+  - org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0
+  # Key-Value storage
+  - com.russhwolf:multiplatform-settings:1.0.0
+  # DI
+  - io.insert-koin:koin-core:3.3.3
+
+dependencies@android:
+  # Network
+  - io.ktor:ktor-client-okhttp:2.2.4
+  # TODO: Was placed in Android block in the original project
+  - com.android.tools:desugar_jdk_libs:2.0.2
+
+dependencies@ios:
+  # Network
+  - io.ktor:ktor-client-darwin:2.2.4
+
+settings:
+  kotlin:
+    jvmTarget: 1.8
+
+settings@ios:
+  framework:
+    baseName: RssReader
+
+settings@android:
+  namespace: com.github.jetbrains.rssreader
+  # Manifest should be, in fact, declared only for the main source set. Right now it's unclear on how it propagates.
+  manifestFile: src@android/AndroidManifest.xml
+  compileSdk: 33
+  defaultConfig:
+    minSdk: 21
+    targetSdk: 33
+  compileOptions:
+    isCoreLibraryDesugaringEnabled: true
+    sourceCompatibility: 1.8
+    targetCompatibility: 1.8
+

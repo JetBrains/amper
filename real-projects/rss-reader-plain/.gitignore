@@ -1,0 +1,15 @@
+*.iml
+.gradle
+.idea
+.DS_Store
+build
+*/build
+captures
+.externalNativeBuild
+.cxx
+local.properties
+xcuserdata/
+Pods/
+/androidApp/key
+*.jks
+*yarn.lock
