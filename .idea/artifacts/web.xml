@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="web">
+    <output-path>$PROJECT_DIR$/real-projects/PeopleInSpace/web/build/libs</output-path>
+    <root id="archive" name="web.jar" />
+  </artifact>
+</component>

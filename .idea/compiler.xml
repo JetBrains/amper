@@ -3,8 +3,6 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="android" target="17" />
-      <module name="Bookshelf.androidApp" target="17" />
-      <module name="Bookshelf.shared" target="17" />
       <module name="ios" target="17" />
       <module name="jvm-hello-world_main" target="17" />
       <module name="jvm-hello-world_test" target="17" />
