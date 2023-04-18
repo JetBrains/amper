@@ -2,9 +2,20 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="android" target="17" />
+      <module name="Bookshelf.androidApp" target="17" />
+      <module name="Bookshelf.shared" target="17" />
+      <module name="ios" target="17" />
+      <module name="jvm-hello-world_main" target="17" />
+      <module name="jvm-hello-world_test" target="17" />
+      <module name="jvm-kotlin+java_main" target="17" />
+      <module name="jvm-kotlin+java_test" target="17" />
+      <module name="jvm-with-tests_main" target="17" />
+      <module name="jvm-with-tests_test" target="17" />
       <module name="prototype-implementation.frontend.yaml" target="17" />
       <module name="prototype-implementation.frontend.yaml.main" target="17" />
       <module name="prototype-implementation.frontend.yaml.test" target="17" />
+      <module name="shared" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

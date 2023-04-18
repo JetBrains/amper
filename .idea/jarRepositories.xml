@@ -36,5 +36,25 @@
       <option name="name" value="BintrayJCenter" />
       <option name="url" value="https://jcenter.bintray.com/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://oss.sonatype.org/content/repositories/snapshots" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven3" />
+      <option name="name" value="maven3" />
+      <option name="url" value="https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven4" />
+      <option name="name" value="maven4" />
+      <option name="url" value="https://maven.pkg.jetbrains.space/public/p/compose/dev" />
+    </remote-repository>
   </component>
 </project>
