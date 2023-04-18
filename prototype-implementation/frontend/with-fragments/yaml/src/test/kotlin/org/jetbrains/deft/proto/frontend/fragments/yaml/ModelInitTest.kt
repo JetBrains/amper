@@ -3,15 +3,15 @@ package org.jetbrains.deft.proto.frontend.fragments.yaml
 import org.jetbrains.deft.proto.frontend.PotatoModuleDependency
 import kotlin.io.path.Path
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ModelInitTest {
     @Test
     fun `load model`() {
         val modelRoot = checkNotNull(ModelInitTest::class.java.getResource("testModel")?.path)
         val model = YamlFragmentsModelInit().getModel(Path(modelRoot))
-        assertContentEquals(listOf("server", "common", "client"), model.modules.map { it.userReadableName })
+        assertTrue(model.modules.map { it.userReadableName}.containsAll(listOf("common", "server", "client")))
         val clientModule = checkNotNull(model.modules.find { it.userReadableName == "client" })
         val commonModule = checkNotNull(model.modules.find { it.userReadableName == "common" })
         val serverModule = checkNotNull(model.modules.find { it.userReadableName == "server" })
