@@ -25,12 +25,14 @@ gradlePlugin {
     }
 }
 
-tasks.withType<Test>() {
+tasks.withType<Test> {
     useJUnitPlatform()
 }
 
 // Add also this tests classes as plugin classpath for running plugin.
 tasks.withType<PluginUnderTestMetadata>().configureEach {
+    dependsOn("compileTestKotlin")
+    dependsOn("processTestResources")
     pluginClasspath.setFrom(
         pluginClasspath
             .plus(files(project.buildDir.resolve("classes/kotlin/test")))
