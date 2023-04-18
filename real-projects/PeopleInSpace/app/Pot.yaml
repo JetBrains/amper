@@ -1,0 +1,104 @@
+catalogs:
+  versions: ../Versions.yaml
+  deps: ../Deps.yaml
+
+type: app
+platforms: [ android ]
+variants: [ debug, release ]
+
+toolchains:
+  # there are phases: dependencies, compile, test, publish, every phase has before-, phasename and after- hooks,
+  # for example, if you want to add hook before test, you can use "beforeTest"
+  # if you want to add hook to test phase, just write "test"
+  # Every toolchain brings its own settings
+  beforeDependencies:
+    - github.com/jetbrains/dependency-versions
+  beforeCompile:
+    - github.com/jetbrains/kotlint
+  afterCompile:
+    - github.com/jetbrains/proguard
+
+templates:
+  - github.com/jetbrains/compose:
+      version: ${versions.compose}
+      features: [ ui, material, navigation, ui-tooling ]
+  - github.com/jetbrains/koin:
+      version: ${versions.koin}
+      features: [ core, android, compose, test, testJunit4 ]
+
+settings:
+  android:
+    compileSdk: ${versions.android.sdk.compile}
+    applicationId: com.surrus.peopleinspace
+    minSdk: ${versions.android.sdk.min}
+    targetSdk: ${versions.android.sdk.target}
+    versionCode: 1
+    versionName: 1.0
+    testInstrumentationRunner: androidx.test.runner.AndroidJUnitRunner
+    buildFeatures:
+      compose: true
+    composeOptions:
+      kotlinCompilerExtensionVersion: ${versions.compose}
+    packagingOptions:
+      resources:
+        excludes:
+          - META-INF/licenses/**
+          - META-INF/AL2.0
+          - META-INF/LGPL2.1
+      namespace: com.surrus.peopleinspace
+
+    testOptions:
+      managedDevices:
+        pixel5api32:
+          device: Pixel 5
+          apiLevel: 32
+          systemImageSource: google
+
+  java:
+    sourceCompatibility: ${java.version11}
+    targetCompatibility: ${java.version11}
+
+  kotlin:
+    jvmTarget: ${java.version8}
+
+settings@release:
+  android:
+    isMinifyEnabled: true
+    isShrinkResources: true
+    proguardFiles:
+      - proguard-rules.pro
+      - ${proguard.dir}/proguard-android-optimize.txt
+
+# Looks like, it would more preferable to have some framework integration to have an option to just write:
+# I want to use compose of a version: 1.4.0 with following features: ui, material, navigation, ui-tooling
+dependencies:
+  - ../common
+  # android
+  - ${deps.android.osmdrodAndroid}
+  # androidX
+  - ${deps.androidX.lifecycleRuntimeCompose}
+  - ${deps.androidX.lifecycleRuntimeKtx}
+  - ${deps.androidX.lifecycleViewmodelKtx}
+  - ${deps.androidX.activityCompose}
+  - ${deps.androidX.material3}
+  - ${deps.androidX.material3WindowSizeClass}
+  - ${deps.androidnX.splashScreen}
+  # glance
+  - ${deps.glance.appwidget}
+
+dependencies@debug:
+  - ${deps.test.composeUiTestManifest}
+
+test-dependencies:
+  - ${deps.test.junit}
+  - ${deps.test.testCore}
+  - ${deps.test.robolectric}
+  - ${deps.test.mockito}
+
+# despite we have only one platform, which don't imply to have common fragment, however, it's a little slippery slope
+# for Android, because Android is actually jvm + some toolchain call, it means most of the Android code could be run on
+# jvm, so, when you have only an android platform, common fragment is still required to be created
+test-dependencies@android:
+  - ${deps.test.composeUiTest}
+  - ${deps.test.ComposeUiTestJunit}
+  - ${deps.test.composeNavTesting}

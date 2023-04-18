@@ -1,0 +1,75 @@
+catalogs:
+  versions: ../Versions.yaml
+  deps: ../Deps.yaml
+
+type: lib
+platforms: [ ios, macos, watchOs, android, jvm, js ]
+
+templates:
+  - github.com/jetbrains/serialization:
+      version: ${versions.serialization}
+  - github.com/jetbrains/ktor:
+      version: ${versions.ktor}
+      features:
+        client:
+          - core
+          - json
+          - logging
+          - contentNegotiation
+  - github.com/squareapp/sqldelight: # it adds a new toolchain for code generation
+      version: ${versions.sqldelight}
+      features:
+        - runtime
+        - coroutines
+      jvm: sqlite # we need to specify what driver we want to use on jvm, because we have more than one choice
+  - github.com/jetbrains/koin:
+      version: ${versions.koin}
+      features: [ core, test ]
+  - github.com/ricklephas/kmp-nativecoroutines:
+      version: ${versions.kmpNativeCoroutines}
+
+toolchains:
+  afterCompile:
+    - github.com/jetbrains/proguard
+    - github.com/jetbrains/cocoapods
+    - github.com/luca992/multiplaform-swiftpackage
+
+settings:
+  android:
+    compileSdk: ${versions.android.sdk.compile}
+    manifest: ${pot.dir}/src/android/AndroidManifest.xml
+    minSdk: ${versions.android.sdk.min}
+    targetSdk: ${versions.android.sdk.target}
+    testInstrumentationRunner: android.support.test.runner.AndroidJUnitRunner
+    namespace: com.surrus.common
+  java:
+    sourceCompatibility: ${versions.java.source}
+    targetCompatibility: ${versions.java.target}
+  ios:
+    framework:
+      baseName: common
+  sqlDelight:
+    PeopleInSpaceDatabase:
+      packageName: com.surrus.peopleinspace
+      sourceFolders:
+        - ${pot.dir}/src/commonMain/sqldelight
+  cocoapods:
+    summary: People in Space
+    homepage: https://github.com/joreilly/PeopleInSpace
+  multiplatformSwiftPackage:
+    packageName: PeopleInSpace
+    swiftToolsVersion: ${versions.swift.tools}
+    targetPlatforms:
+      iOS: v14
+  kotlin:
+    optIn: [ kotlin.experimental.ExperimentalObjCName ]
+    jvmTarget: 1.8
+
+dependencies:
+  - ${deps.kotlinx.coroutines.core}
+
+
+dependencies@test:
+  - ${deps.kotlinx.coroutines.test}
+  - ${kotlin.test}
+  - ${kotlin.testAnnotations}

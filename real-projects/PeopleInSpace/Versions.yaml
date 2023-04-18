@@ -1,0 +1,19 @@
+android:
+  sdk:
+    compile: android-33
+    min: android-21
+    target: ${android.sdk.compile}
+
+compose: 1.4.0
+sqldelight: 1.5.5
+serialization: 1.4.1
+ktor: 2.2.2
+kmpNativeCoroutines: 1.0.0-ALPHA-4
+java:
+  source: java8
+  target: java8
+
+swift:
+  tools: 5.3
+
+osmdroidAndroid: 6.1.10

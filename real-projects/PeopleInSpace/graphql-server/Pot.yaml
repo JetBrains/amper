@@ -1,0 +1,32 @@
+catalogs:
+  versions: ../Versions.yaml
+  deps: ../Deps.yaml
+
+type: app
+platforms: [ jvm ]
+
+templates:
+  - github.com/jetbrains/serialization:
+      version: ${versions.serialization}
+      features: [ json ]
+  - github.com/springio/spring-boot:
+      version: ${versions.springboot}
+      features: [ kotlin ]
+  - github.com/google/appengine:
+      version: ${versions.appengine}
+      deploy:
+        projectId: "peopleinspace-graphql"
+        version: "GCLOUD_CONFIG"
+
+dependencies:
+  - ../common
+  - com.expediagroup:graphql-kotlin-spring-server:5.3.0
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.3.1
+  - ${deps.log.logback}
+
+dependencies@test:
+  - com.squareup.okhttp3:okhttp:4.9.3
+
+settings:
+  kotlin:
+    optIn: [ kotlin.RequiresOptIn ]

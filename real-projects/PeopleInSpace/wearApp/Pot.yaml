@@ -1,0 +1,88 @@
+catalogs:
+  versions: ./Versions.yaml
+  deps: ./Deps.yaml
+
+type: app
+platforms: [ android ]
+
+variants: [ debug, release, benchmark ]
+
+templates:
+  - github.com/jetbrains/compose:
+      version: ${versions.compose}
+      features: [ wearFoundation, wearMaterial, wearNavigation, uiTooling, coilCompose ]
+  - github.com/jetbrains/koin:
+      version: ${versions.koin}
+      features: [ core, android, compose, test ]
+
+settings:
+  android:
+    compileSdk: ${versions.android.sdk.compile}
+    minSdk: ${versions.android.sdk.min}
+    targetSdk: ${versions.android.sdk.target}
+    applicationId: com.surrus.peopleinspace
+    testInstrumentationRunner: androidx.test.runner.AndroidJUnitRunner
+
+    buildFeatures:
+      compose: true
+
+    composeOptions:
+      kotlinCompilerExtensionVersion: ${versions.compose}
+
+  kotlin:
+    freeCompilerArgs:
+      - "-opt-in=kotlin.RequiresOptIn"
+      - "-opt-in=com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi"
+
+  packagingOptions:
+    resources:
+      excludes:
+        - META-INF/licenses/**
+        - META-INF/AL2.0
+        - META-INF/LGPL2.1
+    namespace: com.surrus.peopleinspace
+
+settings@release:
+  android:
+    isMinifyEnabled: true
+    isShrinkResources: true
+    proguardFiles:
+      - proguard-rules.pro
+      - ${proguard.dir}/proguard-android-optimize.txt
+    signingConfig: debug
+
+settings@benchmark:
+  android:
+    isMinifyEnabled: true
+    isShrinkResources: true
+    isDebuggable: false
+    proguardFiles:
+      - benchmark-rules.pro
+      - ${proguard.dir}/proguard-android-optimize.txt
+    signingConfig: debug
+    matchingFallbacks: [ release, debug ]
+
+
+dependencies:
+  - ../common
+  - ${deps.android.osmdroidAndroid}
+  - ${deps.androidX.activityCompose}
+  - ${deps.androidX.metrics}
+  - ${deps.ok.okhttp}
+  - ${deps.ok.loggingInterceptor}
+  - ${deps.glance.titles}
+  - ${deps.horologist.composeLayout}
+
+dependencies@test:
+  - ${deps.test.junit}
+  - ${deps.test.testCore}
+  - ${deps.test.robolectric}
+  - ${deps.test.mockito}
+
+dependencies@test+android:
+  - ${deps.test.androidXTestJUnit}
+  - ${deps.test.composeUiTest}
+  - ${deps.test.composeUiTestJUnit}
+
+dependencies@debug:
+  - ${deps.test.composeUiTestManifest}

@@ -1,0 +1,69 @@
+catalogs:
+  versions: ../Versions.yaml
+  deps: ../Deps.yaml
+
+type: app
+platforms: [ ios ]
+
+templates:
+  - github.com/jetbrains/compose:
+      version: ${versions.compose}
+      features: [ ui, foundation, material, runtime ]
+      experimental:
+        uiKit:
+          application:
+            bundleIdPrefix: dev.johnoreilly
+            projectName: PeopleInSpace
+            deployConfigurations:
+              IPhone13Pro:
+                device: iPhone13Pro
+                type: simulator
+              IPad:
+                device: ipadMini6thGen
+                type: simulator
+              Device:
+                type: device
+                teamId: "***"
+
+  - github.com/squareapp/sqldelight:
+      version: ${versions.sqldelight}
+      features:
+        - runtime
+        - coroutines
+  - github.com/ricklephas/kmp-nativecoroutines:
+      version: ${versions.kmpNativeCoroutines}
+  - github.com/jetbrains/serialization:
+      version: ${versions.serialization}
+  - github.com/jetbrains/ktor:
+      version: ${versions.ktor}
+      features:
+        client:
+          - core
+          - json
+          - logging
+          - contentNegotiation
+  - github.com/jetbrains/koin:
+      version: ${versions.koin}
+      features: [ core, test ]
+
+dependencies:
+  - ${deps.compose.composeImageLoader}
+  - ${coroutines.core}
+  - ${deps.log.kermit}
+
+settings:
+  entryPoint: main
+  freeCompilerArgs: [
+    "-linker-option", "-framework", "-linker-option", "Metal",
+    "-linker-option", "-framework", "-linker-option", "CoreText",
+    "-linker-option", "-framework", "-linker-option", "CoreGraphics",
+    # TODO: the current compose binary surprises LLVM, so disable checks for now.
+    "-Xdisable-phases=VerifyBitcode"
+  ]
+  kotlin:
+    jvmTarget: 11
+  sqlDelight:
+    PeopleInSpaceDatabase:
+      packageName: com.surrus.peopleinspace.db
+      sourceFolders:
+        - ${pot.dir}/src/commonMain/sqldelight
