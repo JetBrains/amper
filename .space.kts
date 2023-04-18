@@ -1,5 +1,5 @@
 job("Build") {
-    container(displayName = "Build", image = "openjdk:19") {
+    container(displayName = "Build", image = "amazoncorretto:17") {
         shellScript {
             content = """
                 cd prototype-implementation
