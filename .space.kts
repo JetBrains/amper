@@ -4,7 +4,7 @@ job("Build") {
             content = """
                 cd prototype-implementation
                 chmod +x gradlew
-                ./gradlew --no-daemon -D --info --stacktrace test
+                ./gradlew --no-daemon --info --stacktrace test
             """.trimIndent()
         }
     }
