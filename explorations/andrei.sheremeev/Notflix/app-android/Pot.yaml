@@ -1,0 +1,107 @@
+product:
+  type: application
+  platform: [ jvm, android ] # jvm? or android? this is just a shared library, maybe jvm is enough
+
+
+plugins@aliases:
+  - libs.plugins.android.application
+  - libs.plugins.android.kotlin
+  - libs.plugins.googleServices.plugin
+  - libs.plugins.firebase.appDistribution.plugin
+  - libs.plugins.firebase.crashlytics.plugin
+  - libs.plugins.firebase.performance.plugin
+
+  # TODO thought: how to distinguish the scope between calling funcotin when we pass parameters with specific values ??
+settings:
+  android:
+
+    defaultConfig:
+      applicationId: "com.vickikbt.notflix"
+      minSdk: 21
+      targetSdk: compileSdk
+      versionCode: 1
+      versionName: "1.0.0"
+      testInstrumentationRunner: "androidx.test.runner.AndroidJUnitRunner"
+
+    buildTypes@release:
+      isMinifyEnabled: false
+      proguardFiles: [
+        getDefaultProguardFile[ "proguard-android-optimize.txt" ],
+        "proguard-rules.pro"
+      ]
+
+
+    buildTypes@debug:
+      isMinifyEnabled: false
+
+
+
+    options:
+      compile:
+        sourceCompatibility: JavaVersion.VERSION_1_8
+        targetCompatibility: JavaVersion.VERSION_1_8
+
+      kotlin:
+        jvmTarget: JavaVersion.VERSION_1_8.toString()
+
+      compose:
+        kotlinCompilerExtensionVersion: "1.4.0"
+
+
+    # TODO this should be added earlied in order to know that compose cpoild be used
+    features@build:
+      compose: true
+
+
+
+
+
+dependencies:
+  - libs.androidX.core
+  - libs.material
+  - libs.compose.ui
+  - libs.compose.material
+  - libs.compose.tooling
+  - libs.compose.runtime
+  - libs.compose.util
+  - libs.compose.activity
+  - libs.accompanist.pager
+  - libs.accompanist.insets
+  - libs.accompanist.animation
+  - libs.accompanist.systemUIController
+  - libs.accompanist.materialPlaceHolder
+  - libs.accompanist.pagerIndicator
+  - libs.lifecycle.runtime
+  - libs.koin.android
+  - libs.koin.compose
+  - libs.navigation.compose
+  - libs.coil
+  - libs.palette
+  - libs.compose.ratingBar
+  - libs.oneBoneToolbar
+
+# TODO save prefix for libs.firebase maybe
+  reason = "Firebase":
+      - platform(libs.firebase.bom)
+      - libs.firebase.analytics
+      - libs.firebase.crashlytics
+      - libs.firebase.performance
+
+dependenceis@api:
+  - project(":shared")
+
+dependencies@debug:
+   reason: "Memory leaks":
+      - libs.leakCanary
+
+dependencies-test:
+  - libs.jUnitKtx
+  - libs.kotlinX.coroutines.test
+  - libs.mockk
+  - libs.kotlin.test
+  - libs.archTestCore
+  - libs.robolectric
+
+dependencies-test@android:
+  - libs.test.rules
+  - libs.test.runner

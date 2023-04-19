@@ -1,0 +1,94 @@
+product:
+  type: application
+  platform: [ android, iosArm64 ]
+
+
+
+  # this one is taken from settings.gradle.kts,
+  # but I guess we still want to declare them
+include:
+  - "./shared"
+  - "./app-desktop"
+  - "./app-android"
+
+plugins:
+  # this one is taken from settings.gradle.kts,
+  repositories:
+    - google
+    - mavenCentral
+    - gradlePluginPortal
+    - maven:
+        - url: "https://jitpack.io"
+
+
+  aliases:
+    - libs.plugins.ktLint
+    - libs.plugins.detekt)
+    - libs.plugins.gradleVersionUpdates
+    - libs.plugins.kotlinX.testResources
+
+    - apply@false:
+        - libs.plugins.android.application
+        - libs.plugins.android.library
+        - libs.plugins.android.kotlin
+        - libs.plugins.multiplatform
+        - libs.plugins.jvm
+        - libs.plugins.nativeCocoapod
+
+        - libs.plugins.googleServices.plugin
+
+        - libs.plugins.firebase.appDistribution
+        - libs.plugins.firebase.crashlytics
+        - libs.plugins.firebase.performance
+
+
+
+#would be better to call it just `projects`?
+allprojects:
+  repositories:
+    - google
+    - mavenCentral
+    - maven:
+        url: "https://jitpack.io"
+
+  apply:
+    plugin: "org.jlleitschuh.gradle.ktlint"
+
+  ktlint:
+    set$true:
+      - debug
+      - verbose
+      - outputToConsole
+    set$false:
+      - android
+    set:
+      - outputColorName $ "RED"
+
+    filter:
+      set$true:
+        - enableExperimentalRules
+      include: "**/kotlin/**"
+      exclude: projectDir.toURI().relativize(it.file.toURI()).path.contains("/generated/")
+
+subprojects:
+  apply:
+    plugin:
+      - io.gitlab.arturbosch.detekt
+      - com.goncalossilva.resources
+
+  detekt:
+    parallel: true
+    config: files("${project.rootDir}/config/detekt/detekt.yml")
+
+  tasks:
+    withType@com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask:
+      checkForGradleUpdate: true
+      outputDir: "build/dependencyUpdates"
+      reportfileName: "report"
+
+
+tasks:
+  register:
+    name = "clean":
+      delete: "build
+

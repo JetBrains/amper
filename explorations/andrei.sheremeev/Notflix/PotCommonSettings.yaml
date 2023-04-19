@@ -1,0 +1,19 @@
+#sorry for such a weird name
+
+product:
+  type: settings
+
+plugins:
+  repositories:
+    - google
+    - mavenCentral
+    - gradlePluginPortal
+    - maven:
+        - url: "https://jitpack.io"
+
+
+projects:
+  include:
+    - "./app-android"
+    - "./shared"
+    - "./app-desktop"

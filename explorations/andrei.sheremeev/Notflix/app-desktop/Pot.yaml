@@ -1,0 +1,32 @@
+product:
+  type: application
+  platform: [ jvm, android ] # jvm is needed?
+
+aliases:
+  - libs.plugins.jvm
+  - libs.plugins.compose.desktop.plugin
+
+
+dependencies:
+  - ../shared
+  - compose.desktop.currentOs
+  - libs.voyager.core
+  - libs.voyager.navigator
+  - libs.voyager.tabNavigator
+  - libs.kamel
+
+depoendencies@test:
+  - kotlin("test")
+  - libs.turbine
+  - libs.ktor.mock
+  - libs.mockk
+  - libs.kotlinX.coroutines.test
+
+compose:
+  desktop:
+    application:
+      mainClass = "NotflixDesktopKt"
+
+
+
+
