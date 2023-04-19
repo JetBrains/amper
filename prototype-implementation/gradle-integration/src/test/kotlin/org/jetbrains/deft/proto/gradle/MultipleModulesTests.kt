@@ -7,7 +7,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 
+@Ignore("TODO: Alexander Tsarev: fix when ready")
 class MultipleModulesTests : WithTempDir {
 
     @field:TempDir

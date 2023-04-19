@@ -12,6 +12,7 @@ dependencies {
     implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.0")
     implementation("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.0")
     implementation("com.android.library:com.android.library.gradle.plugin:7.4.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.21")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

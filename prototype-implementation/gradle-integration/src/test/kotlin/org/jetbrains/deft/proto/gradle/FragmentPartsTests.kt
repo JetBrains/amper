@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle
 
+
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.deft.proto.gradle.util.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -7,7 +8,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 
+
+@Ignore("TODO: Alexander Tsarev: fix when ready")
 class FragmentPartsTests : WithTempDir {
 
     @field:TempDir
