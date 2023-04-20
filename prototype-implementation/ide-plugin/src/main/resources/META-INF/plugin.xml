@@ -1,0 +1,16 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>org.jetbrains.deft</id>
+    <name>Deft</name>
+    <vendor>JetBrains</vendor>
+    <category>Build Tools</category>
+
+    <description>
+        <![CDATA[
+      Provides integration with Deft Tool for automation of building, testing, publishing, and deployment of software packages.
+      ]]>
+    </description>
+
+    <depends>com.intellij.modules.externalSystem</depends>
+    <depends>com.intellij.modules.platform</depends>
+</idea-plugin>

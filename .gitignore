@@ -1,3 +1,4 @@
 build
 .fleet
 .gradle
+.DS_Store

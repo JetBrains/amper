@@ -1,0 +1,15 @@
+[versions]
+# libraries
+annotations = "24.0.1"
+
+# plugins
+dokka = "1.8.20"
+kotlin = "1.8.20"
+gradleIntelliJPlugin = "1.13.3"
+
+[libraries]
+annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+
+[plugins]
+gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
