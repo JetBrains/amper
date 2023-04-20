@@ -42,7 +42,7 @@ android:
 # Artifacts:
 # - Built from [jvm]
 #   For platforms [JVM]
-#   Parts: [JavaArtifactPart(mainClass=CustomMainKt)]
+#   Parts: [JavaApplicationArtifactPart(mainClass=CustomMainKt)]
 # - Built from [android]
 #   For platforms [ANDROID]
 #   Parts: [AndroidArtifactPart(compileSdkVersion=android-31)]
