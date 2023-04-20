@@ -42,7 +42,7 @@ Artifacts:
     Fragments:
       iosDebug
     Parts:
-      NativeArtifactPart(entryPoint=main)
+      NativeApplicationArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosDebugTest
@@ -51,7 +51,7 @@ Artifacts:
     Fragments:
       iosRelease
     Parts:
-      NativeArtifactPart(entryPoint=main)
+      NativeApplicationArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosReleaseTest
@@ -60,7 +60,7 @@ Artifacts:
     Fragments:
       ios
     Parts:
-      NativeArtifactPart(entryPoint=main)
+      NativeApplicationArtifactPart(entryPoint=main)
   [IOS_ARM64]
     Fragments:
       iosTest

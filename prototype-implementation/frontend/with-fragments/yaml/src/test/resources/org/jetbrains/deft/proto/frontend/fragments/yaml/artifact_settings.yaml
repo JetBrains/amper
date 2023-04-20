@@ -48,4 +48,4 @@ android:
 #   Parts: [AndroidArtifactPart(compileSdkVersion=android-31)]
 # - Built from [iosX64]
 #   For platforms [IOS_X64]
-#   Parts: [NativeArtifactPart(entryPoint=customMain)]
+#   Parts: [NativeApplicationArtifactPart(entryPoint=customMain)]

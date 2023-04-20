@@ -51,7 +51,7 @@ Artifacts:
     Fragments:
       ios
     Parts:
-      NativeArtifactPart(entryPoint=main)
+      NativeApplicationArtifactPart(entryPoint=main)
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosTest
