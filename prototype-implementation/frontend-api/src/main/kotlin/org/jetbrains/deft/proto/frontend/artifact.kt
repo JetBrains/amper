@@ -14,9 +14,9 @@ data class JavaApplicationArtifactPart(
     val mainClass: String
 ) : ArtifactPart<JavaApplicationArtifactPart>
 
-data class NativeArtifactPart(
-    val entryPoint: String
-) : ArtifactPart<NativeArtifactPart>
+data class NativeApplicationArtifactPart(
+    val entryPoint: String?
+) : ArtifactPart<NativeApplicationArtifactPart>
 
 /**
  * Some resulting artifact that is build from several leaf fragments.

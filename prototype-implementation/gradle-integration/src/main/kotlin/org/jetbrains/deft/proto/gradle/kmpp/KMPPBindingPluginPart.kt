@@ -6,6 +6,7 @@ import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import java.io.File
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
@@ -34,13 +35,23 @@ class KMPPBindingPluginPart(
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android(targetName)
                     Platform.JVM -> kotlinMPE.jvm(targetName) { withJava() }
-                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)
-                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName)
-                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName)
-                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName)
+                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)  { adjust(artifact) }
+                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { adjust(artifact) }
+                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { adjust(artifact) }
+                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName) { adjust(artifact) }
                     Platform.JS -> kotlinMPE.js(targetName)
                     else -> error("Unsupported platform: $platform")
                 }
+            }
+        }
+    }
+
+    private fun KotlinNativeTarget.adjust(artifact: ArtifactWrapper) {
+        if (module.type != PotatoModuleType.APPLICATION) return
+        val part = artifact.part<NativeApplicationArtifactPart>()
+        binaries {
+            executable {
+                entryPoint = part?.entryPoint
             }
         }
     }

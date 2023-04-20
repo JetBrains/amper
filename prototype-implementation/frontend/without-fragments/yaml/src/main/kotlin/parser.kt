@@ -164,7 +164,7 @@ fun parseModule(value: String): PotatoModule {
                                             if (platform.native()) {
                                                 add(
                                                     ByClassWrapper(
-                                                        NativeArtifactPart(entryPoint)
+                                                        NativeApplicationArtifactPart(entryPoint)
                                                     )
                                                 )
                                             }

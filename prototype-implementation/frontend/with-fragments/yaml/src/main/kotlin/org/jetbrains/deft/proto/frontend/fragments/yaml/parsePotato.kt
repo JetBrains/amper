@@ -135,9 +135,9 @@ private fun parseExplicitFragments(source: PotatoModuleSource, potatoMap: Map<St
     }.toMap()
 }
 
-private fun parseNativeArtifactPart(fragment: Map<String, Any>): NativeArtifactPart? {
+private fun parseNativeArtifactPart(fragment: Map<String, Any>): NativeApplicationArtifactPart? {
     val entryPoint = fragment["entryPoint"] as String? ?: return null
-    return NativeArtifactPart(entryPoint)
+    return NativeApplicationArtifactPart(entryPoint)
 }
 
 private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaApplicationArtifactPart? {
