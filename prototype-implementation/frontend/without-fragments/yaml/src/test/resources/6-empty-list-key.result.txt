@@ -16,7 +16,7 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmTest

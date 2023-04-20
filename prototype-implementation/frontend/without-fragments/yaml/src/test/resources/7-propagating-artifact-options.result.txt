@@ -833,7 +833,7 @@ Artifacts:
     Fragments:
       jvmDebugFree
     Parts:
-      JavaArtifactPart(mainClass=com.example.Main)
+      JavaApplicationArtifactPart(mainClass=com.example.Main)
   [JVM]
     Fragments:
       jvmDebugFreeTest
@@ -842,7 +842,7 @@ Artifacts:
     Fragments:
       jvmDebugPaid
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmDebugPaidTest
@@ -851,7 +851,7 @@ Artifacts:
     Fragments:
       jvmDebug
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmDebugTest
@@ -860,7 +860,7 @@ Artifacts:
     Fragments:
       jvmReleaseFree
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleaseFreeTest
@@ -869,7 +869,7 @@ Artifacts:
     Fragments:
       jvmReleasePaid
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleasePaidTest
@@ -878,7 +878,7 @@ Artifacts:
     Fragments:
       jvmRelease
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmReleaseTest
@@ -887,7 +887,7 @@ Artifacts:
     Fragments:
       jvmFree
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmFreeTest
@@ -896,7 +896,7 @@ Artifacts:
     Fragments:
       jvmPaid
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmPaidTest
@@ -905,7 +905,7 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-      JavaArtifactPart(mainClass=MainKt)
+      JavaApplicationArtifactPart(mainClass=MainKt)
   [JVM]
     Fragments:
       jvmTest
