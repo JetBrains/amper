@@ -33,8 +33,10 @@ open class ArtifactWrapper(
     private val partsByClass = parts.associate { it.clazz to it.value }
     val bindPlatforms: Set<BindPlatform> = platforms.map { BindPlatform(it, this) }.toSet()
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
-    inline fun <reified T : Any> part() = this[T::class.java]
 }
+
+internal inline fun <reified T : Any> ArtifactWrapper.part() = this[T::class.java]
+
 class TestArtifactWrapper(
     private val artifact: TestArtifact
 ) : ArtifactWrapper(artifact), TestArtifact by artifact {
@@ -49,5 +51,6 @@ class FragmentWrapper(
 ) : Fragment by fragment {
     private val partsByClass = parts.associate { it.clazz to it.value }
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
-    inline fun <reified T : Any> part() = this[T::class.java]
 }
+
+internal inline fun <reified T : Any> FragmentWrapper.part() = this[T::class.java]

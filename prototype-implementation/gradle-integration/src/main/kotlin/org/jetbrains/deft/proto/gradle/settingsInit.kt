@@ -34,9 +34,6 @@ class SettingsPluginRun(
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[it.path] ?: return@beforeProject
 
-            // Apply Kotlin plugins.
-            it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
-
             // Apply Android plugin.
             if (connectedModule.androidNeeded) when (connectedModule.type) {
                 PotatoModuleType.APPLICATION -> it.plugins.apply("com.android.application")
@@ -48,6 +45,9 @@ class SettingsPluginRun(
                 PotatoModuleType.APPLICATION -> it.plugins.apply("application")
                 else -> Unit
             }
+
+            // Apply Kotlin plugins.
+            it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
 
             it.plugins.apply(BindingProjectPlugin::class.java)
         }

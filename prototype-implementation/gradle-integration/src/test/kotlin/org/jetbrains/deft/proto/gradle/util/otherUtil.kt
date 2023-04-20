@@ -39,7 +39,7 @@ fun setUpGradleProjectDir(root: File) {
             plugins {
                 id("org.jetbrains.deft.proto.settings.plugin")
             }
-            // Apply also plugin to print kotlin psecific info.
+            // Apply also plugin to print kotlin specific info.
             plugins.apply(PrintKotlinSpecificInfo::class.java)
         """
     settingsFile.writeText(settingsFileContent.trimIndent())

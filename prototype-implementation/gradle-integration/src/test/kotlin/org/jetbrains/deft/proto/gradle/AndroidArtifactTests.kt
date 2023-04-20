@@ -7,9 +7,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 
-@Ignore("TODO: Alexander Tsarev: fix when ready")
+
 class AndroidArtifactTests : WithTempDir {
 
     @field:TempDir
@@ -36,87 +35,87 @@ class AndroidArtifactTests : WithTempDir {
    implDeps()
   commonMain:
    depends(common)
-   sourceDirs(commonMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDAndroidTest:
+  myAppAndroidAndroidTest:
    depends(commonTest)
-   sourceDirs(myAppANDROIDAndroidTest,androidTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDAndroidTestDebug:
+  myAppAndroidAndroidTestDebug:
    depends()
-   sourceDirs(myAppANDROIDAndroidTestDebug,androidTestDebug)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDAndroidTestRelease:
+  myAppAndroidAndroidTestRelease:
    depends()
-   sourceDirs(myAppANDROIDAndroidTestRelease,androidTestRelease)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDDebug:
+  myAppAndroidDebug:
    depends()
-   sourceDirs(myAppANDROIDDebug,debug)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDDebugAndroidTest:
+  myAppAndroidDebugAndroidTest:
    depends()
-   sourceDirs(myAppANDROIDDebugAndroidTest)
+   sourceDirs(myAppAndroidDebugAndroidTest)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDDebugUnitTest:
+  myAppAndroidDebugUnitTest:
    depends()
-   sourceDirs(myAppANDROIDDebugUnitTest)
+   sourceDirs(myAppAndroidDebugUnitTest)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDMain:
+  myAppAndroidMain:
    depends(commonMain)
-   sourceDirs(myAppANDROIDMain,main)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDRelease:
+  myAppAndroidRelease:
    depends()
-   sourceDirs(myAppANDROIDRelease,release)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDReleaseUnitTest:
+  myAppAndroidReleaseUnitTest:
    depends()
-   sourceDirs(myAppANDROIDReleaseUnitTest)
+   sourceDirs(myAppAndroidReleaseUnitTest)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTest:
+  myAppAndroidTest:
    depends(commonTest)
-   sourceDirs(myAppANDROIDTest,test)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTestDebug:
+  myAppAndroidTestDebug:
    depends()
-   sourceDirs(myAppANDROIDTestDebug,testDebug)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTestFixtures:
+  myAppAndroidTestFixtures:
    depends()
-   sourceDirs(myAppANDROIDTestFixtures,testFixtures)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTestFixturesDebug:
+  myAppAndroidTestFixturesDebug:
    depends()
-   sourceDirs(myAppANDROIDTestFixturesDebug,testFixturesDebug)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTestFixturesRelease:
+  myAppAndroidTestFixturesRelease:
    depends()
-   sourceDirs(myAppANDROIDTestFixturesRelease,testFixturesRelease)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppANDROIDTestRelease:
+  myAppAndroidTestRelease:
    depends()
-   sourceDirs(myAppANDROIDTestRelease,testRelease)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),

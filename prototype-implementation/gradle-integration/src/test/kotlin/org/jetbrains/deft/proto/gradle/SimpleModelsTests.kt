@@ -7,9 +7,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 
-@Ignore("TODO: Alexander Tsarev: fix when ready")
+
 class SimpleModelsTests : WithTempDir {
 
     @field:TempDir
@@ -36,22 +35,22 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   commonMain:
    depends(common)
-   sourceDirs(commonMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMMain:
+  myAppJvmMain:
    depends(commonMain,common)
-   sourceDirs(myAppJVMMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMTest:
+  myAppJvmTest:
    depends(commonTest)
-   sourceDirs(myAppJVMTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
@@ -76,12 +75,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   commonMain:
    depends(common)
-   sourceDirs(commonMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvm:
@@ -89,14 +88,14 @@ class SimpleModelsTests : WithTempDir {
    sourceDirs(jvm)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMMain:
+  myAppJvmMain:
    depends(commonMain,jvm)
-   sourceDirs(myAppJVMMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMTest:
+  myAppJvmTest:
    depends(commonTest)
-   sourceDirs(myAppJVMTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
@@ -121,12 +120,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   commonMain:
    depends(common)
-   sourceDirs(commonMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   ios:
@@ -139,14 +138,14 @@ class SimpleModelsTests : WithTempDir {
    sourceDirs(jvm)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMMain:
+  myAppJvmMain:
    depends(commonMain,jvm,ios)
-   sourceDirs(myAppJVMMain)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMTest:
+  myAppJvmTest:
    depends(commonTest)
-   sourceDirs(myAppJVMTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),

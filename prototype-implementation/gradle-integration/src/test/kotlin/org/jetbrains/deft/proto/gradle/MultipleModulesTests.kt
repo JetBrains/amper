@@ -7,9 +7,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 
-@Ignore("TODO: Alexander Tsarev: fix when ready")
+
 class MultipleModulesTests : WithTempDir {
 
     @field:TempDir
@@ -30,58 +29,58 @@ class MultipleModulesTests : WithTempDir {
         // but with group set as directory name, thus - [tempDir] name.
         assertEquals(
             """
-            :module1
-              common:
-               depends()
-               sourceDirs(common)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonMain:
-               depends(common)
-               sourceDirs(commonMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonTest:
-               depends()
-               sourceDirs(commonTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMMain:
-               depends(commonMain,common)
-               sourceDirs(myAppJVMMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMTest:
-               depends(commonTest)
-               sourceDirs(myAppJVMTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-            :module2
-              common:
-               depends()
-               sourceDirs(common)
-               lang(api=null version=null progressive=false features=)
-               implDeps(${tempDir.name}:module1:unspecified)
-              commonMain:
-               depends(common)
-               sourceDirs(commonMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonTest:
-               depends()
-               sourceDirs(commonTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMMain:
-               depends(commonMain,common)
-               sourceDirs(myAppJVMMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMTest:
-               depends(commonTest)
-               sourceDirs(myAppJVMTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
+:module1
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmMain:
+   depends(commonMain,common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+:module2
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps(${tempDir.name}:module1:unspecified)
+  commonMain:
+   depends(common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmMain:
+   depends(commonMain,common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )
@@ -99,68 +98,68 @@ class MultipleModulesTests : WithTempDir {
         // but with group set as directory name, thus - [tempDir] name.
         assertEquals(
             """
-            :module1
-              common:
-               depends()
-               sourceDirs(common)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonMain:
-               depends(common)
-               sourceDirs(commonMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonTest:
-               depends()
-               sourceDirs(commonTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              jvm:
-               depends(common)
-               sourceDirs(jvm)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMMain:
-               depends(commonMain,jvm)
-               sourceDirs(myAppJVMMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMTest:
-               depends(commonTest)
-               sourceDirs(myAppJVMTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-            :module2
-              common:
-               depends()
-               sourceDirs(common)
-               lang(api=null version=null progressive=false features=)
-               implDeps(${tempDir.name}:module1:unspecified)
-              commonMain:
-               depends(common)
-               sourceDirs(commonMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              commonTest:
-               depends()
-               sourceDirs(commonTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              jvm:
-               depends(common)
-               sourceDirs(jvm)
-               lang(api=null version=null progressive=false features=)
-               implDeps(${tempDir.name}:module1:unspecified)
-              myAppJVMMain:
-               depends(commonMain,jvm)
-               sourceDirs(myAppJVMMain)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
-              myAppJVMTest:
-               depends(commonTest)
-               sourceDirs(myAppJVMTest)
-               lang(api=null version=null progressive=false features=)
-               implDeps()
+:module1
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends(common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvm:
+   depends(common)
+   sourceDirs(jvm)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmMain:
+   depends(commonMain,jvm)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+:module2
+  common:
+   depends()
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps(${tempDir.name}:module1:unspecified)
+  commonMain:
+   depends(common)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvm:
+   depends(common)
+   sourceDirs(jvm)
+   lang(api=null version=null progressive=false features=)
+   implDeps(${tempDir.name}:module1:unspecified)
+  myAppJvmMain:
+   depends(commonMain,jvm)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppJvmTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
             """.trimIndent(),
             extracted
         )

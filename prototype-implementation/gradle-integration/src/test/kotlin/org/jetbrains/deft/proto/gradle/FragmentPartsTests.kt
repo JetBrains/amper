@@ -8,10 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 
 
-@Ignore("TODO: Alexander Tsarev: fix when ready")
 class FragmentPartsTests : WithTempDir {
 
     @field:TempDir
@@ -38,22 +36,22 @@ class FragmentPartsTests : WithTempDir {
    implDeps()
   commonMain:
    depends(common)
-   sourceDirs(commonMain)
+   sourceDirs()
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJVMMain:
+  myAppJvmMain:
    depends(commonMain,common)
-   sourceDirs(myAppJVMMain)
+   sourceDirs()
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
-  myAppJVMTest:
+  myAppJvmTest:
    depends(commonTest)
-   sourceDirs(myAppJVMTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),

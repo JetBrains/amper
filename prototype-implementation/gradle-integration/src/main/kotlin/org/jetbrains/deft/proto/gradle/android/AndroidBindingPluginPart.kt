@@ -6,6 +6,7 @@ import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.part
 
 fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 

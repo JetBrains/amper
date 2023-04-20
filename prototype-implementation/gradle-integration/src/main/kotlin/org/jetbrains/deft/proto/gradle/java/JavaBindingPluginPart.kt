@@ -6,6 +6,7 @@ import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.BindPlatform
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.part
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
