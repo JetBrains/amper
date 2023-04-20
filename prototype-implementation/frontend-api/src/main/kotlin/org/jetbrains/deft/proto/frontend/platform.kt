@@ -50,3 +50,5 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     ANDROID_NATIVE_X64(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),
 }
+
+val Platform.prettySuffix get() = name.doCamelCase().doCapitalize()

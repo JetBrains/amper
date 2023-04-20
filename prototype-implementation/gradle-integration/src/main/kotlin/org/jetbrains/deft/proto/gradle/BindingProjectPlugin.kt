@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
+import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
 
 /**
@@ -19,6 +20,7 @@ class BindingProjectPlugin : Plugin<Project> {
 
         applyKotlinMPAttributes(pluginCtx)
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
+        if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
         applyPublicationAttributes(linkedModule, project)
     }
 

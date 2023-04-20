@@ -30,6 +30,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+kotlin {
+    kotlinTestRegistry
+}
+
 // Add also this tests classes as plugin classpath for running plugin.
 tasks.withType<PluginUnderTestMetadata>().configureEach {
     dependsOn("compileTestKotlin")

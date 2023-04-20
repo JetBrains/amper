@@ -157,7 +157,7 @@ fun parseModule(value: String): PotatoModule {
                                             if (platform == Platform.JVM) {
                                                 add(
                                                     ByClassWrapper(
-                                                        JavaArtifactPart(mainClass)
+                                                        JavaApplicationArtifactPart(mainClass)
                                                     )
                                                 )
                                             }

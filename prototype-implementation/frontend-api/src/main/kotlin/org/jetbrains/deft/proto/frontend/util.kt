@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
+import java.util.*
+
 /**
  * Set, which elements are considered unique by their class.
  */
@@ -16,3 +18,7 @@ class ByClassWrapper<T : Any> private constructor(
     override fun hashCode() =
         clazz.hashCode()
 }
+
+private val prettyRegex = "_.".toRegex()
+fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
+fun String.doCapitalize() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

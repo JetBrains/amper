@@ -1,22 +1,12 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.BindingPluginPart
-import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.buildDir
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.io.File
-import java.util.*
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
 
@@ -30,9 +20,6 @@ class KMPPBindingPluginPart(
     private val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-    private val javaPE: JavaPluginExtension =
-        project.extensions.getByType(JavaPluginExtension::class.java)
-
     fun apply() {
         initTargets()
         initFragments()
@@ -40,16 +27,18 @@ class KMPPBindingPluginPart(
 
     private fun initTargets() {
         module.artifacts.forEach { artifact ->
-            artifact.platforms.forEach { platform ->
+            artifact.bindPlatforms.forEach { bPlatform ->
+                val targetName = bPlatform.targetName
+                val platform = bPlatform.platform
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                val targetName = platform.name.lowercase(Locale.getDefault())
                 when (platform) {
-                    Platform.ANDROID -> kotlinMPE.android(targetName) { doConfigure(targetName) }
-                    Platform.JVM -> kotlinMPE.jvm(targetName) { doConfigure(targetName) }
-                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName) { doConfigure(targetName) }
-                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { doConfigure(targetName) }
-                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { doConfigure(targetName) }
-                    Platform.JS -> kotlinMPE.js { doConfigure(targetName) }
+                    Platform.ANDROID -> kotlinMPE.android(targetName)
+                    Platform.JVM -> kotlinMPE.jvm(targetName) { withJava() }
+                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)
+                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName)
+                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName)
+                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName)
+                    Platform.JS -> kotlinMPE.js(targetName)
                     else -> error("Unsupported platform: $platform")
                 }
             }
@@ -106,12 +95,6 @@ class KMPPBindingPluginPart(
             sourceSet.kotlin.srcDirs.clear()
             val srcDir = fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath
             sourceSet.kotlin.srcDir(srcDir)
-            // TODO: only fragments, where Java is available, should contribute to Java source sets
-            if (fragment.name.contains("Test")) {
-                javaPE.sourceSets.findByName("test")?.java?.srcDir(srcDir)
-            } else {
-                javaPE.sourceSets.findByName("main")?.java?.srcDir(srcDir)
-            }
             sourceSet.resources.srcDirs.clear()
             sourceSet.resources.srcDir("${fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath}/resources")
         }
@@ -120,29 +103,17 @@ class KMPPBindingPluginPart(
         println("EXISING ARTIFACTS: ${module.artifacts.joinToString { it.name }}")
         module.artifacts.forEach { artifact ->
             println("ADJUSTING EXISING ARTIFACT: $artifact")
-            artifact.platforms.forEach inner@{ platform ->
-                val targetName = platform.name.lowercase(Locale.getDefault())
-                val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
-
-                val testCompilation = target.compilations.findByName("test") ?: return@inner
-                val mainCompilation = target.compilations.findByName("main") ?: return@inner
-
+            artifact.bindPlatforms.forEach inner@{ platform ->
+                val compilation = platform.compilation ?: return@inner
                 artifact.fragments.forEach {
-                    if (it.name.contains("Test")) {
-                        testCompilation.defaultSourceSet.doDependsOn(it)
-                    } else {
-                        mainCompilation.defaultSourceSet.doDependsOn(it)
-                    }
+                    compilation.defaultSourceSet.doDependsOn(it)
                 }
-
             }
         }
 
         module.fragments.forEach { fragment ->
             val possiblePrebuiltName = "${fragment.name}Main"
-            findSourceSet(possiblePrebuiltName)?.let {
-                it.doDependsOn(fragment)
-            }
+            findSourceSet(possiblePrebuiltName)?.doDependsOn(fragment)
         }
 
         project.configurations.map {
@@ -176,25 +147,7 @@ class KMPPBindingPluginPart(
         kotlinPart.optIns.forEach { optIn(it) }
     }
 
-    private fun KotlinAndroidTarget.doConfigure(targetName: String) {
-    }
-
-    private fun KotlinJvmTarget.doConfigure(targetName: String) {
-        withJava()
-    }
-
-    private fun KotlinNativeTarget.doConfigure(targetName: String) {
-    }
-
-    private fun KotlinNativeTargetWithSimulatorTests.doConfigure(targetName: String) {
-    }
-
-    private fun KotlinJsTargetDsl.doConfigure(targetName: String) {
-    }
-
     // ------
-    private val Fragment.path get() = module.buildDir.resolve(name)
-    private val Fragment.srcPath get() = path.resolve("src")
     private val Fragment.resourcesPath get() = path.resolve("resources")
     private fun findSourceSet(name: String) = kotlinMPE.sourceSets.findByName(name)
     private val Fragment.sourceSet get() = kotlinMPE.sourceSets.getByName(name)
@@ -202,5 +155,17 @@ class KMPPBindingPluginPart(
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
         sourceSet.block()
     }
+
+    // Convenient agreements on naming and accessing targets and compilations.
+    private val BindPlatform.targetName: String get() =
+        if (artifact is TestArtifact) BindPlatform(platform, artifact.testFor).targetName
+        else "${artifact.name}${platform.prettySuffix}"
+    private val BindPlatform.target get() = kotlinMPE.targets.findByName(targetName)
+    private val BindPlatform.compilationName get() = when {
+        artifact is TestArtifact && artifact.testFor.name == artifact.name -> "test"
+        artifact is TestArtifact -> artifact.name
+        else -> "main"
+    }
+    private val BindPlatform.compilation get() = target?.compilations?.findByName(compilationName)
 
 }

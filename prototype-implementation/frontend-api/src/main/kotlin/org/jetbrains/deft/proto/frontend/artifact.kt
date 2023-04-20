@@ -10,20 +10,27 @@ data class AndroidArtifactPart(
     val compileSdkVersion: String,
 ) : ArtifactPart<AndroidArtifactPart>
 
-data class JavaArtifactPart(
-    val mainClass: String?
-) : ArtifactPart<JavaArtifactPart>
+data class JavaApplicationArtifactPart(
+    val mainClass: String
+) : ArtifactPart<JavaApplicationArtifactPart>
 
 data class NativeArtifactPart(
-    val entryPoint: String?
+    val entryPoint: String
 ) : ArtifactPart<NativeArtifactPart>
 
 /**
- * Some resulting artifact that is built from several fragments.
+ * Some resulting artifact that is build from several leaf fragments.
  */
 interface Artifact {
     val name: String
     val fragments: List<Fragment>
     val platforms: Set<Platform>
     val parts: ClassBasedSet<ArtifactPart<*>>
+}
+
+/**
+ * Dependant test artifact.
+ */
+interface TestArtifact : Artifact {
+    val testFor: Artifact
 }

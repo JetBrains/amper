@@ -1,8 +1,10 @@
 package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
+import java.util.*
 
 val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
@@ -19,3 +21,12 @@ fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String) = try {
     this[name] = bindingMap
     bindingMap
 }
+
+/**
+ * Check if the requested platform is included in module.
+ */
+operator fun PotatoModuleWrapper.contains(platform: Platform) =
+    artifactPlatforms.contains(platform)
+
+val PotatoModuleWrapper.androidNeeded get() = Platform.ANDROID in this
+val PotatoModuleWrapper.javaNeeded get() = Platform.JVM in this
