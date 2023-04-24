@@ -125,3 +125,6 @@ fun String.transformKey(): String {
     }
     return "${otherVariantOptionParts[0]}@${otherVariantOptionParts[1]}+${modeParts[0]}"
 }
+
+context (Stateful<MutableFragment, Fragment>)
+internal val List<MutableFragment>.immutable: List<Fragment> get() = map { it.immutable() }
