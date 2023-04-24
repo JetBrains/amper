@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import org.yaml.snakeyaml.Yaml
 import kotlin.io.path.listDirectoryEntries

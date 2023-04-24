@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.model.PlainFragment
 import java.util.*
 
 internal data class MutableFragmentDependency(val target: MutableFragment, val dependencyKind: DependencyKind) {
@@ -42,43 +43,11 @@ internal data class MutableFragment(
     }
 
     context (Stateful<MutableFragment, Fragment>)
-    fun immutable(): Fragment {
-        return state[this] ?: run {
-            val mutableFragment = this
-            val fragment = object : Fragment {
-                override val name: String
-                    get() = mutableFragment.name
-                override val fragmentDependencies: List<FragmentDependency>
-                    get() = dependencies.map {
-                        object : FragmentDependency {
-                            override val target: Fragment
-                                get() = it.target.immutable()
-                            override val type: FragmentDependencyType
-                                get() = when (it.dependencyKind) {
-                                    MutableFragmentDependency.DependencyKind.Friend -> FragmentDependencyType.FRIEND
-                                    MutableFragmentDependency.DependencyKind.Refines -> FragmentDependencyType.REFINE
-                                }
-                        }
-                    }
-                override val externalDependencies: List<Notation>
-                    get() = mutableFragment.externalDependencies.toList()
-                override val parts: ClassBasedSet<FragmentPart<*>>
-                    get() = setOf(
-                        ByClassWrapper(
-                            KotlinFragmentPart(
-                                languageVersion.toString(),
-                                apiVersion.toString(),
-                                progressiveMode,
-                                languageFeatures,
-                                optIns,
-                                srcFolderName
-                            )
-                        )
-                    )
-            }
-            state[mutableFragment] = fragment
-            fragment
-        }
+    fun immutable(): Fragment = state[this] ?: run {
+        val mutableFragment = this
+        val fragment = PlainFragment(mutableFragment)
+        state[mutableFragment] = fragment
+        fragment
     }
 
     override fun equals(other: Any?): Boolean {
