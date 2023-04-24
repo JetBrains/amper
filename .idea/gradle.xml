@@ -4,58 +4,6 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-hello-world" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/jvm-hello-world" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-with-tests" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/jvm-with-tests" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/kmp-mobile" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/kmp-mobile" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/kmp-mobile-modularized" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized" />
-            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/android" />
-            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/ios" />
-            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/shared" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/variants" />
-        <option name="gradleJvm" value="corretto-17" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/variants" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="gradleJvm" value="corretto-17" />
         <option name="modules">
@@ -63,51 +11,12 @@
             <option value="$PROJECT_DIR$/prototype-implementation" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/fragments" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/fragments/yaml" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/with-fragments" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/with-fragments/yaml" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/without-fragments" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/without-fragments/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation/try" />
-        <option name="gradleJvm" value="corretto-17" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/prototype-implementation/try" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/real-projects/Bookshelf" />
-        <option name="gradleJvm" value="corretto-17" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/real-projects/Bookshelf" />
-            <option value="$PROJECT_DIR$/real-projects/Bookshelf/androidApp" />
-            <option value="$PROJECT_DIR$/real-projects/Bookshelf/shared" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/real-projects/PeopleInSpace" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/app" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/backend" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/buildSrc" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/common" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/compose-desktop" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/compose-ios" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/compose-web" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/graphql-server" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/wearApp" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/wearApp-benchmark" />
-            <option value="$PROJECT_DIR$/real-projects/PeopleInSpace/web" />
           </set>
         </option>
       </GradleProjectSettings>

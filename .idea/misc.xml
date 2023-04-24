@@ -11,6 +11,7 @@
     <file type="web" url="file://$PROJECT_DIR$/prototype-implementation" />
     <file type="web" url="file://$PROJECT_DIR$/real-projects/Bookshelf" />
     <file type="web" url="file://$PROJECT_DIR$/real-projects/PeopleInSpace" />
+    <file type="web" url="file://$PROJECT_DIR$/real-projects/rss-reader-plain" />
   </component>
   <component name="PWA">
     <option name="enabled" value="true" />
