@@ -28,92 +28,87 @@ class AndroidArtifactTests : WithTempDir {
         assertEquals(
             """
 :
-  common:
+  androidAndroidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidAndroidTestDebug:
    depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidAndroidTestRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugAndroidTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidMain:
+   depends(commonMain)
    sourceDirs(common)
    lang(api=null version=null progressive=false features=)
    implDeps()
+  androidRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidReleaseUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixtures:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidAndroidTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidAndroidTestDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidAndroidTestRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidDebugAndroidTest:
-   depends()
-   sourceDirs(myAppAndroidDebugAndroidTest)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidDebugUnitTest:
-   depends()
-   sourceDirs(myAppAndroidDebugUnitTest)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidMain:
-   depends(commonMain)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidReleaseUnitTest:
-   depends()
-   sourceDirs(myAppAndroidReleaseUnitTest)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestFixtures:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestFixturesDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestFixturesRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)

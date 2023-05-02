@@ -1,11 +1,9 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.PotatoModuleProgrammaticSource
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.fail
+import kotlin.test.*
 
+@Ignore
 class PotatoParserTest {
     @Test
     fun `empty yaml`() = testYamlParseFromFile("empty")

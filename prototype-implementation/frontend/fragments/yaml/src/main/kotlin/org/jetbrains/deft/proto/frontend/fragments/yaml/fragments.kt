@@ -1,17 +1,17 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.frontend.util.depth
-import org.jetbrains.deft.proto.frontend.util.findCommonParent
-import org.jetbrains.deft.proto.frontend.util.fragmentName
-import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
+import org.jetbrains.deft.proto.frontend.util.*
 
 /**
  * Gets cartesian product of all variants.
  */
-private fun List<Variant>.cartesian(): List<List<String>> = fold(listOf(listOf())) { acc, variant ->
-    acc + acc.flatMap { current -> variant.values.map { current + it } }
-}
+private fun List<Variant>.cartesian(): List<List<String>> = cartesianGeneric(
+    { listOf() },
+    Variant::values,
+    List<String>::plus,
+    preserveEmpty = true,
+)
 
 /**
  * Transforms a combination of variants into fragment suffix.

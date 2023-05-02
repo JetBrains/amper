@@ -35,21 +35,21 @@ class FragmentPartsTests : WithTempDir {
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
-   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
+   lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,common)
    sourceDirs()
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)

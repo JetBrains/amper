@@ -1,9 +1,7 @@
 package org.jetbrains.deft.proto.gradle.java
 
 import org.gradle.api.plugins.JavaApplication
-import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.BindPlatform
 import org.jetbrains.deft.proto.gradle.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.part
@@ -45,7 +43,4 @@ class JavaBindingPluginPart(
         }
     }
 
-//    private fun adjustSourceSets() {
-//
-//    }
 }

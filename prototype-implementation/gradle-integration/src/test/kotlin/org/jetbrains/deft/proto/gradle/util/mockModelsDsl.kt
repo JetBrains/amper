@@ -49,6 +49,7 @@ class MockFragment(
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentDependency>()
     override val externalDependencies = mutableListOf<Notation>()
+    override val platforms = mutableSetOf<Platform>()
     override val parts = mutableSetOf<ByClassWrapper<FragmentPart<*>>>()
     fun refines(other: MockFragment) = fragmentDependencies.add(
         MockFragmentDependency(other, FragmentDependencyType.REFINE)

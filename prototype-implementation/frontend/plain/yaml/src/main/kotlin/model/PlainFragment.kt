@@ -34,4 +34,6 @@ internal class PlainFragment(private val mutableFragment: MutableFragment) : Fra
                 )
             )
         )
+    override val platforms: Set<Platform>
+        get() = mutableFragment.platforms.toSet()
 }

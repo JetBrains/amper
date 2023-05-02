@@ -41,4 +41,5 @@ interface Fragment {
     val fragmentDependencies: List<FragmentDependency>
     val externalDependencies: List<Notation>
     val parts: ClassBasedSet<FragmentPart<*>>
+    val platforms: Set<Platform>
 }

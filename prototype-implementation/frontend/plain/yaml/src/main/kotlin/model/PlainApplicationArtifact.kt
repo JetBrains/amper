@@ -2,14 +2,23 @@ package org.jetbrains.deft.proto.frontend.model
 
 import org.jetbrains.deft.proto.frontend.*
 
+
 context (Stateful<MutableFragment, Fragment>)
-internal class PlainApplicationArtifact(
+internal open class TestPlainApplicationArtifact(
+    mutableFragments: List<MutableFragment>,
+    platform: Platform,
+    cartesianElement: Set<String>,
+    override val testFor: Artifact,
+) : PlainApplicationArtifact(mutableFragments, platform, cartesianElement), TestArtifact
+
+context (Stateful<MutableFragment, Fragment>)
+internal open class PlainApplicationArtifact(
     private val mutableFragments: List<MutableFragment>,
     private val platform: Platform,
-    private val cartesianElement: List<String>
+    private val cartesianElement: Set<String>,
 ) : Artifact {
     private val targetInternalFragment = mutableFragments.filter { it.platforms == setOf(platform) }
-        .firstOrNull { it.variants == cartesianElement.toSet() } ?: error("Something went wrong")
+        .firstOrNull { it.variants == cartesianElement } ?: error("Something went wrong")
 
     override val name: String
         // TODO Handle the case, when there are several artifacts with same name. Can it be?
@@ -32,7 +41,7 @@ internal class PlainApplicationArtifact(
                         )
                     )
                 }
-                if (!cartesianElement.contains("test")) {
+                if (this !is TestArtifact) {
                     val mainClass = targetInternalFragment.mainClass ?: "MainKt"
                     val entryPoint = targetInternalFragment.entryPoint ?: "main"
                     if (platform == Platform.JVM) {

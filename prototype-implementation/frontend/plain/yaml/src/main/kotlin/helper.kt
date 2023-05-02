@@ -1,4 +1,5 @@
 package org.jetbrains.deft.proto.frontend
+import org.jetbrains.deft.proto.frontend.util.*
 
 import java.nio.file.Path
 
@@ -11,25 +12,12 @@ interface Stateful<K, V> {
         get() = mutableMapOf()
 }
 
-fun <T> cartesian(vararg lists: List<T>): List<List<T>> {
-    var res = listOf<List<T>>()
-    for (list in lists) {
-        res = cartesian(res, list.map { listOf(it) })
-    }
-
-    return res
-}
-
-fun <T> cartesian(list1: List<List<T>>, list2: List<List<T>>): List<List<T>> = buildList {
-    if (list1.isEmpty()) {
-        return list2
-    }
-    for (t1 in list1) {
-        for (t2 in list2) {
-            add(t1 + t2)
-        }
-    }
-}
+fun <T> cartesianSets(elements: Iterable<Collection<T>>): List<Set<T>> =
+    elements.cartesianGeneric(
+        { emptySet() },
+        { this.toSet() },
+        Set<T>::plus,
+    )
 
 context (Map<String, Set<Platform>>)
 fun Set<Platform>.toCamelCaseString(): Pair<String, String?> {
