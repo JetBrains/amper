@@ -30,7 +30,7 @@ class AndroidArtifactTests : WithTempDir {
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -65,12 +65,12 @@ class AndroidArtifactTests : WithTempDir {
    implDeps()
   myAppAndroidDebugAndroidTest:
    depends()
-   sourceDirs(myAppAndroidDebugAndroidTest)
+   sourceDirs(src/myAppAndroidDebugAndroidTest/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppAndroidDebugUnitTest:
    depends()
-   sourceDirs(myAppAndroidDebugUnitTest)
+   sourceDirs(src/myAppAndroidDebugUnitTest/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppAndroidMain:
@@ -85,7 +85,7 @@ class AndroidArtifactTests : WithTempDir {
    implDeps()
   myAppAndroidReleaseUnitTest:
    depends()
-   sourceDirs(myAppAndroidReleaseUnitTest)
+   sourceDirs(src/myAppAndroidReleaseUnitTest/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppAndroidTest:

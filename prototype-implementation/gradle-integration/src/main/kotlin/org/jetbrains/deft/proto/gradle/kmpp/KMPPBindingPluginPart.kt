@@ -34,7 +34,7 @@ class KMPPBindingPluginPart(
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android(targetName)
-                    Platform.JVM -> kotlinMPE.jvm(targetName) { withJava() }
+                    Platform.JVM -> kotlinMPE.jvm(targetName) { /*withJava()*/ }
                     Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)  { adjust(artifact) }
                     Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { adjust(artifact) }
                     Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { adjust(artifact) }
@@ -104,10 +104,11 @@ class KMPPBindingPluginPart(
 
             // Set sources and resources.
             sourceSet.kotlin.srcDirs.clear()
-            val srcDir = fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath
+            val srcDir = fragment.src ?: fragment.srcPath
+            println(srcDir)
             sourceSet.kotlin.srcDir(srcDir)
             sourceSet.resources.srcDirs.clear()
-            sourceSet.resources.srcDir("${fragment.part<KotlinFragmentPart>()?.srcFolderName ?: fragment.srcPath}/resources")
+            sourceSet.resources.srcDir("${fragment.src ?: fragment.srcPath}/resources")
         }
 
         // Third iteration - adjust kotlin prebuilt source sets to match created ones.

@@ -7,7 +7,11 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
     append("Fragments:\n")
     for (fragment in fragments) {
         append("  ${fragment.name}\n")
-        append("    External dependencies: ${fragment.externalDependencies}\n")
+        appendLine("    External dependencies:")
+        for (dependency in fragment.externalDependencies) {
+            appendLine("      $dependency")
+        }
+        append("    Src folder: ${fragment.src?.fileName}\n")
         append("    Fragment dependencies:\n")
         for (dependency in fragment.fragmentDependencies) {
             append("      ${dependency.target.name} (${dependency.type})\n")

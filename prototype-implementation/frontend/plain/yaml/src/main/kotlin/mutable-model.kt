@@ -1,33 +1,116 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
+import java.nio.file.Path
 import java.util.*
 
-internal data class MutableFragmentDependency(val target: MutableFragment, val dependencyKind: DependencyKind) {
+internal data class MutableFragmentDependency(val target: FragmentBuilder, val dependencyKind: DependencyKind) {
     enum class DependencyKind {
         Friend,
         Refines
     }
 }
 
-internal data class MutableFragment(
+internal data class FragmentBuilder(
     val name: String,
     val platforms: Set<Platform>,
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
     val variants: MutableSet<String> = mutableSetOf(),
-    var languageVersion: KotlinVersion = KotlinVersion.Kotlin18,
-    var apiVersion: KotlinVersion = KotlinVersion.Kotlin18,
-    var progressiveMode: Boolean = false,
-    val languageFeatures: MutableList<String> = mutableListOf(),
-    val optIns: MutableList<String> = mutableListOf(),
-    var mainClass: String? = null,
-    var entryPoint: String? = null,
-    var srcFolderName: String? = null,
     var alias: String? = null,
-    var androidCompileSdkVersion: String? = null,
+    var src: Path? = null,
+
+    // parts
+    var kotlin: KotlinFragmentBuilder? = null,
+    var java: JavaFragmentBuilder? = null,
+    var native: NativeFragmentBuilder? = null,
+    var android: AndroidFragmentBuilder? = null,
+    var publish: PublishingFragmentBuilder? = null,
+    var junit: JunitFragmentBuilder? = null,
 ) {
+
+    data class KotlinFragmentBuilder(
+        var languageVersion: KotlinVersion? = null,
+        var apiVersion: KotlinVersion? = null,
+        var sdkVersion: String? = null,
+        var progressiveMode: Boolean? = null,
+        val languageFeatures: MutableList<String> = mutableListOf(),
+        val optIns: MutableList<String> = mutableListOf(),
+
+        ) {
+        companion object {
+            operator fun invoke(block: KotlinFragmentBuilder.() -> Unit): KotlinFragmentBuilder {
+                val builder = KotlinFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class JavaFragmentBuilder(
+        var mainClass: String? = null,
+        var packagePrefix: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: JavaFragmentBuilder.() -> Unit): JavaFragmentBuilder {
+                val builder = JavaFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class NativeFragmentBuilder(
+        var entryPoint: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: NativeFragmentBuilder.() -> Unit): NativeFragmentBuilder {
+                val builder = NativeFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class AndroidFragmentBuilder(
+        var compileSdkVersion: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: AndroidFragmentBuilder.() -> Unit): AndroidFragmentBuilder {
+                val builder = AndroidFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class PublishingFragmentBuilder(
+        var group: String? = null,
+        var version: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: PublishingFragmentBuilder.() -> Unit): PublishingFragmentBuilder {
+                val builder = PublishingFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class JunitFragmentBuilder(
+        var platformEnabled: Boolean? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: JunitFragmentBuilder.() -> Unit): JunitFragmentBuilder {
+                val builder = JunitFragmentBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
     enum class KotlinVersion(private val version: String) {
+        Kotlin20("2.0"),
         Kotlin19("1.9"),
         Kotlin18("1.8"),
         Kotlin17("1.7"),
@@ -40,10 +123,21 @@ internal data class MutableFragment(
         Kotlin10("1.0");
 
         override fun toString(): String = version
+
+        companion object {
+
+            private val versionMap: Map<String, KotlinVersion> = buildMap {
+                KotlinVersion.values().forEach {
+                    put(it.version, it)
+                }
+            }
+
+            fun fromString(value: String): KotlinVersion? = versionMap[value]
+        }
     }
 
-    context (Stateful<MutableFragment, Fragment>)
-    fun immutable(): Fragment = state[this] ?: run {
+    context (Stateful<FragmentBuilder, Fragment>)
+    fun build(): Fragment = state[this] ?: run {
         val mutableFragment = this
         val fragment = PlainFragment(mutableFragment)
         state[mutableFragment] = fragment
@@ -54,17 +148,19 @@ internal data class MutableFragment(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as MutableFragment
+        other as FragmentBuilder
 
         if (name != other.name) return false
         if (platforms != other.platforms) return false
         if (externalDependencies != other.externalDependencies) return false
         if (variants != other.variants) return false
-        if (languageVersion != other.languageVersion) return false
-        if (apiVersion != other.apiVersion) return false
-        if (progressiveMode != other.progressiveMode) return false
-        if (languageFeatures != other.languageFeatures) return false
-        return optIns == other.optIns
+        if (alias != other.alias) return false
+        if (kotlin != other.kotlin) return false
+        if (java != other.java) return false
+        if (native != other.native) return false
+        if (android != other.android) return false
+        if (publish != other.publish) return false
+        return junit == other.junit
     }
 
     override fun hashCode(): Int {
@@ -72,16 +168,20 @@ internal data class MutableFragment(
         result = 31 * result + platforms.hashCode()
         result = 31 * result + externalDependencies.hashCode()
         result = 31 * result + variants.hashCode()
-        result = 31 * result + languageVersion.hashCode()
-        result = 31 * result + apiVersion.hashCode()
-        result = 31 * result + progressiveMode.hashCode()
-        result = 31 * result + languageFeatures.hashCode()
-        result = 31 * result + optIns.hashCode()
+        result = 31 * result + (alias?.hashCode() ?: 0)
+        result = 31 * result + (kotlin?.hashCode() ?: 0)
+        result = 31 * result + (java?.hashCode() ?: 0)
+        result = 31 * result + (native?.hashCode() ?: 0)
+        result = 31 * result + (android?.hashCode() ?: 0)
+        result = 31 * result + (publish?.hashCode() ?: 0)
+        result = 31 * result + (junit?.hashCode() ?: 0)
         return result
     }
+
+
 }
 
-internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): List<MutableFragment> {
+internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): List<FragmentBuilder> {
     val fragments = this.toMutableList()
     // multiply
     for (variant in variants) {
@@ -102,11 +202,11 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                 val newFragmentList = buildList {
                     for (element in fragments) {
                         val newFragment = if (option.getValue<Boolean>("default") == true) {
-                            val newFragment = MutableFragment(element.name, element.platforms)
+                            val newFragment = FragmentBuilder(element.name, element.platforms)
                             copyFields(newFragment, element)
                             newFragment
                         } else {
-                            val newFragment = MutableFragment(
+                            val newFragment = FragmentBuilder(
                                 "${element.name}${
                                     name.replaceFirstChar {
                                         if (it.isLowerCase()) {
@@ -177,14 +277,14 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
     return fragments
 }
 
-private fun copyFields(new: MutableFragment, old: MutableFragment) {
+private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
     new.variants.addAll(old.variants)
     new.dependencies.addAll(old.dependencies)
     new.alias = old.alias
 }
 
 context (Map<String, Set<Platform>>)
-internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
+internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
     get() {
         val platforms = this
         return buildList {
@@ -192,18 +292,18 @@ internal val Set<Set<Platform>>.basicFragments: List<MutableFragment>
             val reducedPlatformSet = platforms.reduce { acc, set -> acc + set }
             sortedPlatformSubsets.forEach { platformSet ->
                 val (name, alias) = platformSet.toCamelCaseString()
-                val fragment = MutableFragment(name, platformSet, alias = alias)
+                val fragment = FragmentBuilder(name, platformSet, alias = alias)
                 addFragment(fragment, platformSet)
             }
 
             if (reducedPlatformSet.size > 1) {
-                val fragment = MutableFragment("common", reducedPlatformSet)
+                val fragment = FragmentBuilder("common", reducedPlatformSet)
                 addFragment(fragment, reducedPlatformSet)
             }
         }
     }
 
-private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, platforms: Set<Platform>) {
+private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, platforms: Set<Platform>) {
     forEach {
         if (platforms.containsAll(it.platforms)) {
             val alreadyExistsTransitively = it.dependencies.any {
@@ -223,7 +323,7 @@ private fun MutableList<MutableFragment>.addFragment(fragment: MutableFragment, 
 }
 
 context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
+internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
     config.handleFragmentSettings<List<String>>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
             if (dep.startsWith(".")) {
@@ -244,6 +344,10 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
                             }
                         }
                             ?: error("No module $dep found")
+
+                    override fun toString(): String {
+                        return "InternalDependency(module=$dep)"
+                    }
                 }
             } else {
                 MavenDependency(dep)
@@ -252,40 +356,46 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
         externalDependencies.addAll(resolved)
     }
 
-    config.handleFragmentSettings<Double>(this, "languageVersion") {
-        runCatching { MutableFragment.KotlinVersion.valueOf(it.toString()) }
-            .getOrNull()?.let { languageVersion = it }
-    }
+    config.handleFragmentSettings<Settings>(this, "settings") {
+        it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
+            kotlin = FragmentBuilder.KotlinFragmentBuilder {
+                kotlinSettings.getValue<Double>("languageVersion")?.let { kotlinVersion ->
+                    languageVersion = FragmentBuilder.KotlinVersion.fromString(kotlinVersion.toString())
+                }
 
-    config.handleFragmentSettings<Double>(this, "apiVersion") {
-        runCatching { MutableFragment.KotlinVersion.valueOf(it.toString()) }
-            .getOrNull()?.let { apiVersion = it }
-    }
+                kotlinSettings.getValue<Double>("apiVersion")?.let { kotlinVersion ->
+                    apiVersion = FragmentBuilder.KotlinVersion.fromString(kotlinVersion.toString())
+                }
 
-    config.handleFragmentSettings<Boolean>(this, "progressiveMode") {
-        progressiveMode = it
-    }
+                sdkVersion = kotlinSettings.getByPath<String>("sdk", "version")
 
-    config.handleFragmentSettings<List<String>>(this, "languageFeatures") {
-        languageFeatures.addAll(it)
-    }
-    config.handleFragmentSettings<List<String>>(this, "optIns") {
-        optIns.addAll(it)
-    }
-
-    config.handleFragmentSettings<String>(this, "mainClass") {
-        mainClass = it
-    }
-    config.handleFragmentSettings<String>(this, "entryPoint") {
-        entryPoint = it
-    }
-    config.handleFragmentSettings<String>(this, "compileSdkVersion") {
-        androidCompileSdkVersion = it
+                kotlinSettings.getValue<List<String>>("features")?.let { features ->
+                    languageFeatures.addAll(features)
+                }
+            }
+        }
+        it.getValue<Settings>("java")?.let { javaSettings ->
+            java = FragmentBuilder.JavaFragmentBuilder {
+                mainClass = javaSettings.getValue<String>("mainClass")
+                packagePrefix = javaSettings.getValue<String>("packagePrefix")
+            }
+        }
+        it.getValue<Settings>("publish")?.let { publishSettings ->
+            publish = FragmentBuilder.PublishingFragmentBuilder {
+                group = it.getValue<String>("group")
+                version = it.getValue<String>("version")
+            }
+        }
+        it.getValue<Settings>("junit")?.let { testSettings ->
+            junit = FragmentBuilder.JunitFragmentBuilder {
+                platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
+            }
+        }
     }
 }
 
-context (Settings)
-internal fun List<MutableFragment>.calculateSrcDir(platforms: Set<Platform>) {
+context (BuildFileAware, Settings)
+internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
 
     val defaultOptions = defaultOptionMap.values.toSet()
     val nonStdOptions = optionMap.filter { it.value.getValue<String>("dimension") != "mode" }.keys
@@ -324,6 +434,6 @@ internal fun List<MutableFragment>.calculateSrcDir(platforms: Set<Platform>) {
             }
         }
 
-        fragment.srcFolderName = dir
+        fragment.src = buildFile.parent.resolve(dir)
     }
 }

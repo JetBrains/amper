@@ -32,7 +32,7 @@ class MultipleModulesTests : WithTempDir {
 :module1
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -58,7 +58,7 @@ class MultipleModulesTests : WithTempDir {
 :module2
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
   commonMain:
@@ -101,7 +101,7 @@ class MultipleModulesTests : WithTempDir {
 :module1
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -116,7 +116,7 @@ class MultipleModulesTests : WithTempDir {
    implDeps()
   jvm:
    depends(common)
-   sourceDirs(jvm)
+   sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppJvmMain:
@@ -132,7 +132,7 @@ class MultipleModulesTests : WithTempDir {
 :module2
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
   commonMain:
@@ -147,7 +147,7 @@ class MultipleModulesTests : WithTempDir {
    implDeps()
   jvm:
    depends(common)
-   sourceDirs(jvm)
+   sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
   myAppJvmMain:

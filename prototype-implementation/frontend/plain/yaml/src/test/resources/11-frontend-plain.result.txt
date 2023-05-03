@@ -1,0 +1,28 @@
+Module {{ userReadableName }}
+Fragments:
+  jvm
+    External dependencies:
+      InternalDependency(module=../frontend-api)
+      InternalDependency(module=../frontend/util)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+      KotlinFragmentPart(languageVersion=1.9, apiVersion=null, progressiveMode=null, languageFeatures=[contextReceivers], optIns=[])
+  jvmTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10)
+      MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2)
+      MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2)
+      MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+)
+    Src folder: test
+    Fragment dependencies:
+      jvm (FRIEND)
+    Parts:
+Artifacts:
+  [JVM]
+    Fragments:
+      jvm
+      jvmTest
+    Parts:

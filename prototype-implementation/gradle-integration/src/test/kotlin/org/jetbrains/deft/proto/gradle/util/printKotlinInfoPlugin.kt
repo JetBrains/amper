@@ -6,6 +6,8 @@ import org.gradle.api.initialization.Settings
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
+import java.io.File
+import java.nio.file.Path
 
 /**
  * A simple plugin to print out information
@@ -59,18 +61,29 @@ class PrintKotlinSpecificInfoForProject : Plugin<Project> {
         }
     }
 
-    private fun KotlinSourceSet.pretty(project: Project) =
-        "  $name:" +
+    private fun relative(path1: File, path2: File): String {
+        val basePath: Path = path1.toPath().normalize().toAbsolutePath()
+        val targetPath: Path = path2.toPath().normalize().toAbsolutePath()
+        val relativePath: Path = basePath.relativize(targetPath)
+
+        return relativePath.toString()
+    }
+
+
+
+    private fun KotlinSourceSet.pretty(project: Project): String {
+        return "  $name:" +
                 "\n   depends(${dependsOn.joinToString(separator = ",") { it.name }})" +
                 "\n   sourceDirs(${
                     this.kotlin
                         .srcDirs
-                        .map { it.parentFile.name }
+                        .map { relative(project.projectDir, it) }
                         .toSet()
                         .joinToString(separator = ",") { it }
                 })" +
                 "\n   lang(${languageSettings.pretty()})" +
                 "\n   implDeps(${declaredImplementationDependencies(project)})"
+    }
 
     private fun KotlinSourceSet.declaredImplementationDependencies(project: Project): String {
         val conf = project.configurations.findByName(implementationConfigurationName) ?: return ""

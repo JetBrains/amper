@@ -25,7 +25,10 @@ class AndroidBindingPluginPart(
             artifact.platforms.find { it == Platform.ANDROID } ?: return@forEach
             val part = artifact.part<AndroidArtifactPart>() ?: error("No android properties for an artifact ${artifact.name}")
             androidPE.apply {
-                compileSdkVersion(part.compileSdkVersion)
+                part.compileSdkVersion?.let {
+                    compileSdkVersion(it)
+                }
+
                 defaultConfig {
                 }
                 compileOptions {

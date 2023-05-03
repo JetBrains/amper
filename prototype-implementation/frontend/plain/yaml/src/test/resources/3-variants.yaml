@@ -5,7 +5,9 @@ variants:
 dependencies:
   - org.apache.commons:commons-math3:3.6.1
 
-languageVersion@ios+release: 1.9
+settings@ios+release:
+  kotlin:
+    languageVersion: 1.9
 
 product:
   type: app

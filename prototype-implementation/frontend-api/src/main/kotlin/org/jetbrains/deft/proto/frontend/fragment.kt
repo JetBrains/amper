@@ -1,10 +1,13 @@
 package org.jetbrains.deft.proto.frontend
 
+import java.nio.file.Path
+
 sealed interface Notation
 interface PotatoModuleDependency : Notation {
     // A dirty hack to make module resolution lazy.
     val Model.module: PotatoModule
 }
+
 data class MavenDependency(val coordinates: String) : Notation
 
 enum class FragmentDependencyType {
@@ -16,7 +19,7 @@ enum class FragmentDependencyType {
  * Dependency between fragments.
  * Can differ by type (refines dependency, test on sources dependency, etc.).
  */
-interface FragmentDependency {
+interface FragmentLink {
     val target: Fragment
     val type: FragmentDependencyType
 }
@@ -29,8 +32,9 @@ data class KotlinFragmentPart(
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
-    val srcFolderName: String? = null,
 ) : FragmentPart<KotlinFragmentPart>
+
+data class TestFragmentPart(val junitPlatform: Boolean?): FragmentPart<TestFragmentPart>
 
 /**
  * Some part of the module that supports "single resolve context" invariant for
@@ -38,7 +42,9 @@ data class KotlinFragmentPart(
  */
 interface Fragment {
     val name: String
-    val fragmentDependencies: List<FragmentDependency>
+    val fragmentDependencies: List<FragmentLink>
+    val fragmentDependants: List<FragmentLink>
     val externalDependencies: List<Notation>
     val parts: ClassBasedSet<FragmentPart<*>>
+    val src: Path?
 }

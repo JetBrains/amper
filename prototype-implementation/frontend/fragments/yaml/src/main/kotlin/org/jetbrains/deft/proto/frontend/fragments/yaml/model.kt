@@ -13,15 +13,17 @@ internal data class PotatoModuleImpl(
 
 internal data class FragmentImpl(
     override val name: String,
-    override val fragmentDependencies: MutableList<FragmentDependencyImpl>,
+    override val fragmentDependencies: MutableList<FragmentLinkImpl>,
     override val externalDependencies: List<Notation>,
-    override val parts: ClassBasedSet<FragmentPart<*>> = emptySet()
+    override val parts: ClassBasedSet<FragmentPart<*>> = emptySet(),
+    override val fragmentDependants: List<FragmentLink>,
+    override val src: Path?
 ) : Fragment
 
-internal data class FragmentDependencyImpl(
+internal data class FragmentLinkImpl(
     override val target: FragmentImpl,
     override val type: FragmentDependencyType,
-) : FragmentDependency
+) : FragmentLink
 
 internal data class ArtifactImpl(
     override val name: String,

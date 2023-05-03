@@ -14,23 +14,23 @@ internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T
         if (isLast) {
             return settings.getValue(element)
         }
-        settings = settings.getSettings(element) ?: error("There is no such key '$element'")
+        settings = settings.getSettings(element) ?: return null
     }
 
     return null
 }
 
 context (Map<String, Set<Platform>>)
-internal inline fun <reified T> Settings.handleFragmentSettings(
-    fragments: List<MutableFragment>,
+internal inline fun <reified T : Any> Settings.handleFragmentSettings(
+    fragments: List<FragmentBuilder>,
     key: String,
-    init: MutableFragment.(T) -> Unit
+    init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
     val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
-    // add external dependencies, compiler flags, etc
     var variantSet: MutableSet<Settings>
+
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
         variantSet = with(originalSettings) { variants }.toMutableSet()
         val split = settingsKey.split("@")
@@ -38,6 +38,7 @@ internal inline fun <reified T> Settings.handleFragmentSettings(
         val options = specialization
             .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
             .toSet()
+
         for (option in options) {
             val variant = originalSettings.optionMap[option] ?: error("There is no such variant option $option")
             variantSet.remove(variant)

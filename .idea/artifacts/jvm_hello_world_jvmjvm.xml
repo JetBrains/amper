@@ -2,7 +2,7 @@
   <artifact type="jar" name="jvm-hello-world-jvmjvm">
     <output-path>$PROJECT_DIR$/examples/jvm-hello-world/build/libs</output-path>
     <root id="archive" name="jvm-hello-world-jvmjvm.jar">
-      <element id="module-output" name="jvm-hello-world.jvmJVMMain" />
+      <element id="module-output" name="jvm-hello-world.jvmJvmMain" />
     </root>
   </artifact>
 </component>

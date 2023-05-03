@@ -30,7 +30,7 @@ class SimpleModelsTests : WithTempDir {
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -70,7 +70,7 @@ class SimpleModelsTests : WithTempDir {
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -85,7 +85,7 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   jvm:
    depends(common)
-   sourceDirs(jvm)
+   sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppJvmMain:
@@ -115,7 +115,7 @@ class SimpleModelsTests : WithTempDir {
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -130,12 +130,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   ios:
    depends(common)
-   sourceDirs(ios)
+   sourceDirs(src/ios/kotlin,ios/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvm:
    depends(common)
-   sourceDirs(jvm)
+   sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   myAppJvmMain:

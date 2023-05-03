@@ -145,17 +145,21 @@ internal fun deduceFragments(
                 fragmentDependencies = mutableListOf(),
                 externalDependencies = explicitMainFragment?.externalDependencies ?: emptyList(),
                 parts = explicitMainFragment?.fragmentParts ?: emptySet(),
+                fragmentDependants = emptyList(),
+                src = null
             )
             val testFragment = FragmentImpl(
                 name = testName,
                 fragmentDependencies = mutableListOf(
-                    FragmentDependencyImpl(
+                    FragmentLinkImpl(
                         mainFragment,
                         FragmentDependencyType.FRIEND
                     )
                 ),
                 externalDependencies = explicitTestFragment?.externalDependencies ?: emptyList(),
                 parts = explicitTestFragment?.fragmentParts ?: emptySet(),
+                fragmentDependants = emptyList(),
+                src = null
             )
 
             fun addRefine(baseName: String, suffix: String) {
@@ -164,13 +168,13 @@ internal fun deduceFragments(
                 val refineMainFragment = checkNotNull(resultFragments[refineName])
                 val refineTestFragment = checkNotNull(resultFragments[refineTestName])
                 mainFragment.fragmentDependencies.add(
-                    FragmentDependencyImpl(
+                    FragmentLinkImpl(
                         refineMainFragment,
                         FragmentDependencyType.REFINE
                     )
                 )
                 testFragment.fragmentDependencies.add(
-                    FragmentDependencyImpl(
+                    FragmentLinkImpl(
                         refineTestFragment,
                         FragmentDependencyType.REFINE
                     )

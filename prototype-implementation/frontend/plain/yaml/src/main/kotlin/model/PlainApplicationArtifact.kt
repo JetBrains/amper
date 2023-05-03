@@ -2,13 +2,13 @@ package org.jetbrains.deft.proto.frontend.model
 
 import org.jetbrains.deft.proto.frontend.*
 
-context (Stateful<MutableFragment, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>)
 internal class PlainApplicationArtifact(
-    private val mutableFragments: List<MutableFragment>,
+    private val fragmentBuilders: List<FragmentBuilder>,
     private val platform: Platform,
     private val cartesianElement: List<String>
 ) : Artifact {
-    private val targetInternalFragment = mutableFragments.filter { it.platforms == setOf(platform) }
+    private val targetInternalFragment = fragmentBuilders.filter { it.platforms == setOf(platform) }
         .firstOrNull { it.variants == cartesianElement.toSet() } ?: error("Something went wrong")
 
     override val name: String
@@ -17,38 +17,28 @@ internal class PlainApplicationArtifact(
         // FIXME
         get() = targetInternalFragment.name
     override val fragments: List<Fragment>
-        get() = listOf(targetInternalFragment.immutable())
+        get() = listOf(targetInternalFragment.build())
     override val platforms: Set<Platform>
         get() = setOf(platform)
     override val parts: ClassBasedSet<ArtifactPart<*>>
         get() {
             return buildSet {
                 if (platform == Platform.ANDROID) {
+                    targetInternalFragment.android?.let {
+                        add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion)))
+                    }
+                }
+
+                targetInternalFragment.java?.let {
+                    add(ByClassWrapper(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix)))
+                }
+
+                targetInternalFragment.native?.let {
                     add(
                         ByClassWrapper(
-                            AndroidArtifactPart(
-                                targetInternalFragment.androidCompileSdkVersion ?: "android-31"
-                            )
+                            NativeApplicationArtifactPart(it.entryPoint)
                         )
                     )
-                }
-                if (!cartesianElement.contains("test")) {
-                    val mainClass = targetInternalFragment.mainClass ?: "MainKt"
-                    val entryPoint = targetInternalFragment.entryPoint ?: "main"
-                    if (platform == Platform.JVM) {
-                        add(
-                            ByClassWrapper(
-                                JavaApplicationArtifactPart(mainClass)
-                            )
-                        )
-                    }
-                    if (platform.native()) {
-                        add(
-                            ByClassWrapper(
-                                NativeApplicationArtifactPart(entryPoint)
-                            )
-                        )
-                    }
                 }
             }
         }

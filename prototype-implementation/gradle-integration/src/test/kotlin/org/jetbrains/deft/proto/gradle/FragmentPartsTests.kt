@@ -23,7 +23,6 @@ class FragmentPartsTests : WithTempDir {
         val runResult = runGradleWithModel(Models.kotlinFragmentPartModel)
         val printKotlinInfo = runResult.task(":$printKotlinSourcesTask")
         assertEquals(TaskOutcome.SUCCESS, printKotlinInfo?.outcome)
-
         val extracted = runResult.output.extractSourceInfoOutput()
 
         assertEquals(
@@ -31,7 +30,7 @@ class FragmentPartsTests : WithTempDir {
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(src/common/kotlin,common/src)
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
   commonMain:

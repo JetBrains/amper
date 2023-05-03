@@ -1,7 +1,7 @@
 dependencies:
   - org.apache.commons:commons-math3:3.6.1
 
-dependencies@test:
+test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.20
 
 product:

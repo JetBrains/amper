@@ -3,4 +3,6 @@ product:
   platforms:
     - jvm
 
-mainClass@jvm: MainKt
+settings:
+  java:
+    mainClass: MainKt

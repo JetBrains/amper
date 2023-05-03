@@ -35,10 +35,10 @@ class MockPotatoModule(
     }
 }
 
-class MockFragmentDependency(
+class MockFragmentLink(
     override val target: Fragment,
     override val type: FragmentDependencyType
-) : FragmentDependency
+) : FragmentLink
 
 class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDependency {
     override val Model.module get() = myModule
@@ -47,15 +47,17 @@ class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDep
 class MockFragment(
     override var name: String = "fragment",
 ) : Fragment {
-    override val fragmentDependencies = mutableListOf<FragmentDependency>()
+    override val fragmentDependencies = mutableListOf<FragmentLink>()
     override val externalDependencies = mutableListOf<Notation>()
     override val parts = mutableSetOf<ByClassWrapper<FragmentPart<*>>>()
+    override val fragmentDependants = mutableListOf<FragmentLink>()
+    override var src: Path? = null
     fun refines(other: MockFragment) = fragmentDependencies.add(
-        MockFragmentDependency(other, FragmentDependencyType.REFINE)
+        MockFragmentLink(other, FragmentDependencyType.REFINE)
     )
 
     fun friends(other: MockFragment) = fragmentDependencies.add(
-        MockFragmentDependency(other, FragmentDependencyType.FRIEND)
+        MockFragmentLink(other, FragmentDependencyType.FRIEND)
     )
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)

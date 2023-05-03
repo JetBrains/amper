@@ -74,13 +74,6 @@ internal class ParserKtTest {
     }
 
     @Test
-    fun `propagating artifact options`() {
-        with(buildFile) {
-            testParse("7-propagating-artifact-options")
-        }
-    }
-
-    @Test
     fun `variants even more simplified`() {
         with(buildFile) {
             testParse("8-variants-simplified")
@@ -98,6 +91,13 @@ internal class ParserKtTest {
     fun `android properties should be passed in lib`() {
         with(buildFile) {
             testParse("10-android-lib")
+        }
+    }
+
+    @Test
+    fun `plain frontend dogfooding`() {
+        with(buildFile) {
+            testParse("11-frontend-plain")
         }
     }
 }
