@@ -382,8 +382,8 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
         }
         it.getValue<Settings>("publish")?.let { publishSettings ->
             publish = FragmentBuilder.PublishingFragmentBuilder {
-                group = it.getValue<String>("group")
-                version = it.getValue<String>("version")
+                group = publishSettings.getValue<String>("group")
+                version = publishSettings.getValue<String>("version")
             }
         }
         it.getValue<Settings>("junit")?.let { testSettings ->
