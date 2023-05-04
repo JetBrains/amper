@@ -33,7 +33,12 @@ internal data class FragmentBuilder(
 
     fun addDependency(mutableFragmentDependency: MutableFragmentDependency) {
         dependencies.add(mutableFragmentDependency)
-        mutableFragmentDependency.target.dependants.add(mutableFragmentDependency)
+        mutableFragmentDependency.target.dependants.add(
+            MutableFragmentDependency(
+                this,
+                mutableFragmentDependency.dependencyKind
+            )
+        )
     }
 
     fun removeDependency(mutableFragmentDependency: MutableFragmentDependency) {
@@ -298,7 +303,8 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 
 private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
     new.variants.addAll(old.variants)
-    new.addDependencies(old.dependencies)
+    new.dependencies.addAll(old.dependencies)
+    new.dependants.addAll(old.dependants)
     new.alias = old.alias
 }
 

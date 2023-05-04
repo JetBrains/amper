@@ -70,7 +70,6 @@ Artifacts:
       android
       ios
       js
-      common
     Parts:
   [JVM, ANDROID, IOS_ARM64, JS]
     Fragments:
