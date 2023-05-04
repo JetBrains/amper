@@ -1,0 +1,81 @@
+Module {{ userReadableName }}
+Fragments:
+  jvm
+    External dependencies:
+    Src folder: src@jvm
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+  android
+    External dependencies:
+    Src folder: src@android
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+  ios
+    External dependencies:
+    Src folder: src@ios
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+  js
+    External dependencies:
+    Src folder: src@js
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+  common
+    External dependencies:
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+  jvmTest
+    External dependencies:
+    Src folder: test@jvm
+    Fragment dependencies:
+      commonTest (REFINE)
+      jvm (FRIEND)
+    Parts:
+  androidTest
+    External dependencies:
+    Src folder: test@android
+    Fragment dependencies:
+      commonTest (REFINE)
+      android (FRIEND)
+    Parts:
+  iosTest
+    External dependencies:
+    Src folder: test@ios
+    Fragment dependencies:
+      commonTest (REFINE)
+      ios (FRIEND)
+    Parts:
+  jsTest
+    External dependencies:
+    Src folder: test@js
+    Fragment dependencies:
+      commonTest (REFINE)
+      js (FRIEND)
+    Parts:
+  commonTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      common (FRIEND)
+    Parts:
+Artifacts:
+  [JVM, ANDROID, IOS_ARM64, JS]
+    Fragments:
+      jvm
+      android
+      ios
+      js
+      common
+    Parts:
+  [JVM, ANDROID, IOS_ARM64, JS]
+    Fragments:
+      jvmTest
+      androidTest
+      iosTest
+      jsTest
+    Parts:

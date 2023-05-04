@@ -15,5 +15,8 @@ Artifacts:
   [ANDROID]
     Fragments:
       android
+    Parts:
+  [ANDROID]
+    Fragments:
       androidTest
     Parts:

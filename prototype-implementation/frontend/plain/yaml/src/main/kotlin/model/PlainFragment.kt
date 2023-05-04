@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.frontend.model
 
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.frontend.MutableFragmentDependency
 import java.nio.file.Path
 
 context (Stateful<FragmentBuilder, Fragment>)
@@ -11,19 +10,9 @@ internal class PlainFragment(
     override val name: String
         get() = fragmentBuilder.name
     override val fragmentDependencies: List<FragmentLink>
-        get() = fragmentBuilder.dependencies.map {
-            object : FragmentLink {
-                override val target: Fragment
-                    get() = it.target.build()
-                override val type: FragmentDependencyType
-                    get() = when (it.dependencyKind) {
-                        MutableFragmentDependency.DependencyKind.Friend -> FragmentDependencyType.FRIEND
-                        MutableFragmentDependency.DependencyKind.Refines -> FragmentDependencyType.REFINE
-                    }
-            }
-        }
+        get() = fragmentBuilder.dependencies.map { PlainFragmentLink(it) }
     override val fragmentDependants: List<FragmentLink>
-        get() = TODO("Not yet implemented")
+        get() = fragmentBuilder.dependants.map { PlainFragmentLink(it) }
     override val externalDependencies: List<Notation>
         get() = fragmentBuilder.externalDependencies.toList()
     override val parts: ClassBasedSet<FragmentPart<*>>

@@ -100,4 +100,11 @@ internal class ParserKtTest {
             testParse("11-frontend-plain")
         }
     }
+
+    @Test
+    fun `multiplatform library`() {
+        with(buildFile) {
+            testParse("12-multiplatform-lib")
+        }
+    }
 }

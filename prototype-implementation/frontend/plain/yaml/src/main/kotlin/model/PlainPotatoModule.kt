@@ -31,8 +31,16 @@ internal class PlainPotatoModule(
             "lib" -> library()
             else -> error("Unsupported product type")
         }
-
-    private fun library(): List<Artifact> = listOf(PlainLibraryArtifact(fragmentBuilders, platformList))
+    private fun library(): List<Artifact> {
+        return buildList {
+            val mainFragments = fragmentBuilders
+                .filter { it.dependants.isNotEmpty() }
+                .filter { it.dependants.all { it.dependencyKind == MutableFragmentDependency.DependencyKind.Friend } }
+            add(PlainLibraryArtifact(mainFragments, platformList))
+            val testFragments = fragmentBuilders.filter { it.dependants.isEmpty() }
+            add(PlainLibraryArtifact(testFragments, platformList))
+        }
+    }
 
     private fun application(): List<Artifact> {
         val options = buildList {

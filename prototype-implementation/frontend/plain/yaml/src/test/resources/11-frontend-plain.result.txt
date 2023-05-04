@@ -24,5 +24,8 @@ Artifacts:
   [JVM]
     Fragments:
       jvm
+    Parts:
+  [JVM]
+    Fragments:
       jvmTest
     Parts:

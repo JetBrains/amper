@@ -15,6 +15,7 @@ internal data class FragmentBuilder(
     val name: String,
     val platforms: Set<Platform>,
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
+    val dependants: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
     val variants: MutableSet<String> = mutableSetOf(),
     var alias: String? = null,
@@ -28,6 +29,25 @@ internal data class FragmentBuilder(
     var publish: PublishingFragmentBuilder? = null,
     var junit: JunitFragmentBuilder? = null,
 ) {
+
+
+    fun addDependency(mutableFragmentDependency: MutableFragmentDependency) {
+        dependencies.add(mutableFragmentDependency)
+        mutableFragmentDependency.target.dependants.add(mutableFragmentDependency)
+    }
+
+    fun removeDependency(mutableFragmentDependency: MutableFragmentDependency) {
+        dependencies.remove(mutableFragmentDependency)
+        mutableFragmentDependency.target.dependants.removeIf { it.target == this }
+    }
+
+    fun removeDependencies(mutableFragmentDependencies: Set<MutableFragmentDependency>) {
+        mutableFragmentDependencies.forEach { removeDependency(it) }
+    }
+
+    fun addDependencies(mutableFragmentDependencies: Set<MutableFragmentDependency>) {
+        mutableFragmentDependencies.forEach { addDependency(it) }
+    }
 
     data class KotlinFragmentBuilder(
         var languageVersion: KotlinVersion? = null,
@@ -109,6 +129,7 @@ internal data class FragmentBuilder(
         }
     }
 
+    @Suppress("unused")
     enum class KotlinVersion(private val version: String) {
         Kotlin20("2.0"),
         Kotlin19("1.9"),
@@ -177,8 +198,6 @@ internal data class FragmentBuilder(
         result = 31 * result + (junit?.hashCode() ?: 0)
         return result
     }
-
-
 }
 
 internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): List<FragmentBuilder> {
@@ -252,8 +271,8 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                         dependenciesToRemove.add(dependency)
                         dependenciesToAdd.add(MutableFragmentDependency(targetFragment, dependency.dependencyKind))
                     }
-                    fragment.dependencies.removeAll(dependenciesToRemove)
-                    fragment.dependencies.addAll(dependenciesToAdd)
+                    fragment.removeDependencies(dependenciesToRemove)
+                    fragment.addDependencies(dependenciesToAdd)
                 }
 
                 // add new dependencies related to copying
@@ -263,7 +282,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                             "friend" -> MutableFragmentDependency.DependencyKind.Friend
                             else -> MutableFragmentDependency.DependencyKind.Refines
                         }
-                        sourceFragments[i].dependencies.add(MutableFragmentDependency(targetFragments[i], kind))
+                        sourceFragments[i].addDependency(MutableFragmentDependency(targetFragments[i], kind))
                     }
                 }
             }
@@ -279,7 +298,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 
 private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
     new.variants.addAll(old.variants)
-    new.dependencies.addAll(old.dependencies)
+    new.addDependencies(old.dependencies)
     new.alias = old.alias
 }
 
@@ -310,7 +329,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
                 fragment.platforms.containsAll(it.target.platforms)
             }
             if (!alreadyExistsTransitively) {
-                it.dependencies.add(
+                it.addDependency(
                     MutableFragmentDependency(
                         fragment,
                         MutableFragmentDependency.DependencyKind.Refines
