@@ -10,6 +10,7 @@ private fun List<Variant>.cartesian(): List<List<String>> = cartesianGeneric(
     { listOf() },
     Variant::values,
     List<String>::plus,
+    preserveLowerDimensions = true,
     preserveEmpty = true,
 )
 

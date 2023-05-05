@@ -7,7 +7,6 @@ import java.nio.file.Path
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-@Ignore
 internal class ParserKtTest {
 
     @TempDir

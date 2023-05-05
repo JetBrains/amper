@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
-@Ignore
 internal class TransformKeyTest {
     @Test
     fun test1() {

@@ -1,22 +1,16 @@
 Module {{ userReadableName }}
 Fragments:
+  ios
+    External dependencies: []
+    Fragment dependencies:
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
   iosDebug
     External dependencies: []
     Fragment dependencies:
       ios (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@debug)
-  iosRelease
-    External dependencies: []
-    Fragment dependencies:
-      ios (REFINE)
-    Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@release)
-  ios
-    External dependencies: []
-    Fragment dependencies:
-    Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
   iosDebugTest
     External dependencies: []
     Fragment dependencies:
@@ -24,6 +18,12 @@ Fragments:
       iosDebug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@debug)
+  iosRelease
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@release)
   iosReleaseTest
     External dependencies: []
     Fragment dependencies:
@@ -38,29 +38,35 @@ Fragments:
     Parts:
       KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test)
 Artifacts:
-  [IOS_ARM64]
-    Fragments:
-      iosDebug
-    Parts:
-      NativeApplicationArtifactPart(entryPoint=main)
-  [IOS_ARM64]
-    Fragments:
-      iosDebugTest
-    Parts:
-  [IOS_ARM64]
-    Fragments:
-      iosRelease
-    Parts:
-      NativeApplicationArtifactPart(entryPoint=main)
-  [IOS_ARM64]
-    Fragments:
-      iosReleaseTest
-    Parts:
+  isTest: false
   [IOS_ARM64]
     Fragments:
       ios
     Parts:
       NativeApplicationArtifactPart(entryPoint=main)
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      iosDebug
+    Parts:
+      NativeApplicationArtifactPart(entryPoint=main)
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosDebugTest
+    Parts:
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      iosRelease
+    Parts:
+      NativeApplicationArtifactPart(entryPoint=main)
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosReleaseTest
+    Parts:
+  isTest: true
   [IOS_ARM64]
     Fragments:
       iosTest

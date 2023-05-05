@@ -15,6 +15,10 @@ internal data class MutableFragment(
     val platforms: Set<Platform>,
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
+    /**
+     * These are all variants, that this fragment should be included in.
+     * Thus, "common" fragment will contain all variants.
+     */
     val variants: MutableSet<String> = mutableSetOf(),
     var languageVersion: KotlinVersion = KotlinVersion.Kotlin18,
     var apiVersion: KotlinVersion = KotlinVersion.Kotlin18,
@@ -26,6 +30,7 @@ internal data class MutableFragment(
     var srcFolderName: String? = null,
     var alias: String? = null,
     var androidCompileSdkVersion: String? = null,
+    var androidMinSdkVersion: Int? = null,
 ) {
     enum class KotlinVersion(private val version: String) {
         Kotlin19("1.9"),
@@ -102,11 +107,9 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                 val newFragmentList = buildList {
                     for (element in fragments) {
                         val newFragment = if (option.getValue<Boolean>("default") == true) {
-                            val newFragment = MutableFragment(element.name, element.platforms)
-                            copyFields(newFragment, element)
-                            newFragment
+                            element copyTo MutableFragment(element.name, element.platforms)
                         } else {
-                            val newFragment = MutableFragment(
+                            element copyTo MutableFragment(
                                 "${element.name}${
                                     name.replaceFirstChar {
                                         if (it.isLowerCase()) {
@@ -118,8 +121,6 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
-                            copyFields(newFragment, element)
-                            newFragment
                         }
                         newFragment.variants.add(name)
                         add(newFragment)
@@ -177,10 +178,11 @@ internal fun List<MutableFragment>.multiplyFragments(variants: List<Settings>): 
     return fragments
 }
 
-private fun copyFields(new: MutableFragment, old: MutableFragment) {
-    new.variants.addAll(old.variants)
-    new.dependencies.addAll(old.dependencies)
-    new.alias = old.alias
+private infix fun MutableFragment.copyTo(new: MutableFragment): MutableFragment {
+    new.variants.addAll(variants)
+    new.dependencies.addAll(dependencies)
+    new.alias = alias
+    return new
 }
 
 context (Map<String, Set<Platform>>)
@@ -281,6 +283,9 @@ internal fun List<MutableFragment>.handleAdditionalKeys(config: Settings) {
     }
     config.handleFragmentSettings<String>(this, "compileSdkVersion") {
         androidCompileSdkVersion = it
+    }
+    config.handleFragmentSettings<String>(this, "minSdkVersion") {
+        androidMinSdkVersion = it.toIntOrNull() ?: error("minSdkVersion must be integer!")
     }
 }
 

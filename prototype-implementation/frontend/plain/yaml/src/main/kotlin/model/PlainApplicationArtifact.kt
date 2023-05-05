@@ -36,15 +36,16 @@ internal open class PlainApplicationArtifact(
                     add(
                         ByClassWrapper(
                             AndroidArtifactPart(
-                                targetInternalFragment.androidCompileSdkVersion ?: "android-31"
+                                // TODO Replace by meaningful defaults and move them somewhere else.
+                                targetInternalFragment.androidCompileSdkVersion ?: "android-31",
+                                targetInternalFragment.androidMinSdkVersion ?: 24
                             )
                         )
                     )
                 }
-                if (this !is TestArtifact) {
-                    val mainClass = targetInternalFragment.mainClass ?: "MainKt"
-                    val entryPoint = targetInternalFragment.entryPoint ?: "main"
+                if (!isTest) {
                     if (platform == Platform.JVM) {
+                        val mainClass = targetInternalFragment.mainClass ?: "MainKt"
                         add(
                             ByClassWrapper(
                                 JavaApplicationArtifactPart(mainClass)
@@ -52,6 +53,7 @@ internal open class PlainApplicationArtifact(
                         )
                     }
                     if (platform.native()) {
+                        val entryPoint = targetInternalFragment.entryPoint ?: "main"
                         add(
                             ByClassWrapper(
                                 NativeApplicationArtifactPart(entryPoint)

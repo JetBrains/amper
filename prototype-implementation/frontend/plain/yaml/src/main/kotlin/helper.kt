@@ -17,6 +17,8 @@ fun <T> cartesianSets(elements: Iterable<Collection<T>>): List<Set<T>> =
         { emptySet() },
         { this.toSet() },
         Set<T>::plus,
+        preserveLowerDimensions = false,
+        preserveEmpty = false,
     )
 
 context (Map<String, Set<Platform>>)
