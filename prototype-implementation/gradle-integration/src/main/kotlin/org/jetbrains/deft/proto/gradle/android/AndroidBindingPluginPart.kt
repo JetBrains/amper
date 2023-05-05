@@ -27,7 +27,6 @@ open class AndroidAwarePart(
     // Here we rely on fact, that only one android target can be declared in KMPP,
     // so we cannot support multiple android artifacts.
     internal val leafNonTestAndroidFragment = if (androidArtifacts.isEmpty()) null else {
-        println(androidArtifacts.joinToString { it.platforms.toString() })
         val androidArtifact = androidNonTestArtifacts.singleOrNull()
             ?: error("There must be exactly one non test android artifact!")
         val leaf = androidArtifact.fragments.filterAndroidFragments().singleOrNull()

@@ -37,7 +37,7 @@ class KMPPBindingPluginPart(
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android()
-                    Platform.JVM -> kotlinMPE.jvm() { withJava() } // FIXME move to JavaBindingPluginPart.kt and call after all source sets are done
+                    Platform.JVM -> kotlinMPE.jvm() // FIXME move to JavaBindingPluginPart.kt and call after all source sets are done
                     Platform.IOS_ARM64 -> kotlinMPE.iosArm64() { adjust(artifact) }
                     Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64() { adjust(artifact) }
                     Platform.IOS_X64 -> kotlinMPE.iosX64() { adjust(artifact) }

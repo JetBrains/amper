@@ -1,10 +1,12 @@
 package org.jetbrains.deft.proto.gradle.java
 
 import org.gradle.api.plugins.JavaApplication
-import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.BindingPluginPart
-import org.jetbrains.deft.proto.gradle.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.part
+import org.gradle.api.plugins.JavaPlugin
+import org.jetbrains.deft.proto.frontend.JavaApplicationArtifactPart
+import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -15,7 +17,7 @@ fun applyJavaAttributes(ctx: PluginPartCtx) = JavaBindingPluginPart(ctx).apply()
  */
 class JavaBindingPluginPart(
     ctx: PluginPartCtx,
-) : BindingPluginPart by ctx {
+) : BindingPluginPart by ctx, DeftNamingConventions {
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger("some-logger")
@@ -23,8 +25,13 @@ class JavaBindingPluginPart(
 
     private val javaAPE: JavaApplication = project.extensions.getByType(JavaApplication::class.java)
 
+    internal val kotlinMPE: KotlinMultiplatformExtension =
+        project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+
     fun apply() {
+        project.plugins.apply(JavaPlugin::class.java)
         applyJavaApplication()
+        adjustJavaSourceSets()
     }
 
     private fun applyJavaApplication() {
@@ -32,9 +39,10 @@ class JavaBindingPluginPart(
             .filter { Platform.JVM in it.platforms }
             .filter { it.part<JavaApplicationArtifactPart>() != null }
         if (jvmArtifacts.size > 1)
-            logger.warn("Cant apply multiple settings for application plugin. " +
-                    "Affected artifacts: ${jvmArtifacts.joinToString { it.name }}. " +
-                    "Applying application settings from first one."
+            logger.warn(
+                "Cant apply multiple settings for application plugin. " +
+                        "Affected artifacts: ${jvmArtifacts.joinToString { it.name }}. " +
+                        "Applying application settings from first one."
             )
         val artifact = jvmArtifacts.firstOrNull() ?: return
         val applicationSettings = artifact.part<JavaApplicationArtifactPart>()!!
@@ -43,4 +51,12 @@ class JavaBindingPluginPart(
         }
     }
 
+    private fun adjustJavaSourceSets() = with(JavaDeftNamingConvention) {
+        project.plugins.apply(JavaPlugin::class.java)
+
+        // This one is launched after all kotlin source sets are created, so it's ok.
+        // [withJava] logic is searching for corresponding kotlin compilations/source sets by name,
+        // so careful java source sets naming will do the trick.
+        (Platform.JVM.target as? KotlinJvmTarget)?.withJava()
+    }
 }
