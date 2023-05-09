@@ -9,6 +9,7 @@ iosX64:
   entryPoint: customMain
 android:
   compileSdkVersion: android-31
+  minSdkVersion: 25
 
 ### GOLD
 # Potato artifact_settings
@@ -18,34 +19,42 @@ android:
 # - common
 #   Fragment dependencies: []
 #   External dependencies: []
+#   Platforms: [IOS_X64, ANDROID, JVM, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
 #   External dependencies: []
+#   Platforms: [IOS_X64, ANDROID, JVM, COMMON]
 # - jvm
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [JVM]
 # - jvmTest
 #   Fragment dependencies: [jvm [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [JVM]
 # - android
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTest
 #   Fragment dependencies: [android [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - iosX64
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_X64]
 # - iosX64Test
 #   Fragment dependencies: [iosX64 [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_X64]
 # Artifacts:
 # - Built from [jvm]
 #   For platforms [JVM]
 #   Parts: [JavaApplicationArtifactPart(mainClass=CustomMainKt, packagePrefix=)]
 # - Built from [android]
 #   For platforms [ANDROID]
-#   Parts: [AndroidArtifactPart(compileSdkVersion=android-31)]
+#   Parts: [AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=25)]
 # - Built from [iosX64]
 #   For platforms [IOS_X64]
 #   Parts: [NativeApplicationArtifactPart(entryPoint=customMain)]

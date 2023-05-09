@@ -50,7 +50,9 @@ object Models : ModelInit {
 
     val commonFragmentModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common")
+            val common = fragment("common") {
+                platforms.add(Platform.JVM)
+            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -65,6 +67,7 @@ object Models : ModelInit {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
+                platforms.add(Platform.JVM)
             }
             artifact(
                 "myApp",
@@ -79,13 +82,15 @@ object Models : ModelInit {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
+                platforms.add(Platform.JVM)
             }
             val ios = fragment("ios") {
                 refines(common)
+                platforms.add(Platform.IOS_ARM64)
             }
             artifact(
                 "myApp",
-                setOf(Platform.JVM),
+                setOf(Platform.JVM, Platform.IOS_ARM64),
                 jvm, ios
             )
         }
@@ -103,6 +108,7 @@ object Models : ModelInit {
                         listOf("org.mylibrary.OptInAnnotation"),
                     )
                 )
+                platforms.add(Platform.JVM)
             }
             artifact(
                 "myApp",
@@ -114,7 +120,9 @@ object Models : ModelInit {
 
     val singleFragmentAndroidModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common")
+            val common = fragment("common") {
+                platforms.add(Platform.ANDROID)
+            }
             artifact(
                 "myApp",
                 setOf(Platform.ANDROID),
@@ -129,7 +137,9 @@ object Models : ModelInit {
 
     val twoModulesModel by mockModel {
         val module1 = module(it.resolve("module1/build.toml").createDirectories()) {
-            val common = fragment("common")
+            val common = fragment("common") {
+                platforms.add(Platform.JVM)
+            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -139,6 +149,7 @@ object Models : ModelInit {
         module(it.resolve("module2/build.toml").createDirectories()) {
             val common = fragment("common") {
                 dependency(module1)
+                platforms.add(Platform.JVM)
             }
             artifact(
                 "myApp",
@@ -153,6 +164,7 @@ object Models : ModelInit {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
+                platforms.add(Platform.JVM)
             }
             artifact(
                 "myApp",
@@ -167,6 +179,7 @@ object Models : ModelInit {
             val jvm = fragment("jvm") {
                 refines(common)
                 dependency(module1)
+                platforms.add(Platform.JVM)
             }
             artifact(
                 "myApp",

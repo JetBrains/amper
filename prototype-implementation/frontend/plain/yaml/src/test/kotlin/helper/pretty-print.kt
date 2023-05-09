@@ -3,34 +3,35 @@ package org.jetbrains.deft.proto.frontend.helper
 import org.jetbrains.deft.proto.frontend.PotatoModule
 
 internal fun PotatoModule.prettyPrint(): String = buildString {
-    append("Module $userReadableName\n")
-    append("Fragments:\n")
-    for (fragment in fragments) {
-        append("  ${fragment.name}\n")
+    appendLine("Module $userReadableName")
+    appendLine("Fragments:")
+    for (fragment in fragments.sortedBy { it.name }) {
+        appendLine("  ${fragment.name}")
         appendLine("    External dependencies:")
         for (dependency in fragment.externalDependencies) {
             appendLine("      $dependency")
         }
-        append("    Src folder: ${fragment.src?.fileName}\n")
-        append("    Fragment dependencies:\n")
+        append("    Src folder: ${fragment.src?.fileName}")
+        appendLine("    Fragment dependencies:")
         for (dependency in fragment.fragmentDependencies) {
-            append("      ${dependency.target.name} (${dependency.type})\n")
+            appendLine("      ${dependency.target.name} (${dependency.type})")
         }
-        append("    Parts:\n")
+        appendLine("    Parts:")
         for (part in fragment.parts) {
-            append("      ${part.value}\n")
+            appendLine("      ${part.value}")
         }
     }
-    append("Artifacts:\n")
-    for (artifact in artifacts) {
-        append("  ${artifact.platforms}\n")
-        append("    Fragments:\n")
+    appendLine("Artifacts:")
+    for (artifact in artifacts.sortedBy { it.name }) {
+        appendLine("  isTest: ${artifact.isTest}")
+        appendLine("  ${artifact.platforms}")
+        appendLine("    Fragments:")
         for (fragment in artifact.fragments) {
-            append("      ${fragment.name}\n")
+            appendLine("      ${fragment.name}")
         }
-        append("    Parts:\n")
+        appendLine("    Parts:")
         for (part in artifact.parts) {
-            append("      ${part.value}\n")
+            appendLine("      ${part.value}")
         }
     }
 }

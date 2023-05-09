@@ -56,12 +56,30 @@ internal class PlainPotatoModule(
             }
         }
 
-        val cartesian = cartesian(*options.toTypedArray())
+        val cartesian = cartesianSets(options)
 
         return buildList {
             for (platform in platformList) {
-                for (cartesianElement in cartesian) {
-                    add(PlainApplicationArtifact(fragmentBuilders, platform, cartesianElement))
+                val elements2Artifacts = mutableMapOf<Set<String>, PlainApplicationArtifact>()
+
+                // Divide by test property.
+                val groupedByTestProperty = cartesian.groupBy { it.contains("test") }
+                val nonTestCartesian = groupedByTestProperty[false] ?: emptyList()
+                val testCartesian = groupedByTestProperty[true] ?: emptyList()
+
+                // Init for non-test.
+                for (nonTest in nonTestCartesian) {
+                    val plain = PlainApplicationArtifact(fragmentBuilders, platform, nonTest)
+                    elements2Artifacts[nonTest] = plain
+                    add(plain)
+                }
+
+                // Bind test artifacts with non-test.
+                for (test in testCartesian) {
+                    val foundBound = elements2Artifacts[test - "test" + "main"] ?: error("No non test artifact found for $test")
+                    val plain = TestPlainApplicationArtifact(mutableFragments, platform, test, foundBound)
+                    elements2Artifacts[test] = plain
+                    add(plain)
                 }
             }
         }

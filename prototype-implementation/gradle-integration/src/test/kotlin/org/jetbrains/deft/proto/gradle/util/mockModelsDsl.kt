@@ -49,6 +49,7 @@ class MockFragment(
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentLink>()
     override val externalDependencies = mutableListOf<Notation>()
+    override val platforms = mutableSetOf<Platform>()
     override val parts = mutableSetOf<ByClassWrapper<FragmentPart<*>>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override var src: Path? = null

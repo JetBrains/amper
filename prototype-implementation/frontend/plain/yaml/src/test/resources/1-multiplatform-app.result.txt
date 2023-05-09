@@ -1,117 +1,123 @@
 Module {{ userReadableName }}
 Fragments:
   android
-    External dependencies:
-      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05)
-      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3)
-    Src folder: src@android
+    External dependencies: [MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05), MavenDependency(coordinates=com.google.dagger:dagger:2.28.3)]
     Fragment dependencies:
       common (REFINE)
     Parts:
-  iosSimulatorArm64
-    External dependencies:
-    Src folder: src@iosSimulatorArm64
-    Fragment dependencies:
-      ios (REFINE)
-    Parts:
-  iosArm64
-    External dependencies:
-    Src folder: src@iosArm64
-    Fragment dependencies:
-      ios (REFINE)
-    Parts:
-  iosX64
-    External dependencies:
-    Src folder: src@iosX64
-    Fragment dependencies:
-      ios (REFINE)
-    Parts:
-  ios
-    External dependencies:
-      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5)
-    Src folder: src@ios
-    Fragment dependencies:
-      common (REFINE)
-    Parts:
-  common
-    External dependencies:
-      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0)
-      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9)
-      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05)
-    Src folder: src
-    Fragment dependencies:
-    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@android)
   androidTest
-    External dependencies:
-    Src folder: test@android
+    External dependencies: []
     Fragment dependencies:
       commonTest (REFINE)
       android (FRIEND)
     Parts:
-  iosSimulatorArm64Test
-    External dependencies:
-    Src folder: test@iosSimulatorArm64
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@android)
+  common
+    External dependencies: [MavenDependency(coordinates=com.squareup.okio:okio:3.3.0), MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9), MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05)]
     Fragment dependencies:
-      iosTest (REFINE)
-      iosSimulatorArm64 (FRIEND)
     Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
+  commonTest
+    External dependencies: [MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20)]
+    Fragment dependencies:
+      common (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test)
+  ios
+    External dependencies: [MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5)]
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@ios)
+  iosArm64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@iosArm64)
   iosArm64Test
-    External dependencies:
-    Src folder: test@iosArm64
+    External dependencies: []
     Fragment dependencies:
       iosTest (REFINE)
       iosArm64 (FRIEND)
     Parts:
-  iosX64Test
-    External dependencies:
-    Src folder: test@iosX64
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@iosArm64)
+  iosSimulatorArm64
+    External dependencies: []
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@iosSimulatorArm64)
+  iosSimulatorArm64Test
+    External dependencies: []
     Fragment dependencies:
       iosTest (REFINE)
-      iosX64 (FRIEND)
+      iosSimulatorArm64 (FRIEND)
     Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@iosSimulatorArm64)
   iosTest
-    External dependencies:
-    Src folder: test@ios
+    External dependencies: []
     Fragment dependencies:
       commonTest (REFINE)
       ios (FRIEND)
     Parts:
-  commonTest
-    External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20)
-    Src folder: test
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@ios)
+  iosX64
+    External dependencies: []
     Fragment dependencies:
-      common (FRIEND)
+      ios (REFINE)
     Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src@iosX64)
+  iosX64Test
+    External dependencies: []
+    Fragment dependencies:
+      iosTest (REFINE)
+      iosX64 (FRIEND)
+    Parts:
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test@iosX64)
 Artifacts:
+  isTest: false
   [ANDROID]
     Fragments:
       android
     Parts:
+      AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=24)
+  isTest: true
   [ANDROID]
     Fragments:
       androidTest
     Parts:
-  [IOS_SIMULATOR_ARM64]
-    Fragments:
-      iosSimulatorArm64
-    Parts:
-  [IOS_SIMULATOR_ARM64]
-    Fragments:
-      iosSimulatorArm64Test
-    Parts:
+      AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=24)
+  isTest: false
   [IOS_ARM64]
     Fragments:
       iosArm64
     Parts:
+      NativeApplicationArtifactPart(entryPoint=main)
+  isTest: true
   [IOS_ARM64]
     Fragments:
       iosArm64Test
     Parts:
+  isTest: false
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64
+    Parts:
+      NativeApplicationArtifactPart(entryPoint=main)
+  isTest: true
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Test
+    Parts:
+  isTest: false
   [IOS_X64]
     Fragments:
       iosX64
     Parts:
+      NativeApplicationArtifactPart(entryPoint=main)
+  isTest: true
   [IOS_X64]
     Fragments:
       iosX64Test

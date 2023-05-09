@@ -22,3 +22,20 @@ class ByClassWrapper<T : Any> private constructor(
 private val prettyRegex = "_.".toRegex()
 fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
 fun String.doCapitalize() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+/**
+ * Simple approach to traverse dependencies transitively.
+ */
+fun Fragment.traverseDependencies(block: (FragmentDependency) -> Unit) {
+    val traversed = mutableSetOf<FragmentDependency>()
+    val blockPlusCheck: (FragmentDependency) -> Unit = {
+        if (!traversed.add(it)) error("Cyclic dependency!")
+        block(it)
+    }
+    doTraverseDependencies(blockPlusCheck)
+}
+
+private fun Fragment.doTraverseDependencies(block: (FragmentDependency) -> Unit) {
+    fragmentDependencies.forEach(block)
+    fragmentDependencies.map { it.target.doTraverseDependencies(block) }
+}

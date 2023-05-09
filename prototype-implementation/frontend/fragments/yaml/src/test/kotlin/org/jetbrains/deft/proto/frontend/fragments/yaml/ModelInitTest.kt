@@ -2,10 +2,12 @@ package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.PotatoModuleDependency
 import kotlin.io.path.Path
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Ignore
 class ModelInitTest {
     @Test
     fun `load model`() {

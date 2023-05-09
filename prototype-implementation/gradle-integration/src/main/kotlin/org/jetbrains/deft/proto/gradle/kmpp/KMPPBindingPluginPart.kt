@@ -3,6 +3,7 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
@@ -16,9 +17,11 @@ fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).app
  */
 class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
-) : BindingPluginPart by ctx {
+) : AndroidAwarePart(ctx), DeftNamingConventions {
 
-    private val kotlinMPE: KotlinMultiplatformExtension =
+    internal val fragmentsByName = module.fragments.associateBy { it.name }
+
+    internal val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
@@ -26,20 +29,20 @@ class KMPPBindingPluginPart(
         initFragments()
     }
 
-    private fun initTargets() {
-        module.artifacts.forEach { artifact ->
-            artifact.bindPlatforms.forEach { bPlatform ->
-                val targetName = bPlatform.targetName
-                val platform = bPlatform.platform
+    private fun initTargets() = with(KotlinDeftNamingConvention) {
+        module.nonTestArtifacts.forEach { artifact ->
+            artifact.fragments.forEach { fragment ->
+                val platform = fragment.platforms.singleOrNull()
+                    ?: error("Leaf fragment must have exactly one platform!")
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
                 when (platform) {
-                    Platform.ANDROID -> kotlinMPE.android(targetName)
-                    Platform.JVM -> kotlinMPE.jvm(targetName) { /*withJava()*/ }
-                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)  { adjust(artifact) }
-                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { adjust(artifact) }
-                    Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { adjust(artifact) }
-                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName) { adjust(artifact) }
-                    Platform.JS -> kotlinMPE.js(targetName)
+                    Platform.ANDROID -> kotlinMPE.android()
+                    Platform.JVM -> kotlinMPE.jvm() // FIXME move to JavaBindingPluginPart.kt and call after all source sets are done
+                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64() { adjust(artifact) }
+                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64() { adjust(artifact) }
+                    Platform.IOS_X64 -> kotlinMPE.iosX64() { adjust(artifact) }
+                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64() { adjust(artifact) }
+                    Platform.JS -> kotlinMPE.js()
                     else -> error("Unsupported platform: $platform")
                 }
             }
@@ -56,18 +59,18 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun initFragments() {
+    private fun initFragments() = with(KotlinDeftNamingConvention) {
         // Introduced function to remember to propagate language settings.
         fun KotlinSourceSet.doDependsOn(it: Fragment) {
             val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
             applyOtherFragmentsPartsRecursively(it)
-            System.err.println("DEPEND FROM $name ON ${it.name}")
-            dependsOn(wrapper.sourceSet)
+            dependsOn(wrapper.kotlinSourceSet ?: return)
         }
 
-        // Clear sources and resources for existing source sets.
-        val existingSourceSets = kotlinMPE.sourceSets.toList()
-        existingSourceSets.forEach {
+        // Clear sources and resources for non created by us source sets.
+        // Can be called after project evaluation.
+        kotlinMPE.sourceSets.all {
+            if (it.deftFragment != null) return@all
             it.kotlin.setSrcDirs(emptyList<File>())
             it.resources.setSrcDirs(emptyList<File>())
         }
@@ -92,7 +95,7 @@ class KMPPBindingPluginPart(
 
         // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
         module.fragments.forEach { fragment ->
-            val sourceSet = fragment.sourceSet
+            val sourceSet = fragment.kotlinSourceSet ?: return@forEach
 
             // Apply language settings.
             sourceSet.applyOtherFragmentsPartsRecursively(fragment)
@@ -103,29 +106,24 @@ class KMPPBindingPluginPart(
             }
 
             // Set sources and resources.
-            sourceSet.kotlin.srcDirs.clear()
-            val srcDir = fragment.src ?: fragment.srcPath
-            println(srcDir)
-            sourceSet.kotlin.srcDir(srcDir)
-            sourceSet.resources.srcDirs.clear()
-            sourceSet.resources.srcDir("${fragment.src ?: fragment.srcPath}/resources")
+            sourceSet.kotlin.srcDir(fragment.sourcePath)
+            sourceSet.resources.srcDir(fragment.resourcePath)
         }
 
         // Third iteration - adjust kotlin prebuilt source sets to match created ones.
-        println("EXISING ARTIFACTS: ${module.artifacts.joinToString { it.name }}")
         module.artifacts.forEach { artifact ->
-            println("ADJUSTING EXISING ARTIFACT: $artifact")
-            artifact.bindPlatforms.forEach inner@{ platform ->
-                val compilation = platform.compilation ?: return@inner
-                artifact.fragments.forEach {
-                    compilation.defaultSourceSet.doDependsOn(it)
+            artifact.fragments.forEach inner@{ fragment ->
+                val platform = fragment.platforms
+                    .requireSingle { "Leaf fragment must contain exactly single platform!" }
+                val target = platform.target ?: return@inner
+                with(target) {
+                    val compilation = artifact.compilation ?: return@inner
+                    val compilationSourceSet = compilation.defaultSourceSet
+                    if (compilationSourceSet != fragment.kotlinSourceSet) {
+                        compilationSourceSet.doDependsOn(fragment)
+                    }
                 }
             }
-        }
-
-        module.fragments.forEach { fragment ->
-            val possiblePrebuiltName = "${fragment.name}Main"
-            findSourceSet(possiblePrebuiltName)?.doDependsOn(fragment)
         }
 
         project.configurations.map {
@@ -160,24 +158,13 @@ class KMPPBindingPluginPart(
     }
 
     // ------
-    private val Fragment.resourcesPath get() = path.resolve("resources")
-    private fun findSourceSet(name: String) = kotlinMPE.sourceSets.findByName(name)
-    private val Fragment.sourceSet get() = kotlinMPE.sourceSets.getByName(name)
-    private fun Fragment.maybeCreateSourceSet(block: KotlinSourceSet.() -> Unit) {
-        val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
+    internal fun findSourceSet(name: String) = kotlinMPE.sourceSets.findByName(name)
+
+    private fun FragmentWrapper.maybeCreateSourceSet(
+        block: KotlinSourceSet.() -> Unit
+    ) = with(KotlinDeftNamingConvention) {
+        val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
         sourceSet.block()
     }
-
-    // Convenient agreements on naming and accessing targets and compilations.
-    private val BindPlatform.targetName: String get() =
-        if (artifact is TestArtifact) BindPlatform(platform, artifact.testFor).targetName
-        else "${artifact.name}${platform.prettySuffix}"
-    private val BindPlatform.target get() = kotlinMPE.targets.findByName(targetName)
-    private val BindPlatform.compilationName get() = when {
-        artifact is TestArtifact && artifact.testFor.name == artifact.name -> "test"
-        artifact is TestArtifact -> artifact.name
-        else -> "main"
-    }
-    private val BindPlatform.compilation get() = target?.compilations?.findByName(compilationName)
 
 }

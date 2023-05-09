@@ -8,6 +8,7 @@ data class KotlinArtifactPart(
 
 data class AndroidArtifactPart(
     val compileSdkVersion: String?,
+    val minSdkVersion: Int? = null,
 ) : ArtifactPart<AndroidArtifactPart>
 
 data class JavaApplicationArtifactPart(
@@ -34,6 +35,7 @@ interface Artifact {
     val fragments: List<Fragment>
     val platforms: Set<Platform>
     val parts: ClassBasedSet<ArtifactPart<*>>
+    val isTest get() = this is TestArtifact
 }
 
 /**

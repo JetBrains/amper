@@ -36,7 +36,7 @@ class MultipleModulesTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -45,12 +45,12 @@ class MultipleModulesTests : WithTempDir {
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,common)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -62,7 +62,7 @@ class MultipleModulesTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -71,12 +71,12 @@ class MultipleModulesTests : WithTempDir {
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,common)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -105,7 +105,7 @@ class MultipleModulesTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -119,12 +119,12 @@ class MultipleModulesTests : WithTempDir {
    sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,jvm)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -136,7 +136,7 @@ class MultipleModulesTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -150,12 +150,12 @@ class MultipleModulesTests : WithTempDir {
    sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps(${tempDir.name}:module1:unspecified)
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,jvm)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)

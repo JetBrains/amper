@@ -17,6 +17,10 @@ internal data class FragmentBuilder(
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val dependants: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
+    /**
+     * These are all variants, that this fragment should be included in.
+     * Thus, "common" fragment will contain all variants.
+     */
     val variants: MutableSet<String> = mutableSetOf(),
     var alias: String? = null,
     var src: Path? = null,
@@ -112,7 +116,7 @@ internal data class FragmentBuilder(
     data class PublishingFragmentBuilder(
         var group: String? = null,
         var version: String? = null,
-    ) {
+    var androidMinSdkVersion: Int? = null,) {
         companion object {
             operator fun invoke(block: PublishingFragmentBuilder.() -> Unit): PublishingFragmentBuilder {
                 val builder = PublishingFragmentBuilder()
@@ -242,8 +246,6 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
-                            copyFields(newFragment, element)
-                            newFragment
                         }
                         newFragment.variants.add(name)
                         add(newFragment)
@@ -416,6 +418,9 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                 platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
             }
         }
+    }
+    config.handleFragmentSettings<String>(this, "minSdkVersion") {
+        androidMinSdkVersion = it.toIntOrNull() ?: error("minSdkVersion must be integer!")
     }
 }
 

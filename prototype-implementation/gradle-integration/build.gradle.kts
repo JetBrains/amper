@@ -1,5 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.8.10"
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -30,8 +33,15 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-kotlin {
-    kotlinTestRegistry
+// Set context receivers available.
+tasks.named("compileKotlin", KotlinCompile::class) { applySettings() }
+tasks.named("compileTestKotlin", KotlinCompile::class) { applySettings() }
+
+fun KotlinCompile.applySettings() {
+    compilerOptions {
+        languageVersion.set(KotlinVersion.KOTLIN_1_9)
+        freeCompilerArgs.add("-Xcontext-receivers")
+    }
 }
 
 // Add also this tests classes as plugin classpath for running plugin.

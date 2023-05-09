@@ -22,6 +22,7 @@ internal fun prettyPrint(potato: PotatoModule): String {
             if (fragment.parts.isNotEmpty()) {
                 appendLine("  Parts: ${fragment.parts.map { it.value }}")
             }
+            appendLine("  Platforms: ${fragment.platforms}")
         }
 
         appendLine("Artifacts:")

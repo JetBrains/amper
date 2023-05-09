@@ -4,6 +4,7 @@ import org.jetbrains.deft.proto.frontend.helper.testParse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class ParserKtTest {

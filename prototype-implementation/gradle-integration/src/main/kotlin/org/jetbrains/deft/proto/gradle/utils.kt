@@ -30,3 +30,18 @@ operator fun PotatoModuleWrapper.contains(platform: Platform) =
 
 val PotatoModuleWrapper.androidNeeded get() = Platform.ANDROID in this
 val PotatoModuleWrapper.javaNeeded get() = Platform.JVM in this
+
+/**
+ * Try extract zero or single element from collection,
+ * running [onMany] in other case.
+ */
+fun <T> Collection<T>.singleOrZero(onMany: () -> Unit): T? =
+    if (size > 1) onMany().run { null }
+    else singleOrNull()
+
+/**
+ * Require exact one element, throw error otherwise.
+ */
+fun <T> Collection<T>.requireSingle(errorMessage: () -> String): T =
+    if (size > 1 || isEmpty()) error(errorMessage())
+    else first()

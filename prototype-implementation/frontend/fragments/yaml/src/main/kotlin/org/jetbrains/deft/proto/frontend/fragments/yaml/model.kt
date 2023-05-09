@@ -17,7 +17,8 @@ internal data class FragmentImpl(
     override val externalDependencies: List<Notation>,
     override val parts: ClassBasedSet<FragmentPart<*>> = emptySet(),
     override val fragmentDependants: List<FragmentLink>,
-    override val src: Path?
+    override val src: Path?,
+    override val platforms: Set<Platform>,
 ) : Fragment
 
 internal data class FragmentLinkImpl(

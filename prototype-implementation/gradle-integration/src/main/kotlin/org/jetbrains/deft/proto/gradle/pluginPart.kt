@@ -21,8 +21,8 @@ interface BindingPluginPart {
                 ?: error("No linked Gradle project found for module $userReadableName")
         )
 
+    // FIXME Rewrite path conventions completely!
     val Fragment.path get() = module.buildDir.resolve(name)
-    val Fragment.srcPath get() = path.resolve("src")
 }
 
 /**

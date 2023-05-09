@@ -34,7 +34,7 @@ class SimpleModelsTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -43,12 +43,12 @@ class SimpleModelsTests : WithTempDir {
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,common)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -74,7 +74,7 @@ class SimpleModelsTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -88,12 +88,12 @@ class SimpleModelsTests : WithTempDir {
    sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain,jvm)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -119,7 +119,7 @@ class SimpleModelsTests : WithTempDir {
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
-   depends(common)
+   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -133,17 +133,27 @@ class SimpleModelsTests : WithTempDir {
    sourceDirs(src/ios/kotlin,ios/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
+  iosArm64Main:
+   depends(commonMain,ios)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  iosArm64Test:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
   jvm:
    depends(common)
    sourceDirs(src/jvm/kotlin,jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
-   depends(commonMain,jvm,ios)
+  jvmMain:
+   depends(commonMain,jvm)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)

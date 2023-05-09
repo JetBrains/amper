@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 internal class TransformKeyTest {

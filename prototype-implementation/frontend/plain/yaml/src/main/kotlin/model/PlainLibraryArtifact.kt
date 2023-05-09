@@ -3,8 +3,16 @@ package org.jetbrains.deft.proto.frontend.model
 import org.jetbrains.deft.proto.frontend.*
 import kotlin.io.path.name
 
+
 context (BuildFileAware, Stateful<FragmentBuilder, Fragment>)
-internal class PlainLibraryArtifact(
+internal open class TestPlainLibraryArtifact(
+    mutableFragments: List<MutableFragment>,
+    platformList: List<Platform>,
+    override val testFor: Artifact,
+) : PlainLibraryArtifact(mutableFragments, platformList), TestArtifact
+
+context (BuildFileAware, Stateful<MutableFragment, Fragment>)
+internal open class PlainLibraryArtifact(
     private val fragmentBuilders: List<FragmentBuilder>,
     private val platformList: List<Platform>
 ) : Artifact {

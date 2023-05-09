@@ -1,17 +1,18 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.frontend.util.depth
-import org.jetbrains.deft.proto.frontend.util.findCommonParent
-import org.jetbrains.deft.proto.frontend.util.fragmentName
-import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
+import org.jetbrains.deft.proto.frontend.util.*
 
 /**
  * Gets cartesian product of all variants.
  */
-private fun List<Variant>.cartesian(): List<List<String>> = fold(listOf(listOf())) { acc, variant ->
-    acc + acc.flatMap { current -> variant.values.map { current + it } }
-}
+private fun List<Variant>.cartesian(): List<List<String>> = cartesianGeneric(
+    { listOf() },
+    Variant::values,
+    List<String>::plus,
+    preserveLowerDimensions = true,
+    preserveEmpty = true,
+)
 
 /**
  * Transforms a combination of variants into fragment suffix.
@@ -104,6 +105,7 @@ internal fun deduceFragments(
         .flatMap { p1 -> targetPlatforms.map { p2 -> findCommonParent(p1, p2) } }
         .toMutableSet()
     val fragmentGroupRefines = mutableMapOf<String, MutableSet<String>>()
+    val fragmentGroupPlatforms = mutableMapOf<String, MutableSet<Platform>>()
 
     for (explicitFragmentName in explicitFragments.keys) {
         val trimmedName = explicitFragmentName.trimSuffixes()
@@ -129,6 +131,16 @@ internal fun deduceFragments(
 
     val topologicallySortedGroups =
         reverseTopologicalSort(targetPlatforms.map { it.fragmentName }.toSet(), fragmentGroupRefines)
+    for (group in topologicallySortedGroups.asReversed()) {
+        val platform = getPlatformFromFragmentName(group) ?: continue
+        val refines = fragmentGroupRefines[group] ?: continue
+        val groupPlatforms = fragmentGroupPlatforms.computeIfAbsent(group) { mutableSetOf() }
+        groupPlatforms.add(platform)
+        for (refine in refines) {
+            fragmentGroupPlatforms.computeIfAbsent(refine) { mutableSetOf() }.addAll(groupPlatforms)
+        }
+    }
+
     val resultFragments = mutableMapOf<String, FragmentImpl>()
 
     val variantCombinations = variants.cartesian()
@@ -140,11 +152,13 @@ internal fun deduceFragments(
             val testName = "${testBaseName}${variantSuffix}"
             val explicitMainFragment = explicitFragments.findFragmentDefinition(groupBaseName, variantCombination)
             val explicitTestFragment = explicitFragments.findFragmentDefinition(testBaseName, variantCombination)
+            val platforms = fragmentGroupPlatforms[groupBaseName] ?: emptySet()
             val mainFragment = FragmentImpl(
                 name = name,
                 fragmentDependencies = mutableListOf(),
                 externalDependencies = explicitMainFragment?.externalDependencies ?: emptyList(),
                 parts = explicitMainFragment?.fragmentParts ?: emptySet(),
+                platforms = platforms,
                 fragmentDependants = emptyList(),
                 src = null
             )
@@ -158,6 +172,7 @@ internal fun deduceFragments(
                 ),
                 externalDependencies = explicitTestFragment?.externalDependencies ?: emptyList(),
                 parts = explicitTestFragment?.fragmentParts ?: emptySet(),
+                platforms = platforms,
                 fragmentDependants = emptyList(),
                 src = null
             )
@@ -204,7 +219,7 @@ internal fun deduceFragments(
                 if (Platform.ANDROID in targetPlatforms) {
                     val androidArtifactPart = explicitFragments.values.flatMap { it.artifactParts }
                         .find { it.clazz == AndroidArtifactPart::class.java }
-                        ?.value as? AndroidArtifactPart ?: AndroidArtifactPart("android-33")
+                        ?.value as? AndroidArtifactPart ?: AndroidArtifactPart("android-33", 24)
                     // TODO: default is a bit hacky here
                     add(ByClassWrapper(androidArtifactPart))
                 }
