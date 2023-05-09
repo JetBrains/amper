@@ -60,7 +60,7 @@ class AndroidArtifactTests : WithTempDir {
    implDeps()
   androidMain:
    depends(commonMain)
-   sourceDirs(common)
+   sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidRelease:

@@ -26,7 +26,5 @@ object AndroidDeftNamingConvention {
 
     context(AndroidBindingPluginPart)
     val FragmentWrapper.resPath
-        get() = part<KotlinFragmentPart>()?.srcFolderName?.let { "$it/res" }
-            ?: path.resolve("res").toString()
-
+        get() = src?.resolve("res")?.toFile() ?: path.resolve("res").toFile()
 }

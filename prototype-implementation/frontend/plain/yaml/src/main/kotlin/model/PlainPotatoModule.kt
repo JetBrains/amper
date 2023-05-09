@@ -77,7 +77,7 @@ internal class PlainPotatoModule(
                 // Bind test artifacts with non-test.
                 for (test in testCartesian) {
                     val foundBound = elements2Artifacts[test - "test" + "main"] ?: error("No non test artifact found for $test")
-                    val plain = TestPlainApplicationArtifact(mutableFragments, platform, test, foundBound)
+                    val plain = TestPlainApplicationArtifact(fragmentBuilders, platform, test, foundBound)
                     elements2Artifacts[test] = plain
                     add(plain)
                 }

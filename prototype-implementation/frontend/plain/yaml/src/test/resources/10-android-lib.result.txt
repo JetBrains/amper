@@ -1,21 +1,24 @@
 Module {{ userReadableName }}
 Fragments:
   android
-    External dependencies: []
+    External dependencies:
+    Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=src)
   androidTest
-    External dependencies: []
+    External dependencies:
+    Src folder: test
     Fragment dependencies:
       android (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=1.8, progressiveMode=false, languageFeatures=[], optIns=[], srcFolderName=test)
 Artifacts:
   isTest: false
   [ANDROID]
     Fragments:
       android
+    Parts:
+  isTest: false
+  [ANDROID]
+    Fragments:
       androidTest
     Parts:
-      AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=null)

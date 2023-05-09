@@ -45,12 +45,12 @@ class FragmentPartsTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,common)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),

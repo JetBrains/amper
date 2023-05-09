@@ -39,7 +39,6 @@ tasks.test {
 fun KotlinCompile.applySettings() {
     javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
     compilerOptions {
-        languageVersion.set(KotlinVersion.KOTLIN_1_9)
         freeCompilerArgs.add("-Xcontext-receivers")
     }
 }

@@ -47,12 +47,12 @@ class MultipleModulesTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,common)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :module2
@@ -73,12 +73,12 @@ class MultipleModulesTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,common)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
@@ -121,12 +121,12 @@ class MultipleModulesTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,jvm)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :module2
@@ -152,12 +152,12 @@ class MultipleModulesTests : WithTempDir {
    implDeps(${tempDir.name}:module1:unspecified)
   jvmMain:
    depends(commonMain,jvm)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),

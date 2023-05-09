@@ -6,12 +6,12 @@ import kotlin.io.path.name
 
 context (BuildFileAware, Stateful<FragmentBuilder, Fragment>)
 internal open class TestPlainLibraryArtifact(
-    mutableFragments: List<MutableFragment>,
+    mutableFragments: List<FragmentBuilder>,
     platformList: List<Platform>,
     override val testFor: Artifact,
 ) : PlainLibraryArtifact(mutableFragments, platformList), TestArtifact
 
-context (BuildFileAware, Stateful<MutableFragment, Fragment>)
+context (BuildFileAware, Stateful<FragmentBuilder, Fragment>)
 internal open class PlainLibraryArtifact(
     private val fragmentBuilders: List<FragmentBuilder>,
     private val platformList: List<Platform>

@@ -103,6 +103,7 @@ internal data class FragmentBuilder(
 
     data class AndroidFragmentBuilder(
         var compileSdkVersion: String? = null,
+        var androidMinSdkVersion: Int? = null,
     ) {
         companion object {
             operator fun invoke(block: AndroidFragmentBuilder.() -> Unit): AndroidFragmentBuilder {
@@ -116,7 +117,8 @@ internal data class FragmentBuilder(
     data class PublishingFragmentBuilder(
         var group: String? = null,
         var version: String? = null,
-    var androidMinSdkVersion: Int? = null,) {
+        var androidMinSdkVersion: Int? = null,
+    ) {
         companion object {
             operator fun invoke(block: PublishingFragmentBuilder.() -> Unit): PublishingFragmentBuilder {
                 val builder = PublishingFragmentBuilder()
@@ -246,6 +248,8 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
+                            copyFields(newFragment, element)
+                            newFragment
                         }
                         newFragment.variants.add(name)
                         add(newFragment)
@@ -418,9 +422,12 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                 platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
             }
         }
-    }
-    config.handleFragmentSettings<String>(this, "minSdkVersion") {
-        androidMinSdkVersion = it.toIntOrNull() ?: error("minSdkVersion must be integer!")
+        it.getValue<Settings>("android")?.let { androidSettings ->
+            android = FragmentBuilder.AndroidFragmentBuilder {
+                compileSdkVersion = androidSettings.getValue<String>("compileSdkVersion")
+                androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
+            }
+        }
     }
 }
 

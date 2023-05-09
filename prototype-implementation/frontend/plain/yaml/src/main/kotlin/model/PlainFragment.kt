@@ -35,6 +35,8 @@ internal class PlainFragment(
                 add(ByClassWrapper(TestFragmentPart(it.platformEnabled)))
             }
         }
+    override val platforms: Set<Platform>
+        get() = fragmentBuilder.platforms
     override val src: Path?
         get() = fragmentBuilder.src
 }

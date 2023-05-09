@@ -5,13 +5,13 @@ import org.jetbrains.deft.proto.frontend.*
 
 context (Stateful<FragmentBuilder, Fragment>)
 internal open class TestPlainApplicationArtifact(
-    mutableFragments: List<MutableFragment>,
+    mutableFragments: List<FragmentBuilder>,
     platform: Platform,
     cartesianElement: Set<String>,
     override val testFor: Artifact,
 ) : PlainApplicationArtifact(mutableFragments, platform, cartesianElement), TestArtifact
 
-context (Stateful<MutableFragment, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>)
 internal open class PlainApplicationArtifact(
     private val fragmentBuilders: List<FragmentBuilder>,
     private val platform: Platform,

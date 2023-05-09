@@ -19,7 +19,7 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-    isTest: true
+  isTest: true
   [JVM]
     Fragments:
       jvmTest

@@ -1,40 +1,10 @@
 Module {{ userReadableName }}
 Fragments:
-  jvm
-    External dependencies:
-    Src folder: src@jvm
-    Fragment dependencies:
-      common (REFINE)
-    Parts:
   android
     External dependencies:
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
-    Parts:
-  ios
-    External dependencies:
-    Src folder: src@ios
-    Fragment dependencies:
-      common (REFINE)
-    Parts:
-  js
-    External dependencies:
-    Src folder: src@js
-    Fragment dependencies:
-      common (REFINE)
-    Parts:
-  common
-    External dependencies:
-    Src folder: src
-    Fragment dependencies:
-    Parts:
-  jvmTest
-    External dependencies:
-    Src folder: test@jvm
-    Fragment dependencies:
-      commonTest (REFINE)
-      jvm (FRIEND)
     Parts:
   androidTest
     External dependencies:
@@ -43,12 +13,35 @@ Fragments:
       commonTest (REFINE)
       android (FRIEND)
     Parts:
+  common
+    External dependencies:
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+  commonTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      common (FRIEND)
+    Parts:
+  ios
+    External dependencies:
+    Src folder: src@ios
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
   iosTest
     External dependencies:
     Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
       ios (FRIEND)
+    Parts:
+  js
+    External dependencies:
+    Src folder: src@js
+    Fragment dependencies:
+      common (REFINE)
     Parts:
   jsTest
     External dependencies:
@@ -57,13 +50,21 @@ Fragments:
       commonTest (REFINE)
       js (FRIEND)
     Parts:
-  commonTest
+  jvm
     External dependencies:
-    Src folder: test
+    Src folder: src@jvm
     Fragment dependencies:
-      common (FRIEND)
+      common (REFINE)
+    Parts:
+  jvmTest
+    External dependencies:
+    Src folder: test@jvm
+    Fragment dependencies:
+      commonTest (REFINE)
+      jvm (FRIEND)
     Parts:
 Artifacts:
+  isTest: false
   [JVM, ANDROID, IOS_ARM64, JS]
     Fragments:
       jvm
@@ -71,6 +72,7 @@ Artifacts:
       ios
       js
     Parts:
+  isTest: false
   [JVM, ANDROID, IOS_ARM64, JS]
     Fragments:
       jvmTest

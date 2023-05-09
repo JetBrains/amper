@@ -21,10 +21,12 @@ Fragments:
       jvm (FRIEND)
     Parts:
 Artifacts:
+  isTest: false
   [JVM]
     Fragments:
       jvm
     Parts:
+  isTest: false
   [JVM]
     Fragments:
       jvmTest

@@ -26,16 +26,16 @@ fun String.doCapitalize() = this.replaceFirstChar { if (it.isLowerCase()) it.tit
 /**
  * Simple approach to traverse dependencies transitively.
  */
-fun Fragment.traverseDependencies(block: (FragmentDependency) -> Unit) {
-    val traversed = mutableSetOf<FragmentDependency>()
-    val blockPlusCheck: (FragmentDependency) -> Unit = {
+fun Fragment.traverseDependencies(block: (FragmentLink) -> Unit) {
+    val traversed = mutableSetOf<FragmentLink>()
+    val blockPlusCheck: (FragmentLink) -> Unit = {
         if (!traversed.add(it)) error("Cyclic dependency!")
         block(it)
     }
     doTraverseDependencies(blockPlusCheck)
 }
 
-private fun Fragment.doTraverseDependencies(block: (FragmentDependency) -> Unit) {
+private fun Fragment.doTraverseDependencies(block: (FragmentLink) -> Unit) {
     fragmentDependencies.forEach(block)
     fragmentDependencies.map { it.target.doTraverseDependencies(block) }
 }

@@ -14,12 +14,10 @@ interface DeftNamingConventions : BindingPluginPart {
 
     // TODO Replace by Path, but evade recursion in AGP.
     val FragmentWrapper.sourcePath
-        get() = part<KotlinFragmentPart>()?.srcFolderName
-            ?: path.resolve("src").toString()
+        get() = src?.toFile() ?: path.resolve("src").toFile()
 
     // TODO Replace by Path, but evade recursion in AGP.
     val FragmentWrapper.resourcePath
-        get() = part<KotlinFragmentPart>()?.srcFolderName?.let { "$it/resources" }
-            ?: path.resolve("resource").toString()
+        get() = src?.resolve("resources")?.toFile() ?: path.resolve("resources").toFile()
 
 }

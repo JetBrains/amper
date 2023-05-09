@@ -45,12 +45,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,common)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
@@ -90,12 +90,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,jvm)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
@@ -150,12 +150,12 @@ class SimpleModelsTests : WithTempDir {
    implDeps()
   jvmMain:
    depends(commonMain,jvm)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
             """.trimIndent(),
