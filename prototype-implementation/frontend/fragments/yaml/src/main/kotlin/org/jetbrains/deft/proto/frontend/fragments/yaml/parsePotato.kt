@@ -146,8 +146,9 @@ private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaApplicationArt
 }
 
 private fun parseAndroidArtifactPart(fragment: Map<String, Any>): AndroidArtifactPart? {
-    val compileSdkVersion = fragment["compileSdkVersion"] as String? ?: return null
-    return AndroidArtifactPart(compileSdkVersion)
+    val compileSdkVersion = fragment["compileSdkVersion"] as? String ?: return null
+    val minSdkVersion = fragment["minSdkVersion"] as? Int
+    return AndroidArtifactPart(compileSdkVersion, minSdkVersion)
 }
 
 private fun parseKotlinFragmentPart(kotlinSettings: Map<String, Any>): KotlinFragmentPart {

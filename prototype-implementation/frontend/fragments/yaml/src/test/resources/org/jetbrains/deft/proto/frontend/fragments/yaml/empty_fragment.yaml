@@ -12,15 +12,19 @@ common: ~
 # - common
 #   Fragment dependencies: []
 #   External dependencies: []
+#   Platforms: [JVM, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
 #   External dependencies: []
+#   Platforms: [JVM, COMMON]
 # - jvm
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [JVM]
 # - jvmTest
 #   Fragment dependencies: [jvm [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [JVM]
 # Artifacts:
 # - Built from [jvm]
 #   For platforms [JVM]

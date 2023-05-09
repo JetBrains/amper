@@ -11,21 +11,27 @@ platforms:
 # - ios
 #   Fragment dependencies: []
 #   External dependencies: []
+#   Platforms: [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS]
 # - iosTest
 #   Fragment dependencies: [ios [FRIEND]]
 #   External dependencies: []
+#   Platforms: [IOS_SIMULATOR_ARM64, IOS_ARM64, IOS]
 # - iosArm64
 #   Fragment dependencies: [ios [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], iosTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosSimulatorArm64
 #   Fragment dependencies: [ios [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_SIMULATOR_ARM64]
 # - iosSimulatorArm64Test
 #   Fragment dependencies: [iosSimulatorArm64 [FRIEND], iosTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_SIMULATOR_ARM64]
 # Artifacts:
 # - Built from [iosArm64]
 #   For platforms [IOS_ARM64]

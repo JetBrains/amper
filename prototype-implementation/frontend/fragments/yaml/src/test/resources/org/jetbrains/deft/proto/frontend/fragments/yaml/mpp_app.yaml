@@ -29,165 +29,219 @@ iosArm64+paid:
 # - common
 #   Fragment dependencies: []
 #   External dependencies: [MavenDependency(coordinates=foo:1.0)]
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
 #   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonDebug
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestDebug
 #   Fragment dependencies: [commonDebug [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonRelease
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestRelease
 #   Fragment dependencies: [commonRelease [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonPaid
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0)]
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestPaid
 #   Fragment dependencies: [commonPaid [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonFree
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestFree
 #   Fragment dependencies: [commonFree [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonDebugPaid
 #   Fragment dependencies: [commonDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestDebugPaid
 #   Fragment dependencies: [commonDebugPaid [FRIEND], commonTestDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonDebugFree
 #   Fragment dependencies: [commonDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestDebugFree
 #   Fragment dependencies: [commonDebugFree [FRIEND], commonTestDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonReleasePaid
 #   Fragment dependencies: [commonRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestReleasePaid
 #   Fragment dependencies: [commonReleasePaid [FRIEND], commonTestRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonReleaseFree
 #   Fragment dependencies: [commonRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestReleaseFree
 #   Fragment dependencies: [commonReleaseFree [FRIEND], commonTestRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
+#   Platforms: [IOS_ARM64]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64Debug
 #   Fragment dependencies: [iosArm64 [REFINE], commonDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestDebug
 #   Fragment dependencies: [iosArm64Debug [FRIEND], iosArm64Test [REFINE], commonTestDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64Release
 #   Fragment dependencies: [iosArm64 [REFINE], commonRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestRelease
 #   Fragment dependencies: [iosArm64Release [FRIEND], iosArm64Test [REFINE], commonTestRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64Paid
 #   Fragment dependencies: [iosArm64 [REFINE], commonPaid [REFINE]]
 #   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0)]
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestPaid
 #   Fragment dependencies: [iosArm64Paid [FRIEND], iosArm64Test [REFINE], commonTestPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64Free
 #   Fragment dependencies: [iosArm64 [REFINE], commonFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestFree
 #   Fragment dependencies: [iosArm64Free [FRIEND], iosArm64Test [REFINE], commonTestFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64DebugPaid
 #   Fragment dependencies: [iosArm64Debug [REFINE], commonDebugPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestDebugPaid
 #   Fragment dependencies: [iosArm64DebugPaid [FRIEND], iosArm64TestDebug [REFINE], commonTestDebugPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64DebugFree
 #   Fragment dependencies: [iosArm64Debug [REFINE], commonDebugFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestDebugFree
 #   Fragment dependencies: [iosArm64DebugFree [FRIEND], iosArm64TestDebug [REFINE], commonTestDebugFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64ReleasePaid
 #   Fragment dependencies: [iosArm64Release [REFINE], commonReleasePaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestReleasePaid
 #   Fragment dependencies: [iosArm64ReleasePaid [FRIEND], iosArm64TestRelease [REFINE], commonTestReleasePaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64ReleaseFree
 #   Fragment dependencies: [iosArm64Release [REFINE], commonReleaseFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - iosArm64TestReleaseFree
 #   Fragment dependencies: [iosArm64ReleaseFree [FRIEND], iosArm64TestRelease [REFINE], commonTestReleaseFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - android
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTest
 #   Fragment dependencies: [android [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidDebug
 #   Fragment dependencies: [android [REFINE], commonDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestDebug
 #   Fragment dependencies: [androidDebug [FRIEND], androidTest [REFINE], commonTestDebug [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidRelease
 #   Fragment dependencies: [android [REFINE], commonRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestRelease
 #   Fragment dependencies: [androidRelease [FRIEND], androidTest [REFINE], commonTestRelease [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidPaid
 #   Fragment dependencies: [android [REFINE], commonPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestPaid
 #   Fragment dependencies: [androidPaid [FRIEND], androidTest [REFINE], commonTestPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidFree
 #   Fragment dependencies: [android [REFINE], commonFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestFree
 #   Fragment dependencies: [androidFree [FRIEND], androidTest [REFINE], commonTestFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidDebugPaid
 #   Fragment dependencies: [androidDebug [REFINE], commonDebugPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestDebugPaid
 #   Fragment dependencies: [androidDebugPaid [FRIEND], androidTestDebug [REFINE], commonTestDebugPaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidDebugFree
 #   Fragment dependencies: [androidDebug [REFINE], commonDebugFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestDebugFree
 #   Fragment dependencies: [androidDebugFree [FRIEND], androidTestDebug [REFINE], commonTestDebugFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidReleasePaid
 #   Fragment dependencies: [androidRelease [REFINE], commonReleasePaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestReleasePaid
 #   Fragment dependencies: [androidReleasePaid [FRIEND], androidTestRelease [REFINE], commonTestReleasePaid [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidReleaseFree
 #   Fragment dependencies: [androidRelease [REFINE], commonReleaseFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTestReleaseFree
 #   Fragment dependencies: [androidReleaseFree [FRIEND], androidTestRelease [REFINE], commonTestReleaseFree [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # Artifacts:
 # - Built from [iosArm64DebugPaid]
 #   For platforms [IOS_ARM64]

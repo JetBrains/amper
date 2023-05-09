@@ -15,8 +15,8 @@ internal data class FragmentImpl(
     override val name: String,
     override val fragmentDependencies: MutableList<FragmentDependencyImpl>,
     override val externalDependencies: List<Notation>,
-    override val parts: ClassBasedSet<FragmentPart<*>> = emptySet(),
-    override val platforms: Set<Platform> = TODO()
+    override val parts: ClassBasedSet<FragmentPart<*>>,
+    override val platforms: Set<Platform>,
 ) : Fragment
 
 internal data class FragmentDependencyImpl(

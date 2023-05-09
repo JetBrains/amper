@@ -20,22 +20,28 @@ iosArm64:
 # - common
 #   Fragment dependencies: []
 #   External dependencies: [MavenDependency(coordinates=foo:1.0)]
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
 #   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
+#   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
+#   Platforms: [IOS_ARM64]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [IOS_ARM64]
 # - android
 #   Fragment dependencies: [common [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # - androidTest
 #   Fragment dependencies: [android [FRIEND], commonTest [REFINE]]
 #   External dependencies: []
+#   Platforms: [ANDROID]
 # Artifacts:
 # - Built from [common, commonTest, iosArm64, iosArm64Test, android, androidTest]
 #   For platforms [IOS_ARM64, ANDROID]
-#   Parts: [AndroidArtifactPart(compileSdkVersion=android-33)]
+#   Parts: [AndroidArtifactPart(compileSdkVersion=android-33, minSdkVersion=24)]
