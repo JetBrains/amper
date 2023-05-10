@@ -4,7 +4,6 @@ product:
 
 settings:
   publishing:
-    enabled: true
     group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
     version: 1.0-SNAPSHOT
 

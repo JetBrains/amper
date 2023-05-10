@@ -24,19 +24,11 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+")
 }
 
-tasks.named("compileKotlin", KotlinCompile::class) {
-    applySettings()
-}
-
-tasks.named("compileTestKotlin", KotlinCompile::class) {
-    applySettings()
-}
-
 tasks.test {
     useJUnitPlatform()
 }
 
-fun KotlinCompile.applySettings() {
+tasks.withType(KotlinCompile::class).configureEach {
     javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-receivers")

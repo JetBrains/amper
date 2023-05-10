@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.7.21"
     `maven-publish`
@@ -8,6 +10,7 @@ version = "1.0-SNAPSHOT"
 
 dependencies {
     testImplementation(kotlin("test"))
+
 }
 
 publishing {
@@ -15,6 +18,14 @@ publishing {
         create<MavenPublication>(project.name) {
             from(components["java"])
         }
+    }
+}
+
+
+tasks.withType(KotlinCompile::class).configureEach {
+    javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xcontext-receivers")
     }
 }
 

@@ -11,8 +11,7 @@ interface PotatoModuleDependency : Notation {
 data class MavenDependency(val coordinates: String) : Notation
 
 enum class FragmentDependencyType {
-    REFINE,
-    FRIEND,
+    REFINE, FRIEND,
 }
 
 /**
@@ -24,7 +23,9 @@ interface FragmentLink {
     val type: FragmentDependencyType
 }
 
-sealed interface FragmentPart<SelfT>
+sealed interface FragmentPart<SelfT> {
+    context (Fragment) fun propagate(): FragmentPart<SelfT>
+}
 
 data class KotlinFragmentPart(
     val languageVersion: String?,
@@ -32,9 +33,54 @@ data class KotlinFragmentPart(
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
-) : FragmentPart<KotlinFragmentPart>
+) : FragmentPart<KotlinFragmentPart> {
+    context (Fragment) override fun propagate(): KotlinFragmentPart {
 
-data class TestFragmentPart(val junitPlatform: Boolean?): FragmentPart<TestFragmentPart>
+        var part: KotlinFragmentPart? = null
+
+        for (fragmentDependency in fragmentDependencies) {
+            val fragment = fragmentDependency.target
+
+            fragment.parts.firstOrNull { it.clazz == KotlinFragmentPart::class.java }?.let {
+                val propagatedPart = with(fragment) { (it.value as KotlinFragmentPart).propagate() }
+                part = if (part == null) {
+                    propagatedPart
+                } else {
+                    KotlinFragmentPart(
+                        propagatedPart.languageVersion ?: part!!.languageVersion,
+                        propagatedPart.apiVersion ?: part!!.apiVersion,
+                        propagatedPart.progressiveMode ?: part!!.progressiveMode,
+                        propagatedPart.languageFeatures + part!!.languageFeatures,
+                        propagatedPart.optIns + part!!.optIns,
+                    )
+                }
+            }
+        }
+
+        return part ?: this
+    }
+}
+
+data class TestFragmentPart(val junitPlatform: Boolean?) : FragmentPart<TestFragmentPart> {
+    context (Fragment) override fun propagate(): TestFragmentPart {
+        var part: TestFragmentPart? = null
+
+        for (fragmentDependency in fragmentDependencies) {
+            val fragment = fragmentDependency.target
+
+            fragment.parts.firstOrNull { it.clazz == TestFragmentPart::class.java }?.let {
+                val propagatedPart = with(fragment) { (it.value as TestFragmentPart).propagate() }
+                part = if (part == null) {
+                    propagatedPart
+                } else {
+                    TestFragmentPart(propagatedPart.junitPlatform ?: part!!.junitPlatform)
+                }
+            }
+        }
+
+        return part!!
+    }
+}
 
 /**
  * Some part of the module that supports "single resolve context" invariant for
