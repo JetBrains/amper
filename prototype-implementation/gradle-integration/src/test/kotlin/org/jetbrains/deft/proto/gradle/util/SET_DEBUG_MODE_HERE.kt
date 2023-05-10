@@ -5,4 +5,4 @@ package org.jetbrains.deft.proto.gradle.util
  * Also applies some hacks, see [bypassTestkitDebugEnvRestriction.kt]
  * and [setUpGradleProjectDir].
  */
-const val withDebug = true
+const val withDebug = false
