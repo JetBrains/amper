@@ -4,7 +4,9 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.InvalidPluginMetadataException
 import org.jetbrains.deft.proto.gradle.MockModelHandle
+import org.junit.jupiter.api.Assertions
 import java.io.File
+import java.util.*
 
 
 /**
@@ -44,3 +46,26 @@ fun setUpGradleProjectDir(root: File) {
         """
     settingsFile.writeText(settingsFileContent.trimIndent())
 }
+
+// Need to be inlined, since looks for trace.
+inline val currentTestName get(): String = run {
+    val currentTrace = Thread.currentThread().stackTrace
+    println(currentTrace.map { it.methodName })
+    currentTrace[1].let { "${it.decapitalizedSimpleName}/${it.methodName}" }
+}
+
+val StackTraceElement.decapitalizedSimpleName get() =
+        className.substringAfterLast(".").replaceFirstChar { it.lowercase(Locale.getDefault()) }
+
+// Need to be inlined, since looks for trace.
+@Suppress("NOTHING_TO_INLINE")
+inline fun WithTempDir.assertEqualsWithCurrentTestResource(actual: String) =
+        assertEqualsWithResource("testAssets/$currentTestName", actual)
+
+fun WithTempDir.assertEqualsWithResource(expectedResourceName: String, actual: String) =
+        Thread.currentThread().contextClassLoader
+                .getResource(expectedResourceName)
+                ?.readText()
+                ?.replace("\$TEMP_DIR_NAME", tempDir.name)
+                ?.let { Assertions.assertEquals(it, actual) }
+                ?: error("No resource $expectedResourceName!")

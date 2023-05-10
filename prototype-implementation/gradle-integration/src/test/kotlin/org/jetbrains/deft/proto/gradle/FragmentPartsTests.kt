@@ -26,37 +26,7 @@ class FragmentPartsTests : WithTempDir {
 
         val extracted = runResult.output.extractSourceInfoOutput()
 
-        assertEquals(
-            """
-:
-  common:
-   depends()
-   sourceDirs(common)
-   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
-   implDeps()
-  commonMain:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends(commonMain,common)
-   sourceDirs()
-   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
-   implDeps()
-  jvmTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-            """.trimIndent(),
-            extracted
-        )
+        assertEqualsWithCurrentTestResource(extracted)
     }
 
 }
