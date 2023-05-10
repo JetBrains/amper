@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
+import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
 

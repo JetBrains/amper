@@ -5,9 +5,9 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JavaApplicationArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.gradle.DeftNamingConventions
-import org.jetbrains.deft.proto.gradle.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.deft.proto.gradle.part
@@ -22,7 +22,7 @@ fun applyJavaAttributes(ctx: PluginPartCtx) = JavaBindingPluginPart(ctx).apply()
  * Plugin logic, bind to specific module, when only default target is available.
  */
 class JavaBindingPluginPart(
-    ctx: PluginPartCtx,
+        ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.JVM), KMPEAware, DeftNamingConventions {
 
     companion object {

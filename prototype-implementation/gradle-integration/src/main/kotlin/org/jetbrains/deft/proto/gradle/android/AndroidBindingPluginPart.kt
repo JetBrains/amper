@@ -3,16 +3,16 @@ package org.jetbrains.deft.proto.gradle.android
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.gradle.DeftNamingConventions
-import org.jetbrains.deft.proto.gradle.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.part
 
 fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
-    ctx: PluginPartCtx,
+        ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.ANDROID), DeftNamingConventions {
 
     internal val androidPE = project.extensions.findByName("android") as BaseExtension?
@@ -25,7 +25,7 @@ open class AndroidAwarePart(
  * Plugin logic, bind to specific module, when only default target is available.
  */
 class AndroidBindingPluginPart(
-    ctx: PluginPartCtx,
+        ctx: PluginPartCtx,
 ) : AndroidAwarePart(ctx) {
 
     /**

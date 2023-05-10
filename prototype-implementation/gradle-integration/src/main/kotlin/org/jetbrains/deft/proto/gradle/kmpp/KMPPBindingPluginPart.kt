@@ -4,6 +4,9 @@ import org.gradle.api.attributes.Attribute
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
+import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
@@ -21,7 +24,7 @@ fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).app
  * Plugin logic, bind to specific module, when multiple targets are available.
  */
 class KMPPBindingPluginPart(
-    ctx: PluginPartCtx,
+        ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
 
     private val androidAware = AndroidAwarePart(ctx)

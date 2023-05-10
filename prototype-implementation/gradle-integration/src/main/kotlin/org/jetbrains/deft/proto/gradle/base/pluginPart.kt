@@ -1,7 +1,8 @@
-package org.jetbrains.deft.proto.gradle
+package org.jetbrains.deft.proto.gradle.base
 
 import org.gradle.api.Project
 import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.gradle.*
 import java.nio.file.Path
 
 /**

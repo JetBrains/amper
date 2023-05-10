@@ -1,7 +1,8 @@
-package org.jetbrains.deft.proto.gradle
+package org.jetbrains.deft.proto.gradle.base
 
 import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
-import kotlin.io.path.Path
+import org.jetbrains.deft.proto.gradle.FragmentWrapper
+import org.jetbrains.deft.proto.gradle.part
 
 /**
  * Basic deft layout naming conventions.
