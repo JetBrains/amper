@@ -4,6 +4,11 @@ import org.gradle.api.attributes.Attribute
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragment
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
@@ -17,11 +22,13 @@ fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).app
  */
 class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
-) : AndroidAwarePart(ctx), DeftNamingConventions {
+) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
+
+    private val androidAware = AndroidAwarePart(ctx)
 
     internal val fragmentsByName = module.fragments.associateBy { it.name }
 
-    internal val kotlinMPE: KotlinMultiplatformExtension =
+    override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
@@ -59,7 +66,7 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun initFragments() = with(KotlinDeftNamingConvention) {
+    private fun initFragments() = with(androidAware) {
         // Introduced function to remember to propagate language settings.
         fun KotlinSourceSet.doDependsOn(it: Fragment) {
             val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
@@ -162,7 +169,7 @@ class KMPPBindingPluginPart(
 
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit
-    ) = with(KotlinDeftNamingConvention) {
+    ) = with(androidAware) {
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
         sourceSet.block()
     }

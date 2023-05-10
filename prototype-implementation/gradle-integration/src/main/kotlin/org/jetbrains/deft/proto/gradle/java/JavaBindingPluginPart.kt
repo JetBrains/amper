@@ -2,9 +2,15 @@ package org.jetbrains.deft.proto.gradle.java
 
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JavaApplicationArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.deft.proto.gradle.DeftNamingConventions
+import org.jetbrains.deft.proto.gradle.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
+import org.jetbrains.deft.proto.gradle.part
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.slf4j.Logger
@@ -17,7 +23,7 @@ fun applyJavaAttributes(ctx: PluginPartCtx) = JavaBindingPluginPart(ctx).apply()
  */
 class JavaBindingPluginPart(
     ctx: PluginPartCtx,
-) : BindingPluginPart by ctx, DeftNamingConventions {
+) : SpecificPlatformPluginPart(ctx, Platform.JVM), KMPEAware, DeftNamingConventions {
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger("some-logger")
@@ -25,7 +31,9 @@ class JavaBindingPluginPart(
 
     private val javaAPE: JavaApplication = project.extensions.getByType(JavaApplication::class.java)
 
-    internal val kotlinMPE: KotlinMultiplatformExtension =
+    internal val javaPE: JavaPluginExtension = project.extensions.getByType(JavaPluginExtension::class.java)
+
+    override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
@@ -51,7 +59,7 @@ class JavaBindingPluginPart(
         }
     }
 
-    private fun adjustJavaSourceSets() = with(JavaDeftNamingConvention) {
+    private fun adjustJavaSourceSets() {
         project.plugins.apply(JavaPlugin::class.java)
 
         // This one is launched after all kotlin source sets are created, so it's ok.

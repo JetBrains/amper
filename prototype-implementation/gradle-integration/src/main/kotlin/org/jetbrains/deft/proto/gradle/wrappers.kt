@@ -25,10 +25,14 @@ class PotatoModuleWrapper(
 
 fun Artifact.wrap() = if (this is TestArtifact) TestArtifactWrapper(this) else ArtifactWrapper(this)
 
+interface PlatformAware {
+    val platforms: Set<Platform>
+}
+
 @Suppress("LeakingThis")
 open class ArtifactWrapper(
     artifact: Artifact
-) : Artifact by artifact {
+) : Artifact by artifact, PlatformAware {
     val bindPlatforms: Set<BindPlatform> = platforms.map { BindPlatform(it, this) }.toSet()
     // Actually, duplicating [FragmentWrapper] objects here but ok for prototyping.
     override val fragments = artifact.fragments.map { FragmentWrapper(it) }
@@ -46,7 +50,7 @@ class TestArtifactWrapper(
 
 class FragmentWrapper(
     private val fragment: Fragment
-) : Fragment by fragment {
+) : Fragment by fragment, PlatformAware {
     private val partsByClass = parts.associate { it.clazz to it.value }
     operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
 }
