@@ -15,10 +15,15 @@ object JavaDeftNamingConvention {
         }
 
     context(JavaBindingPluginPart)
-    val FragmentWrapper.javaSourceSet: SourceSet?
-        get() = javaPE.sourceSets.findByName(javaSourceSetName)
+    val SourceSet.deftFragment
+        get(): FragmentWrapper? = when (this.name) {
+            "main" -> leafNonTestFragment
+            "test" -> leafTestFragment
+            else -> module.fragmentsByName[name]
+        }
 
     context(JavaBindingPluginPart)
-    fun FragmentWrapper.maybeCreateJavaSourceSet(block: SourceSet.() -> Unit) = javaPE.sourceSets.maybeCreate(javaSourceSetName).block()
+    fun FragmentWrapper.maybeCreateJavaSourceSet(block: SourceSet.() -> Unit) =
+            javaPE.sourceSets.maybeCreate(javaSourceSetName).block()
 
 }

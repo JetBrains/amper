@@ -49,6 +49,9 @@ open class SpecificPlatformPluginPart(
 
     private val platformTestArtifacts = platformArtifacts.filter { it.isTest }
 
+    @Suppress("LeakingThis")
+    val platformFragments = module.fragments.filterByPlatform(platform)
+
     internal val leafNonTestFragment = if (platformArtifacts.isEmpty()) null else {
         val artifact = platformNonTestArtifacts.requireSingle {
             "There must be exactly one non test ${platform.pretty} artifact!"

@@ -116,8 +116,8 @@ class KMPPBindingPluginPart(
             }
 
             // Set sources and resources.
-            sourceSet.kotlin.srcDir(fragment.sourcePath)
-            sourceSet.resources.srcDir(fragment.resourcePath)
+            sourceSet.kotlin.setSrcDirs(fragment.sourcePaths)
+            sourceSet.resources.setSrcDirs(fragment.resourcePaths)
         }
 
         // Third iteration - adjust kotlin prebuilt source sets to match created ones.

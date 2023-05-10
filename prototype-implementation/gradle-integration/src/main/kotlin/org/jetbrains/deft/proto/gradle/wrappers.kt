@@ -19,6 +19,7 @@ class PotatoModuleWrapper(
 ) : PotatoModule by passedModule {
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
     override val fragments = passedModule.fragments.map { FragmentWrapper(it) }
+    val fragmentsByName by lazy { fragments.associateBy { it.name } }
     override val artifacts = passedModule.artifacts.map { it.wrap() }
     val nonTestArtifacts by lazy { artifacts.filter { it !is TestArtifact } }
 }

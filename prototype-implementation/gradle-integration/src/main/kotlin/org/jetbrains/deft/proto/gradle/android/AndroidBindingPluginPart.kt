@@ -44,10 +44,10 @@ class AndroidBindingPluginPart(
         androidSourceSets?.all {
             val fragment = it.deftFragment
             if (fragment != null) {
-                it.kotlin.srcDir(fragment.sourcePath)
-                it.java.srcDir(fragment.sourcePath)
-                it.resources.srcDir(fragment.resourcePath)
-                it.res.srcDir(fragment.androidResPath)
+                it.kotlin.setSrcDirs(fragment.sourcePaths)
+                it.java.setSrcDirs(fragment.sourcePaths)
+                it.resources.setSrcDirs(fragment.resourcePaths)
+                it.res.setSrcDirs(fragment.androidResPaths)
                 it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
             } else {
                 it.kotlin.setSrcDirs(emptyList<Any>())
