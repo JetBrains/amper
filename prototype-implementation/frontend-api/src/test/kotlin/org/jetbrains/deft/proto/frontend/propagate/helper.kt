@@ -112,10 +112,17 @@ class PotatoModuleBuilder(var name: String) {
     val fragments: MutableList<FragmentBuilder> = mutableListOf()
     private val artifacts: MutableList<Artifact> = mutableListOf()
 
-    fun fragment(name: String, init: FragmentBuilder.() -> Unit) {
+    fun fragment(name: String, init: FragmentBuilder.() -> Unit): FragmentBuilder {
         val builder = FragmentBuilder(name)
         builder.init()
         fragments.add(builder)
+        return builder
+    }
+
+    fun artifact(init: ArtifactBuilder.() -> Unit) {
+        val builder = ArtifactBuilder()
+        builder.init()
+        artifacts.add(builder.build())
     }
 
     fun build(): PotatoModule {
@@ -131,5 +138,44 @@ class PotatoModuleBuilder(var name: String) {
             override val artifacts: List<Artifact>
                 get() = this@PotatoModuleBuilder.artifacts
         }
+    }
+}
+
+class ArtifactBuilder {
+    var name = ""
+    private val fragments: MutableList<FragmentBuilder> = mutableListOf()
+    private val platforms: MutableSet<Platform> = mutableSetOf()
+    private val parts: MutableSet<ByClassWrapper<ArtifactPart<*>>> = mutableSetOf()
+
+    fun fragment(fragmentBuilder: FragmentBuilder) {
+        fragments.add(fragmentBuilder)
+    }
+
+    fun javaPart(init: JavaArtifactPartBuilder.() -> Unit) {
+        val builder = JavaArtifactPartBuilder()
+        builder.init()
+        parts.add(ByClassWrapper(builder.build()))
+    }
+
+    fun build(): Artifact {
+        return object : Artifact {
+            override val name: String
+                get() = this@ArtifactBuilder.name
+            override val fragments: List<Fragment>
+                get() = this@ArtifactBuilder.fragments.map { it.build() }
+            override val platforms: Set<Platform>
+                get() = this@ArtifactBuilder.platforms
+            override val parts: ClassBasedSet<ArtifactPart<*>>
+                get() = this@ArtifactBuilder.parts
+        }
+    }
+}
+
+class JavaArtifactPartBuilder {
+    var mainClass: String? = null
+    var packagePrefix: String? = null
+
+    fun build(): JavaApplicationArtifactPart {
+        return JavaApplicationArtifactPart(mainClass, packagePrefix)
     }
 }

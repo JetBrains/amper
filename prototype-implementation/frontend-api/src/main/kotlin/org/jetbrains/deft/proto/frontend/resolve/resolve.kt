@@ -5,10 +5,10 @@ import java.nio.file.Path
 
 typealias Parts = Set<ByClassWrapper<FragmentPart<*>>>
 
-val Model.propagatedFragments: Model
+val Model.resolved: Model
     get() = object : Model {
         override val modules: List<PotatoModule>
-            get() = this@propagatedFragments.modules.map {
+            get() = this@resolved.modules.map {
                 object : PotatoModule {
                     override val userReadableName: String
                         get() = it.userReadableName
@@ -17,35 +17,36 @@ val Model.propagatedFragments: Model
                     override val source: PotatoModuleSource
                         get() = it.source
                     override val fragments: List<Fragment>
-                        get() = it.fragments.propagateFragmentTree { propagate(it).default() }
+                        get() = it.fragments.resolve { propagate(it).default() }
                     override val artifacts: List<Artifact>
-                        get() = it.artifacts
+                        get() = it.artifacts.resolve { default() }
 
                 }
             }
     }
 
 
-fun List<Fragment>.propagateFragmentTree(block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): List<Fragment> =
-    buildList {
-        val deque = ArrayDeque<Fragment>()
-        this@propagateFragmentTree.firstOrNull { it.name == "common" }?.let {
-            add(it)
-            deque.add(it)
-        }
+fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): List<Fragment> = buildList {
+    val deque = ArrayDeque<Fragment>()
+    this@resolve.firstOrNull { it.name == "common" }?.let {
+        add(it)
+        deque.add(it)
+    }
 
-        while (deque.isNotEmpty()) {
-            val fragment = deque.removeFirst()
-            fragment.fragmentDependants.forEach { link ->
-                val dependant = link.target
-                if (dependant !in deque) {
-                    val resolved = dependant.resolve(fragment, block)
-                    deque.add(resolved)
-                    add(resolved)
-                }
+    while (deque.isNotEmpty()) {
+        val fragment = deque.removeFirst()
+        fragment.fragmentDependants.forEach { link ->
+            val dependant = link.target
+            if (dependant !in deque) {
+                val resolved = dependant.resolve(fragment, block)
+                deque.add(resolved)
+                add(resolved)
             }
         }
     }
+}
+
+fun List<Artifact>.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): List<Artifact> = map { it.resolve(block) }
 
 @Suppress("UNCHECKED_CAST")
 fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): Fragment {
@@ -71,5 +72,20 @@ fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>
             get() = this@resolve.platforms
         override val src: Path?
             get() = this@resolve.src
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun Artifact.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): Artifact {
+    val resolvedParts = parts.map { (it.value as ArtifactPart<Any>).block() }.map { ByClassWrapper(it) }.toSet()
+    return object : Artifact {
+        override val name: String
+            get() = this@resolve.name
+        override val fragments: List<Fragment>
+            get() = this@resolve.fragments
+        override val platforms: Set<Platform>
+            get() = this@resolve.platforms
+        override val parts: ClassBasedSet<ArtifactPart<*>>
+            get() = resolvedParts
     }
 }
