@@ -1,6 +1,5 @@
-package org.jetbrains.deft.proto.frontend.org.jetbrains.deft.proto.frontend.propagate
+package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 
 context (PotatoModuleBuilder) class FragmentLinkProvider(

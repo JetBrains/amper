@@ -8,7 +8,7 @@ typealias Parts = Set<ByClassWrapper<FragmentPart<*>>>
 val Model.propagatedFragments: Model
     get() = object : Model {
         override val modules: List<PotatoModule>
-            get() = modules.map {
+            get() = this@propagatedFragments.modules.map {
                 object : PotatoModule {
                     override val userReadableName: String
                         get() = it.userReadableName
@@ -17,44 +17,44 @@ val Model.propagatedFragments: Model
                     override val source: PotatoModuleSource
                         get() = it.source
                     override val fragments: List<Fragment>
-                        get() = it.fragments.propagateFragmentTree()
+                        get() = it.fragments.propagateFragmentTree { propagate(it).default() }
                     override val artifacts: List<Artifact>
                         get() = it.artifacts
 
                 }
             }
-
     }
 
 
-fun List<Fragment>.propagateFragmentTree(): List<Fragment> = buildList {
-    val deque = ArrayDeque<Fragment>()
-    this@propagateFragmentTree.firstOrNull { it.name == "common" }?.let {
-        add(it)
-        deque.add(it)
-    }
+fun List<Fragment>.propagateFragmentTree(block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): List<Fragment> =
+    buildList {
+        val deque = ArrayDeque<Fragment>()
+        this@propagateFragmentTree.firstOrNull { it.name == "common" }?.let {
+            add(it)
+            deque.add(it)
+        }
 
-    while (deque.isNotEmpty()) {
-        val fragment = deque.removeFirst()
-        fragment.fragmentDependants.forEach { link ->
-            val dependant = link.target
-            if (dependant !in deque) {
-                val resolved = dependant.resolve(fragment)
-                deque.add(resolved)
-                add(resolved)
+        while (deque.isNotEmpty()) {
+            val fragment = deque.removeFirst()
+            fragment.fragmentDependants.forEach { link ->
+                val dependant = link.target
+                if (dependant !in deque) {
+                    val resolved = dependant.resolve(fragment, block)
+                    deque.add(resolved)
+                    add(resolved)
+                }
             }
         }
     }
-}
 
-fun Fragment.resolve(parent: Fragment): Fragment {
+@Suppress("UNCHECKED_CAST")
+fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): Fragment {
     val resolvedParts = parent.parts.mapNotNull {
         val parentPart = it.value
         val sourcePart = parts.find { it.value::class == parentPart::class }?.value
         sourcePart?.let {
-            @Suppress("UNCHECKED_CAST")
-            ByClassWrapper((it as FragmentPart<Any>).propagate(parentPart))
-        } ?: ByClassWrapper(parentPart)
+            ByClassWrapper((it as FragmentPart<Any>).block(parentPart))
+        } ?: ByClassWrapper((parentPart as FragmentPart<Any>).block(parentPart))
     }.toSet()
     return object : Fragment {
         override val name: String
@@ -71,6 +71,5 @@ fun Fragment.resolve(parent: Fragment): Fragment {
             get() = this@resolve.platforms
         override val src: Path?
             get() = this@resolve.src
-
     }
 }

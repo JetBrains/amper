@@ -25,6 +25,7 @@ interface FragmentLink {
 
 sealed interface FragmentPart<SelfT> {
     fun propagate(parent: SelfT): FragmentPart<*>
+    fun default(): FragmentPart<*>
 }
 
 data class KotlinFragmentPart(
@@ -34,18 +35,31 @@ data class KotlinFragmentPart(
     val languageFeatures: List<String>,
     val optIns: List<String>,
 ) : FragmentPart<KotlinFragmentPart> {
-    override fun propagate(parent: KotlinFragmentPart): FragmentPart<KotlinFragmentPart> = KotlinFragmentPart(
-        parent.languageVersion ?: languageVersion,
-        parent.apiVersion ?: apiVersion,
-        parent.progressiveMode ?: progressiveMode,
-        parent.languageFeatures + languageFeatures,
-        parent.optIns + optIns,
-    )
+    override fun propagate(parent: KotlinFragmentPart): FragmentPart<KotlinFragmentPart> =
+        KotlinFragmentPart(
+            parent.languageVersion ?: languageVersion,
+            parent.apiVersion ?: apiVersion,
+            parent.progressiveMode ?: progressiveMode,
+            languageFeatures.ifEmpty { parent.languageFeatures },
+            optIns.ifEmpty { parent.optIns },
+        )
+
+    override fun default(): FragmentPart<*> {
+        return KotlinFragmentPart(
+            languageVersion ?: "1.8",
+            apiVersion ?: languageVersion,
+            progressiveMode ?: false,
+            listOf(),
+            listOf(),
+        )
+    }
 }
 
 data class TestFragmentPart(val junitPlatform: Boolean?) : FragmentPart<TestFragmentPart> {
     override fun propagate(parent: TestFragmentPart): FragmentPart<*> =
         TestFragmentPart(parent.junitPlatform ?: junitPlatform)
+
+    override fun default(): FragmentPart<*> = TestFragmentPart(junitPlatform ?: true)
 }
 
 /**

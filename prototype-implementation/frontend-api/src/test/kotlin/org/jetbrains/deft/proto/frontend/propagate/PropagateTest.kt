@@ -1,7 +1,9 @@
 package org.jetbrains.deft.proto.frontend.propagate
 
-import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.frontend.org.jetbrains.deft.proto.frontend.propagate.potatoModule
+import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
+import org.jetbrains.deft.proto.frontend.Model
+import org.jetbrains.deft.proto.frontend.PotatoModule
+import org.jetbrains.deft.proto.frontend.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -81,5 +83,39 @@ class PropagateTest {
             ?.let { it.value as KotlinFragmentPart }
 
         assertEquals("1.9", part?.languageVersion)
+    }
+
+    @Test
+    fun `set default values`() {
+        val module = potatoModule("main") {
+            fragment("common") {
+                dependant("jvm")
+                kotlinPart {
+                    languageVersion = "1.9"
+                }
+            }
+            fragment("jvm") {
+                dependsOn("common")
+            }
+        }
+
+        val model = object : Model {
+            override val modules: List<PotatoModule>
+                get() = listOf(module)
+
+        }
+
+        val resultModel = model.propagatedFragments
+
+
+        assertEquals("1.9", resultModel
+            .modules
+            .first()
+            .fragments
+            .find { it.name == "jvm" }
+            ?.parts
+            ?.find { it.clazz == KotlinFragmentPart::class.java }
+            ?.let { it.value as KotlinFragmentPart }?.apiVersion
+        )
     }
 }

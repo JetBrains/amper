@@ -23,15 +23,6 @@ publishing {
 
 
 tasks.withType(KotlinCompile::class).configureEach {
-    javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xcontext-receivers")
-    }
-}
-
-
-tasks.withType(KotlinCompile::class).configureEach {
-    javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
     kotlinOptions {
         freeCompilerArgs = listOf("-Xcontext-receivers")
     }
