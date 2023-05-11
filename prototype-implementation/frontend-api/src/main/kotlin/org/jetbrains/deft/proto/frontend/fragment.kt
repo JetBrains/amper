@@ -24,7 +24,7 @@ interface FragmentLink {
 }
 
 sealed interface FragmentPart<SelfT> {
-    context (Fragment) fun propagate(): FragmentPart<SelfT>
+    fun propagate(parent: SelfT): FragmentPart<*>
 }
 
 data class KotlinFragmentPart(
@@ -34,52 +34,18 @@ data class KotlinFragmentPart(
     val languageFeatures: List<String>,
     val optIns: List<String>,
 ) : FragmentPart<KotlinFragmentPart> {
-    context (Fragment) override fun propagate(): KotlinFragmentPart {
-
-        var part: KotlinFragmentPart? = null
-
-        for (fragmentDependency in fragmentDependencies) {
-            val fragment = fragmentDependency.target
-
-            fragment.parts.firstOrNull { it.clazz == KotlinFragmentPart::class.java }?.let {
-                val propagatedPart = with(fragment) { (it.value as KotlinFragmentPart).propagate() }
-                part = if (part == null) {
-                    propagatedPart
-                } else {
-                    KotlinFragmentPart(
-                        propagatedPart.languageVersion ?: part!!.languageVersion,
-                        propagatedPart.apiVersion ?: part!!.apiVersion,
-                        propagatedPart.progressiveMode ?: part!!.progressiveMode,
-                        propagatedPart.languageFeatures + part!!.languageFeatures,
-                        propagatedPart.optIns + part!!.optIns,
-                    )
-                }
-            }
-        }
-
-        return part ?: this
-    }
+    override fun propagate(parent: KotlinFragmentPart): FragmentPart<KotlinFragmentPart> = KotlinFragmentPart(
+        parent.languageVersion ?: languageVersion,
+        parent.apiVersion ?: apiVersion,
+        parent.progressiveMode ?: progressiveMode,
+        parent.languageFeatures + languageFeatures,
+        parent.optIns + optIns,
+    )
 }
 
 data class TestFragmentPart(val junitPlatform: Boolean?) : FragmentPart<TestFragmentPart> {
-    context (Fragment) override fun propagate(): TestFragmentPart {
-        var part: TestFragmentPart? = null
-
-        for (fragmentDependency in fragmentDependencies) {
-            val fragment = fragmentDependency.target
-
-            fragment.parts.firstOrNull { it.clazz == TestFragmentPart::class.java }?.let {
-                val propagatedPart = with(fragment) { (it.value as TestFragmentPart).propagate() }
-                part = if (part == null) {
-                    propagatedPart
-                } else {
-                    TestFragmentPart(propagatedPart.junitPlatform ?: part!!.junitPlatform)
-                }
-            }
-        }
-
-        return part!!
-    }
+    override fun propagate(parent: TestFragmentPart): FragmentPart<*> =
+        TestFragmentPart(parent.junitPlatform ?: junitPlatform)
 }
 
 /**
