@@ -6,16 +6,25 @@ import java.nio.file.Path
 typealias Parts = Set<ByClassWrapper<FragmentPart<*>>>
 
 val Model.propagatedFragments: Model
-    get() = ResolvedModel(modules.map {
-        ResolvedPotatoModule(
-            it.userReadableName,
-            it.type,
-            it.source,
-            it.fragments.propagateFragmentTree(),
-            it.artifacts.map {
-                it
-            })
-    })
+    get() = object : Model {
+        override val modules: List<PotatoModule>
+            get() = modules.map {
+                object : PotatoModule {
+                    override val userReadableName: String
+                        get() = it.userReadableName
+                    override val type: PotatoModuleType
+                        get() = it.type
+                    override val source: PotatoModuleSource
+                        get() = it.source
+                    override val fragments: List<Fragment>
+                        get() = it.fragments.propagateFragmentTree()
+                    override val artifacts: List<Artifact>
+                        get() = it.artifacts
+
+                }
+            }
+
+    }
 
 
 fun List<Fragment>.propagateFragmentTree(): List<Fragment> = buildList {
