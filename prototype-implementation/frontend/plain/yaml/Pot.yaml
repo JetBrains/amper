@@ -18,8 +18,8 @@ settings:
     packagePrefix: org.jetbrains.deft.proto.frontend
 
 dependencies:
-  - ../../frontend-api
-  - ../../frontend/util
+  - ../../../frontend-api
+  - ../../util
   - org.jetbrains.kotlin:kotlin-reflect:1.8.10
   - org.yaml:snakeyaml:2.0
 

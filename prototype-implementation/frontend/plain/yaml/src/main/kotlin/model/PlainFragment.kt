@@ -21,8 +21,8 @@ internal class PlainFragment(
                 add(
                     ByClassWrapper(
                         KotlinFragmentPart(
-                            it.languageVersion.toString(),
-                            it.apiVersion.toString(),
+                            it.languageVersion?.toString(),
+                            it.apiVersion?.toString(),
                             it.progressiveMode,
                             it.languageFeatures,
                             it.optIns,

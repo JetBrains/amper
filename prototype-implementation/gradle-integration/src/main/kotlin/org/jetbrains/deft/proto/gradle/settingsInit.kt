@@ -5,6 +5,7 @@ import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.PotatoModuleType
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import kotlin.io.path.extension
 
 
 /**
@@ -47,9 +48,10 @@ class SettingsPluginRun(
             }
 
             // Apply Kotlin plugins.
-            it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
-
-            it.plugins.apply(BindingProjectPlugin::class.java)
+            if (connectedModule.buildFile.extension == "yaml") {
+                it.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+                it.plugins.apply(BindingProjectPlugin::class.java)
+            }
         }
     }
 }

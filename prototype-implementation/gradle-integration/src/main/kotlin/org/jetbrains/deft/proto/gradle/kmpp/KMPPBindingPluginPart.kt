@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
@@ -149,11 +150,11 @@ class KMPPBindingPluginPart(
         // TODO Propagate properly.
         kotlinPart ?: return@apply
         // TODO Change defaults to some merge chain. Now languageVersion checking ruins build.
-        languageVersion = kotlinPart.languageVersion ?: "1.8"
-        apiVersion = kotlinPart.apiVersion ?: "1.8"
+        languageVersion = kotlinPart.languageVersion
+        apiVersion = kotlinPart.apiVersion
         if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode =
             kotlinPart.progressiveMode ?: false
-        kotlinPart.languageFeatures.forEach { enableLanguageFeature(it) }
+        kotlinPart.languageFeatures.forEach { enableLanguageFeature(it.capitalized()) }
         kotlinPart.optIns.forEach { optIn(it) }
     }
 
