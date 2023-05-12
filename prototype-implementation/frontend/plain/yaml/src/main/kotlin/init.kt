@@ -19,6 +19,15 @@ class YamlModelInit : ModelInit {
         if (!root.exists()) {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
+
+        val ignore = root.resolve(".deftignore")
+        val ignoreLines = if (ignore.exists()) {
+            ignore.readLines()
+        } else {
+            emptyList()
+        }
+        val ignorePaths = ignoreLines.map { root.resolve(it) }
+
         val modules = Files.walk(root)
             .filter {
                 it.name == "Pot.yaml" && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
