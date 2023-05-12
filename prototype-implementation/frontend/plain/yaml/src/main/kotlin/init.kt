@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -35,8 +36,13 @@ class YamlModelInit : ModelInit {
             .map { withBuildFile(it.toAbsolutePath()) { parseModule(it.readText()) } }
             .collect(Collectors.toList())
 
+        val gradleModuleWrappers = Files.walk(root)
+            .filter { setOf("build.gradle.kts", "build.gradle").contains(it.name) }
+            .map { DumbGradleModule(it) }
+            .collect(Collectors.toList())
+
         return object : Model {
-            override val modules: List<PotatoModule> = modules
+            override val modules: List<PotatoModule> = modules + gradleModuleWrappers
         }
     }
 }
