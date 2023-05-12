@@ -13,7 +13,7 @@ fun parseModule(value: String): PotatoModule {
     val rawPlatforms = config.getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
     if (platforms.isEmpty()) {
-        error("You need to add up at least one platform")
+        error("Error during parsing ${buildFile}: You need to add up at least one platform")
     }
 
     val dependencySubsets = config.keys
