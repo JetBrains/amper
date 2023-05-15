@@ -5,6 +5,14 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
+import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
+import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragment
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
@@ -17,12 +25,14 @@ fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).app
  * Plugin logic, bind to specific module, when multiple targets are available.
  */
 class KMPPBindingPluginPart(
-    ctx: PluginPartCtx,
-) : AndroidAwarePart(ctx), DeftNamingConventions {
+        ctx: PluginPartCtx,
+) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
+
+    private val androidAware = AndroidAwarePart(ctx)
 
     internal val fragmentsByName = module.fragments.associateBy { it.name }
 
-    internal val kotlinMPE: KotlinMultiplatformExtension =
+    override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
@@ -60,7 +70,7 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun initFragments() = with(KotlinDeftNamingConvention) {
+    private fun initFragments() = with(androidAware) {
         // Introduced function to remember to propagate language settings.
         fun KotlinSourceSet.doDependsOn(it: Fragment) {
             val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
@@ -107,8 +117,8 @@ class KMPPBindingPluginPart(
             }
 
             // Set sources and resources.
-            sourceSet.kotlin.srcDir(fragment.sourcePath)
-            sourceSet.resources.srcDir(fragment.resourcePath)
+            sourceSet.kotlin.setSrcDirs(fragment.sourcePaths)
+            sourceSet.resources.setSrcDirs(fragment.resourcePaths)
         }
 
         // Third iteration - adjust kotlin prebuilt source sets to match created ones.
@@ -163,7 +173,7 @@ class KMPPBindingPluginPart(
 
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit
-    ) = with(KotlinDeftNamingConvention) {
+    ) = with(androidAware) {
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
         sourceSet.block()
     }

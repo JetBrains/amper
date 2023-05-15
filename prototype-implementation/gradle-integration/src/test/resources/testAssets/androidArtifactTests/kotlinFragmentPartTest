@@ -1,0 +1,86 @@
+:
+  androidAndroidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidAndroidTestDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidAndroidTestRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugAndroidTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidMain:
+   depends(commonMain)
+   sourceDirs(common)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidReleaseUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixtures:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()

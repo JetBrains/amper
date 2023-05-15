@@ -4,46 +4,45 @@ import org.jetbrains.deft.proto.frontend.Artifact
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.TestArtifact
 import org.jetbrains.deft.proto.frontend.doCamelCase
-import org.jetbrains.deft.proto.gradle.BindPlatform
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.deft.proto.gradle.requireSingle
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+
+internal interface KMPEAware {
+    val kotlinMPE: KotlinMultiplatformExtension
+}
 
 object KotlinDeftNamingConvention {
 
     context(KMPPBindingPluginPart)
     val KotlinSourceSet.deftFragment: FragmentWrapper?
-        get() =
-            fragmentsByName[name]
+        get() = fragmentsByName[name]
 
     context(KMPPBindingPluginPart)
-    private val AndroidAwarePart.BindFragment.targetName
-        get() = fragment.platforms
-            .requireSingle { "Leaf android fragment must have exactly one platform" }
-            .targetName
+    private val FragmentWrapper.targetName
+        get() = platforms
+                .requireSingle { "Leaf android fragment must have exactly one platform" }
+                .targetName
 
-    context(KMPPBindingPluginPart)
+    context(KMPPBindingPluginPart, AndroidAwarePart)
     val FragmentWrapper.kotlinSourceSetName: String
-        get() {
-            if (name == leafNonTestAndroidFragment?.fragment?.name)
-                return "${leafNonTestAndroidFragment.targetName}Main"
-            if (name == leafTestAndroidFragment?.fragment?.name)
-                return "${leafTestAndroidFragment.targetName}Test"
-            return name
+        get() = when (name) {
+            leafNonTestFragment?.name -> "${leafNonTestFragment.targetName}Main"
+            leafTestFragment?.name -> "${leafTestFragment.targetName}Test"
+            else -> name
         }
 
-    context(KMPPBindingPluginPart)
+    context(KMPPBindingPluginPart, AndroidAwarePart)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
-        get() =
-            kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
+        get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
 
-    context(KMPPBindingPluginPart)
     val Platform.targetName: String
         get() = name.doCamelCase()
 
-    context(KMPPBindingPluginPart)
+    context(KMPEAware)
     val Platform.target
         get() = kotlinMPE.targets.findByName(targetName)
 

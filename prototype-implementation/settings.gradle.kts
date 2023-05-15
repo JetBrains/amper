@@ -35,7 +35,7 @@ include(
     "gradle-integration",
     "frontend:fragments:yaml",
     "frontend:plain:yaml",
-    "ide-plugin"
+    "ide-plugin",
 )
 
 rootProject.name = "prototype-implementation"

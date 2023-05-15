@@ -248,8 +248,6 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
-                            copyFields(newFragment, element)
-                            newFragment
                         }
                         newFragment.variants.add(name)
                         add(newFragment)
@@ -428,6 +426,9 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                 androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
             }
         }
+    }
+    config.handleFragmentSettings<String>(this, "minSdkVersion") {
+        androidMinSdkVersion = it.toIntOrNull() ?: error("minSdkVersion must be integer!")
     }
 }
 

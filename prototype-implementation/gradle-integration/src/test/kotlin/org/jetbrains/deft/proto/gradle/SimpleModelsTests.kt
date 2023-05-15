@@ -25,37 +25,7 @@ class SimpleModelsTests : WithTempDir {
 
         val extracted = runResult.output.extractSourceInfoOutput()
 
-        assertEquals(
-            """
-:
-  common:
-   depends()
-   sourceDirs(src/common/kotlin,common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonMain:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends(commonMain,common)
-   sourceDirs(src/jvmMain/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmTest:
-   depends(commonTest)
-   sourceDirs(src/jvmTest/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-            """.trimIndent(),
-            extracted
-        )
+        assertEqualsWithCurrentTestResource(extracted)
     }
 
     @Test
@@ -65,42 +35,7 @@ class SimpleModelsTests : WithTempDir {
 
         val extracted = runResult.output.extractSourceInfoOutput()
 
-        assertEquals(
-            """
-:
-  common:
-   depends()
-   sourceDirs(src/common/kotlin,common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonMain:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvm:
-   depends(common)
-   sourceDirs(src/jvm/kotlin,jvm/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends(commonMain,jvm)
-   sourceDirs(src/jvmMain/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmTest:
-   depends(commonTest)
-   sourceDirs(src/jvmTest/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-            """.trimIndent(),
-            extracted
-        )
+        assertEqualsWithCurrentTestResource(extracted)
     }
 
     @Test
@@ -110,57 +45,7 @@ class SimpleModelsTests : WithTempDir {
 
         val extracted = runResult.output.extractSourceInfoOutput()
 
-        assertEquals(
-            """
-:
-  common:
-   depends()
-   sourceDirs(src/common/kotlin,common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonMain:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  ios:
-   depends(common)
-   sourceDirs(src/ios/kotlin,ios/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  iosArm64Main:
-   depends(commonMain,ios)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  iosArm64Test:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvm:
-   depends(common)
-   sourceDirs(src/jvm/kotlin,jvm/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends(commonMain,jvm)
-   sourceDirs(src/jvmMain/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmTest:
-   depends(commonTest)
-   sourceDirs(src/jvmTest/java)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-            """.trimIndent(),
-            extracted
-        )
+        assertEqualsWithCurrentTestResource(extracted)
     }
 
 }
