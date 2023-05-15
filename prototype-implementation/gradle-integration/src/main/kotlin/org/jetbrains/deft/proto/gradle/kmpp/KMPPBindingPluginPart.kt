@@ -46,9 +46,11 @@ class KMPPBindingPluginPart(
                 val platform = fragment.platforms.singleOrNull()
                     ?: error("Leaf fragment must have exactly one platform!")
                 check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
+                // FIXME Support variants: create multiple compilations - one compilation for
+                // FIXME each leaf fragment.
                 when (platform) {
                     Platform.ANDROID -> kotlinMPE.android()
-                    Platform.JVM -> kotlinMPE.jvm() // FIXME move to JavaBindingPluginPart.kt and call after all source sets are done
+                    Platform.JVM -> kotlinMPE.jvm()
                     Platform.IOS_ARM64 -> kotlinMPE.iosArm64() { adjust(artifact) }
                     Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64() { adjust(artifact) }
                     Platform.IOS_X64 -> kotlinMPE.iosX64() { adjust(artifact) }

@@ -11,6 +11,9 @@ import kotlin.io.path.exists
 import kotlin.io.path.name
 
 class YamlFragmentsModelInit : ModelInit {
+
+    override val name = "fragments"
+
     override fun getModel(root: Path): Model {
         if (!root.exists()) {
             throw RuntimeException("Can't find ${root.absolutePathString()}")

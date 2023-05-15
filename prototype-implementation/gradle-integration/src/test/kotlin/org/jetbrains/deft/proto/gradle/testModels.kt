@@ -31,6 +31,8 @@ object Models : ModelInit {
             ProviderDelegate { modelHandle }
         }
 
+    override val name = "test"
+
     override fun getModel(root: Path): MockModel {
         val modelName = getMockModelName()
             ?: error(

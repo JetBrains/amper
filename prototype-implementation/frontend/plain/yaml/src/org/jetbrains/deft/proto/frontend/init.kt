@@ -15,6 +15,9 @@ internal fun withBuildFile(buildFile: Path, func: BuildFileAware.() -> PotatoMod
     }
 
 class YamlModelInit : ModelInit {
+
+    override val name = "plain"
+
     override fun getModel(root: Path): Model {
         if (!root.exists()) {
             throw RuntimeException("Can't find ${root.absolutePathString()}")

@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.utils.extendsFrom
+import java.net.URI
 
 plugins {
     kotlin("jvm")
@@ -15,6 +16,7 @@ dependencies {
     implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21")
     implementation("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.0")
     implementation("com.android.library:com.android.library.gradle.plugin:7.4.0")
+    runtimeOnly(project(":frontend:plain:yaml"))
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.21")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
@@ -48,4 +50,13 @@ tasks.withType<PluginUnderTestMetadata>().configureEach {
             .plus(files(project.buildDir.resolve("classes/kotlin/test")))
             .plus(files(project.buildDir.resolve("resources/test")))
     )
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "spacePackages"
+            url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
+        }
+    }
 }
