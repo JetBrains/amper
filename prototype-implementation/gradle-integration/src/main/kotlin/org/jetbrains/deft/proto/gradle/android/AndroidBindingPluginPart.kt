@@ -97,9 +97,7 @@ class AndroidBindingPluginPart(
             val part =
                 artifact.part<AndroidArtifactPart>() ?: error("No android properties for an artifact ${artifact.name}")
             androidPE?.apply {
-                part.compileSdkVersion?.let {
-                    compileSdkVersion(it)
-                }
+                part.compileSdkVersion?.let { compileSdkVersion(it) }
                 defaultConfig {
                     it.minSdkVersion(part.minSdkVersion ?: 24)
                 }

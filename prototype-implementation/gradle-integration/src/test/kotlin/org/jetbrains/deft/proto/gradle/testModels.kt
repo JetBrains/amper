@@ -43,7 +43,7 @@ object Models : ModelInit {
         return MockModel(modelHandle.name).apply { modelBuilder(root) }
     }
 
-    private val Path.buildToml: Path get() = resolve("build.toml")
+    private val Path.buildToml: Path get() = resolve("Pot.yaml")
 
     // --- Models ----------------------------------------------------------------------------------------------------------
     // Need to be within [Models] class to be init.
@@ -136,7 +136,7 @@ object Models : ModelInit {
     }
 
     val twoModulesModel by mockModel {
-        val module1 = module(it.resolve("module1/build.toml").createDirectories()) {
+        val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
             val common = fragment("common") {
                 platforms.add(Platform.JVM)
             }
@@ -146,7 +146,7 @@ object Models : ModelInit {
                 common
             )
         }
-        module(it.resolve("module2/build.toml").createDirectories()) {
+        module(it.resolve("module2/Pot.yaml").createDirectories()) {
             val common = fragment("common") {
                 dependency(module1)
                 platforms.add(Platform.JVM)
@@ -160,7 +160,7 @@ object Models : ModelInit {
     }
 
     val twoModulesTwoFragmentsModel by mockModel {
-        val module1 = module(it.resolve("module1/build.toml").createDirectories()) {
+        val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
             val common = fragment("common")
             val jvm = fragment("jvm") {
                 refines(common)
@@ -172,7 +172,7 @@ object Models : ModelInit {
                 jvm
             )
         }
-        module(it.resolve("module2/build.toml").createDirectories()) {
+        module(it.resolve("module2/Pot.yaml").createDirectories()) {
             val common = fragment("common") {
                 dependency(module1)
             }
