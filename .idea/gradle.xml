@@ -5,7 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
-        <option name="gradleJvm" value="corretto-17" />
+        <option name="gradleJvm" value="openjdk-19" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />

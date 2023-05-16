@@ -1,7 +1,7 @@
 :
   common:
    depends()
-   sourceDirs(common)
+   sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
@@ -16,7 +16,7 @@
    implDeps()
   jvm:
    depends(common)
-   sourceDirs(jvm)
+   sourceDirs(jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmMain:

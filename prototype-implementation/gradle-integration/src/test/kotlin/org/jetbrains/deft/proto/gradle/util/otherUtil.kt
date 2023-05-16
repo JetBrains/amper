@@ -41,7 +41,7 @@ fun setUpGradleProjectDir(root: File) {
 }
 
 // Need to be inlined, since looks for trace.
-inline val currentTestName get(): String = run {
+internal inline val currentTestName get(): String = run {
     val currentTrace = Thread.currentThread().stackTrace
     println(currentTrace.map { it.methodName })
     currentTrace[1].let { "${it.decapitalizedSimpleName}/${it.methodName}" }
@@ -52,7 +52,7 @@ val StackTraceElement.decapitalizedSimpleName get() =
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")
-inline fun WithTempDir.assertEqualsWithCurrentTestResource(actual: String) =
+internal inline fun WithTempDir.assertEqualsWithCurrentTestResource(actual: String) =
         assertEqualsWithResource("testAssets/$currentTestName", actual)
 
 fun WithTempDir.assertEqualsWithResource(expectedResourceName: String, actual: String) =

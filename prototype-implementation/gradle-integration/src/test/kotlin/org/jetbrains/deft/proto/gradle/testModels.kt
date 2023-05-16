@@ -129,7 +129,7 @@ object Models : ModelInit {
                 common
             ) {
                 addPart(AndroidArtifactPart(
-                    "android-31",
+                    "android-31", 24
                 ))
             }
         }

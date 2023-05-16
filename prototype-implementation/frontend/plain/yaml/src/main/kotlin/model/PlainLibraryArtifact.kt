@@ -27,7 +27,7 @@ internal open class PlainLibraryArtifact(
             fragmentBuilders
                 .filter { it.platforms.contains(Platform.ANDROID) }
                 .firstNotNullOfOrNull { it.android }?.let {
-                    add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion)))
+                    add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion)))
                 }
         }
 }

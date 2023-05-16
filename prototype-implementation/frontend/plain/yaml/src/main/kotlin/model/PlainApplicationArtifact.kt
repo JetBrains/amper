@@ -34,7 +34,7 @@ internal open class PlainApplicationArtifact(
             return buildSet {
                 if (platform == Platform.ANDROID) {
                     targetInternalFragment.android?.let {
-                        add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion)))
+                        add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion)))
                     }
                 }
 

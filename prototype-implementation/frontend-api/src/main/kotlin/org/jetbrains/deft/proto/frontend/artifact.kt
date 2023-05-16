@@ -12,8 +12,8 @@ data class KotlinArtifactPart(
 }
 
 data class AndroidArtifactPart(
-    val compileSdkVersion: String,
-    val minSdkVersion: Int? = null,
+    val compileSdkVersion: String?,
+    val minSdkVersion: Int?,
 
 ) : ArtifactPart<AndroidArtifactPart> {
     override fun default(): ArtifactPart<AndroidArtifactPart> =

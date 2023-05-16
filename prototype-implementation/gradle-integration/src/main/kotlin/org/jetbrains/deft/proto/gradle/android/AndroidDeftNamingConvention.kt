@@ -17,8 +17,8 @@ object AndroidDeftNamingConvention {
 
     context(AndroidAwarePart)
     private val FragmentWrapper.androidResPath
-        get() = part<KotlinFragmentPart>()?.srcFolderName?.let { "$it/res" }
-            ?: path.resolve("res").toString()
+        get() = src?.resolve("res")
+            ?: path.resolve("res")
 
     context(AndroidAwarePart)
     val FragmentWrapper.androidResPaths get() = listOf(androidResPath)

@@ -1,7 +1,6 @@
 plugins {
     id("java")
-    kotlin("jvm")
-//    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin)
     alias(libs.plugins.gradleIntelliJPlugin)
 }
 
