@@ -248,9 +248,10 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                                 }",
                                 element.platforms
                             )
-                            newFragment.variants.add(name)
+                            copyFields(newFragment, element)
                             newFragment
                         }
+                        newFragment.variants.add(name)
                         add(newFragment)
                     }
                 }
