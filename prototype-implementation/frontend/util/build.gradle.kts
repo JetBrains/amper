@@ -1,32 +1,11 @@
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
     `maven-publish`
 }
 
-kotlin {
-    targetHierarchy.default()
-    jvm()
-
-    sourceSets {
-        val jvmMain by getting {
-            kotlin {
-                setSrcDirs(listOf("src/main/kotlin"))
-            }
-            resources.setSrcDirs(listOf("src/main/resources"))
-            dependencies {
-                implementation(project(":frontend-api"))
-            }
-        }
-        val jvmTest by getting {
-            kotlin {
-                setSrcDirs(listOf("src/test/kotlin"))
-            }
-            resources.setSrcDirs(listOf("src/test/resources"))
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-    }
+dependencies {
+    implementation(project(":frontend-api"))
+    testImplementation(kotlin("test"))
 }
 
 group = "org.jetbrains.deft.proto.frontend"
