@@ -4,9 +4,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.jetbrains.deft.proto.frontend.PotatoModule
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
+import org.jetbrains.deft.proto.frontend.TestFragmentPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
@@ -27,6 +27,7 @@ class BindingProjectPlugin : Plugin<Project> {
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
         applyPublicationAttributes(linkedModule, project)
+        applyTest(linkedModule, project)
     }
 
     private fun applyPublicationAttributes(potatoModule: PotatoModuleWrapper, project: Project) {
@@ -38,6 +39,14 @@ class BindingProjectPlugin : Plugin<Project> {
                 it.create(project.name, MavenPublication::class.java) {
                     it.from(project.components.findByName("kotlin"))
                 }
+            }
+        }
+    }
+
+    private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
+        if (linkedModule.fragments.mapNotNull { it.part<TestFragmentPart>() }.any { it.junitPlatform == true }) {
+            project.tasks.withType(Test::class.java) {
+                it.useJUnitPlatform()
             }
         }
     }
