@@ -17,7 +17,7 @@ Artifacts:
     Fragments:
       android
     Parts:
-  isTest: false
+  isTest: true
   [ANDROID]
     Fragments:
       androidTest

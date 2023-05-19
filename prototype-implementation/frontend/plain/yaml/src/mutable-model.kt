@@ -369,7 +369,14 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                                     .resolve("$dep/Pot.yaml")
                                     .normalize()
                                     .toAbsolutePath()
-                                targetModulePotFilePath == sourceModulePotFilePath
+
+                                val sourceModuleGradleFilePath = buildFile.parent
+                                    .resolve("$dep/build.gradle.kts")
+                                    .normalize()
+                                    .toAbsolutePath()
+
+                                targetModulePotFilePath == sourceModulePotFilePath ||
+                                        targetModulePotFilePath == sourceModuleGradleFilePath
                             } else {
                                 false
                             }

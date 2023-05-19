@@ -35,11 +35,11 @@ data class NativeApplicationArtifactPart(
         NativeApplicationArtifactPart(entryPoint ?: "main")
 }
 
-data class PublicationFragmentPart(
+data class PublicationArtifactPart(
     val group: String,
     val version: String,
-) : ArtifactPart<PublicationFragmentPart> {
-    override fun default(): ArtifactPart<PublicationFragmentPart> = PublicationFragmentPart(group, version)
+) : ArtifactPart<PublicationArtifactPart> {
+    override fun default(): ArtifactPart<PublicationArtifactPart> = PublicationArtifactPart(group, version)
 }
 
 /**

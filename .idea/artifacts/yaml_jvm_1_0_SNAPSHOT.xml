@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="yaml-jvm-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml/build/libs</output-path>
+    <root id="archive" name="yaml-jvm-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="prototype-implementation.frontend.plain.yaml.jvmMain" />
+    </root>
+  </artifact>
+</component>

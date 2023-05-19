@@ -72,7 +72,7 @@ Artifacts:
       ios
       js
     Parts:
-  isTest: false
+  isTest: true
   [JVM, ANDROID, IOS_ARM64, JS]
     Fragments:
       jvmTest

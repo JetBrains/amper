@@ -9,6 +9,9 @@
       <module name="jvm-hello-world.subproject.test" target="17" />
       <module name="jvm-hello-world_main" target="17" />
       <module name="jvm-hello-world_test" target="17" />
+      <module name="jvm-kotlin+java" target="19" />
+      <module name="jvm-kotlin+java.main" target="19" />
+      <module name="jvm-kotlin+java.test" target="19" />
       <module name="jvm-kotlin+java_main" target="17" />
       <module name="jvm-kotlin+java_test" target="17" />
       <module name="jvm-with-tests_main" target="17" />
@@ -16,6 +19,12 @@
       <module name="kmp-mobile-modularized.android" target="17" />
       <module name="kmp-mobile-modularized.ios" target="17" />
       <module name="kmp-mobile-modularized.shared" target="17" />
+      <module name="prototype-implementation.frontend-api.main" target="20" />
+      <module name="prototype-implementation.frontend-api.test" target="20" />
+      <module name="prototype-implementation.frontend.fragments.yaml.main" target="20" />
+      <module name="prototype-implementation.frontend.fragments.yaml.test" target="20" />
+      <module name="prototype-implementation.frontend.util.main" target="20" />
+      <module name="prototype-implementation.frontend.util.test" target="20" />
       <module name="prototype-implementation.frontend.with-fragments.yaml" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.main" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.test" target="17" />
@@ -28,6 +37,11 @@
       <module name="prototype-implementation.scripting" target="17" />
       <module name="prototype-implementation.scripting.main" target="17" />
       <module name="prototype-implementation.scripting.test" target="17" />
+      <module name="prototype-implementation.util" target="19" />
+      <module name="prototype-implementation.yaml" target="19" />
+      <module name="prototype-implementation.yaml.main" target="19" />
+      <module name="prototype-implementation.yaml.test" target="19" />
+      <module name="prototype-implementation.yaml.yaml" target="19" />
       <module name="shared" target="17" />
     </bytecodeTargetLevel>
   </component>

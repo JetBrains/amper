@@ -1,8 +1,8 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.utils.extendsFrom
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -12,7 +12,7 @@ version = "1.0-SNAPSHOT"
 
 dependencies {
     implementation(project(":frontend-api"))
-    implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.0")
+    implementation("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21")
     implementation("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.0")
     implementation("com.android.library:com.android.library.gradle.plugin:7.4.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.21")

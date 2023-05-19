@@ -29,5 +29,10 @@ internal open class PlainLibraryArtifact(
                 .firstNotNullOfOrNull { it.android }?.let {
                     add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion)))
                 }
+            fragmentBuilders
+                .filter { it.platforms.contains(Platform.JVM) }
+                .firstNotNullOfOrNull { it.java }?.let {
+                    add(ByClassWrapper(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix)))
+                }
         }
 }

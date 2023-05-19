@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.java
 
+import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -15,6 +16,8 @@ import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.deft.proto.gradle.part
 import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -31,15 +34,14 @@ class JavaBindingPluginPart(
         val logger: Logger = LoggerFactory.getLogger("some-logger")
     }
 
-    private val javaAPE: JavaApplication = project.extensions.getByType(JavaApplication::class.java)
-
-    internal val javaPE: JavaPluginExtension = project.extensions.getByType(JavaPluginExtension::class.java)
+    private val javaAPE: JavaApplication get() = project.extensions.getByType(JavaApplication::class.java)
+    internal val javaPE: JavaPluginExtension get() = project.extensions.getByType(JavaPluginExtension::class.java)
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
-        project.plugins.apply(JavaPlugin::class.java)
+        project.plugins.apply(ApplicationPlugin::class.java)
         applyJavaApplication()
         adjustJavaSourceSets()
     }
@@ -58,6 +60,12 @@ class JavaBindingPluginPart(
         val applicationSettings = artifact.part<JavaApplicationArtifactPart>()!!
         javaAPE.apply {
             mainClass.set(applicationSettings.mainClass)
+        }
+        println("Applying package prefix ${applicationSettings.packagePrefix}")
+        project.tasks.withType(KotlinCompile::class.java).configureEach {
+            println("Task $it")
+            it.javaPackagePrefix = applicationSettings.packagePrefix
+            println(it.javaPackagePrefix)
         }
     }
 

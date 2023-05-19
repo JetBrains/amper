@@ -26,7 +26,8 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-  isTest: false
+      JavaApplicationArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend)
+  isTest: true
   [JVM]
     Fragments:
       jvmTest

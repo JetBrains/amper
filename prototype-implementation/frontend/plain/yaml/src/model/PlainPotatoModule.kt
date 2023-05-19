@@ -31,14 +31,16 @@ internal class PlainPotatoModule(
             "lib" -> library()
             else -> error("Unsupported product type")
         }
+
     private fun library(): List<Artifact> {
         return buildList {
             val mainFragments = fragmentBuilders
                 .filter { it.dependants.isNotEmpty() }
                 .filter { it.dependants.all { it.dependencyKind == MutableFragmentDependency.DependencyKind.Friend } }
-            add(PlainLibraryArtifact(mainFragments, platformList))
+            val mainArtifact = PlainLibraryArtifact(mainFragments, platformList)
+            add(mainArtifact)
             val testFragments = fragmentBuilders.filter { it.dependants.isEmpty() }
-            add(PlainLibraryArtifact(testFragments, platformList))
+            add(TestPlainLibraryArtifact(testFragments, platformList, testFor = mainArtifact))
         }
     }
 
@@ -76,7 +78,8 @@ internal class PlainPotatoModule(
 
                 // Bind test artifacts with non-test.
                 for (test in testCartesian) {
-                    val foundBound = elements2Artifacts[test - "test" + "main"] ?: error("No non test artifact found for $test")
+                    val foundBound =
+                        elements2Artifacts[test - "test" + "main"] ?: error("No non test artifact found for $test")
                     val plain = TestPlainApplicationArtifact(fragmentBuilders, platform, test, foundBound)
                     elements2Artifacts[test] = plain
                     add(plain)
