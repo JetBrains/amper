@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.transformKey
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

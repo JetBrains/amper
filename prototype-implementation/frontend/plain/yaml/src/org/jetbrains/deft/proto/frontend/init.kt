@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
-import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors

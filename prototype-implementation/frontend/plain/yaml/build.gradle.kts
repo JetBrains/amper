@@ -51,10 +51,6 @@ tasks.withType(Test::class) {
     useJUnitPlatform()
 }
 
-tasks.withType(KotlinCompile::class).configureEach {
-    javaPackagePrefix = "org.jetbrains.deft.proto.frontend"
-}
-
 publishing {
     publications {
         create<MavenPublication>(project.name) {

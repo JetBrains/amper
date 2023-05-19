@@ -1,12 +1,9 @@
 package org.jetbrains.deft.proto.frontend.helper
 
-import org.jetbrains.deft.proto.frontend.BuildFileAware
-import org.jetbrains.deft.proto.frontend.PotatoModule
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.nio.file.Files
-import java.nio.file.Path
 
 
 internal class TestFile {

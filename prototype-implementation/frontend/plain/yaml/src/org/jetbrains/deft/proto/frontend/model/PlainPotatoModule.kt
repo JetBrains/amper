@@ -1,8 +1,6 @@
 package org.jetbrains.deft.proto.frontend.model
 
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.frontend.FragmentBuilder
-import org.jetbrains.deft.proto.frontend.Settings
 import kotlin.io.path.name
 
 context (BuildFileAware, Stateful<FragmentBuilder, Fragment>)

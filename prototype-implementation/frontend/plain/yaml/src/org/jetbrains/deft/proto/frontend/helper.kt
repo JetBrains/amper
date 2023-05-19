@@ -1,6 +1,6 @@
 package org.jetbrains.deft.proto.frontend
-import org.jetbrains.deft.proto.frontend.util.*
 
+import org.jetbrains.deft.proto.frontend.util.*
 import java.nio.file.Path
 
 interface BuildFileAware {
