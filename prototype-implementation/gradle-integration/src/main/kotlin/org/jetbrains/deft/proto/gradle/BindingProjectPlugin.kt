@@ -6,6 +6,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
+import org.jetbrains.deft.proto.frontend.PublicationModulePart
 import org.jetbrains.deft.proto.frontend.TestFragmentPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -35,6 +36,22 @@ class BindingProjectPlugin : Plugin<Project> {
             project.group = it.group
             project.version = it.version
             val extension = project.extensions.getByType(PublishingExtension::class.java)
+
+            extension.repositories { repositoriesHandler ->
+                val repositories = potatoModule.parts.find<PublicationModulePart>()
+                        ?.mavenRepositories ?: emptyList()
+                repositories.forEach { mavenRepo ->
+                    repositoriesHandler.maven {
+                        it.name = mavenRepo.name
+                        it.url = mavenRepo.url
+                        it.credentials { cred ->
+                            cred.username = mavenRepo.userName
+                            cred.password = mavenRepo.password
+                        }
+                    }
+                }
+            }
+
             extension.publications {
                 it.create(project.name, MavenPublication::class.java) {
                     it.from(project.components.findByName("kotlin"))

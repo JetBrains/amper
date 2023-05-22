@@ -19,6 +19,8 @@ class MockPotatoModule(
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
+    override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet()
+
     fun fragment(name: String = "fragment", builder: MockFragment.() -> Unit = {}) =
         MockFragment(name).apply(builder).apply { fragments.add(this) }
 

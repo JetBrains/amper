@@ -4,11 +4,12 @@ import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 
 internal data class PotatoModuleImpl(
-    override val userReadableName: String,
-    override val type: PotatoModuleType,
-    override val source: PotatoModuleSource,
-    override val fragments: List<FragmentImpl>,
-    override val artifacts: List<ArtifactImpl>,
+        override val userReadableName: String,
+        override val type: PotatoModuleType,
+        override val source: PotatoModuleSource,
+        override val fragments: List<FragmentImpl>,
+        override val artifacts: List<ArtifactImpl>,
+        override val parts: ClassBasedSet<ModulePart<*>>,
 ) : PotatoModule
 
 internal data class FragmentImpl(

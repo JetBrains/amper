@@ -19,7 +19,7 @@ sealed interface ModulePart<SelfT> {
 }
 
 data class PublicationModulePart(
-    val repositories: List<Repository>
+    val mavenRepositories: List<Repository>
 ) : ModulePart<PublicationModulePart> {
     data class Repository(
             val name: String,
@@ -45,4 +45,6 @@ interface PotatoModule {
     val fragments: List<Fragment>
 
     val artifacts: List<Artifact>
+
+    val parts: ClassBasedSet<ModulePart<*>>
 }
