@@ -45,21 +45,25 @@ tasks.withType<PluginUnderTestMetadata>().configureEach {
     dependsOn("compileTestKotlin")
     dependsOn("processTestResources")
     pluginClasspath.setFrom(
-        pluginClasspath
-            .plus(files(project.buildDir.resolve("classes/kotlin/test")))
-            .plus(files(project.buildDir.resolve("resources/test")))
+            pluginClasspath
+                    .plus(files(project.buildDir.resolve("classes/kotlin/test")))
+                    .plus(files(project.buildDir.resolve("resources/test")))
     )
 }
 
+val spaceUsername: String? by rootProject.extra
+val spacePassword: String? by rootProject.extra
+
 publishing {
     repositories {
-        maven {
-            name = "spacePackages"
-            url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
-            credentials {
-                username = rootProject.ext["spaceUsername"] as? String
-                password = rootProject.ext["spacePassword"] as? String
+        if (spaceUsername != null && spacePassword != null)
+            maven {
+                name = "spacePackages"
+                url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
+                credentials {
+                    username = spaceUsername
+                    password = spacePassword
+                }
             }
-        }
     }
 }

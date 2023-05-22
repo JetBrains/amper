@@ -51,16 +51,20 @@ tasks.withType(Test::class) {
     useJUnitPlatform()
 }
 
+val spaceUsername: String? by rootProject.extra
+val spacePassword: String? by rootProject.extra
+
 publishing {
     repositories {
-        maven {
-            name = "spacePackages"
-            url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
-            credentials {
-                username = rootProject.ext["spaceUsername"] as? String
-                password = rootProject.ext["spacePassword"] as? String
+        if (spaceUsername != null && spacePassword != null)
+            maven {
+                name = "spacePackages"
+                url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
+                credentials {
+                    username = spaceUsername
+                    password = spacePassword
+                }
             }
-        }
     }
 
     publications {
