@@ -18,7 +18,7 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
         }
         appendLine("    Parts:")
         for (part in fragment.parts) {
-            appendLine("      ${part.value}")
+            appendLine("      $part")
         }
     }
     appendLine("Artifacts:")
@@ -31,7 +31,7 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
         }
         appendLine("    Parts:")
         for (part in artifact.parts) {
-            appendLine("      ${part.value}")
+            appendLine("      $part")
         }
     }
 }

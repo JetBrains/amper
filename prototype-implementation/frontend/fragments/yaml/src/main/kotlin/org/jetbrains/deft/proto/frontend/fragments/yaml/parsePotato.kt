@@ -101,21 +101,21 @@ private fun parseVariants(potatoMap: Map<String, Any>): List<Variant> {
 private fun parseExplicitFragments(source: PotatoModuleSource, potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {
     val rawFragments = potatoMap.filterKeys { it !in RESERVED_TOP_LEVEL_NAMES } as? Map<String, Map<String, Any>?> ?: return emptyMap()
     return rawFragments.map { (name, fragment) ->
-        if (fragment == null) return@map name to FragmentDefinition(emptyList(), emptyList(), emptySet(), emptySet())
+        if (fragment == null) return@map name to FragmentDefinition(emptyList(), emptyList(), classBasedSet(), classBasedSet())
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val refines = fragment["refines"]
         val fragmentDependencies = refines as? List<String> ?: (refines as? String)?.let(::listOf) ?: emptyList()
-        val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildSet {
+        val fragmentParts: ClassBasedSet<FragmentPart<*>> = buildClassBasedSet {
             val kotlinFragmentPart = (fragment["kotlin"] as Map<String, Any>?)?.let { parseKotlinFragmentPart(it) }
-            if (kotlinFragmentPart != null) add(ByClassWrapper(kotlinFragmentPart))
+            if (kotlinFragmentPart != null) add(kotlinFragmentPart)
         }
-        val artifactParts: ClassBasedSet<ArtifactPart<*>> = buildSet {
+        val artifactParts: ClassBasedSet<ArtifactPart<*>> = buildClassBasedSet {
             val jvmArtifactPart = parseJvmArtifactPart(fragment)
-            if (jvmArtifactPart != null) add(ByClassWrapper(jvmArtifactPart))
+            if (jvmArtifactPart != null) add(jvmArtifactPart)
             val nativeArtifactPart = parseNativeArtifactPart(fragment)
-            if (nativeArtifactPart != null) add(ByClassWrapper(nativeArtifactPart))
+            if (nativeArtifactPart != null) add(nativeArtifactPart)
             val androidArtifactPart = parseAndroidArtifactPart(fragment)
-            if (androidArtifactPart != null) add(ByClassWrapper(androidArtifactPart))
+            if (androidArtifactPart != null) add(androidArtifactPart)
         }
 
         name to FragmentDefinition(

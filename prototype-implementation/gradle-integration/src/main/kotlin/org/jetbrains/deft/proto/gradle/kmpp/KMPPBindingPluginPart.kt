@@ -68,7 +68,7 @@ class KMPPBindingPluginPart(
 
     private fun KotlinNativeTarget.adjust(artifact: ArtifactWrapper) {
         if (module.type != PotatoModuleType.APPLICATION) return
-        val part = artifact.part<NativeApplicationArtifactPart>()
+        val part = artifact.parts.find<NativeApplicationArtifactPart>()
         binaries {
             executable {
                 entryPoint = part?.entryPoint
@@ -162,7 +162,7 @@ class KMPPBindingPluginPart(
         from: Fragment
     ): LanguageSettingsBuilder = languageSettings.apply {
         val wrapper = from as? FragmentWrapper ?: FragmentWrapper(from)
-        doApplyPart(wrapper.part<KotlinFragmentPart>())
+        doApplyPart(wrapper.parts.find<KotlinFragmentPart>())
         from.fragmentDependencies.forEach {
             applyOtherFragmentsPartsRecursively(it.target)
         }

@@ -37,11 +37,7 @@ open class ArtifactWrapper(
     val bindPlatforms: Set<BindPlatform> = platforms.map { BindPlatform(it, this) }.toSet()
     // Actually, duplicating [FragmentWrapper] objects here but ok for prototyping.
     override val fragments = artifact.fragments.map { FragmentWrapper(it) }
-    private val partsByClass = parts.associate { it.clazz to it.value }
-    operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
 }
-
-internal inline fun <reified T : Any> ArtifactWrapper.part() = this[T::class.java]
 
 class TestArtifactWrapper(
     artifact: TestArtifact
@@ -52,8 +48,4 @@ class TestArtifactWrapper(
 class FragmentWrapper(
     private val fragment: Fragment
 ) : Fragment by fragment, PlatformAware {
-    private val partsByClass = parts.associate { it.clazz to it.value }
-    operator fun <T : Any> get(clazz: Class<T>) = partsByClass[clazz]?.let { it as T }
 }
-
-internal inline fun <reified T : Any> FragmentWrapper.part() = this[T::class.java]

@@ -9,15 +9,12 @@ import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
-import org.jetbrains.deft.proto.gradle.part
 import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -49,7 +46,7 @@ class JavaBindingPluginPart(
     private fun applyJavaApplication() {
         val jvmArtifacts = module.artifacts
             .filter { Platform.JVM in it.platforms }
-            .filter { it.part<JavaApplicationArtifactPart>() != null }
+            .filter { it.parts.find<JavaApplicationArtifactPart>() != null }
         if (jvmArtifacts.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +
@@ -57,7 +54,7 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val artifact = jvmArtifacts.firstOrNull() ?: return
-        val applicationSettings = artifact.part<JavaApplicationArtifactPart>()!!
+        val applicationSettings = artifact.parts.find<JavaApplicationArtifactPart>()!!
         javaAPE.apply {
             mainClass.set(applicationSettings.mainClass)
         }

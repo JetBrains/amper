@@ -48,7 +48,7 @@ class FragmentBuilder(var name: String) {
     private val fragmentDependencies: MutableList<FragmentLink> = mutableListOf()
     private val fragmentDependants: MutableSet<FragmentLink> = mutableSetOf()
     private val externalDependencies: MutableList<Notation> = mutableListOf()
-    private val parts: MutableSet<ByClassWrapper<FragmentPart<*>>> = mutableSetOf()
+    private val parts: ClassBasedSet<FragmentPart<*>> = classBasedSet()
     private val platforms: MutableSet<Platform> = mutableSetOf()
     var src: Path? = null
 
@@ -73,7 +73,7 @@ class FragmentBuilder(var name: String) {
     fun kotlinPart(init: KotlinFragmentPartBuilder.() -> Unit) {
         val builder = KotlinFragmentPartBuilder()
         builder.init()
-        parts.add(ByClassWrapper(builder.build()))
+        parts.add(builder.build())
     }
 
     fun build(): Fragment {
@@ -145,7 +145,7 @@ class ArtifactBuilder {
     var name = ""
     private val fragments: MutableList<FragmentBuilder> = mutableListOf()
     private val platforms: MutableSet<Platform> = mutableSetOf()
-    private val parts: MutableSet<ByClassWrapper<ArtifactPart<*>>> = mutableSetOf()
+    private val parts: ClassBasedSet<ArtifactPart<*>> = classBasedSet()
 
     fun fragment(fragmentBuilder: FragmentBuilder) {
         fragments.add(fragmentBuilder)
@@ -154,7 +154,7 @@ class ArtifactBuilder {
     fun javaPart(init: JavaArtifactPartBuilder.() -> Unit) {
         val builder = JavaArtifactPartBuilder()
         builder.init()
-        parts.add(ByClassWrapper(builder.build()))
+        parts.add(builder.build())
     }
 
     fun build(): Artifact {

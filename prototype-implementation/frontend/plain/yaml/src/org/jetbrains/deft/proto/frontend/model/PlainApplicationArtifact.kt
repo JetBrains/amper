@@ -31,23 +31,19 @@ internal open class PlainApplicationArtifact(
         get() = setOf(platform)
     override val parts: ClassBasedSet<ArtifactPart<*>>
         get() {
-            return buildSet {
+            return buildClassBasedSet {
                 if (platform == Platform.ANDROID) {
                     targetInternalFragment.android?.let {
-                        add(ByClassWrapper(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion)))
+                        add(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion))
                     }
                 }
 
                 targetInternalFragment.java?.let {
-                    add(ByClassWrapper(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix)))
+                    add(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix))
                 }
 
                 targetInternalFragment.native?.let {
-                    add(
-                        ByClassWrapper(
-                            NativeApplicationArtifactPart(it.entryPoint)
-                        )
-                    )
+                    add(NativeApplicationArtifactPart(it.entryPoint))
                 }
             }
         }

@@ -4,13 +4,6 @@ sealed interface ArtifactPart<SelfT> {
     fun default(): ArtifactPart<SelfT>
 }
 
-data class KotlinArtifactPart(
-    val some: String
-) : ArtifactPart<KotlinArtifactPart> {
-    override fun default(): ArtifactPart<KotlinArtifactPart> = KotlinArtifactPart(some.ifBlank { "default" })
-
-}
-
 data class AndroidArtifactPart(
     val compileSdkVersion: String?,
     val minSdkVersion: Int?,

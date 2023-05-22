@@ -30,9 +30,9 @@ class PropagateTest {
         // when
         val resultModel = model.resolved
 
-        val part =
-            resultModel.modules.first().fragments.find { it.name == "jvm" }?.parts?.find { it.clazz == KotlinFragmentPart::class.java }
-                ?.let { it.value as KotlinFragmentPart }
+        val part = resultModel.modules.first().fragments.find { it.name == "jvm" }
+                    ?.parts
+                    ?.findInstance<KotlinFragmentPart>()
 
         assertEquals("1.9", part?.languageVersion)
     }
@@ -65,9 +65,9 @@ class PropagateTest {
         // when
         val resultModel = model.resolved
 
-        val part =
-            resultModel.modules.first().fragments.find { it.name == "darwin" }?.parts?.find { it.clazz == KotlinFragmentPart::class.java }
-                ?.let { it.value as KotlinFragmentPart }
+        val part = resultModel.modules.first().fragments.find { it.name == "darwin" }
+                    ?.parts
+                    ?.findInstance<KotlinFragmentPart>()
 
         assertEquals("1.9", part?.languageVersion)
     }
@@ -97,8 +97,8 @@ class PropagateTest {
 
         assertEquals(
             "1.9",
-            resultModel.modules.first().fragments.find { it.name == "jvm" }?.parts?.find { it.clazz == KotlinFragmentPart::class.java }
-                ?.let { it.value as KotlinFragmentPart }?.apiVersion
+            resultModel.modules.first().fragments.find { it.name == "jvm" }
+                    ?.parts?.findInstance<KotlinFragmentPart>()?.apiVersion
         )
     }
 
@@ -131,8 +131,8 @@ class PropagateTest {
 
         assertEquals(
             "MainKt",
-            resultModel.modules.first().artifacts.find { it.name == "jvm" }?.parts?.find { it.clazz == JavaApplicationArtifactPart::class.java }
-                ?.let { it.value as JavaApplicationArtifactPart }?.mainClass
+            resultModel.modules.first().artifacts.find { it.name == "jvm" }
+                    ?.parts?.findInstance<JavaApplicationArtifactPart>()?.mainClass
         )
     }
 }

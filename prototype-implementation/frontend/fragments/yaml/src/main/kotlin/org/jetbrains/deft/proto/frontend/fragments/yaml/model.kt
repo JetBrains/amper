@@ -15,7 +15,7 @@ internal data class FragmentImpl(
     override val name: String,
     override val fragmentDependencies: MutableList<FragmentLinkImpl>,
     override val externalDependencies: List<Notation>,
-    override val parts: ClassBasedSet<FragmentPart<*>> = emptySet(),
+    override val parts: ClassBasedSet<FragmentPart<*>> = classBasedSet(),
     override val fragmentDependants: List<FragmentLink>,
     override val src: Path?,
     override val platforms: Set<Platform>,
@@ -30,14 +30,14 @@ internal data class ArtifactImpl(
     override val name: String,
     override val fragments: List<FragmentImpl>,
     override val platforms: Set<Platform>,
-    override val parts: ClassBasedSet<ArtifactPart<*>> = emptySet(),
+    override val parts: ClassBasedSet<ArtifactPart<*>> = classBasedSet(),
 ) : Artifact
 
 internal data class FragmentDefinition(
     val externalDependencies: List<Notation>,
     val fragmentDependencies: List<String>,
     val fragmentParts: ClassBasedSet<FragmentPart<*>>,
-    val artifactParts: ClassBasedSet<ArtifactPart<*>> = emptySet(),
+    val artifactParts: ClassBasedSet<ArtifactPart<*>> = classBasedSet(),
 )
 
 internal data class Variant(val values: List<String>)

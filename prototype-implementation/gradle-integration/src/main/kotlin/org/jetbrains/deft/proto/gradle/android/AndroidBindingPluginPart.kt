@@ -6,7 +6,6 @@ import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.deft.proto.gradle.part
 
 fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 
@@ -61,7 +60,7 @@ class AndroidBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.find { it == Platform.ANDROID } ?: return@forEach
             val part =
-                artifact.part<AndroidArtifactPart>() ?: error("No android properties for an artifact ${artifact.name}")
+                artifact.parts.find<AndroidArtifactPart>() ?: error("No android properties for an artifact ${artifact.name}")
             androidPE?.apply {
                 part.compileSdkVersion?.let {
                     compileSdkVersion(it)

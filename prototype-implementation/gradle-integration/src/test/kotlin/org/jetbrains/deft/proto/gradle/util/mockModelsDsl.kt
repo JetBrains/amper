@@ -50,7 +50,7 @@ class MockFragment(
     override val fragmentDependencies = mutableListOf<FragmentLink>()
     override val externalDependencies = mutableListOf<Notation>()
     override val platforms = mutableSetOf<Platform>()
-    override val parts = mutableSetOf<ByClassWrapper<FragmentPart<*>>>()
+    override val parts = classBasedSet<FragmentPart<*>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override var src: Path? = null
     fun refines(other: MockFragment) = fragmentDependencies.add(
@@ -63,7 +63,7 @@ class MockFragment(
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
     fun dependency(module: MockPotatoModule) = externalDependencies.add(MockPotatoDependency(module))
-    fun addPart(part: FragmentPart<*>) = parts.add(ByClassWrapper(part))
+    fun addPart(part: FragmentPart<*>) = parts.add(part)
 }
 
 class MockArtifact(
@@ -71,6 +71,6 @@ class MockArtifact(
     override val platforms: Set<Platform>,
     override val fragments: List<MockFragment>,
 ) : Artifact {
-    override val parts = mutableSetOf<ByClassWrapper<ArtifactPart<*>>>()
-    fun addPart(part: ArtifactPart<*>) = parts.add(ByClassWrapper(part))
+    override val parts = classBasedSet<ArtifactPart<*>>()
+    fun addPart(part: ArtifactPart<*>) = parts.add(part)
 }

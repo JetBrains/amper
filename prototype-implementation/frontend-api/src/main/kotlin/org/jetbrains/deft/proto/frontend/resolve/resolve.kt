@@ -3,7 +3,6 @@ package org.jetbrains.deft.proto.frontend.propagate
 import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 
-typealias Parts = Set<ByClassWrapper<FragmentPart<*>>>
 
 val Model.resolved: Model
     get() = object : Model {
@@ -51,12 +50,12 @@ fun List<Artifact>.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): List
 @Suppress("UNCHECKED_CAST")
 fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): Fragment {
     val resolvedParts = parent.parts.mapNotNull {
-        val parentPart = it.value
-        val sourcePart = parts.find { it.value::class == parentPart::class }?.value
+        val parentPart = it
+        val sourcePart = parts[parentPart::class.java]
         sourcePart?.let {
-            ByClassWrapper((it as FragmentPart<Any>).block(parentPart))
-        } ?: ByClassWrapper((parentPart as FragmentPart<Any>).block(parentPart))
-    }.toSet()
+            (it as FragmentPart<Any>).block(parentPart)
+        } ?: (parentPart as FragmentPart<Any>).block(parentPart)
+    }.toClassBasedSet()
     return object : Fragment {
         override val name: String
             get() = this@resolve.name
@@ -77,7 +76,7 @@ fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>
 
 @Suppress("UNCHECKED_CAST")
 fun Artifact.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): Artifact {
-    val resolvedParts = parts.map { (it.value as ArtifactPart<Any>).block() }.map { ByClassWrapper(it) }.toSet()
+    val resolvedParts = parts.map { (it as ArtifactPart<Any>).block() }.toClassBasedSet()
     return object : Artifact {
         override val name: String
             get() = this@resolve.name

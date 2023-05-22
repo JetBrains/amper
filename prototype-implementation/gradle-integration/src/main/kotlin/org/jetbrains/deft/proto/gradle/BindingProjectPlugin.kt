@@ -31,7 +31,7 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyPublicationAttributes(potatoModule: PotatoModuleWrapper, project: Project) {
-        potatoModule.artifacts.firstOrNull { !it.isTest }?.part<PublicationArtifactPart>()?.let {
+        potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
             project.group = it.group
             project.version = it.version
             val extension = project.extensions.getByType(PublishingExtension::class.java)
@@ -45,7 +45,7 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
-        if (linkedModule.fragments.mapNotNull { it.part<TestFragmentPart>() }.any { it.junitPlatform == true }) {
+        if (linkedModule.fragments.mapNotNull { it.parts.find<TestFragmentPart>() }.any { it.junitPlatform == true }) {
             project.tasks.withType(Test::class.java) {
                 it.useJUnitPlatform()
             }

@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import java.net.URI
 import java.nio.file.Path
 
 sealed interface PotatoModuleSource
@@ -11,6 +12,21 @@ data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource
 enum class PotatoModuleType {
     LIBRARY,
     APPLICATION,
+}
+
+sealed interface ModulePart<SelfT> {
+    fun default(): ModulePart<SelfT> = error("No default!")
+}
+
+data class PublicationModulePart(
+    val repositories: List<Repository>
+) : ModulePart<PublicationModulePart> {
+    data class Repository(
+            val name: String,
+            val url: URI,
+            val userName: String,
+            val password: String,
+    )
 }
 
 /**

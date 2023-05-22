@@ -20,7 +20,7 @@ internal fun prettyPrint(potato: PotatoModule): String {
             appendLine("  Fragment dependencies: [${fragment.fragmentDependencies.joinToString { "${it.target.name} [${it.type}]" }}]")
             appendLine("  External dependencies: ${fragment.externalDependencies}")
             if (fragment.parts.isNotEmpty()) {
-                appendLine("  Parts: ${fragment.parts.map { it.value }}")
+                appendLine("  Parts: ${fragment.parts}")
             }
             appendLine("  Platforms: ${fragment.platforms}")
         }
@@ -30,7 +30,7 @@ internal fun prettyPrint(potato: PotatoModule): String {
             appendLine("- Built from [${artifact.fragments.joinToString { it.name }}]")
             appendLine("  For platforms ${artifact.platforms}")
             if (artifact.parts.isNotEmpty()) {
-                appendLine("  Parts: ${artifact.parts.map { it.value }}")
+                appendLine("  Parts: ${artifact.parts}")
             }
         }
     }
