@@ -38,6 +38,7 @@ class BindingProjectPlugin : Plugin<Project> {
             extension.publications {
                 it.create(project.name, MavenPublication::class.java) {
                     it.from(project.components.findByName("kotlin"))
+                    if (potatoModule.javaNeeded) it.from(project.components.findByName("java"))
                 }
             }
         }
