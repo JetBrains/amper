@@ -19,6 +19,8 @@ val Model.resolved: Model
                         get() = it.fragments.resolve { propagate(it).default() }
                     override val artifacts: List<Artifact>
                         get() = it.artifacts.resolve { default() }
+                    override val parts: ClassBasedSet<ModulePart<*>>
+                        get() = classBasedSet()
 
                 }
             }
