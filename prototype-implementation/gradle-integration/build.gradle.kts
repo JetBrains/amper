@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.utils.extendsFrom
 import java.net.URI
 
 plugins {
@@ -57,6 +56,10 @@ publishing {
         maven {
             name = "spacePackages"
             url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
+            credentials {
+                username = rootProject.ext["spaceUsername"] as? String
+                password = rootProject.ext["spacePassword"] as? String
+            }
         }
     }
 }

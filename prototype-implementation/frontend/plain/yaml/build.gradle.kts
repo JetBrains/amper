@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     kotlin("multiplatform")
     `maven-publish`
@@ -50,6 +52,17 @@ tasks.withType(Test::class) {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "spacePackages"
+            url = URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
+            credentials {
+                username = rootProject.ext["spaceUsername"] as? String
+                password = rootProject.ext["spacePassword"] as? String
+            }
+        }
+    }
+
     publications {
         create<MavenPublication>(project.name) {
             from(components["kotlin"])
