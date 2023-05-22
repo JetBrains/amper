@@ -99,7 +99,6 @@ class KMPPBindingPluginPart(
             // First iteration - create source sets and add dependencies.
             module.fragments.forEach { fragment ->
                 fragment.maybeCreateSourceSet {
-                    println("Sourceset name for dependency ${this.name}")
                     dependencies {
                         fragment.externalDependencies.forEach { externalDependency ->
                             when (externalDependency) {
