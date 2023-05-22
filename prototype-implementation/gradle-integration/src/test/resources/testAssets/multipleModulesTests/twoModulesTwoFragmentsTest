@@ -14,14 +14,9 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvm:
-   depends(common)
-   sourceDirs(jvm/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
   jvmMain:
-   depends(commonMain,jvm)
-   sourceDirs()
+   depends(commonMain,common)
+   sourceDirs(jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
@@ -45,16 +40,11 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvm:
-   depends(common)
+  jvmMain:
+   depends(commonMain,common)
    sourceDirs(jvm/src)
    lang(api=null version=null progressive=false features=)
    implDeps($TEMP_DIR_NAME:module1:unspecified)
-  jvmMain:
-   depends(commonMain,jvm)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
   jvmTest:
    depends(commonTest)
    sourceDirs()

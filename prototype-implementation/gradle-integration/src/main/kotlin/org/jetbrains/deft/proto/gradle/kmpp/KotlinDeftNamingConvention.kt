@@ -4,8 +4,11 @@ import org.jetbrains.deft.proto.frontend.Artifact
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.TestArtifact
 import org.jetbrains.deft.proto.frontend.doCamelCase
+import org.jetbrains.deft.proto.gradle.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
+import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -27,7 +30,7 @@ object KotlinDeftNamingConvention {
                 .requireSingle { "Leaf android fragment must have exactly one platform" }
                 .targetName
 
-    context(KMPPBindingPluginPart, AndroidAwarePart)
+    context(KMPPBindingPluginPart, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSetName: String
         get() = when (name) {
             leafNonTestFragment?.name -> "${leafNonTestFragment.targetName}Main"
@@ -35,7 +38,7 @@ object KotlinDeftNamingConvention {
             else -> name
         }
 
-    context(KMPPBindingPluginPart, AndroidAwarePart)
+    context(KMPPBindingPluginPart, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
 
