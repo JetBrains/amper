@@ -7,6 +7,7 @@ import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
 import java.nio.file.Path
 import kotlin.io.path.isSameFileAs
+import kotlin.io.path.relativeTo
 
 /**
  * Create gradle project for every [PotatoModule] and fill
@@ -48,31 +49,14 @@ private fun doInitProjects(
         settings.project(":").projectDir = rootPath.toFile()
     }
 
-    // Function to create valid gradle project paths.
-    val path2ProjectPath = mutableMapOf<Path, String>()
-    fun getProjectPathAndMemoize(currentModulePath: Path): String {
-        // Check if we are root module.
-        if (currentModulePath.isSameFileAs(rootPath)) return ":"
-        // Get previous known project path.
-        var previousPath: Path = currentModulePath
-        while (!path2ProjectPath.containsKey(previousPath) && !previousPath.isSameFileAs(rootPath))
-            previousPath = Path.of("/").resolve(previousPath.subpath(0, previousPath.nameCount - 1))
-        val previousNonRootProjectPath = path2ProjectPath[previousPath]
-        // Calc current project path, based on file structure.
-        val currentProjectId = currentModulePath.fileName.toString()
-        val resultProjectPath = if (previousNonRootProjectPath != null) {
-            "$previousNonRootProjectPath:$currentProjectId"
-        } else {
-            ":$currentProjectId"
-        }
-        // Memoize.
-        path2ProjectPath[currentModulePath] = resultProjectPath
-        return resultProjectPath
-    }
-
     // Go by ascending path length and generate projects.
     sortedByPath.forEach {
-        val projectPath = getProjectPathAndMemoize(it.buildDir)
+        val currentPath = it.buildDir
+        val projectPath = if (currentPath.isSameFileAs(rootPath)) {
+            ":"
+        } else {
+            ":" + currentPath.relativeTo(rootPath).toString().replace("/", ":")
+        }
         settings.include(projectPath)
         val project = settings.project(projectPath)
         project.projectDir = it.buildDir.toFile()

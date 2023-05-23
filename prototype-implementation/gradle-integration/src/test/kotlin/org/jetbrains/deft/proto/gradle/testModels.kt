@@ -5,6 +5,7 @@ import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.util.MockModel
+import org.jetbrains.deft.proto.gradle.util.MockPotatoModule
 import org.jetbrains.deft.proto.gradle.util.getMockModelName
 import org.jetbrains.deft.proto.gradle.util.withDebug
 import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
@@ -52,13 +53,12 @@ object Models : ModelInit {
 
     val commonFragmentModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common") {
-                platforms.add(Platform.JVM)
-            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                common
+                fragment {
+                    platforms.add(Platform.JVM)
+                }
             )
         }
     }
@@ -66,9 +66,8 @@ object Models : ModelInit {
 
     val jvmTwoFragmentModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common")
             val jvm = fragment("jvm") {
-                refines(common)
+                refines(fragment())
                 platforms.add(Platform.JVM)
             }
             artifact(
@@ -81,7 +80,7 @@ object Models : ModelInit {
 
     val threeFragmentsSingleArtifactModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common")
+            val common = fragment()
             val jvm = fragment("jvm") {
                 refines(common)
                 platforms.add(Platform.JVM)
@@ -100,35 +99,33 @@ object Models : ModelInit {
 
     val kotlinFragmentPartModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common") {
-                addPart(
-                    KotlinFragmentPart(
-                        "1.8",
-                        "1.8",
-                        true,
-                        listOf("InlineClasses"),
-                        listOf("org.mylibrary.OptInAnnotation"),
-                    )
-                )
-                platforms.add(Platform.JVM)
-            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                common
+                fragment {
+                    addPart(
+                        KotlinFragmentPart(
+                            "1.8",
+                            "1.8",
+                            true,
+                            listOf("InlineClasses"),
+                            listOf("org.mylibrary.OptInAnnotation"),
+                        )
+                    )
+                    platforms.add(Platform.JVM)
+                }
             )
         }
     }
 
     val singleFragmentAndroidModel by mockModel {
         module(it.buildToml) {
-            val common = fragment("common") {
-                platforms.add(Platform.ANDROID)
-            }
             artifact(
                 "myApp",
                 setOf(Platform.ANDROID),
-                common
+                fragment {
+                    platforms.add(Platform.ANDROID)
+                }
             ) {
                 addPart(AndroidArtifactPart(
                     "android-31", 24
@@ -139,33 +136,30 @@ object Models : ModelInit {
 
     val twoModulesModel by mockModel {
         val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
-            val common = fragment("common") {
-                platforms.add(Platform.JVM)
-            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                common
+                fragment {
+                    platforms.add(Platform.JVM)
+                }
             )
         }
         module(it.resolve("module2/Pot.yaml").createDirectories()) {
-            val common = fragment("common") {
-                dependency(module1)
-                platforms.add(Platform.JVM)
-            }
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                common
+                fragment {
+                    dependency(module1)
+                    platforms.add(Platform.JVM)
+                }
             )
         }
     }
 
     val twoModulesTwoFragmentsModel by mockModel {
         val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
-            val common = fragment("common")
             val jvm = fragment("jvm") {
-                refines(common)
+                refines(fragment())
                 platforms.add(Platform.JVM)
             }
             artifact(
@@ -175,7 +169,7 @@ object Models : ModelInit {
             )
         }
         module(it.resolve("module2/Pot.yaml").createDirectories()) {
-            val common = fragment("common") {
+            val common = fragment {
                 dependency(module1)
             }
             val jvm = fragment("jvm") {
@@ -189,5 +183,36 @@ object Models : ModelInit {
                 jvm
             )
         }
+    }
+
+    val twoDirectoryHierarchyModel by mockModel {
+        module(it.resolve("outer/Pot.yaml").createDirectories()) {
+            singleFragmentJvmArtifact()
+        }
+        module(it.resolve("outer/intermediate/inner/Pot.yaml").createDirectories()) {
+            singleFragmentJvmArtifact()
+        }
+    }
+
+    val threeDirectoryHierarchyModel by mockModel {
+        module(it.resolve("outer/Pot.yaml").createDirectories()) {
+            singleFragmentJvmArtifact()
+        }
+        module(it.resolve("outer/intermediate/inner1/Pot.yaml").createDirectories()) {
+            singleFragmentJvmArtifact()
+        }
+        module(it.resolve("outer/inner2/Pot.yaml").createDirectories()) {
+            singleFragmentJvmArtifact()
+        }
+    }
+
+    fun MockPotatoModule.singleFragmentJvmArtifact() {
+        artifact(
+            "myApp",
+            setOf(Platform.JVM),
+            fragment {
+                platforms.add(Platform.JVM)
+            }
+        )
     }
 }

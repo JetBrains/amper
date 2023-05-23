@@ -2,18 +2,37 @@ package org.jetbrains.deft.proto.gradle.util
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.InvalidPluginMetadataException
+import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.deft.proto.gradle.MockModelHandle
+import org.jetbrains.deft.proto.gradle.Models
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.util.*
 
 
-interface WithTempDir {
-    var tempDir: File
+abstract class TestBase {
+
+    @field:TempDir
+    lateinit var tempDir: File
+
+    @BeforeEach
+    fun setUpGradleSettings() = setUpGradleProjectDir(tempDir)
+
 }
 
-fun WithTempDir.runGradleWithModel(model: MockModelHandle): BuildResult = GradleRunner.create()
+// Need to be inlined, since looks for trace.
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun TestBase.doTest(model: MockModelHandle) {
+    val runResult = runGradleWithModel(model)
+    val printKotlinInfo = runResult.task(":$printKotlinSourcesTask")
+    Assertions.assertEquals(TaskOutcome.SUCCESS, printKotlinInfo?.outcome)
+    val extracted = runResult.output.extractSourceInfoOutput()
+    assertEqualsWithCurrentTestResource(extracted)
+}
+
+fun TestBase.runGradleWithModel(model: MockModelHandle): BuildResult = GradleRunner.create()
     .withArguments(printKotlinSourcesTask, "--stacktrace")
     .withPluginClasspath()
     .withProjectDir(tempDir)
@@ -52,13 +71,20 @@ val StackTraceElement.decapitalizedSimpleName get() =
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun WithTempDir.assertEqualsWithCurrentTestResource(actual: String) =
+internal inline fun TestBase.assertEqualsWithCurrentTestResource(actual: String) =
         assertEqualsWithResource("testAssets/$currentTestName", actual)
 
-fun WithTempDir.assertEqualsWithResource(expectedResourceName: String, actual: String) =
+fun TestBase.assertEqualsWithResource(expectedResourceName: String, actual: String) =
         Thread.currentThread().contextClassLoader
                 .getResource(expectedResourceName)
                 ?.readText()
                 ?.replace("\$TEMP_DIR_NAME", tempDir.name)
-                ?.let { Assertions.assertEquals(it, actual) }
+                ?.let {
+                    if (fastReplace) {
+                        val expectedFile = File(".").absoluteFile.resolve("src/test/resources/$expectedResourceName")
+                        if (expectedFile.exists()) expectedFile.writeText(actual)
+                    } else {
+                        Assertions.assertEquals(it, actual)
+                    }
+                }
                 ?: error("No resource $expectedResourceName!")

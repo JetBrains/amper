@@ -21,7 +21,7 @@ class MockPotatoModule(
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
 
-    fun fragment(name: String = "fragment", builder: MockFragment.() -> Unit = {}) =
+    fun fragment(name: String = "common", builder: MockFragment.() -> Unit = {}) =
         MockFragment(name).apply(builder).apply { fragments.add(this) }
 
     fun artifact(
