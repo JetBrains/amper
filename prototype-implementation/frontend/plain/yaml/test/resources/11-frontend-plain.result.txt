@@ -10,6 +10,7 @@ Fragments:
     Fragment dependencies:
     Parts:
       KotlinFragmentPart(languageVersion=1.9, apiVersion=null, progressiveMode=null, languageFeatures=[contextReceivers], optIns=[])
+      TestFragmentPart(junitPlatform=null)
   jvmTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10)
@@ -20,15 +21,20 @@ Fragments:
     Fragment dependencies:
       jvm (FRIEND)
     Parts:
+      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestFragmentPart(junitPlatform=null)
 Artifacts:
   isTest: false
   [JVM]
     Fragments:
       jvm
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend)
   isTest: true
   [JVM]
     Fragments:
       jvmTest
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)

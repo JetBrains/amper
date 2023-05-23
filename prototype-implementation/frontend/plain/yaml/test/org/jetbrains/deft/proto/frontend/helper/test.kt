@@ -36,7 +36,7 @@ internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { 
         assertEquals(expected, actual)
     } else {
         val toReplace = actual.replace(module.userReadableName, "{{ userReadableName }}")
-        val resourceFile = File(".").absoluteFile.resolve("src/test/resources/$expectedResourceName")
+        val resourceFile = File(".").absoluteFile.resolve("test/resources/$expectedResourceName")
         if (resourceFile.exists()) resourceFile.writeText(toReplace)
         else fail(
             "Cannot replace ${resourceFile.absolutePath} contents. It does not exists.  " +

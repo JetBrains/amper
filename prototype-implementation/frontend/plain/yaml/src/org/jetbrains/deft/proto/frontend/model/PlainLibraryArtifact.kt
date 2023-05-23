@@ -24,15 +24,16 @@ internal open class PlainLibraryArtifact(
         get() = platformList.toSet()
     override val parts: ClassBasedSet<ArtifactPart<*>>
         get() = buildClassBasedSet {
-            fragmentBuilders
+            val androidPart = fragmentBuilders
                 .filter { it.platforms.contains(Platform.ANDROID) }
-                .firstNotNullOfOrNull { it.android }?.let {
-                    add(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion))
-                }
-            fragmentBuilders
+                .firstNotNullOfOrNull { it.android }
+
+            add(AndroidArtifactPart(androidPart?.compileSdkVersion, androidPart?.androidMinSdkVersion))
+
+            val javaPart = fragmentBuilders
                 .filter { it.platforms.contains(Platform.JVM) }
-                .firstNotNullOfOrNull { it.java }?.let {
-                    add(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix))
-                }
+                .firstNotNullOfOrNull { it.java }
+
+            add(JavaApplicationArtifactPart(javaPart?.mainClass, javaPart?.packagePrefix))
         }
 }

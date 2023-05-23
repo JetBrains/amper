@@ -33,17 +33,18 @@ internal open class PlainApplicationArtifact(
         get() {
             return buildClassBasedSet {
                 if (platform == Platform.ANDROID) {
-                    targetInternalFragment.android?.let {
-                        add(AndroidArtifactPart(it.compileSdkVersion, it.androidMinSdkVersion))
-                    }
+                    val androidPart = targetInternalFragment.android
+                    add(AndroidArtifactPart(androidPart?.compileSdkVersion, androidPart?.androidMinSdkVersion))
                 }
 
-                targetInternalFragment.java?.let {
-                    add(JavaApplicationArtifactPart(it.mainClass, it.packagePrefix))
+                if (platform == Platform.JVM) {
+                    val javaPart = targetInternalFragment.java
+                    add(JavaApplicationArtifactPart(javaPart?.mainClass, javaPart?.packagePrefix))
                 }
 
-                targetInternalFragment.native?.let {
-                    add(NativeApplicationArtifactPart(it.entryPoint))
+                if (platform.native()) {
+                    val nativePart = targetInternalFragment.native
+                    add(NativeApplicationArtifactPart(nativePart?.entryPoint))
                 }
             }
         }

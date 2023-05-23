@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 context (Stateful<FragmentBuilder, Fragment>)
 internal class PlainFragment(
-        private val fragmentBuilder: FragmentBuilder
+    private val fragmentBuilder: FragmentBuilder
 ) : Fragment {
     override val name: String
         get() = fragmentBuilder.name
@@ -17,19 +17,16 @@ internal class PlainFragment(
         get() = fragmentBuilder.externalDependencies.toList()
     override val parts: ClassBasedSet<FragmentPart<*>>
         get() = buildClassBasedSet {
-            fragmentBuilder.kotlin?.let {
-                add(KotlinFragmentPart(
-                        it.languageVersion?.toString(),
-                        it.apiVersion?.toString(),
-                        it.progressiveMode,
-                        it.languageFeatures,
-                        it.optIns,
-                ))
-            }
-
-            fragmentBuilder.junit?.let {
-                add(TestFragmentPart(it.platformEnabled))
-            }
+            add(
+                KotlinFragmentPart(
+                    fragmentBuilder.kotlin?.languageVersion?.toString(),
+                    fragmentBuilder.kotlin?.apiVersion?.toString(),
+                    fragmentBuilder.kotlin?.progressiveMode,
+                    fragmentBuilder.kotlin?.languageFeatures ?: listOf(),
+                    fragmentBuilder.kotlin?.optIns ?: listOf()
+                )
+            )
+            add(TestFragmentPart(fragmentBuilder.junit?.platformEnabled))
         }
     override val platforms: Set<Platform>
         get() = fragmentBuilder.platforms
