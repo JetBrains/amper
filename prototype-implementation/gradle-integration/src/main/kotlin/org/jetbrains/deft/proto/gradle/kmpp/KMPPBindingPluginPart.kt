@@ -1,7 +1,5 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
@@ -76,10 +74,10 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun initFragments(): List<Configuration> {
+    private fun initFragments() {
         val isAndroid = module.fragments.any { it.platforms.contains(Platform.ANDROID) }
         val aware = if (isAndroid) androidAware else javaAware
-        return with(aware) {
+        with(aware) {
             // Introduced function to remember to propagate language settings.
             fun KotlinSourceSet.doDependsOn(it: Fragment) {
                 val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
@@ -146,14 +144,6 @@ class KMPPBindingPluginPart(
                     }
                 }
             }
-
-            project.configurations.map {
-                val c = it
-                it.attributes {
-                    it.attribute(Attribute.of("artifactName", String::class.java), c.name)
-                }
-            }
-
         }
     }
 

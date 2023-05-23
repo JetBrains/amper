@@ -12,8 +12,8 @@ import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
-import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -80,21 +80,6 @@ class JavaBindingPluginPart(
             }
         }
 
-        val akpClass = Thread.currentThread().contextClassLoader
-                .loadClass("org.jetbrains.kotlin.gradle.plugin.AbstractKotlinPlugin")
-
-        val apkCompanion = akpClass.declaredFields
-                .filter { it.name == "Companion" }
-                .requireSingle { "Field Companion must be present in ${akpClass.simpleName}" }
-                .get(null)
-
-        val akpCompanionClass = Thread.currentThread().contextClassLoader
-                .loadClass("org.jetbrains.kotlin.gradle.plugin.AbstractKotlinPlugin\$Companion")
-
-        val setUpJavaSourceSetsMethod = akpCompanionClass.declaredMethods
-                .filter { it.name == "setUpJavaSourceSets\$kotlin_gradle_plugin_common" }
-                .requireSingle { "Method setUpJavaSourceSets must be present in ${akpCompanionClass.simpleName}" }
-
-        setUpJavaSourceSetsMethod.invoke(apkCompanion, Platform.JVM.target, false)
+        (Platform.JVM.target as? KotlinJvmTarget)?.withJava()
     }
 }

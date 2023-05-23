@@ -11,12 +11,12 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(common/src)
+   sourceDirs(common/src,src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :module2
@@ -32,11 +32,11 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(common/src)
+   sourceDirs(common/src,src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps($TEMP_DIR_NAME:module1:unspecified)
   jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()

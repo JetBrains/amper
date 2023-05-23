@@ -14,9 +14,8 @@ import kotlin.io.path.relativeTo
  * [projectPathToModule] and [moduleFilePathToProject].
  */
 fun initProjects(settings: Settings, model: Model) {
-    val absoluteRootPath = settings.rootDir.toPath().toAbsolutePath()
     checkCompatibility(model.modules)
-    doInitProjects(settings, absoluteRootPath, model.modules)
+    doInitProjects(settings, settings.rootDir.toPath(), model.modules)
 }
 
 private fun checkCompatibility(modules: List<PotatoModule>) {
@@ -38,25 +37,39 @@ private fun doInitProjects(
     rootPath: Path,
     modules: List<PotatoModule>
 ) {
+    @Suppress("NAME_SHADOWING")
+    val rootPath = rootPath.normalize().toAbsolutePath()
     val sortedByPath = modules.sortedBy { it.buildFile }
+    val createdGradlePaths = mutableSetOf<String>()
 
     // Fallback if no modules.
     if (sortedByPath.isEmpty()) return
 
     // Need to create root project if no module reside in root.
-    if (sortedByPath[0] != rootPath) {
+    if (!sortedByPath[0].buildDir.isSameFileAs(rootPath)) {
+        createdGradlePaths.add(":")
         settings.include(":")
         settings.project(":").projectDir = rootPath.toFile()
     }
 
+    fun Path.toGradlePath() = ":" + relativeTo(rootPath).toString().replace("/", ":")
+
     // Go by ascending path length and generate projects.
     sortedByPath.forEach {
-        val currentPath = it.buildDir
+        val currentPath = it.buildDir.normalize().toAbsolutePath()
         val projectPath = if (currentPath.isSameFileAs(rootPath)) {
+            createdGradlePaths.add(":")
             ":"
         } else {
-            ":" + currentPath.relativeTo(rootPath).toString().replace("/", ":")
+            // Do include intermediate projects for Gradle correct behaviour.
+            var previous = currentPath.parent
+            while (!rootPath.isSameFileAs(previous) && !createdGradlePaths.contains(previous.toGradlePath())) {
+                settings.include(previous.toGradlePath())
+                previous = previous.parent
+            }
+            currentPath.toGradlePath()
         }
+
         settings.include(projectPath)
         val project = settings.project(projectPath)
         project.projectDir = it.buildDir.toFile()
