@@ -7,7 +7,8 @@ import org.jetbrains.deft.proto.frontend.*
  * some other functionality.
  */
 data class ModelWrapper(
-    val model: Model
+    val model: Model,
+    override val parts: ClassBasedSet<ModelPart<*>> = classBasedSet()
 ) : Model {
     override val modules = ArrayList(model.modules)
 }

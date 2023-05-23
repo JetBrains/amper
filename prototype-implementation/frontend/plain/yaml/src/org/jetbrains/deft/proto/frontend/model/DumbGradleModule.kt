@@ -14,7 +14,4 @@ class DumbGradleModule(private val file: Path) : PotatoModule {
         get() = listOf()
     override val artifacts: List<Artifact>
         get() = listOf()
-    override val parts: ClassBasedSet<ModulePart<*>>
-        get() = classBasedSet()
-
 }

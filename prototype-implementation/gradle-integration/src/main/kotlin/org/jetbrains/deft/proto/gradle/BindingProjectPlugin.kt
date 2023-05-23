@@ -5,13 +5,16 @@ import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
+import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
-import org.jetbrains.deft.proto.frontend.PublicationModulePart
+import org.jetbrains.deft.proto.frontend.PublicationModelPart
 import org.jetbrains.deft.proto.frontend.TestFragmentPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
 /**
  * Gradle project plugin entry point.
@@ -24,21 +27,30 @@ class BindingProjectPlugin : Plugin<Project> {
         val linkedModule = projectToModule[project.path] ?: return
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
+        val additionalScript = linkedModule.buildDir.resolve("build.gradle.kts")
+        if (additionalScript.exists()) {
+            project.apply(mapOf("from" to additionalScript.absolutePathString()))
+        }
+
         applyKotlinMPAttributes(pluginCtx)
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
-        applyPublicationAttributes(linkedModule, project)
+        applyPublicationAttributes(model, linkedModule, project)
         applyTest(linkedModule, project)
     }
 
-    private fun applyPublicationAttributes(potatoModule: PotatoModuleWrapper, project: Project) {
+    private fun applyPublicationAttributes(
+        model: Model,
+        potatoModule: PotatoModuleWrapper,
+        project: Project
+    ) {
         potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
             project.group = it.group
             project.version = it.version
             val extension = project.extensions.getByType(PublishingExtension::class.java)
 
             extension.repositories { repositoriesHandler ->
-                val repositories = potatoModule.parts.find<PublicationModulePart>()
+                val repositories = model.parts.find<PublicationModelPart>()
                         ?.mavenRepositories ?: emptyList()
                 repositories.forEach { mavenRepo ->
                     repositoriesHandler.maven {

@@ -6,6 +6,7 @@ import java.nio.file.Path
 class MockModel(
     val name: String
 ) : Model {
+    override val parts = classBasedSet<ModelPart<*>>()
     override val modules = mutableListOf<PotatoModule>()
     fun module(buildFile: Path, builder: MockPotatoModule.() -> Unit) =
         MockPotatoModule(buildFile).apply(builder).apply { modules.add(this) }
@@ -19,7 +20,6 @@ class MockPotatoModule(
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
-    override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet()
 
     fun fragment(name: String = "fragment", builder: MockFragment.() -> Unit = {}) =
         MockFragment(name).apply(builder).apply { fragments.add(this) }

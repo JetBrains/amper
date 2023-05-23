@@ -6,6 +6,10 @@ internal typealias Settings = Map<String, Any>
 
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
+internal inline fun <reified T : Any> Settings.requireValue(
+    key: String, handler: () -> String
+): T = this[key] as? T ?: error(handler())
+
 fun Settings.getSettings(key: String): Settings? = getValue<Settings>(key)
 internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T? {
     var settings = this

@@ -6,6 +6,9 @@ import java.nio.file.Path
 
 val Model.resolved: Model
     get() = object : Model {
+        override val parts: ClassBasedSet<ModelPart<*>>
+            get() = this@resolved.parts
+
         override val modules: List<PotatoModule>
             get() = this@resolved.modules.map {
                 object : PotatoModule {
@@ -19,8 +22,6 @@ val Model.resolved: Model
                         get() = it.fragments.resolve { propagate(it).default() }
                     override val artifacts: List<Artifact>
                         get() = it.artifacts.resolve { default() }
-                    override val parts: ClassBasedSet<ModulePart<*>>
-                        get() = classBasedSet()
 
                 }
             }

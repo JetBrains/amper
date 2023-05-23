@@ -137,8 +137,6 @@ class PotatoModuleBuilder(var name: String) {
                 get() = this@PotatoModuleBuilder.fragments.map { it.build() }
             override val artifacts: List<Artifact>
                 get() = this@PotatoModuleBuilder.artifacts
-            override val parts: ClassBasedSet<ModulePart<*>>
-                get() = classBasedSet()
         }
     }
 }

@@ -29,8 +29,6 @@ internal class PlainPotatoModule(
             "lib" -> library()
             else -> error("Unsupported product type")
         }
-    override val parts: ClassBasedSet<ModulePart<*>>
-        get() = classBasedSet()
 
     private fun library(): List<Artifact> {
         return buildList {

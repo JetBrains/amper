@@ -23,6 +23,12 @@ class YamlModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
 
+        val rootFile = root.resolve("drawer.yaml")
+        val modelParts = if (rootFile.exists())
+            parseModuleParts(rootFile.inputStream())
+        else
+            classBasedSet()
+
         val ignore = root.resolve(".deftignore")
         val ignoreLines = if (ignore.exists()) {
             ignore.readLines()
@@ -44,6 +50,7 @@ class YamlModelInit : ModelInit {
             .collect(Collectors.toList())
 
         return object : Model {
+            override val parts = modelParts
             override val modules: List<PotatoModule> = modules + gradleModuleWrappers
         }
     }
