@@ -27,7 +27,7 @@ class BindingProjectPlugin : Plugin<Project> {
         val linkedModule = projectToModule[project.path] ?: return
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
-        val additionalScript = linkedModule.buildDir.resolve("build.gradle.kts")
+        val additionalScript = linkedModule.buildDir.resolve("Pot.kts")
         if (additionalScript.exists()) {
             project.apply(mapOf("from" to additionalScript.absolutePathString()))
         }
