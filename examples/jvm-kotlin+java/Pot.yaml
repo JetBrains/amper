@@ -13,3 +13,4 @@ settings:
     languageVersion: 1.8
   java:
     languageVersion: 1.8
+    mainClass: MainKt

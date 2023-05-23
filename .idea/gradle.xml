@@ -12,6 +12,30 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-with-tests" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/jvm-with-tests" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/kmp-mobile" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/kmp-mobile" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>

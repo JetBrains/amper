@@ -1,3 +1,8 @@
 product:
   type: app
-  platforms: [jvm]
+  platforms: [ jvm ]
+
+
+settings:
+  java:
+    mainClass: MainKt
