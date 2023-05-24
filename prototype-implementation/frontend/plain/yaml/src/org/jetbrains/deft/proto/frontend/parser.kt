@@ -64,6 +64,10 @@ fun parseModule(value: String): PotatoModule {
         fragments.calculateSrcDir(platforms.toSet())
     }
 
-    val mutableState = object : Stateful<FragmentBuilder, Fragment> {}
+    val mutableState = object : Stateful<FragmentBuilder, Fragment> {
+        private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()
+        override val state: MutableMap<FragmentBuilder, Fragment>
+            get() = mutableState
+    }
     return with(mutableState) { PlainPotatoModule(config, fragments, platforms) }
 }

@@ -9,7 +9,6 @@ interface BuildFileAware {
 
 interface Stateful<K, V> {
     val state: MutableMap<K, V>
-        get() = mutableMapOf()
 }
 
 fun <T> cartesianSets(elements: Iterable<Collection<T>>): List<Set<T>> =

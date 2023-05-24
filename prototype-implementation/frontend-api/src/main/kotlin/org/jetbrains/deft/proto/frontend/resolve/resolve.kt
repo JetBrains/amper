@@ -33,6 +33,11 @@ fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> Fragmen
     this@resolve.firstOrNull { it.name == "common" }?.let {
         add(it)
         deque.add(it)
+    } ?: run {
+        this@resolve.firstOrNull()?.let {
+            add(it)
+            deque.add(it)
+        }
     }
 
     while (deque.isNotEmpty()) {
@@ -52,7 +57,7 @@ fun List<Artifact>.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): List
 
 @Suppress("UNCHECKED_CAST")
 fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): Fragment {
-    val resolvedParts = parent.parts.mapNotNull {
+    val resolvedParts = parent.parts.map {
         val parentPart = it
         val sourcePart = parts[parentPart::class.java]
         sourcePart?.let {
@@ -80,6 +85,20 @@ fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>
 @Suppress("UNCHECKED_CAST")
 fun Artifact.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): Artifact {
     val resolvedParts = parts.map { (it as ArtifactPart<Any>).block() }.toClassBasedSet()
+    if (this is TestArtifact) {
+        return object: TestArtifact {
+            override val testFor: Artifact
+                get() = this@resolve.testFor
+            override val name: String
+                get() = this@resolve.name
+            override val fragments: List<Fragment>
+                get() = this@resolve.fragments
+            override val platforms: Set<Platform>
+                get() = this@resolve.platforms
+            override val parts: ClassBasedSet<ArtifactPart<*>>
+                get() = resolvedParts
+        }
+    }
     return object : Artifact {
         override val name: String
             get() = this@resolve.name

@@ -47,6 +47,7 @@ class JavaBindingPluginPart(
         val jvmArtifacts = module.artifacts
             .filter { Platform.JVM in it.platforms }
             .filter { it.parts.find<JavaApplicationArtifactPart>() != null }
+            .filter { !it.isTest }
         if (jvmArtifacts.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +

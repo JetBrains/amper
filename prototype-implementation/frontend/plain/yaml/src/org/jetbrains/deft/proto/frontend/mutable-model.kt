@@ -169,12 +169,7 @@ internal data class FragmentBuilder(
     }
 
     context (Stateful<FragmentBuilder, Fragment>)
-    fun build(): Fragment = state[this] ?: run {
-        val mutableFragment = this
-        val fragment = PlainFragment(mutableFragment)
-        state[mutableFragment] = fragment
-        fragment
-    }
+    fun build(): Fragment = state.computeIfAbsent(this) { PlainFragment(it) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
