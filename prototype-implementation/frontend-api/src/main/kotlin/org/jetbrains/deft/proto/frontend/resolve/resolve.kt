@@ -44,7 +44,7 @@ fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> Fragmen
         val fragment = deque.removeFirst()
         fragment.fragmentDependants.forEach { link ->
             val dependant = link.target
-            if (dependant !in deque) {
+            if (dependant !in this) {
                 val resolved = dependant.resolve(fragment, block)
                 deque.add(resolved)
                 add(resolved)

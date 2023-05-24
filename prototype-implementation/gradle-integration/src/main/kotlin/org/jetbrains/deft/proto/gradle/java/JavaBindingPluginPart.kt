@@ -59,11 +59,8 @@ class JavaBindingPluginPart(
         javaAPE.apply {
             mainClass.set(applicationSettings.mainClass)
         }
-        println("Applying package prefix ${applicationSettings.packagePrefix}")
         project.tasks.withType(KotlinCompile::class.java).configureEach {
-            println("Task $it")
             it.javaPackagePrefix = applicationSettings.packagePrefix
-            println(it.javaPackagePrefix)
         }
     }
 
@@ -73,6 +70,9 @@ class JavaBindingPluginPart(
     private fun adjustJavaSourceSets() {
         project.plugins.apply(JavaPlugin::class.java)
 
+        val kotlinJvmTarget = Platform.JVM.target as? KotlinJvmTarget
+        kotlinJvmTarget?.withJava()
+
         // Set sources for all deft related source sets.
         platformFragments.forEach {
             it.maybeCreateJavaSourceSet {
@@ -80,7 +80,5 @@ class JavaBindingPluginPart(
                 resources.setSrcDirs(it.resourcePaths)
             }
         }
-
-        (Platform.JVM.target as? KotlinJvmTarget)?.withJava()
     }
 }

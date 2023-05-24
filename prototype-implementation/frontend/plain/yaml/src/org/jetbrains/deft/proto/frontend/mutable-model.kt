@@ -204,6 +204,10 @@ internal data class FragmentBuilder(
         result = 31 * result + (junit?.hashCode() ?: 0)
         return result
     }
+
+    override fun toString(): String {
+        return "FragmentBuilder(name='$name', platforms=$platforms, variants=$variants, alias=$alias, src=$src)"
+    }
 }
 
 internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): List<FragmentBuilder> {
@@ -258,29 +262,33 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
         for (option in options) {
             val dependencies = option.getValue<List<Settings>>("dependsOn") ?: listOf()
             val name = option.getValue<String>("name") ?: error("Name is required for option")
+
+            val sourceFragments = fragmentMap[name] ?: error("Something went wrong")
+            // correct previous old dependencies references after copying
+            sourceFragments.forEach { fragment ->
+                val dependenciesToRemove = mutableSetOf<MutableFragmentDependency>()
+                val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
+                fragment.dependencies.forEach { sourceDependency ->
+                    val targetFragment =
+                        sourceFragments
+                            .filter { it !== fragment }
+                            .sortedByDescending { (sourceDependency.target.variants intersect it.variants).size }
+                            .firstOrNull { it.platforms == sourceDependency.target.platforms }
+                            ?: error("Something went wrong")
+
+                    val targetDependency = MutableFragmentDependency(targetFragment, sourceDependency.dependencyKind)
+                    dependenciesToRemove.add(sourceDependency)
+                    dependenciesToAdd.add(targetDependency)
+
+//                    targetFragment.dependants.map { it.target }.firstOrNull { it.name == fragment.name }?.removeDependency(targetDependency)
+
+                }
+                fragment.removeDependencies(dependenciesToRemove)
+                fragment.addDependencies(dependenciesToAdd)
+            }
+
             for (dependency in dependencies) {
                 val dependencyTarget = dependency.getValue<String>("target")
-                val sourceFragments = fragmentMap[name] ?: error("Something went wrong")
-
-                // correct previous old dependencies references after copying
-                sourceFragments.forEach { fragment ->
-                    val dependenciesToRemove = mutableSetOf<MutableFragmentDependency>()
-                    val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
-                    fragment.dependencies.forEach { dependency ->
-                        val targetFragment =
-                            sourceFragments
-                                .filter { it !== fragment }
-                                .sortedByDescending { (dependency.target.variants intersect it.variants).size }
-                                .firstOrNull { it.platforms == dependency.target.platforms }
-                                ?: error("Something went wrong")
-
-                        dependenciesToRemove.add(dependency)
-                        dependenciesToAdd.add(MutableFragmentDependency(targetFragment, dependency.dependencyKind))
-                    }
-                    fragment.removeDependencies(dependenciesToRemove)
-                    fragment.addDependencies(dependenciesToAdd)
-                }
-
                 // add new dependencies related to copying
                 fragmentMap[dependencyTarget]?.let { targetFragments ->
                     for (i in sourceFragments.indices) {
@@ -305,7 +313,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
     new.variants.addAll(old.variants)
     new.dependencies.addAll(old.dependencies)
-    new.dependants.addAll(old.dependants)
+//    new.dependants.addAll(old.dependants)
     new.alias = old.alias
 }
 

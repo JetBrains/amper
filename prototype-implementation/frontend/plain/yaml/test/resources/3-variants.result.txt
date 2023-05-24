@@ -58,7 +58,7 @@ Fragments:
     External dependencies:
     Src folder: test@debug
     Fragment dependencies:
-      commonFreeTest (REFINE)
+      commonTest (REFINE)
       commonDebug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -147,7 +147,7 @@ Fragments:
     External dependencies:
     Src folder: test@release
     Fragment dependencies:
-      commonFreeTest (REFINE)
+      commonTest (REFINE)
       commonRelease (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -231,8 +231,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64+debug
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
-      iosArm64FreeTest (REFINE)
+      iosDebugTest (REFINE)
+      iosArm64Test (REFINE)
       iosArm64Debug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -241,7 +241,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosArm64+free
     Fragment dependencies:
-      iosDebugFree (REFINE)
+      iosFree (REFINE)
       iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -250,7 +250,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64+free
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosFreeTest (REFINE)
       iosArm64Test (REFINE)
       iosArm64Free (FRIEND)
     Parts:
@@ -260,7 +260,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosArm64+paid
     Fragment dependencies:
-      iosDebugPaid (REFINE)
+      iosPaid (REFINE)
       iosArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -269,7 +269,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64+paid
     Fragment dependencies:
-      iosDebugPaidTest (REFINE)
+      iosPaidTest (REFINE)
       iosArm64Test (REFINE)
       iosArm64Paid (FRIEND)
     Parts:
@@ -330,8 +330,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64+release
     Fragment dependencies:
-      iosReleaseFreeTest (REFINE)
-      iosArm64FreeTest (REFINE)
+      iosReleaseTest (REFINE)
+      iosArm64Test (REFINE)
       iosArm64Release (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -340,7 +340,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosTest (REFINE)
       iosArm64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -400,8 +400,8 @@ Fragments:
     External dependencies:
     Src folder: test@ios+debug
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
-      iosFreeTest (REFINE)
+      commonDebugTest (REFINE)
+      iosTest (REFINE)
       iosDebug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -410,7 +410,7 @@ Fragments:
     External dependencies:
     Src folder: src@ios+free
     Fragment dependencies:
-      commonDebugFree (REFINE)
+      commonFree (REFINE)
       ios (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -419,7 +419,7 @@ Fragments:
     External dependencies:
     Src folder: test@ios+free
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
+      commonFreeTest (REFINE)
       iosTest (REFINE)
       iosFree (FRIEND)
     Parts:
@@ -429,7 +429,7 @@ Fragments:
     External dependencies:
     Src folder: src@ios+paid
     Fragment dependencies:
-      commonDebugPaid (REFINE)
+      commonPaid (REFINE)
       ios (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -438,7 +438,7 @@ Fragments:
     External dependencies:
     Src folder: test@ios+paid
     Fragment dependencies:
-      commonDebugPaidTest (REFINE)
+      commonPaidTest (REFINE)
       iosTest (REFINE)
       iosPaid (FRIEND)
     Parts:
@@ -499,8 +499,8 @@ Fragments:
     External dependencies:
     Src folder: test@ios+release
     Fragment dependencies:
-      commonReleaseFreeTest (REFINE)
-      iosFreeTest (REFINE)
+      commonReleaseTest (REFINE)
+      iosTest (REFINE)
       iosRelease (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -568,8 +568,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64+debug
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
-      iosSimulatorArm64FreeTest (REFINE)
+      iosDebugTest (REFINE)
+      iosSimulatorArm64Test (REFINE)
       iosSimulatorArm64Debug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -578,7 +578,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosSimulatorArm64+free
     Fragment dependencies:
-      iosDebugFree (REFINE)
+      iosFree (REFINE)
       iosSimulatorArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -587,7 +587,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64+free
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosFreeTest (REFINE)
       iosSimulatorArm64Test (REFINE)
       iosSimulatorArm64Free (FRIEND)
     Parts:
@@ -597,7 +597,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosSimulatorArm64+paid
     Fragment dependencies:
-      iosDebugPaid (REFINE)
+      iosPaid (REFINE)
       iosSimulatorArm64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -606,7 +606,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64+paid
     Fragment dependencies:
-      iosDebugPaidTest (REFINE)
+      iosPaidTest (REFINE)
       iosSimulatorArm64Test (REFINE)
       iosSimulatorArm64Paid (FRIEND)
     Parts:
@@ -667,8 +667,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64+release
     Fragment dependencies:
-      iosReleaseFreeTest (REFINE)
-      iosSimulatorArm64FreeTest (REFINE)
+      iosReleaseTest (REFINE)
+      iosSimulatorArm64Test (REFINE)
       iosSimulatorArm64Release (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -677,7 +677,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosTest (REFINE)
       iosSimulatorArm64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -686,7 +686,7 @@ Fragments:
     External dependencies:
     Src folder: test@ios
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
+      commonTest (REFINE)
       ios (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -754,8 +754,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosX64+debug
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
-      iosX64FreeTest (REFINE)
+      iosDebugTest (REFINE)
+      iosX64Test (REFINE)
       iosX64Debug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -764,7 +764,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosX64+free
     Fragment dependencies:
-      iosDebugFree (REFINE)
+      iosFree (REFINE)
       iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -773,7 +773,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosX64+free
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosFreeTest (REFINE)
       iosX64Test (REFINE)
       iosX64Free (FRIEND)
     Parts:
@@ -783,7 +783,7 @@ Fragments:
     External dependencies:
     Src folder: src@iosX64+paid
     Fragment dependencies:
-      iosDebugPaid (REFINE)
+      iosPaid (REFINE)
       iosX64 (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -792,7 +792,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosX64+paid
     Fragment dependencies:
-      iosDebugPaidTest (REFINE)
+      iosPaidTest (REFINE)
       iosX64Test (REFINE)
       iosX64Paid (FRIEND)
     Parts:
@@ -853,8 +853,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosX64+release
     Fragment dependencies:
-      iosReleaseFreeTest (REFINE)
-      iosX64FreeTest (REFINE)
+      iosReleaseTest (REFINE)
+      iosX64Test (REFINE)
       iosX64Release (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -863,7 +863,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosX64
     Fragment dependencies:
-      iosDebugFreeTest (REFINE)
+      iosTest (REFINE)
       iosX64 (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -931,8 +931,8 @@ Fragments:
     External dependencies:
     Src folder: test@jvm+debug
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
-      jvmFreeTest (REFINE)
+      commonDebugTest (REFINE)
+      jvmTest (REFINE)
       jvmDebug (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -941,7 +941,7 @@ Fragments:
     External dependencies:
     Src folder: src@jvm+free
     Fragment dependencies:
-      commonDebugFree (REFINE)
+      commonFree (REFINE)
       jvm (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -950,7 +950,7 @@ Fragments:
     External dependencies:
     Src folder: test@jvm+free
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
+      commonFreeTest (REFINE)
       jvmTest (REFINE)
       jvmFree (FRIEND)
     Parts:
@@ -960,7 +960,7 @@ Fragments:
     External dependencies:
     Src folder: src@jvm+paid
     Fragment dependencies:
-      commonDebugPaid (REFINE)
+      commonPaid (REFINE)
       jvm (REFINE)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -969,7 +969,7 @@ Fragments:
     External dependencies:
     Src folder: test@jvm+paid
     Fragment dependencies:
-      commonDebugPaidTest (REFINE)
+      commonPaidTest (REFINE)
       jvmTest (REFINE)
       jvmPaid (FRIEND)
     Parts:
@@ -1030,8 +1030,8 @@ Fragments:
     External dependencies:
     Src folder: test@jvm+release
     Fragment dependencies:
-      commonReleaseFreeTest (REFINE)
-      jvmFreeTest (REFINE)
+      commonReleaseTest (REFINE)
+      jvmTest (REFINE)
       jvmRelease (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -1040,7 +1040,7 @@ Fragments:
     External dependencies:
     Src folder: test@jvm
     Fragment dependencies:
-      commonDebugFreeTest (REFINE)
+      commonTest (REFINE)
       jvm (FRIEND)
     Parts:
       KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
