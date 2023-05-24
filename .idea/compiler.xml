@@ -13,9 +13,6 @@
       <module name="jvm-kotlin+java_test" target="17" />
       <module name="jvm-with-tests_main" target="17" />
       <module name="jvm-with-tests_test" target="17" />
-      <module name="kmp-mobile-modularized.android" target="17" />
-      <module name="kmp-mobile-modularized.ios" target="17" />
-      <module name="kmp-mobile-modularized.shared" target="17" />
       <module name="prototype-implementation.frontend.fragments.yaml.main" target="20" />
       <module name="prototype-implementation.frontend.fragments.yaml.test" target="20" />
       <module name="prototype-implementation.frontend.with-fragments.yaml" target="17" />

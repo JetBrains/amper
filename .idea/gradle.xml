@@ -36,6 +36,17 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/kmp-mobile-modularized" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized" />
+            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/android" />
+            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/ios" />
+            <option value="$PROJECT_DIR$/examples/kmp-mobile-modularized/shared" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>
