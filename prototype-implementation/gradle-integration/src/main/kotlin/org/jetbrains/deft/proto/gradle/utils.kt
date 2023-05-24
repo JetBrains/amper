@@ -4,11 +4,15 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
-import java.util.*
+import kotlin.io.path.exists
 
 val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
 val PotatoModule.buildDir get() = buildFile.parent
+
+val PotatoModule.additionalScript get() = buildDir
+    .resolve("Pot.gradle.kts")
+    .takeIf { it.exists() }
 
 /**
  * Get or create string key-ed binding map from extension properties.

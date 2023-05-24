@@ -14,29 +14,27 @@ import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.exists
 
 /**
  * Gradle project plugin entry point.
  */
 class BindingProjectPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        // Prepare context.
         val model = project.gradle.knownModel ?: return
         val projectToModule = project.gradle.projectPathToModule
         val moduleToProject = project.gradle.moduleFilePathToProject
         val linkedModule = projectToModule[project.path] ?: return
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
-        val additionalScript = linkedModule.buildDir.resolve("Pot.kts")
-        if (additionalScript.exists()) {
-            project.apply(mapOf("from" to additionalScript.absolutePathString()))
-        }
-
+        // Apply parts.
         applyKotlinMPAttributes(pluginCtx)
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
+
         applyPublicationAttributes(model, linkedModule, project)
         applyTest(linkedModule, project)
+        applyAdditionalScript(project, linkedModule)
     }
 
     private fun applyPublicationAttributes(
@@ -51,7 +49,7 @@ class BindingProjectPlugin : Plugin<Project> {
 
             extension.repositories { repositoriesHandler ->
                 val repositories = model.parts.find<PublicationModelPart>()
-                        ?.mavenRepositories ?: emptyList()
+                    ?.mavenRepositories ?: emptyList()
                 repositories.forEach { mavenRepo ->
                     repositoriesHandler.maven {
                         it.name = mavenRepo.name
@@ -70,6 +68,12 @@ class BindingProjectPlugin : Plugin<Project> {
                     if (potatoModule.javaNeeded) it.from(project.components.findByName("java"))
                 }
             }
+        }
+    }
+
+    private fun applyAdditionalScript(project: Project, linkedModule: PotatoModuleWrapper) {
+        linkedModule.additionalScript?.apply {
+            project.apply(mapOf("from" to absolutePathString()))
         }
     }
 
