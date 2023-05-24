@@ -50,9 +50,8 @@ object KotlinDeftNamingConvention {
         get() = kotlinMPE.targets.findByName(targetName)
 
     private val Artifact.compilationName
-        get() = when {
-            this is TestArtifact && testFor.name == name -> "test"
-            this is TestArtifact -> name
+        get() = when (this) {
+            is TestArtifact -> "test"
             else -> "main"
         }
 
