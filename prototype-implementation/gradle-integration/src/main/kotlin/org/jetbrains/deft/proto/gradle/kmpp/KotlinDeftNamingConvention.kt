@@ -51,6 +51,8 @@ object KotlinDeftNamingConvention {
 
     private val Artifact.compilationName
         get() = when (this) {
+            // todo: we need to create compilations by ourselves,
+            //  so in future we will find compilation by artifact name
             is TestArtifact -> "test"
             else -> "main"
         }
