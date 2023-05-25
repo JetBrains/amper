@@ -21,12 +21,12 @@ Artifacts:
     Fragments:
       android
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)
   isTest: true
   [ANDROID]
     Fragments:
       androidTest
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)

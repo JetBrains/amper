@@ -219,13 +219,14 @@ internal fun deduceFragments(
                 if (Platform.ANDROID in targetPlatforms) {
                     val androidArtifactPart = explicitFragments.values.flatMap { it.artifactParts }
                         .filterIsInstance<AndroidArtifactPart>()
-                        .firstOrNull() ?: AndroidArtifactPart("android-33", 24)
+                        .firstOrNull() ?: AndroidArtifactPart("android-33", 24, "17", "17")
                     // TODO: default is a bit hacky here
                     add(androidArtifactPart)
                 }
             }
             listOf(ArtifactImpl(potatoName, allFragments, targetPlatforms, artifactParts))
         }
+
         PotatoModuleType.APPLICATION -> buildList {
             for (platform in targetPlatforms) {
                 for (variantCombination in variantCombinations) {
@@ -233,7 +234,10 @@ internal fun deduceFragments(
                     val variantSuffix = variantCombination.toVariantSuffix()
                     val name = "${platform.fragmentName}${variantSuffix}"
                     val resultFragment = checkNotNull(resultFragments[name])
-                    val artifactParts = explicitFragments.findFragmentDefinition(platform.fragmentName, variantCombination)?.artifactParts ?: classBasedSet()
+                    val artifactParts = explicitFragments.findFragmentDefinition(
+                        platform.fragmentName,
+                        variantCombination
+                    )?.artifactParts ?: classBasedSet()
                     add(ArtifactImpl(potatoName, listOf(resultFragment), setOf(platform), artifactParts))
                 }
             }

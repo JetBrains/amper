@@ -29,12 +29,12 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend)
   isTest: true
   [JVM]
     Fragments:
       jvmTest
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)

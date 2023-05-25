@@ -34,7 +34,15 @@ internal open class PlainApplicationArtifact(
             return buildClassBasedSet {
                 if (platform == Platform.ANDROID) {
                     val androidPart = targetInternalFragment.android
-                    add(AndroidArtifactPart(androidPart?.compileSdkVersion, androidPart?.androidMinSdkVersion))
+
+                    add(
+                        AndroidArtifactPart(
+                            androidPart?.compileSdkVersion,
+                            androidPart?.androidMinSdkVersion,
+                            androidPart?.sourceCompatibility,
+                            androidPart?.targetCompatibility
+                        )
+                    )
                 }
 
                 if (platform == Platform.JVM) {

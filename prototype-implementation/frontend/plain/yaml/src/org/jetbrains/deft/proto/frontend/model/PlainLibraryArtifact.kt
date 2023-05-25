@@ -28,7 +28,14 @@ internal open class PlainLibraryArtifact(
                 .filter { it.platforms.contains(Platform.ANDROID) }
                 .firstNotNullOfOrNull { it.android }
 
-            add(AndroidArtifactPart(androidPart?.compileSdkVersion, androidPart?.androidMinSdkVersion))
+            add(
+                AndroidArtifactPart(
+                    androidPart?.compileSdkVersion,
+                    androidPart?.androidMinSdkVersion,
+                    androidPart?.sourceCompatibility,
+                    androidPart?.targetCompatibility
+                )
+            )
 
             val javaPart = fragmentBuilders
                 .filter { it.platforms.contains(Platform.JVM) }

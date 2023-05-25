@@ -85,9 +85,11 @@ private fun parseType(potatoMap: Map<String, Any>): PotatoModuleType = when (val
 }
 
 private fun parseTargetPlatforms(potatoMap: Map<String, Any>): Set<Platform> {
-    val rawPlatforms = potatoMap["platforms"] as? List<String> ?: throw ParsingException("At least one platform should be provided in \"platforms\" fields")
+    val rawPlatforms = potatoMap["platforms"] as? List<String>
+        ?: throw ParsingException("At least one platform should be provided in \"platforms\" fields")
     return rawPlatforms.map { rawPlatform ->
-        val platform = getPlatformFromFragmentName(rawPlatform) ?: throw ParsingException("Unknown platform $rawPlatform")
+        val platform =
+            getPlatformFromFragmentName(rawPlatform) ?: throw ParsingException("Unknown platform $rawPlatform")
         if (!platform.isLeaf) throw ParsingException("Intermediate platforms ($platform) can't be target")
         platform
     }.toSet()
@@ -98,10 +100,19 @@ private fun parseVariants(potatoMap: Map<String, Any>): List<Variant> {
     return rawVariants.map(::Variant)
 }
 
-private fun parseExplicitFragments(source: PotatoModuleSource, potatoMap: Map<String, Any>): Map<String, FragmentDefinition> {
-    val rawFragments = potatoMap.filterKeys { it !in RESERVED_TOP_LEVEL_NAMES } as? Map<String, Map<String, Any>?> ?: return emptyMap()
+private fun parseExplicitFragments(
+    source: PotatoModuleSource,
+    potatoMap: Map<String, Any>
+): Map<String, FragmentDefinition> {
+    val rawFragments =
+        potatoMap.filterKeys { it !in RESERVED_TOP_LEVEL_NAMES } as? Map<String, Map<String, Any>?> ?: return emptyMap()
     return rawFragments.map { (name, fragment) ->
-        if (fragment == null) return@map name to FragmentDefinition(emptyList(), emptyList(), classBasedSet(), classBasedSet())
+        if (fragment == null) return@map name to FragmentDefinition(
+            emptyList(),
+            emptyList(),
+            classBasedSet(),
+            classBasedSet()
+        )
         val externalDependencies = fragment["dependencies"] as? List<String> ?: emptyList()
         val refines = fragment["refines"]
         val fragmentDependencies = refines as? List<String> ?: (refines as? String)?.let(::listOf) ?: emptyList()
@@ -148,7 +159,9 @@ private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaApplicationArt
 private fun parseAndroidArtifactPart(fragment: Map<String, Any>): AndroidArtifactPart? {
     val compileSdkVersion = fragment["compileSdkVersion"] as? String ?: return null
     val minSdkVersion = fragment["minSdkVersion"] as? Int
-    return AndroidArtifactPart(compileSdkVersion, minSdkVersion)
+    val sourceCompatibility = fragment["sourceCompatibility"] as? String
+    val targetCompatibility = fragment["targetCompatibility"] as? String
+    return AndroidArtifactPart(compileSdkVersion, minSdkVersion, sourceCompatibility, targetCompatibility)
 }
 
 private fun parseKotlinFragmentPart(kotlinSettings: Map<String, Any>): KotlinFragmentPart {

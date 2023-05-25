@@ -92,7 +92,7 @@ Artifacts:
       ios
       js
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)
   isTest: true
   [JVM, ANDROID, IOS_ARM64, JS]
@@ -102,5 +102,5 @@ Artifacts:
       iosTest
       jsTest
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)

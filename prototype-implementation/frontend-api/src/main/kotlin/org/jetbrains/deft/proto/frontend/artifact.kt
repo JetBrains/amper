@@ -7,10 +7,16 @@ sealed interface ArtifactPart<SelfT> {
 data class AndroidArtifactPart(
     val compileSdkVersion: String?,
     val minSdkVersion: Int?,
-
+    val sourceCompatibility: String?,
+    val targetCompatibility: String?,
 ) : ArtifactPart<AndroidArtifactPart> {
     override fun default(): ArtifactPart<AndroidArtifactPart> =
-        AndroidArtifactPart(compileSdkVersion ?: "android-33", minSdkVersion ?: 21)
+        AndroidArtifactPart(
+            compileSdkVersion ?: "android-33",
+            minSdkVersion ?: 21,
+            sourceCompatibility ?: "17",
+            targetCompatibility ?: "17",
+        )
 }
 
 data class JavaApplicationArtifactPart(

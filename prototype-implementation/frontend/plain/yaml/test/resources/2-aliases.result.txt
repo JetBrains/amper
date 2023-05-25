@@ -108,13 +108,13 @@ Artifacts:
     Fragments:
       android
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
   isTest: true
   [ANDROID]
     Fragments:
       androidTest
     Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
   isTest: false
   [IOS_ARM64]
     Fragments:

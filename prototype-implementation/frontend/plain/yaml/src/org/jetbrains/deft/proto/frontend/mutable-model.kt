@@ -104,6 +104,8 @@ internal data class FragmentBuilder(
     data class AndroidFragmentBuilder(
         var compileSdkVersion: String? = null,
         var androidMinSdkVersion: Int? = null,
+        var sourceCompatibility: String? = null,
+        var targetCompatibility: String? = null,
     ) {
         companion object {
             operator fun invoke(block: AndroidFragmentBuilder.() -> Unit): AndroidFragmentBuilder {
@@ -436,6 +438,8 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
             android = FragmentBuilder.AndroidFragmentBuilder {
                 compileSdkVersion = androidSettings.getValue<String>("compileSdkVersion")
                 androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
+                sourceCompatibility = androidSettings.getValue<String>("sourceCompatibility")
+                targetCompatibility = androidSettings.getValue<String>("targetCompatibility")
             }
         }
     }

@@ -11,7 +11,7 @@ fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).a
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
-        ctx: PluginPartCtx,
+    ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.ANDROID), DeftNamingConventions {
 
     internal val androidPE = project.extensions.findByName("android") as BaseExtension?
@@ -24,7 +24,7 @@ open class AndroidAwarePart(
  * Plugin logic, bind to specific module, when only default target is available.
  */
 class AndroidBindingPluginPart(
-        ctx: PluginPartCtx,
+    ctx: PluginPartCtx,
 ) : AndroidAwarePart(ctx) {
 
     /**
@@ -60,7 +60,8 @@ class AndroidBindingPluginPart(
         module.artifacts.forEach { artifact ->
             artifact.platforms.find { it == Platform.ANDROID } ?: return@forEach
             val part =
-                artifact.parts.find<AndroidArtifactPart>() ?: error("No android properties for an artifact ${artifact.name}")
+                artifact.parts.find<AndroidArtifactPart>()
+                    ?: error("No android properties for an artifact ${artifact.name}")
             androidPE?.apply {
                 part.compileSdkVersion?.let {
                     compileSdkVersion(it)
@@ -69,6 +70,8 @@ class AndroidBindingPluginPart(
                     it.minSdkVersion(part.minSdkVersion ?: 24)
                 }
                 compileOptions {
+                    it.setSourceCompatibility(part.sourceCompatibility)
+                    it.setTargetCompatibility(part.targetCompatibility)
                 }
             }
         }
