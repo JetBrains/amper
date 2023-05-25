@@ -136,7 +136,7 @@ class PropagateTest {
         assertEquals(
             "MainKt",
             resultModel.modules.first().artifacts.find { it.name == "jvm" }
-                    ?.parts?.findInstance<JavaApplicationArtifactPart>()?.mainClass
+                    ?.parts?.findInstance<JavaArtifactPart>()?.mainClass
         )
     }
 }

@@ -21,10 +21,16 @@ Artifacts:
     Fragments:
       jvm
     Parts:
-      JavaApplicationArtifactPart(mainClass=MainKt, packagePrefix=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=MainKt, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [JVM]
     Fragments:
       jvmTest
     Parts:
-      JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=MainKt, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)

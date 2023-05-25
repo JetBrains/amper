@@ -87,8 +87,6 @@ fun Artifact.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): Artifact {
     val resolvedParts = parts.map { (it as ArtifactPart<Any>).block() }.toClassBasedSet()
     if (this is TestArtifact) {
         return object: TestArtifact {
-            override val testFor: Artifact
-                get() = this@resolve.testFor
             override val name: String
                 get() = this@resolve.name
             override val fragments: List<Fragment>

@@ -44,4 +44,4 @@ iosArm64:
 # Artifacts:
 # - Built from [common, commonTest, iosArm64, iosArm64Test, android, androidTest]
 #   For platforms [IOS_ARM64, ANDROID]
-#   Parts: [AndroidArtifactPart(compileSdkVersion=android-33, minSdkVersion=24)]
+#   Parts: [AndroidArtifactPart(compileSdkVersion=android-33, minSdkVersion=24, sourceCompatibility=17, targetCompatibility=17)]

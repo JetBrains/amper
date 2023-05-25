@@ -51,10 +51,10 @@ android:
 # Artifacts:
 # - Built from [jvm]
 #   For platforms [JVM]
-#   Parts: [JavaApplicationArtifactPart(mainClass=CustomMainKt, packagePrefix=)]
+#   Parts: [JavaArtifactPart(mainClass=CustomMainKt, packagePrefix=, jvmTarget=17)]
 # - Built from [android]
 #   For platforms [ANDROID]
-#   Parts: [AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=25)]
+#   Parts: [AndroidArtifactPart(compileSdkVersion=android-31, minSdkVersion=25, sourceCompatibility=null, targetCompatibility=null)]
 # - Built from [iosX64]
 #   For platforms [IOS_X64]
 #   Parts: [NativeApplicationArtifactPart(entryPoint=customMain)]

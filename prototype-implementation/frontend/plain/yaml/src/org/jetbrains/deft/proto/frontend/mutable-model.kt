@@ -1,13 +1,14 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
+import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
 import java.nio.file.Path
 import java.util.*
 
 internal data class MutableFragmentDependency(val target: FragmentBuilder, val dependencyKind: DependencyKind) {
     enum class DependencyKind {
-        Friend,
-        Refines
+        Friend, Refines
     }
 }
 
@@ -27,10 +28,6 @@ internal data class FragmentBuilder(
 
     // parts
     var kotlin: KotlinFragmentBuilder? = null,
-    var java: JavaFragmentBuilder? = null,
-    var native: NativeFragmentBuilder? = null,
-    var android: AndroidFragmentBuilder? = null,
-    var publish: PublishingFragmentBuilder? = null,
     var junit: JunitFragmentBuilder? = null,
 ) {
 
@@ -39,8 +36,7 @@ internal data class FragmentBuilder(
         dependencies.add(mutableFragmentDependency)
         mutableFragmentDependency.target.dependants.add(
             MutableFragmentDependency(
-                this,
-                mutableFragmentDependency.dependencyKind
+                this, mutableFragmentDependency.dependencyKind
             )
         )
     }
@@ -65,8 +61,8 @@ internal data class FragmentBuilder(
         var progressiveMode: Boolean? = null,
         val languageFeatures: MutableList<String> = mutableListOf(),
         val optIns: MutableList<String> = mutableListOf(),
-
-        ) {
+        var jvmTarget: Int? = null,
+    ) {
         companion object {
             operator fun invoke(block: KotlinFragmentBuilder.() -> Unit): KotlinFragmentBuilder {
                 val builder = KotlinFragmentBuilder()
@@ -119,7 +115,6 @@ internal data class FragmentBuilder(
     data class PublishingFragmentBuilder(
         var group: String? = null,
         var version: String? = null,
-        var androidMinSdkVersion: Int? = null,
     ) {
         companion object {
             operator fun invoke(block: PublishingFragmentBuilder.() -> Unit): PublishingFragmentBuilder {
@@ -144,17 +139,10 @@ internal data class FragmentBuilder(
 
     @Suppress("unused")
     enum class KotlinVersion(private val version: String) {
-        Kotlin20("2.0"),
-        Kotlin19("1.9"),
-        Kotlin18("1.8"),
-        Kotlin17("1.7"),
-        Kotlin16("1.6"),
-        Kotlin15("1.5"),
-        Kotlin14("1.4"),
-        Kotlin13("1.3"),
-        Kotlin12("1.2"),
-        Kotlin11("1.1"),
-        Kotlin10("1.0");
+        Kotlin20("2.0"), Kotlin19("1.9"), Kotlin18("1.8"), Kotlin17("1.7"), Kotlin16("1.6"), Kotlin15("1.5"), Kotlin14("1.4"), Kotlin13(
+            "1.3"
+        ),
+        Kotlin12("1.2"), Kotlin11("1.1"), Kotlin10("1.0");
 
         override fun toString(): String = version
 
@@ -185,10 +173,6 @@ internal data class FragmentBuilder(
         if (variants != other.variants) return false
         if (alias != other.alias) return false
         if (kotlin != other.kotlin) return false
-        if (java != other.java) return false
-        if (native != other.native) return false
-        if (android != other.android) return false
-        if (publish != other.publish) return false
         return junit == other.junit
     }
 
@@ -199,16 +183,85 @@ internal data class FragmentBuilder(
         result = 31 * result + variants.hashCode()
         result = 31 * result + (alias?.hashCode() ?: 0)
         result = 31 * result + (kotlin?.hashCode() ?: 0)
-        result = 31 * result + (java?.hashCode() ?: 0)
-        result = 31 * result + (native?.hashCode() ?: 0)
-        result = 31 * result + (android?.hashCode() ?: 0)
-        result = 31 * result + (publish?.hashCode() ?: 0)
         result = 31 * result + (junit?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
         return "FragmentBuilder(name='$name', platforms=$platforms, variants=$variants, alias=$alias, src=$src)"
+    }
+}
+
+internal data class ArtifactBuilder(
+    val name: String,
+    val platforms: Set<Platform>,
+    val variants: MutableSet<String> = mutableSetOf(),
+    val fragments: MutableList<FragmentBuilder> = mutableListOf(),
+    var android: AndroidArtifactBuilder? = null,
+    var native: NativeArtifactBuilder? = null,
+    var java: JavaArtifactBuilder? = null,
+    var publish: PublishingArtifactBuilder? = null,
+) {
+    data class AndroidArtifactBuilder(
+        var compileSdkVersion: String? = null,
+        var androidMinSdkVersion: Int? = null,
+        var sourceCompatibility: String? = null,
+        var targetCompatibility: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: AndroidArtifactBuilder.() -> Unit): AndroidArtifactBuilder {
+                val builder = AndroidArtifactBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class JavaArtifactBuilder(
+        var mainClass: String? = null,
+        var packagePrefix: String? = null,
+        var jvmTarget: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: JavaArtifactBuilder.() -> Unit): JavaArtifactBuilder {
+                val builder = JavaArtifactBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class PublishingArtifactBuilder(
+        var group: String? = null,
+        var version: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: PublishingArtifactBuilder.() -> Unit): PublishingArtifactBuilder {
+                val builder = PublishingArtifactBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    data class NativeArtifactBuilder(
+        var entryPoint: String? = null,
+    ) {
+        companion object {
+            operator fun invoke(block: NativeArtifactBuilder.() -> Unit): NativeArtifactBuilder {
+                val builder = NativeArtifactBuilder()
+                builder.block()
+                return builder
+            }
+        }
+    }
+
+    context (Stateful<FragmentBuilder, Fragment>)
+    fun build(): Artifact {
+        if (variants.contains("test")) {
+            return TestPlainArtifact(this)
+        }
+        return PlainArtifact(this)
     }
 }
 
@@ -237,18 +290,15 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                             copyFields(newFragment, element)
                             newFragment
                         } else {
-                            val newFragment = FragmentBuilder(
-                                "${element.name}${
-                                    name.replaceFirstChar {
-                                        if (it.isLowerCase()) {
-                                            it.titlecase(Locale.getDefault())
-                                        } else {
-                                            it.toString()
-                                        }
+                            val newFragment = FragmentBuilder("${element.name}${
+                                name.replaceFirstChar {
+                                    if (it.isLowerCase()) {
+                                        it.titlecase(Locale.getDefault())
+                                    } else {
+                                        it.toString()
                                     }
-                                }",
-                                element.platforms
-                            )
+                                }
+                            }", element.platforms)
                             copyFields(newFragment, element)
                             newFragment
                         }
@@ -271,19 +321,15 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
                 val dependenciesToRemove = mutableSetOf<MutableFragmentDependency>()
                 val dependenciesToAdd = mutableSetOf<MutableFragmentDependency>()
                 fragment.dependencies.forEach { sourceDependency ->
-                    val targetFragment =
-                        sourceFragments
-                            .filter { it !== fragment }
-                            .sortedByDescending { (sourceDependency.target.variants intersect it.variants).size }
-                            .firstOrNull { it.platforms == sourceDependency.target.platforms }
-                            ?: error("Something went wrong")
+                    val targetFragment = sourceFragments.filter { it !== fragment }
+                        .sortedByDescending { (sourceDependency.target.variants intersect it.variants).size }
+                        .firstOrNull { it.platforms == sourceDependency.target.platforms }
+                        ?: error("Something went wrong")
 
-                    val targetDependency = MutableFragmentDependency(targetFragment, sourceDependency.dependencyKind)
+                    val targetDependency =
+                        MutableFragmentDependency(targetFragment, sourceDependency.dependencyKind)
                     dependenciesToRemove.add(sourceDependency)
                     dependenciesToAdd.add(targetDependency)
-
-//                    targetFragment.dependants.map { it.target }.firstOrNull { it.name == fragment.name }?.removeDependency(targetDependency)
-
                 }
                 fragment.removeDependencies(dependenciesToRemove)
                 fragment.addDependencies(dependenciesToAdd)
@@ -315,7 +361,6 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
     new.variants.addAll(old.variants)
     new.dependencies.addAll(old.dependencies)
-//    new.dependants.addAll(old.dependants)
     new.alias = old.alias
 }
 
@@ -339,6 +384,50 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
         }
     }
 
+internal fun List<FragmentBuilder>.artifacts(variants: List<Settings>, type: String): List<ArtifactBuilder> {
+    fun joinToCamelCase(strings: Set<String>): String {
+        val list = strings.toList()
+        val capitalizedStrings = list.mapIndexed { index, str ->
+            if (index == 0) str else str.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+        }
+        val joinedString = capitalizedStrings.joinToString("")
+        return joinedString.replaceFirstChar { it.lowercase(Locale.ROOT) }
+    }
+
+    val leafFragments = filter { fragment ->
+        fragment.dependants.none { it.target.variants == fragment.variants }
+    }
+    return when (type) {
+        "app" -> leafFragments
+            .map {
+                ArtifactBuilder(
+                    it.name,
+                    it.platforms,
+                    it.variants,
+                    mutableListOf(it)
+                )
+            }
+
+        "lib" -> {
+            leafFragments
+                .groupBy { it.variants }
+                .entries
+                .map {
+                    val groupVariants = it.key
+                    val fragments = it.value
+                    ArtifactBuilder(
+                        joinToCamelCase(groupVariants.toSet()),
+                        fragments.flatMap { it.platforms }.toSet(),
+                        groupVariants,
+                        fragments.toMutableList()
+                    )
+                }
+        }
+
+        else -> error("App type $type is not supported")
+    }
+}
+
 private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, platforms: Set<Platform>) {
     forEach {
         if (platforms.containsAll(it.platforms)) {
@@ -348,8 +437,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
             if (!alreadyExistsTransitively) {
                 it.addDependency(
                     MutableFragmentDependency(
-                        fragment,
-                        MutableFragmentDependency.DependencyKind.Refines
+                        fragment, MutableFragmentDependency.DependencyKind.Refines
                     )
                 )
             }
@@ -367,26 +455,19 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                     override val Model.module: PotatoModule
                         get() = modules.find {
                             if (it.source is PotatoModuleFileSource) {
-                                val targetModulePotFilePath = (it.source as PotatoModuleFileSource)
-                                    .buildFile
-                                    .toAbsolutePath()
-                                val sourceModulePotFilePath = buildFile.parent
-                                    .resolve("$dep/Pot.yaml")
-                                    .normalize()
-                                    .toAbsolutePath()
+                                val targetModulePotFilePath =
+                                    (it.source as PotatoModuleFileSource).buildFile.toAbsolutePath()
+                                val sourceModulePotFilePath =
+                                    buildFile.parent.resolve("$dep/Pot.yaml").normalize().toAbsolutePath()
 
-                                val sourceModuleGradleFilePath = buildFile.parent
-                                    .resolve("$dep/build.gradle.kts")
-                                    .normalize()
-                                    .toAbsolutePath()
+                                val sourceModuleGradleFilePath =
+                                    buildFile.parent.resolve("$dep/build.gradle.kts").normalize().toAbsolutePath()
 
-                                targetModulePotFilePath == sourceModulePotFilePath ||
-                                        targetModulePotFilePath == sourceModuleGradleFilePath
+                                targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
                             } else {
                                 false
                             }
-                        }
-                            ?: error("No module $dep found")
+                        } ?: error("No module $dep found")
 
                     override fun toString(): String {
                         return "InternalDependency(module=$dep)"
@@ -417,29 +498,42 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
                 }
             }
         }
-        it.getValue<Settings>("java")?.let { javaSettings ->
-            java = FragmentBuilder.JavaFragmentBuilder {
-                mainClass = javaSettings.getValue<String>("mainClass")
-                packagePrefix = javaSettings.getValue<String>("packagePrefix")
-            }
-        }
-        it.getValue<Settings>("publish")?.let { publishSettings ->
-            publish = FragmentBuilder.PublishingFragmentBuilder {
-                group = publishSettings.getValue<String>("group")
-                version = publishSettings.getValue<String>("version")
-            }
-        }
         it.getValue<Settings>("junit")?.let { testSettings ->
             junit = FragmentBuilder.JunitFragmentBuilder {
                 platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
             }
         }
+    }
+}
+
+context (Map<String, Set<Platform>>, BuildFileAware)
+internal fun List<ArtifactBuilder>.handleAdditionalKeys(
+    config: Map<String, Any>,
+    fragments: List<FragmentBuilder>
+) {
+    config.handleArtifactSettings<Settings>(this, fragments, "settings") {
         it.getValue<Settings>("android")?.let { androidSettings ->
-            android = FragmentBuilder.AndroidFragmentBuilder {
+            android = ArtifactBuilder.AndroidArtifactBuilder {
                 compileSdkVersion = androidSettings.getValue<String>("compileSdkVersion")
                 androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
                 sourceCompatibility = androidSettings.getValue<String>("sourceCompatibility")
                 targetCompatibility = androidSettings.getValue<String>("targetCompatibility")
+            }
+        }
+
+        it.getValue<Settings>("publish")?.let { publishSettings ->
+            publish = ArtifactBuilder.PublishingArtifactBuilder {
+                group = publishSettings.getValue<String>("group")
+                version = publishSettings.getValue<String>("version")
+            }
+        }
+
+        it.getValue<Settings>("java")?.let { javaSettings ->
+            java = ArtifactBuilder.JavaArtifactBuilder {
+                mainClass = javaSettings.getValue<String>("mainClass")
+                packagePrefix = javaSettings.getValue<String>("packagePrefix")
+                jvmTarget = javaSettings.getValue<Double>("jvmTarget")?.toString()
+                    ?: javaSettings.getValue<Int>("jvmTarget")?.toString()
             }
         }
     }

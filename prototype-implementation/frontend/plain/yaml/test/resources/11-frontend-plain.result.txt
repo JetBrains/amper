@@ -30,11 +30,15 @@ Artifacts:
       jvm
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaApplicationArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend)
+      JavaArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [JVM]
     Fragments:
       jvmTest
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaApplicationArtifactPart(mainClass=null, packagePrefix=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)

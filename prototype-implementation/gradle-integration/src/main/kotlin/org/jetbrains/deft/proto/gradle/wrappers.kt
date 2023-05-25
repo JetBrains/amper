@@ -42,9 +42,7 @@ open class ArtifactWrapper(
 
 class TestArtifactWrapper(
     artifact: TestArtifact
-) : ArtifactWrapper(artifact), TestArtifact {
-    override val testFor = artifact.testFor
-}
+) : ArtifactWrapper(artifact), TestArtifact
 
 class FragmentWrapper(
     private val fragment: Fragment

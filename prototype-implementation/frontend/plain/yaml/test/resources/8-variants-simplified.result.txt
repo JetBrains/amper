@@ -55,34 +55,52 @@ Artifacts:
     Fragments:
       ios
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_ARM64]
     Fragments:
       iosDebug
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosDebugTest
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_ARM64]
     Fragments:
       iosRelease
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosReleaseTest
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosTest
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)

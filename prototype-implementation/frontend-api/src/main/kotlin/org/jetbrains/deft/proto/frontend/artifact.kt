@@ -19,12 +19,13 @@ data class AndroidArtifactPart(
         )
 }
 
-data class JavaApplicationArtifactPart(
+data class JavaArtifactPart(
     val mainClass: String?,
     val packagePrefix: String?,
-) : ArtifactPart<JavaApplicationArtifactPart> {
-    override fun default(): ArtifactPart<JavaApplicationArtifactPart> =
-        JavaApplicationArtifactPart(mainClass ?: "MainKt", packagePrefix ?: "")
+    val jvmTarget: String?,
+) : ArtifactPart<JavaArtifactPart> {
+    override fun default(): ArtifactPart<JavaArtifactPart> =
+        JavaArtifactPart(mainClass ?: "MainKt", packagePrefix ?: "", jvmTarget ?: "17")
 }
 
 data class NativeApplicationArtifactPart(
@@ -35,10 +36,11 @@ data class NativeApplicationArtifactPart(
 }
 
 data class PublicationArtifactPart(
-    val group: String,
-    val version: String,
+    val group: String?,
+    val version: String?,
 ) : ArtifactPart<PublicationArtifactPart> {
-    override fun default(): ArtifactPart<PublicationArtifactPart> = PublicationArtifactPart(group, version)
+    override fun default(): ArtifactPart<PublicationArtifactPart> =
+        PublicationArtifactPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
 }
 
 /**
@@ -57,6 +59,4 @@ interface Artifact {
 /**
  * Dependant test artifact.
  */
-interface TestArtifact : Artifact {
-    val testFor: Artifact
-}
+interface TestArtifact : Artifact

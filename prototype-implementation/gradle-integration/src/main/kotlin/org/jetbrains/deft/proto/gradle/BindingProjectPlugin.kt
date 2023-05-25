@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
@@ -42,6 +43,7 @@ class BindingProjectPlugin : Plugin<Project> {
         potatoModule: PotatoModuleWrapper,
         project: Project
     ) {
+        project.plugins.apply(PublishingPlugin::class.java)
         potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
             project.group = it.group
             project.version = it.version

@@ -109,45 +109,69 @@ Artifacts:
       android
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [ANDROID]
     Fragments:
       androidTest
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
+      NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_ARM64]
     Fragments:
       iosArm64
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosArm64Test
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosSimulatorArm64Test
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_X64]
     Fragments:
       iosX64
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_X64]
     Fragments:
       iosX64Test
     Parts:
+      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
+      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
+      PublicationArtifactPart(group=null, version=null)
       NativeApplicationArtifactPart(entryPoint=null)

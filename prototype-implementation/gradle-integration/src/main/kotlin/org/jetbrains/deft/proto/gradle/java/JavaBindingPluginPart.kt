@@ -4,7 +4,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.jetbrains.deft.proto.frontend.JavaApplicationArtifactPart
+import org.jetbrains.deft.proto.frontend.JavaArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -46,7 +46,7 @@ class JavaBindingPluginPart(
     private fun applyJavaApplication() {
         val jvmArtifacts = module.artifacts
             .filter { Platform.JVM in it.platforms }
-            .filter { it.parts.find<JavaApplicationArtifactPart>() != null }
+            .filter { it.parts.find<JavaArtifactPart>() != null }
             .filter { !it.isTest }
         if (jvmArtifacts.size > 1)
             logger.warn(
@@ -55,7 +55,7 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val artifact = jvmArtifacts.firstOrNull() ?: return
-        val applicationSettings = artifact.parts.find<JavaApplicationArtifactPart>()!!
+        val applicationSettings = artifact.parts.find<JavaArtifactPart>()!!
         javaAPE.apply {
             mainClass.set(applicationSettings.mainClass)
         }

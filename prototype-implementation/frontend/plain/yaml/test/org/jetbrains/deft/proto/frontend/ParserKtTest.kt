@@ -107,4 +107,11 @@ internal class ParserKtTest {
             testParse("12-multiplatform-lib")
         }
     }
+
+    @Test
+    fun `jvmTarget adds to artifacts in android and jvm platforms`() {
+        with(buildFile) {
+            testParse("13-multiplatform-jvmtarget")
+        }
+    }
 }

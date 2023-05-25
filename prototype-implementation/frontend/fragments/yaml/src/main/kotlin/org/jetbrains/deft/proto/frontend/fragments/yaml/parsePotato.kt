@@ -151,9 +151,9 @@ private fun parseNativeArtifactPart(fragment: Map<String, Any>): NativeApplicati
     return NativeApplicationArtifactPart(entryPoint)
 }
 
-private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaApplicationArtifactPart? {
+private fun parseJvmArtifactPart(fragment: Map<String, Any>): JavaArtifactPart? {
     val mainClass = fragment["mainClass"] as String? ?: return null
-    return JavaApplicationArtifactPart(mainClass, "")
+    return JavaArtifactPart(mainClass, "", "17")
 }
 
 private fun parseAndroidArtifactPart(fragment: Map<String, Any>): AndroidArtifactPart? {

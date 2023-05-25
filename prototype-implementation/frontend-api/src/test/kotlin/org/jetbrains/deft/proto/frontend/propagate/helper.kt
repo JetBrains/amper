@@ -174,8 +174,9 @@ class ArtifactBuilder {
 class JavaArtifactPartBuilder {
     var mainClass: String? = null
     var packagePrefix: String? = null
+    var jvmTarget: String? = null
 
-    fun build(): JavaApplicationArtifactPart {
-        return JavaApplicationArtifactPart(mainClass, packagePrefix)
+    fun build(): JavaArtifactPart {
+        return JavaArtifactPart(mainClass, packagePrefix, jvmTarget)
     }
 }

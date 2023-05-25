@@ -66,6 +66,70 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     }
 }
 
+context (Map<String, Set<Platform>>)
+internal inline fun <reified T : Any> Settings.handleArtifactSettings(
+    artifacts: List<ArtifactBuilder>,
+    fragments: List<FragmentBuilder>,
+    key: String,
+    init: ArtifactBuilder.(T) -> Unit
+) {
+    val originalSettings = this
+    val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
+    val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
+    var variantSet: MutableSet<Settings>
+
+    for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
+        variantSet = with(originalSettings) { variants }.toMutableSet()
+        val split = settingsKey.split("@")
+        val specialization = if (split.size > 1) split[1].split("+") else listOf()
+        val options = specialization
+            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
+            .toSet()
+
+        for (option in options) {
+            val variant = originalSettings.optionMap[option] ?: error("There is no such variant option $option")
+            variantSet.remove(variant)
+        }
+
+        val normalizedPlatforms = specialization
+            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
+            .ifEmpty { platforms }
+            .toSet()
+
+        val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
+
+        val targetFragment = fragments
+            .filter { it.platforms == normalizedPlatforms }
+            .firstOrNull { it.variants == normalizedOptions }
+            ?: error("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+
+
+        artifacts.filter { it.fragments.withDependencies().contains(targetFragment) }.forEach {
+            if (settingsValue is T) {
+                it.init(settingsValue)
+            }
+        }
+    }
+}
+
+private fun MutableList<FragmentBuilder>.withDependencies(): MutableList<FragmentBuilder> = buildSet {
+    val deque = ArrayDeque<FragmentBuilder>()
+    this@withDependencies.firstOrNull()?.let {
+        deque.add(it)
+        add(it)
+    }
+    while (!deque.isEmpty()) {
+        val fragment = deque.removeFirst()
+        for (dep in fragment.dependencies.map { it.target }) {
+            if (!contains(dep)) {
+                deque.add(dep)
+                add(dep)
+            }
+        }
+
+    }
+}.toMutableList()
+
 internal val Settings.variants: List<Settings>
     get() {
         val initialVariants = (this["variants"] as? List<*>)?.let {

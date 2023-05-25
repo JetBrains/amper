@@ -14,10 +14,13 @@ import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragm
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
 
 fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
@@ -136,7 +139,36 @@ class KMPPBindingPluginPart(
                         .requireSingle { "Leaf fragment must contain exactly single platform!" }
                     val target = platform.target ?: return@inner
                     with(target) {
+                        // setting jvmTarget for android (as android compilations are appeared after project evaluation,
+                        // also their names does not match with our artifact names)
+                        if (platform == Platform.ANDROID) {
+                            artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
+                                project.afterEvaluate {
+                                    val androidTarget = kotlinMPE.targets.findByName("android") ?: return@afterEvaluate
+                                    val compilations = if (artifact is TestArtifact) {
+                                        androidTarget.compilations.matching { it.name.lowercase().contains("test") }
+                                    } else {
+                                        androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
+                                    }
+                                    compilations.configureEach {
+                                        it.compileTaskProvider.configure {
+                                            it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                            it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // settings jvmTarget for other jvm compilations
                         val compilation = artifact.compilation ?: return@inner
+                        if (platform == Platform.JVM) {
+                            artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
+                                compilation.compileTaskProvider.configure {
+                                    it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                    it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                                }
+                            }
+                        }
                         val compilationSourceSet = compilation.defaultSourceSet
                         if (compilationSourceSet != fragment.kotlinSourceSet) {
                             compilationSourceSet.doDependsOn(fragment)
