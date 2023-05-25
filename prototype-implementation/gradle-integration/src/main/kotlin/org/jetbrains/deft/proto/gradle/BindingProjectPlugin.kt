@@ -43,7 +43,7 @@ class BindingProjectPlugin : Plugin<Project> {
         potatoModule: PotatoModuleWrapper,
         project: Project
     ) {
-        project.plugins.apply(PublishingPlugin::class.java)
+        project.plugins.apply("maven-publish")
         potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
             project.group = it.group
             project.version = it.version
@@ -65,9 +65,8 @@ class BindingProjectPlugin : Plugin<Project> {
             }
 
             extension.publications {
-                it.create(project.name, MavenPublication::class.java) {
+                it.create(project.name.replace("+", "-"), MavenPublication::class.java) {
                     it.from(project.components.findByName("kotlin"))
-                    if (potatoModule.javaNeeded) it.from(project.components.findByName("java"))
                 }
             }
         }
