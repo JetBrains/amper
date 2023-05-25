@@ -29,15 +29,14 @@ val Model.resolved: Model
 
 
 fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): List<Fragment> = buildList {
+    var root: Fragment? = this@resolve.firstOrNull()
+    while (root?.fragmentDependencies?.isNotEmpty() == true) {
+        root = root.fragmentDependencies.firstOrNull()?.target
+    }
     val deque = ArrayDeque<Fragment>()
-    this@resolve.firstOrNull { it.name == "common" }?.let {
+    root?.let {
         add(it)
         deque.add(it)
-    } ?: run {
-        this@resolve.firstOrNull()?.let {
-            add(it)
-            deque.add(it)
-        }
     }
 
     while (deque.isNotEmpty()) {
