@@ -11,14 +11,15 @@ sealed interface ModelPart<SelfT> {
 
 // TODO Must be replace by templates in some time!
 @Deprecated("Must be replace by templates in some time!")
-data class PublicationModelPart(
+data class RepositoriesModelPart(
     val mavenRepositories: List<Repository>
-) : ModelPart<PublicationModelPart> {
+) : ModelPart<RepositoriesModelPart> {
     data class Repository(
         val name: String,
-        val url: URI,
+        val url: String,
         val userName: String?,
         val password: String?,
+        val publish: Boolean,
     )
 }
 

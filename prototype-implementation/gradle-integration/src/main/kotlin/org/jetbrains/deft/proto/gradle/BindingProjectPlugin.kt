@@ -2,18 +2,19 @@ package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
-import org.jetbrains.deft.proto.frontend.PublicationModelPart
+import org.jetbrains.deft.proto.frontend.RepositoriesModelPart
 import org.jetbrains.deft.proto.frontend.TestFragmentPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
+import java.net.URI
 import kotlin.io.path.absolutePathString
 
 /**
@@ -33,9 +34,17 @@ class BindingProjectPlugin : Plugin<Project> {
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
 
+        applyRepositoryAttributes(model, project)
         applyPublicationAttributes(model, linkedModule, project)
         applyTest(linkedModule, project)
         applyAdditionalScript(project, linkedModule)
+    }
+
+    private fun applyRepositoryAttributes(
+        model: Model,
+        project: Project
+    ) {
+        project.repositories.configure(model.parts.find<RepositoriesModelPart>())
     }
 
     private fun applyPublicationAttributes(
@@ -48,25 +57,28 @@ class BindingProjectPlugin : Plugin<Project> {
             project.group = it.group
             project.version = it.version
             val extension = project.extensions.getByType(PublishingExtension::class.java)
-
-            extension.repositories { repositoriesHandler ->
-                val repositories = model.parts.find<PublicationModelPart>()
-                    ?.mavenRepositories ?: emptyList()
-                repositories.forEach { mavenRepo ->
-                    repositoriesHandler.maven {
-                        it.name = mavenRepo.name
-                        it.url = mavenRepo.url
-                        it.credentials { cred ->
-                            cred.username = mavenRepo.userName
-                            cred.password = mavenRepo.password
-                        }
-                    }
-                }
-            }
-
+            extension.repositories.configure(model.parts.find<RepositoriesModelPart>())
             extension.publications {
                 it.create(project.name.replace("+", "-"), MavenPublication::class.java) {
                     it.from(project.components.findByName("kotlin"))
+                }
+            }
+        }
+    }
+
+    private fun RepositoryHandler.configure(part: RepositoriesModelPart?) {
+        val repositories = part?.mavenRepositories?.filter { it.publish } ?: return
+        repositories.forEach { declared ->
+            if (declared.name == "mavenLocal" && declared.url == "mavenLocal") {
+                mavenLocal()
+            } else {
+                maven {
+                    it.name = declared.name
+                    it.url = URI.create(declared.url)
+                    it.credentials { cred ->
+                        cred.username = declared.userName
+                        cred.password = declared.password
+                    }
                 }
             }
         }

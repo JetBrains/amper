@@ -19,15 +19,16 @@ fun parseModuleParts(
     // Parse repositories.
     val parsedRepos = with(localProps.toInterpolateCtx()) {
         repos.map {
-            PublicationModelPart.Repository(
+            RepositoriesModelPart.Repository(
                 it.requireValue<String>("name") { "No repository name" },
-                URI.create(it.requireValue<String>("url") { "No repository url" }),
+                it.requireValue<String>("url") { "No repository url" },
                 it.getValue<String>("username")?.tryInterpolate(),
                 it.getValue<String>("password")?.tryInterpolate(),
+                it.getValue<String>("publish")?.toBoolean() ?: false,
             )
         }
     }
-    val publicationModulePart = PublicationModelPart(parsedRepos)
+    val publicationModulePart = RepositoriesModelPart(parsedRepos)
 
     // Collect parts.
     return buildClassBasedSet {
