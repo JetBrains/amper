@@ -305,6 +305,7 @@
       "type": "object",
       "properties": {
         "compileSdkVersion": {
+          "$ref": "#/$defs/androidApiVersion"
         },
         "minSdkVersion": {
           "$ref": "#/$defs/androidSdkVersion"
