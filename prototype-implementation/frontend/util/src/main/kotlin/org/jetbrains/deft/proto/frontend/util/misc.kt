@@ -1,5 +1,9 @@
 package org.jetbrains.deft.proto.frontend.util
 
+import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
+
 /**
  * Gets cartesian product of all elements.
  */
@@ -21,3 +25,8 @@ fun <I, T, CT : Collection<T>> Iterable<I>.cartesianGeneric(
         val inner = acc.flatMap { current -> element.unfoldIn().map { current.merge(it) } }
         if (preserveLowerDimensions) acc + inner else inner
     }.filter { preserveEmpty || it.isNotEmpty() }
+
+/**
+ * Get an input stream from a file, if it exists, or null.
+ */
+fun Path.inputStreamOrNull() = takeIf { it.exists() }?.inputStream()

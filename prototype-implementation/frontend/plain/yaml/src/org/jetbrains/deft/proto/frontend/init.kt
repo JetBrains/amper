@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
+import org.jetbrains.deft.proto.frontend.util.inputStreamOrNull
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -23,9 +24,10 @@ class YamlModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
 
-        val rootFile = root.resolve("drawer.yaml")
+        val rootFile = root.resolve("root.yaml")
+        val localPropertiesFile = root.resolve("root.local.properties")
         val modelParts = if (rootFile.exists())
-            parseModuleParts(rootFile.inputStream())
+            parseModuleParts(rootFile.inputStream(), localPropertiesFile.inputStreamOrNull())
         else
             classBasedSet()
 

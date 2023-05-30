@@ -5,22 +5,27 @@ import java.io.InputStream
 import java.net.URI
 
 
-fun parseModuleParts(value: InputStream): ClassBasedSet<ModelPart<*>> {
+fun parseModuleParts(
+    values: InputStream,
+    localProps: InputStream?,
+): ClassBasedSet<ModelPart<*>> {
     // Parse yaml.
     val yaml = Yaml()
-    val config = yaml.load<Settings>(value)
+    val config = yaml.load<Settings>(values)
 
-    val repos = config.getValue<Settings>("repositories") as? List<Settings>
+    val repos = config.getValue<List<Settings>>("repositories")
         ?: emptyList()
 
     // Parse repositories.
-    val parsedRepos = repos.map {
-        PublicationModelPart.Repository(
-            it.requireValue<String>("name") { "No repository name" },
-            URI.create(it.requireValue<String>("url") { "No repository url" }),
-            it.getValue<String>("name"),
-            it.getValue<String>("name"),
-        )
+    val parsedRepos = with(localProps.toInterpolateCtx()) {
+        repos.map {
+            PublicationModelPart.Repository(
+                it.requireValue<String>("name") { "No repository name" },
+                URI.create(it.requireValue<String>("url") { "No repository url" }),
+                it.getValue<String>("username")?.tryInterpolate(),
+                it.getValue<String>("password")?.tryInterpolate(),
+            )
+        }
     }
     val publicationModulePart = PublicationModelPart(parsedRepos)
 
