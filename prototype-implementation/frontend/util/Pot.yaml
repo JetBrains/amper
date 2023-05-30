@@ -4,7 +4,7 @@ product:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
+    group: org.jetbrains.deft.proto.frontend.util
     version: 1.0-SNAPSHOT
 
   kotlin:
@@ -13,14 +13,9 @@ settings:
     languageVersion: 1.9
     features:
       - contextReceivers
-  junit:
-    platformEnabled: true
 
 dependencies:
-  - ../../../frontend-api
-  - ../../util
-  - org.jetbrains.kotlin:kotlin-reflect:1.8.10
-  - org.yaml:snakeyaml:2.0
+  - ../../frontend-api
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10

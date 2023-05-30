@@ -4,7 +4,7 @@ product:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
+    group: org.jetbrains.deft.proto.frontend.with-fragments.yaml
     version: 1.0-SNAPSHOT
 
   kotlin:
@@ -13,8 +13,6 @@ settings:
     languageVersion: 1.9
     features:
       - contextReceivers
-  junit:
-    platformEnabled: true
 
 dependencies:
   - ../../../frontend-api

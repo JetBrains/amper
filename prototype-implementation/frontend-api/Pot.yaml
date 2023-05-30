@@ -1,0 +1,18 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+settings:
+  publishing:
+    group: org.jetbrains.deft.proto.frontend
+    version: 1.0-SNAPSHOT
+
+  kotlin:
+    sdk:
+      version: 1.8.21
+    languageVersion: 1.9
+    features:
+      - contextReceivers
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10

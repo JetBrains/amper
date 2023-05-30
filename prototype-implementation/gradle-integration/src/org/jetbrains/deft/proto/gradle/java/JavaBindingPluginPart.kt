@@ -24,7 +24,7 @@ fun applyJavaAttributes(ctx: PluginPartCtx) = JavaBindingPluginPart(ctx).apply()
  * Plugin logic, bind to specific module, when only default target is available.
  */
 class JavaBindingPluginPart(
-        ctx: PluginPartCtx,
+    ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.JVM), KMPEAware, DeftNamingConventions {
 
     companion object {

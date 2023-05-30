@@ -1,0 +1,29 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+settings:
+  publishing:
+    group: org.jetbrains.deft.proto.settings.plugin
+    version: 1.0-SNAPSHOT
+
+  kotlin:
+    sdk:
+      version: 1.8.21
+    languageVersion: 1.9
+    features:
+      - contextReceivers
+  junit:
+    platformEnabled: true
+
+dependencies:
+  - ../frontend-api
+  - ../frontend/plain/yaml
+  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21
+  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.0
+  - com.android.library:com.android.library.gradle.plugin:7.4.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.7.21
+  - org.junit.jupiter:junit-jupiter-api:5.9.2
+  - org.junit.jupiter:junit-jupiter-engine:5.9.2

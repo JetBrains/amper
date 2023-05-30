@@ -4,7 +4,6 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.jetbrains.deft.proto.gradle.MockModelHandle
-import org.jetbrains.deft.proto.gradle.Models
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
@@ -67,25 +66,25 @@ internal inline val currentTestName get(): String = run {
 }
 
 val StackTraceElement.decapitalizedSimpleName get() =
-        className.substringAfterLast(".").replaceFirstChar { it.lowercase(Locale.getDefault()) }
+    className.substringAfterLast(".").replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun TestBase.assertEqualsWithCurrentTestResource(actual: String) =
-        assertEqualsWithResource("testAssets/$currentTestName", actual)
+    assertEqualsWithResource("testAssets/$currentTestName", actual)
 
 fun TestBase.assertEqualsWithResource(expectedResourceName: String, actual: String) =
-        Thread.currentThread().contextClassLoader
-                .getResource(expectedResourceName)
-                ?.readText()
-                ?.replace("\$TEMP_DIR_NAME", tempDir.name)
-                ?.let {
-                    if (fastReplace) {
-                        val toReplace = actual.replace(tempDir.name, "\$TEMP_DIR_NAME")
-                        val expectedFile = File(".").absoluteFile.resolve("src/test/resources/$expectedResourceName")
-                        if (expectedFile.exists()) expectedFile.writeText(toReplace)
-                    } else {
-                        Assertions.assertEquals(it, actual)
-                    }
-                }
-                ?: error("No resource $expectedResourceName!")
+    Thread.currentThread().contextClassLoader
+        .getResource(expectedResourceName)
+        ?.readText()
+        ?.replace("\$TEMP_DIR_NAME", tempDir.name)
+        ?.let {
+            if (fastReplace) {
+                val toReplace = actual.replace(tempDir.name, "\$TEMP_DIR_NAME")
+                val expectedFile = File(".").absoluteFile.resolve("test/resources/$expectedResourceName")
+                if (expectedFile.exists()) expectedFile.writeText(toReplace)
+            } else {
+                Assertions.assertEquals(it, actual)
+            }
+        }
+        ?: error("No resource $expectedResourceName!")

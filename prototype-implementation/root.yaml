@@ -1,0 +1,14 @@
+repositories:
+  - name: scratch
+    url: https://packages.jetbrains.team/maven/p/deft/scratch
+    username: ${scratch.username}
+    password: ${scratch.password}
+    publish: true
+  - name: mavenCentral
+    url: https://repo.maven.apache.org/maven2/
+  - name: jitpack
+    url: https://jitpack.io
+  - name: googleRepo
+    url: https://dl.google.com/dl/android/maven2/
+  - name: mavenLocal
+    url: mavenLocal
