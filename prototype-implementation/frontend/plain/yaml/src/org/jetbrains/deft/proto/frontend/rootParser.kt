@@ -24,7 +24,7 @@ fun parseModuleParts(
                 it.requireValue<String>("url") { "No repository url" },
                 it.getValue<String>("username")?.tryInterpolate(),
                 it.getValue<String>("password")?.tryInterpolate(),
-                it.getValue<String>("publish")?.toBoolean() ?: false,
+                it.getValue<Boolean>("publish") ?: false,
             )
         }
     }
