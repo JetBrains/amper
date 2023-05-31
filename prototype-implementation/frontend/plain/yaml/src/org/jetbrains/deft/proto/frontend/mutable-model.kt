@@ -384,7 +384,11 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
         }
     }
 
-internal fun List<FragmentBuilder>.artifacts(variants: List<Settings>, type: String): List<ArtifactBuilder> {
+internal fun List<FragmentBuilder>.artifacts(
+    variants: List<Settings>,
+    type: String,
+    platforms: Set<Platform>
+): List<ArtifactBuilder> {
     fun joinToCamelCase(strings: Set<String>): String {
         val list = strings.toList()
         val capitalizedStrings = list.mapIndexed { index, str ->
@@ -394,9 +398,56 @@ internal fun List<FragmentBuilder>.artifacts(variants: List<Settings>, type: Str
         return joinedString.replaceFirstChar { it.lowercase(Locale.ROOT) }
     }
 
-    val leafFragments = filter { fragment ->
-        fragment.dependants.none { it.target.variants == fragment.variants }
+    val options = buildList {
+        for (variant in variants) {
+            val options = variant.getValue<List<Settings>>("options") ?: listOf()
+            add(buildList {
+                var default: String? = null
+                var addDefault = true
+                for (option in options) {
+                    // add default if all dependencies are friends
+                    if (option.getValue<Boolean>("default") == true) {
+                        default = option.getValue<String>("name")
+                    } else {
+                        add(
+                            option.getValue<String>("name") ?: error("Name is required for variant option")
+                        )
+
+                        if (option.getValue<List<Settings>>("dependsOn")
+                                ?.any { it.getValue<String>("kind") != "friend" } == true
+                        ) {
+                            addDefault = false
+                        }
+                    }
+                }
+
+                if (addDefault) {
+                    add(default!!)
+                }
+            })
+        }
     }
+
+    val cartesian = cartesianSets(options)
+
+    val fragmentBuilderList = this
+    buildList {
+        for (cartesianElement in cartesian) {
+            for (platform in platforms) {
+                fragmentBuilderList
+                    .filter { it.variants == cartesianElement }
+                    .firstOrNull { it.platforms == setOf(platform) }
+                    ?.let {
+                        add(it)
+                    }
+            }
+        }
+    }
+
+
+    val leafFragments =
+        cartesian.flatMap { cartesianElement -> filter { it.variants == cartesianElement }.filter { it.platforms.size == 1 } }
+
     return when (type) {
         "app" -> leafFragments
             .map {

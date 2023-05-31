@@ -66,10 +66,11 @@ fun parseModule(value: String): PotatoModule {
 
     val artifacts = fragments.artifacts(
         config.variants,
-        config.getByPath<String>("product", "type") ?: error("Product type is required")
+        config.getByPath<String>("product", "type") ?: error("Product type is required"),
+        platforms.toSet()
     )
 
-    with (aliasMap) { artifacts.handleAdditionalKeys(config.transformed, fragments) }
+    with(aliasMap) { artifacts.handleAdditionalKeys(config.transformed, fragments) }
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
         private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()

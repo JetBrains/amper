@@ -5,10 +5,11 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinFragmentPart(languageVersion=1.8, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestFragmentPart(junitPlatform=null)
   iosDebug
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-datetime:0.4.0)
     Src folder: src@debug
     Fragment dependencies:
       ios (REFINE)
@@ -43,6 +44,7 @@ Fragments:
       TestFragmentPart(junitPlatform=null)
   iosTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10)
     Src folder: test
     Fragment dependencies:
       ios (FRIEND)

@@ -151,7 +151,8 @@ internal val Settings.variants: List<Settings>
                 "dimension" to dimension,
                 "options" to it.map { optionName ->
                     mapOf(
-                        "name" to optionName, "dependsOn" to listOf(
+                        "name" to optionName,
+                        "dependsOn" to listOf(
                             mapOf("target" to dimension)
                         )
                     )
