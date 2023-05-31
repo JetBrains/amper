@@ -3,7 +3,7 @@
 extensions.findByType(GradlePluginDevelopmentExtension::class.java)?.apply {
     plugins {
         create("deftProtoSettingsPlugin") {
-            id = "org.jetbrains.deft.proto.settings.plugin.dogfood"
+            id = "org.jetbrains.deft.proto.settings.plugin"
             implementationClass = "org.jetbrains.deft.proto.gradle.BindingSettingsPlugin"
         }
     }
