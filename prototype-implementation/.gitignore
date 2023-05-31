@@ -1,5 +1,6 @@
 .gradle
 build
 local.properties
+root.local.properties
 .DS_Store
 .idea/artifacts/*
