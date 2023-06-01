@@ -34,7 +34,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:0.2")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.1.0")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21")
     }
 }
