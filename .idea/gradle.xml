@@ -47,6 +47,14 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/variants" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/variants" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>

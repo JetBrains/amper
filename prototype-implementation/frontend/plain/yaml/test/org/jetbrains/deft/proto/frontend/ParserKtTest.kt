@@ -114,4 +114,11 @@ internal class ParserKtTest {
             testParse("13-multiplatform-jvmtarget")
         }
     }
+
+    @Test
+    fun `check artifacts of multi-variant builds`() {
+        with(buildFile) {
+            testParse("14-check-artifacts-of-multi-variant-build")
+        }
+    }
 }

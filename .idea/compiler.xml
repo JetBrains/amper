@@ -35,7 +35,6 @@
       <module name="prototype-implementation.yaml.test" target="19" />
       <module name="prototype-implementation.yaml.yaml" target="19" />
       <module name="shared" target="17" />
-      <module name="variants" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

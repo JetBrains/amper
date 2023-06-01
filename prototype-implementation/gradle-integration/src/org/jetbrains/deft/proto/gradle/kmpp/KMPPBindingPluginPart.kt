@@ -71,7 +71,7 @@ class KMPPBindingPluginPart(
         if (module.type != PotatoModuleType.APPLICATION) return
         val part = artifact.parts.find<NativeApplicationArtifactPart>()
         binaries {
-            executable {
+            executable(artifact.name) {
                 entryPoint = part?.entryPoint
             }
         }
