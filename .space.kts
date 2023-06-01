@@ -59,9 +59,9 @@ fun `prototype implementation job`(
     gradlew(
         "--info",
         "--stacktrace",
+        "--quiet",
         "test",
-        "publishAllPublicationsToScratchRepository",
         "--fail-fast",
-        "-q"
+        "publishAllPublicationsToScratchRepository",
     )
 }
