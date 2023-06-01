@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.java
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
@@ -59,6 +60,11 @@ class JavaBindingPluginPart(
         javaAPE.apply {
             mainClass.set(applicationSettings.mainClass)
         }
+
+        artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let {
+            javaPE.targetCompatibility = JavaVersion.toVersion(it)
+        }
+
         project.tasks.withType(KotlinCompile::class.java).configureEach {
             it.javaPackagePrefix = applicationSettings.packagePrefix
         }

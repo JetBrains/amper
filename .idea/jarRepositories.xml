@@ -56,5 +56,10 @@
       <option name="name" value="maven4" />
       <option name="url" value="https://maven.pkg.jetbrains.space/public/p/compose/dev" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="scratch" />
+      <option name="name" value="scratch" />
+      <option name="url" value="https://packages.jetbrains.team/maven/p/deft/scratch" />
+    </remote-repository>
   </component>
 </project>

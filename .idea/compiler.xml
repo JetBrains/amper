@@ -13,8 +13,6 @@
       <module name="jvm-kotlin+java_test" target="17" />
       <module name="jvm-with-tests_main" target="17" />
       <module name="jvm-with-tests_test" target="17" />
-      <module name="prototype-implementation.frontend.fragments.yaml.main" target="20" />
-      <module name="prototype-implementation.frontend.fragments.yaml.test" target="20" />
       <module name="prototype-implementation.frontend.with-fragments.yaml" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.main" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.test" target="17" />
