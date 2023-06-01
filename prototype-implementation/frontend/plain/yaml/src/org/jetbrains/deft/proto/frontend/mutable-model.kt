@@ -575,7 +575,7 @@ internal fun List<ArtifactBuilder>.handleAdditionalKeys(
         it.getValue<Settings>("publishing")?.let { publishSettings ->
             publish = ArtifactBuilder.PublishingArtifactBuilder {
                 group = publishSettings.getValue<String>("group")
-                version = publishSettings.getValue<String>("version")
+                version = publishSettings.getValue<Any>("version").toString()
             }
         }
 

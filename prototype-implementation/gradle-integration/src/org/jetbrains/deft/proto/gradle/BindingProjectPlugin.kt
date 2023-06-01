@@ -4,7 +4,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
@@ -53,16 +52,12 @@ class BindingProjectPlugin : Plugin<Project> {
         project: Project
     ) {
         project.plugins.apply("maven-publish")
+        val extension = project.extensions.getByType(PublishingExtension::class.java)
         potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
+            // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
             project.group = it.group
             project.version = it.version
-            val extension = project.extensions.getByType(PublishingExtension::class.java)
             extension.repositories.configure(model.parts.find<RepositoriesModelPart>())
-            extension.publications {
-                it.create(project.name.replace("+", "-"), MavenPublication::class.java) {
-                    it.from(project.components.findByName("kotlin"))
-                }
-            }
         }
     }
 
