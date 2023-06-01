@@ -42,7 +42,7 @@ fun `prototype implementation job`(
 `prototype implementation job`(
     "Build and publish",
     customTrigger = { schedule { cron("0 0 * * *") } },
-    customParameters = { text("version", value = null) }
+    customParameters = { text("version", value = "") }
 ) {
     // Crumble-some and nasty version replacement.
     // FIXME Replace it with templates when they will be available!
@@ -50,7 +50,7 @@ fun `prototype implementation job`(
         .forEach { file ->
             if (file.name == "Pot.yaml") {
                 val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
-                val newVersion = "version: ${parameters["version"] ?: nightlyVersion}"
+                val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
                 val oldVersion = "version: 1.0-SNAPSHOT"
                 val newContent = file.readText().replace(oldVersion, newVersion)
                 file.writeText(newContent)
