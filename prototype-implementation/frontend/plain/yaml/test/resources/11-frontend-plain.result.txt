@@ -31,7 +31,7 @@ Artifacts:
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null)
-      PublicationArtifactPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=1.0-SNAPSHOT)
+      PublicationArtifactPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=42-SNAPSHOT)
       NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [JVM]
@@ -40,5 +40,5 @@ Artifacts:
     Parts:
       AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
       JavaArtifactPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null)
-      PublicationArtifactPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=1.0-SNAPSHOT)
+      PublicationArtifactPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=42-SNAPSHOT)
       NativeApplicationArtifactPart(entryPoint=null)
