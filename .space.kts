@@ -13,11 +13,11 @@ fun ScriptApi.addCreds() {
 fun `prototype implementation job`(
     name: String,
     customTrigger: (Triggers.() -> Unit)? = null,
+    customParameters: Parameters.() -> Unit = {  },
     scriptBody: ScriptApi.() -> Unit,
 ) = job(name) {
-    if (customTrigger != null) {
-        startOn { customTrigger() }
-    }
+    if (customTrigger != null) startOn { customTrigger() }
+    parameters { customParameters() }
     container(displayName = name, image = "amazoncorretto:17") {
         workDir = "prototype-implementation"
         kotlinScript {
@@ -41,14 +41,15 @@ fun `prototype implementation job`(
 // Nightly build for auto publishing.
 `prototype implementation job`(
     "Build and publish",
-    customTrigger = { schedule { cron("0 0 * * *") } }
+    customTrigger = { schedule { cron("0 0 * * *") } },
+    customParameters = { text("version", value = null) }
 ) {
     // Crumble-some and nasty version replacement.
     // FIXME Replace it with templates when they will be available!
     File(".").walkTopDown()
         .forEach { file ->
             if (file.name == "Pot.yaml") {
-                val newVersion = "version: ${executionNumber()}"
+                val newVersion = "version: ${parameters["version"] ?: executionNumber()}"
                 val oldVersion = "version: 1.0-SNAPSHOT"
                 val newContent = file.readText().replace(oldVersion, newVersion)
                 file.writeText(newContent)
