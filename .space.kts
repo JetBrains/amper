@@ -49,7 +49,8 @@ fun `prototype implementation job`(
     File(".").walkTopDown()
         .forEach { file ->
             if (file.name == "Pot.yaml") {
-                val newVersion = "version: ${parameters["version"] ?: executionNumber()}"
+                val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
+                val newVersion = "version: ${parameters["version"] ?: nightlyVersion}"
                 val oldVersion = "version: 1.0-SNAPSHOT"
                 val newContent = file.readText().replace(oldVersion, newVersion)
                 file.writeText(newContent)
