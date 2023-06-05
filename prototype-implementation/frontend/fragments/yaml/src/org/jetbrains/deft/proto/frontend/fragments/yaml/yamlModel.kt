@@ -1,6 +1,8 @@
 package org.jetbrains.deft.proto.frontend.fragments.yaml
 
-import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.Model
+import org.jetbrains.deft.proto.frontend.ModelInit
+import org.jetbrains.deft.proto.frontend.PotatoModule
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -22,7 +24,6 @@ class YamlFragmentsModelInit : ModelInit {
             .collect(Collectors.toList())
 
         return object : Model {
-            override val parts = classBasedSet<ModelPart<*>>()
             override val modules: List<PotatoModule> = modules
         }
     }

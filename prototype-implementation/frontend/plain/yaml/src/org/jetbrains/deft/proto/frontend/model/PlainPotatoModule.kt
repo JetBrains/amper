@@ -8,6 +8,7 @@ internal class PlainPotatoModule(
     private val config: Settings,
     private val fragmentBuilders: List<FragmentBuilder>,
     private val artifactBuilders: List<ArtifactBuilder>,
+    override val parts: ClassBasedSet<ModulePart<*>>,
 ) : PotatoModule {
     override val userReadableName: String
         get() = buildFile.parent.name

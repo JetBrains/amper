@@ -69,7 +69,6 @@ class YamlModelInit : ModelInit {
                 .collect(Collectors.toList())
 
             object : Model {
-                override val parts = modelParts
                 override val modules: List<PotatoModule> = modules + gradleModuleWrappers
             }
         }

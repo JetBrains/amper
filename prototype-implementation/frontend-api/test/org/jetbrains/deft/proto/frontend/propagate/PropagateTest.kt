@@ -6,10 +6,6 @@ import kotlin.test.assertEquals
 
 class PropagateTest {
 
-    abstract class EmptyPartsModel : Model {
-        override val parts: ClassBasedSet<ModelPart<*>> = classBasedSet()
-    }
-
     @Test
     fun `basic fragment property propagation`() {
         // given
@@ -25,7 +21,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : EmptyPartsModel() {
+        val model = object : Model {
             override val modules: List<PotatoModule>
                 get() = listOf(module)
 
@@ -60,7 +56,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : EmptyPartsModel() {
+        val model = object : Model {
             override val modules: List<PotatoModule>
                 get() = listOf(module)
 
@@ -90,7 +86,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : EmptyPartsModel() {
+        val model = object : Model {
             override val modules: List<PotatoModule>
                 get() = listOf(module)
 
@@ -125,7 +121,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : EmptyPartsModel() {
+        val model = object : Model {
             override val modules: List<PotatoModule>
                 get() = listOf(module)
 

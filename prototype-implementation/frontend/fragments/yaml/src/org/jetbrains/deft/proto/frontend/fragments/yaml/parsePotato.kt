@@ -40,6 +40,7 @@ private fun buildPotato(yaml: String, name: String, source: PotatoModuleSource):
         source,
         fragments,
         artifacts,
+        classBasedSet(),
     )
 }
 

@@ -2,13 +2,13 @@ package org.jetbrains.deft.proto.frontend
 
 fun parseModuleParts(
     config: Settings,
-): ClassBasedSet<ModelPart<*>> {
+): ClassBasedSet<ModulePart<*>> {
     val repos = config.getValue<List<Settings>>("repositories")
         ?: emptyList()
 
     // Parse repositories.
     val parsedRepos = repos.map {
-        RepositoriesModelPart.Repository(
+        RepositoriesModulePart.Repository(
             it.requireValue<String>("name") { "No repository name" },
             it.requireValue<String>("url") { "No repository url" },
             it.getValue<String>("username"),
@@ -17,7 +17,7 @@ fun parseModuleParts(
         )
     }
 
-    val publicationModulePart = RepositoriesModelPart(parsedRepos)
+    val publicationModulePart = RepositoriesModulePart(parsedRepos)
 
     // Collect parts.
     return buildClassBasedSet {

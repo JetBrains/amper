@@ -5,9 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
-import org.jetbrains.deft.proto.frontend.RepositoriesModelPart
+import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
 import org.jetbrains.deft.proto.frontend.TestFragmentPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -33,35 +32,34 @@ class BindingProjectPlugin : Plugin<Project> {
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
 
-        applyRepositoryAttributes(model, project)
-        applyPublicationAttributes(model, linkedModule, project)
+        applyRepositoryAttributes(linkedModule, project)
+        applyPublicationAttributes(linkedModule, project)
         applyTest(linkedModule, project)
         applyAdditionalScript(project, linkedModule)
     }
 
     private fun applyRepositoryAttributes(
-        model: Model,
+        module: PotatoModuleWrapper,
         project: Project
     ) {
-        project.repositories.configure(model.parts.find<RepositoriesModelPart>())
+        project.repositories.configure(module.parts.find<RepositoriesModulePart>())
     }
 
     private fun applyPublicationAttributes(
-        model: Model,
-        potatoModule: PotatoModuleWrapper,
+        module: PotatoModuleWrapper,
         project: Project
     ) {
         project.plugins.apply("maven-publish")
         val extension = project.extensions.getByType(PublishingExtension::class.java)
-        potatoModule.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
+        module.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
             project.group = it.group
             project.version = it.version
-            extension.repositories.configure(model.parts.find<RepositoriesModelPart>())
+            extension.repositories.configure(module.parts.find<RepositoriesModulePart>())
         }
     }
 
-    private fun RepositoryHandler.configure(part: RepositoriesModelPart?) {
+    private fun RepositoryHandler.configure(part: RepositoriesModulePart?) {
         val repositories = part?.mavenRepositories?.filter { it.publish } ?: return
         repositories.forEach { declared ->
             if (declared.name == "mavenLocal" && declared.url == "mavenLocal") {

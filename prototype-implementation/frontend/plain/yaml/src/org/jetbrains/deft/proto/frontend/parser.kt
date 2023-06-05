@@ -74,7 +74,14 @@ fun parseModule(config: Settings): PotatoModule {
         override val state: MutableMap<FragmentBuilder, Fragment>
             get() = mutableState
     }
-    return with(mutableState) { PlainPotatoModule(config, fragments, artifacts) }
+    return with(mutableState) {
+        PlainPotatoModule(
+            config,
+            fragments,
+            artifacts,
+            parseModuleParts(config),
+        )
+    }
 }
 
 

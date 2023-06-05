@@ -6,12 +6,11 @@ import java.nio.file.Path
 
 val Model.resolved: Model
     get() = object : Model {
-        override val parts: ClassBasedSet<ModelPart<*>>
-            get() = this@resolved.parts
-
         override val modules: List<PotatoModule>
             get() = this@resolved.modules.map {
                 object : PotatoModule {
+                    override val parts: ClassBasedSet<ModulePart<*>>
+                        get() = it.parts
                     override val userReadableName: String
                         get() = it.userReadableName
                     override val type: PotatoModuleType

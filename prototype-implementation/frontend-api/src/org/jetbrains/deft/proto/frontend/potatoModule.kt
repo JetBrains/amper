@@ -13,6 +13,22 @@ enum class PotatoModuleType {
     APPLICATION,
 }
 
+sealed interface ModulePart<SelfT> {
+    fun default(): ModulePart<SelfT> = error("No default!")
+}
+
+data class RepositoriesModulePart(
+    val mavenRepositories: List<Repository>
+) : ModulePart<RepositoriesModulePart> {
+    data class Repository(
+        val name: String,
+        val url: String,
+        val userName: String?,
+        val password: String?,
+        val publish: Boolean,
+    )
+}
+
 /**
  * Just an aggregator for fragments and artifacts.
  */
@@ -29,4 +45,6 @@ interface PotatoModule {
     val fragments: List<Fragment>
 
     val artifacts: List<Artifact>
+
+    val parts: ClassBasedSet<ModulePart<*>>
 }

@@ -9,6 +9,7 @@ internal data class PotatoModuleImpl(
     override val source: PotatoModuleSource,
     override val fragments: List<FragmentImpl>,
     override val artifacts: List<ArtifactImpl>,
+    override val parts: ClassBasedSet<ModulePart<*>>,
 ) : PotatoModule
 
 internal data class FragmentImpl(

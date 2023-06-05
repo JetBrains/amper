@@ -111,6 +111,7 @@ class PotatoModuleBuilder(var name: String) {
     var source: PotatoModuleSource = PotatoModuleProgrammaticSource
     val fragments: MutableList<FragmentBuilder> = mutableListOf()
     private val artifacts: MutableList<Artifact> = mutableListOf()
+    private val parts = classBasedSet<ModulePart<*>>()
 
     fun fragment(name: String, init: FragmentBuilder.() -> Unit): FragmentBuilder {
         val builder = FragmentBuilder(name)
@@ -137,6 +138,8 @@ class PotatoModuleBuilder(var name: String) {
                 get() = this@PotatoModuleBuilder.fragments.map { it.build() }
             override val artifacts: List<Artifact>
                 get() = this@PotatoModuleBuilder.artifacts
+            override val parts: ClassBasedSet<ModulePart<*>>
+                get() = this@PotatoModuleBuilder.parts
         }
     }
 }
