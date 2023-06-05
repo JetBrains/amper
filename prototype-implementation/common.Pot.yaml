@@ -1,0 +1,16 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+settings:
+  publishing:
+    version: 1.0-SNAPSHOT
+
+  kotlin:
+    sdk:
+      version: 1.8.21
+    languageVersion: 1.9
+    features:
+      - contextReceivers
+  junit:
+    platformEnabled: true

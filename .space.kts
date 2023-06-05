@@ -46,16 +46,12 @@ fun `prototype implementation job`(
 ) {
     // Crumble-some and nasty version replacement.
     // FIXME Replace it with templates when they will be available!
-    File(".").walkTopDown()
-        .forEach { file ->
-            if (file.name == "Pot.yaml") {
-                val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
-                val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
-                val oldVersion = "version: 1.0-SNAPSHOT"
-                val newContent = file.readText().replace(oldVersion, newVersion)
-                file.writeText(newContent)
-            }
-        }
+    val file = File("common.Pot.yaml")
+    val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
+    val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
+    val oldVersion = "version: 1.0-SNAPSHOT"
+    val newContent = file.readText().replace(oldVersion, newVersion)
+    file.writeText(newContent)
 
     // Do the work.
     gradlew(

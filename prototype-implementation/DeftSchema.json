@@ -4,6 +4,13 @@
   "title": "Deft DSL",
   "type": "object",
   "properties": {
+    "include": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
     "product": {
       "type": "object",
       "properties": {
@@ -104,9 +111,6 @@
     }
   },
   "additionalProperties": false,
-  "required": [
-    "product"
-  ],
   "$defs": {
     "platform": {
       "enum": [

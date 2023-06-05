@@ -1,18 +1,9 @@
-product:
-  type: lib
-  platforms: [ jvm ]
+include:
+  - ../../common.Pot.yaml
 
 settings:
   publishing:
     group: org.jetbrains.deft.proto.frontend.util
-    version: 1.0-SNAPSHOT
-
-  kotlin:
-    sdk:
-      version: 1.8.21
-    languageVersion: 1.9
-    features:
-      - contextReceivers
 
 dependencies:
   - ../../frontend-api
