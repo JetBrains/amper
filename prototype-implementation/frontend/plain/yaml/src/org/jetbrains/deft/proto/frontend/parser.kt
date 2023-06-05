@@ -2,14 +2,11 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
-import org.yaml.snakeyaml.Yaml
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
 context(BuildFileAware)
-fun parseModule(value: String): PotatoModule {
-    val yaml = Yaml()
-    val config = yaml.load<Settings>(value)
+fun parseModule(config: Settings): PotatoModule {
     val rawPlatforms = config.getByPath<List<String>>("product", "platforms") ?: listOf()
     val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
     if (platforms.isEmpty()) {

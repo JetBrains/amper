@@ -1,7 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import java.io.InputStream
-import java.util.Properties
+import java.util.*
 
 
 typealias InterpolateCtx = Properties
@@ -12,7 +12,22 @@ fun InputStream?.toInterpolateCtx() = Properties().apply {
 }
 
 context(InterpolateCtx)
-fun String.tryInterpolate(): String {
+fun String.tryInterpolate() = if (isSimpleVariable || isBracketSurroundedVariable) {
     val propName = removePrefix("$").removePrefix("{").removeSuffix("}")
-    return getProperty(propName, this)
+    getProperty(propName) ?: error("No value for variable $propName")
+} else {
+    this
 }
+
+private val String.isSimpleVariable: Boolean
+    get() =
+        startsWith("$") && !contains("\\{") && !contains("\\}")
+
+private val String.isBracketSurroundedVariable: Boolean
+    get() =
+        startsWith("$\\{") && endsWith("}")
+
+private fun String.toPropName(): String? =
+    if (isSimpleVariable || isBracketSurroundedVariable)
+        removePrefix("$").removePrefix("\\{").removeSuffix("}")
+    else null

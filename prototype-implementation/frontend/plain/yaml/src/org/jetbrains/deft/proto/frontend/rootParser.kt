@@ -1,33 +1,22 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.yaml.snakeyaml.Yaml
-import java.io.InputStream
-import java.net.URI
-
-
 fun parseModuleParts(
-    values: InputStream,
-    localProps: InputStream?,
+    config: Settings,
 ): ClassBasedSet<ModelPart<*>> {
-    // Parse yaml.
-    val yaml = Yaml()
-    val config = yaml.load<Settings>(values)
-
     val repos = config.getValue<List<Settings>>("repositories")
         ?: emptyList()
 
     // Parse repositories.
-    val parsedRepos = with(localProps.toInterpolateCtx()) {
-        repos.map {
-            RepositoriesModelPart.Repository(
-                it.requireValue<String>("name") { "No repository name" },
-                it.requireValue<String>("url") { "No repository url" },
-                it.getValue<String>("username")?.tryInterpolate(),
-                it.getValue<String>("password")?.tryInterpolate(),
-                it.getValue<Boolean>("publish") ?: false,
-            )
-        }
+    val parsedRepos = repos.map {
+        RepositoriesModelPart.Repository(
+            it.requireValue<String>("name") { "No repository name" },
+            it.requireValue<String>("url") { "No repository url" },
+            it.getValue<String>("username"),
+            it.getValue<String>("password"),
+            it.getValue<Boolean>("publish") ?: false,
+        )
     }
+
     val publicationModulePart = RepositoriesModelPart(parsedRepos)
 
     // Collect parts.

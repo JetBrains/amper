@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
 import org.jetbrains.deft.proto.frontend.util.inputStreamOrNull
+import org.yaml.snakeyaml.Yaml
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -20,40 +21,57 @@ class YamlModelInit : ModelInit {
     override val name = "plain"
 
     override fun getModel(root: Path): Model {
+        val yaml = Yaml()
+
         if (!root.exists()) {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
 
         val rootFile = root.resolve("root.yaml")
         val localPropertiesFile = root.resolve("root.local.properties")
-        val modelParts = if (rootFile.exists())
-            parseModuleParts(rootFile.inputStream(), localPropertiesFile.inputStreamOrNull())
-        else
-            classBasedSet()
-
-        val ignore = root.resolve(".deftignore")
-        val ignoreLines = if (ignore.exists()) {
-            ignore.readLines()
-        } else {
-            emptyList()
+        val interpolateCtx = InterpolateCtx().apply {
+            localPropertiesFile.inputStreamOrNull()?.let { load(it) }
         }
-        val ignorePaths = ignoreLines.map { root.resolve(it) }
 
-        val modules = Files.walk(root)
-            .filter {
-                it.name == "Pot.yaml" && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
+        return with(interpolateCtx) {
+            val modelParts = if (rootFile.exists()) {
+                val parsed = yaml
+                    .parseAndPreprocess(rootFile.inputStream()) { Path(it).inputStream() }
+                parseModuleParts(parsed)
+            } else
+                classBasedSet()
+
+            val ignore = root.resolve(".deftignore")
+            val ignoreLines = if (ignore.exists()) {
+                ignore.readLines()
+            } else {
+                emptyList()
             }
-            .map { withBuildFile(it.toAbsolutePath()) { parseModule(it.readText()) } }
-            .collect(Collectors.toList())
+            val ignorePaths = ignoreLines.map { root.resolve(it) }
 
-        val gradleModuleWrappers = Files.walk(root)
-            .filter { setOf("build.gradle.kts", "build.gradle").contains(it.name) }
-            .map { DumbGradleModule(it) }
-            .collect(Collectors.toList())
+            val modules = Files.walk(root)
+                .filter {
+                    it.name == "Pot.yaml" && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
+                }
+                .map {
+                    withBuildFile(it.toAbsolutePath()) {
+                        val parsed = yaml.parseAndPreprocess(it.inputStream()) { includePath ->
+                            buildFile.parent.resolve(includePath).inputStream()
+                        }
+                        parseModule(parsed)
+                    }
+                }
+                .collect(Collectors.toList())
 
-        return object : Model {
-            override val parts = modelParts
-            override val modules: List<PotatoModule> = modules + gradleModuleWrappers
+            val gradleModuleWrappers = Files.walk(root)
+                .filter { setOf("build.gradle.kts", "build.gradle").contains(it.name) }
+                .map { DumbGradleModule(it) }
+                .collect(Collectors.toList())
+
+            object : Model {
+                override val parts = modelParts
+                override val modules: List<PotatoModule> = modules + gradleModuleWrappers
+            }
         }
     }
 }

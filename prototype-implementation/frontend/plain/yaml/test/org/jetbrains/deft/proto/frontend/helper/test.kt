@@ -1,8 +1,10 @@
 package org.jetbrains.deft.proto.frontend.helper
 
 import org.jetbrains.deft.proto.frontend.ParserKtTest
+import org.jetbrains.deft.proto.frontend.Settings
 import org.jetbrains.deft.proto.frontend.parseModule
 import org.jetbrains.deft.proto.frontend.withBuildFile
+import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -19,11 +21,14 @@ context (Path)
 internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { directory("src") }) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
+    val parsed = Yaml().load<Settings>(text)
 
     project(parent.toFile()) { init() }
 
     // When
-    val module = withBuildFile(toAbsolutePath()) { parseModule(text) }
+    val module = withBuildFile(toAbsolutePath()) {
+        parseModule(parsed)
+    }
 
     // Then
     val expectedResourceName = "$resourceName.result.txt"
