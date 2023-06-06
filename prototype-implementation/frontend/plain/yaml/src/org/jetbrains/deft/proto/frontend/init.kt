@@ -27,20 +27,12 @@ class YamlModelInit : ModelInit {
             throw RuntimeException("Can't find ${root.absolutePathString()}")
         }
 
-        val rootFile = root.resolve("root.yaml")
         val localPropertiesFile = root.resolve("root.local.properties")
         val interpolateCtx = InterpolateCtx().apply {
             localPropertiesFile.inputStreamOrNull()?.let { load(it) }
         }
 
         return with(interpolateCtx) {
-            val modelParts = if (rootFile.exists()) {
-                val parsed = yaml
-                    .parseAndPreprocess(rootFile.inputStream()) { Path(it).inputStream() }
-                parseModuleParts(parsed)
-            } else
-                classBasedSet()
-
             val ignore = root.resolve(".deftignore")
             val ignoreLines = if (ignore.exists()) {
                 ignore.readLines()
