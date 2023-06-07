@@ -9,7 +9,7 @@ Fragments:
       TestFragmentPart(junitPlatform=null)
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       jvm (FRIEND)

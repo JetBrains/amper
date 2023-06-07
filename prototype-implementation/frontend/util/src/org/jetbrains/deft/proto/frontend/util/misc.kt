@@ -30,3 +30,11 @@ fun <I, T, CT : Collection<T>> Iterable<I>.cartesianGeneric(
  * Get an input stream from a file, if it exists, or null.
  */
 fun Path.inputStreamOrNull() = takeIf { it.exists() }?.inputStream()
+
+/**
+ * Require sequence to have only one element or no at all.
+ */
+fun <T> Sequence<T>.requireSingleOrNull(): T? = iterator().run {
+    takeIf { hasNext() }?.next()
+        .apply { if (this@run.hasNext()) error("Must be exactly one element or none!") }
+}

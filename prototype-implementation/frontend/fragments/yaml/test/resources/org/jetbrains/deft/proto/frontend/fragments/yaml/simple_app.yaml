@@ -12,7 +12,7 @@ jvm:
 # Fragments:
 # - jvm
 #   Fragment dependencies: []
-#   External dependencies: [MavenDependency(coordinates=org.yaml:snakeyaml:2.0)]
+#   External dependencies: [MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [JVM]
 # - jvmTest
 #   Fragment dependencies: [jvm [FRIEND]]

@@ -2,7 +2,8 @@ package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.deft.proto.gradle.ArtifactWrapper
+import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
@@ -14,9 +15,11 @@ import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragm
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
+import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -102,10 +105,23 @@ class KMPPBindingPluginPart(
                 fragment.maybeCreateSourceSet {
                     dependencies {
                         fragment.externalDependencies.forEach { externalDependency ->
+                            val depFunction: KotlinDependencyHandler.(Any) -> Unit =
+                                if (externalDependency is DefaultScopedNotation) with(externalDependency) {
+                                    when {
+                                        compile && runtime && !exported -> { { implementation(it) } }
+                                        !compile && runtime && !exported -> { { runtimeOnly(it) } }
+                                        compile && !runtime && !exported -> { { compileOnly(it) } }
+                                        compile && runtime && exported -> { { api(it) } }
+                                        compile && !runtime && exported -> error("Not supported")
+                                        !compile && runtime && exported -> error("Not supported")
+                                        !compile && !runtime -> error("At least one scope of (compile, runtime) must be declared")
+                                        else -> { { implementation(it) } }
+                                    }
+                                } else { { implementation(it) } }
                             when (externalDependency) {
-                                is MavenDependency -> implementation(externalDependency.coordinates)
+                                is MavenDependency -> depFunction(externalDependency.coordinates)
                                 is PotatoModuleDependency -> with(externalDependency) {
-                                    implementation(model.module.linkedProject)
+                                    depFunction(model.module.linkedProject)
                                 }
 
                                 else -> error("Unsupported dependency type: $externalDependency")

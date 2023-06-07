@@ -28,11 +28,11 @@ iosArm64+paid:
 # Fragments:
 # - common
 #   Fragment dependencies: []
-#   External dependencies: [MavenDependency(coordinates=foo:1.0)]
+#   External dependencies: [MavenDependency(coordinates=foo:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
-#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
+#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonDebug
 #   Fragment dependencies: [common [REFINE]]
@@ -52,7 +52,7 @@ iosArm64+paid:
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonPaid
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0)]
+#   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTestPaid
 #   Fragment dependencies: [commonPaid [FRIEND], commonTest [REFINE]]
@@ -100,7 +100,7 @@ iosArm64+paid:
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
+#   External dependencies: [MavenDependency(coordinates=ios-util:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [IOS_ARM64]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
@@ -124,7 +124,7 @@ iosArm64+paid:
 #   Platforms: [IOS_ARM64]
 # - iosArm64Paid
 #   Fragment dependencies: [iosArm64 [REFINE], commonPaid [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0)]
+#   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [IOS_ARM64]
 # - iosArm64TestPaid
 #   Fragment dependencies: [iosArm64Paid [FRIEND], iosArm64Test [REFINE], commonTestPaid [REFINE]]

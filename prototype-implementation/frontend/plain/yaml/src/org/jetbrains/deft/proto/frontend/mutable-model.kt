@@ -498,39 +498,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
 }
 
 context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
-    config.handleFragmentSettings<List<String>>(this, "dependencies") { depList ->
-        val resolved = depList.map { dep ->
-            if (dep.startsWith(".")) {
-                object : PotatoModuleDependency {
-                    override val Model.module: PotatoModule
-                        get() = modules.find {
-                            if (it.source is PotatoModuleFileSource) {
-                                val targetModulePotFilePath =
-                                    (it.source as PotatoModuleFileSource).buildFile.toAbsolutePath()
-                                val sourceModulePotFilePath =
-                                    buildFile.parent.resolve("$dep/Pot.yaml").normalize().toAbsolutePath()
-
-                                val sourceModuleGradleFilePath =
-                                    buildFile.parent.resolve("$dep/build.gradle.kts").normalize().toAbsolutePath()
-
-                                targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
-                            } else {
-                                false
-                            }
-                        } ?: error("No module $dep found")
-
-                    override fun toString(): String {
-                        return "InternalDependency(module=$dep)"
-                    }
-                }
-            } else {
-                MavenDependency(dep)
-            }
-        }
-        externalDependencies.addAll(resolved)
-    }
-
+internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
     config.handleFragmentSettings<Settings>(this, "settings") {
         it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
             kotlin = FragmentBuilder.KotlinFragmentBuilder {
@@ -558,7 +526,7 @@ internal fun List<FragmentBuilder>.handleAdditionalKeys(config: Settings) {
 }
 
 context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<ArtifactBuilder>.handleAdditionalKeys(
+internal fun List<ArtifactBuilder>.handleSettings(
     config: Map<String, Any>,
     fragments: List<FragmentBuilder>
 ) {

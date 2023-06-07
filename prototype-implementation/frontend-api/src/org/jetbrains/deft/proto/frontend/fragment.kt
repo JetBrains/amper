@@ -3,12 +3,24 @@ package org.jetbrains.deft.proto.frontend
 import java.nio.file.Path
 
 sealed interface Notation
-interface PotatoModuleDependency : Notation {
+
+interface DefaultScopedNotation : Notation {
+    val compile: Boolean get() = true
+    val runtime: Boolean get() = true
+    val exported: Boolean get() = false
+}
+
+interface PotatoModuleDependency : DefaultScopedNotation {
     // A dirty hack to make module resolution lazy.
     val Model.module: PotatoModule
 }
 
-data class MavenDependency(val coordinates: String) : Notation
+data class MavenDependency(
+    val coordinates: String,
+    override val compile: Boolean = true,
+    override val runtime: Boolean = true,
+    override val exported: Boolean = false,
+) : DefaultScopedNotation
 
 enum class FragmentDependencyType {
     REFINE, FRIEND,

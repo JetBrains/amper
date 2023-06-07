@@ -71,7 +71,7 @@ jvm+paid+release:
 #   Platforms: [JVM]
 # - jvmReleasePaid
 #   Fragment dependencies: [jvmRelease [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=org.yaml:snakeyaml:2.0)]
+#   External dependencies: [MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [JVM]
 # - jvmTestReleasePaid
 #   Fragment dependencies: [jvmReleasePaid [FRIEND], jvmTestRelease [REFINE]]

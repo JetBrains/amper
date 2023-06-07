@@ -38,11 +38,11 @@ android:
 # Fragments:
 # - common
 #   Fragment dependencies: []
-#   External dependencies: [MavenDependency(coordinates=foo:1.0)]
+#   External dependencies: [MavenDependency(coordinates=foo:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, IOS, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
-#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
+#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, IOS, COMMON]
 # - commonDebug
 #   Fragment dependencies: [common [REFINE]]
@@ -62,7 +62,7 @@ android:
 #   Platforms: [ANDROID, IOS_ARM64, IOS, COMMON]
 # - commonPaid
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0)]
+#   External dependencies: [MavenDependency(coordinates=common-paid-dependency:2.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, IOS, COMMON]
 # - commonTestPaid
 #   Fragment dependencies: [commonPaid [FRIEND], commonTest [REFINE]]
@@ -110,11 +110,11 @@ android:
 #   Platforms: [ANDROID, IOS_ARM64, IOS, COMMON]
 # - device
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=darwin-util:1.0)]
+#   External dependencies: [MavenDependency(coordinates=darwin-util:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, IOS]
 # - deviceTest
 #   Fragment dependencies: [device [FRIEND], commonTest [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=darwin-test-util:1.0)]
+#   External dependencies: [MavenDependency(coordinates=darwin-test-util:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, IOS]
 # - deviceDebug
 #   Fragment dependencies: [device [REFINE], commonDebug [REFINE]]
@@ -182,7 +182,7 @@ android:
 #   Platforms: [ANDROID, IOS_ARM64, IOS]
 # - ios
 #   Fragment dependencies: [common [REFINE], device [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
+#   External dependencies: [MavenDependency(coordinates=ios-util:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [IOS_ARM64, IOS]
 # - iosTest
 #   Fragment dependencies: [ios [FRIEND], commonTest [REFINE], deviceTest [REFINE]]
@@ -278,7 +278,7 @@ android:
 #   Platforms: [IOS_ARM64]
 # - iosArm64Paid
 #   Fragment dependencies: [iosArm64 [REFINE], iosPaid [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0)]
+#   External dependencies: [MavenDependency(coordinates=ios-util-for-paid:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [IOS_ARM64]
 # - iosArm64TestPaid
 #   Fragment dependencies: [iosArm64Paid [FRIEND], iosArm64Test [REFINE], iosTestPaid [REFINE]]

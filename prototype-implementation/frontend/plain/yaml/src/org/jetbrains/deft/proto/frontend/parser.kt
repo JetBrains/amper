@@ -56,7 +56,10 @@ fun parseModule(config: Settings): PotatoModule {
     var fragments = with(aliasMap) { subsets.basicFragments }
 
     fragments = fragments.multiplyFragments(config.variants)
-    with(aliasMap) { fragments.handleAdditionalKeys(config.transformed) }
+    with(aliasMap) {
+        fragments.handleExternalDependencies(config.transformed)
+        fragments.handleSettings(config.transformed)
+    }
     with(config) {
         fragments.calculateSrcDir(platforms.toSet())
     }
@@ -67,7 +70,9 @@ fun parseModule(config: Settings): PotatoModule {
         platforms.toSet()
     )
 
-    with(aliasMap) { artifacts.handleAdditionalKeys(config.transformed, fragments) }
+    with(aliasMap) {
+        artifacts.handleSettings(config.transformed, fragments)
+    }
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
         private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()

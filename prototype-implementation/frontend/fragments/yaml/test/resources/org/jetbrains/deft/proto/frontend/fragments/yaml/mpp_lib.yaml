@@ -19,15 +19,15 @@ iosArm64:
 # Fragments:
 # - common
 #   Fragment dependencies: []
-#   External dependencies: [MavenDependency(coordinates=foo:1.0)]
+#   External dependencies: [MavenDependency(coordinates=foo:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - commonTest
 #   Fragment dependencies: [common [FRIEND]]
-#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10)]
+#   External dependencies: [MavenDependency(coordinates=kotlin-test:1.8.10, compile=true, runtime=true, exported=false)]
 #   Platforms: [ANDROID, IOS_ARM64, COMMON]
 # - iosArm64
 #   Fragment dependencies: [common [REFINE]]
-#   External dependencies: [MavenDependency(coordinates=ios-util:1.0)]
+#   External dependencies: [MavenDependency(coordinates=ios-util:1.0, compile=true, runtime=true, exported=false)]
 #   Platforms: [IOS_ARM64]
 # - iosArm64Test
 #   Fragment dependencies: [iosArm64 [FRIEND], commonTest [REFINE]]
