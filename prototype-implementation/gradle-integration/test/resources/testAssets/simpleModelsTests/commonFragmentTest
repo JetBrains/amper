@@ -10,12 +10,17 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmMain:
-   depends(commonMain)
+   depends()
    sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvmTest:
+  myAppMain:
+   depends(commonMain,jvmMain)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  myAppTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

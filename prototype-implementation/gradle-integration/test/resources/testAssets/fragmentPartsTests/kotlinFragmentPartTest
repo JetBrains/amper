@@ -10,12 +10,17 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmMain:
-   depends(commonMain)
+   depends()
    sourceDirs(common/src)
    lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
    implDeps()
-  jvmTest:
+  myAppMain:
+   depends(commonMain,jvmMain)
+   sourceDirs()
+   lang(api=1.8 version=1.8 progressive=true features=InlineClasses)
+   implDeps()
+  myAppTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

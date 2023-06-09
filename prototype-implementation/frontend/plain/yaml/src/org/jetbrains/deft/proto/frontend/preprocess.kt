@@ -69,18 +69,22 @@ internal fun Settings.transformLeafs(transform: (Any) -> Any): Settings =
         this@transformLeafs.entries.map { entry ->
             val value = entry.value
             val key = entry.key
-            when (value) {
-                is List<*> -> {
-                    // The list contains other objects.
-                    if (value.isNotEmpty() && value.first() is Map<*, *>)
-                        put(key, value.map { (it as Settings).transformLeafs(transform) })
-                    // The list contains only leaf elements or is empty.
-                    else
-                        put(key, value.map { it?.let(transform) })
-                }
+            @Suppress("SENSELESS_COMPARISON")
+            if (value != null) {
+                when (value) {
+                    is List<*> -> {
+                        // The list contains other objects.
+                        if (value.isNotEmpty() && value.first() is Map<*, *>)
+                            put(key, value.map { (it as Settings).transformLeafs(transform) })
+                        // The list contains only leaf elements or is empty.
+                        else
+                            put(key, value.map { it?.let(transform) })
+                    }
 
-                is Map<*, *> -> put(key, (value as Settings).transformLeafs(transform))
-                else -> put(key, transform(value))
+                    is Map<*, *> -> put(key, (value as Settings).transformLeafs(transform))
+                    else -> put(key, transform(value))
+                }
             }
+
         }
     }

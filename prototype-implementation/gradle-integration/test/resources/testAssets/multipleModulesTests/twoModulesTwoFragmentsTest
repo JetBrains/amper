@@ -14,14 +14,14 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvmMain:
+  myAppMain:
    depends(commonMain)
-   sourceDirs(src/jvmMain/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvmTest:
+  myAppTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
 :module2
@@ -40,13 +40,13 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvmMain:
+  myAppMain:
    depends(commonMain)
-   sourceDirs(src/jvmMain/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  jvmTest:
+  myAppTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

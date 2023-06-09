@@ -1,9 +1,6 @@
 package org.jetbrains.deft.proto.gradle
 
-import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
-import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
-import org.jetbrains.deft.proto.frontend.ModelInit
-import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.util.MockModel
 import org.jetbrains.deft.proto.gradle.util.MockPotatoModule
 import org.jetbrains.deft.proto.gradle.util.getMockModelName
@@ -80,6 +77,7 @@ object Models : ModelInit {
 
     val threeFragmentsSingleArtifactModel by mockModel {
         module(it.buildToml) {
+            type = PotatoModuleType.LIBRARY
             val common = fragment()
             val jvm = fragment("jvm") {
                 refines(common)

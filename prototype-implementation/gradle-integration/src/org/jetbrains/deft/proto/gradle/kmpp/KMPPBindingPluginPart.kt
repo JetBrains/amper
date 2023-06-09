@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
+import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.ArtifactWrapper
@@ -49,22 +50,25 @@ class KMPPBindingPluginPart(
     }
 
     private fun initTargets() = with(KotlinDeftNamingConvention) {
-        module.nonTestArtifacts.forEach { artifact ->
-            artifact.fragments.forEach { fragment ->
-                val platform = fragment.platforms.singleOrNull()
-                    ?: error("Leaf fragment must have exactly one platform!")
-                check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                // FIXME Support variants: create multiple compilations - one compilation for
-                // FIXME each leaf fragment.
-                when (platform) {
-                    Platform.ANDROID -> kotlinMPE.android()
-                    Platform.JVM -> kotlinMPE.jvm()
-                    Platform.IOS_ARM64 -> kotlinMPE.iosArm64() { adjust(artifact) }
-                    Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64() { adjust(artifact) }
-                    Platform.IOS_X64 -> kotlinMPE.iosX64() { adjust(artifact) }
-                    Platform.MACOS_ARM64 -> kotlinMPE.macosArm64() { adjust(artifact) }
-                    Platform.JS -> kotlinMPE.js()
-                    else -> error("Unsupported platform: $platform")
+        module.nonTestArtifacts.groupBy { it.platforms }.forEach { (platforms, artifacts) ->
+            artifacts.forEach { artifact ->
+                artifact.fragments.forEach { fragment ->
+                    val platform = fragment.platforms.singleOrNull()
+                        ?: error("Leaf fragment must have exactly one platform!")
+                    check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
+                    // FIXME Support variants: create multiple compilations - one compilation for
+                    // FIXME each leaf fragment.
+                    val targetName = getTargetName(artifact, platform)
+                    when (platform) {
+                        Platform.ANDROID -> kotlinMPE.android(targetName)
+                        Platform.JVM -> kotlinMPE.jvm(targetName)
+                        Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName) { adjust(artifact) }
+                        Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName) { adjust(artifact) }
+                        Platform.IOS_X64 -> kotlinMPE.iosX64(targetName) { adjust(artifact) }
+                        Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName) { adjust(artifact) }
+                        Platform.JS -> kotlinMPE.js(targetName)
+                        else -> error("Unsupported platform: $platform")
+                    }
                 }
             }
         }
@@ -76,6 +80,26 @@ class KMPPBindingPluginPart(
         binaries {
             executable(artifact.name) {
                 entryPoint = part?.entryPoint
+            }
+        }
+        // workaround to have a few variants of the same darwin target
+        attributes {
+            attribute(Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java), artifact.name)
+        }
+        project.configurations.findByName("${artifact.name}CInteropApiElements")?.let {
+            it.attributes {
+                it.attribute(
+                    Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java),
+                    artifact.name
+                )
+            }
+        }
+        project.configurations.findByName("${artifact.name}MetadataElements")?.let {
+            it.attributes {
+                it.attribute(
+                    Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java),
+                    artifact.name
+                )
             }
         }
     }
@@ -153,14 +177,15 @@ class KMPPBindingPluginPart(
                 artifact.fragments.forEach inner@{ fragment ->
                     val platform = fragment.platforms
                         .requireSingle { "Leaf fragment must contain exactly single platform!" }
-                    val target = platform.target ?: return@inner
+                    val targetName = getTargetName(artifact, platform)
+                    val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
                     with(target) {
                         // setting jvmTarget for android (as android compilations are appeared after project evaluation,
-                        // also their names does not match with our artifact names)
+                        // also their names do not match with our artifact names)
                         if (platform == Platform.ANDROID) {
                             artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
                                 project.afterEvaluate {
-                                    val androidTarget = kotlinMPE.targets.findByName("android") ?: return@afterEvaluate
+                                    val androidTarget = kotlinMPE.targets.findByName(targetName) ?: return@afterEvaluate
                                     val compilations = if (artifact is TestArtifact) {
                                         androidTarget.compilations.matching { it.name.lowercase().contains("test") }
                                     } else {
@@ -170,6 +195,13 @@ class KMPPBindingPluginPart(
                                         it.compileTaskProvider.configure {
                                             it as KotlinCompilationTask<KotlinJvmCompilerOptions>
                                             it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                                        }
+
+                                        it.kotlinSourceSets.forEach { compilationSourceSet ->
+                                            if (compilationSourceSet != fragment.kotlinSourceSet) {
+                                                println("Attaching fragment ${fragment.name} to compilation ${it.name}")
+                                                compilationSourceSet.doDependsOn(fragment)
+                                            }
                                         }
                                     }
                                 }
@@ -192,6 +224,17 @@ class KMPPBindingPluginPart(
                     }
                 }
             }
+        }
+    }
+
+    private fun getTargetName(artifact: ArtifactWrapper, platform: Platform): String {
+        if (platform == Platform.ANDROID && artifact.name == "main") { // workaround for AGP
+            return "android"
+        }
+        return if (module.type == PotatoModuleType.APPLICATION) {
+            artifact.name
+        } else {
+            artifact.name.replace("test", "main").replace("Test", "") + platform.toString().doCamelCase().capitalized()
         }
     }
 
