@@ -18,7 +18,7 @@ fun `prototype implementation job`(
 ) = job(name) {
     if (customTrigger != null) startOn { customTrigger() }
     parameters { customParameters() }
-    container(displayName = name, image = "amazoncorretto:17") {
+    container(displayName = name, image = "thyrlian/android-sdk") {
         workDir = "prototype-implementation"
         kotlinScript {
             it.addCreds()
