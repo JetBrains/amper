@@ -16,6 +16,7 @@ repositories:
     url: https://dl.google.com/dl/android/maven2/
   - name: mavenLocal
     url: mavenLocal
+    publish: true
 
 settings:
   publishing:
