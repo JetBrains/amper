@@ -1,3 +1,4 @@
 frontend/fragments/yaml/build
 frontend/fragments/yaml/test/resources
 try
+e2e-test/resources

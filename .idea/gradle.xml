@@ -59,6 +59,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/build" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/build/processedResources" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/build/processedResources/jvm" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/build/processedResources/jvm/test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/build/processedResources/jvm/test/jvm-hello-world" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/fragments" />
