@@ -12,7 +12,7 @@ class E2eTest {
         // run gradle
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("run", "--stacktrace")
+            .withArguments("run")
             .build()
 
         assertContains(buildResult.output, "Hello, World!")
@@ -26,7 +26,7 @@ class E2eTest {
         // when
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("run", "--stacktrace")
+            .withArguments("run")
             .build()
 
         // then
@@ -34,7 +34,7 @@ class E2eTest {
     }
 
     @Test
-    fun `jvm-with-tests runs tests and fails`() {
+    fun `jvm-with-tests test task fails`() {
         // given
         val file = Path.of("resources/jvm-with-tests")
 
@@ -49,7 +49,7 @@ class E2eTest {
     }
 
     @Test
-    fun `kmp-mobile builds`() {
+    fun `kmp-mobile test task fails`() {
         // given
         val file = Path.of("resources/kmp-mobile")
 
@@ -60,7 +60,35 @@ class E2eTest {
             .run()
 
         // then
-        println(buildResult.output)
         assertContains(buildResult.output, "There were failing tests. See the report at")
+    }
+
+    @Test
+    fun `kmp-mobile-modularized test task fails`() {
+        // given
+        val file = Path.of("resources/kmp-mobile-modularized")
+
+        // when
+        @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
+            .withProjectDir(file.toFile())
+            .withArguments("test")
+            .run()
+
+        // then
+        assertContains(buildResult.output, "There were failing tests. See the report at")
+    }
+
+    @Test
+    fun `variants builds`() {
+        // given
+        val file = Path.of("resources/variants")
+
+        // when
+        @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
+            .withProjectDir(file.toFile())
+            .withArguments("build")
+            .build()
+        // then
+        assertContains(buildResult.output, "BUILD SUCCESSFUL")
     }
 }
