@@ -47,4 +47,20 @@ class E2eTest {
         // then
         assertContains(buildResult.output, "org.opentest4j.AssertionFailedError at WorldTest.kt:7")
     }
+
+    @Test
+    fun `kmp-mobile builds`() {
+        // given
+        val file = Path.of("resources/kmp-mobile")
+
+        // when
+        @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
+            .withProjectDir(file.toFile())
+            .withArguments("test")
+            .run()
+
+        // then
+        println(buildResult.output)
+        assertContains(buildResult.output, "There were failing tests. See the report at")
+    }
 }
