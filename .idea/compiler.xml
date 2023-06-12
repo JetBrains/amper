@@ -4,15 +4,37 @@
     <bytecodeTargetLevel target="11">
       <module name="android" target="17" />
       <module name="ios" target="17" />
+      <module name="jvm-hello-world" target="17" />
+      <module name="jvm-hello-world.main" target="17" />
       <module name="jvm-hello-world.subproject" target="17" />
       <module name="jvm-hello-world.subproject.main" target="17" />
       <module name="jvm-hello-world.subproject.test" target="17" />
+      <module name="jvm-hello-world.test" target="17" />
       <module name="jvm-hello-world_main" target="17" />
       <module name="jvm-hello-world_test" target="17" />
+      <module name="jvm-kotlin+java" target="17" />
+      <module name="jvm-kotlin+java.main" target="17" />
+      <module name="jvm-kotlin+java.test" target="17" />
       <module name="jvm-kotlin+java_main" target="17" />
       <module name="jvm-kotlin+java_test" target="17" />
+      <module name="jvm-with-tests" target="17" />
+      <module name="jvm-with-tests.main" target="17" />
+      <module name="jvm-with-tests.test" target="17" />
       <module name="jvm-with-tests_main" target="17" />
       <module name="jvm-with-tests_test" target="17" />
+      <module name="kmp-mobile" target="17" />
+      <module name="kmp-mobile-modularized.android" target="17" />
+      <module name="kmp-mobile-modularized.ios" target="17" />
+      <module name="kmp-mobile-modularized.shared" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.main" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.test" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-kotlin+java" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-kotlin+java.main" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-kotlin+java.test" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-with-tests" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-with-tests.main" target="17" />
+      <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-with-tests.test" target="17" />
       <module name="prototype-implementation.e2e-test.resources.jvm-hello-world" target="17" />
       <module name="prototype-implementation.e2e-test.resources.jvm-hello-world.main" target="17" />
       <module name="prototype-implementation.e2e-test.resources.jvm-hello-world.test" target="17" />
@@ -39,6 +61,7 @@
       <module name="prototype-implementation.yaml.test" target="19" />
       <module name="prototype-implementation.yaml.yaml" target="19" />
       <module name="shared" target="17" />
+      <module name="variants" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
