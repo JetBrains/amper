@@ -84,7 +84,7 @@ class E2eTest {
         val file = Path.of("resources/variants")
 
         // when
-        @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
+        val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
             .withArguments("build")
             .build()
