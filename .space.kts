@@ -44,8 +44,6 @@ fun `prototype implementation job`(
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = { text("version", value = "") }
 ) {
-    // Crumble-some and nasty version replacement.
-    // FIXME Replace it with templates when they will be available!
     val file = File("common.Pot.yaml")
     val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
     val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
