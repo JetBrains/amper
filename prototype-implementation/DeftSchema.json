@@ -100,6 +100,12 @@
     },
     "test-settings@ios": {
       "$ref": "#/$defs/settings"
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repository"
+      }
     }
   },
   "patternProperties": {
@@ -151,7 +157,10 @@
       "type": "string"
     },
     "dependencyList": {
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/dependency"
@@ -365,6 +374,31 @@
         }
       },
       "additionalProperties": false
+    },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "publish": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "url"
+      ]
     }
   }
 }
