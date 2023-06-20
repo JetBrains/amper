@@ -30,7 +30,6 @@ buildscript {
 
         mavenCentral()
         google()
-        jcenter()
         gradlePluginPortal()
     }
 
