@@ -9,7 +9,11 @@ val Platform.fragmentName: String
     get() = name.lowercase().replace(snakeCaseRegex) { it.groupValues[1].uppercase() }
 
 fun getPlatformFromFragmentName(fragmentName: String): Platform? {
-    return runCatching { Platform.valueOf(fragmentName.replace(camelCaseRegex, "_$0").uppercase()) }.getOrNull()
+    return try {
+        Platform.valueOf(fragmentName.replace(camelCaseRegex, "_$0").uppercase())
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 }
 
 val Platform.depth: Int
