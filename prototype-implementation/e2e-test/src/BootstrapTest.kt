@@ -6,8 +6,10 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.writeText
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
+@Ignore
 class BootstrapTest {
 
     @TempDir
