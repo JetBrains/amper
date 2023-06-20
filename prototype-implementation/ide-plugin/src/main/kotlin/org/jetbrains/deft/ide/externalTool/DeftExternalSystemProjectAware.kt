@@ -11,6 +11,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.name
@@ -69,7 +70,7 @@ class DeftExternalSystemProjectAware(
         val files = mutableSetOf<Path>()
         Files.walkFileTree(Paths.get(externalProjectPath), object : SimpleFileVisitor<Path>() {
             override fun visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult {
-                if (path.name == "Pot.yaml") {
+                if (path.name.endsWith("Pot.yaml")) {
                     val file = path.toFile()
                     if (file.isFile) files.add(path)
                 }
