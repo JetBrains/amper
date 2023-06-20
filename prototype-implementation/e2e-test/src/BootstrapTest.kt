@@ -66,7 +66,7 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
         // when
         val buildResult = GradleRunner.create()
             .withProjectDir(projectPath.toFile())
-            .withArguments("publishToMavenLocal", "--stacktrace")
+            .withArguments("publishToMavenLocal", "--stacktrace", "-PinBootstrapMode=true")
             .build()
 
         // then
