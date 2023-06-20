@@ -13,6 +13,11 @@
                 <list>
                   <Item>
                     <option name="pattern" value="true" />
+                    <option name="path" value="*.Pot.yaml" />
+                    <option name="mappingKind" value="Pattern" />
+                  </Item>
+                  <Item>
+                    <option name="pattern" value="true" />
                     <option name="path" value="Pot.yaml" />
                     <option name="mappingKind" value="Pattern" />
                   </Item>
