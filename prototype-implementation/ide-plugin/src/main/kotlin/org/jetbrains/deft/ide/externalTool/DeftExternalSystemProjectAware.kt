@@ -49,8 +49,7 @@ class DeftExternalSystemProjectAware(
 
     override fun reloadProject(context: ExternalSystemProjectReloadContext) {
         FileDocumentManager.getInstance().saveAllDocuments()
-        // For some reason, GradleConstants.SYSTEM_ID fails with ClassNotFoundException
-        val importSpec = ImportSpecBuilder(project, ProjectSystemId("GRADLE"))
+        val importSpec = ImportSpecBuilder(project, GradleConstants.SYSTEM_ID)
         if (!context.isExplicitReload) {
             importSpec.dontReportRefreshErrors()
             importSpec.dontNavigateToError()
