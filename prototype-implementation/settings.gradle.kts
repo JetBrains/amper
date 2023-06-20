@@ -1,6 +1,12 @@
 buildscript {
     repositories {
         // Uncomment this if you use published in scratch version.
+
+        // Uncomment this if you want to use local published version.
+        //region local version
+        mavenLocal()
+        //region local version
+
         //region scratch version
         val localProperties = java.util.Properties().apply {
             val stream = rootDir.resolve("root.local.properties")
@@ -21,11 +27,6 @@ buildscript {
             }
         }
         //endregion scratch version
-
-        // Uncomment this if you want to use local published version.
-        //region local version
-//        mavenLocal()
-        //region local version
 
         mavenCentral()
         google()
