@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.jetbrains.deft.ide"
-version = properties("ide-plugin.version")
+version = properties("ide-plugin.version").get()
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun env(key: String) = providers.environmentVariable(key)
