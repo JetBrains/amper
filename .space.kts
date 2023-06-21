@@ -71,7 +71,10 @@ fun `prototype implementation job`(
 `prototype implementation job`(
     "Plugin (Build and publish)",
     customTrigger = { /* Will add cron when checked */ },
-    customParameters = { secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}") },
+    customParameters = {
+        text("version", value = "")
+        secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}")
+    },
     customContainerBody = { env[tbePluginTokenEnv] = "{{ tbe.plugin.token }}" }
 ) {
     val file = File("gradle.properties")
