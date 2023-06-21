@@ -73,7 +73,7 @@ fun `prototype implementation job`(
     customTrigger = { /* Will add cron when checked */ },
     customParameters = {
         text("version", value = "")
-        text("channel", value = "") {
+        text("channel", value = "Nightly") {
             options("Stable", "Nightly")
         }
         secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}", description = "Toolbox Enterprise token for publishing")
