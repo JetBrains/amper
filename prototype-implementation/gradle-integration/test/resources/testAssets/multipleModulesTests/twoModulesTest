@@ -1,52 +1,22 @@
 :module1
   commonMain:
    depends()
-   sourceDirs()
+   sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends()
-   sourceDirs(common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppMain:
-   depends(commonMain,jvmMain)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTest:
-   depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/commonTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :module2
   commonMain:
    depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  jvmMain:
-   depends()
    sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps($TEMP_DIR_NAME:module1:unspecified)
-  myAppMain:
-   depends(commonMain,jvmMain)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTest:
-   depends(commonTest)
-   sourceDirs()
+  commonTest:
+   depends()
+   sourceDirs(src/commonTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()

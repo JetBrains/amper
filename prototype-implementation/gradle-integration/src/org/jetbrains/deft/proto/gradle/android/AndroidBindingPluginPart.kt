@@ -2,10 +2,19 @@ package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
+import org.jetbrains.deft.proto.frontend.JavaArtifactPart
 import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.TestArtifact
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
+import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 
@@ -25,12 +34,16 @@ open class AndroidAwarePart(
  */
 class AndroidBindingPluginPart(
     ctx: PluginPartCtx,
-) : AndroidAwarePart(ctx) {
+) : AndroidAwarePart(ctx), KMPEAware {
+
+    override val kotlinMPE: KotlinMultiplatformExtension =
+        project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     /**
      * Entry point for this plugin part.
      */
     fun apply() {
+        adjustCompilations()
         adjustAndroidSourceSets()
         applySettings()
     }
@@ -52,6 +65,36 @@ class AndroidBindingPluginPart(
                 it.kotlin.setSrcDirs(emptyList<Any>())
                 it.java.setSrcDirs(emptyList<Any>())
                 it.resources.setSrcDirs(emptyList<Any>())
+            }
+        }
+    }
+
+    private fun adjustCompilations() = with (KotlinDeftNamingConvention) {
+        platformArtifacts.forEach { artifact ->
+            artifact.platformFragments.forEach { fragment ->
+                artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
+                    project.afterEvaluate {
+                        val androidTarget = fragment.target ?: return@afterEvaluate
+                        val compilations = if (artifact is TestArtifact) {
+                            androidTarget.compilations.matching { it.name.lowercase().contains("test") }
+                        } else {
+                            androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
+                        }
+                        compilations.configureEach {
+                            it.compileTaskProvider.configure {
+                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                            }
+
+                            it.kotlinSourceSets.forEach { compilationSourceSet ->
+                                if (compilationSourceSet != fragment.kotlinSourceSet) {
+                                    println("Attaching fragment ${fragment.name} to compilation ${it.name}")
+                                    compilationSourceSet.doDependsOn(fragment)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

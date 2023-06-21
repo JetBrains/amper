@@ -14,23 +14,23 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppIosArm64Main:
+  iosMain:
    depends(commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppIosArm64Test:
+  iosTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmMain:
+  jvmMain:
    depends(commonMain)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppJvmTest:
+  jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()

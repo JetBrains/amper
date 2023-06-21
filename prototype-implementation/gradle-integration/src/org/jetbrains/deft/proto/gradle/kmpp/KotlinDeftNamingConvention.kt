@@ -3,12 +3,8 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.jetbrains.deft.proto.frontend.Artifact
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.TestArtifact
-import org.jetbrains.deft.proto.frontend.doCamelCase
-import org.jetbrains.deft.proto.gradle.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -24,13 +20,28 @@ object KotlinDeftNamingConvention {
     val KotlinSourceSet.deftFragment: FragmentWrapper?
         get() = fragmentsByName[name]
 
-    context(KMPPBindingPluginPart)
-    private val FragmentWrapper.targetName
-        get() = platforms
-                .requireSingle { "Leaf android fragment must have exactly one platform" }
-                .targetName
+    context(KMPEAware)
+    fun getTargetName(fragment: FragmentWrapper, platform: Platform) = when {
+        platform == Platform.ANDROID && fragment.name == "main" ->
+            "android"
+        else ->
+            fragment.name
+                .replace("test", "main")
+                .replace("Test", "")
+    }
 
-    context(KMPPBindingPluginPart, SpecificPlatformPluginPart)
+    context(KMPEAware)
+    private val FragmentWrapper.targetName
+        get() = getTargetName(
+            this,
+            platforms.requireSingle { "Leaf fragment must have exactly one platform" }
+        )
+
+    context(KMPEAware)
+    val FragmentWrapper.target
+        get() = kotlinMPE.targets.findByName(targetName)
+
+    context(KMPEAware, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSetName: String
         get() = when (name) {
             leafNonTestFragment?.name -> "${leafNonTestFragment.targetName}Main"
@@ -38,16 +49,9 @@ object KotlinDeftNamingConvention {
             else -> name
         }
 
-    context(KMPPBindingPluginPart, SpecificPlatformPluginPart)
+    context(KMPEAware, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
-
-    val Platform.targetName: String
-        get() = name.doCamelCase()
-
-    context(KMPEAware)
-    val Platform.target
-        get() = kotlinMPE.targets.findByName(targetName)
 
     private val Artifact.compilationName
         get() = when (this) {

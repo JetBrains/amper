@@ -6,6 +6,11 @@ import java.util.*
 private val prettyRegex = "_.".toRegex()
 fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
 fun String.doCapitalize() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun String.camelMerge(other: String) = when {
+    isBlank() -> other
+    other.isBlank() -> this
+    else -> this + other.doCapitalize()
+}
 
 /**
  * Shortcut to find an instance of a class in some collection.

@@ -24,6 +24,11 @@ interface BindingPluginPart {
     val Fragment.path get() = module.buildDir.resolve(name)
 }
 
+@Suppress("LeakingThis")
+open class NoneAwarePart(
+    ctx: PluginPartCtx,
+) : SpecificPlatformPluginPart(ctx, null), DeftNamingConventions
+
 /**
  * Arguments deduplication class (by delegation in constructor).
  */
@@ -39,39 +44,42 @@ open class PluginPartCtx(
  */
 open class SpecificPlatformPluginPart(
         ctx: BindingPluginPart,
-        private val platform: Platform
+        private val platform: Platform?
 ) : BindingPluginPart by ctx {
 
     @Suppress("LeakingThis")
-    private val platformArtifacts = module.artifacts.filterByPlatform(platform)
+    val platformArtifacts = module.artifacts.filterByPlatform(platform)
 
-    private val platformNonTestArtifacts = platformArtifacts.filter { !it.isTest }
+    @Suppress("LeakingThis")
+    val ArtifactWrapper.platformFragments get() = fragments.filterByPlatform(platform)
 
-    private val platformTestArtifacts = platformArtifacts.filter { it.isTest }
+    val platformNonTestArtifacts = platformArtifacts.filter { !it.isTest }
+
+    val platformTestArtifacts = platformArtifacts.filter { it.isTest }
 
     @Suppress("LeakingThis")
     val platformFragments = module.fragments.filterByPlatform(platform)
 
     internal val leafNonTestFragment = if (platformArtifacts.isEmpty()) null else {
         val artifact = platformNonTestArtifacts.requireSingle {
-            "There must be exactly one non test ${platform.pretty} artifact!"
+            "There must be exactly one non test ${platform?.pretty} artifact!"
         }
         artifact.fragments.filterByPlatform(platform).requireSingle {
-            "There must be only one non test ${platform.pretty} leaf fragment!"
+            "There must be only one non test ${platform?.pretty} leaf fragment!"
         }
     }
 
     // TODO Can be redone if we will have multiple test artifacts.
     internal val leafTestFragment = if (platformArtifacts.isEmpty()) null else {
         val artifact = platformTestArtifacts.singleOrZero {
-            error("There must be one or none test ${platform.pretty} artifact!")
+            error("There must be one or none test ${platform?.pretty} artifact!")
         }
         artifact?.fragments?.filterByPlatform(platform)?.singleOrZero {
-            error("There must be one or none test ${platform.pretty} leaf fragment!")
+            error("There must be one or none test ${platform?.pretty} leaf fragment!")
         }
     }
 
-    private fun <T : PlatformAware> Collection<T>.filterByPlatform(platform: Platform) =
-            filter { it.platforms.contains(platform) }
+    private fun <T : PlatformAware> Collection<T>.filterByPlatform(platform: Platform?) =
+            if (platform != null) filter { it.platforms.contains(platform) } else emptyList()
 
 }

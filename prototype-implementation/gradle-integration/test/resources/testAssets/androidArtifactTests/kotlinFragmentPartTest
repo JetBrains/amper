@@ -1,10 +1,45 @@
 :
-  androidMain:
+  commonAndroidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonAndroidTestDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonAndroidTestRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonDebugAndroidTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonDebugUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonMain:
    depends()
    sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonMain:
+  commonRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  commonReleaseUnitTest:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
@@ -14,77 +49,27 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppAndroidTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppAndroidTestDebug:
+  commonTestDebug:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppAndroidTestRelease:
+  commonTestFixtures:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppDebug:
+  commonTestFixturesDebug:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppDebugAndroidTest:
+  commonTestFixturesRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppDebugUnitTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppMain:
-   depends(commonMain)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppReleaseUnitTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTestDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTestFixtures:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTestFixturesDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTestFixturesRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  myAppTestRelease:
+  commonTestRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)

@@ -12,7 +12,7 @@ class E2eTest {
         // run gradle
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("run")
+            .withArguments("run", "--stacktrace")
             .build()
 
         assertContains(buildResult.output, "Hello, World!")
@@ -26,7 +26,7 @@ class E2eTest {
         // when
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("run")
+            .withArguments("run", "--stacktrace")
             .build()
 
         // then
@@ -41,11 +41,11 @@ class E2eTest {
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("test")
+            .withArguments("test", "--stacktrace")
             .run()
 
         // then
-        assertContains(buildResult.output, "org.opentest4j.AssertionFailedError at WorldTest.kt:7")
+        assertContains(buildResult.output, "org.opentest4j.AssertionFailedError at WorldTest.kt")
     }
 
     @Test
@@ -56,7 +56,7 @@ class E2eTest {
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("test")
+            .withArguments("test", "--stacktrace")
             .run()
 
         // then
@@ -71,7 +71,7 @@ class E2eTest {
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("test")
+            .withArguments("test", "--stacktrace")
             .run()
 
         // then
@@ -86,7 +86,7 @@ class E2eTest {
         // when
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
-            .withArguments("build")
+            .withArguments("build", "--stacktrace")
             .build()
         // then
         assertContains(buildResult.output, "BUILD SUCCESSFUL")

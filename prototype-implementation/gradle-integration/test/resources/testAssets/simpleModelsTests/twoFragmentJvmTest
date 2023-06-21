@@ -14,13 +14,13 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppMain:
+  jvmMain:
    depends(commonMain)
-   sourceDirs()
+   sourceDirs(src/jvmMain/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  myAppTest:
+  jvmTest:
    depends(commonTest)
-   sourceDirs()
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()

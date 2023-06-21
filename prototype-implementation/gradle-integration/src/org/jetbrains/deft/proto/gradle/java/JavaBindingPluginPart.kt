@@ -12,9 +12,12 @@ import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
-import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -38,17 +41,36 @@ class JavaBindingPluginPart(
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
+    private val jvmArtifacts = module.artifacts
+        .filter { Platform.JVM in it.platforms }
+        .filter { it.parts.find<JavaArtifactPart>() != null }
+        .filter { !it.isTest }
+
     fun apply() {
         project.plugins.apply(ApplicationPlugin::class.java)
+        applyJavaTargetForKotlin()
         applyJavaApplication()
         adjustJavaSourceSets()
     }
 
+    private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
+        jvmArtifacts.forEach { artifact ->
+            artifact.fragments
+                .filter { it.platforms.singleOrNull() == Platform.JVM }
+                .forEach { fragment ->
+                    with(fragment.target!!) {
+                        artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
+                            artifact.compilation?.compileTaskProvider?.configure {
+                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
     private fun applyJavaApplication() {
-        val jvmArtifacts = module.artifacts
-            .filter { Platform.JVM in it.platforms }
-            .filter { it.parts.find<JavaArtifactPart>() != null }
-            .filter { !it.isTest }
         if (jvmArtifacts.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +
@@ -76,8 +98,10 @@ class JavaBindingPluginPart(
     private fun adjustJavaSourceSets() {
         project.plugins.apply(JavaPlugin::class.java)
 
-        val kotlinJvmTarget = Platform.JVM.target as? KotlinJvmTarget
-        kotlinJvmTarget?.withJava()
+        kotlinMPE.targets.toList().forEach {
+            if (it !is KotlinJvmTarget) return@forEach
+            it.withJava()
+        }
 
         // Set sources for all deft related source sets.
         platformFragments.forEach {
