@@ -70,7 +70,7 @@ fun `prototype implementation job`(
 // Build for publishing plugin.
 `prototype implementation job`(
     "Plugin (Build and publish)",
-    customTrigger = { /* Will add cron when checked */ },
+    customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
         text("version", value = "")
         text("channel", value = "Nightly") {
