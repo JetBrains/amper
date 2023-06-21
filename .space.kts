@@ -73,7 +73,10 @@ fun `prototype implementation job`(
     customTrigger = { /* Will add cron when checked */ },
     customParameters = {
         text("version", value = "")
-        secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}")
+        text("channel", value = "") {
+            options("Stable", "Nightly")
+        }
+        secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}", description = "Toolbox Enterprise token for publishing")
     },
     customContainerBody = { env[tbePluginTokenEnv] = "{{ tbe.plugin.token }}" }
 ) {
@@ -81,7 +84,13 @@ fun `prototype implementation job`(
     val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
     val newVersion = "ide-plugin.version=${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
     val oldVersion = "ide-plugin.version=0.2-SNAPSHOT"
-    val newContent = file.readText().replace(oldVersion, newVersion)
+
+    val newChannel = "ide-plugin.channel=${parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"}"
+    val oldChannel = "ide-plugin.channel=Nightly"
+
+    val newContent = file.readText()
+        .replace(oldVersion, newVersion)
+        .replace(oldChannel, newChannel)
     file.writeText(newContent)
 
     gradlew(

@@ -40,6 +40,6 @@ tasks {
         toolboxEnterprise = true
         host = "https://tbe.labs.jb.gg"
         token = localProperties.getProperty("ide-plugin.publish.token")
-        channels = listOf("Stable")
+        channels = listOf(properties("ide-plugin.channel").get())
     }
 }
