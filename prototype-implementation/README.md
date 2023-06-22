@@ -3,6 +3,9 @@
 # TL;DR
 Launch `:publishToMavenLocal` gradle task on `prototype-implementation` project.
 Then import [try](try) project.
+                      
+Check [setup instructions]()
+Fo Nightly IDEA plugin updates add [this repository](https://tbe.labs.jb.gg/api/plugin-repository?pluginId=org.jetbrains.deft&channel=Nightly) to the list in `IntelliJ IDEA | Settings | Plugins | Manage plugin repositories...`
 
 # Description
 To test toml model you need to import [try](try) gradle project.

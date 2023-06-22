@@ -3,9 +3,9 @@
 
 - Install JDK 17 (you can use IntelliJ IDEA [new project wizard](https://www.jetbrains.com/help/idea/new-project-wizard.html#new-project-no-frameworks) to install a compatible JDK version)
   ![img.png](images/jdk.png)
-  
+ 
 
-- Connect IntelliJ IDEA with Toolbox Enterprise (check https://tbe.labs.jb.gg/) for the Deft plugin
+- Install [Toolbox App](https://www.jetbrains.com/lp/toolbox/) and connect IntelliJ IDEA with Toolbox Enterprise (check https://tbe.labs.jb.gg/) for the Deft plugin
   ![img.png](images/tbe.png).
 
 

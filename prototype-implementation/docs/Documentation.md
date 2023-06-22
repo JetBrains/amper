@@ -1,10 +1,13 @@
 ### Basics
 
-**Pot** - a unique set of source files, resources with a `Pot.yaml` manifest file. Pot is a module that describes a single product (which can have several versions foe different platforms).
-We don't use the term `module` to avoid confusing them with other modules (Kotlin module, IntelliJ module etc).
+**Pot** - a unique set of source files, resources with a `Pot.yaml` manifest file. Pot manifest describes _what_ to produce: either a reusable library or an application.
+_How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
-The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration.
-There is a dedicated `@platform`-qualifier in order to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
+
+_NOTE: The name 'Pot' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
+
+The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
+there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
 
 ### Project layout
 
@@ -27,7 +30,7 @@ In a  JVM Pot you can mix Kotlin and Java code:
 |-Pot.yaml
 ```
 
-In a Multiplatform Pot put platform-specific implementations in the `@platform`-qualifier folder:
+In a multi-platform Pot platform-specific code is located in the folders with `@platform`-qualifier:
 ```
 |-src/             # common code
 |  |-main.kt      
@@ -38,7 +41,7 @@ In a Multiplatform Pot put platform-specific implementations in the `@platform`-
 |  |-util.kt       #  API implementation with ‘actual’ part for JVM
 |-Pot.yaml
 ```
-In the future we plan to also support a 'flat' multiplatform layout like the one below.
+In the future we plan to also support a 'flat' multi-platform layout like the one below.
 It requires some investment in the IntelliJ platform, so we haven't yet done it. 
 ```
 |-src/             # common and platform-specisic code
@@ -54,9 +57,9 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 `Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).  
 A `Pot.yaml` file has several main sections: `product:`, `dependencies:` and `settings:` 
 - Product type could be either an `app` or a `lib`. A Pot with an `app` type is packaged as executable while a `lib` Pot could be reused from other Pots.
-- Pot could be a single platform application or a multi-platform library.
+- Pot could be either a single platform application or a multi-platform library.
 
-Here is an example of a JVM console application with a single dependency and a specific Kotlin language version:
+Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
 product:
   type: app
@@ -70,7 +73,7 @@ settings:
     languageVersion: 1.9
 ```
 
-#### Multiplatform configuration
+#### Multi-platform configuration
 
 `dependencies:` and `setting:` sections could be specialized for each platform using the `@platform`-qualifier.  An example of multi-platform library with some common and platform-specific code:
 ```yaml
@@ -106,7 +109,7 @@ settings@ios:
   kotlin:
     languageVersion: 1.9 
 ```
-See [details on multiplatform configuration](#multi-platform-configuration) for more information.
+See [details on multi-platform configuration](#multi-platform-configuration) for more information.
 
 ### Dependencies
 
@@ -149,7 +152,7 @@ dependencies:
 
 #### Scopes and visibility
 
-There are three scopes:
+There are three dependency scopes:
 - `all` - (default) the dependency is available during compilation and runtime.  
 - `compile-only` - the dependency is only available during compilation. This is a 'provided' dependency in Maven terminology.
 - `runtime-only` - the dependency is not available during compilation, but available during testing and running
@@ -165,12 +168,12 @@ dependencies:
 There is also an inline form: 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0: [compile-only]  
- - ../ui/utils: [runtime-only]
+ - io.ktor:ktor-client-core:2.2.0: compile-only  
+ - ../ui/utils: runtime-only
 ```
 
-All dependencies by default are not transitive, that is, they are implementation details. 
-In order to make a dependency visible to a dependent Pot, you need to explicitly mark it as `transitive` (aka API-dependency). 
+All dependencies by default are not transitive, and not accessibly from the dependent code.  
+In order to make a dependency visible to a dependent Pot, you need to explicitly mark it as `transitive` (aka Gradle API-dependency). 
 
 ```yaml
 dependencies:
@@ -182,8 +185,8 @@ dependencies:
 There is also an inline form: 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0: [transitive]  
- - ../ui/utils: [transitive]
+ - io.ktor:ktor-client-core:2.2.0: transitive  
+ - ../ui/utils: transitive
 ```
 
 Here is an example of a `compile-only` and `transitive` dependency:
@@ -193,15 +196,10 @@ dependencies:
      scope: compile-only
      transitive: true
 ```
-Same in the inline form:
-```yaml
-dependencies:
- - io.ktor:ktor-client-core:2.2.0: [compile-only, transitive]
-```
 
-#### Native dependencies (Not yet supported in the prorotype)
+#### Native dependencies (Not yet supported in the prototype)
 
-To depend on an npm, CocoaPods, or a Swift package, the DSL offers a format, familiar to the users of CocoaPods and SPM:
+To depend on an npm, CocoaPods, or a Swift package, use the following format:
 
 ```yaml
 dependencies:
@@ -224,14 +222,16 @@ dependencies:
 ```yaml
 dependencies: 
   - swift-package:
-    url: "https://github.com/.../some-package.git"
-    from: "2.0.0"
-    target: "SomePackageTarget"
+      url: "https://github.com/.../some-package.git"
+      from: "2.0.0"
+      target: "SomePackageTarget"
 ```
 
 ### Settings
 
-All toolchain settings are specified in the dedicated groups of the `settings:` section:
+The `settings:` section contains toolchains settings. _Toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (like linter, code generator). Currently, the following toolchains are supported: `kotlin:`, `java:`, `ios:`, `android:`
+
+All toolchain settings are specified in the dedicated groups in the `settings:` section:
 ```yaml
 settings: 
   kotlin:
@@ -241,13 +241,12 @@ settings:
     androidApiVersion: android-31
 ```
 
-Currently, the following toolchains are supported: `kotlin:`, `java:`, `ios:`, `android:`
-See [multiplatform settings configuration](#multiplatform-settings) for more details
+See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
 ### Tests
 
 Test code is located in the `test/` and `test@platform/` folders. Test settings and dependencies by default are inherited from the main configuration according to the [configuration propagation rules](#dependencysettings-propagation). 
-To add specific test dependencies put them into `test-dependencies:` section. To add or override toolchain settings in tests, use `test-settings:` section.
+To add test-only dependencies put them into `test-dependencies:` section. To add or override toolchain settings in tests, use `test-settings:` section.
 
 Example:
 ```
@@ -269,6 +268,7 @@ product:
   type: lib
   platforms: [android, iosArm64]
 
+# these dependencies are available in main and test code
 dependencies:
   - io.ktor:ktor-client-core:2.2.0
 
@@ -276,33 +276,35 @@ dependencies:
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10
   
+# these settings affect the main and test code
 settings: 
   kotlin:
     languageVersion: 1.8
 
-# set language level for test code
+# these settings affect tests only
 test-settings:
   kotlin:
-    languageVersion: 1.9
+    languageVersion: 1.9 # overrides `settings:kotlin:languageVersion: 1.8`
 ```
 
 ### Multi-platform configuration
 
 #### Platform qualifier
 
-Use `@platform`-qualifier to mark platform-specific sections in Pot.yaml files and source folders. 
-You can use Kotlin Multiplatform [platform names and families](https://kotlinlang.org/docs/multiplatform-hierarchy.html) as `@platform`-qualifier when naming source folders, and in `dependencies:` and `settings:` sections.
+Use the `@platform`-qualifier to mark platform-specific source folders and sections in the Pot.yaml files. 
+You can use Kotlin Multiplatform [platform names and families](https://kotlinlang.org/docs/multiplatform-hierarchy.html) as `@platform`-qualifier.
 ```yaml
+dependencies:                   # common dependencies for all platforms
 dependencies@ios:               # ios is a platform family name  
 dependencies@iosArm64:          # iosArm64 is a KMP platform name
 ```
 ```
-|-src/             
+|-src/                      # common code for all platforms
 |-src@ios/                  # sees declarations from src/ 
 |-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
 ```
 
-Only platform names (but not the platform family names) can be currently used in the `platforms:` list:
+Only the platform names (but not the platform family names) can be currently used in the `platforms:` list:
 
 ```yaml
 product:
@@ -314,44 +316,23 @@ product:
 Here is the partial list of platform and families:
 ```yaml
   jvm  
-  linux
-    linuxX64
-    linuxArm64
-  mingw
-    mingwX64  
   android  
-  apple
-    macos
-      macosX64
-      macosArm64
-    ios
-      iosArm64
-      isSimulatorArm64
-      isX64            # iOS Simulator for Intel Mac
+  native
+    linux
+      linuxX64
+      linuxArm64
+    mingw
+      mingwX64  
+    apple
+      macos
+        macosX64
+        macosArm64
+      ios
+        iosArm64
+        isSimulatorArm64
+        isX64            # iOS Simulator for Intel Mac
   ...
 ```
-Also, you can share code between several platforms by using `aliases:`
-
-```yaml
-product:
-  type: lib
-  platforms: [iosArm64, android, jvm]
-
-aliases:
-  jvmAndAndroid: [jvm, android]
-
-dependencies@jvmAndAndroid:
-  - org.lighthousegames:logging:1.3.0
-```
-
-```
-|-src/             
-|-src@jvmAndAndroid/ # sees declarations from src/ 
-|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
-|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
-```
-
-
 
 Common code is visible from `@platform`-specific code, but not vice versa:
 ```
@@ -368,14 +349,40 @@ Common code is visible from `@platform`-specific code, but not vice versa:
 |-Pot.yaml
 ```
 
+Also, you can share code between several platforms by using `aliases:`
+
+```yaml
+product:
+  type: lib
+  platforms: [iosArm64, android, jvm]
+
+aliases:
+  jvmAndAndroid: [jvm, android]
+
+# these dependencies will be visible in jvm and android code
+dependencies@jvmAndAndroid:
+  - org.lighthousegames:logging:1.3.0
+
+# these dependencies will be visible in jvm code only
+dependencies@jvm:
+  - org.lighthousegames:logging:1.3.0
+```
+
+```
+|-src/             
+|-src@jvmAndAndroid/ # sees declarations from src/ 
+|-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
+|-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
+```
+
 For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
 
-#### Multiplatform dependencies
+#### Multi-platform dependencies
 
-When you use a Kotlin multiplatform library, its platforms-specific parts are automatically configured for each Pot platform.
+When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each Pot platform.
 
 Example:
-To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multiplatform Pot, simply write
+To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multi-platform Pot, simply write
 
 ```yaml
 product:
@@ -401,8 +408,6 @@ dependencies@jvm:
   - org.lighthousegames:logging:1.3.0
   - org.lighthousegames:logging-jvm:1.3.0
 ```
-
-
 
 For the explicitly specified dependencies in the `@platform`-sections the general [propagation rules](#dependencysettings-propagation) apply. That is, for the given configuration:
 ```yaml
@@ -433,9 +438,9 @@ dependencies@iosArm64:
   ../bar
   ../baz
 ```
-#### Multiplatform settings
+#### Multi-platform settings
 
-To configure settings for different platforms, you can put them into the `settings:` section.
+All toolchain settings, even platform-specific could be placed in the `settings:` section:
 ```yaml
 product:
   type: lib
@@ -502,10 +507,11 @@ settings@iosSimulatorArm64:
     deploymentTarget: 17 # from settings@ios: 
 ```
 #### Dependency/Settings propagation
-Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms, using the following rules:
+Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms in `@platform`-sections, using the following rules:
 - Scalar values (strings,  numbers etc.) are overridden by more specialized `@platform`-sections.
 - Mappings and lists are appended.
-(think of them like adding merging Java/Kotlin Maps).
+
+Think of the rules like adding merging Java/Kotlin Maps.
 
 ### Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
