@@ -19,8 +19,6 @@
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/fragments" />
-            <option value="$PROJECT_DIR$/prototype-implementation/frontend/fragments/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />

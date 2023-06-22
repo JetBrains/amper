@@ -1,7 +1,0 @@
-type: lib
-platforms:
-  - jvm
-variants:
-  - [a+b, b]
-
-### Exception
