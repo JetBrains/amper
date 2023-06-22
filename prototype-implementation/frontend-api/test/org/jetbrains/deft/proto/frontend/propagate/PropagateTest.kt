@@ -31,8 +31,8 @@ class PropagateTest {
         val resultModel = model.resolved
 
         val part = resultModel.modules.first().fragments.find { it.name == "jvm" }
-                    ?.parts
-                    ?.findInstance<KotlinFragmentPart>()
+            ?.parts
+            ?.findInstance<KotlinPart>()
 
         assertEquals("1.9", part?.languageVersion)
     }
@@ -66,8 +66,8 @@ class PropagateTest {
         val resultModel = model.resolved
 
         val part = resultModel.modules.first().fragments.find { it.name == "darwin" }
-                    ?.parts
-                    ?.findInstance<KotlinFragmentPart>()
+            ?.parts
+            ?.findInstance<KotlinPart>()
 
         assertEquals("1.9", part?.languageVersion)
     }
@@ -98,7 +98,7 @@ class PropagateTest {
         assertEquals(
             "1.9",
             resultModel.modules.first().fragments.find { it.name == "jvm" }
-                    ?.parts?.findInstance<KotlinFragmentPart>()?.apiVersion
+                ?.parts?.findInstance<KotlinPart>()?.apiVersion
         )
     }
 
@@ -109,14 +109,9 @@ class PropagateTest {
                 dependant("jvm")
             }
             fragment("jvm") {
-                val fragment = this
                 dependsOn("common")
-                artifact {
-                    name = "jvm"
-                    javaPart {
-                        packagePrefix = "org.jetbrains.deft"
-                        fragment(fragment)
-                    }
+                javaPart {
+                    packagePrefix = "org.jetbrains.deft"
                 }
             }
         }
@@ -129,10 +124,11 @@ class PropagateTest {
 
         val resultModel = model.resolved
 
+        val jvmFragment = resultModel.modules.first().fragments.find { it.name == "jvm" }
+        val parts = jvmFragment?.parts
         assertEquals(
             "MainKt",
-            resultModel.modules.first().artifacts.find { it.name == "jvm" }
-                    ?.parts?.findInstance<JavaArtifactPart>()?.mainClass
+            parts?.find<JavaPart>()?.mainClass
         )
     }
 }

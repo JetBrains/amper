@@ -2,6 +2,40 @@ package org.jetbrains.deft.proto.frontend
 
 import java.nio.file.Path
 
+
+/**
+ * Some part of the module that supports "single resolve context" invariant for
+ * every source and resource file that is included.
+ */
+interface Fragment {
+    val name: String
+    val fragmentDependencies: List<FragmentLink>
+    val fragmentDependants: List<FragmentLink>
+    val externalDependencies: List<Notation>
+    val parts: ClassBasedSet<FragmentPart<*>>
+    val platforms: Set<Platform>
+    val isTest: Boolean
+
+    /**
+     * Is this fragment is chosen by default when
+     * no variants are specified?
+     */
+    val isDefault: Boolean
+    val src: Path?
+}
+
+/**
+ * Leaf fragment must have only one platform.
+ * Also, it should contain parts, that are specific
+ * for concrete artifacts.
+ *
+ * Each result artifact is specified by single leaf fragment
+ * (Except for KMP libraries).
+ */
+interface LeafFragment : Fragment {
+    val platform: Platform
+}
+
 sealed interface Notation
 
 interface DefaultScopedNotation : Notation {
@@ -36,54 +70,8 @@ interface FragmentLink {
 }
 
 sealed interface FragmentPart<SelfT> {
-    fun propagate(parent: SelfT): FragmentPart<*>
+
+    // Default propagation is overwriting.
+    fun propagate(parent: SelfT): FragmentPart<*> = this
     fun default(): FragmentPart<*>
-}
-
-data class KotlinFragmentPart(
-    val languageVersion: String?,
-    val apiVersion: String?,
-    val progressiveMode: Boolean?,
-    val languageFeatures: List<String>,
-    val optIns: List<String>,
-) : FragmentPart<KotlinFragmentPart> {
-    override fun propagate(parent: KotlinFragmentPart): FragmentPart<KotlinFragmentPart> =
-        KotlinFragmentPart(
-            parent.languageVersion ?: languageVersion,
-            parent.apiVersion ?: apiVersion,
-            parent.progressiveMode ?: progressiveMode,
-            languageFeatures.ifEmpty { parent.languageFeatures },
-            optIns.ifEmpty { parent.optIns },
-        )
-
-    override fun default(): FragmentPart<*> {
-        return KotlinFragmentPart(
-            languageVersion ?: "1.8",
-            apiVersion ?: languageVersion,
-            progressiveMode ?: false,
-            listOf(),
-            listOf(),
-        )
-    }
-}
-
-data class TestFragmentPart(val junitPlatform: Boolean?) : FragmentPart<TestFragmentPart> {
-    override fun propagate(parent: TestFragmentPart): FragmentPart<*> =
-        TestFragmentPart(parent.junitPlatform ?: junitPlatform)
-
-    override fun default(): FragmentPart<*> = TestFragmentPart(junitPlatform ?: true)
-}
-
-/**
- * Some part of the module that supports "single resolve context" invariant for
- * every source and resource file that is included.
- */
-interface Fragment {
-    val name: String
-    val fragmentDependencies: List<FragmentLink>
-    val fragmentDependants: List<FragmentLink>
-    val externalDependencies: List<Notation>
-    val parts: ClassBasedSet<FragmentPart<*>>
-    val platforms: Set<Platform>
-    val src: Path?
 }

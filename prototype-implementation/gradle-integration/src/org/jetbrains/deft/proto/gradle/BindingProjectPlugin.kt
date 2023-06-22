@@ -5,9 +5,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.deft.proto.frontend.PublicationArtifactPart
+import org.jetbrains.deft.proto.frontend.PublicationPart
 import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
-import org.jetbrains.deft.proto.frontend.TestFragmentPart
+import org.jetbrains.deft.proto.frontend.TestPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
@@ -28,8 +28,8 @@ class BindingProjectPlugin : Plugin<Project> {
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
         // Apply parts.
-        applyKotlinMPAttributes(pluginCtx)
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
+        applyKotlinMPAttributes(pluginCtx)
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
 
         applyRepositoryAttributes(linkedModule, project)
@@ -51,10 +51,10 @@ class BindingProjectPlugin : Plugin<Project> {
     ) {
         project.plugins.apply("maven-publish")
         val extension = project.extensions.getByType(PublishingExtension::class.java)
-        module.artifacts.firstOrNull { !it.isTest }?.parts?.find<PublicationArtifactPart>()?.let {
+        module.leafNonTestFragments.firstOrNull { !it.isTest }?.parts?.find<PublicationPart>()?.let {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
-            project.group = it.group
-            project.version = it.version
+            project.group = it.group!!
+            project.version = it.version!!
             extension.repositories.configure(module.parts.find<RepositoriesModulePart>())
         }
     }
@@ -84,7 +84,7 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
-        if (linkedModule.fragments.mapNotNull { it.parts.find<TestFragmentPart>() }.any { it.junitPlatform == true }) {
+        if (linkedModule.fragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
             project.tasks.withType(Test::class.java) {
                 it.useJUnitPlatform()
             }

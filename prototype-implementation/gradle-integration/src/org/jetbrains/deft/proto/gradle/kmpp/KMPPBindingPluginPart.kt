@@ -3,20 +3,19 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.ArtifactWrapper
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
+import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
 import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.deft.proto.gradle.base.*
 import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
-import org.jetbrains.deft.proto.gradle.requireSingle
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
@@ -28,23 +27,11 @@ fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).app
 context(KMPEAware, SpecificPlatformPluginPart)
 fun KotlinSourceSet.doDependsOn(it: Fragment) {
     val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
-    applyOtherFragmentsPartsRecursively(it)
     val dependency = wrapper.kotlinSourceSet
     dependsOn(dependency ?: return)
 }
 
-private fun KotlinSourceSet.applyOtherFragmentsPartsRecursively(
-    from: Fragment
-): LanguageSettingsBuilder = languageSettings.apply {
-    val wrapper = from as? FragmentWrapper ?: FragmentWrapper(from)
-    doApplyPart(wrapper.parts.find<KotlinFragmentPart>())
-    from.fragmentDependencies.forEach {
-        applyOtherFragmentsPartsRecursively(it.target)
-    }
-}
-
-private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinFragmentPart?) = languageSettings.apply {
-    // TODO Propagate properly.
+private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinPart?) = languageSettings.apply {
     kotlinPart ?: return@apply
     // TODO Change defaults to some merge chain. Now languageVersion checking ruins build.
     languageVersion = kotlinPart.languageVersion
@@ -77,62 +64,62 @@ class KMPPBindingPluginPart(
     }
 
     private fun initTargets() = with(KotlinDeftNamingConvention) {
-        module.nonTestArtifacts.forEach { artifact ->
-            artifact.fragments.forEach { fragment ->
-                val platform = fragment.platforms.single()
-                check(platform.isLeaf) { "Artifacts can't contain non leaf targets. Non leaf target: $platform" }
-                // FIXME Support variants: create multiple compilations - one compilation for
-                // FIXME each leaf fragment.
-                val targetName = getTargetName(fragment, platform)
-                when (platform) {
-                    Platform.ANDROID ->
-                        kotlinMPE.android(targetName)
-                    Platform.JVM ->
-                        kotlinMPE.jvm(targetName)
-                    Platform.IOS_ARM64 ->
-                        kotlinMPE.iosArm64(targetName) { adjust(artifact, targetName) }
-                    Platform.IOS_SIMULATOR_ARM64 ->
-                        kotlinMPE.iosSimulatorArm64(targetName) { adjust(artifact, targetName) }
-                    Platform.IOS_X64 ->
-                        kotlinMPE.iosX64(targetName) { adjust(artifact, targetName) }
-                    Platform.MACOS_ARM64 ->
-                        kotlinMPE.macosArm64(targetName) { adjust(artifact, targetName) }
-                    Platform.JS ->
-                        kotlinMPE.js(targetName)
-                    else -> error("Unsupported platform: $platform")
+        module.artifactPlatforms.forEach {
+            val targetName = it.targetName
+            when (it) {
+                Platform.ANDROID -> kotlinMPE.android(targetName)
+                Platform.JVM -> kotlinMPE.jvm(targetName)
+                Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)
+                Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName)
+                Platform.IOS_X64 -> kotlinMPE.iosX64(targetName)
+                Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName)
+                Platform.JS -> kotlinMPE.js(targetName)
+                else -> error("Unsupported platform: $targetName")
+            }
+        }
+
+        // Skip tests binary creation for now.
+        module.leafFragments.filter { !it.isTest }.forEach { fragment ->
+            val target = fragment.target ?: return@forEach
+            with(target) target@{
+                if (fragment.platform != Platform.ANDROID) {
+                    fragment.maybeCreateCompilation {
+                        if (this@target is KotlinNativeTarget)
+                            adjust(
+                                this@target,
+                                this as KotlinNativeCompilation,
+                                fragment
+                            )
+                    }
                 }
             }
         }
     }
 
-    private fun KotlinNativeTarget.adjust(artifact: ArtifactWrapper, targetName: String) {
+    private val disambiguationVariantAttribute = Attribute.of(
+        "org.jetbrains.kotlin.deft.target.variant",
+        String::class.java
+    )
+
+    private fun adjust(
+        target: KotlinNativeTarget,
+        kotlinNativeCompilation: KotlinNativeCompilation,
+        fragment: LeafFragmentWrapper,
+    ) {
         if (module.type != PotatoModuleType.APPLICATION) return
-        val part = artifact.parts.find<NativeApplicationArtifactPart>()
-        binaries {
-            executable(artifact.name) {
+        val part = fragment.parts.find<NativeApplicationPart>()
+        target.binaries {
+            executable(fragment.name) {
                 entryPoint = part?.entryPoint
+                compilation = kotlinNativeCompilation
             }
         }
         // workaround to have a few variants of the same darwin target
-        attributes {
-            attribute(Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java), artifact.name)
-        }
-        println("${targetName}CInteropApiElements" + " value ${artifact.name}")
-        project.configurations.findByName("${targetName}CInteropApiElements")?.let {
-            it.attributes {
-                it.attribute(
-                    Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java),
-                    artifact.name
-                )
-            }
-        }
-        project.configurations.findByName("${targetName}MetadataElements")?.let {
-            it.attributes {
-                it.attribute(
-                    Attribute.of("org.jetbrains.kotlin.target.variant", String::class.java),
-                    artifact.name
-                )
-            }
+        kotlinNativeCompilation.attributes {
+            attribute(
+                disambiguationVariantAttribute,
+                target.name
+            )
         }
     }
 
@@ -140,7 +127,7 @@ class KMPPBindingPluginPart(
         val isAndroid = module.fragments.any { it.platforms.contains(Platform.ANDROID) }
         val isJava = module.fragments.any { it.platforms.contains(Platform.JVM) }
         val aware = if (isAndroid) androidAware else if (isJava) javaAware else noneAware
-        with(aware) {
+        with(aware) aware@ {
             // Clear sources and resources for non created by us source sets.
             // Can be called after project evaluation.
             kotlinMPE.sourceSets.all {
@@ -189,7 +176,7 @@ class KMPPBindingPluginPart(
                 val sourceSet = fragment.kotlinSourceSet ?: return@forEach
 
                 // Apply language settings.
-                sourceSet.applyOtherFragmentsPartsRecursively(fragment)
+                sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
 
                 // Set dependencies.
                 fragment.fragmentDependencies.forEach {
@@ -202,32 +189,28 @@ class KMPPBindingPluginPart(
             }
 
             // Third iteration - adjust kotlin prebuilt source sets to match created ones.
-            module.artifacts.forEach { artifact ->
-                artifact.fragments.forEach inner@{ fragment ->
-                    val platform = fragment.platforms
-                        .requireSingle { "Leaf fragment must contain exactly single platform!" }
-                    val targetName = getTargetName(fragment, platform)
-                    val target = kotlinMPE.targets.findByName(targetName) ?: return@inner
-                    with(target) {
-                        // setting jvmTarget for android (as android compilations are appeared after project evaluation,
-                        // also their names do not match with our artifact names)
-                        if (platform == Platform.ANDROID) {
-
-                        }
-                        val compilation = artifact.compilation ?: return@inner
-                        // settings jvmTarget for other jvm compilations
-                        if (platform == Platform.JVM) {
-                            artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
-                                compilation.compileTaskProvider.configure {
-                                    it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                    it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
-                                }
+            module.leafFragments.forEach { fragment ->
+                val platform = fragment.platform
+                val target = fragment.target ?: return@forEach
+                with(target) {
+                    // setting jvmTarget for android (as android compilations are appeared after project evaluation,
+                    // also their names do not match with our artifact names)
+                    if (platform == Platform.ANDROID) {
+                        // FIXME ??
+                    }
+                    val compilation = fragment.compilation ?: return@forEach
+                    // settings jvmTarget for other jvm compilations
+                    if (platform == Platform.JVM) {
+                        fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+                            compilation.compileTaskProvider.configure {
+                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
                             }
                         }
-                        val compilationSourceSet = compilation.defaultSourceSet
-                        if (compilationSourceSet != fragment.kotlinSourceSet) {
-                            compilationSourceSet.doDependsOn(fragment)
-                        }
+                    }
+                    val compilationSourceSet = compilation.defaultSourceSet
+                    if (compilationSourceSet != fragment.kotlinSourceSet) {
+                        compilationSourceSet.doDependsOn(fragment)
                     }
                 }
             }
@@ -244,5 +227,4 @@ class KMPPBindingPluginPart(
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
         sourceSet.block()
     }
-
 }

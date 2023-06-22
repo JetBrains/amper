@@ -24,10 +24,15 @@ class MockPotatoModule(
     fun fragment(name: String = "common", builder: MockFragment.() -> Unit = {}) =
         MockFragment(name).apply(builder).apply { fragments.add(this) }
 
+    fun leafFragment(
+        name: String = "common",
+        builder: LeafMockFragment.() -> Unit = {}
+    ) = LeafMockFragment(name).apply(builder).apply { fragments.add(this) }
+
     fun artifact(
         name: String,
         platforms: Set<Platform>,
-        vararg fragments: MockFragment,
+        vararg fragments: LeafMockFragment,
         builder: MockArtifact.() -> Unit = {}
     ): MockArtifact {
         check(platforms.all { it.isLeaf }) { "Cannot create an artifact with non leaf platform!" }
@@ -46,12 +51,14 @@ class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDep
     override val Model.module get() = myModule
 }
 
-class MockFragment(
+open class MockFragment(
     override var name: String = "fragment",
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentLink>()
     override val externalDependencies = mutableListOf<Notation>()
     override val platforms = mutableSetOf<Platform>()
+    override val isTest: Boolean = false
+    override val isDefault: Boolean = true
     override val parts = classBasedSet<FragmentPart<*>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override var src: Path? = null
@@ -68,11 +75,14 @@ class MockFragment(
     fun addPart(part: FragmentPart<*>) = parts.add(part)
 }
 
+class LeafMockFragment(
+    name: String = "fragment",
+) : MockFragment(name), LeafFragment {
+    override val platform get() = platforms.single()
+}
+
 class MockArtifact(
     override val name: String,
     override val platforms: Set<Platform>,
-    override val fragments: List<MockFragment>,
-) : Artifact {
-    override val parts = classBasedSet<ArtifactPart<*>>()
-    fun addPart(part: ArtifactPart<*>) = parts.add(part)
-}
+    override val fragments: List<LeafMockFragment>,
+) : Artifact

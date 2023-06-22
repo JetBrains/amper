@@ -11,6 +11,8 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
+  android:
+    compileSdkVersion: 21
 
 settings@android:
   manifestFile: AndroidManifest.xml

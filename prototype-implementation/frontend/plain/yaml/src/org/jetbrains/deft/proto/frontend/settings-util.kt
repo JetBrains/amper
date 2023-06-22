@@ -4,6 +4,17 @@ import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
 internal typealias Settings = Map<String, Any>
 
+// Simplification of map access.
+open class SettingsKey<T : Any>(val name: String)
+open class DefaultedKey<T : Any>(name: String, val default: T) : SettingsKey<T>(name)
+
+internal inline operator fun <reified T : Any> Settings.get(key: SettingsKey<T>): T? =
+    this[key.name] as? T
+
+internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>): T =
+    this[key.name] as? T ?: key.default
+
+
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
 internal inline fun <reified T : Any> Settings.requireValue(
@@ -68,10 +79,9 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
 
 context (Map<String, Set<Platform>>)
 internal inline fun <reified T : Any> Settings.handleArtifactSettings(
-    artifacts: List<ArtifactBuilder>,
     fragments: List<FragmentBuilder>,
     key: String,
-    init: ArtifactBuilder.(T) -> Unit
+    init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
     val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
@@ -103,12 +113,7 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
             .firstOrNull { it.variants == normalizedOptions }
             ?: error("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
-
-        artifacts.filter { it.fragments.withDependencies().contains(targetFragment) }.forEach {
-            if (settingsValue is T) {
-                it.init(settingsValue)
-            }
-        }
+        if (settingsValue is T) targetFragment.init(settingsValue)
     }
 }
 
@@ -130,6 +135,18 @@ private fun MutableList<FragmentBuilder>.withDependencies(): MutableList<Fragmen
     }
 }.toMutableList()
 
+/**
+ * Key used to propagate naming correctly for fragments while multiplying.
+ */
+val isDefaultKey = DefaultedKey("default", false)
+/**
+ * Key used to determine, which fragment is built by default.
+ */
+val isDefaultFragmentKey = DefaultedKey("defaultFragment", false)
+val dependsOnKey = DefaultedKey<List<Settings>>("dependsOn", emptyList())
+val optionsKey = DefaultedKey<List<Settings>>("options", emptyList())
+val nameKey = SettingsKey<String>("name")
+
 internal val Settings.variants: List<Settings>
     get() {
         val initialVariants = (this["variants"] as? List<*>)?.let {
@@ -149,22 +166,33 @@ internal val Settings.variants: List<Settings>
             val dimension = "dimension${++i}"
             mapOf(
                 "dimension" to dimension,
-                "options" to it.map { optionName ->
+                optionsKey.name to it.mapIndexed { index, optionName ->
                     mapOf(
-                        "name" to optionName,
-                        "dependsOn" to listOf(
+                        nameKey.name to optionName,
+                        dependsOnKey.name to listOf(
                             mapOf("target" to dimension)
-                        )
+                        ),
+                        isDefaultFragmentKey.name to (index == 0),
                     )
-                } + mapOf("name" to dimension, "default" to true)
+                } + mapOf(
+                    nameKey.name to dimension,
+                    isDefaultKey.name to true
+                )
             )
         }
         return if (!convertedInitialVariants.any { it.getValue<String>("dimension") == "mode" }) {
             convertedInitialVariants + mapOf(
                 "dimension" to "mode",
-                "options" to listOf(
-                    mapOf("name" to "main", "default" to true),
-                    mapOf("name" to "test", "dependsOn" to listOf(mapOf("target" to "main", "kind" to "friend")))
+                optionsKey.name to listOf(
+                    mapOf(
+                        nameKey.name to "main",
+                        isDefaultKey.name to true,
+                        isDefaultFragmentKey.name to true
+                    ),
+                    mapOf(
+                        nameKey.name to "test",
+                        dependsOnKey.name to listOf(mapOf("target" to "main", "kind" to "friend"))
+                    )
                 )
             )
         } else {
@@ -178,8 +206,8 @@ internal val Settings.defaultOptionMap: Map<Settings, String>
 
         return buildMap {
             for (variant in with(originalSettings) { variants }) {
-                val option = (variant.getValue<List<Settings>>("options")
-                    ?: listOf()).firstOrNull { it.getValue<Boolean>("default") ?: false }
+                val option = (variant[optionsKey])
+                    .firstOrNull { it[isDefaultKey] }
                     ?: error("Something went wrong")
                 put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
             }
@@ -192,8 +220,8 @@ internal val Settings.optionMap: Map<String, Settings>
 
         return buildMap {
             for (variant in with(originalSettings) { variants }) {
-                for (option in (variant.getValue<List<Settings>>("options")
-                    ?: listOf()).mapNotNull { it.getValue<String>("name") }) {
+                for (option in (variant[optionsKey])
+                    .mapNotNull { it.getValue<String>("name") }) {
                     put(option, variant)
                 }
             }

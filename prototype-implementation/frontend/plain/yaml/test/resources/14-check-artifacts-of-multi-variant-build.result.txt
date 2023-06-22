@@ -5,8 +5,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=1.8, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
+      KotlinPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
   iosDebug
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-datetime:0.4.0, compile=true, runtime=true, exported=false)
@@ -14,8 +13,6 @@ Fragments:
     Fragment dependencies:
       ios (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosDebugTest
     External dependencies:
     Src folder: test@debug
@@ -23,16 +20,12 @@ Fragments:
       iosTest (REFINE)
       iosDebug (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosRelease
     External dependencies:
     Src folder: src@release
     Fragment dependencies:
       ios (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosReleaseTest
     External dependencies:
     Src folder: test@release
@@ -40,8 +33,6 @@ Fragments:
       iosTest (REFINE)
       iosRelease (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
@@ -49,42 +40,20 @@ Fragments:
     Fragment dependencies:
       ios (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
 Artifacts:
   isTest: false
   [IOS_ARM64]
     Fragments:
       iosDebug
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosDebugTest
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [IOS_ARM64]
     Fragments:
       iosRelease
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_ARM64]
     Fragments:
       iosReleaseTest
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)

@@ -29,9 +29,5 @@ internal fun PotatoModule.prettyPrint(): String = buildString {
         for (fragment in artifact.fragments) {
             appendLine("      ${fragment.name}")
         }
-        appendLine("    Parts:")
-        for (part in artifact.parts) {
-            appendLine("      $part")
-        }
     }
 }

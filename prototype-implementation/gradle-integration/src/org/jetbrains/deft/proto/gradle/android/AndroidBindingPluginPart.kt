@@ -1,10 +1,9 @@
 package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
-import org.jetbrains.deft.proto.frontend.AndroidArtifactPart
-import org.jetbrains.deft.proto.frontend.JavaArtifactPart
+import org.jetbrains.deft.proto.frontend.AndroidPart
+import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.frontend.TestArtifact
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
@@ -69,28 +68,26 @@ class AndroidBindingPluginPart(
         }
     }
 
-    private fun adjustCompilations() = with (KotlinDeftNamingConvention) {
-        platformArtifacts.forEach { artifact ->
-            artifact.platformFragments.forEach { fragment ->
-                artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
-                    project.afterEvaluate {
-                        val androidTarget = fragment.target ?: return@afterEvaluate
-                        val compilations = if (artifact is TestArtifact) {
-                            androidTarget.compilations.matching { it.name.lowercase().contains("test") }
-                        } else {
-                            androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
+    private fun adjustCompilations() = with(KotlinDeftNamingConvention) {
+        leafPlatformFragments.forEach { fragment ->
+            fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+                project.afterEvaluate {
+                    val androidTarget = fragment.target ?: return@afterEvaluate
+                    val compilations = if (fragment.isTest) {
+                        androidTarget.compilations.matching { it.name.lowercase().contains("test") }
+                    } else {
+                        androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
+                    }
+                    compilations.configureEach {
+                        it.compileTaskProvider.configure {
+                            it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                            it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
                         }
-                        compilations.configureEach {
-                            it.compileTaskProvider.configure {
-                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
-                            }
 
-                            it.kotlinSourceSets.forEach { compilationSourceSet ->
-                                if (compilationSourceSet != fragment.kotlinSourceSet) {
-                                    println("Attaching fragment ${fragment.name} to compilation ${it.name}")
-                                    compilationSourceSet.doDependsOn(fragment)
-                                }
+                        it.kotlinSourceSets.forEach { compilationSourceSet ->
+                            if (compilationSourceSet != fragment.kotlinSourceSet) {
+                                println("Attaching fragment ${fragment.name} to compilation ${it.name}")
+                                compilationSourceSet.doDependsOn(fragment)
                             }
                         }
                     }
@@ -100,11 +97,8 @@ class AndroidBindingPluginPart(
     }
 
     private fun applySettings() {
-        module.artifacts.forEach { artifact ->
-            artifact.platforms.find { it == Platform.ANDROID } ?: return@forEach
-            val part =
-                artifact.parts.find<AndroidArtifactPart>()
-                    ?: error("No android properties for an artifact ${artifact.name}")
+        leafPlatformFragments.forEach { fragment ->
+            val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {
                 part.compileSdkVersion?.let {
                     compileSdkVersion(it)
@@ -113,8 +107,10 @@ class AndroidBindingPluginPart(
                     it.minSdkVersion(part.minSdkVersion ?: 24)
                 }
                 compileOptions {
-                    it.setSourceCompatibility(part.sourceCompatibility)
-                    it.setTargetCompatibility(part.targetCompatibility)
+                    if (part.sourceCompatibility != null)
+                        it.setSourceCompatibility(part.sourceCompatibility)
+                    if (part.targetCompatibility != null)
+                        it.setTargetCompatibility(part.targetCompatibility)
                 }
             }
         }

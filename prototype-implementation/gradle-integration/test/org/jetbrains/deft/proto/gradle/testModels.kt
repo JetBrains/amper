@@ -53,7 +53,7 @@ object Models : ModelInit {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                fragment {
+                leafFragment {
                     platforms.add(Platform.JVM)
                 }
             )
@@ -63,7 +63,7 @@ object Models : ModelInit {
 
     val jvmTwoFragmentModel by mockModel {
         module(it.buildToml) {
-            val jvm = fragment("jvm") {
+            val jvm = leafFragment("jvm") {
                 refines(fragment())
                 platforms.add(Platform.JVM)
             }
@@ -79,11 +79,11 @@ object Models : ModelInit {
         module(it.buildToml) {
             type = PotatoModuleType.LIBRARY
             val common = fragment()
-            val jvm = fragment("jvm") {
+            val jvm = leafFragment("jvm") {
                 refines(common)
                 platforms.add(Platform.JVM)
             }
-            val ios = fragment("ios") {
+            val ios = leafFragment("ios") {
                 refines(common)
                 platforms.add(Platform.IOS_ARM64)
             }
@@ -95,14 +95,14 @@ object Models : ModelInit {
         }
     }
 
-    val kotlinFragmentPartModel by mockModel {
+    val kotlinPartModel by mockModel {
         module(it.buildToml) {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                fragment {
+                leafFragment {
                     addPart(
-                        KotlinFragmentPart(
+                        KotlinPart(
                             "1.8",
                             "1.8",
                             true,
@@ -121,14 +121,13 @@ object Models : ModelInit {
             artifact(
                 "myApp",
                 setOf(Platform.ANDROID),
-                fragment {
+                leafFragment {
                     platforms.add(Platform.ANDROID)
+                    addPart(AndroidPart(
+                        "android-31", 24, "17", "17"
+                    ))
                 }
-            ) {
-                addPart(AndroidArtifactPart(
-                    "android-31", 24, "17", "17"
-                ))
-            }
+            )
         }
     }
 
@@ -137,7 +136,7 @@ object Models : ModelInit {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                fragment {
+                leafFragment {
                     platforms.add(Platform.JVM)
                 }
             )
@@ -146,7 +145,7 @@ object Models : ModelInit {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
-                fragment {
+                leafFragment {
                     dependency(module1)
                     platforms.add(Platform.JVM)
                 }
@@ -156,7 +155,7 @@ object Models : ModelInit {
 
     val twoModulesTwoFragmentsModel by mockModel {
         val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
-            val jvm = fragment("jvm") {
+            val jvm = leafFragment("jvm") {
                 refines(fragment())
                 platforms.add(Platform.JVM)
             }
@@ -170,7 +169,7 @@ object Models : ModelInit {
             val common = fragment {
                 dependency(module1)
             }
-            val jvm = fragment("jvm") {
+            val jvm = leafFragment("jvm") {
                 refines(common)
                 dependency(module1)
                 platforms.add(Platform.JVM)
@@ -208,7 +207,7 @@ object Models : ModelInit {
         artifact(
             "myApp",
             setOf(Platform.JVM),
-            fragment {
+            leafFragment {
                 platforms.add(Platform.JVM)
             }
         )

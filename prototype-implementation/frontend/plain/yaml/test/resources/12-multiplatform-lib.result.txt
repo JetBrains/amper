@@ -6,8 +6,6 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   androidTest
     External dependencies:
     Src folder: test@android
@@ -15,31 +13,23 @@ Fragments:
       commonTest (REFINE)
       android (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   common
     External dependencies:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   commonTest
     External dependencies:
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   ios
     External dependencies:
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosTest
     External dependencies:
     Src folder: test@ios
@@ -47,16 +37,12 @@ Fragments:
       commonTest (REFINE)
       ios (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   js
     External dependencies:
     Src folder: src@js
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   jsTest
     External dependencies:
     Src folder: test@js
@@ -64,16 +50,12 @@ Fragments:
       commonTest (REFINE)
       js (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   jvm
     External dependencies:
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   jvmTest
     External dependencies:
     Src folder: test@jvm
@@ -81,8 +63,6 @@ Fragments:
       commonTest (REFINE)
       jvm (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
 Artifacts:
   isTest: false
   [JVM, ANDROID, IOS_ARM64, JS]
@@ -91,11 +71,6 @@ Artifacts:
       android
       ios
       js
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [JVM, ANDROID, IOS_ARM64, JS]
     Fragments:
@@ -103,8 +78,3 @@ Artifacts:
       androidTest
       iosTest
       jsTest
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)

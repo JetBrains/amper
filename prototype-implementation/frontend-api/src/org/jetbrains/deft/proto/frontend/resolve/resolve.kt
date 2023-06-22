@@ -1,49 +1,42 @@
 package org.jetbrains.deft.proto.frontend.propagate
 
 import org.jetbrains.deft.proto.frontend.*
-import java.nio.file.Path
 
 
 val Model.resolved: Model
     get() = object : Model {
         override val modules: List<PotatoModule>
             get() = this@resolved.modules.map {
-                object : PotatoModule {
-                    override val parts: ClassBasedSet<ModulePart<*>>
-                        get() = it.parts
-                    override val userReadableName: String
-                        get() = it.userReadableName
-                    override val type: PotatoModuleType
-                        get() = it.type
-                    override val source: PotatoModuleSource
-                        get() = it.source
+                object : PotatoModule by it {
                     override val fragments: List<Fragment>
-                        get() = it.fragments.resolve { propagate(it).default() }
-                    override val artifacts: List<Artifact>
-                        get() = it.artifacts.resolve { default() }
-
+                        get() = it.fragments.resolve()
                 }
             }
     }
 
 
-fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): List<Fragment> = buildList {
+fun List<Fragment>.resolve(): List<Fragment> = buildList {
     var root: Fragment? = this@resolve.firstOrNull()
     while (root?.fragmentDependencies?.isNotEmpty() == true) {
         root = root.fragmentDependencies.firstOrNull()?.target
     }
     val deque = ArrayDeque<Fragment>()
+    val alreadyResolved = mutableSetOf<String>()
     root?.let {
         add(it)
         deque.add(it)
+        alreadyResolved.add(it.name)
     }
 
     while (deque.isNotEmpty()) {
         val fragment = deque.removeFirst()
         fragment.fragmentDependants.forEach { link ->
             val dependant = link.target
-            if (dependant !in this) {
-                val resolved = dependant.resolve(fragment, block)
+            // Equals comparison works not good for anonymous objects.
+            // Also, fragment names are unique, so we can use it.
+            if (dependant.name !in alreadyResolved) {
+                val resolved = dependant.resolve(fragment)
+                alreadyResolved.add(resolved.name)
                 deque.add(resolved)
                 add(resolved)
             }
@@ -51,58 +44,32 @@ fun List<Fragment>.resolve(block: FragmentPart<Any>.(FragmentPart<*>) -> Fragmen
     }
 }
 
-fun List<Artifact>.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): List<Artifact> = map { it.resolve(block) }
-
 @Suppress("UNCHECKED_CAST")
-fun Fragment.resolve(parent: Fragment, block: FragmentPart<Any>.(FragmentPart<*>) -> FragmentPart<*>): Fragment {
-    val resolvedParts = parent.parts.map {
-        val parentPart = it
-        val sourcePart = parts[parentPart::class.java]
-        sourcePart?.let {
-            (it as FragmentPart<Any>).block(parentPart)
-        } ?: (parentPart as FragmentPart<Any>).block(parentPart)
+fun Fragment.resolve(parent: Fragment): Fragment {
+    val parentAndThisParts = parts + parent.parts
+    val resolvedParts = parentAndThisParts.map {
+        propagateFor(it as FragmentPart<Any>).default()
     }.toClassBasedSet()
-    return object : Fragment {
-        override val name: String
-            get() = this@resolve.name
-        override val fragmentDependencies: List<FragmentLink>
-            get() = this@resolve.fragmentDependencies
-        override val fragmentDependants: List<FragmentLink>
-            get() = this@resolve.fragmentDependants
-        override val externalDependencies: List<Notation>
-            get() = this@resolve.externalDependencies
-        override val parts: ClassBasedSet<FragmentPart<*>>
-            get() = resolvedParts
-        override val platforms: Set<Platform>
-            get() = this@resolve.platforms
-        override val src: Path?
-            get() = this@resolve.src
-    }
+    return createResolvedAdapter(resolvedParts)
 }
 
-@Suppress("UNCHECKED_CAST")
-fun Artifact.resolve(block: ArtifactPart<Any>.() -> ArtifactPart<*>): Artifact {
-    val resolvedParts = parts.map { (it as ArtifactPart<Any>).block() }.toClassBasedSet()
-    if (this is TestArtifact) {
-        return object: TestArtifact {
-            override val name: String
-                get() = this@resolve.name
-            override val fragments: List<Fragment>
-                get() = this@resolve.fragments
-            override val platforms: Set<Platform>
-                get() = this@resolve.platforms
-            override val parts: ClassBasedSet<ArtifactPart<*>>
-                get() = resolvedParts
-        }
-    }
-    return object : Artifact {
-        override val name: String
-            get() = this@resolve.name
-        override val fragments: List<Fragment>
-            get() = this@resolve.fragments
-        override val platforms: Set<Platform>
-            get() = this@resolve.platforms
-        override val parts: ClassBasedSet<ArtifactPart<*>>
+fun Fragment.createResolvedAdapter(
+    resolvedParts: ClassBasedSet<FragmentPart<*>>
+) = if (this@createResolvedAdapter is LeafFragment)
+    object : LeafFragment by this@createResolvedAdapter {
+        override val parts: ClassBasedSet<FragmentPart<*>>
             get() = resolvedParts
     }
+else object : Fragment by this@createResolvedAdapter {
+    override val parts: ClassBasedSet<FragmentPart<*>>
+        get() = resolvedParts
+}
+
+fun Fragment.propagateFor(
+    parentPart: FragmentPart<Any>
+): FragmentPart<*> {
+    val sourcePart = parts[parentPart::class.java]
+    return if (parentPart !== sourcePart) {
+        sourcePart?.propagate(parentPart) ?: parentPart
+    } else sourcePart
 }

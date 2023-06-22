@@ -1,75 +1,85 @@
 :
-  commonAndroidTest:
+  androidAndroidTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonAndroidTestDebug:
+  androidAndroidTestDebug:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonAndroidTestRelease:
+  androidAndroidTestRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonDebug:
+  androidDebug:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonDebugAndroidTest:
+  androidDebugAndroidTest:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  commonDebugUnitTest:
+  androidDebugUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidMain:
+   depends(commonMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidReleaseUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTest:
+   depends(commonTest)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixtures:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
    depends()
-   sourceDirs(common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonReleaseUnitTest:
-   depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTestDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTestFixtures:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTestFixturesDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTestFixturesRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  commonTestRelease:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)

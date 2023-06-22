@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
+import org.jetbrains.deft.proto.frontend.model.PlainLeafFragment
 import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
 import java.nio.file.Path
 import java.util.*
@@ -18,6 +19,13 @@ internal data class FragmentBuilder(
     val dependencies: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val dependants: MutableSet<MutableFragmentDependency> = mutableSetOf(),
     val externalDependencies: MutableSet<Notation> = mutableSetOf(),
+
+    var isTest: Boolean = false,
+
+    var isDefault: Boolean = true,
+
+    var isLeaf: Boolean = false,
+
     /**
      * These are all variants, that this fragment should be included in.
      * Thus, "common" fragment will contain all variants.
@@ -27,10 +35,29 @@ internal data class FragmentBuilder(
     var src: Path? = null,
 
     // parts
-    var kotlin: KotlinFragmentBuilder? = null,
-    var junit: JunitFragmentBuilder? = null,
+    var kotlin: KotlinPartBuilder? = null,
+    var junit: JunitPartBuilder? = null,
+
+    // Leaf parts.
+    var android: AndroidPartBuilder? = null,
+    var native: NativePartBuilder? = null,
+    var java: JavaPartBuilder? = null,
+    var publishing: PublishingPartBuilder? = null,
 ) {
 
+    /**
+     * Simple copy ctor.
+     */
+    constructor(
+        name: String,
+        copyFrom: FragmentBuilder
+    ) : this(name, copyFrom.platforms) {
+        variants.addAll(copyFrom.variants)
+        isTest = copyFrom.isTest
+        dependencies.addAll(copyFrom.dependencies)
+        alias = copyFrom.alias
+        isDefault = copyFrom.isDefault
+    }
 
     fun addDependency(mutableFragmentDependency: MutableFragmentDependency) {
         dependencies.add(mutableFragmentDependency)
@@ -54,112 +81,13 @@ internal data class FragmentBuilder(
         mutableFragmentDependencies.forEach { addDependency(it) }
     }
 
-    data class KotlinFragmentBuilder(
-        var languageVersion: KotlinVersion? = null,
-        var apiVersion: KotlinVersion? = null,
-        var sdkVersion: String? = null,
-        var progressiveMode: Boolean? = null,
-        val languageFeatures: MutableList<String> = mutableListOf(),
-        val optIns: MutableList<String> = mutableListOf(),
-        var jvmTarget: Int? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: KotlinFragmentBuilder.() -> Unit): KotlinFragmentBuilder {
-                val builder = KotlinFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class JavaFragmentBuilder(
-        var mainClass: String? = null,
-        var packagePrefix: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: JavaFragmentBuilder.() -> Unit): JavaFragmentBuilder {
-                val builder = JavaFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class NativeFragmentBuilder(
-        var entryPoint: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: NativeFragmentBuilder.() -> Unit): NativeFragmentBuilder {
-                val builder = NativeFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class AndroidFragmentBuilder(
-        var compileSdkVersion: String? = null,
-        var androidMinSdkVersion: Int? = null,
-        var sourceCompatibility: String? = null,
-        var targetCompatibility: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: AndroidFragmentBuilder.() -> Unit): AndroidFragmentBuilder {
-                val builder = AndroidFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class PublishingFragmentBuilder(
-        var group: String? = null,
-        var version: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: PublishingFragmentBuilder.() -> Unit): PublishingFragmentBuilder {
-                val builder = PublishingFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class JunitFragmentBuilder(
-        var platformEnabled: Boolean? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: JunitFragmentBuilder.() -> Unit): JunitFragmentBuilder {
-                val builder = JunitFragmentBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    @Suppress("unused")
-    enum class KotlinVersion(private val version: String) {
-        Kotlin20("2.0"), Kotlin19("1.9"), Kotlin18("1.8"), Kotlin17("1.7"), Kotlin16("1.6"), Kotlin15("1.5"), Kotlin14("1.4"), Kotlin13(
-            "1.3"
-        ),
-        Kotlin12("1.2"), Kotlin11("1.1"), Kotlin10("1.0");
-
-        override fun toString(): String = version
-
-        companion object {
-
-            private val versionMap: Map<String, KotlinVersion> = buildMap {
-                KotlinVersion.values().forEach {
-                    put(it.version, it)
-                }
-            }
-
-            fun fromString(value: String): KotlinVersion? = versionMap[value]
-        }
+    context (Stateful<FragmentBuilder, Fragment>)
+    fun build(): Fragment = state.computeIfAbsent(this) {
+        if (it.isLeaf) PlainLeafFragment(it) else PlainFragment(it)
     }
 
     context (Stateful<FragmentBuilder, Fragment>)
-    fun build(): Fragment = state.computeIfAbsent(this) { PlainFragment(it) }
+    fun buildLeaf(): LeafFragment = build() as PlainLeafFragment
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -197,65 +125,7 @@ internal data class ArtifactBuilder(
     val platforms: Set<Platform>,
     val variants: MutableSet<String> = mutableSetOf(),
     val fragments: MutableList<FragmentBuilder> = mutableListOf(),
-    var android: AndroidArtifactBuilder? = null,
-    var native: NativeArtifactBuilder? = null,
-    var java: JavaArtifactBuilder? = null,
-    var publish: PublishingArtifactBuilder? = null,
 ) {
-    data class AndroidArtifactBuilder(
-        var compileSdkVersion: String? = null,
-        var androidMinSdkVersion: Int? = null,
-        var sourceCompatibility: String? = null,
-        var targetCompatibility: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: AndroidArtifactBuilder.() -> Unit): AndroidArtifactBuilder {
-                val builder = AndroidArtifactBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class JavaArtifactBuilder(
-        var mainClass: String? = null,
-        var packagePrefix: String? = null,
-        var jvmTarget: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: JavaArtifactBuilder.() -> Unit): JavaArtifactBuilder {
-                val builder = JavaArtifactBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class PublishingArtifactBuilder(
-        var group: String? = null,
-        var version: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: PublishingArtifactBuilder.() -> Unit): PublishingArtifactBuilder {
-                val builder = PublishingArtifactBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
-    data class NativeArtifactBuilder(
-        var entryPoint: String? = null,
-    ) {
-        companion object {
-            operator fun invoke(block: NativeArtifactBuilder.() -> Unit): NativeArtifactBuilder {
-                val builder = NativeArtifactBuilder()
-                builder.block()
-                return builder
-            }
-        }
-    }
-
     context (Stateful<FragmentBuilder, Fragment>)
     fun build(): Artifact {
         if (variants.contains("test")) {
@@ -269,51 +139,45 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
     val fragments = this.toMutableList()
     // multiply
     for (variant in variants) {
-        val options = variant.getValue<List<Settings>>("options") ?: listOf()
-        if (options.isEmpty()) {
-            error("Options are required")
-        }
-
-        val single = options.count { it.getValue<Boolean>("default") ?: false } == 1
-        if (!single) {
-            error("Default value is required and must be single")
-        }
+        val options = variant[optionsKey]
+        assert(options.isNotEmpty()) { "Options are required" }
+        assert(options.count { it[isDefaultKey] } == 1) { "Default value is required and must be single" }
 
         // copy fragments
         val fragmentMap = buildMap {
             for (option in options) {
-                val name = option.getValue<String>("name") ?: error("Name is required for option")
+                val optionName = option[nameKey] ?: error("Name is required for option")
                 val newFragmentList = buildList {
                     for (element in fragments) {
-                        val newFragment = if (option.getValue<Boolean>("default") == true) {
-                            val newFragment = FragmentBuilder(element.name, element.platforms)
-                            copyFields(newFragment, element)
-                            newFragment
-                        } else {
-                            val newFragment = FragmentBuilder("${element.name}${
-                                name.replaceFirstChar {
-                                    if (it.isLowerCase()) {
-                                        it.titlecase(Locale.getDefault())
-                                    } else {
-                                        it.toString()
-                                    }
-                                }
-                            }", element.platforms)
-                            copyFields(newFragment, element)
-                            newFragment
+                        val newFragmentName = if (option[isDefaultKey])
+                            element.name
+                        else
+                            element.name.camelMerge(optionName)
+
+                        val newFragment = FragmentBuilder(newFragmentName, element).apply {
+                            // Adjust testing sign
+                            if (optionName == "test") isTest = true
+
+                            // Place a default flag for fragments that should be built by default and
+                            // for their direct test descendants.
+                            isDefault = element.isDefault && option[isDefaultFragmentKey]
+                                    || isTest && element.isDefault
+
                         }
-                        newFragment.variants.add(name)
+
+                        // Add new variant to fragment.
+                        newFragment.variants.add(optionName)
                         add(newFragment)
                     }
                 }
-                put(name, newFragmentList)
+                put(optionName, newFragmentList)
             }
         }
 
         // set dependencies between potatoes
         for (option in options) {
-            val dependencies = option.getValue<List<Settings>>("dependsOn") ?: listOf()
-            val name = option.getValue<String>("name") ?: error("Name is required for option")
+            val dependencies = option[dependsOnKey]
+            val name = option[nameKey] ?: error("Name is required for option")
 
             val sourceFragments = fragmentMap[name] ?: error("Something went wrong")
             // correct previous old dependencies references after copying
@@ -358,12 +222,6 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
     return fragments
 }
 
-private fun copyFields(new: FragmentBuilder, old: FragmentBuilder) {
-    new.variants.addAll(old.variants)
-    new.dependencies.addAll(old.dependencies)
-    new.alias = old.alias
-}
-
 context (Map<String, Set<Platform>>)
 internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
     get() {
@@ -400,22 +258,20 @@ internal fun List<FragmentBuilder>.artifacts(
 
     val options = buildList {
         for (variant in variants) {
-            val options = variant.getValue<List<Settings>>("options") ?: listOf()
+            val options = variant[optionsKey]
             add(buildList {
                 var default: String? = null
                 var addDefault = true
                 for (option in options) {
                     // add default if all dependencies are friends
-                    if (option.getValue<Boolean>("default") == true) {
-                        default = option.getValue<String>("name")
+                    if (option[isDefaultKey]) {
+                        default = option[nameKey]
                     } else {
                         add(
-                            option.getValue<String>("name") ?: error("Name is required for variant option")
+                            option[nameKey] ?: error("Name is required for variant option")
                         )
 
-                        if (option.getValue<List<Settings>>("dependsOn")
-                                ?.any { it.getValue<String>("kind") != "friend" } == true
-                        ) {
+                        if (option[dependsOnKey].any { it.getValue<String>("kind") != "friend" }) {
                             addDefault = false
                         }
                     }
@@ -450,12 +306,13 @@ internal fun List<FragmentBuilder>.artifacts(
 
     return when (type) {
         "app" -> leafFragments
-            .map {
+            .map { fragment ->
+                fragment.isLeaf = true
                 ArtifactBuilder(
-                    it.name,
-                    it.platforms,
-                    it.variants,
-                    mutableListOf(it)
+                    fragment.name,
+                    fragment.platforms,
+                    fragment.variants,
+                    mutableListOf(fragment)
                 )
             }
 
@@ -466,6 +323,7 @@ internal fun List<FragmentBuilder>.artifacts(
                 .map {
                     val groupVariants = it.key
                     val fragments = it.value
+                    fragments.forEach { fragment -> fragment.isLeaf = true }
                     ArtifactBuilder(
                         joinToCamelCase(groupVariants.toSet()),
                         fragments.flatMap { it.platforms }.toSet(),
@@ -501,13 +359,13 @@ context (Map<String, Set<Platform>>, BuildFileAware)
 internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
     config.handleFragmentSettings<Settings>(this, "settings") {
         it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
-            kotlin = FragmentBuilder.KotlinFragmentBuilder {
+            kotlin = KotlinPartBuilder {
                 kotlinSettings.getValue<Double>("languageVersion")?.let { kotlinVersion ->
-                    languageVersion = FragmentBuilder.KotlinVersion.fromString(kotlinVersion.toString())
+                    languageVersion = KotlinVersion.fromString(kotlinVersion.toString())
                 }
 
                 kotlinSettings.getValue<Double>("apiVersion")?.let { kotlinVersion ->
-                    apiVersion = FragmentBuilder.KotlinVersion.fromString(kotlinVersion.toString())
+                    apiVersion = KotlinVersion.fromString(kotlinVersion.toString())
                 }
 
                 sdkVersion = kotlinSettings.getByPath<String>("sdk", "version")
@@ -518,7 +376,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
             }
         }
         it.getValue<Settings>("junit")?.let { testSettings ->
-            junit = FragmentBuilder.JunitFragmentBuilder {
+            junit = JunitPartBuilder {
                 platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
             }
         }
@@ -530,9 +388,9 @@ internal fun List<ArtifactBuilder>.handleSettings(
     config: Map<String, Any>,
     fragments: List<FragmentBuilder>
 ) {
-    config.handleArtifactSettings<Settings>(this, fragments, "settings") {
+    config.handleArtifactSettings<Settings>(fragments, "settings") {
         it.getValue<Settings>("android")?.let { androidSettings ->
-            android = ArtifactBuilder.AndroidArtifactBuilder {
+            android = AndroidPartBuilder {
                 compileSdkVersion = androidSettings.getValue<String>("compileSdkVersion")
                 androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
                 sourceCompatibility = androidSettings.getValue<String>("sourceCompatibility")
@@ -541,14 +399,14 @@ internal fun List<ArtifactBuilder>.handleSettings(
         }
 
         it.getValue<Settings>("publishing")?.let { publishSettings ->
-            publish = ArtifactBuilder.PublishingArtifactBuilder {
+            publishing = PublishingPartBuilder {
                 group = publishSettings.getValue<String>("group")
                 version = publishSettings.getValue<Any>("version").toString()
             }
         }
 
         it.getValue<Settings>("java")?.let { javaSettings ->
-            java = ArtifactBuilder.JavaArtifactBuilder {
+            java = JavaPartBuilder {
                 mainClass = javaSettings.getValue<String>("mainClass")
                 packagePrefix = javaSettings.getValue<String>("packagePrefix")
                 jvmTarget = javaSettings.getValue<Double>("jvmTarget")?.toString()

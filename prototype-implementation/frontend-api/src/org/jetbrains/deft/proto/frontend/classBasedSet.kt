@@ -1,8 +1,5 @@
 package org.jetbrains.deft.proto.frontend
 
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-
 
 /**
  * Set wrapper, that uses elements classes as key.
@@ -21,7 +18,7 @@ class ClassBasedSet<T : Any> : AbstractMutableSet<T>() {
     }
 
     override fun add(element: T) =
-            (internalMap.put(element::class.java, element) !== element)
+        (internalMap.put(element::class.java, element) !== element)
 
     operator fun <T2 : T> get(clazz: Class<T2>): T2? = internalMap.get(clazz) as? T2
     inline fun <reified T2 : T> find() = this[T2::class.java]
@@ -30,6 +27,12 @@ class ClassBasedSet<T : Any> : AbstractMutableSet<T>() {
 fun <T : Any> classBasedSet() = ClassBasedSet<T>()
 
 fun <T : Any> Iterable<T>.toClassBasedSet() = toCollection(ClassBasedSet())
+
+operator fun <T : Any> ClassBasedSet<T>.plus(other: ClassBasedSet<T>) =
+    buildClassBasedSet {
+        addAll(this@plus)
+        addAll(other)
+    }
 
 inline fun <T : Any> buildClassBasedSet(builderAction: MutableSet<T>.() -> Unit): ClassBasedSet<T> {
     return ClassBasedSet<T>().apply {

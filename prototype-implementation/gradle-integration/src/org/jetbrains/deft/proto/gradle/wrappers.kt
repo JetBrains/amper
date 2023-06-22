@@ -18,10 +18,25 @@ class PotatoModuleWrapper(
     private val passedModule: PotatoModule
 ) : PotatoModule by passedModule {
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
-    override val fragments = passedModule.fragments.map { FragmentWrapper(it) }
     val fragmentsByName by lazy { fragments.associateBy { it.name } }
     override val artifacts = passedModule.artifacts.map { it.wrap() }
-    val nonTestArtifacts by lazy { artifacts.filter { it !is TestArtifact } }
+
+    override val fragments = passedModule.fragments.map {
+        if (it is LeafFragment)
+            LeafFragmentWrapper(it)
+        else
+            FragmentWrapper(it)
+    }
+
+    /**
+     * Non-test leaf fragments from the whole module.
+     */
+    val leafFragments = passedModule.fragments
+        .filterIsInstance<LeafFragment>()
+        .map { LeafFragmentWrapper(it) }
+
+    val leafNonTestFragments = leafFragments
+        .filter { !it.isTest }
 }
 
 fun Artifact.wrap() = if (this is TestArtifact) TestArtifactWrapper(this) else ArtifactWrapper(this)
@@ -35,15 +50,20 @@ open class ArtifactWrapper(
     artifact: Artifact
 ) : Artifact by artifact, PlatformAware {
     val bindPlatforms: Set<BindPlatform> = platforms.map { BindPlatform(it, this) }.toSet()
+
     // Actually, duplicating [FragmentWrapper] objects here but ok for prototyping.
-    override val fragments = artifact.fragments.map { FragmentWrapper(it) }
+    override val fragments = artifact.fragments.map { LeafFragmentWrapper(it) }
 }
 
 class TestArtifactWrapper(
     artifact: TestArtifact
 ) : ArtifactWrapper(artifact), TestArtifact
 
-class FragmentWrapper(
+open class FragmentWrapper(
     private val fragment: Fragment
-) : Fragment by fragment, PlatformAware {
-}
+) : Fragment by fragment, PlatformAware
+
+@Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
+class LeafFragmentWrapper(
+    fragment: LeafFragment
+) : FragmentWrapper(fragment), LeafFragment by fragment, PlatformAware

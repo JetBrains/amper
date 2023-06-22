@@ -9,5 +9,5 @@ import org.junit.jupiter.api.Test
 class FragmentPartsTests : TestBase() {
 
     @Test
-    fun kotlinFragmentPartTest() = doTest(Models.kotlinFragmentPartModel)
+    fun kotlinFragmentPartTest() = doTest(Models.kotlinPartModel)
 }

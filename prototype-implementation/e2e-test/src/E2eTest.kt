@@ -45,7 +45,7 @@ class E2eTest {
             .run()
 
         // then
-        assertContains(buildResult.output, "org.opentest4j.AssertionFailedError at WorldTest.kt")
+        assertContains(buildResult.output, "org.junit.ComparisonFailure at WorldTest")
     }
 
     @Test

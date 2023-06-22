@@ -76,8 +76,16 @@ class FragmentBuilder(var name: String) {
         parts.add(builder.build())
     }
 
-    fun build(): Fragment {
-        return object : Fragment {
+    fun javaPart(init: JavaPartBuilder.() -> Unit) {
+        val builder = JavaPartBuilder()
+        builder.init()
+        parts.add(builder.build())
+    }
+
+    fun build(): LeafFragment {
+        return object : LeafFragment {
+            override val platform: Platform
+                get() = this@FragmentBuilder.platforms.single()
             override val name: String
                 get() = this@FragmentBuilder.name
             override val fragmentDependencies: List<FragmentLink>
@@ -87,9 +95,13 @@ class FragmentBuilder(var name: String) {
             override val externalDependencies: List<Notation>
                 get() = this@FragmentBuilder.externalDependencies
             override val parts: ClassBasedSet<FragmentPart<*>>
-                get() = this@FragmentBuilder.parts
+                get() = this@FragmentBuilder.parts.toClassBasedSet()
             override val platforms: Set<Platform>
                 get() = this@FragmentBuilder.platforms
+            override val isTest: Boolean
+                get() = false
+            override val isDefault: Boolean
+                get() = true
             override val src: Path?
                 get() = this@FragmentBuilder.src
         }
@@ -102,15 +114,15 @@ class KotlinFragmentPartBuilder {
     var progressiveMode: Boolean? = null
     val languageFeatures: MutableList<String> = mutableListOf()
     val optIns: MutableList<String> = mutableListOf()
-    fun build(): KotlinFragmentPart =
-        KotlinFragmentPart(languageVersion, apiVersion, progressiveMode, languageFeatures, optIns)
+    fun build(): KotlinPart =
+        KotlinPart(languageVersion, apiVersion, progressiveMode, languageFeatures, optIns)
 }
 
 class PotatoModuleBuilder(var name: String) {
     var type: PotatoModuleType = PotatoModuleType.APPLICATION
     var source: PotatoModuleSource = PotatoModuleProgrammaticSource
     val fragments: MutableList<FragmentBuilder> = mutableListOf()
-    private val artifacts: MutableList<Artifact> = mutableListOf()
+    private val artifacts = emptyList<Artifact>()
     private val parts = classBasedSet<ModulePart<*>>()
 
     fun fragment(name: String, init: FragmentBuilder.() -> Unit): FragmentBuilder {
@@ -118,12 +130,6 @@ class PotatoModuleBuilder(var name: String) {
         builder.init()
         fragments.add(builder)
         return builder
-    }
-
-    fun artifact(init: ArtifactBuilder.() -> Unit) {
-        val builder = ArtifactBuilder()
-        builder.init()
-        artifacts.add(builder.build())
     }
 
     fun build(): PotatoModule {
@@ -144,42 +150,12 @@ class PotatoModuleBuilder(var name: String) {
     }
 }
 
-class ArtifactBuilder {
-    var name = ""
-    private val fragments: MutableList<FragmentBuilder> = mutableListOf()
-    private val platforms: MutableSet<Platform> = mutableSetOf()
-    private val parts: ClassBasedSet<ArtifactPart<*>> = classBasedSet()
-
-    fun fragment(fragmentBuilder: FragmentBuilder) {
-        fragments.add(fragmentBuilder)
-    }
-
-    fun javaPart(init: JavaArtifactPartBuilder.() -> Unit) {
-        val builder = JavaArtifactPartBuilder()
-        builder.init()
-        parts.add(builder.build())
-    }
-
-    fun build(): Artifact {
-        return object : Artifact {
-            override val name: String
-                get() = this@ArtifactBuilder.name
-            override val fragments: List<Fragment>
-                get() = this@ArtifactBuilder.fragments.map { it.build() }
-            override val platforms: Set<Platform>
-                get() = this@ArtifactBuilder.platforms
-            override val parts: ClassBasedSet<ArtifactPart<*>>
-                get() = this@ArtifactBuilder.parts
-        }
-    }
-}
-
-class JavaArtifactPartBuilder {
+class JavaPartBuilder {
     var mainClass: String? = null
     var packagePrefix: String? = null
     var jvmTarget: String? = null
 
-    fun build(): JavaArtifactPart {
-        return JavaArtifactPart(mainClass, packagePrefix, jvmTarget)
+    fun build(): JavaPart {
+        return JavaPart(mainClass, packagePrefix, jvmTarget)
     }
 }

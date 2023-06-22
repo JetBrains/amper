@@ -1,33 +1,63 @@
 :outer
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(src/commonTest/java)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmMain:
+   depends(commonMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmTest:
+   depends(commonTest)
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :outer:inner2
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(src/commonTest/java)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmMain:
+   depends(commonMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmTest:
+   depends(commonTest)
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()
 :outer:intermediate:inner1
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
    depends()
-   sourceDirs(src/commonTest/java)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmMain:
+   depends(commonMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  jvmTest:
+   depends(commonTest)
+   sourceDirs(src/jvmTest/java)
    lang(api=null version=null progressive=false features=)
    implDeps()

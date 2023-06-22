@@ -5,7 +5,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.jetbrains.deft.proto.frontend.JavaArtifactPart
+import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -41,11 +41,6 @@ class JavaBindingPluginPart(
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-    private val jvmArtifacts = module.artifacts
-        .filter { Platform.JVM in it.platforms }
-        .filter { it.parts.find<JavaArtifactPart>() != null }
-        .filter { !it.isTest }
-
     fun apply() {
         project.plugins.apply(ApplicationPlugin::class.java)
         applyJavaTargetForKotlin()
@@ -54,41 +49,37 @@ class JavaBindingPluginPart(
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
-        jvmArtifacts.forEach { artifact ->
-            artifact.fragments
-                .filter { it.platforms.singleOrNull() == Platform.JVM }
-                .forEach { fragment ->
-                    with(fragment.target!!) {
-                        artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let { jvmTarget ->
-                            artifact.compilation?.compileTaskProvider?.configure {
-                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
-                            }
-                        }
+        leafPlatformFragments.forEach { fragment ->
+            with(fragment.target!!) {
+                fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+                    fragment.compilation?.compileTaskProvider?.configure {
+                        it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                        it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
                     }
                 }
+            }
         }
     }
 
     private fun applyJavaApplication() {
-        if (jvmArtifacts.size > 1)
+        if (leafPlatformFragments.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +
-                        "Affected artifacts: ${jvmArtifacts.joinToString { it.name }}. " +
+                        "Affected artifacts: ${platformArtifacts.joinToString { it.name }}. " +
                         "Applying application settings from first one."
             )
-        val artifact = jvmArtifacts.firstOrNull() ?: return
-        val applicationSettings = artifact.parts.find<JavaArtifactPart>()!!
-        javaAPE.apply {
-            mainClass.set(applicationSettings.mainClass)
-        }
-
-        artifact.parts.find<JavaArtifactPart>()?.jvmTarget?.let {
-            javaPE.targetCompatibility = JavaVersion.toVersion(it)
-        }
-
-        project.tasks.withType(KotlinCompile::class.java).configureEach {
-            it.javaPackagePrefix = applicationSettings.packagePrefix
+        val fragment = leafPlatformFragments.firstOrNull() ?: return
+        val javaPart = fragment.parts.find<JavaPart>()
+        if (javaPart != null) {
+            javaAPE.apply {
+                mainClass.set(javaPart.mainClass)
+            }
+            javaPart.jvmTarget?.let {
+                javaPE.targetCompatibility = JavaVersion.toVersion(it)
+            }
+            project.tasks.withType(KotlinCompile::class.java).configureEach {
+                it.javaPackagePrefix = javaPart.packagePrefix
+            }
         }
     }
 

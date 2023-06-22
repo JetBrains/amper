@@ -116,9 +116,14 @@ fun String.transformKey(): String {
 }
 
 context (Stateful<FragmentBuilder, Fragment>)
-internal val List<FragmentBuilder>.immutableFragments: List<Fragment> get() = map { it.build() }
+internal val List<FragmentBuilder>.immutableFragments: List<Fragment> get() = map {
+    it.build()
+}
 
-
+context (Stateful<FragmentBuilder, Fragment>)
+internal val List<FragmentBuilder>.immutableLeafFragments: List<LeafFragment> get() = map {
+    it.buildLeaf()
+}
 
 context (Stateful<FragmentBuilder, Fragment>)
 internal val List<ArtifactBuilder>.immutableArtifacts: List<Artifact> get() = map { it.build() }

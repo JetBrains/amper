@@ -6,8 +6,6 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
@@ -15,16 +13,12 @@ Fragments:
     Fragment dependencies:
       common (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   ios
     External dependencies:
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   iosTest
     External dependencies:
     Src folder: test@ios
@@ -32,16 +26,12 @@ Fragments:
       commonTest (REFINE)
       ios (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   jvm
     External dependencies:
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
   jvmTest
     External dependencies:
     Src folder: test@jvm
@@ -49,42 +39,20 @@ Fragments:
       commonTest (REFINE)
       jvm (FRIEND)
     Parts:
-      KotlinFragmentPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[])
-      TestFragmentPart(junitPlatform=null)
 Artifacts:
   isTest: false
   [IOS_SIMULATOR_ARM64]
     Fragments:
       ios
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [IOS_SIMULATOR_ARM64]
     Fragments:
       iosTest
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: false
   [JVM]
     Fragments:
       jvm
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)
   isTest: true
   [JVM]
     Fragments:
       jvmTest
-    Parts:
-      AndroidArtifactPart(compileSdkVersion=null, minSdkVersion=null, sourceCompatibility=null, targetCompatibility=null)
-      JavaArtifactPart(mainClass=null, packagePrefix=null, jvmTarget=null)
-      PublicationArtifactPart(group=null, version=null)
-      NativeApplicationArtifactPart(entryPoint=null)

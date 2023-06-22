@@ -1,8 +1,6 @@
 package org.jetbrains.deft.proto.gradle
 
-import org.jetbrains.deft.proto.frontend.KotlinFragmentPart
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
-import kotlin.io.path.Path
 
 /**
  * Basic deft layout naming conventions.

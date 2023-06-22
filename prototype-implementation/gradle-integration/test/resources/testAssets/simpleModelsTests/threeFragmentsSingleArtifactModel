@@ -14,12 +14,12 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  iosMain:
+  iosArm64Main:
    depends(commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  iosTest:
+  iosArm64Test:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)

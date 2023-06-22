@@ -50,7 +50,9 @@ class PrintKotlinSpecificInfoForProject : Plugin<Project> {
         project.tasks.create(printKotlinSourcesTask) { task ->
             task.doLast {
                 val mpE = project.extensions.findByType(KotlinMultiplatformExtension::class.java) ?: return@doLast
-                val sourceSets = mpE.sourceSets.joinToString(separator = "\n") { it.pretty(project) }
+                val sourceSets = mpE.sourceSets
+                    .sortedBy { it.name }
+                    .joinToString(separator = "\n") { it.pretty(project) }
                 println(
                     kotlinSourceSetInfoStartMarker +
                             "\n${project.path}" +
