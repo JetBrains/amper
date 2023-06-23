@@ -1,8 +1,9 @@
 ### Basics
 
-**Pot** - a unique set of source files, resources with a `Pot.yaml` manifest file. Pot manifest describes _what_ to produce: either a reusable library or an application.
+**Pot** contains source files and resources, and a `Pot.yaml` manifest file Pot manifest describes _what_ to produce: either a reusable library or an application.
 _How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
+Sources and resources can't be shared by several Pots.
 
 _NOTE: The name 'Pot' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
 
@@ -51,6 +52,9 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |  |-util@jvm.kt   #  API implementation with ‘actual’ part for JVM
 |-Pot.yaml
 ```
+
+Note, that sources and resources can't be shared by several Pots.
+This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
 ### Manifest file anatomy
 
