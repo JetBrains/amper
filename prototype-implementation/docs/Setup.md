@@ -9,7 +9,10 @@
   ![img.png](images/tbe.png).
 
 
-- Install Deft plugin
+- Install Deft plugin.
+
+  For Nightly plugin updates add https://tbe.labs.jb.gg/api/plugin-repository?pluginId=org.jetbrains.deft&channel=Nightly to the list in `IntelliJ IDEA | Settings | Plugins | Manage plugin repositories...`
+  
   ![img.png](images/plugin.png)
 
 
