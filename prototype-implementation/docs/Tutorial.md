@@ -288,4 +288,4 @@ dependencies@android+debug:
   - org.company:kotlin-debug-util:1.0
 ```
 
-Examples: [variants](../../examples/variants)
+Examples: [variants](../../examples/build-variants)
