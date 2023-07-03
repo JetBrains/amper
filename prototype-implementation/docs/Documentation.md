@@ -333,8 +333,8 @@ Here is the partial list of platform and families:
         macosArm64
       ios
         iosArm64
-        isSimulatorArm64
-        isX64            # iOS Simulator for Intel Mac
+        iosSimulatorArm64
+        iosX64            # iOS Simulator for Intel Mac
   ...
 ```
 
