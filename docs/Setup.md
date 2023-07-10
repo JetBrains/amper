@@ -17,8 +17,8 @@
 
 
 - Open examples projects:
-  - [JVM](../../examples/jvm-kotlin+java)
-  - [Mobile Multiplatform](../../examples/kmp-mobile-modularized)
+  - [JVM](../examples/jvm-kotlin+java)
+  - [Mobile Multiplatform](../examples/kmp-mobile-modularized)
 
 
 - See the [tutorial](Tutorial.md) and [documentation](Documentation.md) for the next steps.

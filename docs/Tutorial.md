@@ -31,7 +31,7 @@ Oh, and since it’s JVM, let’s also add some Java code.
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
 
-Examples: [jvm-hello-world](../../examples/jvm-hello-world), [jvm-kotlin+java](../../examples/jvm-kotlin+java).
+Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../examples/jvm-kotlin+java).
 
 ### Step 2. Add dependencies
 
@@ -48,7 +48,7 @@ dependencies:
 
 We’ve just added a dependency on a Kotlin library from the Maven repository. 
 
-Examples: [jvm-with-tests](../../examples/jvm-with-tests).
+Examples: [jvm-with-tests](../examples/jvm-with-tests).
 
 ### Step 3. Add tests
 
@@ -78,7 +78,7 @@ Then, the test code:
 
 Notice that test dependencies are configured as a separate list. It should be very familiar to the Cargo, Flutter and Poetry users.
 
-Examples: [jvm-with-tests](../../examples/jvm-with-tests)
+Examples: [jvm-with-tests](../examples/jvm-with-tests)
 
 ### Step 4. Configure Java and Kotlin
 
@@ -154,7 +154,7 @@ One thing you might have noticed is the `@platform` suffixes. They are platform 
 
 Another interesting thing is `pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS. It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
 
-Examples: [kmp-mobile](../../examples/kmp-mobile) project.
+Examples: [kmp-mobile](../examples/kmp-mobile) project.
 
 ### Step 6. Modularize
 
@@ -288,4 +288,4 @@ dependencies@android+debug:
   - org.company:kotlin-debug-util:1.0
 ```
 
-Examples: [variants](../../examples/build-variants)
+Examples: [variants](../examples/build-variants)
