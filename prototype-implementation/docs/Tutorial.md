@@ -130,9 +130,8 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
-
-settings@android:
-  manifestFile: AndroidManifest.xml
+  android:
+    manifestFile: AndroidManifest.xml
 ```
 
 And the file layout:
@@ -193,9 +192,10 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  manifestFile: AndroidManifest.xml
   kotlin:
     languageVersion: 1.8
+  android:
+    manifestFile: AndroidManifest.xml
 ```
 
 /ios/Pot.yaml:
