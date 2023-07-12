@@ -5,17 +5,22 @@ First thing you’d want to try when getting familiar with a new tool is just a 
 Create a `Pot.yaml` file:
 
 ```YAML
-product:
-  type: app
-  platform: [jvm]
+product: jvm/app
 ```
 
-And add some code in the src/ folder:
+And add some code in the `src/` folder:
 
 ```
 |-src/
 |  |-main.kt
 |-Pot.yaml
+```
+
+`main.kt` file:
+```kotlin
+fun main() {
+    println("Hello, World!")
+}
 ```
 
 That’s it, we’ve just created a simple JVM application.
@@ -25,7 +30,7 @@ Oh, and since it’s JVM, let’s also add some Java code.
 ```
 |-src/
 |  |-main.kt
-|  |-Util.java
+|  |-JavaClass.java
 |-Pot.yaml
 ```
 
@@ -38,9 +43,7 @@ Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../e
 The next thing one usually does is adding dependency on a library:
 
 ```YAML
-product:
-  type: app
-  platform: [jvm]
+product: jvm/app
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -55,9 +58,7 @@ Examples: [jvm-with-tests](../examples/jvm-with-tests).
 Now let’s write some tests. First, we add a test framework:
 
 ```YAML
-product:
-  type: app
-  platform: [jvm]
+product: jvm/app
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -85,9 +86,7 @@ Examples: [jvm-with-tests](../examples/jvm-with-tests)
 Another typical task is configuring compiler settings, such as language level etc. Here is how we do it:
 
 ```YAML
-product:
-  type: app
-  platforms: [jvm]
+product: jvm/app
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -108,13 +107,13 @@ settings:
 
 One of the target use cases of Deft is the Kotlin Multiplatform project (see [Mercury](https://jetbrains.team/blog/Introducing_Project_Mercury) project). 
 
-Let’s see how we can configure a mobile app for iOS and Android platforms. The files, dependencies and settings are for DSL demonstration, they’ll probably be different for real projects.
+Let’s see how we can configure multi-platform library for iOS and Android platforms. (The files, dependencies and settings are for DSL demonstration, they’ll probably be different for real projects)
 
 Pot.yaml:
 
 ```YAML
 product:
-  type: app
+  type: lib
   platforms: [android, iosArm64]
 
 dependencies:
@@ -130,8 +129,10 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
-  android:
-    manifestFile: AndroidManifest.xml
+
+settings@ios:
+  kotlin:
+    debug: true
 ```
 
 And the file layout:
@@ -142,11 +143,9 @@ And the file layout:
 |-test/
 |  |-MyTest.kt
 |-src@android/
-|  |-MainActivity.kt
+|  |-AndroidUtil.kt
 |-src@ios/
-|  |-AppDelegate.kt
-|-resources@android/
-|  |-AndroidManifest.xml
+|  |-iOSUtil.kt
 |-Pot.yaml
 ```
 
@@ -154,14 +153,11 @@ One thing you might have noticed is the `@platform` suffixes. They are platform 
 
 Another interesting thing is `pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS. It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
 
-Examples: [kmp-mobile](../examples/kmp-mobile) project.
-
 ### Step 6. Modularize
 
-As the project grows, we might want to split it into separate modules. Let’s do it.
+Let's add a couple of application modules that use our multi-platform library:
 
 /shared/Pot.yaml:
-
 ```YAML
 product:
   type: lib
@@ -169,6 +165,10 @@ product:
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+dependencies@ios:
+  - pod: 'Alamofire'
+    version: '~> 2.0.1'
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
@@ -179,11 +179,8 @@ settings:
 ```
 
 /android/Pot.yaml:
-
 ```YAML
-product:
-  type: app
-  platforms: [android]
+product: android/app
 
 dependencies:
   - ../shared
@@ -201,9 +198,7 @@ settings:
 /ios/Pot.yaml:
 
 ```YAML
-product:
-  type: app
-  platforms: [iosArm64]
+product: ios/app
 
 dependencies:
   - ../shared
@@ -214,6 +209,8 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
+  ios:
+    sceneDelegateClass: AppDelegate
 ```
 
 File layout:
@@ -224,6 +221,10 @@ File layout:
 |  |  |-Util.kt
 |  |-test/
 |  |  |-MyTest.kt
+|  |-src@android/
+|  |  |-AndroidUtil.kt
+|  |-src@ios/
+|  |  |-iOSUtil.kt
 |  |-Pot.yaml
 |-android/
 |  |-src/
@@ -241,51 +242,87 @@ In this example, the internal dependencies on the `shared` pot are declared usin
 
 Examples: [kmp-mobile-modularized](.././examples/kmp-mobile-modularized).
 
-### Step 7. Configure for debug and release
+### Step 7. Deduplicate common parts
 
-One of the popular scenarios in the native and mobile world is configuring settings for Debug and Release builds. In addition to that, Android tooling offers so-called [product flavors](https://developer.android.com/studio/build/build-variants).
+You might have noticed that there are some common settings present in all `Pot.yaml` files. We now can extract the into a template.
 
-For these purposes we can use `variants` in the Deft DSL:
+Let's create a `<name>.Pot-template.yaml` file:
 
+/common.Pot-template.yaml:
+```YAML
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.0
+
+settings:
+  kotlin:
+    languageVersion: 1.8
+```
+
+And apply it to our Pot.yaml files:
+
+/shared/Pot.yaml:
 ```YAML
 product:
   type: lib
   platforms: [android, iosArm64]
 
-variants: [debug, release]
+apply:
+  - ../common.Pot-template.yaml
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 
-dependencies@debug:
-  - org.company:kotlin-debug-util:1.0
+dependencies@ios:
+  - pod: 'Alamofire'
+    version: '~> 2.0.1'
+```
+
+/android/Pot.yaml:
+```YAML
+product: android/app
+
+apply:
+  - ../common.Pot-template.yaml
+
+dependencies:
+  - ../shared
 
 settings:
-  kotlin:
-    languageVersion: 1.8
-
-settings@debug:
-  kotlin:
-    enableDebug: true
+  android:
+    manifestFile: AndroidManifest.xml
 ```
 
-Files:
-
-```
-|-src/
-|  |-Util.kt
-|-src@debug/
-|  |-DebugImpl.kt
-|-src@release/
-|  |-ReleaseImpl.kt
-|-Pot.yaml
-```
-
-The `@variant` qualifier works the same way as the `@platform` qualifier. And we could even combine them. E.g. to provide dependency for debug variant when building for android, we could write:
+/ios/Pot.yaml:
 
 ```YAML
-dependencies@android+debug:
-  - org.company:kotlin-debug-util:1.0
+product: ios/app
+
+apply:
+  - ../common.Pot-template.yaml
+
+dependencies:
+  - ../shared
+
+settings:
+  ios:
+    sceneDelegateClass: AppDelegate
 ```
 
-Examples: [variants](../examples/build-variants)
+
+File layout:
+```
+|-shared/
+|  |-...
+|  |-Pot.yaml
+|-android/
+|  |-...
+|  |-Pot.yaml
+|-ios/
+|  |-...
+|  |-Pot.yaml
+|-common.Pot-template.yaml
+```
+
+Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical configurations in our codebase.
+
+Examples: [templates](../examples/templates)

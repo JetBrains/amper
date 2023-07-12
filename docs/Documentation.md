@@ -1,16 +1,16 @@
-### Basics
+## Basics
 
-**Pot** contains source files and resources, and a `Pot.yaml` manifest file Pot manifest describes _what_ to produce: either a reusable library or an application.
+**Pot** is a directory with a `Pot.yaml` manifest file, sources resources used to build a certain product.  A Pot manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
 _How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
 Sources and resources can't be shared by several Pots.
 
-_NOTE: The name 'Pot' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
+_NOTE:_ 🍯 _The name 'Pot' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
 
 The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
 there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
 
-### Project layout
+## Project layout
 
 The basic Pot layout looks like this:
 ```
@@ -23,7 +23,9 @@ The basic Pot layout looks like this:
 |-Pot.yaml
 ```
 
-In a  JVM Pot you can mix Kotlin and Java code:
+By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application. 
+
+In a JVM Pot you can mix Kotlin and Java code:
 ```
 |-src/             
 |  |-main.kt      
@@ -53,21 +55,20 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |-Pot.yaml
 ```
 
-Note, that sources and resources can't be shared by several Pots.
+Sources and resources can't be shared by several Pots.
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
-### Manifest file anatomy
+## Pot Manifest file anatomy
 
-`Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).  
-A `Pot.yaml` file has several main sections: `product:`, `dependencies:` and `settings:` 
-- Product type could be either an `app` or a `lib`. A Pot with an `app` type is packaged as executable while a `lib` Pot could be reused from other Pots.
-- Pot could be either a single platform application or a multi-platform library.
+`Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
+
+_NOTE: YAML is not the final language choice. For the purpose of the prototyping and desing it serves well, but we plan to re-evaluate other options in the future._
+
+A `Pot.yaml` file has several main sections: `product:` (or `products:`), `dependencies:` and `settings:`.  A pot could produce a single reusable library or multiple native platform-specific applications.
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
-product:
-  type: app
-  platform: [jvm]
+product: jvm/app
 
 dependencies:
   - io.ktor:ktor-client-core:2.3.0
@@ -77,7 +78,65 @@ settings:
     languageVersion: 1.9
 ```
 
-#### Multi-platform configuration
+Example of a KMP library:
+```yaml
+product: 
+  type: lib
+  platforms: [android, iosArm64]
+
+settings:
+  kotlin:
+    languageVersion: 1.9
+```
+
+### Product types
+
+Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
+- `lib` - a reusable library which could be used as dependency by other Pots in the codebase.
+- `jvm/app` - a JVM console or desktop application
+- `windows/app` - a mingw64 app
+- `linux/app`
+- `macos/app`
+- `android/app` - an Android VM application  
+- `ios/app` - an iOS/iPadOS application (not yet implemented)
+- `watchos/app` - an Apple Watch application (not yet implemented)
+
+Other product types what we plan to support in the future:
+- `windows/dll`
+- `linux/so`
+- `macos/framework`
+- etc.
+
+It's also possible to specify several products (not yet implemented), which can come handy for multi-platform applications, or interop with other build tools like Xcode:
+
+A mobile application:
+```yaml
+products: 
+  - app/ios
+  - app/android
+
+settings:
+  kotlin:
+    languageVersion: 1.9
+```
+
+A rusable library which could also be used as Framework in Xcode:
+```yaml
+products: 
+  - type: lib
+    platforms: [android]
+    
+  - type: ios/framework
+```
+
+
+### Packaging
+
+By default, each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged
+
+TODO...
+
+### Multi-platform configuration
 
 `dependencies:` and `setting:` sections could be specialized for each platform using the `@platform`-qualifier.  An example of multi-platform library with some common and platform-specific code:
 ```yaml
@@ -124,6 +183,16 @@ For Maven dependencies simply specify their coordinates:
 dependencies:
   - org.jetbrains.kotlin:kotlin-serialization:1.8.0
   - io.ktor:ktor-client-core:2.2.0
+```
+
+By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 
+
+```yaml
+repositories:
+  - https://repo.spring.io/ui/native/release
+  
+  - id: jitpack
+    url: https://jitpack.io
 ```
 
 #### Internal dependencies
@@ -247,6 +316,18 @@ settings:
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
+
+#### Configuring Compose Multiplatform
+
+In order to enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/) (with a compiler plugin and required dependencies), add the following configuration:
+```yaml
+settings: 
+  compose:
+    enabled: true
+```
+
+TODO add snippet with dependencies
+
 ### Tests
 
 Test code is located in the `test/` and `test@platform/` folders. Test settings and dependencies by default are inherited from the main configuration according to the [configuration propagation rules](#dependencysettings-propagation). 
@@ -291,9 +372,9 @@ test-settings:
     languageVersion: 1.9 # overrides `settings:kotlin:languageVersion: 1.8`
 ```
 
-### Multi-platform configuration
+## Multi-platform configuration
 
-#### Platform qualifier
+### Platform qualifier
 
 Use the `@platform`-qualifier to mark platform-specific source folders and sections in the Pot.yaml files. 
 You can use Kotlin Multiplatform [platform names and families](https://kotlinlang.org/docs/multiplatform-hierarchy.html) as `@platform`-qualifier.
@@ -381,7 +462,7 @@ dependencies@jvm:
 
 For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
 
-#### Multi-platform dependencies
+### Multi-platform dependencies
 
 When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each Pot platform.
 
@@ -442,7 +523,7 @@ dependencies@iosArm64:
   ../bar
   ../baz
 ```
-#### Multi-platform settings
+### Multi-platform settings
 
 All toolchain settings, even platform-specific could be placed in the `settings:` section:
 ```yaml
@@ -510,14 +591,15 @@ settings@iosSimulatorArm64:
   ios:
     deploymentTarget: 17 # from settings@ios: 
 ```
-#### Dependency/Settings propagation
+
+### Dependency/Settings propagation
 Common `dependencies:` and `settings:` are automatically propagated to the platform families and platforms in `@platform`-sections, using the following rules:
 - Scalar values (strings,  numbers etc.) are overridden by more specialized `@platform`-sections.
 - Mappings and lists are appended.
 
 Think of the rules like adding merging Java/Kotlin Maps.
 
-### Brief YAML reference
+## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
 YAML is indent-sensitive.
 
