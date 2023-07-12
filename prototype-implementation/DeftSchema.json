@@ -4,7 +4,7 @@
   "title": "Deft DSL",
   "type": "object",
   "properties": {
-    "include": {
+    "apply": {
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -12,21 +12,25 @@
       }
     },
     "product": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "enum": [
-            "app",
-            "lib"
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "$ref": "#/$defs/productType"
+            },
+            "platforms": {
+              "$ref": "#/$defs/platformList"
+            }
+          },
+          "required": [
+            "type",
+            "platforms"
           ]
         },
-        "platforms": {
-          "$ref": "#/$defs/platformList"
+        {
+          "$ref": "#/$defs/productType"
         }
-      },
-      "required": [
-        "type",
-        "platforms"
       ]
     },
     "aliases": {
@@ -66,16 +70,16 @@
       "$ref": "#/$defs/dependencyList"
     },
     "test-dependencies": {
-      "$ref": "#/$defs/dependencyList"
+      "$ref": "#/$defs/testDependencyList"
     },
     "test-dependencies@jvm": {
-      "$ref": "#/$defs/dependencyList"
+      "$ref": "#/$defs/testDependencyList"
     },
     "test-dependencies@android": {
-      "$ref": "#/$defs/dependencyList"
+      "$ref": "#/$defs/testDependencyList"
     },
     "test-dependencies@ios": {
-      "$ref": "#/$defs/dependencyList"
+      "$ref": "#/$defs/testDependencyList"
     },
     "settings": {
       "$ref": "#/$defs/settings"
@@ -109,8 +113,10 @@
     }
   },
   "patternProperties": {
-    "^(test-)?dependencies(@.+)?$": {
+    "^dependencies(@.+)?$": {
       "$ref": "#/$defs/dependencyList"
+    },"^test-dependencies(@.+)?$": {
+      "$ref": "#/$defs/testDependencyList"
     },
     "^(test-)?settings(@.+)?$": {
       "$ref": "#/$defs/settings"
@@ -145,6 +151,15 @@
         "androidNativeX86"
       ]
     },
+    "productType": {
+      "enum": [
+        "lib",
+        "jvm/app",
+        "macos/app",
+        "android/app",
+        "linux/app"
+      ]
+    },
     "platformList": {
       "type": "array",
       "minItems": 1,
@@ -154,7 +169,34 @@
       }
     },
     "dependency": {
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/composeDependency"
+        }
+      ]
+    },
+    "testDependency": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/dependency"
+        },
+        {
+          "enum": [
+            "org.jetbrains.kotlin:kotlin-test:1.8.20",
+            "org.jetbrains.kotlin:kotlin-test:1.9.0",
+            "junit:junit:4.13.2",
+            "org.junit.jupiter:junit-jupiter-api:5.9.3",
+            "org.junit.jupiter:junit-jupiter-engine:5.9.3",
+            "org.junit.vintage:junit-vintage-engine:5.9.3"
+          ]
+        },
+        {
+          "$ref": "#/$defs/composeTestDependency"
+        }
+      ]
     },
     "dependencyList": {
       "type": [
@@ -164,6 +206,16 @@
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/dependency"
+      }
+    },
+    "testDependencyList": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/testDependency"
       }
     },
     "settings": {
@@ -183,6 +235,9 @@
         },
         "junit": {
           "$ref": "#/$defs/junitSettings"
+        },
+        "compose": {
+          "$ref": "#/$defs/composeSettings"
         }
       },
       "additionalProperties": false
@@ -375,29 +430,85 @@
       },
       "additionalProperties": false
     },
-    "repository": {
+    "composeSettings": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "publish": {
+        "enabled": {
           "type": "boolean"
         }
       },
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "url"
+      "additionalProperties": false
+    },
+    "composeDependency": {
+      "$comment": "Versions from Compose BOM at https://developer.android.com/jetpack/compose/bom/bom-mapping",
+      "enum": [
+        "androidx.compose.animation:animation:1.4.3",
+        "androidx.compose.animation:animation-core:1.4.3",
+        "androidx.compose.animation:animation-graphics:1.4.3",
+        "androidx.compose.foundation:foundation:1.4.3",
+        "androidx.compose.foundation:foundation-layout:1.4.3",
+        "androidx.compose.material:material:1.4.3",
+        "androidx.compose.material:material-icons-core:1.4.3",
+        "androidx.compose.material:material-icons-extended:1.4.3",
+        "androidx.compose.material:material-ripple:1.4.3",
+        "androidx.compose.material3:material3:1.1.1",
+        "androidx.compose.material3:material3-window-size-class:1.1.1",
+        "androidx.compose.runtime:runtime:1.4.3",
+        "androidx.compose.runtime:runtime-livedata:1.4.3",
+        "androidx.compose.runtime:runtime-rxjava2:1.4.3",
+        "androidx.compose.runtime:runtime-rxjava3:1.4.3",
+        "androidx.compose.runtime:runtime-saveable:1.4.3",
+        "androidx.compose.ui:ui:1.4.3",
+        "androidx.compose.ui:ui-geometry:1.4.3",
+        "androidx.compose.ui:ui-graphics:1.4.3",
+        "androidx.compose.ui:ui-text:1.4.3",
+        "androidx.compose.ui:ui-text-google-fonts:1.4.3",
+        "androidx.compose.ui:ui-tooling:1.4.3",
+        "androidx.compose.ui:ui-tooling-data:1.4.3",
+        "androidx.compose.ui:ui-tooling-preview:1.4.3",
+        "androidx.compose.ui:ui-unit:1.4.3",
+        "androidx.compose.ui:ui-util:1.4.3",
+        "androidx.compose.ui:ui-viewbinding:1.4.3"
+      ]
+    },
+    "composeTestDependency": {
+      "$comment": "Versions from Compose BOM at https://developer.android.com/jetpack/compose/bom/bom-mapping",
+      "enum": [
+        "androidx.compose.ui:ui-test:1.4.3",
+        "androidx.compose.ui:ui-test-junit4:1.4.3",
+        "androidx.compose.ui:ui-test-manifest:1.4.3"
+      ]
+    },
+    "repository": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "publish": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "url"
+          ]
+        },
+        {
+          "type": "string"
+        }
       ]
     }
   }
