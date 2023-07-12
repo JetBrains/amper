@@ -297,7 +297,9 @@ dependencies:
      transitive: true
 ```
 
-#### Native dependencies (Not yet supported in the prototype)
+#### Native dependencies
+                        
+_NOTE: Native dependencies are not yet implemented in the prototype._
 
 To depend on an npm, CocoaPods, or a Swift package, use the following format:
 
