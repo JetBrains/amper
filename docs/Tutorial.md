@@ -105,7 +105,7 @@ settings:
 
 ### Step 5. Make project multi-platform
 
-One of the target use cases of Deft is the Kotlin Multiplatform project (see [Mercury](https://jetbrains.team/blog/Introducing_Project_Mercury) project). 
+One of the primary target use cases is the Kotlin Multiplatform project (see [Mercury](https://jetbrains.team/blog/Introducing_Project_Mercury) project). 
 
 Let’s see how we can configure multi-platform library for iOS and Android platforms. (The files, dependencies and settings are for DSL demonstration, they’ll probably be different for real projects)
 

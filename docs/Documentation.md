@@ -23,7 +23,7 @@ The basic Pot layout looks like this:
 |-Pot.yaml
 ```
 
-By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application. 
+_NOTE: By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application._ 
 
 In a JVM Pot you can mix Kotlin and Java code:
 ```
@@ -55,7 +55,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |-Pot.yaml
 ```
 
-Sources and resources can't be shared by several Pots.
+_NOTE: Sources and resources can't be shared by several Pots._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
 ## Pot Manifest file anatomy
@@ -598,6 +598,87 @@ Common `dependencies:` and `settings:` are automatically propagated to the platf
 - Mappings and lists are appended.
 
 Think of the rules like adding merging Java/Kotlin Maps.
+
+## Templates
+
+In modularized projects there is often a need to have certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
+
+DSL offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.Pot-template.yaml` and have same structure as `Pot.yaml` files. Templates could be applied to any Pot.yaml in the `apply:` section.
+
+E.g. Pot.yaml:
+```yaml
+product: jvm/app
+
+apply: 
+  - ../common.Pot-template.yaml
+```
+
+../common.Pot-template.yaml:
+```yaml
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10
+  
+settings: 
+  kotlin:
+    languageVersion: 1.8
+```
+
+Sections in the template can also have `@platform`-qualifiers. See the [Multi-platform configuration](#multi-platform-configuration) section for details.
+
+_NOTE: Template files can't have `products:` and `apply:` sections. That is templates can't be recursive. Templates can't define product lists._
+
+Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
+- Scalar values (strings,  numbers etc.) are overridden.
+- Mappings and lists are appended.
+
+Settings and dependencies from the Pot.yaml file are applied last. Position of the `apply:` section doesn't matter, o Pot.yaml file always have precedence E.g.
+
+common.Pot-template.yaml:
+```yaml
+dependencies:
+  - ../shared
+  
+settings: 
+  kotlin:
+    languageVersion: 1.8
+  compose:
+    enabled: true
+```
+
+Pot.yaml:
+```yaml
+product: jvm/app
+
+apply: 
+  - ./common.Pot-template.yaml
+
+dependencies:
+  - ../jvm-util
+
+settings:
+  kotlin:
+    languageVersion: 1.9
+  java:
+    targetVersion: 1.8
+```
+
+After template application the resulting effective Pot is:
+Pot.yaml:
+```yaml
+product: jvm/app
+
+dependencies:  # lists appended
+  - ../common
+  - ../jvm-util
+
+settings:  # objects merged
+  kotlin:
+    languageVersion: 1.9  # Pot.yaml overwrites value
+  compose:                # from the template
+    enabled: true
+  java:
+    targetVersion: 1.8   # from the Pot.yaml
+```
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
