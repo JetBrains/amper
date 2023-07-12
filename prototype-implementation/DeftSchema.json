@@ -25,7 +25,7 @@
                   "$ref": "#/$defs/productType"
                 },
                 "platforms": {
-                  "$ref": "#/$defs/platformList"
+                  "$ref": "CommonDeftSchema.json#/$defs/platformList"
                 }
               },
               "required": [
@@ -43,33 +43,6 @@
   ],
 
   "$defs": {
-    "platform": {
-      "enum": [
-        "js",
-        "jvm",
-        "wasm",
-        "android",
-        "linuxX64",
-        "linuxArm64",
-        "tvosArm64",
-        "tvosX64",
-        "tvosSimulatorArm64",
-        "macosX64",
-        "macosArm64",
-        "iosArm64",
-        "iosX64",
-        "iosSimulatorArm64",
-        "watchosArm64",
-        "watchosArm32",
-        "watchosDeviceArm64",
-        "watchosSimulatorArm64",
-        "mingwX64",
-        "androidNativeArm32",
-        "androidNativeArm64",
-        "androidNativeX64",
-        "androidNativeX86"
-      ]
-    },
     "productType": {
       "enum": [
         "lib",
@@ -78,14 +51,6 @@
         "android/app",
         "linux/app"
       ]
-    },
-    "platformList": {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "$ref": "#/$defs/platform"
-      }
     }
   }
 }
