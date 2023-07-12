@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
-@Ignore
 class BootstrapTest {
 
     @TempDir
