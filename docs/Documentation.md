@@ -132,9 +132,36 @@ products:
 
 ### Packaging
 
-By default, each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged
+Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
+By default, packages are generated according to platform and build tool conventions. When custom configuration is needed DSL offer a separate `packaging:` section.
 
-TODO...
+_NOTE: Packaging configuration is not yet implemented_
+
+```yaml
+product: jvm/app
+
+packaging:
+  - product: jvm/app        # reference the product by type or ID
+    package: fatJar         # specify type of the package 
+    mainClass: my.app.Main  # specify an entry point 
+    include: licenses/**    # and other things such as layout
+```
+
+Same also works for [multiple products](#product-types): 
+```yaml
+products:
+  - ios/app
+  - android/app
+
+packaging:
+  - product: ios/app        
+    deploymentTarget: 15
+    # other ios-specific packaging settings
+
+  - product: android/app         
+    applicationId: my.app.MyApp    
+    # other android-specific packaging settings
+```
 
 ### Multi-platform configuration
 
@@ -370,6 +397,126 @@ settings:
 test-settings:
   kotlin:
     languageVersion: 1.9 # overrides `settings:kotlin:languageVersion: 1.8`
+```
+
+#### Special types of tests
+
+Unit tests is an integral part of a Pot manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
+
+In order to keep Pot Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Pots_. Their main purpose is improving usability, and they differ from the regular Pot in some important aspects:
+- Auxiliary Pot should be located in a subfolder inside its main Pot. 
+- There may be multiple Auxiliary Pot for a single main Pot.
+- Auxiliary Pot have an implicit dependency on its main Pot.
+- Auxiliary Pot is a _friend_ to its main Pot and can see the internal declarations which are often needed for white-box of grey-box testing.
+- Auxiliary Pot inherit settings from its main Pot.
+- Main Pot cannot depend on its Auxiliary Pot in `dependencies:` section, but can in `test-dependencies:` section.
+- Auxiliary Pot is not accessible from outside its main Pot, so other Pots can't depend on Auxiliary Pots.
+
+You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Pots, which are embedded directly into the main Pot's DSL for the convenience.
+
+_NOTE: Auxiliary Pots design is work in progress is not implemented in the prototype._
+
+#### Android Instrumented tests
+Here is how Android Instrumented tests could be added as an Auxiliary Pot:
+
+Main Pot.yaml:
+```yaml
+product: android/app
+
+dependencies:
+  - io.ktor:ktor-client-core:2.2.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10
+  
+settings: 
+  kotlin:
+    languageVersion: 1.8
+```
+
+Auxiliary instrumented-tests/Pot.yaml:
+```yaml
+product: android/instrumented-tests
+
+dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10
+  - androidx.test.uiautomator:uiautomator:2.3.0
+  
+settings: 
+  android:
+    testInstrumentationRunnerArguments:
+      clearPackageData: true
+```
+   
+And organize files as following:
+```
+|-src/             
+|  |-MyMainActivity.kt      
+|-test/   
+|  |-MyUnitTest.kt
+|-instrumented-tests
+|  |-src/
+|  |  |-MyInstrumentedTest.kt 
+|  |-Pot.yaml 
+|-Pot.yaml
+```
+                    
+#### Sharing test utilities
+The test utility code (such as test fixtures) could be shared between Unit and Instrumented tests.
+
+Main Pot.yaml:
+```yaml
+product: android/app
+
+dependencies:
+  - io.ktor:ktor-client-core:2.2.0
+
+test-dependencies:
+  - ./test-utils
+  
+settings: 
+  kotlin:
+    languageVersion: 1.8
+```
+
+Auxiliary test-utils/Pot.yaml
+```yaml
+product: lib
+
+dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10: transitive
+```
+
+Auxiliary instrumented-tests/Pot.yaml:
+```yaml
+product: android/instrumented-tests
+
+dependencies:
+  - ../test-utils
+  - androidx.test.uiautomator:uiautomator:2.3.0
+  
+settings: 
+  android:
+    testInstrumentationRunnerArguments:
+      clearPackageData: true
+```
+
+Here is the file structure:
+
+```
+|-src/             
+|  |-MyMainActivity.kt      
+|-test/   
+|  |-MyUnitTest.kt
+|-test-utils/
+|  |-src/
+|  |  |-MyAssertions.kt 
+|  |-Pot.yaml 
+|-instrumented-tests/
+|  |-src/
+|  |  |-MyInstrumentedTest.kt 
+|  |-Pot.yaml 
+|-Pot.yaml
 ```
 
 ## Multi-platform configuration
