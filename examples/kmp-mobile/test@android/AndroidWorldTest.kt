@@ -2,9 +2,9 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class WorldTest {
+class AndroidWorldTest {
     @Test
     fun doTest() {
-        assertEquals("Unknown World", World().get())
+        assertEquals("Android World", World().get())
     }
 }
