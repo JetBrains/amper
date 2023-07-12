@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "/deft/template-dsl",
+  "title": "Deft Template DSL",
+  "$ref": "CommonDeftSchema.json#/$defs/DeftSchema"
+}
