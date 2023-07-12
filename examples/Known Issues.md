@@ -1,1 +1,1 @@
-- 'variants/' example currently doesn't work
+- 'build-variants' example currently doesn't work
