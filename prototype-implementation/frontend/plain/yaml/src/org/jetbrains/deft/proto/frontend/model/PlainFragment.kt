@@ -45,7 +45,7 @@ internal open class PlainFragment(
             }
 
             addPartFrom(fragmentBuilder.java) {
-                JavaPart(
+                JvmPart(
                     mainClass,
                     packagePrefix,
                     jvmTarget,

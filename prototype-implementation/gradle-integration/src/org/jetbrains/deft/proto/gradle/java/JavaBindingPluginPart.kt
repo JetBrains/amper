@@ -5,7 +5,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.jetbrains.deft.proto.frontend.JavaPart
+import org.jetbrains.deft.proto.frontend.JvmPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -46,14 +46,14 @@ class JavaBindingPluginPart(
     fun apply() {
         project.plugins.apply(ApplicationPlugin::class.java)
         applyJavaTargetForKotlin()
-        applyJavaApplication()
+        adjustJavaGeneralProperties()
         addJavaIntegration()
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
             with(fragment.target!!) {
-                fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+                fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
                     fragment.compilation?.compileTaskProvider?.configure {
                         it as KotlinCompilationTask<KotlinJvmCompilerOptions>
                         it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
@@ -63,7 +63,7 @@ class JavaBindingPluginPart(
         }
     }
 
-    private fun applyJavaApplication() {
+    private fun adjustJavaGeneralProperties() {
         if (leafPlatformFragments.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +
@@ -71,16 +71,16 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        val javaPart = fragment.parts.find<JavaPart>()
-        if (javaPart != null) {
+        val jvmPart = fragment.parts.find<JvmPart>()
+        if (jvmPart != null) {
             javaAPE.apply {
-                mainClass.set(javaPart.mainClass)
+                mainClass.set(jvmPart.mainClass)
             }
-            javaPart.jvmTarget?.let {
+            jvmPart.jvmTarget?.let {
                 javaPE.targetCompatibility = JavaVersion.toVersion(it)
             }
             project.tasks.withType(KotlinCompile::class.java).configureEach {
-                it.javaPackagePrefix = javaPart.packagePrefix
+                it.javaPackagePrefix = jvmPart.packagePrefix
             }
         }
     }

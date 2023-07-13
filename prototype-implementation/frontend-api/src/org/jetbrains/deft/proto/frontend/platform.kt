@@ -51,5 +51,8 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),
 }
 
+fun Platform.isParent(possibleParent: Platform): Boolean =
+    parent == possibleParent || parent?.isParent(possibleParent) ?: false
+
 val Platform.pretty get() = name.doCamelCase()
 val Platform.prettySuffix get() = pretty.doCapitalize()

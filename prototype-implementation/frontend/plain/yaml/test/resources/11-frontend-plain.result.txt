@@ -9,8 +9,8 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[contextReceivers], optIns=[])
-      JavaPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null)
+      KotlinPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[contextReceivers], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
+      JvmPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, jvmTarget=null, moduleName=null, noJdk=false)
       PublicationPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=42-SNAPSHOT)
   jvmTest
     External dependencies:

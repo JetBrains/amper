@@ -2,7 +2,7 @@ package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.AndroidPart
-import org.jetbrains.deft.proto.frontend.JavaPart
+import org.jetbrains.deft.proto.frontend.JvmPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -70,7 +70,7 @@ class AndroidBindingPluginPart(
 
     private fun adjustCompilations() = with(KotlinDeftNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
-            fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+            fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
                 project.afterEvaluate {
                     val androidTarget = fragment.target ?: return@afterEvaluate
                     val compilations = if (fragment.isTest) {

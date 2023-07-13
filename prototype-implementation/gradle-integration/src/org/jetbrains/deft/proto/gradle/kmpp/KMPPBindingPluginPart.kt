@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractExecutable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -57,7 +58,6 @@ class KMPPBindingPluginPart(
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
-
     fun apply() {
         initTargets()
         initFragments()
@@ -108,10 +108,16 @@ class KMPPBindingPluginPart(
     ) {
         if (module.type != PotatoModuleType.APPLICATION) return
         val part = fragment.parts.find<NativeApplicationPart>()
+
         target.binaries {
-            executable(fragment.name) {
-                entryPoint = part?.entryPoint
-                compilation = kotlinNativeCompilation
+            when {
+                fragment.isTest -> test(fragment.name) {
+                    adjustExecutable(part, kotlinNativeCompilation)
+                }
+                else -> executable(fragment.name) {
+                    adjustExecutable(part, kotlinNativeCompilation)
+                    entryPoint = part?.entryPoint
+                }
             }
         }
         // workaround to have a few variants of the same darwin target
@@ -121,6 +127,19 @@ class KMPPBindingPluginPart(
                 target.name
             )
         }
+    }
+
+    private fun AbstractExecutable.adjustExecutable(
+        part: NativeApplicationPart?,
+        kotlinNativeCompilation: KotlinNativeCompilation
+    ) {
+        part ?: return
+        ::baseName trySet part.baseName
+        ::debuggable trySet part.debuggable
+        ::optimized trySet part.optimized
+        binaryOptions.putAll(part.binaryOptions)
+        linkerOpts.addAll(part.linkerOpts)
+        compilation = kotlinNativeCompilation
     }
 
     private fun initFragments() = with(KotlinDeftNamingConvention) {
@@ -201,7 +220,7 @@ class KMPPBindingPluginPart(
                     val compilation = fragment.compilation ?: return@forEach
                     // settings jvmTarget for other jvm compilations
                     if (platform == Platform.JVM) {
-                        fragment.parts.find<JavaPart>()?.jvmTarget?.let { jvmTarget ->
+                        fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
                             compilation.compileTaskProvider.configure {
                                 it as KotlinCompilationTask<KotlinJvmCompilerOptions>
                                 it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
@@ -218,8 +237,6 @@ class KMPPBindingPluginPart(
     }
 
     // ------
-    internal fun findSourceSet(name: String) = kotlinMPE.sourceSets.findByName(name)
-
     context (SpecificPlatformPluginPart)
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit

@@ -161,7 +161,7 @@ class JavaPartBuilder {
     var packagePrefix: String? = null
     var jvmTarget: String? = null
 
-    fun build(): JavaPart {
-        return JavaPart(mainClass, packagePrefix, jvmTarget)
+    fun build(): JvmPart {
+        return JvmPart(mainClass, packagePrefix, jvmTarget)
     }
 }

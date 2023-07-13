@@ -128,7 +128,7 @@ class PropagateTest {
         val parts = jvmFragment?.parts
         assertEquals(
             "MainKt",
-            parts?.find<JavaPart>()?.mainClass
+            parts?.find<JvmPart>()?.mainClass
         )
     }
 }

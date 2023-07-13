@@ -5,7 +5,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      JavaPart(mainClass=MainKt, packagePrefix=null, jvmTarget=null)
+      JvmPart(mainClass=MainKt, packagePrefix=null, jvmTarget=null, moduleName=null, noJdk=false)
   jvmTest
     External dependencies:
     Src folder: test

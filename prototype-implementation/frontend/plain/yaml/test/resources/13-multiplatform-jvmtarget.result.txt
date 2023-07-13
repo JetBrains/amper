@@ -6,7 +6,7 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      JavaPart(mainClass=null, packagePrefix=null, jvmTarget=17)
+      JvmPart(mainClass=null, packagePrefix=null, jvmTarget=17, moduleName=null, noJdk=false)
   androidTest
     External dependencies:
     Src folder: test@android
@@ -19,7 +19,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      JavaPart(mainClass=null, packagePrefix=null, jvmTarget=1.8)
+      JvmPart(mainClass=null, packagePrefix=null, jvmTarget=1.8, moduleName=null, noJdk=false)
   commonTest
     External dependencies:
     Src folder: test

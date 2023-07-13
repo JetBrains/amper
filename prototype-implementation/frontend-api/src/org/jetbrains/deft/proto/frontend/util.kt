@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import java.util.*
+import kotlin.reflect.KMutableProperty0
 
 
 private val prettyRegex = "_.".toRegex()
@@ -33,3 +34,9 @@ private fun Fragment.doTraverseDependencies(block: (FragmentLink) -> Unit) {
     fragmentDependencies.forEach(block)
     fragmentDependencies.map { it.target.doTraverseDependencies(block) }
 }
+
+/**
+ * Try to set a value to a bind property if the value is not null.
+ */
+infix fun <T : Any> KMutableProperty0<T>.trySet(value: T?) =
+    value?.let { set(it) }
