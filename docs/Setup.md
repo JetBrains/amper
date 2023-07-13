@@ -15,14 +15,14 @@
   
   ![img.png](images/plugin.png)
 
-
-- Open examples projects:
+- Try opening examples projects:
   - [JVM](../examples/jvm-kotlin+java)
   - [Mobile Multiplatform](../examples/kmp-mobile-modularized)
 
 
 - See the [tutorial](Tutorial.md) and [documentation](Documentation.md) for the next steps.
 ![img.png](images/ide.png)
+ 
 
 
 

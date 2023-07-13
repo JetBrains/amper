@@ -1,3 +1,11 @@
+### Step 0. Prepare
+
+If you want to follow the tutorial:
+* Check the [setup instructions](Setup.md)
+* Open [a new project template](../project-templates/new-project) in the IDE  
+
+If you are looking to more detailed info, check [the documentation](Documentation.md).
+
 ### Step 1. Hello, World
 
 First thing you’d want to try when getting familiar with a new tool is just a simple hello world application. Here is what we do:
@@ -38,6 +46,10 @@ As with IntelliJ projects Java and Kotlin can reside together, no need to create
 
 Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../examples/jvm-kotlin+java).
 
+Documentation:
+- [Project layout](Documentation.md#project-layout)
+- [Manifest file anatomy](Documentation.md#pot-manifest-file-anatomy)
+
 ### Step 2. Add dependencies
 
 The next thing one usually does is adding dependency on a library:
@@ -52,6 +64,9 @@ dependencies:
 We’ve just added a dependency on a Kotlin library from the Maven repository. 
 
 Examples: [jvm-with-tests](../examples/jvm-with-tests).
+
+Documentation:
+- [Dependencies](Documentation.md#dependencies)
 
 ### Step 3. Add tests
 
@@ -81,6 +96,9 @@ Notice that test dependencies are configured as a separate list. It should be ve
 
 Examples: [jvm-with-tests](../examples/jvm-with-tests)
 
+Documentation:
+- [Tests](Documentation.md#tests)
+
 ### Step 4. Configure Java and Kotlin
 
 Another typical task is configuring compiler settings, such as language level etc. Here is how we do it:
@@ -102,6 +120,9 @@ settings:
     source: 17
     target: 17
 ```
+
+Documentation:
+- [Settings](Documentation.md#settings)
 
 ### Step 5. Make project multi-platform
 
@@ -152,6 +173,9 @@ And the file layout:
 One thing you might have noticed is the `@platform` suffixes. They are platform qualifiers which instruct the build tool to only use the corresponding declaration when building for the corresponding platform. `@platform` qualifier can be applied to source folders, `dependencies:` and `settings:`.
 
 Another interesting thing is `pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS. It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
+
+Documentation:
+- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
 
 ### Step 6. Modularize
 
@@ -242,6 +266,9 @@ In this example, the internal dependencies on the `shared` pot are declared usin
 
 Examples: [kmp-mobile-modularized](.././examples/kmp-mobile-modularized).
 
+Documentation:
+- [Internal dependencies](Documentation.md#internal-dependencies)
+
 ### Step 7. Deduplicate common parts
 
 You might have noticed that there are some common settings present in all `Pot.yaml` files. We now can extract the into a template.
@@ -308,7 +335,6 @@ settings:
     sceneDelegateClass: AppDelegate
 ```
 
-
 File layout:
 ```
 |-shared/
@@ -326,3 +352,10 @@ File layout:
 Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical configurations in our codebase.
 
 Examples: [templates](../examples/templates)
+
+Documentation:
+- [Templates](Documentation.md#templates)
+
+### Further steps
+
+Check the [documentation](Documentation.md) and explore [examples](../examples) for more information.
