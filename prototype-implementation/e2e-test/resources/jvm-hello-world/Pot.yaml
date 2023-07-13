@@ -4,5 +4,7 @@ product:
 
 
 settings:
+  kotlin:
+    withJava: true
   java:
     mainClass: MainKt

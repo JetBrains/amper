@@ -115,7 +115,13 @@ class KotlinFragmentPartBuilder {
     val languageFeatures: MutableList<String> = mutableListOf()
     val optIns: MutableList<String> = mutableListOf()
     fun build(): KotlinPart =
-        KotlinPart(languageVersion, apiVersion, progressiveMode, languageFeatures, optIns)
+        KotlinPart(
+            languageVersion,
+            apiVersion,
+            progressiveMode,
+            languageFeatures,
+            optIns
+        )
 }
 
 class PotatoModuleBuilder(var name: String) {

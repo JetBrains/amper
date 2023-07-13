@@ -13,7 +13,7 @@ interface DeftNamingConventions : BindingPluginPart {
 
     // TODO Replace by Path, but evade recursion in AGP.
     val FragmentWrapper.sourcePath
-        get() = src ?: path.resolve("src").toString()
+        get() = src ?: path.resolve("src")
 
     val FragmentWrapper.sourcePaths get() = listOf(sourcePath)
 

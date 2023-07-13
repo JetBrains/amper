@@ -10,6 +10,8 @@ import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.contains
+import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
@@ -45,7 +47,7 @@ class JavaBindingPluginPart(
         project.plugins.apply(ApplicationPlugin::class.java)
         applyJavaTargetForKotlin()
         applyJavaApplication()
-        adjustJavaSourceSets()
+        addJavaIntegration()
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
@@ -86,20 +88,30 @@ class JavaBindingPluginPart(
 
     // TODO Rewrite this completely by not calling
     //  KMPP code and following out own conventions.
-    private fun adjustJavaSourceSets() {
+    private fun addJavaIntegration() {
+        if (Platform.ANDROID in module) {
+            logger.warn(
+                "Cant enable java integration when android is enabled. " +
+                        "Module: ${module.userReadableName}"
+            )
+            return
+        }
+
         project.plugins.apply(JavaPlugin::class.java)
 
         kotlinMPE.targets.toList().forEach {
-            if (it !is KotlinJvmTarget) return@forEach
-            it.withJava()
+            if (it is KotlinJvmTarget) it.withJava()
         }
 
         // Set sources for all deft related source sets.
         platformFragments.forEach {
-            it.maybeCreateJavaSourceSet {
-                java.setSrcDirs(it.sourcePaths)
-                resources.setSrcDirs(it.resourcePaths)
-            }
+            it.maybeCreateJavaSourceSet()
+        }
+
+        javaPE.sourceSets.all {
+            val fragment = it.deftFragment ?: return@all
+            it.java.setSrcDirs(fragment.sourcePaths)
+            it.resources.setSrcDirs(fragment.resourcePaths)
         }
     }
 }

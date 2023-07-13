@@ -10,6 +10,7 @@ test-dependencies:
 
 settings:
   kotlin:
+    withJava: true
     languageVersion: 1.8
   java:
     mainClass: MainKt

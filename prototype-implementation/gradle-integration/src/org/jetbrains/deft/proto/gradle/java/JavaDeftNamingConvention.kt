@@ -23,7 +23,7 @@ object JavaDeftNamingConvention {
         }
 
     context(JavaBindingPluginPart)
-    fun FragmentWrapper.maybeCreateJavaSourceSet(block: SourceSet.() -> Unit) =
-            javaPE.sourceSets.maybeCreate(javaSourceSetName).block()
+    fun FragmentWrapper.maybeCreateJavaSourceSet(block: SourceSet.() -> Unit = {}) =
+        javaPE.sourceSets.maybeCreate(javaSourceSetName).block()
 
 }

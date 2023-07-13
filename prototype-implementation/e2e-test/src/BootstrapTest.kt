@@ -1,12 +1,11 @@
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.writeText
-import org.junit.jupiter.api.Test
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class BootstrapTest {

@@ -9,5 +9,7 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10
 
 settings:
+  kotlin:
+    withJava: true
   java:
     mainClass: MainKt
