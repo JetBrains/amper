@@ -25,6 +25,7 @@ internal open class PlainFragment(
                 KotlinPart(
                     languageVersion?.toString(),
                     apiVersion?.toString(),
+                    sdkVersion,
                     progressiveMode,
                     languageFeatures,
                     optIns,

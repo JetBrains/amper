@@ -105,6 +105,7 @@ object Models : ModelInit {
                         KotlinPart(
                             "1.8",
                             "1.8",
+                            null,
                             true,
                             listOf("InlineClasses"),
                             listOf("org.mylibrary.OptInAnnotation"),

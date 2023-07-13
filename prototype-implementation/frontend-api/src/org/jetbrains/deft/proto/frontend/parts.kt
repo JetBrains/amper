@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
+    val sdkVersion: String?,
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
@@ -18,6 +19,7 @@ data class KotlinPart(
         KotlinPart(
             parent.languageVersion ?: languageVersion,
             parent.apiVersion ?: apiVersion,
+            parent.sdkVersion ?: sdkVersion,
             parent.progressiveMode ?: progressiveMode,
             languageFeatures.ifEmpty { parent.languageFeatures },
             optIns.ifEmpty { parent.optIns },
@@ -33,6 +35,7 @@ data class KotlinPart(
         return KotlinPart(
             languageVersion ?: "1.8",
             apiVersion ?: languageVersion,
+            sdkVersion,
             progressiveMode ?: false,
             languageFeatures.takeIf { it.isNotEmpty() } ?: listOf(),
             optIns.takeIf { it.isNotEmpty() } ?: listOf(),

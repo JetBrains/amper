@@ -118,6 +118,7 @@ class KotlinFragmentPartBuilder {
         KotlinPart(
             languageVersion,
             apiVersion,
+            null, // TODO Add tests for that too
             progressiveMode,
             languageFeatures,
             optIns

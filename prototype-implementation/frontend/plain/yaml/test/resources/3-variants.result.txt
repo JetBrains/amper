@@ -357,7 +357,7 @@ Fragments:
       commonRelease (REFINE)
       ios (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
+      KotlinPart(languageVersion=1.9, apiVersion=null, sdkVersion=null, progressiveMode=null, languageFeatures=[], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
   iosReleaseFree
     External dependencies:
     Src folder: src@ios+release+free

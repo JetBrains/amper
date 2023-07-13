@@ -5,7 +5,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, progressiveMode=null, languageFeatures=[], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
+      KotlinPart(languageVersion=1.8, apiVersion=null, sdkVersion=null, progressiveMode=null, languageFeatures=[], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
   iosDebug
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-datetime:0.4.0, compile=true, runtime=true, exported=false)

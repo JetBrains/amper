@@ -361,11 +361,11 @@ internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
         it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
             kotlin = KotlinPartBuilder {
                 kotlinSettings.getValue<Double>("languageVersion")?.let { kotlinVersion ->
-                    languageVersion = KotlinVersion.fromString(kotlinVersion.toString())
+                    languageVersion = KotlinVersion.requireFromString(kotlinVersion.toString())
                 }
 
                 kotlinSettings.getValue<Double>("apiVersion")?.let { kotlinVersion ->
-                    apiVersion = KotlinVersion.fromString(kotlinVersion.toString())
+                    apiVersion = KotlinVersion.requireFromString(kotlinVersion.toString())
                 }
 
                 sdkVersion = kotlinSettings.getByPath<String>("sdk", "version")

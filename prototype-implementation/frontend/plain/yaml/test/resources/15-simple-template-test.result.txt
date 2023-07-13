@@ -1,0 +1,25 @@
+Module {{ userReadableName }}
+Fragments:
+  ios
+    External dependencies:
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+      KotlinPart(languageVersion=1.9, apiVersion=null, sdkVersion=1.9.0, progressiveMode=null, languageFeatures=[dataObjects, contextReceivers], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
+  iosTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      ios (FRIEND)
+    Parts:
+Artifacts:
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      ios
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosTest

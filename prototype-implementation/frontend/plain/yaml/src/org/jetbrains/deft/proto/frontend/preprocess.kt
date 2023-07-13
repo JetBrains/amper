@@ -9,9 +9,12 @@ fun Yaml.parseAndPreprocess(
     loader: (String) -> InputStream,
 ): Settings {
     val rootConfig = load<Settings>(inputStream)
-    val includedConfigNames = rootConfig.getValue<List<String>>("include") ?: emptyList()
-    val includedConfigs = includedConfigNames.map(loader).map { load<Settings>(it) }
-    val resultConfig = includedConfigs.fold(rootConfig) { acc, from -> merge(acc, from) }
+    val includedConfigNames = rootConfig.getValue<List<String>>("apply") ?: emptyList()
+    // Remove this when we will move to new version of deft.
+    val includedConfigNamesDeprecated = rootConfig.getValue<List<String>>("include") ?: emptyList()
+    val allInclude = includedConfigNames + includedConfigNamesDeprecated
+    val includedConfigs = allInclude.map(loader).map { load<Settings>(it) }
+    val resultConfig = includedConfigs.fold(rootConfig) { acc, from -> merge(from, acc) }
     return resultConfig.doInterpolate()
 }
 
@@ -23,9 +26,17 @@ private fun merge(
     to: Settings,
     from: Settings,
     previousPath: String = "",
+    ignoreToKeys: Collection<String> = setOf("apply", "include")
 ): Settings = buildMap {
     val allKeys = to.keys + from.keys
-    allKeys.forEach { key ->
+
+    // Pass all "from" keys, that are ignored on "to" side.
+    ignoreToKeys.forEach { key ->
+        from[key]?.let { put(key, it) }
+    }
+
+    // Merge all other keys.
+    allKeys.filter { it !in ignoreToKeys }.forEach { key ->
         val nextPath = "$previousPath.$key"
         val toValue = to[key]
         val fromValue = from[key]
@@ -36,8 +47,15 @@ private fun merge(
         else {
             when {
                 toValue is Map<*, *> && fromValue is Map<*, *> ->
-                    put(key,
+                    put(
+                        key,
                         merge(toValue as Settings, fromValue as Settings, nextPath)
+                    )
+
+                toValue is List<*> && fromValue is List<*> ->
+                    put(
+                        key,
+                        toValue + fromValue
                     )
 
                 toValue::class == fromValue::class ->

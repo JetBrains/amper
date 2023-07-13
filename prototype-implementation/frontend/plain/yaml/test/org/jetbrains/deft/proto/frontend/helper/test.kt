@@ -1,12 +1,10 @@
 package org.jetbrains.deft.proto.frontend.helper
 
-import org.jetbrains.deft.proto.frontend.ParserKtTest
-import org.jetbrains.deft.proto.frontend.Settings
-import org.jetbrains.deft.proto.frontend.parseModule
-import org.jetbrains.deft.proto.frontend.withBuildFile
+import org.jetbrains.deft.proto.frontend.*
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.file.Path
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -22,7 +20,29 @@ internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { 
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
     val parsed = Yaml().load<Settings>(text)
+    doTestParse(resourceName, parsed)
+}
 
+context (Path)
+internal fun testParseWithTemplates(resourceName: String, properties: Properties = Properties()) {
+    val stream = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.openStream()
+        ?: fail("Resource not found")
+    val parsed = with(properties) {
+        Yaml().parseAndPreprocess(
+            stream
+        ) {
+            File(".").absoluteFile.resolve("test/resources/$it").inputStream()
+        }
+    }
+    doTestParse(resourceName, parsed)
+}
+
+context (Path)
+internal fun doTestParse(
+    baseName: String,
+    parsed: Settings,
+    init: TestDirectory.() -> Unit = { directory("src") }
+) {
     project(parent.toFile()) { init() }
 
     // When
@@ -31,12 +51,12 @@ internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { 
     }
 
     // Then
-    val expectedResourceName = "$resourceName.result.txt"
+    val expectedResourceName = "$baseName.result.txt"
     val actual = module.prettyPrint()
     if (!fastReplaceExpected_USE_CAREFULLY) {
         val expectedResource = ParserKtTest::class.java.getResource("/$expectedResourceName")
         val resultText = expectedResource?.readText()
-            ?: fail("Resource not found")
+            ?: fail("Resource ${expectedResourceName} not found")
         val expected = resultText.replace("{{ userReadableName }}", module.userReadableName)
         assertEquals(expected, actual)
     } else {
