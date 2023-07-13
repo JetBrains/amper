@@ -19,6 +19,19 @@ class E2eTest {
     }
 
     @Test
+    fun `jvm-android-hello-world assembles`() {
+        // get test resources folder
+        val file = Path.of("resources/jvm+android-hello-world")
+        // run gradle
+        val buildResult = GradleRunner.create()
+            .withProjectDir(file.toFile())
+            .withArguments("assemble")
+            .build()
+
+        assertContains(buildResult.output, "BUILD SUCCESSFUL")
+    }
+
+    @Test
     fun `jvm-kotlin+java runs and prints Hello, World`() {
         // given
         val file = Path.of("resources/jvm-kotlin+java")

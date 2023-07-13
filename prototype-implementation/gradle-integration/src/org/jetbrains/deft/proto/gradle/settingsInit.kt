@@ -59,12 +59,6 @@ class SettingsPluginRun(
                 PotatoModuleType.LIBRARY -> project.plugins.apply("com.android.library")
             }
 
-            // Apply Java application plugin.
-            if (connectedModule.javaNeeded) when (connectedModule.type) {
-                PotatoModuleType.APPLICATION -> project.plugins.apply("application")
-                else -> Unit
-            }
-
             // Apply additional plugins.
             val foundProjectPlugins = connectedModule.additionalScript
                 ?.let { parseAdditionalScript(it) }

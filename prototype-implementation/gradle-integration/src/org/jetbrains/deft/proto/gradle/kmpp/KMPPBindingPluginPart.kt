@@ -5,9 +5,7 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
-import org.jetbrains.deft.proto.gradle.android.AndroidAwarePart
 import org.jetbrains.deft.proto.gradle.base.*
-import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -50,8 +48,8 @@ class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
 
-    private val androidAware = AndroidAwarePart(ctx)
-    private val javaAware = JavaBindingPluginPart(ctx)
+    private val androidAware = SpecificPlatformPluginPart(ctx, Platform.ANDROID)
+    private val javaAware = SpecificPlatformPluginPart(ctx, Platform.JVM)
     private val noneAware = NoneAwarePart(ctx)
 
     internal val fragmentsByName = module.fragments.associateBy { it.name }

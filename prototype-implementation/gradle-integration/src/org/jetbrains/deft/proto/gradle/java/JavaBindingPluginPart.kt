@@ -44,8 +44,16 @@ class JavaBindingPluginPart(
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
-        project.plugins.apply(ApplicationPlugin::class.java)
         applyJavaTargetForKotlin()
+
+        if (Platform.ANDROID in module) {
+            logger.warn(
+                "Cant enable java integration when android is enabled. " +
+                        "Module: ${module.userReadableName}"
+            )
+            return
+        }
+
         adjustJavaGeneralProperties()
         addJavaIntegration()
     }
@@ -64,6 +72,8 @@ class JavaBindingPluginPart(
     }
 
     private fun adjustJavaGeneralProperties() {
+        project.plugins.apply(ApplicationPlugin::class.java)
+
         if (leafPlatformFragments.size > 1)
             logger.warn(
                 "Cant apply multiple settings for application plugin. " +
@@ -89,14 +99,6 @@ class JavaBindingPluginPart(
     // TODO Rewrite this completely by not calling
     //  KMPP code and following out own conventions.
     private fun addJavaIntegration() {
-        if (Platform.ANDROID in module) {
-            logger.warn(
-                "Cant enable java integration when android is enabled. " +
-                        "Module: ${module.userReadableName}"
-            )
-            return
-        }
-
         project.plugins.apply(JavaPlugin::class.java)
 
         kotlinMPE.targets.toList().forEach {
