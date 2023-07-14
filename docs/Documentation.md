@@ -1028,8 +1028,63 @@ settings:  # objects merged
 
 _NOTE: Extensibility is not yet fully designed or implemented._
 
-TODO...
+The main design goal for DSL is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform.
+With that in mind, we took an opposite approach to that Gradle follow. 
+Gradle is striving to provide a very flexible and extensible [build execution engine](https://melix.github.io/blog/2021/01/the-problem-with-gradle.html).
+Or focus, on the other hand, is to provide great user experience of the box. That's why there are many aspects that are available in the DSL as first-class citizens. 
 
+
+Aspects, such as streamlined [multiplatform](#multi-platform-configuration) setup,
+built-in support for [CocoaPods dependencies](#native-dependencies), 
+straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc., 
+should  enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expand, and more use cases emerge,
+its inevitable that some level of extensibility will be needed. 
+
+The following aspects are designed to be extensible:
+- [Product types](#product-types) - an extension could provide additional product types, such as a Space or a Fleet plugin, an application server app, etc.   
+- [Publishing](#publishing) - there might be need to publish to, say, vcpkg or a specific marketplace, which are not supported out of the box.  
+- [External Dependency](#native-dependencies) - similarly to publishing, there might be need to consume dependencies from vcpkg or other package managers.
+- [Toolchains](#settings) - toolchains are the main actors in the build pipeline extensibility - they provide actual build logic for linting, code generation, compilation, obfuscation.  
+
+Extensions are supposed to contribute to DSL using declarative approach (e.g. via schemes),
+and also implement the actual logic with regular imperative language (read, Kotlin). Such a mixed approach should allow for fast project structure evaluation (no configuration phase as in Gradle) and flexibility at the same time. 
+
+Below is a very rough approximation of a possible toolchain extension:
+
+```yaml
+product: jvm/app
+
+settings: 
+  my-source-processor:
+    replace: "${author}"
+    with: Me 
+```
+
+With a convention file layout:
+```
+|-src/
+|  |-main.kt
+|-pot-extensions/
+|  |-my-source-processor/
+|  |  |-pot-extension.yaml      # generated or manually created DSL 
+|  |  |-extension.kt            # implementation
+|-Pot.yaml 
+```
+
+And extension.kt code:
+```kotlin
+class MySourceProcessor : SourceProcessorExtension {
+    val replace : StringParameter
+    val with: StringParameter
+    
+    override fun process(input : SourceInput, output: SourceOutput) {
+        val replaced = input.readText().replaceAll(replace, with)
+        output.writeText(replaced)
+    }
+}
+```
+
+The DSL engine would be able to quickly discover DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
