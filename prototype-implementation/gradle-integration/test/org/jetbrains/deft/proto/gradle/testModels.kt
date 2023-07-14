@@ -103,8 +103,8 @@ object Models : ModelInit {
                 leafFragment {
                     addPart(
                         KotlinPart(
-                            "1.8",
-                            "1.8",
+                            "1.9",
+                            "1.9",
                             null,
                             true,
                             listOf("InlineClasses"),

@@ -33,7 +33,7 @@ data class KotlinPart(
 
     override fun default(): FragmentPart<*> {
         return KotlinPart(
-            languageVersion ?: "1.8",
+            languageVersion ?: "1.9",
             apiVersion ?: languageVersion,
             sdkVersion,
             progressiveMode ?: false,

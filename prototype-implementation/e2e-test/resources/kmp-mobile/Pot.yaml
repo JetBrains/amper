@@ -12,10 +12,8 @@ dependencies@ios:
 # list of dependencies for ios
 
 test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.10
+  - org.jetbrains.kotlin:kotlin-test:1.9.0
 
 settings:
-  kotlin:
-    languageVersion: 1.8
   android:
     compileSdkVersion: 21

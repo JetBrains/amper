@@ -47,7 +47,6 @@ class AndroidBindingPluginPart(
         applySettings()
     }
 
-    @Suppress("UnstableApiUsage")
     private fun adjustAndroidSourceSets() = with(AndroidDeftNamingConvention) {
         // Clear android source sets that are not created by us.
         // Adjust that source sets whose matching kotlin source sets are created by us.
@@ -97,6 +96,7 @@ class AndroidBindingPluginPart(
     }
 
     private fun applySettings() {
+        androidPE?.namespace = "com.example.sampleproject"
         leafPlatformFragments.forEach { fragment ->
             val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {

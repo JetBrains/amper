@@ -4,7 +4,7 @@ buildscript {
 
         // Uncomment this if you want to use local published version.
         //region local version
-        mavenLocal()
+//        mavenLocal()
         //region local version
 
         //region scratch version
@@ -36,7 +36,7 @@ buildscript {
     dependencies {
 //        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.0-SNAPSHOT")
         classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.2.2")
-        classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21")
+        classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0")
     }
 }
 

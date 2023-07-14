@@ -24,7 +24,7 @@ settings:
 
   kotlin:
     sdk:
-      version: 1.8.21
+      version: 1.9.0
     languageVersion: 1.9
     features:
       - contextReceivers
