@@ -62,7 +62,7 @@ This is to make sure that a given source file is always present in a single anal
 
 `Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
 
-_NOTE: YAML is not the final language choice. For the purpose of the prototyping and desing it serves well, but we plan to re-evaluate other options in the future._
+_NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
 
 A `Pot.yaml` file has several main sections: `product:` (or `products:`), `dependencies:` and `settings:`.  A pot could produce a single reusable library or multiple native platform-specific applications.
 
@@ -107,6 +107,11 @@ Other product types what we plan to support in the future:
 - `macos/framework`
 - etc.
 
+The product types is supposed to be [extensible](#extensibility), so the following types are also possible:
+- `jvm/war`
+- `jvm/deft-plugin`
+- `jvm/intellij-plugin`
+
 It's also possible to specify several products (not yet implemented), which can come handy for multi-platform applications, or interop with other build tools like Xcode:
 
 A mobile application:
@@ -120,7 +125,7 @@ settings:
     languageVersion: 1.9
 ```
 
-A rusable library which could also be used as Framework in Xcode:
+A reusable library which could also be used as Framework in Xcode:
 ```yaml
 products: 
   - type: lib
@@ -156,11 +161,46 @@ products:
 packaging:
   - product: ios/app        
     deploymentTarget: 15
-    # other ios-specific packaging settings
+    resources:
+      include: "**/*.png"
 
   - product: android/app         
     applicationId: my.app.MyApp    
     # other android-specific packaging settings
+```
+
+### Publishing
+
+_NOTE: Publishing is not yet designed or implemented._
+
+Publishing means preparing the resulting [package](#packaging) for external use, and actually uploading or deploying it.
+Here are a few examples of publishing:
+- Preparing a JVM jar or a KLIB with sources and docs and uploading them Maven Central or to another Maven repository.
+- Creating a CocoaPods package and publishing it for use in Xcode projects.
+- Preparing and signing an MSI, DMG, or DEB distributions
+
+Here is a very rough approximation, how publishing could look like in the DSL:
+
+```yaml
+products:
+  - type: lib
+    platforms: [android, iosArm64, iosSimulatorArm64]
+
+  - ios/framework
+
+publishing:
+  - maven: lib             # reference the product by type or ID        
+    groupId: ...
+    artifactId: ...
+    repository:
+      url: ...
+      credentials: ...
+
+  - cocoapods: ios/framework # reference the product by type or ID
+    name: MyCocoaPod
+    version: 1.0
+    summary: ...
+    homepage: ...
 ```
 
 ### Multi-platform configuration
@@ -301,7 +341,7 @@ dependencies:
                         
 _NOTE: Native dependencies are not yet implemented in the prototype._
 
-To depend on an npm, CocoaPods, or a Swift package, use the following format:
+To depend on a npm, CocoaPods, or a Swift package, use the following format:
 
 ```yaml
 dependencies:
@@ -329,9 +369,30 @@ dependencies:
       target: "SomePackageTarget"
 ```
 
+### Version Catalogs
+
+_NOTE: Version catalogs are not yet designed or implemented._
+
+Here is how we think they could be used in the DSL:
+
+```yaml
+product: android/app
+
+dependencies:
+  - compose.foundation
+  - compose.material
+
+settings:
+  compose:
+     enabled: true
+```
+
+Catalogs might be provided by toolchains, defined by user or imported from [Gradle lib.version.toml](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml) files.  
+
 ### Settings
 
-The `settings:` section contains toolchains settings. _Toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (like linter, code generator). Currently, the following toolchains are supported: `kotlin:`, `java:`, `ios:`, `android:`
+The `settings:` section contains toolchains settings. _Toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (like linter, code generator). Currently, the following toolchains are supported: `kotlin:`, `java:`, `android:`, `compose:`.
+Toolchains list is supposed to be [extensible](#extensibility) in the future.
 
 All toolchain settings are specified in the dedicated groups in the `settings:` section:
 ```yaml
@@ -343,19 +404,29 @@ settings:
     androidApiVersion: android-31
 ```
 
+Here is the list of [currently supported toolchains and their settings](Toolchains.md).   
+
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
 
 #### Configuring Compose Multiplatform
 
 In order to enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/) (with a compiler plugin and required dependencies), add the following configuration:
+
 ```yaml
+product: android/app
+
+dependencies:
+  - org.jetbrains.compose.foundation:foundation:1.4.1
+  - org.jetbrains.compose.material:material:1.4.1 
+
 settings: 
   compose:
     enabled: true
 ```
 
-TODO add snippet with dependencies
+_NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
+Also, certain dependencies might be added automatically when Compose is enabled._   
 
 ### Tests
 
@@ -952,6 +1023,13 @@ settings:  # objects merged
   java:
     targetVersion: 1.8   # from the Pot.yaml
 ```
+
+## Extensibility
+
+_NOTE: Extensibility is not yet fully designed or implemented._
+
+TODO...
+
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
