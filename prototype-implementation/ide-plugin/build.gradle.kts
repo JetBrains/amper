@@ -19,8 +19,13 @@ val localProperties = Properties().apply {
     if (stream != null) load(stream)
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 intellij {

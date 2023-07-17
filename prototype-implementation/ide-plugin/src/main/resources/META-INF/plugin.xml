@@ -25,6 +25,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="org.jetbrains.deft.ide.DeftPlatformReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="org.jetbrains.deft.ide.yaml.DeftFileReferenceContributor"/>
         <annotator language="yaml" implementationClass="org.jetbrains.deft.ide.DeftPlatformAnnotator"/>
         <externalSystemSettingsListener
                 implementation="org.jetbrains.deft.ide.externalTool.DeftProjectsWatcher"/>
