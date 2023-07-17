@@ -8,4 +8,4 @@ settings:
   kotlin:
     languageVersion: 1.8
   android:
-    compileSdkVersion: 21
+    compileSdkVersion: android-31

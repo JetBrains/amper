@@ -3,9 +3,11 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.gradle.FoundEntryPoint
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
 import org.jetbrains.deft.proto.gradle.base.*
+import org.jetbrains.deft.proto.gradle.findEntryPoint
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -56,6 +58,7 @@ class KMPPBindingPluginPart(
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+
     fun apply() {
         initTargets()
         initFragments()
@@ -104,6 +107,7 @@ class KMPPBindingPluginPart(
         kotlinNativeCompilation: KotlinNativeCompilation,
         fragment: LeafFragmentWrapper,
     ) {
+        fun FoundEntryPoint.native() = if (pkg != null) "$pkg.main" else "main"
         if (module.type != PotatoModuleType.APPLICATION) return
         val part = fragment.parts.find<NativeApplicationPart>()
 
@@ -115,6 +119,7 @@ class KMPPBindingPluginPart(
                 else -> executable(fragment.name) {
                     adjustExecutable(part, kotlinNativeCompilation)
                     entryPoint = part?.entryPoint
+                        ?: findEntryPoint("main.kt", fragment).native()
                 }
             }
         }
@@ -144,7 +149,7 @@ class KMPPBindingPluginPart(
         val isAndroid = module.fragments.any { it.platforms.contains(Platform.ANDROID) }
         val isJava = module.fragments.any { it.platforms.contains(Platform.JVM) }
         val aware = if (isAndroid) androidAware else if (isJava) javaAware else noneAware
-        with(aware) aware@ {
+        with(aware) aware@{
             // Clear sources and resources for non created by us source sets.
             // Can be called after project evaluation.
             kotlinMPE.sourceSets.all {

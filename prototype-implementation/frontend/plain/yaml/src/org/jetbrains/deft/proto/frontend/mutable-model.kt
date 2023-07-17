@@ -200,11 +200,11 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
             }
 
             for (dependency in dependencies) {
-                val dependencyTarget = dependency.getValue<String>("target")
+                val dependencyTarget = dependency.getStringValue("target")
                 // add new dependencies related to copying
                 fragmentMap[dependencyTarget]?.let { targetFragments ->
                     for (i in sourceFragments.indices) {
-                        val kind = when (dependency.getValue<String>("kind")) {
+                        val kind = when (dependency.getStringValue("kind")) {
                             "friend" -> MutableFragmentDependency.DependencyKind.Friend
                             else -> MutableFragmentDependency.DependencyKind.Refines
                         }
@@ -271,7 +271,7 @@ internal fun List<FragmentBuilder>.artifacts(
                             option[nameKey] ?: error("Name is required for variant option")
                         )
 
-                        if (option[dependsOnKey].any { it.getValue<String>("kind") != "friend" }) {
+                        if (option[dependsOnKey].any { it.getStringValue("kind") != "friend" }) {
                             addDefault = false
                         }
                     }
@@ -391,24 +391,24 @@ internal fun List<ArtifactBuilder>.handleSettings(
     config.handleArtifactSettings<Settings>(fragments, "settings") {
         it.getValue<Settings>("android")?.let { androidSettings ->
             android = AndroidPartBuilder {
-                compileSdkVersion = androidSettings.getValue<String>("compileSdkVersion")
+                compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")
                 androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
-                sourceCompatibility = androidSettings.getValue<String>("sourceCompatibility")
-                targetCompatibility = androidSettings.getValue<String>("targetCompatibility")
+                sourceCompatibility = androidSettings.getStringValue("sourceCompatibility")
+                targetCompatibility = androidSettings.getStringValue("targetCompatibility")
             }
         }
 
         it.getValue<Settings>("publishing")?.let { publishSettings ->
             publishing = PublishingPartBuilder {
-                group = publishSettings.getValue<String>("group")
+                group = publishSettings.getStringValue("group")
                 version = publishSettings.getValue<Any>("version").toString()
             }
         }
 
         it.getValue<Settings>("java")?.let { javaSettings ->
             java = JavaPartBuilder {
-                mainClass = javaSettings.getValue<String>("mainClass")
-                packagePrefix = javaSettings.getValue<String>("packagePrefix")
+                mainClass = javaSettings.getStringValue("mainClass")
+                packagePrefix = javaSettings.getStringValue("packagePrefix")
                 jvmTarget = javaSettings.getValue<Double>("jvmTarget")?.toString()
                     ?: javaSettings.getValue<Int>("jvmTarget")?.toString()
             }
@@ -420,7 +420,7 @@ context (BuildFileAware, Settings)
 internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
 
     val defaultOptions = defaultOptionMap.values.toSet()
-    val nonStdOptions = optionMap.filter { it.value.getValue<String>("dimension") != "mode" }.keys
+    val nonStdOptions = optionMap.filter { it.value.getStringValue("dimension") != "mode" }.keys
 
     val testOption = "test"
 

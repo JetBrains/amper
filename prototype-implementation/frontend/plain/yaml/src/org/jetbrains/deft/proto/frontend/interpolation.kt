@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.frontend
 
 import java.io.InputStream
 import java.util.*
-import kotlin.io.path.Path
 
 
 typealias InterpolateCtx = Properties
@@ -16,13 +15,6 @@ context(InterpolateCtx)
 fun String.tryInterpolate() = if (isSimpleVariable || isBracketSurroundedVariable) {
     val propName = removePrefix("$").removePrefix("{").removeSuffix("}")
     getProperty(propName) ?: error("No value for variable $propName")
-} else {
-    this
-}
-
-context(InterpolateCtx)
-fun String.tryAbsolutePath() = if (startsWith(".")) {
-    Path(this).toAbsolutePath().normalize().toString()
 } else {
     this
 }

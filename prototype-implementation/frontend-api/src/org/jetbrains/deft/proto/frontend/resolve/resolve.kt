@@ -8,8 +8,7 @@ val Model.resolved: Model
         override val modules: List<PotatoModule>
             get() = this@resolved.modules.map {
                 object : PotatoModule by it {
-                    override val fragments: List<Fragment>
-                        get() = it.fragments.resolve()
+                    override val fragments = it.fragments.resolve()
                 }
             }
     }
@@ -59,10 +58,22 @@ fun Fragment.createResolvedAdapter(
     object : LeafFragment by this@createResolvedAdapter {
         override val parts: ClassBasedSet<FragmentPart<*>>
             get() = resolvedParts
+
+        override fun equals(other: Any?) = other != null &&
+                other is LeafFragment &&
+                name == other.name
+
+        override fun hashCode() = name.hashCode()
     }
 else object : Fragment by this@createResolvedAdapter {
     override val parts: ClassBasedSet<FragmentPart<*>>
         get() = resolvedParts
+
+    override fun equals(other: Any?) = other != null &&
+            other is LeafFragment &&
+            name == other.name
+
+    override fun hashCode() = name.hashCode()
 }
 
 fun Fragment.propagateFor(

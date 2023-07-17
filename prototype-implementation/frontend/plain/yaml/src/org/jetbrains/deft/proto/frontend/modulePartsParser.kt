@@ -11,8 +11,8 @@ fun parseModuleParts(
         RepositoriesModulePart.Repository(
             it.requireValue<String>("name") { "No repository name" },
             it.requireValue<String>("url") { "No repository url" },
-            it.getValue<String>("username"),
-            it.getValue<String>("password"),
+            it.getStringValue("username"),
+            it.getStringValue("password"),
             it.getValue<Boolean>("publish") ?: false,
         )
     }

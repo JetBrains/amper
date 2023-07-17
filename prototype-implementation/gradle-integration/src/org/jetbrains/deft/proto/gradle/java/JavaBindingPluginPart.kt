@@ -7,10 +7,13 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JvmPart
 import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.PotatoModuleType
+import org.jetbrains.deft.proto.gradle.FoundEntryPoint
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.contains
+import org.jetbrains.deft.proto.gradle.findEntryPoint
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
@@ -84,7 +87,11 @@ class JavaBindingPluginPart(
         val jvmPart = fragment.parts.find<JvmPart>()
         if (jvmPart != null) {
             javaAPE.apply {
-                mainClass.set(jvmPart.mainClass)
+                if (module.type != PotatoModuleType.APPLICATION) return@apply
+                fun FoundEntryPoint.java() = if (pkg != null) "$pkg.MainKt" else "MainKt"
+                val foundMainClass = jvmPart.mainClass
+                    ?: findEntryPoint("main.kt", fragment).java()
+                mainClass.set(foundMainClass)
             }
             jvmPart.jvmTarget?.let {
                 javaPE.targetCompatibility = JavaVersion.toVersion(it)

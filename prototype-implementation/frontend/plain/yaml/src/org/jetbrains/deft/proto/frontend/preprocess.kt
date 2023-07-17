@@ -137,7 +137,6 @@ internal fun Settings.doInterpolate(): Settings =
             leaf
         else
             leaf.tryInterpolate()
-                .tryAbsolutePath()
     }
 
 internal fun Settings.transformLeafs(transform: (Any) -> Any): Settings =

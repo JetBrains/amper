@@ -26,6 +26,7 @@ class E2eTest {
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
             .withArguments("assemble")
+            .withDebug(true)
             .build()
 
         assertContains(buildResult.output, "BUILD SUCCESSFUL")
@@ -70,6 +71,7 @@ class E2eTest {
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
             .withArguments("test", "--stacktrace")
+            .withDebug(true)
             .run()
 
         // then
@@ -85,6 +87,7 @@ class E2eTest {
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
             .withArguments("test", "--stacktrace")
+            .withDebug(true)
             .run()
 
         // then
@@ -100,6 +103,7 @@ class E2eTest {
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
             .withArguments("build", "--stacktrace")
+            .withDebug(true)
             .build()
         // then
         assertContains(buildResult.output, "BUILD SUCCESSFUL")

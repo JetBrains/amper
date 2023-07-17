@@ -17,6 +17,8 @@ internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>
 
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
+internal fun Settings.getStringValue(key: String) = this[key]?.toString()
+
 internal inline fun <reified T : Any> Settings.requireValue(
     key: String, handler: () -> String
 ): T = this[key] as? T ?: error(handler())
@@ -180,7 +182,7 @@ internal val Settings.variants: List<Settings>
                 )
             )
         }
-        return if (!convertedInitialVariants.any { it.getValue<String>("dimension") == "mode" }) {
+        return if (!convertedInitialVariants.any { it.getStringValue("dimension") == "mode" }) {
             convertedInitialVariants + mapOf(
                 "dimension" to "mode",
                 optionsKey.name to listOf(
@@ -209,7 +211,7 @@ internal val Settings.defaultOptionMap: Map<Settings, String>
                 val option = (variant[optionsKey])
                     .firstOrNull { it[isDefaultKey] }
                     ?: error("Something went wrong")
-                put(variant, option.getValue<String>("name") ?: error("Something went wrong"))
+                put(variant, option.getStringValue("name") ?: error("Something went wrong"))
             }
         }
     }
@@ -221,7 +223,7 @@ internal val Settings.optionMap: Map<String, Settings>
         return buildMap {
             for (variant in with(originalSettings) { variants }) {
                 for (option in (variant[optionsKey])
-                    .mapNotNull { it.getValue<String>("name") }) {
+                    .mapNotNull { it.getStringValue("name") }) {
                     put(option, variant)
                 }
             }

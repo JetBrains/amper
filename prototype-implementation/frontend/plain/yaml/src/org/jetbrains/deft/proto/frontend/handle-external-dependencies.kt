@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.util.requireSingleOrNull
+import kotlin.io.path.Path
 
 
 context (BuildFileAware)
@@ -12,19 +13,27 @@ class DefaultPotatoModuleDependency(
 ) : PotatoModuleDependency {
     override val Model.module: PotatoModule
         get() = modules.find {
-            if (it.source is PotatoModuleFileSource) {
-                val targetModulePotFilePath =
-                    (it.source as PotatoModuleFileSource).buildFile.toAbsolutePath()
-                val sourceModulePotFilePath =
-                    buildFile.parent.resolve("$depPath/Pot.yaml").normalize().toAbsolutePath()
+            val source = it.source as? PotatoModuleFileSource
+                ?: return@find false
 
-                val sourceModuleGradleFilePath =
-                    buildFile.parent.resolve("$depPath/build.gradle.kts").normalize().toAbsolutePath()
+            val targetModulePotFilePath = source.buildFile.toAbsolutePath()
 
-                targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
+            val dependencyPath = Path(depPath)
+            val sourceModulePotFilePath = if (dependencyPath.isAbsolute) {
+                dependencyPath
+                    .resolve("Pot.yaml")
             } else {
-                false
+                buildFile.parent
+                    .resolve(dependencyPath)
+                    .resolve("Pot.yaml")
+                    .normalize()
+                    .toAbsolutePath()
             }
+
+            val sourceModuleGradleFilePath =
+                buildFile.parent.resolve("$depPath/build.gradle.kts").normalize().toAbsolutePath()
+
+            targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
         } ?: error("No module $depPath found")
 
     override fun toString(): String {
@@ -50,7 +59,7 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) 
                 is String -> {
                     val flags = dep.searchFlags()
                     val notation = "^\\S+".toRegex().findAll(dep).single().value
-                    if (dep.startsWith(".")) {
+                    if (dep.startsWith(".") || dep.startsWith("/")) {
                         DefaultPotatoModuleDependency(notation, flags.compile, flags.runtime, flags.exported)
                     } else {
                         MavenDependency(notation, flags.compile, flags.runtime, flags.exported)
@@ -58,8 +67,8 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) 
                 }
                 is Map<*, *> -> {
                     dep as Settings
-                    val path = dep.getValue<String>("path")
-                    val notation = dep.getValue<String>("notation")
+                    val path = dep.getStringValue("path")
+                    val notation = dep.getStringValue("notation")
                     val compile = dep.getValue<Boolean>("compile") ?: true
                     val runtime = dep.getValue<Boolean>("runtime") ?: true
                     val exported = dep.getValue<Boolean>("exported") ?: true

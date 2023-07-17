@@ -19,8 +19,8 @@ internal open class PlainFragment(
         get() = fragmentBuilder.dependants.map { PlainFragmentLink(it) }
     override val externalDependencies: List<Notation>
         get() = fragmentBuilder.externalDependencies.toList()
-    override val parts: ClassBasedSet<FragmentPart<*>>
-        get() = buildClassBasedSet {
+
+    override val parts: ClassBasedSet<FragmentPart<*>> = buildClassBasedSet {
             addPartFrom(fragmentBuilder.kotlin) {
                 KotlinPart(
                     languageVersion?.toString(),
@@ -66,6 +66,7 @@ internal open class PlainFragment(
                 )
             }
         }
+
     override val platforms: Set<Platform>
         get() = fragmentBuilder.platforms
 

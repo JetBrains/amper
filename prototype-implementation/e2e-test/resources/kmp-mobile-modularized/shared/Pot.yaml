@@ -10,4 +10,4 @@ test-dependencies:
 
 settings:
   android:
-    compileSdkVersion: 21
+    compileSdkVersion: android-31

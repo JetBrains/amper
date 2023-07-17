@@ -73,7 +73,7 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 
 }
 
-
+// TODO Replace by copyRecursively.
 fun copyDirectory(source: Path, target: Path) {
     Files.walk(source).use { paths ->
         paths.forEach { sourcePath ->

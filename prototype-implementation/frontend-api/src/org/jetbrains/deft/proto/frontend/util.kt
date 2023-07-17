@@ -19,20 +19,40 @@ fun String.camelMerge(other: String) = when {
 inline fun <reified T : Any> Collection<Any>.findInstance() = filterIsInstance<T>().firstOrNull()
 
 /**
+ * Simple approach to do some action for fragment closure.
+ */
+fun Fragment.forClosure(
+    includeSelf: Boolean = true,
+    traverseTypes: Set<FragmentDependencyType> = setOf(FragmentDependencyType.REFINE),
+    block: (Fragment) -> Unit
+) {
+    if (includeSelf) block(this)
+    traverseDependencies(traverseTypes) { block(it.target) }
+}
+
+/**
  * Simple approach to traverse dependencies transitively.
  */
-fun Fragment.traverseDependencies(block: (FragmentLink) -> Unit) {
+fun Fragment.traverseDependencies(
+    traverseTypes: Set<FragmentDependencyType> = setOf(FragmentDependencyType.REFINE),
+    block: (FragmentLink) -> Unit,
+) {
     val traversed = mutableSetOf<FragmentLink>()
     val blockPlusCheck: (FragmentLink) -> Unit = {
         if (!traversed.add(it)) error("Cyclic dependency!")
         block(it)
     }
-    doTraverseDependencies(blockPlusCheck)
+    doTraverseDependencies(traverseTypes, blockPlusCheck)
 }
 
-private fun Fragment.doTraverseDependencies(block: (FragmentLink) -> Unit) {
+private fun Fragment.doTraverseDependencies(
+    traverseTypes: Set<FragmentDependencyType>,
+    block: (FragmentLink) -> Unit,
+) {
     fragmentDependencies.forEach(block)
-    fragmentDependencies.map { it.target.doTraverseDependencies(block) }
+    fragmentDependencies
+        .filter { it.type in traverseTypes }
+        .map { it.target.doTraverseDependencies(traverseTypes, block) }
 }
 
 /**
