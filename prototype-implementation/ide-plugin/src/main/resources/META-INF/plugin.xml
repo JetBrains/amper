@@ -11,15 +11,26 @@
       ]]>
     </description>
 
-    <depends>com.intellij.modules.externalSystem</depends>
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.gradle</depends>
-    <depends>org.jetbrains.plugins.yaml</depends>
+    <dependencies>
+        <plugin id="com.intellij.modules.externalSystem"/>
+        <plugin id="com.intellij.modules.platform"/>
+        <plugin id="com.intellij.modules.json"/>
+
+        <plugin id="com.intellij.gradle"/>
+
+        <plugin id="org.jetbrains.plugins.yaml"/>
+    </dependencies>
+
+    <resource-bundle>messages.DeftBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="org.jetbrains.deft.ide.DeftPlatformReferenceContributor"/>
         <annotator language="yaml" implementationClass="org.jetbrains.deft.ide.DeftPlatformAnnotator"/>
         <externalSystemSettingsListener
                 implementation="org.jetbrains.deft.ide.externalTool.DeftProjectsWatcher"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="org.jetbrains.deft.ide.DeftJsonSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>

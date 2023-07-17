@@ -8,7 +8,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="Deft Template Schema" />
-              <option name="relativePathToSchema" value="prototype-implementation/DeftTemplateSchema.json" />
+              <option name="relativePathToSchema" value="prototype-implementation/ide-plugin/src/main/resources/schema/DeftTemplateSchema.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -26,7 +26,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="DeftSchema" />
-              <option name="relativePathToSchema" value="prototype-implementation/DeftSchema.json" />
+              <option name="relativePathToSchema" value="prototype-implementation/ide-plugin/src/main/resources/schema/DeftSchema.json" />
               <option name="patterns">
                 <list>
                   <Item>
