@@ -18,4 +18,11 @@ internal class TeplatesTest {
             testParseWithTemplates("15-simple-template-test")
         }
     }
+
+    @Test
+    fun `check path literals are adjusted`() {
+        with(buildFile) {
+            testParseWithTemplates("16-templates-adjust-path-test")
+        }
+    }
 }

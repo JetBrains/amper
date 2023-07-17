@@ -5,6 +5,8 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -25,13 +27,18 @@ internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { 
 
 context (Path)
 internal fun testParseWithTemplates(resourceName: String, properties: Properties = Properties()) {
-    val stream = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.openStream()
-        ?: fail("Resource not found")
+    val stream = Path(".")
+        .toAbsolutePath()
+        .resolve("test/resources/$resourceName.yaml")
+        .takeIf { it.exists() } ?: fail("Resource not found")
+
     val parsed = with(properties) {
         Yaml().parseAndPreprocess(
             stream
         ) {
-            File(".").absoluteFile.resolve("test/resources/$it").inputStream()
+            Path(".")
+                .toAbsolutePath()
+                .resolve("test/resources/$it")
         }
     }
     doTestParse(resourceName, parsed)
@@ -53,19 +60,32 @@ internal fun doTestParse(
     // Then
     val expectedResourceName = "$baseName.result.txt"
     val actual = module.prettyPrint()
+
+    val resourceFile = File(".").absoluteFile
+        .resolve("test/resources/$expectedResourceName")
+        .takeIf { it.exists() } ?: fail("Resource $expectedResourceName not found")
+
+    val buildDir = (module.source as PotatoModuleFileSource).buildDir.normalize().toString()
+    val userReadableName = module.userReadableName
+    val potDir = resourceFile.absoluteFile.normalize().parent.toString()
+    val testProcessDir = File(".").absoluteFile.normalize().toString()
+
     if (!fastReplaceExpected_USE_CAREFULLY) {
-        val expectedResource = ParserKtTest::class.java.getResource("/$expectedResourceName")
-        val resultText = expectedResource?.readText()
-            ?: fail("Resource ${expectedResourceName} not found")
-        val expected = resultText.replace("{{ userReadableName }}", module.userReadableName)
+        // This is actual check.
+        val resourceFileText = resourceFile.readText()
+        val expected = resourceFileText
+            .replace("{{ userReadableName }}", userReadableName)
+            .replace("{{ buildDir }}", buildDir)
+            .replace("{{ potDir }}", potDir)
+            .replace("{{ testProcessDir }}", testProcessDir)
         assertEquals(expected, actual)
     } else {
-        val toReplace = actual.replace(module.userReadableName, "{{ userReadableName }}")
-        val resourceFile = File(".").absoluteFile.resolve("test/resources/$expectedResourceName")
-        if (resourceFile.exists()) resourceFile.writeText(toReplace)
-        else fail(
-            "Cannot replace ${resourceFile.absolutePath} contents. It does not exists.  " +
-                    "See [fastReplaceExpected_USE_CAREFULLY] flag for details."
-        )
+        // This is fast replace mode.
+        val toReplace = actual
+            .replace(userReadableName, "{{ userReadableName }}")
+            .replace(buildDir, "{{ buildDir }}")
+            .replace(potDir, "{{ potDir }}")
+            .replace(testProcessDir, "{{ testProcessDir }}")
+        resourceFile.writeText(toReplace)
     }
 }

@@ -6,7 +6,10 @@ import org.yaml.snakeyaml.Yaml
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
-import kotlin.io.path.*
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
+import kotlin.io.path.name
+import kotlin.io.path.readLines
 
 
 internal fun withBuildFile(buildFile: Path, func: BuildFileAware.() -> PotatoModule): PotatoModule =
@@ -47,8 +50,8 @@ class YamlModelInit : ModelInit {
                 }
                 .map {
                     withBuildFile(it.toAbsolutePath()) {
-                        val parsed = yaml.parseAndPreprocess(it.inputStream()) { includePath ->
-                            buildFile.parent.resolve(includePath).inputStream()
+                        val parsed = yaml.parseAndPreprocess(it) { includePath ->
+                            buildFile.parent.resolve(includePath)
                         }
                         parseModule(parsed)
                     }

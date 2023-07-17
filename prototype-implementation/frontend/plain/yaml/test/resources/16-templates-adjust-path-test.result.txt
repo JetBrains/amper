@@ -1,0 +1,25 @@
+Module {{ userReadableName }}
+Fragments:
+  ios
+    External dependencies:
+      MavenDependency(coordinates={{ potDir }}/16-templates/some-dep-2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates={{ testProcessDir }}/some-dep, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+  iosTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      ios (FRIEND)
+    Parts:
+Artifacts:
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      ios
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosTest

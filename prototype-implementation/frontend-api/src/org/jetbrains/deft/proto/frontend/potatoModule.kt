@@ -6,7 +6,9 @@ sealed interface PotatoModuleSource
 
 object PotatoModuleProgrammaticSource : PotatoModuleSource
 
-data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource
+data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
+    val buildDir get() = buildFile.parent
+}
 
 enum class PotatoModuleType {
     LIBRARY,
