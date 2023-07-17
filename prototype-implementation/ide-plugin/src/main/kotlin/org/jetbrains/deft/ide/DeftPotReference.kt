@@ -2,7 +2,6 @@ package org.jetbrains.deft.ide
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.findFileOrDirectory
@@ -38,7 +37,6 @@ internal class DeftPotReference(element: PsiElement, private val template: Boole
         val variants = mutableListOf<LookupElement>()
 
         referenceManager.processPotFiles(GlobalSearchScope.projectScope(project), potFilter) { file ->
-            val icon = AllIcons.General.Gear
             val isTemplate = file.isPotTemplate()
             val filePath = if (isTemplate) file.virtualFile else file.parent?.virtualFile
             filePath ?: return@processPotFiles true
@@ -53,7 +51,7 @@ internal class DeftPotReference(element: PsiElement, private val template: Boole
                 LookupElementBuilder
                     .create(file, relativePath)
                     .withPresentableText(potName)
-                    .withIcon(icon)
+                    .withIcon(if (template) DeftIcons.TemplateFileType else DeftIcons.FileType)
             )
             true
         }

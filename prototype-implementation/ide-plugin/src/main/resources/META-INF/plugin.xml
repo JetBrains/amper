@@ -29,6 +29,7 @@
         <annotator language="yaml" implementationClass="org.jetbrains.deft.ide.DeftPlatformAnnotator"/>
         <externalSystemSettingsListener
                 implementation="org.jetbrains.deft.ide.externalTool.DeftProjectsWatcher"/>
+        <iconProvider order="first" implementation="org.jetbrains.deft.ide.DeftIconProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
