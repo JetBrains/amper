@@ -44,8 +44,10 @@ In a multi-platform Pot platform-specific code is located in the folders with `@
 |  |-util.kt       #  API implementation with ‘actual’ part for JVM
 |-Pot.yaml
 ```
-In the future we plan to also support a 'flat' multi-platform layout like the one below.
-It requires some investment in the IntelliJ platform, so we haven't yet done it. 
+
+_NOTE: In the future we plan to also support a 'flat' multi-platform layout like the one below.
+It requires some investment in the IntelliJ platform, so we haven't yet done it._ 
+ 
 ```
 |-src/             # common and platform-specisic code
 |  |-main.kt      
@@ -589,6 +591,69 @@ Here is the file layout:
 |  |-src/
 |  |  |-MyInstrumentedTest.kt 
 |  |-Pot.yaml 
+|-Pot.yaml
+```
+
+## Interop between languages
+
+Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
+There are tree distinct scenarios where such interoperability is needed:
+
+- Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM or CocoaPods on iOS.  
+- Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's tooling; such as jars on JVM, *.so on linux or frameworks on iOS.    
+- Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like JVM, C, Objective-C and Swift.
+
+_NOTE: Kotlin JVM supported all these scenarios from the beginning.
+However, full interoperability is currently not supported in the Kotlin Native._
+
+Here is how the interop is designed to work in the current DSL design:
+
+Consuming: Platform libraries and package managers could be consumed using a dedicated (and [extensible](#extensibility)) [dependency notation](#native-dependencies):
+
+```yaml
+dependencies:
+  # Kotlin or JVM dependency
+  - io.ktor:ktor-client-core:2.2.0
+
+  # JS npm dependency
+  - npm: "react"
+    version: "^17.0.2"
+
+  # iOS CocoaPods dependency
+  - pod: 'Alamofire'
+    version: '~> 2.0.1'
+```
+
+Publishing: In order to create a platform library or a package different [packaging types](#packaging) are supported (also [extensible](#extensibility)):
+
+```yaml
+publishing:
+  # publish as JVM library 
+  - maven: lib        
+    groupId: ...
+    artifactId: ...
+
+  # publish as iOS CocoaPods framework 
+  - cocoapods: ios/framework
+    name: MyCocoaPod
+    version: 1.0
+    summary: ...
+    homepage: ...
+```
+
+Joint compilation is already supported for Java and Kotlin, and in future Kotlin Native will also support joint Kotlin+Swift compilation.
+
+From the user's point of view the joint compilation is transparent; they could simply place the code written in different languages into the same source folder:
+
+```
+|-src/             
+|  |-main.kt      
+|-src@jvm/             
+|  |-KotlinCode.kt      
+|  |-JavaCode.java      
+|-src@ios/             
+|  |-KotlinCode.kt 
+|  |-SwiftCore.swift
 |-Pot.yaml
 ```
 
