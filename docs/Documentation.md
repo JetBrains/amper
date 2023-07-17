@@ -406,7 +406,7 @@ settings:
     androidApiVersion: android-31
 ```
 
-Here is the list of [currently supported toolchains and their settings](Toolchains.md).   
+Here is the list of [currently supported toolchains and their settings](SettingsList.md).   
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
