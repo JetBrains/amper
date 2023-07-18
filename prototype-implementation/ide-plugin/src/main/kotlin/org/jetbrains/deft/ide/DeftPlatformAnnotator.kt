@@ -13,6 +13,8 @@ import org.jetbrains.yaml.psi.YAMLKeyValue
 class DeftPlatformAnnotator : Annotator, DumbAware {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element !is YAMLKeyValue) return
+        if (!element.containingFile.originalFile.isDeftFile()) return
+
         val platformsText = element.keyText
             .substringAfter("@", missingDelimiterValue = "")
         if (platformsText.isEmpty()) return

@@ -17,7 +17,7 @@ import org.jetbrains.yaml.psi.YAMLSequence
 
 class DeftPlatformReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        if (element !is YAMLKeyValue) return emptyArray()
+        if (element !is YAMLKeyValue) return PsiReference.EMPTY_ARRAY
 
         val platformsText = element.keyText
             .substringAfter("@", missingDelimiterValue = "")

@@ -7,6 +7,6 @@ import org.jetbrains.yaml.psi.YAMLKeyValue
 
 class DeftPlatformReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(YAMLKeyValue::class.java), DeftPlatformReferenceProvider())
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(YAMLKeyValue::class.java).with(fromDeftFile()), DeftPlatformReferenceProvider())
     }
 }
