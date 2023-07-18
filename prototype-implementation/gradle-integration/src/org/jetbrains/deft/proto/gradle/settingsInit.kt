@@ -48,7 +48,8 @@ class SettingsPluginRun(
             // Add repositories for KMPP to work.
             project.repositories.google()
             project.repositories.jcenter()
-
+            // To be able to have import using dev versions of kotlin
+            project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
 
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject
