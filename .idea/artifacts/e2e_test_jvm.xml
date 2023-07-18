@@ -1,6 +1,8 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="e2e-test-jvm">
     <output-path>$PROJECT_DIR$/prototype-implementation/e2e-test/build/libs</output-path>
-    <root id="archive" name="e2e-test-jvm.jar" />
+    <root id="archive" name="e2e-test-jvm.jar">
+      <element id="module-output" name="prototype-implementation.e2e-test.jvmMain" />
+    </root>
   </artifact>
 </component>
