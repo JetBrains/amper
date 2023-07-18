@@ -1,17 +1,32 @@
 :
-  androidDebug:
-   depends(commonMain)
-   sourceDirs(src/debug/kotlin)
+  androidAndroidTest:
+   depends(commonTest)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidInstrumentedTest:
+  androidAndroidTestDebug:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidInstrumentedTestDebug:
+  androidAndroidTestRelease:
    depends()
-   sourceDirs(src/androidTestDebug/kotlin)
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugAndroidTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidDebugUnitTest:
+   depends()
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidMain:
@@ -20,23 +35,43 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidRelease:
-   depends(commonMain)
-   sourceDirs(src/release/kotlin)
+   depends()
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidUnitTest:
+  androidReleaseUnitTest:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidUnitTestDebug:
-   depends(commonTest)
-   sourceDirs(src/testDebug/kotlin)
+  androidTestDebug:
+   depends()
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidUnitTestRelease:
-   depends(commonTest)
-   sourceDirs(src/testRelease/kotlin)
+  androidTestFixtures:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesDebug:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestFixturesRelease:
+   depends()
+   sourceDirs()
+   lang(api=null version=null progressive=false features=)
+   implDeps()
+  androidTestRelease:
+   depends()
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonMain:
