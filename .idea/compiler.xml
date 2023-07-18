@@ -12,6 +12,9 @@
       <module name="jvm-hello-world.test" target="17" />
       <module name="jvm-hello-world_main" target="17" />
       <module name="jvm-hello-world_test" target="17" />
+      <module name="jvm-kotlin+java" target="17" />
+      <module name="jvm-kotlin+java.main" target="17" />
+      <module name="jvm-kotlin+java.test" target="17" />
       <module name="jvm-kotlin+java_main" target="17" />
       <module name="jvm-kotlin+java_test" target="17" />
       <module name="jvm-with-tests_main" target="17" />

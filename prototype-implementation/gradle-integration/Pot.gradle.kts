@@ -1,5 +1,9 @@
 // Don't remove this comment! It is parsed.
 // plugin org.gradle.java-gradle-plugin
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+apply(plugin="com.github.johnrengelman.shadow")
+
+
 extensions.findByType(GradlePluginDevelopmentExtension::class.java)?.apply {
     plugins {
         create("deftProtoSettingsPlugin") {
@@ -71,3 +75,20 @@ tasks.all {
     this as AbstractCopyTask
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+
+extensions.getByType(JavaApplication::class).mainClass = ""
+
+val jvmRuntimeClasspathConfiguration = configurations.getByName("jvmRuntimeClasspath")
+
+tasks.withType<ShadowJar> {
+    archiveBaseName = "gradle-integration"
+    archiveAppendix = ""
+    archiveClassifier = ""
+    isZip64 = true
+    configurations.clear()
+    configurations.add(jvmRuntimeClasspathConfiguration)
+}
+
+tasks.getByName("jar").dependsOn("shadowJar")
+tasks.getByName("jar").enabled = false
