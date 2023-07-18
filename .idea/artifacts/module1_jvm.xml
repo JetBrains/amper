@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="module1-jvm">
+    <output-path>$PROJECT_DIR$/examples/templates/module1/build/libs</output-path>
+    <root id="archive" name="module1-jvm.jar" />
+  </artifact>
+</component>

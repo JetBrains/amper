@@ -13,3 +13,7 @@ dependencies@ios:
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
+
+settings:
+  android:
+    compileSdkVersion: android-31

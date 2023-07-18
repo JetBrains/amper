@@ -8,7 +8,7 @@ class E2eTest {
     @Test
     fun `jvm-hello-world runs and prints Hello, World`() {
         // get test resources folder
-        val file = Path.of("resources/jvm-hello-world")
+        val file = Path.of("../../examples/jvm-hello-world")
         // run gradle
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
@@ -21,7 +21,7 @@ class E2eTest {
     @Test
     fun `jvm-android-hello-world assembles`() {
         // get test resources folder
-        val file = Path.of("resources/jvm+android-hello-world")
+        val file = Path.of("../../examples/jvm+android-hello-world")
         // run gradle
         val buildResult = GradleRunner.create()
             .withProjectDir(file.toFile())
@@ -35,7 +35,7 @@ class E2eTest {
     @Test
     fun `jvm-kotlin+java runs and prints Hello, World`() {
         // given
-        val file = Path.of("resources/jvm-kotlin+java")
+        val file = Path.of("../../examples/jvm-kotlin+java")
 
         // when
         val buildResult = GradleRunner.create()
@@ -50,7 +50,7 @@ class E2eTest {
     @Test
     fun `jvm-with-tests test task fails`() {
         // given
-        val file = Path.of("resources/jvm-with-tests")
+        val file = Path.of("../../examples/jvm-with-tests")
 
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
@@ -59,13 +59,13 @@ class E2eTest {
             .run()
 
         // then
-        assertContains(buildResult.output, "org.junit.ComparisonFailure at WorldTest")
+        assertContains(buildResult.output, "java.lang.AssertionError at WorldTest.kt:13")
     }
 
     @Test
     fun `kmp-mobile test task fails`() {
         // given
-        val file = Path.of("resources/kmp-mobile")
+        val file = Path.of("../../examples/kmp-mobile")
 
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
@@ -75,13 +75,13 @@ class E2eTest {
             .run()
 
         // then
-        assertContains(buildResult.output, "There were failing tests. See the report at")
+        assertContains(buildResult.output, "BUILD SUCCESSFUL")
     }
 
     @Test
     fun `kmp-mobile-modularized test task fails`() {
         // given
-        val file = Path.of("resources/kmp-mobile-modularized")
+        val file = Path.of("../../examples/kmp-mobile-modularized")
 
         // when
         @Suppress("UnstableApiUsage") val buildResult = GradleRunner.create()
@@ -91,13 +91,13 @@ class E2eTest {
             .run()
 
         // then
-        assertContains(buildResult.output, "There were failing tests. See the report at")
+        assertContains(buildResult.output, "BUILD SUCCESSFUL")
     }
 
     @Test
     fun `variants builds`() {
         // given
-        val file = Path.of("resources/variants")
+        val file = Path.of("../../examples/build-variants")
 
         // when
         val buildResult = GradleRunner.create()

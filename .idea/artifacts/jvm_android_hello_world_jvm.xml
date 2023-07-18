@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="jvm+android-hello-world-jvm">
+    <output-path>$PROJECT_DIR$/examples/jvm+android-hello-world/build/libs</output-path>
+    <root id="archive" name="jvm+android-hello-world-jvm.jar" />
+  </artifact>
+</component>

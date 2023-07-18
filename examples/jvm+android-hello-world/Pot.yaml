@@ -5,7 +5,5 @@ product:
 settings:
   java:
     mainClass: MainKt
-  kotlin:
-    languageVersion: 1.8
   android:
     compileSdkVersion: android-31

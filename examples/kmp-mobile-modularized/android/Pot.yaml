@@ -9,8 +9,5 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
 
 settings:
-  kotlin:
-    languageVersion: 1.8
-
-#settings@android:
-#  manifestFile: AndroidManifest.xml
+  android:
+    compileSdkVersion: android-31
