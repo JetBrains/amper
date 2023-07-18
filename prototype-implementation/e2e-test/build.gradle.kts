@@ -7,11 +7,10 @@ repositories {
 }
 
 kotlin {
-    @Suppress("OPT_IN_USAGE") targetHierarchy.default()
     jvm()
 
     sourceSets {
-        @Suppress("UNUSED_VARIABLE") val commonTest by getting {
+        commonTest.configure {
             kotlin.srcDirs("src/")
             resources.srcDirs("resources/")
             dependencies {
