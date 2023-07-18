@@ -69,7 +69,7 @@ fun `prototype implementation job`(
 
 // Build for publishing plugin.
 `prototype implementation job`(
-    "Plugin (Build and publish)",
+    "Intellij plugin (Build and publish)",
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
         text("version", value = "")

@@ -1,8 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="util-jvm-1.0-SNAPSHOT">
     <output-path>$PROJECT_DIR$/prototype-implementation/frontend/util/build/libs</output-path>
-    <root id="archive" name="util-jvm-1.0-SNAPSHOT.jar">
-      <element id="module-output" name="prototype-implementation.frontend.util.jvmMain" />
-    </root>
+    <root id="archive" name="util-jvm-1.0-SNAPSHOT.jar" />
   </artifact>
 </component>

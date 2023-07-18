@@ -4,9 +4,12 @@
     <bytecodeTargetLevel target="11">
       <module name="android" target="17" />
       <module name="ios" target="17" />
+      <module name="jvm-hello-world" target="17" />
+      <module name="jvm-hello-world.main" target="17" />
       <module name="jvm-hello-world.subproject" target="17" />
       <module name="jvm-hello-world.subproject.main" target="17" />
       <module name="jvm-hello-world.subproject.test" target="17" />
+      <module name="jvm-hello-world.test" target="17" />
       <module name="jvm-hello-world_main" target="17" />
       <module name="jvm-hello-world_test" target="17" />
       <module name="jvm-kotlin+java_main" target="17" />
