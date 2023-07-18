@@ -11,7 +11,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.deft.ide.POT_FILE_NAME
+import org.jetbrains.deft.ide.TEMPLATE_FILE_SUFFIX
 import org.jetbrains.plugins.gradle.util.GradleConstants
+import java.io.IOException
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.name
@@ -68,15 +71,17 @@ class DeftExternalSystemProjectAware(
 
     private fun getPotFiles(): Set<Path> {
         val files = mutableSetOf<Path>()
-        Files.walkFileTree(Paths.get(externalProjectPath), object : SimpleFileVisitor<Path>() {
-            override fun visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult {
-                if (path.name.endsWith("Pot.yaml")) {
-                    val file = path.toFile()
-                    if (file.isFile) files.add(path)
+        try {
+            Files.walkFileTree(Paths.get(externalProjectPath), object : SimpleFileVisitor<Path>() {
+                override fun visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult {
+                    if (path.name.endsWith(POT_FILE_NAME) || path.name.endsWith(TEMPLATE_FILE_SUFFIX)) {
+                        val file = path.toFile()
+                        if (file.isFile) files.add(path)
+                    }
+                    return FileVisitResult.CONTINUE
                 }
-                return FileVisitResult.CONTINUE
-            }
-        })
+            })
+        } catch (_: IOException) {}
 
         return files
     }

@@ -8,8 +8,8 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLFile
 
-private const val TEMPLATE_FILE_SUFFIX = ".Pot-template.yaml"
-private const val POT_FILE_NAME = "Pot.yaml"
+internal const val TEMPLATE_FILE_SUFFIX = ".Pot-template.yaml"
+internal const val POT_FILE_NAME = "Pot.yaml"
 
 internal fun VirtualFile.isPot(): Boolean = name == POT_FILE_NAME
 
