@@ -5,12 +5,12 @@ import kotlin.io.path.name
 import kotlin.io.path.walk
 
 val versions = mapOf(
-    "org.jetbrains.deft.proto.settings.plugin:gradle-integration" to "1.2.4",
+    "org.jetbrains.deft.proto.settings.plugin:gradle-integration" to "1.2.6",
     "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin" to "1.9.20-dev-6845"
 )
 
 updateFiles(Path.of("examples"), versions)
-updateFiles(Path.of("gradle-integration"), versions)
+updateFiles(Path.of("gradle-integration/settings.gradle.kts"), versions)
 
 @OptIn(kotlin.io.path.ExperimentalPathApi::class)
 fun updateFiles(path: Path, versions: Map<String, String>) {
