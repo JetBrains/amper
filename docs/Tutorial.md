@@ -2,7 +2,7 @@
 
 If you want to follow the tutorial:
 * Check the [setup instructions](Setup.md)
-* Open [a new project template](../project-templates/new-project) in the IDE  
+* Open [a new project template](../examples/new-project-template) in the IDE  
 
 If you are looking to more detailed info, check [the documentation](Documentation.md).
 
