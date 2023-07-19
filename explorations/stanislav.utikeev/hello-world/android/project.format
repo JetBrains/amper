@@ -1,8 +1,0 @@
-# ---
-# Hello World for Android.
-# ---
-[project]
-name = "hello-world-android"
-
-[kotlin]
-version = "1.8.0"

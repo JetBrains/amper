@@ -1,8 +1,0 @@
-# ---
-# Multi module project for JVM.
-# ---
-[project]
-name = "library-shared"
-
-[kotlin]
-version = "1.8.0"

@@ -1,7 +1,0 @@
-[[target]]
-platform = "jvm"
-# type = "binary" # By default we create a binary
-
-[dependencies]
-"ktor:ktor-server"="1.2"
-"org.my:my-lib"="current" # todo see QUESTIONS.md#Coordinates -- regarding referencing local dependenceis

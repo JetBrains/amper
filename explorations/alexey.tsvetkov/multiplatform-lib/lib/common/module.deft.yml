@@ -1,2 +1,0 @@
-dependencies:
-    - compile: org.jetbrains.kotlin:kotlin-coroutines:1.0.0

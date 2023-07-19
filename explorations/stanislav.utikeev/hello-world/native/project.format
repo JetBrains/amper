@@ -1,8 +1,0 @@
-# ---
-# Hello World for Native.
-# ---
-[project]
-name = "hello-world-native"
-
-[kotlin]
-version = "1.8.0"

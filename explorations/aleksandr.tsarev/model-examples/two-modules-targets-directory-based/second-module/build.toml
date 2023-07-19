@@ -1,9 +1,0 @@
-# Example of extension based target specified code detection.
-[dependencies]
-module = "local"
-"org.example.dependency" = "1.2.3"
-
-# [dependencies.ios]
-# [dependencies.terget.ios]
-[targets.ios.dependencies]
-"org.example.dependency" = "1.2.3"

@@ -1,9 +1,0 @@
-[kotlin.compilerPlugins]
-"org.jetbrains.kotlin:kotlin-serialization" = "1.8.10"
-
-[dependencies]
-"io.swagger:swagger-annotations" = "1.6.9"
-"org.jetbrains.kotlin:kotlin-serialization" = "1.8.10"
-
-[afterBuild]
-"assembleSwaggerDoc.sh" = { rerun = "whenChanged" }

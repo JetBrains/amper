@@ -1,6 +1,0 @@
-deft-version: 1.0.0
-plugins:
-    - kotlin/1.8.20
-    - java/17.0.0
-modules:
-    - lib

@@ -1,3 +1,0 @@
-interface A {
-    fun x()
-}

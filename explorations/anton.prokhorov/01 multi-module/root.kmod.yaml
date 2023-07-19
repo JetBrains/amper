@@ -1,6 +1,0 @@
-groupId: org.jetbrains.kmod
-
-platforms: ${.default-platforms}
-
-default-platforms:
-  - jvm

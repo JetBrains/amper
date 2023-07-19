@@ -1,5 +1,0 @@
-[module]
-target = native
-dependencies = [
-    "shared",
-]

@@ -1,6 +1,0 @@
-[target.android]
-compileSdkVersion = "33"
-targetSdkVersion = "33"
-minSdkVersion = "24"
-sourceCompatibility = "VERSION_1_8"
-targetCompatibility = "VERSION_1_8"

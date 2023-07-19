@@ -1,4 +1,0 @@
-[dependencies]
-# Seems that is a good agreement, that local dependencies are located first.
-module = "local"
-"org.example.some-js" = "1.2.3"

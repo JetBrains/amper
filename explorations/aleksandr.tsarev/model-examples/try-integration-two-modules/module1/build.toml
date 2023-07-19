@@ -1,5 +1,0 @@
-[dependencies]
-module2 = "local"
-
-[target.jvm.dependencies]
-"org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm" = "1.6.4"

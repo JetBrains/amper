@@ -1,7 +1,0 @@
-# Example of directory based target specified code detection.
-[dependencies]
-module = "local"
-"org.example.dependency" = "1.2.3"
-
-[dependencies.ios]
-"org.example.dependency" = "1.2.3"

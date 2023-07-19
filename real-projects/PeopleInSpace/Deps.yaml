@@ -1,5 +1,0 @@
-catalogs:
-  versions: ./Versions.yaml
-
-android:
-  osmdrodAndroid: org.osmdroid:osmdroid-android:${versions.osmdroidAndroid}

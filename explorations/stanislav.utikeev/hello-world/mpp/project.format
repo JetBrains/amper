@@ -1,8 +1,0 @@
-# ---
-# Hello World for MPP. No modules are needed. Class with psvm should be found automatically.
-# ---
-[project]
-name = "hello-world-mpp"
-
-[kotlin]
-version = "1.8.0"

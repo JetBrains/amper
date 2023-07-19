@@ -1,9 +1,0 @@
-[sources]
-second-sources = { }
-integration-test = { test = true }
-
-# Dependencies for specific source sets?
-# [dependencies.integration-test]
-# [dependencies.tests]
-[dependencies]
-"org.example.some" = "1.2.3"

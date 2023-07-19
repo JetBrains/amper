@@ -1,6 +1,0 @@
-# How would it be merged with inherited one?
-# And, I cant place it in top module, since I dont need it in shared-ui-elements.
-kotlin:
-  compiler-settings:
-    plugins:
-      - org.jetbrains:kotlinx-serialization-plugin:{.kotlinx-serialization.version}

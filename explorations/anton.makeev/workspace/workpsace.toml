@@ -1,8 +1,0 @@
-# all modules, that should be resolved/built together
-# by default, it the list of all sub folders with module.toml
-modules=["subdir1", "subdir2", "subdir3"]
-
-# extract common dependencies here. they can be used in every module of the workspace.
-[dependency-catalog]
-bar1="org.foo:bar:1"
-zoo2="org.foo:zoo:2"

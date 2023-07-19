@@ -1,5 +1,0 @@
-# All of this is like under [target.ios]
-someMinVersion = "42"
-
-[test.dependencies]
-"org.junit:junit" = "42"

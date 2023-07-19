@@ -1,6 +1,0 @@
-# What should I specify here?
-# platforms:
-#   - ???
-
-dependencies:
-  - some:math:1.2.3

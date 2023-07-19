@@ -1,6 +1,0 @@
-parent: ../root.kmod.yaml
-
-my-platforms:
-  - native
-
-platforms: ${my-platforms + default-platforms}

@@ -1,1 +1,0 @@
-https://github.com/realm/realm-kotlin-samples/

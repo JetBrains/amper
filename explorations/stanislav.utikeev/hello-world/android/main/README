@@ -1,4 +1,0 @@
-JVM has deep folder structure due to the packages. Maybe, we can avoid additional nesting (aka src/../(java|kotlin), e.g.).
-We can also recognize both modes:
-- packages start at the same level as module.format. For simple projects without testing needed
-- main/test/testFixtures source sets (with customizable names)

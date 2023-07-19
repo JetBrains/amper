@@ -1,9 +1,0 @@
-[[target]]
-platform = "current" # or "macos"  # todo see QUESTIONS.md#Defaults -- about specifying the current platform
-# todo see QUESTIONS.md#Build pipeline -- regarding crosscompilation
-
-[dependencies]
-# Depend on multi-platform library. Tool will figure out platform-specific version
-"kotlin:kotlin-logging"="1.2" # by default we use koltin/java distribution (Maven central)
-
-

@@ -1,8 +1,0 @@
-plugins:
-  - serialization:
-      runtime:
-        - json
-  - allopen
-  - noarg:
-      annotation: "javax.persistence.Entity"
-      invoke-initializers: true
