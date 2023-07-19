@@ -4,6 +4,18 @@ import java.nio.file.Path
 import kotlin.test.assertContains
 
 class E2eTest {
+    @Test
+    fun `new project template runs and prints Hello, World`() {
+        // get test resources folder
+        val file = Path.of("../../examples/new-project-template")
+        // run gradle
+        val buildResult = GradleRunner.create()
+            .withProjectDir(file.toFile())
+            .withArguments("run", "--stacktrace")
+            .build()
+
+        assertContains(buildResult.output, "Hello, World!")
+    }
 
     @Test
     fun `jvm-hello-world runs and prints Hello, World`() {
