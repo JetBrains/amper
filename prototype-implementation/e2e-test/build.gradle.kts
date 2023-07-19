@@ -12,7 +12,6 @@ kotlin {
     sourceSets {
         commonTest.configure {
             kotlin.srcDirs("src/")
-            resources.srcDirs("resources/")
             dependencies {
                 implementation(kotlin("test"))
                 implementation(dependencies.gradleTestKit())
