@@ -8,6 +8,7 @@ settings:
 dependencies:
   - ../frontend-api
   - ../frontend/plain/yaml
+  # !!! Use syncVersions.kts to update these versions
   - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.22
   - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.22
   - com.android.library:com.android.library.gradle.plugin:7.4.0
