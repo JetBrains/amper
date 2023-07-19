@@ -6,6 +6,7 @@ settings:
     group: org.jetbrains.deft.proto.frontend
 
 dependencies:
+  # !!! Use syncVersions.kts to update these versions
   - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21
 
 test-dependencies:
