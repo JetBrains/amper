@@ -1,20 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$/examples/build-variants" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/jvm+android-hello-world" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/jvm-hello-world" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/jvm-kotlin+java" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/jvm-with-tests" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/kmp-mobile" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/kmp-mobile-modularized" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/templates" />
-    <file type="web" url="file://$PROJECT_DIR$/examples/variants" />
-    <file type="web" url="file://$PROJECT_DIR$/prototype-implementation" />
-    <file type="web" url="file://$PROJECT_DIR$/real-projects/Bookshelf" />
-    <file type="web" url="file://$PROJECT_DIR$/real-projects/PeopleInSpace" />
-    <file type="web" url="file://$PROJECT_DIR$/real-projects/rss-reader-plain" />
+    <file type="web" url="file://$PROJECT_DIR$/examples/" />
   </component>
   <component name="PWA">
     <option name="enabled" value="true" />

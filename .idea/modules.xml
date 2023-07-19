@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/models-design-sandbox.iml" filepath="$PROJECT_DIR$/.idea/models-design-sandbox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/deft-prototype.iml" filepath="$PROJECT_DIR$/.idea/deft-prototype.iml" />
     </modules>
   </component>
 </project>
