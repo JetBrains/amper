@@ -4,7 +4,7 @@ product:
 
 repositories:
   - name: scratch
-    url: https://packages.jetbrains.team/maven/p/deft/scratch
+    url: https://packages.jetbrains.team/maven/p/deft/deft-prototype
     username: ${scratch.username}
     password: ${scratch.password}
     publish: true

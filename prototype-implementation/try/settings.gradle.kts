@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-//        maven("https://packages.jetbrains.team/maven/p/deft/scratch")
+//        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
         mavenLocal()
         mavenCentral()
         google()

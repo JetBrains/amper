@@ -18,13 +18,11 @@ buildscript {
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         maven {
             name = "spacePackages"
+            url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
+        }
+        maven {
+            name = "legacySpacePackages"
             url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
-            credentials {
-                username = localProperties.getProperty("scratch.username")
-                    ?: error("No \"scratch.username\" in root.local.properties!")
-                password = localProperties.getProperty("scratch.password")
-                    ?: error("No \"scratch.password\" in root.local.properties!")
-            }
         }
         //endregion scratch version
 
