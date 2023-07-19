@@ -358,25 +358,32 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
 context (Map<String, Set<Platform>>, BuildFileAware)
 internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
     config.handleFragmentSettings<Settings>(this, "settings") {
-        it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
-            kotlin = KotlinPartBuilder {
-                kotlinSettings.getValue<Double>("languageVersion")?.let { kotlinVersion ->
-                    languageVersion = KotlinVersion.requireFromString(kotlinVersion.toString())
+        kotlin = KotlinPartBuilder {
+            it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
+                // Special
+                kotlinSettings.getValue<Double>("languageVersion") {
+                    languageVersion = KotlinVersion.requireFromString(it.toString())
+                }
+                kotlinSettings.getValue<Double>("apiVersion") {
+                    apiVersion = KotlinVersion.requireFromString(it.toString())
                 }
 
-                kotlinSettings.getValue<Double>("apiVersion")?.let { kotlinVersion ->
-                    apiVersion = KotlinVersion.requireFromString(kotlinVersion.toString())
-                }
+                // Boolean
+                kotlinSettings.getValue<Boolean>("allWarningsAsErrors") { allWarningsAsErrors = it }
+                kotlinSettings.getValue<Boolean>("suppressWarnings") { suppressWarnings = it }
+                kotlinSettings.getValue<Boolean>("verbose") { verbose = it }
+                kotlinSettings.getValue<Boolean>("debug") { debug = it }
+                kotlinSettings.getValue<Boolean>("progressiveMode") { progressiveMode = it }
 
-                sdkVersion = kotlinSettings.getByPath<String>("sdk", "version")
-
-                kotlinSettings.getValue<List<String>>("features")?.let { features ->
-                    languageFeatures.addAll(features)
-                }
+                // Lists
+                kotlinSettings.getValue<List<String>>("languageFeatures") { languageFeatures.addAll(it) }
+                kotlinSettings.getValue<List<String>>("optIns") { optIns.addAll(it) }
+                kotlinSettings.getValue<List<String>>("freeCompilerArgs") { freeCompilerArgs.addAll(it) }
             }
         }
-        it.getValue<Settings>("junit")?.let { testSettings ->
-            junit = JunitPartBuilder {
+
+        junit = JunitPartBuilder {
+            it.getValue<Settings>("junit")?.let { testSettings ->
                 platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
             }
         }
@@ -389,28 +396,32 @@ internal fun List<ArtifactBuilder>.handleSettings(
     fragments: List<FragmentBuilder>
 ) {
     config.handleArtifactSettings<Settings>(fragments, "settings") {
-        it.getValue<Settings>("android")?.let { androidSettings ->
-            android = AndroidPartBuilder {
+
+        android = AndroidPartBuilder {
+            it.getValue<Settings>("android")?.let { androidSettings ->
                 compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")
-                androidMinSdkVersion = androidSettings.getValue<Int>("minSdkVersion")
-                sourceCompatibility = androidSettings.getStringValue("sourceCompatibility")
-                targetCompatibility = androidSettings.getStringValue("targetCompatibility")
+                minSdk = androidSettings.getStringValue("minSdk")
+                minSdkPreview = androidSettings.getStringValue("minSdkPreview")
+                maxSdk = androidSettings.getValue<Int>("maxSdk")
+                targetSdk = androidSettings.getStringValue("targetSdk")
+                applicationId = androidSettings.getStringValue("applicationId")
+                namespace = androidSettings.getStringValue("namespace")
             }
         }
 
-        it.getValue<Settings>("publishing")?.let { publishSettings ->
-            publishing = PublishingPartBuilder {
+        publishing = PublishingPartBuilder {
+            it.getValue<Settings>("publishing")?.let { publishSettings ->
                 group = publishSettings.getStringValue("group")
                 version = publishSettings.getValue<Any>("version").toString()
             }
         }
 
-        it.getValue<Settings>("java")?.let { javaSettings ->
-            java = JavaPartBuilder {
+        java = JavaPartBuilder {
+            it.getValue<Settings>("java")?.let { javaSettings ->
                 mainClass = javaSettings.getStringValue("mainClass")
                 packagePrefix = javaSettings.getStringValue("packagePrefix")
-                jvmTarget = javaSettings.getValue<Double>("jvmTarget")?.toString()
-                    ?: javaSettings.getValue<Int>("jvmTarget")?.toString()
+                target = javaSettings.getStringValue("target")
+                source = javaSettings.getStringValue("source")
             }
         }
     }

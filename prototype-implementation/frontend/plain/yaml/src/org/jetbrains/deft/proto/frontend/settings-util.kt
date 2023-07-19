@@ -17,6 +17,12 @@ internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>
 
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
+internal inline fun <reified T : Any> Settings.getValue(
+    key: String, block: (T) -> Unit
+) {
+    (this[key] as? T)?.let(block)
+}
+
 internal fun Settings.getStringValue(key: String) = this[key]?.toString()
 
 internal inline fun <reified T : Any> Settings.requireValue(

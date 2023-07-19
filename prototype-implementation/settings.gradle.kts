@@ -4,7 +4,7 @@ buildscript {
 
         // Uncomment this if you want to use local published version.
         //region local version
-//        mavenLocal()
+        mavenLocal()
         //region local version
 
         //region scratch version

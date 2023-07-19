@@ -2,7 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 
 @Suppress("unused")
-enum class KotlinVersion(private val version: String) {
+enum class KotlinVersion(internal val version: String) {
     Kotlin20("2.0"),
     Kotlin19("1.9"),
     Kotlin18("1.8"),
@@ -26,20 +26,27 @@ enum class KotlinVersion(private val version: String) {
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
-    var sdkVersion: String? = null,
+    var allWarningsAsErrors: Boolean? = null,
+    val freeCompilerArgs: MutableList<String> = mutableListOf(),
+    var suppressWarnings: Boolean? = null,
+    var verbose: Boolean? = null,
+    val likerOpts: MutableList<String> = mutableListOf(),
+    var debug: Boolean? = null,
     var progressiveMode: Boolean? = null,
     val languageFeatures: MutableList<String> = mutableListOf(),
-    val optIns: MutableList<String> = mutableListOf(),
-    var jvmTarget: Int? = null,
+    var optIns: MutableList<String> = mutableListOf(),
 ) {
     companion object : BuilderCompanion<KotlinPartBuilder>(::KotlinPartBuilder)
 }
 
 data class AndroidPartBuilder(
     var compileSdkVersion: String? = null,
-    var androidMinSdkVersion: Int? = null,
-    var sourceCompatibility: String? = null,
-    var targetCompatibility: String? = null,
+    var minSdk: String? = null,
+    var minSdkPreview: String? = null,
+    var maxSdk: Int? = null,
+    var targetSdk: String? = null,
+    var applicationId: String? = null,
+    var namespace: String? = null,
 ) {
     companion object : BuilderCompanion<AndroidPartBuilder>(::AndroidPartBuilder)
 }
@@ -47,7 +54,8 @@ data class AndroidPartBuilder(
 data class JavaPartBuilder(
     var mainClass: String? = null,
     var packagePrefix: String? = null,
-    var jvmTarget: String? = null,
+    var target: String? = null,
+    var source: String? = null,
 ) {
     companion object : BuilderCompanion<JavaPartBuilder>(::JavaPartBuilder)
 }

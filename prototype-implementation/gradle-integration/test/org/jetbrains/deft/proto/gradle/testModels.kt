@@ -103,12 +103,12 @@ object Models : ModelInit {
                 leafFragment {
                     addPart(
                         KotlinPart(
-                            "1.9",
-                            "1.9",
-                            null,
-                            true,
-                            listOf("InlineClasses"),
-                            listOf("org.mylibrary.OptInAnnotation"),
+                            languageVersion = "1.9",
+                            apiVersion = "1.9",
+                            debug = null,
+                            progressiveMode = true,
+                            languageFeatures = listOf("InlineClasses"),
+                            optIns = listOf("org.mylibrary.OptInAnnotation"),
                         )
                     )
                     platforms.add(Platform.JVM)
@@ -125,7 +125,7 @@ object Models : ModelInit {
                 leafFragment {
                     platforms.add(Platform.ANDROID)
                     addPart(AndroidPart(
-                        "android-31", 24, "17", "17"
+                        "android-31", "24", "17", 17
                     ))
                 }
             )

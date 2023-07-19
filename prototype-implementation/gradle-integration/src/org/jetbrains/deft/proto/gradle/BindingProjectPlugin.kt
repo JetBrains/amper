@@ -11,7 +11,7 @@ import org.jetbrains.deft.proto.frontend.TestPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
-import org.jetbrains.deft.proto.gradle.kmpp.applyKotlinMPAttributes
+import org.jetbrains.deft.proto.gradle.kmpp.KMPPBindingPluginPart
 import java.net.URI
 import kotlin.io.path.absolutePathString
 
@@ -29,8 +29,10 @@ class BindingProjectPlugin : Plugin<Project> {
 
         // Apply parts.
         if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
-        applyKotlinMPAttributes(pluginCtx)
+        val kmppBindingPluginPart = KMPPBindingPluginPart(pluginCtx)
+        kmppBindingPluginPart.apply()
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
+        kmppBindingPluginPart.afterAll()
 
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
@@ -53,8 +55,8 @@ class BindingProjectPlugin : Plugin<Project> {
         val extension = project.extensions.getByType(PublishingExtension::class.java)
         module.leafNonTestFragments.firstOrNull { !it.isTest }?.parts?.find<PublicationPart>()?.let {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
-            project.group = it.group!!
-            project.version = it.version!!
+            project.group = it.group ?: ""
+            project.version = it.version?: ""
             extension.repositories.configure(module.parts.find<RepositoriesModulePart>())
         }
     }

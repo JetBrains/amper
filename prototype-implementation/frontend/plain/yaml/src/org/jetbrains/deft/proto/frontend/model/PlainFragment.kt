@@ -21,51 +21,60 @@ internal open class PlainFragment(
         get() = fragmentBuilder.externalDependencies.toList()
 
     override val parts: ClassBasedSet<FragmentPart<*>> = buildClassBasedSet {
-            addPartFrom(fragmentBuilder.kotlin) {
-                KotlinPart(
-                    languageVersion?.toString(),
-                    apiVersion?.toString(),
-                    sdkVersion,
-                    progressiveMode,
-                    languageFeatures,
-                    optIns,
-                )
-            }
-
-            addPartFrom(fragmentBuilder.junit) {
-                TestPart(platformEnabled)
-            }
-
-            addPartFrom(fragmentBuilder.android) {
-                AndroidPart(
-                    compileSdkVersion,
-                    androidMinSdkVersion,
-                    sourceCompatibility,
-                    targetCompatibility,
-                )
-            }
-
-            addPartFrom(fragmentBuilder.java) {
-                JvmPart(
-                    mainClass,
-                    packagePrefix,
-                    jvmTarget,
-                )
-            }
-
-            addPartFrom(fragmentBuilder.publishing) {
-                PublicationPart(
-                    group,
-                    version,
-                )
-            }
-
-            addPartFrom(fragmentBuilder.native) {
-                NativeApplicationPart(
-                    entryPoint
-                )
-            }
+        addPartFrom(fragmentBuilder.kotlin) {
+            KotlinPart(
+                languageVersion = languageVersion?.version,
+                apiVersion = apiVersion?.version,
+                allWarningsAsErrors = allWarningsAsErrors,
+                freeCompilerArgs = freeCompilerArgs,
+                suppressWarnings = suppressWarnings,
+                verbose = verbose,
+                linkerOpts = likerOpts,
+                debug = debug,
+                progressiveMode = progressiveMode,
+                languageFeatures = languageFeatures,
+                optIns = optIns,
+            )
         }
+
+        addPartFrom(fragmentBuilder.junit) {
+            TestPart(platformEnabled)
+        }
+
+        addPartFrom(fragmentBuilder.android) {
+            AndroidPart(
+                compileSdkVersion,
+                minSdk,
+                minSdkPreview,
+                maxSdk,
+                targetSdk,
+                applicationId,
+                namespace,
+            )
+        }
+
+        addPartFrom(fragmentBuilder.java) {
+            JavaPart(
+                mainClass,
+                packagePrefix,
+                target,
+                source,
+            )
+        }
+
+        addPartFrom(fragmentBuilder.publishing) {
+            PublicationPart(
+                group,
+                version,
+            )
+        }
+
+        addPartFrom(fragmentBuilder.native) {
+            NativeApplicationPart(
+                entryPoint
+            )
+        }
+    }
 
     override val platforms: Set<Platform>
         get() = fragmentBuilder.platforms

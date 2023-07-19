@@ -6,39 +6,42 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
-    val sdkVersion: String?,
+    val allWarningsAsErrors: Boolean? = null,
+    val freeCompilerArgs: List<String> = emptyList(),
+    val suppressWarnings: Boolean? = null,
+    val verbose: Boolean? = null,
+    val linkerOpts: List<String> = emptyList(),
+    val debug: Boolean?,
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
-    val freeCompilerArgs: List<String> = emptyList(),
-    val allWarningsAsErrors: Boolean? = null,
-    val suppressWarnings: Boolean? = null,
-    val verbose: Boolean? = null,
 ) : FragmentPart<KotlinPart> {
     override fun propagate(parent: KotlinPart): FragmentPart<KotlinPart> =
         KotlinPart(
             parent.languageVersion ?: languageVersion,
             parent.apiVersion ?: apiVersion,
-            parent.sdkVersion ?: sdkVersion,
+            allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
+            (freeCompilerArgs + parent.freeCompilerArgs),
+            suppressWarnings ?: true || parent.suppressWarnings ?: false,
+            verbose ?: true || parent.verbose ?: false, // TODO check
+
+            // Inherit parent state if no current state is set.
+            linkerOpts.ifEmpty { parent.linkerOpts },
+            debug ?: parent.debug,
             parent.progressiveMode ?: progressiveMode,
             languageFeatures.ifEmpty { parent.languageFeatures },
             optIns.ifEmpty { parent.optIns },
-            (freeCompilerArgs + parent.freeCompilerArgs), // TODO check
-
-            // Inherit parent state if no current state is set.
-            allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
-            suppressWarnings ?: true || parent.suppressWarnings ?: false,
-            verbose ?: true || parent.verbose ?: false,
         )
 
     override fun default(): FragmentPart<*> {
         return KotlinPart(
-            languageVersion ?: "1.9",
-            apiVersion ?: languageVersion,
-            sdkVersion,
-            progressiveMode ?: false,
-            languageFeatures.takeIf { it.isNotEmpty() } ?: listOf(),
-            optIns.takeIf { it.isNotEmpty() } ?: listOf(),
+            languageVersion = languageVersion ?: "1.8",
+            apiVersion = apiVersion ?: languageVersion,
+            debug = null,
+            progressiveMode = progressiveMode ?: false,
+            languageFeatures = languageFeatures.takeIf { it.isNotEmpty() } ?: listOf(),
+            optIns = optIns.takeIf { it.isNotEmpty() } ?: listOf(),
+            linkerOpts = emptyList(),
         )
     }
 }
@@ -52,38 +55,33 @@ data class TestPart(val junitPlatform: Boolean?) : FragmentPart<TestPart> {
 
 data class AndroidPart(
     val compileSdkVersion: String?,
-    val minSdkVersion: Int?,
-    val sourceCompatibility: String?,
-    val targetCompatibility: String?,
-    val jvmTarget: String? = null,
-    val publishLibraryVariants: Boolean = false,
-    val publishLibraryVariantsGroupedByFlavor: Boolean = false,
-    val moduleName: String? = null,
-    val noJdk: Boolean = false,
+    val minSdk: String? = null,
+    val minSdkPreview: String? = null,
+    val maxSdk: Int? = null,
+    val targetSdk: String? = null,
+    val applicationId: String? = null,
+    val namespace: String? = null,
 ) : FragmentPart<AndroidPart> {
     override fun default(): FragmentPart<AndroidPart> =
         AndroidPart(
-            compileSdkVersion ?: "android-33",
-            minSdkVersion ?: 21,
-            sourceCompatibility ?: "17",
-            targetCompatibility ?: "17",
-            jvmTarget ?: "17",
-
+            compileSdkVersion = compileSdkVersion ?: "android-33",
+            minSdk = minSdk ?: "21",
         )
 }
 
-data class JvmPart(
+data class JavaPart(
     val mainClass: String?,
     val packagePrefix: String?,
-    val jvmTarget: String?,
+    val target: String?,
+    val source: String?,
     val moduleName: String? = null,
-    val noJdk: Boolean = false,
-) : FragmentPart<JvmPart> {
-    override fun default(): FragmentPart<JvmPart> =
-        JvmPart(
+) : FragmentPart<JavaPart> {
+    override fun default(): FragmentPart<JavaPart> =
+        JavaPart(
             mainClass ?: "MainKt",
             packagePrefix ?: "",
-            jvmTarget ?: "17",
+            target ?: "17",
+            source ?: "17",
             )
 }
 
@@ -110,7 +108,6 @@ data class NativeApplicationPart(
     // Do not touch defaults of KMPP.
     val optimized: Boolean? = null,
     val binaryOptions: Map<String, String> = emptyMap(),
-    val linkerOpts: List<String> = emptyList(),
 ) : FragmentPart<NativeApplicationPart> {
     override fun default(): FragmentPart<NativeApplicationPart> =
         NativeApplicationPart(entryPoint ?: "main")

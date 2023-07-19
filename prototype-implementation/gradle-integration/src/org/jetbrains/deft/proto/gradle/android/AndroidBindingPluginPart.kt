@@ -1,8 +1,9 @@
 package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
+import org.gradle.api.JavaVersion
 import org.jetbrains.deft.proto.frontend.AndroidPart
-import org.jetbrains.deft.proto.frontend.JvmPart
+import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -69,25 +70,28 @@ class AndroidBindingPluginPart(
 
     private fun adjustCompilations() = with(KotlinDeftNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
-            fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
-                project.afterEvaluate {
-                    val androidTarget = fragment.target ?: return@afterEvaluate
-                    val compilations = if (fragment.isTest) {
-                        androidTarget.compilations.matching { it.name.lowercase().contains("test") }
-                    } else {
-                        androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
-                    }
-                    compilations.configureEach {
+            project.afterEvaluate {
+                val androidTarget = fragment.target ?: return@afterEvaluate
+                val compilations = if (fragment.isTest) {
+                    androidTarget.compilations.matching { it.name.lowercase().contains("test") }
+                } else {
+                    androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
+                }
+                compilations.configureEach {
+                    fragment.parts.find<JavaPart>()?.let { part ->
                         it.compileTaskProvider.configure {
-                            it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                            it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
-                        }
-
-                        it.kotlinSourceSets.forEach { compilationSourceSet ->
-                            if (compilationSourceSet != fragment.kotlinSourceSet) {
-                                println("Attaching fragment ${fragment.name} to compilation ${it.name}")
-                                compilationSourceSet.doDependsOn(fragment)
+                            part.target?.let { target ->
+                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                                println("Compilation ${it.name} has jvmTarget $target")
+                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(target))
                             }
+                        }
+                    }
+
+                    it.kotlinSourceSets.forEach { compilationSourceSet ->
+                        if (compilationSourceSet != fragment.kotlinSourceSet) {
+                            println("Attaching fragment ${fragment.name} to compilation ${it.name}")
+                            compilationSourceSet.doDependsOn(fragment)
                         }
                     }
                 }
@@ -96,38 +100,30 @@ class AndroidBindingPluginPart(
     }
 
     private fun applySettings() {
+        val firstAndroidFragment = leafPlatformFragments.first()
+        androidPE?.compileOptions {
+            val compileOptions = it
+            firstAndroidFragment.parts.find<JavaPart>()?.source?.let {
+                compileOptions.setSourceCompatibility(it)
+            }
+            firstAndroidFragment.parts.find<JavaPart>()?.target?.let {
+                compileOptions.setTargetCompatibility(it)
+            }
+        }
         androidPE?.namespace = "com.example.sampleproject"
         leafPlatformFragments.forEach { fragment ->
             val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {
-                part.compileSdkVersion?.let {
-                    compileSdkVersion(it)
-                }
-                defaultConfig {
-                    it.minSdkVersion(part.minSdkVersion ?: 24)
-                }
-                compileOptions {
-                    if (part.sourceCompatibility != null)
-                        it.setSourceCompatibility(part.sourceCompatibility)
-                    if (part.targetCompatibility != null)
-                        it.setTargetCompatibility(part.targetCompatibility)
+                part.compileSdkVersion?.let { compileSdkVersion(it) }
+                defaultConfig.apply {
+                    part.applicationId?.let { applicationId = it }
+                    part.namespace?.let { namespace = it }
+                    part.minSdk?.let { minSdkVersion(it) }
+                    part.minSdkPreview?.let { minSdkPreview = it }
+                    part.maxSdk?.let { maxSdkVersion(it) }
+                    part.targetSdk?.let { targetSdkVersion(it) }
                 }
             }
         }
-
-        //        androidPE.apply {
-//            allCollapsed["target.android.compileSdkVersion"]?.first()?.let { compileSdkVersion(it.toInt()) }
-//            defaultConfig {
-//                allCollapsed["target.android.minSdkVersion"]?.first()?.let { minSdkVersion(it) }
-//                allCollapsed["target.android.targetSdkVersion"]?.first()?.let { targetSdkVersion(it) }
-//                allCollapsed["target.android.versionCode"]?.first()?.let { versionCode(it.toInt()) }
-//                allCollapsed["target.android.versionName"]?.first()?.let { versionName(it) }
-//                allCollapsed["target.android.applicationId"]?.first()?.let { applicationId(it) }
-//            }
-//            compileOptions {
-//                allCollapsed["target.android.sourceCompatibility"]?.first()?.let { sourceCompatibility(it) }
-//                allCollapsed["target.android.targetCompatibility"]?.first()?.let { targetCompatibility(it) }
-//            }
-//        }
     }
 }

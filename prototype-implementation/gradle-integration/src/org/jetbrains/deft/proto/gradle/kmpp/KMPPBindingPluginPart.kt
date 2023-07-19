@@ -8,8 +8,11 @@ import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
 import org.jetbrains.deft.proto.gradle.base.*
 import org.jetbrains.deft.proto.gradle.findEntryPoint
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilationName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -19,10 +22,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractExecutable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
-
-fun applyKotlinMPAttributes(ctx: PluginPartCtx) = KMPPBindingPluginPart(ctx).apply()
 
 
 // Introduced function to remember to propagate language settings.
@@ -65,6 +65,35 @@ class KMPPBindingPluginPart(
         project.extraProperties.set("kotlin.mpp.import.enableKgpDependencyResolution", "false")
         initTargets()
         initFragments()
+    }
+
+    fun afterAll() {
+        // Need after evaluate to catch up android compilations creation.
+        project.afterEvaluate {
+            module.leafFragments.forEach { fragment ->
+                with(fragment.target ?: return@forEach) {
+                    val name = fragment.compilationName
+                    fragment.compilation?.apply {
+                        fragment.parts.find<KotlinPart>()?.let {
+                            kotlinOptions::allWarningsAsErrors trySet it.allWarningsAsErrors
+                            kotlinOptions::freeCompilerArgs trySet it.freeCompilerArgs
+                            kotlinOptions::suppressWarnings trySet it.suppressWarnings
+                            kotlinOptions::verbose trySet it.verbose
+                        }
+
+                        // Set jvm target for all jvm like compilations.
+                        fragment.parts.find<JavaPart>()?.target?.let { jvmTarget ->
+                            compileTaskProvider.configure {
+                                it.compilerOptions.apply {
+                                    this as? KotlinJvmCompilerOptions ?: return@apply
+                                    this.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun initTargets() = with(KotlinDeftNamingConvention) {
@@ -117,10 +146,10 @@ class KMPPBindingPluginPart(
         target.binaries {
             when {
                 fragment.isTest -> test(fragment.name) {
-                    adjustExecutable(part, kotlinNativeCompilation)
+                    adjustExecutable(fragment, kotlinNativeCompilation)
                 }
                 else -> executable(fragment.name) {
-                    adjustExecutable(part, kotlinNativeCompilation)
+                    adjustExecutable(fragment, kotlinNativeCompilation)
                     entryPoint = part?.entryPoint
                         ?: findEntryPoint("main.kt", fragment).native()
                 }
@@ -136,16 +165,19 @@ class KMPPBindingPluginPart(
     }
 
     private fun AbstractExecutable.adjustExecutable(
-        part: NativeApplicationPart?,
+        fragment: LeafFragmentWrapper,
         kotlinNativeCompilation: KotlinNativeCompilation
     ) {
-        part ?: return
-        ::baseName trySet part.baseName
-        ::debuggable trySet part.debuggable
-        ::optimized trySet part.optimized
-        binaryOptions.putAll(part.binaryOptions)
-        linkerOpts.addAll(part.linkerOpts)
         compilation = kotlinNativeCompilation
+        fragment.parts.find<NativeApplicationPart>()?.let {
+            ::baseName trySet it.baseName
+            ::optimized trySet it.optimized
+            binaryOptions.putAll(it.binaryOptions)
+        }
+        fragment.parts.find<KotlinPart>()?.let {
+            linkerOpts.addAll(it.linkerOpts)
+            ::debuggable trySet it.debug
+        }
     }
 
     private fun initFragments() = with(KotlinDeftNamingConvention) {
@@ -224,15 +256,6 @@ class KMPPBindingPluginPart(
                         // FIXME ??
                     }
                     val compilation = fragment.compilation ?: return@forEach
-                    // settings jvmTarget for other jvm compilations
-                    if (platform == Platform.JVM) {
-                        fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
-                            compilation.compileTaskProvider.configure {
-                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
-                            }
-                        }
-                    }
                     val compilationSourceSet = compilation.defaultSourceSet
                     if (compilationSourceSet != fragment.kotlinSourceSet) {
                         compilationSourceSet.doDependsOn(fragment)

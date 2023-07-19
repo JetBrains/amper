@@ -22,8 +22,9 @@ fun List<Fragment>.resolve(): List<Fragment> = buildList {
     val deque = ArrayDeque<Fragment>()
     val alreadyResolved = mutableSetOf<String>()
     root?.let {
-        add(it)
-        deque.add(it)
+        val resolvedFragment = it.resolve()
+        add(resolvedFragment)
+        deque.add(resolvedFragment)
         alreadyResolved.add(it.name)
     }
 
@@ -43,14 +44,23 @@ fun List<Fragment>.resolve(): List<Fragment> = buildList {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
+
 fun Fragment.resolve(parent: Fragment): Fragment {
-    val parentAndThisParts = parts + parent.parts
-    val resolvedParts = parentAndThisParts.map {
+    return resolveParts(parts + parent.parts)
+}
+
+fun Fragment.resolve(): Fragment {
+    return resolveParts(parts)
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun Fragment.resolveParts(parts: ClassBasedSet<FragmentPart<*>>): Fragment {
+    val resolvedParts = parts.map {
         propagateFor(it as FragmentPart<Any>).default()
     }.toClassBasedSet()
     return createResolvedAdapter(resolvedParts)
 }
+
 
 fun Fragment.createResolvedAdapter(
     resolvedParts: ClassBasedSet<FragmentPart<*>>

@@ -15,7 +15,7 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidDebug:
-   depends()
+   depends(androidMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -35,7 +35,7 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidRelease:
-   depends()
+   depends(androidMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

@@ -5,7 +5,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.jetbrains.deft.proto.frontend.JvmPart
+import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModuleType
 import org.jetbrains.deft.proto.gradle.FoundEntryPoint
@@ -64,9 +64,10 @@ class JavaBindingPluginPart(
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
             with(fragment.target!!) {
-                fragment.parts.find<JvmPart>()?.jvmTarget?.let { jvmTarget ->
+                fragment.parts.find<JavaPart>()?.target?.let { jvmTarget ->
                     fragment.compilation?.compileTaskProvider?.configure {
                         it as KotlinCompilationTask<KotlinJvmCompilerOptions>
+                        println("Java compilation ${it.name} has jvmTarget $jvmTarget")
                         it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
                     }
                 }
@@ -84,20 +85,23 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        val jvmPart = fragment.parts.find<JvmPart>()
-        if (jvmPart != null) {
+        val javaPart = fragment.parts.find<JavaPart>()
+        if (javaPart != null) {
             javaAPE.apply {
                 if (module.type != PotatoModuleType.APPLICATION) return@apply
                 fun FoundEntryPoint.java() = if (pkg != null) "$pkg.MainKt" else "MainKt"
-                val foundMainClass = jvmPart.mainClass
+                val foundMainClass = javaPart.mainClass
                     ?: findEntryPoint("main.kt", fragment).java()
                 mainClass.set(foundMainClass)
             }
-            jvmPart.jvmTarget?.let {
+            javaPart.target?.let {
                 javaPE.targetCompatibility = JavaVersion.toVersion(it)
             }
+            javaPart.source?.let {
+                javaPE.sourceCompatibility = JavaVersion.toVersion(it)
+            }
             project.tasks.withType(KotlinCompile::class.java).configureEach {
-                it.javaPackagePrefix = jvmPart.packagePrefix
+                it.javaPackagePrefix = javaPart.packagePrefix
             }
         }
     }

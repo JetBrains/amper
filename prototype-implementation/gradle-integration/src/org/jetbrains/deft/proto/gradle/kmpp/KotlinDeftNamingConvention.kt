@@ -44,7 +44,7 @@ object KotlinDeftNamingConvention {
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
 
-    private val LeafFragment.compilationName: String
+    val LeafFragment.compilationName: String
         get() = when {
             isDefault && isTest -> "test"
             isDefault -> "main"

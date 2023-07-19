@@ -116,12 +116,14 @@ class KotlinFragmentPartBuilder {
     val optIns: MutableList<String> = mutableListOf()
     fun build(): KotlinPart =
         KotlinPart(
-            languageVersion,
-            apiVersion,
-            null, // TODO Add tests for that too
-            progressiveMode,
-            languageFeatures,
-            optIns
+            languageVersion = languageVersion,
+            apiVersion = apiVersion,
+            allWarningsAsErrors = null,
+            debug = null,
+            progressiveMode = progressiveMode,
+            languageFeatures = languageFeatures,
+            optIns = optIns,
+            linkerOpts = emptyList(),
         )
 }
 
@@ -160,9 +162,15 @@ class PotatoModuleBuilder(var name: String) {
 class JavaPartBuilder {
     var mainClass: String? = null
     var packagePrefix: String? = null
-    var jvmTarget: String? = null
+    var target: String? = null
+    var source: String? = null
 
-    fun build(): JvmPart {
-        return JvmPart(mainClass, packagePrefix, jvmTarget)
+    fun build(): JavaPart {
+        return JavaPart(
+            mainClass = mainClass,
+            packagePrefix = packagePrefix,
+            target = target,
+            source = source,
+        )
     }
 }
