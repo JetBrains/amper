@@ -15,4 +15,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/"){
         "test",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `jvm+android assembles`() = test(
+        projectName = "jvm+android",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
 }

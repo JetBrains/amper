@@ -16,13 +16,6 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `jvm-android-hello-world assembles`() = test(
-        projectName = "jvm+android-hello-world",
-        "assemble",
-        expectOutputToHave = "BUILD SUCCESSFUL",
-    )
-
-    @Test
     fun `jvm-kotlin+java runs and prints Hello, World`() = test(
         projectName = "jvm-kotlin+java",
         "run",
