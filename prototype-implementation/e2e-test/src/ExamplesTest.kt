@@ -33,7 +33,7 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     fun `jvm-with-tests test task fails`() = test(
         projectName = "jvm-with-tests",
         "test",
-        expectOutputToHave = "java.lang.AssertionError at WorldTest.kt:13",
+        expectOutputToHave = "> There were failing tests. See the report at: file:",
         shouldSucceed = false,
     )
 

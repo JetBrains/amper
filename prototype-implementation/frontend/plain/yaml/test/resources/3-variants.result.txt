@@ -357,7 +357,11 @@ Fragments:
       commonRelease (REFINE)
       ios (REFINE)
     Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=null, sdkVersion=null, progressiveMode=null, languageFeatures=[], optIns=[], freeCompilerArgs=[], allWarningsAsErrors=null, suppressWarnings=null, verbose=null)
+      KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
   iosReleaseFree
     External dependencies:
     Src folder: src@ios+release+free

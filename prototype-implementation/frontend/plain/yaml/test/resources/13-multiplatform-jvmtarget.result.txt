@@ -6,7 +6,11 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      JvmPart(mainClass=null, packagePrefix=null, jvmTarget=17, moduleName=null, noJdk=false)
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
   androidTest
     External dependencies:
     Src folder: test@android
@@ -19,7 +23,11 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      JvmPart(mainClass=null, packagePrefix=null, jvmTarget=1.8, moduleName=null, noJdk=false)
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
   commonTest
     External dependencies:
     Src folder: test
