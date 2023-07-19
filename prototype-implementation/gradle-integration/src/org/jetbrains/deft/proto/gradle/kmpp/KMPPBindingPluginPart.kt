@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractExecutable
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -60,6 +61,8 @@ class KMPPBindingPluginPart(
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
+        // Use the old style of dependency resolution, otherwise IntelliJ import fails.
+        project.extraProperties.set("kotlin.mpp.import.enableKgpDependencyResolution", "false")
         initTargets()
         initFragments()
     }
