@@ -4,6 +4,9 @@
     <bytecodeTargetLevel target="11">
       <module name="android" target="17" />
       <module name="ios" target="17" />
+      <module name="jvm-hello-world" target="17" />
+      <module name="jvm-hello-world.main" target="17" />
+      <module name="jvm-hello-world.test" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.main" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.test" target="17" />
@@ -24,6 +27,12 @@
       <module name="prototype-implementation.e2e-test.src.commonTest.resources.jvm-hello-world" target="17" />
       <module name="prototype-implementation.e2e-test.src.commonTest.resources.jvm-hello-world.main" target="17" />
       <module name="prototype-implementation.e2e-test.src.commonTest.resources.jvm-hello-world.test" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-basic" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-basic.main" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-basic.test" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-dependencies" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-dependencies.main" target="17" />
+      <module name="prototype-implementation.e2e-test.testData.projects.jvm-dependencies.test" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.main" target="17" />
       <module name="prototype-implementation.frontend.with-fragments.yaml.test" target="17" />

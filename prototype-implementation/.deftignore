@@ -3,3 +3,4 @@ frontend/fragments/yaml/test/resources
 try
 e2e-test/resources
 e2e-test/build
+e2e-test/testData
