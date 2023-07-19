@@ -20,6 +20,7 @@ buildscript {
             name = "spacePackages"
             url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
         }
+        // TODO remove after internal preview
         maven {
             name = "legacySpacePackages"
             url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
