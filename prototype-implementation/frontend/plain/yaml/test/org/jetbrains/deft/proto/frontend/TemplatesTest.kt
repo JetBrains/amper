@@ -5,7 +5,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.test.Test
 
-internal class TeplatesTest {
+internal class TemplatesTest {
 
     @TempDir
     lateinit var tempDir: Path
