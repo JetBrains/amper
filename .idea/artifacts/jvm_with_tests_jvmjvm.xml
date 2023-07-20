@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="jvm-with-tests-jvmjvm">
-    <output-path>$PROJECT_DIR$/examples/jvm-with-tests/build/libs</output-path>
-    <root id="archive" name="jvm-with-tests-jvmjvm.jar">
-      <element id="module-output" name="jvm-with-tests.jvmJVMMain" />
-    </root>
-  </artifact>
-</component>

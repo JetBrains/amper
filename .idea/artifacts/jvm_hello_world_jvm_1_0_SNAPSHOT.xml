@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="jvm-hello-world-jvm-1.0-SNAPSHOT">
-    <output-path>$PROJECT_DIR$/examples/jvm-hello-world/build/libs</output-path>
-    <root id="archive" name="jvm-hello-world-jvm-1.0-SNAPSHOT.jar">
-      <element id="module-output" name="jvm-hello-world.jvmMain" />
-    </root>
-  </artifact>
-</component>

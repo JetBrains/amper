@@ -8,3 +8,11 @@
 /dataSources.local.xml
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
+
+# Imported modules info
+/modules.xml
+/*.iml
+/gradle.xml
+/compiler.xml
+/jarRepositories.xml
+/artifacts

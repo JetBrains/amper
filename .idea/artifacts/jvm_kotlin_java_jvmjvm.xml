@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="jvm-kotlin+java-jvmjvm">
-    <output-path>$PROJECT_DIR$/examples/jvm-kotlin+java/build/libs</output-path>
-    <root id="archive" name="jvm-kotlin+java-jvmjvm.jar">
-      <element id="module-output" name="jvm-kotlin+java.jvmJVMMain" />
-    </root>
-  </artifact>
-</component>

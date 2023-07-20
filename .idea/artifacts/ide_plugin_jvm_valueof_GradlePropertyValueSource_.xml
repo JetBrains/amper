@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="ide-plugin-jvm-valueof(GradlePropertyValueSource)">
-    <output-path>$PROJECT_DIR$/prototype-implementation/ide-plugin/build/libs</output-path>
-    <root id="archive" name="ide-plugin-jvm-valueof(GradlePropertyValueSource).jar">
-      <element id="module-output" name="prototype-implementation.ide-plugin.jvmMain" />
-    </root>
-  </artifact>
-</component>

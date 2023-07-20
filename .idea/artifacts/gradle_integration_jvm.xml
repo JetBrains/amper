@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="gradle-integration-jvm">
-    <output-path>$PROJECT_DIR$/prototype-implementation/gradle-integration/build/libs</output-path>
-    <root id="archive" name="gradle-integration-jvm.jar">
-      <element id="module-output" name="prototype-implementation.gradle-integration.jvmMain" />
-    </root>
-  </artifact>
-</component>

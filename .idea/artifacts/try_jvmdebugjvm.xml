@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="try-jvmdebugjvm">
-    <output-path>$PROJECT_DIR$/prototype-implementation/try/build/libs</output-path>
-    <root id="archive" name="try-jvmdebugjvm.jar">
-      <element id="module-output" name="try.jvmDebugJVMMain" />
-    </root>
-  </artifact>
-</component>
