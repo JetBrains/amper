@@ -1,5 +1,5 @@
-include:
-  - ../common.Pot.yaml
+apply:
+  - ../common.Pot-template.yaml
 
 settings:
   publishing:
