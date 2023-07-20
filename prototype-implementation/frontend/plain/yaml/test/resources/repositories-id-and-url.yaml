@@ -1,0 +1,9 @@
+product:
+  type: app
+  platforms: [ iosArm64 ]
+
+repositories:
+  - https://a.b
+  - id: x
+    url: https://x.y
+

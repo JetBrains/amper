@@ -27,14 +27,14 @@ internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { 
 
 context (Path)
 internal fun testParseWithTemplates(resourceName: String, properties: Properties = Properties()) {
-    val stream = Path(".")
+    val path = Path(".")
         .toAbsolutePath()
         .resolve("test/resources/$resourceName.yaml")
-        .takeIf { it.exists() } ?: fail("Resource not found")
+    if (!path.exists()) fail("Resource not found: $path")
 
     val parsed = with(properties) {
         Yaml().parseAndPreprocess(
-            stream
+            path
         ) {
             Path(".")
                 .toAbsolutePath()

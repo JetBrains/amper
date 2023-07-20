@@ -23,7 +23,7 @@ data class RepositoriesModulePart(
     val mavenRepositories: List<Repository>
 ) : ModulePart<RepositoriesModulePart> {
     data class Repository(
-        val name: String,
+        val id: String,
         val url: String,
         val userName: String?,
         val password: String?,

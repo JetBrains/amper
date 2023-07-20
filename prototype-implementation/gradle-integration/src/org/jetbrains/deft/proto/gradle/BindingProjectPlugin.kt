@@ -64,11 +64,11 @@ class BindingProjectPlugin : Plugin<Project> {
     private fun RepositoryHandler.configure(part: RepositoriesModulePart?) {
         val repositories = part?.mavenRepositories?.filter { it.publish } ?: return
         repositories.forEach { declared ->
-            if (declared.name == "mavenLocal" && declared.url == "mavenLocal") {
+            if (declared.id == "mavenLocal" && declared.url == "mavenLocal") {
                 mavenLocal()
             } else {
                 maven {
-                    it.name = declared.name
+                    it.name = declared.id
                     it.url = URI.create(declared.url)
                     it.credentials { cred ->
                         cred.username = declared.userName
