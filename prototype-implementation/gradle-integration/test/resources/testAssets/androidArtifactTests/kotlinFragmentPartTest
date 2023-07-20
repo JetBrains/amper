@@ -76,7 +76,7 @@
    implDeps()
   commonMain:
    depends()
-   sourceDirs()
+   sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:

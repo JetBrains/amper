@@ -1,8 +1,8 @@
 :
   commonMain:
    depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
+   sourceDirs(common/src)
+   lang(api=1.9 version=1.9 progressive=true features=InlineClasses)
    implDeps()
   commonTest:
    depends()
