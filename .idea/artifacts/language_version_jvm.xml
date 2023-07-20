@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="language-version-jvm">
+    <output-path>$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/language-version/build/libs</output-path>
+    <root id="archive" name="language-version-jvm.jar" />
+  </artifact>
+</component>

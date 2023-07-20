@@ -1,0 +1,7 @@
+product:
+  type: app
+  platforms: [ jvm ]
+
+settings:
+  kotlin:
+    languageVersion: 1.5

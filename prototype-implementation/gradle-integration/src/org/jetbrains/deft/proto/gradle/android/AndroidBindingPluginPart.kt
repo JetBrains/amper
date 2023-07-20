@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
-import org.gradle.api.JavaVersion
 import org.jetbrains.deft.proto.frontend.AndroidPart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform

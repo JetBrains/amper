@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
+import org.jetbrains.deft.proto.frontend.FragmentDependencyType
 import org.jetbrains.deft.proto.frontend.LeafFragment
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.pretty
@@ -41,8 +42,25 @@ object KotlinDeftNamingConvention {
         }
 
     context(KMPEAware, SpecificPlatformPluginPart)
+    val FragmentWrapper.commonKotlinSourceSetName: String
+        get() = when (name) {
+            leafNonTestFragment?.name -> "commonMain"
+            leafTestFragment?.name -> "commonTest"
+            else -> name
+        }
+
+    context(KMPEAware, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
+
+    context(KMPEAware, SpecificPlatformPluginPart)
+    val FragmentWrapper.matchingKotlinSourceSets: List<KotlinSourceSet>
+        get() = buildList {
+            if (fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }) {
+                kotlinMPE.sourceSets.findByName(commonKotlinSourceSetName)?.let { add(it) }
+            }
+            kotlinMPE.sourceSets.findByName(kotlinSourceSetName)?.let { add(it) }
+        }
 
     val LeafFragment.compilationName: String
         get() = when {

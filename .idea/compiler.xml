@@ -3,10 +3,16 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="android" target="17" />
+      <module name="disable-junit" target="17" />
+      <module name="disable-junit.main" target="17" />
+      <module name="disable-junit.test" target="17" />
       <module name="ios" target="17" />
-      <module name="jvm-hello-world" target="17" />
-      <module name="jvm-hello-world.main" target="17" />
-      <module name="jvm-hello-world.test" target="17" />
+      <module name="jvm-basic" target="17" />
+      <module name="jvm-basic.main" target="17" />
+      <module name="jvm-basic.test" target="17" />
+      <module name="jvm-with-tests" target="17" />
+      <module name="jvm-with-tests.main" target="17" />
+      <module name="jvm-with-tests.test" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.main" target="17" />
       <module name="prototype-implementation.e2e-test.build.processedResources.jvm.test.jvm-hello-world.test" target="17" />

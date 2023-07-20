@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.Test
-import kotlin.test.Ignore
 
 class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
@@ -23,4 +22,12 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         shouldSucceed = false,
         expectOutputToHave = "> No tests found for given includes: [SimpleTest.test](--tests filter)",
     )
+
+    @Test
+    fun `if we have only one platform, platform sourceSet becomes common, so we need to apply settings to common and platform-specific sourceSet simultaneously`() =
+        test(
+            projectName = "language-version",
+            "assemble",
+            expectOutputToHave = "BUILD SUCCESSFUL",
+        )
 }
