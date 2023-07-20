@@ -11,9 +11,7 @@ val versions = mapOf(
     "https\\://services.gradle.org/distributions/gradle-" to "8.1.1-bin.zip"
 )
 
-updateFiles(Path.of("examples"), versions)
-updateFiles(Path.of("prototype-implementation/settings.gradle.kts"), versions)
-updateFiles(Path.of("prototype-implementation/gradle/wrapper/gradle-wrapper.properties"), versions)
+updateFiles(Path.of("."), versions)
 
 @OptIn(kotlin.io.path.ExperimentalPathApi::class)
 fun updateFiles(path: Path, versions: Map<String, String>) {
@@ -21,7 +19,7 @@ fun updateFiles(path: Path, versions: Map<String, String>) {
 
     path.walk(PathWalkOption.BREADTH_FIRST).forEach {
         if (it.name == "settings.gradle.kts"
-            || it.name.endsWith(".yaml")
+//            || it.name.endsWith(".yaml")
             || it.name.endsWith(".properties")) {
             updateFile(it, versions)
         }
