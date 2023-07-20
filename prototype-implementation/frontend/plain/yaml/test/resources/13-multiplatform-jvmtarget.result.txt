@@ -11,6 +11,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      ComposePart(enabled=null)
   androidTest
     External dependencies:
     Src folder: test@android
@@ -28,6 +29,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      ComposePart(enabled=null)
   commonTest
     External dependencies:
     Src folder: test

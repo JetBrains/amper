@@ -362,6 +362,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      ComposePart(enabled=null)
   iosReleaseFree
     External dependencies:
     Src folder: src@ios+release+free

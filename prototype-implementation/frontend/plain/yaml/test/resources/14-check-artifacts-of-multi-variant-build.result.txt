@@ -10,6 +10,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      ComposePart(enabled=null)
   iosDebug
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-datetime:0.4.0, compile=true, runtime=true, exported=false)

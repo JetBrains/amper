@@ -14,6 +14,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=org.jetbrains.deft.proto.frontend, target=null, source=null, moduleName=null)
       PublicationPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=42-SNAPSHOT)
+      ComposePart(enabled=null)
   jvmTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)

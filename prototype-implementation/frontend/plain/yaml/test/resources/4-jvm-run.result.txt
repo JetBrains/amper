@@ -10,6 +10,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=MainKt, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      ComposePart(enabled=null)
   jvmTest
     External dependencies:
     Src folder: test

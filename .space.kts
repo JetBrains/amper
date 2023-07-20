@@ -49,7 +49,7 @@ fun `prototype implementation job`(
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = { text("version", value = "") }
 ) {
-    val file = File("common.Pot.yaml")
+    val file = File("common.Pot-template.yaml")
     val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
     val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
     val oldVersion = "version: 1.0-SNAPSHOT"
