@@ -4,11 +4,91 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-with-tests" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/jvm-with-tests" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
+            <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
+            <option value="$PROJECT_DIR$/prototype-implementation/ide-plugin" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/prototype-implementation" name="prototype-implementation">
+                <projects>
+                  <project path="$PROJECT_DIR$/prototype-implementation" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/util" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/ide-plugin" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/disable-junit" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/disable-junit" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
+            <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
+            <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
+            <option value="$PROJECT_DIR$/prototype-implementation/ide-plugin" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/prototype-implementation" name="prototype-implementation">
+                <projects>
+                  <project path="$PROJECT_DIR$/prototype-implementation" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend-api" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/plain" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/frontend/util" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
+                  <project path="$PROJECT_DIR$/prototype-implementation/ide-plugin" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/jvm-basic" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/jvm-basic" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain" />

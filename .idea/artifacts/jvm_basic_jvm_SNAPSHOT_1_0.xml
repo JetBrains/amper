@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="jvm-basic-jvm-SNAPSHOT-1.0">
+    <output-path>$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/jvm-basic/build/libs</output-path>
+    <root id="archive" name="jvm-basic-jvm-SNAPSHOT-1.0.jar">
+      <element id="module-output" name="jvm-basic.jvmMain" />
+    </root>
+  </artifact>
+</component>

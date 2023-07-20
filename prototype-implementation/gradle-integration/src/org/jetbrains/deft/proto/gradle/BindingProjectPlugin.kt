@@ -56,7 +56,7 @@ class BindingProjectPlugin : Plugin<Project> {
         module.leafNonTestFragments.firstOrNull { !it.isTest }?.parts?.find<PublicationPart>()?.let {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
             project.group = it.group ?: ""
-            project.version = it.version?: ""
+            project.version = it.version ?: ""
             extension.repositories.configure(module.parts.find<RepositoriesModulePart>())
         }
     }
@@ -86,7 +86,7 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
-        if (linkedModule.fragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
+        if (linkedModule.leafTestFragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
             project.tasks.withType(Test::class.java) {
                 it.useJUnitPlatform()
             }

@@ -48,7 +48,7 @@ data class KotlinPart(
 
 data class TestPart(val junitPlatform: Boolean?) : FragmentPart<TestPart> {
     override fun propagate(parent: TestPart): FragmentPart<*> =
-        TestPart(parent.junitPlatform ?: junitPlatform)
+        TestPart(junitPlatform ?: parent.junitPlatform)
 
     override fun default(): FragmentPart<*> = TestPart(junitPlatform ?: true)
 }

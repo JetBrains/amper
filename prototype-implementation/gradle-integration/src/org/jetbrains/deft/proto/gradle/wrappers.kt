@@ -34,6 +34,8 @@ class PotatoModuleWrapper(
     val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
     val leafNonTestFragments = leafFragments
         .filter { !it.isTest }
+    val leafTestFragments = leafFragments
+        .filter { it.isTest }
 }
 
 fun Artifact.wrap(module: PotatoModuleWrapper) =

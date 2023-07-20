@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test
 import kotlin.test.Ignore
 
-class IntegrationTest : E2ETestFixture("./testData/projects/"){
+class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
     fun `running jvm basic`() = test(
         projectName = "jvm-basic",
@@ -14,5 +14,13 @@ class IntegrationTest : E2ETestFixture("./testData/projects/"){
         projectName = "jvm-dependencies",
         "test",
         expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
+    fun `disabling junit platform`() = test(
+        projectName = "disable-junit",
+        ":cleanJvmTest", ":jvmTest", "--tests", "SimpleTest.test",
+        shouldSucceed = false,
+        expectOutputToHave = "> No tests found for given includes: [SimpleTest.test](--tests filter)",
     )
 }
