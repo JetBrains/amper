@@ -48,7 +48,13 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     ANDROID_NATIVE_ARM32(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_ARM64(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_X64(ANDROID_NATIVE, isLeaf = true),
-    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),
+    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),;
+
+    companion object {
+        fun leafPlatforms(): Set<Platform> {
+            return entries.filterTo(mutableSetOf()) { it.isLeaf }
+        }
+    }
 }
 
 fun Platform.isParent(possibleParent: Platform): Boolean =

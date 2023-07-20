@@ -50,8 +50,7 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
-    val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
-    val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
+    val (_, platforms) = parseProductAndPlatforms(originalSettings)
     var variantSet: MutableSet<Settings>
 
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
@@ -92,8 +91,7 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
     init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
-    val rawPlatforms = getByPath<List<String>>("product", "platforms") ?: listOf()
-    val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
+    val (_, platforms) = parseProductAndPlatforms(originalSettings)
     var variantSet: MutableSet<Settings>
 
     for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {

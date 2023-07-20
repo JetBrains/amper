@@ -1,7 +1,4 @@
-product:
-  type: app
-  platforms: [ jvm ]
-
+product: jvm/app
 
 settings:
   java:

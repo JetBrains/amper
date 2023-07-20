@@ -1,0 +1,22 @@
+Module {{ userReadableName }}
+Fragments:
+  jvm
+    External dependencies:
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+  jvmTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      jvm (FRIEND)
+    Parts:
+Artifacts:
+  isTest: false
+  [JVM]
+    Fragments:
+      jvm
+  isTest: true
+  [JVM]
+    Fragments:
+      jvmTest

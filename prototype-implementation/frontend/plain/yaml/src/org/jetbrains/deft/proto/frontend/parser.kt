@@ -7,11 +7,7 @@ import kotlin.io.path.name
 
 context(BuildFileAware)
 fun parseModule(config: Settings): PotatoModule {
-    val rawPlatforms = config.getByPath<List<String>>("product", "platforms") ?: listOf()
-    val platforms = rawPlatforms.mapNotNull { getPlatformFromFragmentName(it) }
-    if (platforms.isEmpty()) {
-        error("Error during parsing ${buildFile}: You need to add up at least one platform")
-    }
+    val (productType: ProductType, platforms: Set<Platform>) = parseProductAndPlatforms(config)
 
     val dependencySubsets = config.keys
         .asSequence()
@@ -61,13 +57,13 @@ fun parseModule(config: Settings): PotatoModule {
         fragments.handleSettings(config.transformed)
     }
     with(config) {
-        fragments.calculateSrcDir(platforms.toSet())
+        fragments.calculateSrcDir(platforms)
     }
 
     val artifacts = fragments.artifacts(
         config.variants,
-        config.getByPath<String>("product", "type") ?: error("Product type is required"),
-        platforms.toSet()
+        productType,
+        platforms
     )
 
     with(aliasMap) {
@@ -81,12 +77,81 @@ fun parseModule(config: Settings): PotatoModule {
     }
     return with(mutableState) {
         PlainPotatoModule(
-            config,
+            productType, 
             fragments,
             artifacts,
             parseModuleParts(config),
         )
     }
+}
+
+internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<Platform>> {
+    val productValue = config.getValue<Any>("product") ?: error("product: section is missing")
+    val typeValue: String
+    val platformsValue: List<String>?
+
+    fun unsupportedType(userValue: Any): Nothing {
+        error(
+            "unsupported product type: $userValue, supported types:\n"
+                    + Platform.entries.joinToString("\n")
+        )
+    }
+
+    when (productValue) {
+        is String -> {
+            typeValue = productValue
+            platformsValue = null
+        }
+
+        is Map<*, *> -> {
+            @Suppress("UNCHECKED_CAST")
+            productValue as Settings
+
+            typeValue = productValue.getStringValue("type") ?: error("product:type: is missing")
+            platformsValue = productValue.getValue<List<String>>("platforms")
+        }
+
+        else -> {
+            unsupportedType(productValue)
+        }
+    }
+
+    val actualType = ProductType.findForValue(typeValue) ?: unsupportedType(typeValue)
+
+    val actualPlatforms = if (platformsValue != null) {
+        if (platformsValue.isEmpty()) {
+            error("product:platforms: should not be empty")
+        }
+
+        val knownPlatforms = mutableSetOf<Platform>()
+        val unknownPlatforms = mutableSetOf<String>()
+        platformsValue.forEach {
+            val mapped = getPlatformFromFragmentName(it)
+            if (mapped != null) {
+                knownPlatforms.add(mapped)
+            } else {
+                unknownPlatforms.add(it)
+            }
+        }
+
+        fun reportUnsupportedPlatforms(toReport: Set<Any>) {
+            val message = StringBuilder("product type $actualType doesn't support ")
+            toReport.joinTo(message) { "'$it'" }
+            message.append(if (unknownPlatforms.size == 1) " platform" else " platforms")
+            error(message)
+        }
+        if (unknownPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unknownPlatforms)
+
+        val unsupportedPlatforms = knownPlatforms.subtract(actualType.supportedPlatforms)
+        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms)
+
+        knownPlatforms
+    } else {
+        actualType.defaultPlatforms
+            ?: error("product:platforms: should not be empty for product type $actualType")
+    }
+
+    return Pair(actualType, actualPlatforms.toSet())
 }
 
 

@@ -245,7 +245,7 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
 
 internal fun List<FragmentBuilder>.artifacts(
     variants: List<Settings>,
-    type: String,
+    productType: ProductType,
     platforms: Set<Platform>
 ): List<ArtifactBuilder> {
     fun joinToCamelCase(strings: Set<String>): String {
@@ -305,8 +305,8 @@ internal fun List<FragmentBuilder>.artifacts(
     val leafFragments =
         cartesian.flatMap { cartesianElement -> filter { it.variants == cartesianElement }.filter { it.platforms.size == 1 } }
 
-    return when (type) {
-        "app" -> leafFragments
+    return when {
+        !productType.isLibrary() -> leafFragments
             .map { fragment ->
                 fragment.isLeaf = true
                 ArtifactBuilder(
@@ -317,7 +317,7 @@ internal fun List<FragmentBuilder>.artifacts(
                 )
             }
 
-        "lib" -> {
+        else -> {
             leafFragments
                 .groupBy { it.variants }
                 .entries
@@ -333,8 +333,6 @@ internal fun List<FragmentBuilder>.artifacts(
                     )
                 }
         }
-
-        else -> error("App type $type is not supported")
     }
 }
 

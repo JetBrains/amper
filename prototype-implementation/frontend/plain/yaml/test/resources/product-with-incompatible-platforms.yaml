@@ -1,0 +1,4 @@
+product:
+  type: jvm/app
+  platforms:
+    - iosArm64

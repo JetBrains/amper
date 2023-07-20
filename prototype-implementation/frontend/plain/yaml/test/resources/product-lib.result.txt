@@ -1,0 +1,22 @@
+Module {{ userReadableName }}
+Fragments:
+  ios
+    External dependencies:
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+  iosTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      ios (FRIEND)
+    Parts:
+Artifacts:
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      ios
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosTest

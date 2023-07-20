@@ -1,6 +1,4 @@
-product:
-  type: app
-  platforms: [ jvm ]
+product: jvm/app
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
