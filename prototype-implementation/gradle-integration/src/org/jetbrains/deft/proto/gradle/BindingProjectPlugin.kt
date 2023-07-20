@@ -10,6 +10,7 @@ import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
 import org.jetbrains.deft.proto.frontend.TestPart
 import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
+import org.jetbrains.deft.proto.gradle.compose.applyComposeAttributes
 import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
 import org.jetbrains.deft.proto.gradle.kmpp.KMPPBindingPluginPart
 import java.net.URI
@@ -32,6 +33,7 @@ class BindingProjectPlugin : Plugin<Project> {
         val kmppBindingPluginPart = KMPPBindingPluginPart(pluginCtx)
         kmppBindingPluginPart.apply()
         if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
+        if (linkedModule.composeNeeded) applyComposeAttributes(pluginCtx)
         kmppBindingPluginPart.afterAll()
 
         applyRepositoryAttributes(linkedModule, project)

@@ -74,6 +74,10 @@ internal open class PlainFragment(
                 entryPoint
             )
         }
+
+        addPartFrom(fragmentBuilder.compose) {
+            ComposePart(enabled)
+        }
     }
 
     override val platforms: Set<Platform>

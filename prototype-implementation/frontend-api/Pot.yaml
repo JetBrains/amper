@@ -6,7 +6,7 @@ settings:
     group: org.jetbrains.deft.proto.frontend
 
 dependencies:
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.21
+  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.20
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0

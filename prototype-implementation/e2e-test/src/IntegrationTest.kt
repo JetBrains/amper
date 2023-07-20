@@ -38,4 +38,10 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
+    @Test
+    fun `compose desktop`() = test(
+        projectName = "compose-desktop",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
 }

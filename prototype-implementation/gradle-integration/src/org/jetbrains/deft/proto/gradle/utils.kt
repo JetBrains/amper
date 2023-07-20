@@ -1,10 +1,7 @@
 package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.frontend.PotatoModule
-import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
-import org.jetbrains.deft.proto.frontend.forClosure
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -13,9 +10,10 @@ val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
 val PotatoModule.buildDir get() = buildFile.parent
 
-val PotatoModule.additionalScript get() = buildDir
-    .resolve("Pot.gradle.kts")
-    .takeIf { it.exists() }
+val PotatoModule.additionalScript
+    get() = buildDir
+        .resolve("Pot.gradle.kts")
+        .takeIf { it.exists() }
 
 /**
  * Get or create string key-ed binding map from extension properties.
@@ -37,6 +35,8 @@ operator fun PotatoModuleWrapper.contains(platform: Platform) =
 
 val PotatoModuleWrapper.androidNeeded get() = Platform.ANDROID in this
 val PotatoModuleWrapper.javaNeeded get() = Platform.JVM in this
+
+val PotatoModuleWrapper.composeNeeded: Boolean get() = leafFragments.any { it.parts.find<ComposePart>()?.enabled == true }
 
 /**
  * Try extract zero or single element from collection,
@@ -77,7 +77,7 @@ internal fun findEntryPoint(
         }
     }
 
-    val collectedMains = allSources.flatMap {  path ->
+    val collectedMains = allSources.flatMap { path ->
         path.walk()
             .filter {
                 if (caseSensitive)
@@ -94,11 +94,13 @@ internal fun findEntryPoint(
                     "there is more that one $mainFileName file. " +
                     "Specify it explicitly or remove all but one."
         )
+
         collectedMains.isEmpty() -> error(
             "Cannot define entry point for fragment ${fragment.name} implicitly: " +
                     "there is no $mainFileName file. " +
                     "Specify it explicitly or add one."
         )
+
         else -> collectedMains.single()
     }
 

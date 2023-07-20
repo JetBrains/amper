@@ -78,3 +78,7 @@ data class JunitPartBuilder(
 ) {
     companion object : BuilderCompanion<JunitPartBuilder>(::JunitPartBuilder)
 }
+
+data class ComposePartBuilder(var enabled: Boolean? = null) {
+    companion object: BuilderCompanion<ComposePartBuilder>(::ComposePartBuilder)
+}

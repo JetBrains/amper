@@ -43,6 +43,7 @@ internal data class FragmentBuilder(
     var native: NativePartBuilder? = null,
     var java: JavaPartBuilder? = null,
     var publishing: PublishingPartBuilder? = null,
+    var compose: ComposePartBuilder? = null
 ) {
 
     /**
@@ -422,6 +423,12 @@ internal fun List<ArtifactBuilder>.handleSettings(
                 packagePrefix = javaSettings.getStringValue("packagePrefix")
                 target = javaSettings.getStringValue("target")
                 source = javaSettings.getStringValue("source")
+            }
+        }
+
+        compose = ComposePartBuilder {
+            it.getByPath<Boolean>("compose", "enabled")?.let {
+                enabled = it
             }
         }
     }

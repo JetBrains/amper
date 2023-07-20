@@ -37,6 +37,7 @@ buildscript {
         classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.2.6")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-dev-6845")
         classpath("com.github.johnrengelman:shadow:8.1.1")
+        classpath("org.jetbrains.compose:compose-gradle-plugin:1.4.1")
     }
 }
 

@@ -82,7 +82,7 @@ data class JavaPart(
             packagePrefix ?: "",
             target ?: "17",
             source ?: "17",
-            )
+        )
 }
 
 data class JsPart(
@@ -97,6 +97,7 @@ data class JsPart(
     data class NodeJs(
         val runTask: NodeJsExec.() -> Unit = {}
     ) : Mode
+
     override fun default() = JsPart(Browser())
 }
 
@@ -119,4 +120,11 @@ data class PublicationPart(
 ) : FragmentPart<PublicationPart> {
     override fun default(): FragmentPart<PublicationPart> =
         PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
+}
+
+data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
+    override fun default(): FragmentPart<*> {
+        return ComposePart(enabled ?: false)
+    }
+
 }

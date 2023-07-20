@@ -8,9 +8,10 @@ settings:
 dependencies:
   - ../frontend-api
   - ../frontend/plain/yaml
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.22
-  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.22
+  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.20
+  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.20
   - com.android.library:com.android.library.gradle.plugin:7.4.0
+  - org.jetbrains.compose:compose-gradle-plugin:1.4.1
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
