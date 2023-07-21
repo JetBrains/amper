@@ -1,5 +1,3 @@
 product: jvm/app
 
-settings:
-  java:
-    mainClass: MainKt
+# entry point should be auto-discovered
