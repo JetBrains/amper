@@ -2,10 +2,24 @@ import org.junit.jupiter.api.Test
 
 class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
-    fun `running jvm basic`() = test(
+    fun `running jvm`() = test(
         projectName = "jvm-basic",
         "run",
         expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
+    fun `configuring native macos`() = test(
+        projectName = "native-macos",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
+    fun `configuring native linux`() = test(
+        projectName = "native-linux",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
     @Test
