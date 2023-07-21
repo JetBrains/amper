@@ -23,7 +23,7 @@ fun parseModule(config: Settings): PotatoModule {
         .map { it.split("+").toSet() }
         .toSet()
 
-    val naturalHierarchy = Platform.values()
+    val naturalHierarchy = Platform.entries
         .filter { !it.isLeaf }
         .filter { it != Platform.COMMON }
         .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } to it.leafChildren.toSet() }
