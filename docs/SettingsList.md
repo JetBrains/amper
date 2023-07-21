@@ -5,27 +5,27 @@ settings:
   kotlin:
     languageVersion: <enum/string> 
     apiVersion: <enum/string> 
-    jvmTarget: <enum/string>
     allWarningsAsErrors: <bool>
-    freeCompilerArgs: <list>
     suppressWarnings: <bool>
     verbose: <bool>
-    linkerOptions:  <list>
     debug: <bool>
     progressiveMode: <bool>
     languageFeatures: <list>
     optIns: <list>
+    freeCompilerArgs: <list>
     
   java:
+    mainClass: <string>
+    packagePrefix: <string>
     target: <enum>
     source: <enum>
 
   android:
-    compileSdkVersion: <enum>
-    minSdk: <enum>
-    minSdkPreview: <enum>
-    maxSdk: <enum>
-    targetSdk: <enum>
+    compileSdkVersion: <string>
+    minSdk: <int/string>
+    minSdkPreview: <int/string>
+    maxSdk: <int>
+    targetSdk: <int/string>
     applicationId: <string>
     namespace: <string>
 
@@ -38,9 +38,5 @@ Testing:
 ```yaml
 test-settings:
   junit:
-    forkEvery: <bool>
-    enableAssertions: <bool>
-    exclude: <string>
-    filter: <string>
-    jvmArgs: <list>
+    platformEnabled: <bool>
 ```

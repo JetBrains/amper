@@ -196,7 +196,10 @@
         "packagePrefix": {
           "type": "string"
         },
-        "jvmTarget": {
+        "target": {
+          "$ref": "#/$defs/kotlinJvmVersion"
+        },
+        "source": {
           "$ref": "#/$defs/kotlinJvmVersion"
         }
       },
@@ -255,30 +258,40 @@
     "kotlinSettings": {
       "type": "object",
       "properties": {
-        "sdk": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            }
-          }
-        },
-        "progressiveMode": {
-          "type": "boolean"
-        },
         "languageVersion": {
           "$ref": "#/$defs/kotlinVersion"
         },
         "apiVersion": {
           "$ref": "#/$defs/kotlinVersion"
         },
-        "features": {
+        "allWarningsAsError": {
+          "type": "boolean"
+        },
+        "suppressWarnings": {
+          "type": "boolean"
+        },
+        "verbose": {
+          "type": "boolean"
+        },
+        "debug": {
+          "type": "boolean"
+        },
+        "progressiveMode": {
+          "type": "boolean"
+        },
+        "languageFeatures": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/kotlinLanguageFeature"
           }
         },
         "optIns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "freeCompilerArgs": {
           "type": "array",
           "items": {
             "type": "string"
@@ -320,16 +333,38 @@
         "compileSdkVersion": {
           "$ref": "#/$defs/androidApiVersion"
         },
-        "minSdkVersion": {
+        "minSdk": {
           "$ref": "#/$defs/androidSdkVersion"
         },
-        "sourceCompatibility": {
-          "$ref": "#/$defs/javaVersion"
+        "minSdkPreview": {
+          "$ref": "#/$defs/androidSdkVersion"
         },
-        "targetCompatibility": {
-          "$ref": "#/$defs/javaVersion"
+        "maxSdk": {
+          "$ref": "#/$defs/androidSdkIntegerVersion"
+        },
+        "targetSdk": {
+          "$ref": "#/$defs/androidSdkVersion"
+        },
+        "applicationId": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
         }
       },
+      "anyOf": [
+        {
+          "oneOf": [
+            {"required": ["minSdk"]},
+            {"required": ["minSdkPreview"]}
+          ]
+        },
+        {
+          "not": {
+            "required": ["minSdk", "minSdkPreview"]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "androidApiVersion": {
@@ -346,13 +381,38 @@
         {
           "typeOf": "string",
           "pattern": "^(.+):(.+):(\\d+)$"
+        },
+        {
+          "enum": [
+            "android-34",
+            "android-33",
+            "android-32",
+            "android-31",
+            "android-30",
+            "android-29",
+            "android-28",
+            "android-27",
+            "android-26"
+          ]
         }
       ]
     },
-    "androidSdkVersion": {
+    "androidSdkIntegerVersion": {
       "type": "integer",
       "minimum": 1,
-      "maximum": 33
+      "maximum": 34
+    },
+    "androidSdkVersion": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 34
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
     "publishingSettings": {
       "type": "object",
