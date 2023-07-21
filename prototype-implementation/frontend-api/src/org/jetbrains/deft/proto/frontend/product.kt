@@ -33,7 +33,7 @@ enum class ProductType(
     MACOS_APP(
         "macos/app",
         supportedPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64),
-        defaultPlatforms = setOf(Platform.MACOS_X64)
+        defaultPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64)
     ),
     LINUX_APP(
         "linux/app",

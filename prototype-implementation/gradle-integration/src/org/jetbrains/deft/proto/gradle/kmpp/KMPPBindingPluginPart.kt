@@ -103,7 +103,7 @@ class KMPPBindingPluginPart(
                 Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)
                 Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName)
                 Platform.IOS_X64 -> kotlinMPE.iosX64(targetName)
-                Platform.MACOS_X64 -> kotlinMPE.macosArm64(targetName)
+                Platform.MACOS_X64 -> kotlinMPE.macosX64(targetName)
                 Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName)
                 Platform.JS -> kotlinMPE.js(targetName)
                 else -> error("Unsupported platform: $targetName")
