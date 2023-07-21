@@ -1,6 +1,2 @@
 product: jvm/app
 
-# TODO remove after fix
-settings:
-  java:
-    mainClass: MainKt

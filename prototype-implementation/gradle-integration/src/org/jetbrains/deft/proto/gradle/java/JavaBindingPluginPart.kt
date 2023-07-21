@@ -86,23 +86,21 @@ class JavaBindingPluginPart(
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
         val javaPart = fragment.parts.find<JavaPart>()
-        if (javaPart != null) {
-            javaAPE.apply {
-                if (module.type != PotatoModuleType.APPLICATION) return@apply
-                fun FoundEntryPoint.java() = if (pkg != null) "$pkg.MainKt" else "MainKt"
-                val foundMainClass = javaPart.mainClass
-                    ?: findEntryPoint("main.kt", fragment).java()
-                mainClass.set(foundMainClass)
-            }
-            javaPart.target?.let {
-                javaPE.targetCompatibility = JavaVersion.toVersion(it)
-            }
-            javaPart.source?.let {
-                javaPE.sourceCompatibility = JavaVersion.toVersion(it)
-            }
-            project.tasks.withType(KotlinCompile::class.java).configureEach {
-                it.javaPackagePrefix = javaPart.packagePrefix
-            }
+        javaAPE.apply {
+            if (module.type != PotatoModuleType.APPLICATION) return@apply
+            fun FoundEntryPoint.java() = if (pkg != null) "$pkg.MainKt" else "MainKt"
+            val foundMainClass = javaPart?.mainClass
+                ?: findEntryPoint("main.kt", fragment).java()
+            mainClass.set(foundMainClass)
+        }
+        javaPart?.target?.let {
+            javaPE.targetCompatibility = JavaVersion.toVersion(it)
+        }
+        javaPart?.source?.let {
+            javaPE.sourceCompatibility = JavaVersion.toVersion(it)
+        }
+        project.tasks.withType(KotlinCompile::class.java).configureEach {
+            it.javaPackagePrefix = javaPart?.packagePrefix
         }
     }
 
