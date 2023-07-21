@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend.helper
 
 import org.jetbrains.deft.proto.frontend.*
+import org.junit.jupiter.api.assertThrows
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.file.Path
@@ -88,4 +89,10 @@ internal fun doTestParse(
             .replace(testProcessDir, "{{ testProcessDir }}")
         resourceFile.writeText(toReplace)
     }
+}
+
+inline fun <reified T : Throwable> assertThrowsWithErrorMessage(expectedMessage: String, executable: () -> Unit): T {
+    val e = assertThrows<T>(executable)
+    assertEquals(expectedMessage, e.message)
+    return e
 }

@@ -92,8 +92,8 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
 
     fun unsupportedType(userValue: Any): Nothing {
         error(
-            "unsupported product type: $userValue, supported types:\n"
-                    + Platform.entries.joinToString("\n")
+            "unsupported product type '$userValue', supported types:\n"
+                    + ProductType.entries.joinToString("\n")
         )
     }
 
@@ -134,21 +134,21 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
             }
         }
 
-        fun reportUnsupportedPlatforms(toReport: Set<Any>) {
-            val message = StringBuilder("product type $actualType doesn't support ")
+        fun reportUnsupportedPlatforms(toReport: Collection<String>) {
+            val message = StringBuilder("product type '$actualType' doesn't support ")
             toReport.joinTo(message) { "'$it'" }
-            message.append(if (unknownPlatforms.size == 1) " platform" else " platforms")
+            message.append(if (toReport.size == 1) " platform" else " platforms")
             error(message)
         }
         if (unknownPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unknownPlatforms)
 
         val unsupportedPlatforms = knownPlatforms.subtract(actualType.supportedPlatforms)
-        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms)
+        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms.map { it.pretty} )
 
         knownPlatforms
     } else {
         actualType.defaultPlatforms
-            ?: error("product:platforms: should not be empty for product type $actualType")
+            ?: error("product:platforms: should not be empty for '$actualType' product type")
     }
 
     return Pair(actualType, actualPlatforms.toSet())
