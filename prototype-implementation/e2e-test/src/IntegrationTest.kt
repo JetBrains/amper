@@ -11,14 +11,14 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
     fun `configuring native macos`() = test(
         projectName = "native-macos",
-        "assemble",
+        "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
     @Test
     fun `configuring native linux`() = test(
         projectName = "native-linux",
-        "assemble",
+        "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
