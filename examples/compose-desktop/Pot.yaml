@@ -1,0 +1,10 @@
+product:
+  type: app
+  platforms: [ jvm ]
+
+dependencies:
+  - org.jetbrains.compose.desktop:desktop:1.4.1
+
+settings:
+  compose:
+    enabled: true

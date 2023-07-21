@@ -124,7 +124,29 @@ settings:
 Documentation:
 - [Settings](Documentation.md#settings)
 
-### Step 5. Make project multi-platform
+### Step 5. Add Compose Multiplatform
+
+To use Compose Multiplatform framework, add corresponding dependencies and a Compose toolchain section in `settings:`.
+
+/android/Pot.yaml:
+```YAML
+product: jvm/app
+
+dependencies:
+  # add Compose dependencies
+  - org.jetbrains.compose.desktop:desktop:1.4.1
+
+settings:
+  # enable Compose toolchain
+  compose:
+    enabled: true
+```
+Examples: [compose](../examples/compose-desktop).
+
+Documentation:
+- [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
+
+### Step 6. Make project multi-platform
 
 One of the primary target use cases is the Kotlin Multiplatform project (see [Mercury](https://jetbrains.team/blog/Introducing_Project_Mercury) project). 
 
@@ -177,7 +199,7 @@ Another interesting thing is `pod: 'Alamofire'` dependency. This is a CocoaPods 
 Documentation:
 - [Multi-platform configuration](Documentation.md#multi-platform-configuration)
 
-### Step 6. Modularize
+### Step 7. Modularize
 
 Let's add a couple of application modules that use our multi-platform library:
 
@@ -269,37 +291,6 @@ Examples: [kmp-mobile-modularized](.././examples/kmp-mobile-modularized).
 Documentation:
 - [Internal dependencies](Documentation.md#internal-dependencies)
 
-### Step 7. Add Compose Multiplatform
-
-To use Compose Multiplatform framework, add corresponding dependencies and the section in `settings:`.
-
-/android/Pot.yaml:
-```YAML
-product: android/app
-
-dependencies:
-  - ../shared
-  # add Compose dependencies
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1 
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-
-settings:
-  kotlin:
-    languageVersion: 1.8
-  android:
-    applicationId: my.deft.app
-  # enable Compose toolchain
-  compose:
-    enabled: true
-```
-Examples: [compose](../examples/compose-multiplatform).
-
-Documentation:
-- [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
-
 ### Step 8. Deduplicate common parts
 
 You might have noticed that there are some common settings present in all `Pot.yaml` files. We now can extract the into a template.
@@ -344,15 +335,10 @@ apply:
 
 dependencies:
   - ../shared
-  # add Compose dependencies
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1 
 
 settings:
   android:
     applicationId: my.deft.app
-  compose:
-    enabled: true
 ```
 
 /ios/Pot.yaml:

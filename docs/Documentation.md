@@ -415,6 +415,19 @@ See [multi-platform settings configuration](#multi-platform-settings) for more d
 
 In order to enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/) (with a compiler plugin and required dependencies), add the following configuration:
 
+JVM:
+```yaml
+product: jvm/app
+
+dependencies:
+  - org.jetbrains.compose.desktop:desktop:1.4.1
+
+settings: 
+  compose:
+    enabled: true
+```
+
+Android:
 ```yaml
 product: android/app
 
