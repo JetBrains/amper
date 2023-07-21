@@ -10,6 +10,7 @@ Fragments:
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=MainKt, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
       ComposePart(enabled=null)
   jvmTest
     External dependencies:
@@ -17,6 +18,13 @@ Fragments:
     Fragment dependencies:
       jvm (FRIEND)
     Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
 Artifacts:
   isTest: false
   [JVM]
