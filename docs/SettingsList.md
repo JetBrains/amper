@@ -10,7 +10,7 @@ settings:
     freeCompilerArgs: <list>
     suppressWarnings: <bool>
     verbose: <bool>
-    linkerOpts:  <list>
+    linkerOptions:  <list>
     debug: <bool>
     progressiveMode: <bool>
     languageFeatures: <list>
@@ -28,6 +28,9 @@ settings:
     targetSdk: <enum>
     applicationId: <string>
     namespace: <string>
+
+  compose:
+    enabled: <bool>
 ```
 
 Testing:

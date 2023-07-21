@@ -401,9 +401,9 @@ All toolchain settings are specified in the dedicated groups in the `settings:` 
 settings: 
   kotlin:
     languageVersion: 1.8
-    features: [contextReceivers]
+    languageFeatures: [contextReceivers]
   android:
-    androidApiVersion: android-31
+    compileSdkVersion: android-31
 ```
 
 Here is the list of [currently supported toolchains and their settings](SettingsList.md).   
@@ -830,51 +830,84 @@ settings:
     deploymentTarget: 17
 ```
 
-There are situations, when you need to override certain settings in for a specific platform only. 
-You can use `@platform`-qualifier. So such settings in the `@platform`-sections the [propagation rules](#dependencysettings-propagation) apply. E.g., for the given configuration:
+There are situations, when you need to override certain settings in for a specific platform only. You can use `@platform`-qualifier. 
+
+Note that certains platforms names match the toolchin names, e.g. iOS and Android:
+- `settings@ios` qualifier specializes settings for all iOS target platforms,
+- `settings:ios:` is a iOS toolchain settings   
+
+This could lead to confusion in cases like:
+```yaml
+product: ios/app
+
+settings@ios:    # settings to be used for iOS target platform
+  ios:           # iOS toolchain settings
+    deploymentTarget: 17
+  kotlin:        # Kotlin toolchain settings
+    languageVersion: 1.8
+```
+Luckily, there should rarely be a need to such configuration.
+We also plan to address this by linting with conversion to a more readable form:   
+```yaml
+product: ios/app
+
+settings:
+  ios:           # iOS toolchain settings
+    deploymentTarget: 17
+  kotlin:        # Kotlin toolchain settings
+    languageVersion: 1.8
+```
+
+For settings with the `@platform`-qualifiers the [propagation rules](#dependencysettings-propagation) apply. E.g., for the given configuration:
 ```yaml
 product:
   type: lib
   platforms: [android, iosArm64, iosSimulatorArm64]
 
-settings:
-  kotlin:
+settings:           # common toolchain settings
+  kotlin:           # Kotlin toolchain
     languageVersion: 1.8
-    features: [x]
-    
-settings@ios:
-  kotlin:
-    languageVersion: 1.9
-    features: [y]
-  ios:
+    languageFeatures: [x]
+  ios:              # iOS toolchain
     deploymentTarget: 17
 
-settings@iosArm64:
-  ios:
+settings@android:   # specialization for Android platform
+  compose:          # Compose toolchain
+    enabled: true
+
+settings@ios:       # specialization for all iOS platforms
+  kotlin:           # Kotlin toolchain
+    languageVersion: 1.9
+    languageFeatures: [y]
+
+settings@iosArm64:  # specialization for iOS arm64 platform 
+  ios:              # iOS toolchain
     deploymentTarget: 18
 ```
 The effective settings are:
 ```yaml 
 settings@android:
   kotlin:
-    languageVersion: 1.8 # from settings:
-    features: [x]       # from settings:
+    languageVersion: 1.8   # from settings:
+    languageFeatures: [x]  # from settings:
+  compose:
+   enabled: true           # from settings@android:
 ```
 ```yaml 
 settings@iosArm64:
   kotlin:
-    languageVersion: 1.9 # from settings@ios:
-    features: [x, y]     # merged from settings: and settings@ios:
+    languageVersion: 1.9      # from settings@ios:
+    languageFeatures: [x, y]  # merged from settings: and settings@ios:
   ios:
-    deploymentTarget: 18 # from settings@iosArm64:
+    deploymentTarget: 18      # from settings@iosArm64:
 ```
 ```yaml 
 settings@iosSimulatorArm64:
   kotlin:
-    languageVersion: 1.9 # from settings@ios:
-    features: [x, y]     # merged from settings: and settings@ios:
+    languageVersion: 1.9      # from settings@ios:
+    languageFeatures: [x, y]  # merged from settings: and settings@ios:
   ios:
-    deploymentTarget: 17 # from settings@ios: 
+    deploymentTarget: 17      # from settings:
 ```
 
 ### Dependency/Settings propagation
@@ -1068,7 +1101,7 @@ settings:
   kotlin:
     languageVersion: 1.9
   java:
-    targetVersion: 1.8
+    target: 1.8
 ```
 
 After template application the resulting effective Pot is:
@@ -1086,7 +1119,7 @@ settings:  # objects merged
   compose:                # from the template
     enabled: true
   java:
-    targetVersion: 1.8   # from the Pot.yaml
+    target: 1.8   # from the Pot.yaml
 ```
 
 ## Extensibility

@@ -216,7 +216,7 @@ settings:
   kotlin:
     languageVersion: 1.8
   android:
-    manifestFile: AndroidManifest.xml
+    applicationId: my.deft.app
 ```
 
 /ios/Pot.yaml:
@@ -290,7 +290,7 @@ settings:
   kotlin:
     languageVersion: 1.8
   android:
-    manifestFile: AndroidManifest.xml
+    applicationId: my.deft.app
   # enable Compose toolchain
   compose:
     enabled: true
@@ -350,7 +350,7 @@ dependencies:
 
 settings:
   android:
-    manifestFile: AndroidManifest.xml
+    applicationId: my.deft.app
   compose:
     enabled: true
 ```
