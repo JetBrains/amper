@@ -25,10 +25,15 @@ enum class ProductType(
         supportedPlatforms = setOf(Platform.ANDROID),
         defaultPlatforms = setOf(Platform.ANDROID)
     ),
+    IOS_APP(
+        "ios/app",
+        supportedPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64),
+        defaultPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64)
+    ),
     MACOS_APP(
         "macos/app",
         supportedPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64),
-        defaultPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64)
+        defaultPlatforms = setOf(Platform.MACOS_X64)
     ),
     LINUX_APP(
         "linux/app",
