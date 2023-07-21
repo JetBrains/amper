@@ -3,18 +3,18 @@ product:
   platforms: [ jvm ]
 
 repositories:
-  - name: scratch
+  - id: scratch
     url: https://packages.jetbrains.team/maven/p/deft/deft-prototype
     username: ${scratch.username}
     password: ${scratch.password}
     publish: true
-  - name: mavenCentral
+  - id: mavenCentral
     url: https://repo.maven.apache.org/maven2/
-  - name: jitpack
+  - id: jitpack
     url: https://jitpack.io
-  - name: googleRepo
+  - id: googleRepo
     url: https://dl.google.com/dl/android/maven2/
-  - name: mavenLocal
+  - id: mavenLocal
     url: mavenLocal
     publish: true
 
