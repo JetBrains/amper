@@ -19,9 +19,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
-import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractExecutable
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import java.io.File
 
 
@@ -164,7 +162,7 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun AbstractExecutable.adjustExecutable(
+    private fun NativeBinary.adjustExecutable(
         fragment: LeafFragmentWrapper,
         kotlinNativeCompilation: KotlinNativeCompilation
     ) {

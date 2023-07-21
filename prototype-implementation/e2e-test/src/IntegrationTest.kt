@@ -44,4 +44,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "assemble",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `compose android`() = test(
+        projectName = "compose-android",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
 }
