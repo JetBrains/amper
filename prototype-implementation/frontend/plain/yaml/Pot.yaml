@@ -1,3 +1,7 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
 apply:
   - ../../../common.Pot-template.yaml
 

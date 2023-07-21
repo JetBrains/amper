@@ -1,7 +1,3 @@
-product:
-  type: lib
-  platforms: [ jvm ]
-
 repositories:
   - id: scratch
     url: https://packages.jetbrains.team/maven/p/deft/deft-prototype
