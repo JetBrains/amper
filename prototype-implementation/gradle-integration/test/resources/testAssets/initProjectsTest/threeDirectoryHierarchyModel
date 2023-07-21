@@ -1,7 +1,7 @@
 :outer
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
@@ -22,7 +22,7 @@
 :outer:inner2
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
@@ -43,7 +43,7 @@
 :outer:intermediate:inner1
   commonMain:
    depends()
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:
