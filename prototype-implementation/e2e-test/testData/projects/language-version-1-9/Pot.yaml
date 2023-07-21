@@ -4,3 +4,5 @@ product:
 settings:
   kotlin:
     languageVersion: 1.9
+    optIns:
+      - kotlinx.Experimental
