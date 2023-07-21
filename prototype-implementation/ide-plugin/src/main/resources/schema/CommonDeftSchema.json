@@ -100,29 +100,15 @@
     },
     "platform": {
       "enum": [
-        "js",
         "jvm",
-        "wasm",
         "android",
         "linuxX64",
         "linuxArm64",
-        "tvosArm64",
-        "tvosX64",
-        "tvosSimulatorArm64",
         "macosX64",
         "macosArm64",
         "iosArm64",
         "iosX64",
         "iosSimulatorArm64",
-        "watchosArm64",
-        "watchosArm32",
-        "watchosDeviceArm64",
-        "watchosSimulatorArm64",
-        "mingwX64",
-        "androidNativeArm32",
-        "androidNativeArm64",
-        "androidNativeX64",
-        "androidNativeX86"
       ]
     },
     "platformList": {
