@@ -126,6 +126,9 @@
         },
         {
           "$ref": "#/$defs/composeDependency"
+        },
+        {
+          "$ref": "#/$defs/ktorDependency"
         }
       ]
     },
@@ -146,6 +149,9 @@
         },
         {
           "$ref": "#/$defs/composeTestDependency"
+        },
+        {
+          "$ref": "#/$defs/ktorTestDependency"
         }
       ]
     },
@@ -447,30 +453,32 @@
     "composeDependency": {
       "$comment": "Versions from Compose BOM at https://developer.android.com/jetpack/compose/bom/bom-mapping",
       "enum": [
+        "androidx.activity:activity-compose:1.7.3",
+        "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1",
+
         "androidx.compose.animation:animation:1.4.3",
         "androidx.compose.animation:animation-core:1.4.3",
         "androidx.compose.animation:animation-graphics:1.4.3",
+
         "androidx.compose.foundation:foundation:1.4.3",
-        "androidx.compose.foundation:foundation-layout:1.4.3",
         "androidx.compose.material:material:1.4.3",
-        "androidx.compose.material:material-icons-core:1.4.3",
-        "androidx.compose.material:material-icons-extended:1.4.3",
-        "androidx.compose.material:material-ripple:1.4.3",
         "androidx.compose.material3:material3:1.1.1",
-        "androidx.compose.material3:material3-window-size-class:1.1.1",
+        "androidx.compose.ui:ui:1.4.3",
+
         "androidx.compose.runtime:runtime:1.4.3",
         "androidx.compose.runtime:runtime-livedata:1.4.3",
         "androidx.compose.runtime:runtime-rxjava2:1.4.3",
         "androidx.compose.runtime:runtime-rxjava3:1.4.3",
         "androidx.compose.runtime:runtime-saveable:1.4.3",
-        "androidx.compose.ui:ui:1.4.3",
+
         "androidx.compose.ui:ui-geometry:1.4.3",
         "androidx.compose.ui:ui-graphics:1.4.3",
         "androidx.compose.ui:ui-text:1.4.3",
-        "androidx.compose.ui:ui-text-google-fonts:1.4.3",
+
         "androidx.compose.ui:ui-tooling:1.4.3",
         "androidx.compose.ui:ui-tooling-data:1.4.3",
         "androidx.compose.ui:ui-tooling-preview:1.4.3",
+
         "androidx.compose.ui:ui-unit:1.4.3",
         "androidx.compose.ui:ui-util:1.4.3",
         "androidx.compose.ui:ui-viewbinding:1.4.3"
@@ -482,6 +490,33 @@
         "androidx.compose.ui:ui-test:1.4.3",
         "androidx.compose.ui:ui-test-junit4:1.4.3",
         "androidx.compose.ui:ui-test-manifest:1.4.3"
+      ]
+    },
+    "ktorDependency": {
+      "enum": [
+        "io.ktor:ktor-server-auth:2.3.2",
+        "io.ktor:ktor-server-core:2.3.2",
+        "io.ktor:ktor-server-content-negotiation:2.3.2",
+        "io.ktor:ktor-server-html-builder:2.3.2",
+        "io.ktor:ktor-server-locations:2.3.2",
+        "io.ktor:ktor-server-netty:2.3.2",
+        "io.ktor:ktor-server-resources:2.3.2",
+        "io.ktor:ktor-server-sessions:2.3.2",
+        "io.ktor:ktor-server-websockets:2.3.2",
+        "io.ktor:ktor-client-auth:2.3.2",
+        "io.ktor:ktor-client-cio:2.3.2",
+        "io.ktor:ktor-client-content-negotiation:2.3.2",
+        "io.ktor:ktor-client-core:2.3.2",
+        "io.ktor:ktor-client-encoding:2.3.2",
+        "io.ktor:ktor-client-logging:2.3.2",
+        "io.ktor:ktor-client-resources:2.3.2",
+        "io.ktor:ktor-client-websockets:2.3.2"
+      ]
+    },
+    "ktorTestDependency": {
+      "enum": [
+        "io.ktor:ktor-server-test-host:2.3.2",
+        "io.ktor:ktor-client-mock:2.3.2"
       ]
     },
     "repository": {
