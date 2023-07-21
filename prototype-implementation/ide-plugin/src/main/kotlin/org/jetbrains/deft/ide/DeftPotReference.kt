@@ -46,7 +46,9 @@ internal class DeftPotReference(element: PsiElement, private val template: Boole
             val potName = potRelativePath.stripTemplateSuffix()
 
             val relativePath = VfsUtilCore.findRelativePath(originalFile, filePath, VfsUtilCore.VFS_SEPARATOR_CHAR)
-                ?.takeIf { it.isNotBlank() } ?: return@processPotFiles true
+                ?.takeIf { it.isNotBlank() }
+                ?.run { if (startsWith(".")) this else ".${VfsUtilCore.VFS_SEPARATOR_CHAR}$this" }
+                ?: return@processPotFiles true
             variants.add(
                 LookupElementBuilder
                     .create(file, relativePath)
