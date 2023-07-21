@@ -1,6 +1,4 @@
-product:
-  type: app
-  platforms: [ jvm ]
+product: jvm/app
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -9,5 +7,9 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
 
 settings:
+  kotlin:
+    languageVersion: 1.8
+    jvmTarget: 17
   java:
-    mainClass: MainKt
+    source: 17
+    target: 17

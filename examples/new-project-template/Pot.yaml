@@ -1,8 +1,5 @@
-product:
-  type: app
-  platforms: [ jvm ]
-
+product: jvm/app
 
 settings:
-  java:
-    mainClass: MainKt
+  kotlin:
+    languageVersion: 1.8
