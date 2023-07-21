@@ -45,7 +45,7 @@
               }
             },
             {
-              "$ref": "#/$defs/productType"
+              "$ref": "#/$defs/topLevelProductType"
             }
           ]
         }
@@ -57,13 +57,22 @@
   ],
 
   "$defs": {
+    "topLevelProductType": {
+        "enum": [
+            "jvm/app",
+            "macos/app",
+            "android/app",
+            "linux/app"
+        ]
+    },
     "productType": {
-      "enum": [
-        "lib",
-        "jvm/app",
-        "macos/app",
-        "android/app",
-        "linux/app"
+      "oneOf": [
+        {
+          "$ref": "#/$defs/topLevelProductType",
+        },
+        {
+          "const": "lib"
+        }
       ]
     }
   }
