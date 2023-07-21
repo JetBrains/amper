@@ -1,0 +1,2 @@
+dependencies:
+  - androidx.compose.animation:animation-core:1.4.3
