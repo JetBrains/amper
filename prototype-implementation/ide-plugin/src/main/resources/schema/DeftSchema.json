@@ -29,9 +29,20 @@
                 }
               },
               "required": [
-                "type",
-                "platforms"
-              ]
+                "type"
+              ],
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "lib"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "platforms"
+                ]
+              }
             },
             {
               "$ref": "#/$defs/productType"
