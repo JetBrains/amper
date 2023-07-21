@@ -35,15 +35,15 @@ internal data class FragmentBuilder(
     var src: Path? = null,
 
     // parts
-    var kotlin: KotlinPartBuilder? = null,
-    var junit: JunitPartBuilder? = null,
+    var kotlin: KotlinPartBuilder? = KotlinPartBuilder {},
+    var junit: JunitPartBuilder? = JunitPartBuilder {},
 
     // Leaf parts.
-    var android: AndroidPartBuilder? = null,
-    var native: NativePartBuilder? = null,
-    var java: JavaPartBuilder? = null,
-    var publishing: PublishingPartBuilder? = null,
-    var compose: ComposePartBuilder? = null
+    var android: AndroidPartBuilder? = AndroidPartBuilder {},
+    var native: NativePartBuilder? = NativePartBuilder {},
+    var java: JavaPartBuilder? = JavaPartBuilder {},
+    var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
+    var compose: ComposePartBuilder? = ComposePartBuilder {}
 ) {
 
     /**
@@ -395,7 +395,6 @@ internal fun List<ArtifactBuilder>.handleSettings(
     fragments: List<FragmentBuilder>
 ) {
     config.handleArtifactSettings<Settings>(fragments, "settings") {
-
         android = AndroidPartBuilder {
             it.getValue<Settings>("android")?.let { androidSettings ->
                 compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")

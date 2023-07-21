@@ -18,8 +18,8 @@ data class KotlinPart(
 ) : FragmentPart<KotlinPart> {
     override fun propagate(parent: KotlinPart): FragmentPart<KotlinPart> =
         KotlinPart(
-            parent.languageVersion ?: languageVersion,
-            parent.apiVersion ?: apiVersion,
+            languageVersion ?: parent.languageVersion,
+            apiVersion ?: parent.apiVersion,
             allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
             (freeCompilerArgs + parent.freeCompilerArgs),
             suppressWarnings ?: true || parent.suppressWarnings ?: false,

@@ -65,4 +65,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `language-version 1_9`() = test(
+        projectName = "language-version-1-9",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
 }

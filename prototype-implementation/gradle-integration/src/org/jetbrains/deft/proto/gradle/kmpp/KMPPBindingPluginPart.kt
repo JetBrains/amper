@@ -236,16 +236,17 @@ class KMPPBindingPluginPart(
                 for (sourceSet in sourceSets) {
                     // Apply language settings.
                     sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
-
-                    // Set dependencies.
-                    fragment.fragmentDependencies.forEach {
-                        sourceSet.doDependsOn(it.target)
-                    }
-
-                    // Set sources and resources.
-                    sourceSet.kotlin.setSrcDirs(fragment.sourcePaths)
-                    sourceSet.resources.setSrcDirs(fragment.resourcePaths)
                 }
+
+                val sourceSet = fragment.kotlinSourceSet
+                // Set dependencies.
+                fragment.fragmentDependencies.forEach {
+                    sourceSet?.doDependsOn(it.target)
+                }
+
+                // Set sources and resources.
+                sourceSet?.kotlin?.setSrcDirs(fragment.sourcePaths)
+                sourceSet?.resources?.setSrcDirs(fragment.resourcePaths)
             }
 
             // Third iteration - adjust kotlin prebuilt source sets to match created ones.
