@@ -24,10 +24,15 @@ fun Yaml.parseAndPreprocess(
 
     val allTemplates = templateNames + oldSectionTemplateNames
 
-    val appliedTemplates = allTemplates
-        .map(absoluteTemplateLoader)
-        .map { it.parent to load<Settings>(it.readText()) }
-
+    val appliedTemplates = allTemplates.mapNotNull {
+        val absolutePath = absoluteTemplateLoader(it)
+        val loaded = load<Settings>(absolutePath.readText())
+        if (loaded != null) {
+            absolutePath.parent to loaded
+        } else {
+            null
+        }
+    }
     val resultConfig = appliedTemplates
         .fold(rootConfig) { acc, from -> mergeTemplate(from.second, acc, from.first) }
 

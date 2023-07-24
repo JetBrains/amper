@@ -3,7 +3,7 @@ product:
   platforms: [ iosArm64 ]
 
 apply:
-  - ./15-simple-template.yaml
+  - ./templates-simple.Pot-template.yaml
 
 dependencies:
   - org.jetbrains.kotlin:kotlin-reflect:1.8.10

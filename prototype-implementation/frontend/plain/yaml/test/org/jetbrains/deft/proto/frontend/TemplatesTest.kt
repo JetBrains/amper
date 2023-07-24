@@ -15,14 +15,28 @@ internal class TemplatesTest {
     @Test
     fun `check artifacts of multi-variant builds`() {
         with(buildFile) {
-            testParseWithTemplates("15-simple-template-test")
+            testParseWithTemplates("templates-simple")
         }
     }
 
     @Test
     fun `check path literals are adjusted`() {
         with(buildFile) {
-            testParseWithTemplates("16-templates-adjust-path-test")
+            testParseWithTemplates("templates-adjust-path-test")
+        }
+    }
+
+    @Test
+    fun `empty template file`() {
+        with(buildFile) {
+            testParseWithTemplates("templates-empty-file")
+        }
+    }
+    
+    @Test
+    fun `empty apply list file`() {
+        with(buildFile) {
+            testParseWithTemplates("templates-empty-apply")
         }
     }
 }
