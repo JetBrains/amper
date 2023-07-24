@@ -2,20 +2,22 @@
 
 package org.jetbrains.deft.ide.yaml
 
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.PsiReference
 import org.jetbrains.deft.ide.DeftPotReference
-import org.jetbrains.yaml.meta.model.Field
-import org.jetbrains.yaml.meta.model.YamlArrayType
-import org.jetbrains.yaml.meta.model.YamlMetaClass
-import org.jetbrains.yaml.meta.model.YamlReferenceType
+import org.jetbrains.yaml.meta.model.*
 import org.jetbrains.yaml.psi.YAMLScalar
 import java.util.regex.Pattern
 
-internal class DeftYamlModel : YamlMetaClass("deft-root") {
+internal class DeftYamlModel(isTemplate: Boolean) : YamlMetaClass("deft-root") {
     init {
         addFeature(Field("dependencies", DeftDependenciesListMetaType())
             .withNamePattern(Pattern.compile("^(test-)?dependencies(@.+)?\$")))
         addFeature(Field("apply", DeftTemplatesListMetaType()))
+        if (!isTemplate) {
+            addFeature(Field("product", DeftProductMetaType()))
+        }
     }
 
     private class DeftDependencyMetaType : YamlReferenceType("deft-dependency") {
@@ -33,4 +35,26 @@ internal class DeftYamlModel : YamlMetaClass("deft-root") {
     private class DeftDependenciesListMetaType : YamlArrayType(DeftDependencyMetaType())
 
     private class DeftTemplatesListMetaType : YamlArrayType(DeftTemplateMetaType())
+
+    private class DeftProductMetaType : YamlStringType() {
+        override fun getValueLookups(
+            insertedScalar: YAMLScalar,
+            completionContext: CompletionContext?
+        ): List<LookupElement> {
+            return listOf(
+                LookupElementBuilder.create("lib")
+                    .withInsertHandler { context, _ ->
+                        val toInsert = """
+                            |
+                            |  type: lib
+                            |  platforms:
+                            |    - 
+                        """.trimMargin()
+
+                        context.document.replaceString(context.startOffset, context.tailOffset, toInsert)
+                        context.editor.caretModel.moveToOffset(context.startOffset + toInsert.length)
+                    }
+            )
+        }
+    }
 }

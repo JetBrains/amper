@@ -68,7 +68,7 @@
     "productType": {
       "oneOf": [
         {
-          "$ref": "#/$defs/topLevelProductType",
+          "$ref": "#/$defs/topLevelProductType"
         },
         {
           "const": "lib"
