@@ -108,7 +108,7 @@
         "macosArm64",
         "iosArm64",
         "iosX64",
-        "iosSimulatorArm64",
+        "iosSimulatorArm64"
       ]
     },
     "platformList": {
@@ -361,13 +361,24 @@
       "anyOf": [
         {
           "oneOf": [
-            {"required": ["minSdk"]},
-            {"required": ["minSdkPreview"]}
+            {
+              "required": [
+                "minSdk"
+              ]
+            },
+            {
+              "required": [
+                "minSdkPreview"
+              ]
+            }
           ]
         },
         {
           "not": {
-            "required": ["minSdk", "minSdkPreview"]
+            "required": [
+              "minSdk",
+              "minSdkPreview"
+            ]
           }
         }
       ],
@@ -404,16 +415,93 @@
       ]
     },
     "androidSdkIntegerVersion": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 34
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ]
+        }
+      ]
     },
     "androidSdkVersion": {
       "anyOf": [
         {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 34
+          "$ref": "#/$defs/androidSdkIntegerVersion"
+        },
+        {
+          "enum": [
+            "UPSIDE_DOWN_CAKE",
+            "TIRAMISU",
+            "S_V2",
+            "S",
+            "R",
+            "Q",
+            "P",
+            "O_MR1",
+            "O",
+            "N_MR1",
+            "N",
+            "M",
+            "LOLLIPOP_MR1",
+            "LOLLIPOP",
+            "KITKAT_WATCH",
+            "KITKAT",
+            "JELLY_BEAN_MR2",
+            "JELLY_BEAN_MR1",
+            "JELLY_BEAN",
+            "ICE_CREAM_SANDWICH_MR1",
+            "ICE_CREAM_SANDWICH",
+            "HONEYCOMB_MR2",
+            "HONEYCOMB_MR1",
+            "HONEYCOMB",
+            "GINGERBREAD_MR1",
+            "GINGERBREAD",
+            "FROYO",
+            "ECLAIR_MR1",
+            "ECLAIR_0_1",
+            "ECLAIR",
+            "DONUT",
+            "CUPCAKE",
+            "BASE_1_1",
+            "BASE"
+          ]
         },
         {
           "type": "string"
@@ -455,30 +543,24 @@
       "enum": [
         "androidx.activity:activity-compose:1.7.3",
         "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1",
-
         "androidx.compose.animation:animation:1.4.3",
         "androidx.compose.animation:animation-core:1.4.3",
         "androidx.compose.animation:animation-graphics:1.4.3",
-
         "androidx.compose.foundation:foundation:1.4.3",
         "androidx.compose.material:material:1.4.3",
         "androidx.compose.material3:material3:1.1.1",
         "androidx.compose.ui:ui:1.4.3",
-
         "androidx.compose.runtime:runtime:1.4.3",
         "androidx.compose.runtime:runtime-livedata:1.4.3",
         "androidx.compose.runtime:runtime-rxjava2:1.4.3",
         "androidx.compose.runtime:runtime-rxjava3:1.4.3",
         "androidx.compose.runtime:runtime-saveable:1.4.3",
-
         "androidx.compose.ui:ui-geometry:1.4.3",
         "androidx.compose.ui:ui-graphics:1.4.3",
         "androidx.compose.ui:ui-text:1.4.3",
-
         "androidx.compose.ui:ui-tooling:1.4.3",
         "androidx.compose.ui:ui-tooling-data:1.4.3",
         "androidx.compose.ui:ui-tooling-preview:1.4.3",
-
         "androidx.compose.ui:ui-unit:1.4.3",
         "androidx.compose.ui:ui-util:1.4.3",
         "androidx.compose.ui:ui-viewbinding:1.4.3",
