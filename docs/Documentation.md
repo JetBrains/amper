@@ -415,16 +415,25 @@ See [multi-platform settings configuration](#multi-platform-settings) for more d
 
 In order to enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/) (with a compiler plugin and required dependencies), add the following configuration:
 
-JVM:
+JVM Desktop:
 ```yaml
 product: jvm/app
 
 dependencies:
-  - org.jetbrains.compose.desktop:desktop:1.4.1
-
+  # add Compose dependencies (*depending on the build platform)
+  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
+    
 settings: 
   compose:
     enabled: true
+```
+_NOTE: Currently you need to manually specify desktop dependency for your current platform. This is a limitation what we plan to address in the future.
+Use one of the following dependencies:_
+```yaml
+- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
+- org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1
+- org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1
+- org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1
 ```
 
 Android:
@@ -441,7 +450,12 @@ settings:
 ```
 
 _NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
-Also, certain dependencies might be added automatically when Compose is enabled._   
+Also, certain dependencies might be added automatically when Compose is enabled._
+
+_NOTE: For Compose Android you also need to add a flag in `gradle.properties` due to a limitation in the Android Gradle Plugin:_
+```properties
+android.useAndroidX=true
+```
 
 ### Tests
 
