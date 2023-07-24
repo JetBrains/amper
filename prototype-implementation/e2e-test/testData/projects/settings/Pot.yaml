@@ -21,7 +21,7 @@ dependencies@jvmAndAndroid:
 
 dependencies@jvm:
   - io.ktor:ktor-server-core:2.3.2
-  - org.jetbrains.compose.material:material3:1.4.1
+  - org.jetbrains.compose.material3:material3:1.4.1
 
 dependencies@android:
   - androidx.compose.animation:animation-graphics:1.4.3

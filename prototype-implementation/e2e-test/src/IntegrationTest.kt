@@ -86,4 +86,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun `configure a project with most of the settings`() = test(
+        "settings",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }
