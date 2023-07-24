@@ -1,0 +1,6 @@
+product:
+  type: android/app
+
+settings:
+  kotlin:
+    languageVersion: 1.9

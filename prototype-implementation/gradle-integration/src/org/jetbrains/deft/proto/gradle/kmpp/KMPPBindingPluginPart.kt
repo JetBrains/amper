@@ -19,7 +19,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
-import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import java.io.File
 
 
@@ -230,7 +232,7 @@ class KMPPBindingPluginPart(
                 }
             }
 
-            val sourceSetsNotAdjusted = kotlinMPE.sourceSets.toMutableSet()
+            val adjustedSourceSets = mutableSetOf<KotlinSourceSet>()
 
             // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
             module.fragments.forEach { fragment ->
@@ -239,17 +241,31 @@ class KMPPBindingPluginPart(
                 for (sourceSet in sourceSets) {
                     // Apply language settings.
                     sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
-                    sourceSetsNotAdjusted.remove(sourceSet)
+                    adjustedSourceSets.add(sourceSet)
                 }
             }
 
             // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
             // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
-            sourceSetsNotAdjusted.forEach { sourceSet ->
-                module.fragmentsByName["common"]?.parts?.find<KotlinPart>()?.let {
+            val commonKotlinPart = module.fragments
+                .firstOrNull { it.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE } }
+                ?.parts
+                ?.find<KotlinPart>()
+
+            (kotlinMPE.sourceSets.toSet() - adjustedSourceSets).forEach { sourceSet ->
+                commonKotlinPart?.let {
                     sourceSet.doApplyPart(it)
                 }
             }
+
+            // it is implied newly added sourceSets will depend on common
+            kotlinMPE.sourceSets
+                .matching { !adjustedSourceSets.contains(it) }
+                .configureEach { sourceSet ->
+                    commonKotlinPart?.let {
+                        sourceSet.doApplyPart(it)
+                    }
+                }
 
             module.fragments.forEach { fragment ->
                 val sourceSet = fragment.kotlinSourceSet

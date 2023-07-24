@@ -79,4 +79,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun `android app, language version 1-9 for common code should not fail`() = test(
+        "android-language-version-1-9",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }
