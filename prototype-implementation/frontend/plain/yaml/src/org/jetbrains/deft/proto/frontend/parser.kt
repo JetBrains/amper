@@ -2,8 +2,14 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
+import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
+
+context(BuildFileAware)
+internal fun parseError(message: CharSequence): Nothing {
+    error("$buildFile: $message")
+}
 
 context(BuildFileAware)
 fun parseModule(config: Settings): PotatoModule {
@@ -85,13 +91,14 @@ fun parseModule(config: Settings): PotatoModule {
     }
 }
 
+context(BuildFileAware)
 internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<Platform>> {
-    val productValue = config.getValue<Any>("product") ?: error("product: section is missing")
+    val productValue = config.getValue<Any>("product") ?: parseError("product: section is missing")
     val typeValue: String
     val platformsValue: List<String>?
 
     fun unsupportedType(userValue: Any): Nothing {
-        error(
+        parseError(
             "unsupported product type '$userValue', supported types:\n"
                     + ProductType.entries.joinToString("\n")
         )
@@ -107,7 +114,7 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
             @Suppress("UNCHECKED_CAST")
             productValue as Settings
 
-            typeValue = productValue.getStringValue("type") ?: error("product:type: is missing")
+            typeValue = productValue.getStringValue("type") ?: parseError("product:type: is missing")
             platformsValue = productValue.getValue<List<String>>("platforms")
         }
 
@@ -120,7 +127,7 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
 
     val actualPlatforms = if (platformsValue != null) {
         if (platformsValue.isEmpty()) {
-            error("product:platforms: should not be empty")
+            parseError("product:platforms: should not be empty")
         }
 
         val knownPlatforms = mutableSetOf<Platform>()
@@ -138,7 +145,7 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
             val message = StringBuilder("product type '$actualType' doesn't support ")
             toReport.joinTo(message) { "'$it'" }
             message.append(if (toReport.size == 1) " platform" else " platforms")
-            error(message)
+            parseError(message)
         }
         if (unknownPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unknownPlatforms)
 
@@ -148,7 +155,7 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
         knownPlatforms
     } else {
         actualType.defaultPlatforms
-            ?: error("product:platforms: should not be empty for '$actualType' product type")
+            ?: parseError("product:platforms: should not be empty for '$actualType' product type")
     }
 
     return Pair(actualType, actualPlatforms.toSet())

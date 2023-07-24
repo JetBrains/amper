@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+context(BuildFileAware)
 fun parseModuleParts(
     config: Settings,
 ): ClassBasedSet<ModulePart<*>> {
@@ -23,12 +24,8 @@ fun parseModuleParts(
                 @Suppress("UNCHECKED_CAST")
                 it as Settings
 
-                val url = it.requireValue<String>("url") { "No repository url" }
-                var id = it.getStringValue("id")
-                if( id == null) {
-                    // TODO legacy, remove after updating to 1.2.8
-                    id = it.requireValue<String>("name") { "No repository id" }
-                }
+                val url = it.getStringValue("url") ?: parseError("No repository url")
+                val id = it.getStringValue("id") ?: parseError("No repository id")
 
                 val userName = it.getStringValue("username")
                 val password = it.getStringValue("password")
@@ -40,7 +37,7 @@ fun parseModuleParts(
                     it.getValue<Boolean>("publish") ?: false,
                 )
             }
-            else -> error("Unsupported repository: $it")
+            else -> parseError("Unsupported repository: $it")
         }
     }
 

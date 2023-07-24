@@ -243,6 +243,7 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
         }
     }
 
+context(BuildFileAware)
 internal fun List<FragmentBuilder>.artifacts(
     variants: List<Settings>,
     productType: ProductType,
@@ -269,7 +270,7 @@ internal fun List<FragmentBuilder>.artifacts(
                         default = option[nameKey]
                     } else {
                         add(
-                            option[nameKey] ?: error("Name is required for variant option")
+                            option[nameKey] ?: parseError("Name is required for variant option")
                         )
 
                         if (option[dependsOnKey].any { it.getStringValue("kind") != "friend" }) {

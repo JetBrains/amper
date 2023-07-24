@@ -25,10 +25,6 @@ internal inline fun <reified T : Any> Settings.getValue(
 
 internal fun Settings.getStringValue(key: String) = this[key]?.toString()
 
-internal inline fun <reified T : Any> Settings.requireValue(
-    key: String, handler: () -> String
-): T = this[key] as? T ?: error(handler())
-
 fun Settings.getSettings(key: String): Settings? = getValue<Settings>(key)
 internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T? {
     var settings = this
@@ -43,7 +39,7 @@ internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T
     return null
 }
 
-context (Map<String, Set<Platform>>)
+context (Map<String, Set<Platform>>, BuildFileAware)
 internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     fragments: List<FragmentBuilder>,
     key: String,
@@ -62,7 +58,7 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
             .toSet()
 
         for (option in options) {
-            val variant = originalSettings.optionMap[option] ?: error("There is no such variant option $option")
+            val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
             variantSet.remove(variant)
         }
 
@@ -76,7 +72,7 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
         val targetFragment = fragments
             .filter { it.platforms == normalizedPlatforms }
             .firstOrNull { it.variants == normalizedOptions }
-            ?: error("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
         if (settingsValue is T) {
             targetFragment.init(settingsValue)
@@ -84,7 +80,7 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     }
 }
 
-context (Map<String, Set<Platform>>)
+context (Map<String, Set<Platform>>, BuildFileAware)
 internal inline fun <reified T : Any> Settings.handleArtifactSettings(
     fragments: List<FragmentBuilder>,
     key: String,
@@ -103,7 +99,7 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
             .toSet()
 
         for (option in options) {
-            val variant = originalSettings.optionMap[option] ?: error("There is no such variant option $option")
+            val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
             variantSet.remove(variant)
         }
 
@@ -117,7 +113,7 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
         val targetFragment = fragments
             .filter { it.platforms == normalizedPlatforms }
             .firstOrNull { it.variants == normalizedOptions }
-            ?: error("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
         if (settingsValue is T) targetFragment.init(settingsValue)
     }

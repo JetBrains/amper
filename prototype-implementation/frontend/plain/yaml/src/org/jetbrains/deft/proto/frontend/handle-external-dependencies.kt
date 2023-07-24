@@ -34,7 +34,7 @@ class DefaultPotatoModuleDependency(
                 buildFile.parent.resolve("$depPath/build.gradle.kts").normalize().toAbsolutePath()
 
             targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
-        } ?: error("No module $depPath found")
+        } ?: parseError("No module $depPath found")
 
     override fun toString(): String {
         return "InternalDependency(module=$depPath)"
@@ -76,10 +76,10 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) 
                         DefaultPotatoModuleDependency(path, compile, runtime, exported)
                     } else if (notation != null) {
                         MavenDependency(notation, compile, runtime, exported)
-                    } else error("Error while parsing dependencies for fragment $name")
+                    } else parseError("Error while parsing dependencies for fragment $name")
                 }
 
-                else -> error("Error while parsing dependencies for fragment $name")
+                else -> parseError("Error while parsing dependencies for fragment $name")
             }
 
         }
