@@ -1,5 +1,1 @@
 product: jvm/app
-
-settings:
-  kotlin:
-    languageVersion: 1.8

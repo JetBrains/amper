@@ -1,6 +1,4 @@
-product:
-  type: app
-  platforms: [jvm]
+product: jvm/app
 
 apply:
   - ../common.Pot-template.yaml
