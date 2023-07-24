@@ -37,7 +37,7 @@
           "$ref": "#/$defs/dependencyList"
         },
         "dependencies@android": {
-          "$ref": "#/$defs/dependencyList"
+          "$ref": "#/$defs/androidDependencyList"
         },
         "dependencies@ios": {
           "$ref": "#/$defs/dependencyList"
@@ -49,7 +49,7 @@
           "$ref": "#/$defs/testDependencyList"
         },
         "test-dependencies@android": {
-          "$ref": "#/$defs/testDependencyList"
+          "$ref": "#/$defs/testAndroidDependencyList"
         },
         "test-dependencies@ios": {
           "$ref": "#/$defs/testDependencyList"
@@ -125,7 +125,7 @@
           "type": "string"
         },
         {
-          "$ref": "#/$defs/composeDependency"
+          "$ref": "#/$defs/jetpackComposeDependency"
         },
         {
           "$ref": "#/$defs/ktorDependency"
@@ -148,7 +148,7 @@
           ]
         },
         {
-          "$ref": "#/$defs/composeTestDependency"
+          "$ref": "#/$defs/jetpackComposeTestDependency"
         },
         {
           "$ref": "#/$defs/ktorTestDependency"
@@ -167,6 +167,34 @@
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/testDependency"
+      }
+    },
+    "androidDependencyList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/dependency"
+          },
+          {
+            "$ref": "#/$defs/androidDependency"
+          }
+        ]
+      }
+    },
+    "testAndroidDependencyList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/testDependency"
+          },
+          {
+            "$ref": "#/$defs/androidTestDependency"
+          }
+        ]
       }
     },
     "settings": {
@@ -538,10 +566,36 @@
       },
       "additionalProperties": false
     },
-    "composeDependency": {
+    "jetpackComposeDependency": {
+      "enum": [
+        "org.jetbrains.compose.animation:animation:1.4.1",
+        "org.jetbrains.compose.animation:animation-graphics:1.4.1",
+        "org.jetbrains.compose.foundation:foundation:1.4.1",
+        "org.jetbrains.compose.material:material:1.4.1",
+        "org.jetbrains.compose.material3:material3:1.4.1",
+        "org.jetbrains.compose.ui:ui:1.4.1",
+        "org.jetbrains.compose.runtime:runtime:1.4.1",
+        "org.jetbrains.compose.ui:ui-tooling:1.4.1",
+        "org.jetbrains.compose.ui:ui-tooling-preview:1.4.1",
+
+        "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1",
+        "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1",
+        "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1",
+        "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1"
+      ]
+    },
+    "jetpackComposeTestDependency": {
+      "enum": [
+        "org.jetbrains.compose.ui:ui-test:1.4.1",
+        "org.jetbrains.compose.ui:ui-test-junit4:1.4.1"
+      ]
+    },
+    "androidDependency": {
       "$comment": "Versions from Compose BOM at https://developer.android.com/jetpack/compose/bom/bom-mapping",
       "enum": [
-        "androidx.activity:activity-compose:1.7.3",
+        "androidx.core:core-ktx:1.10.1",
+        "androidx.appcompat:appcompat:1.6.1",
+        "androidx.activity:activity-compose:1.7.2",
         "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1",
         "androidx.compose.animation:animation:1.4.3",
         "androidx.compose.animation:animation-core:1.4.3",
@@ -563,15 +617,10 @@
         "androidx.compose.ui:ui-tooling-preview:1.4.3",
         "androidx.compose.ui:ui-unit:1.4.3",
         "androidx.compose.ui:ui-util:1.4.3",
-        "androidx.compose.ui:ui-viewbinding:1.4.3",
-
-        "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1"
+        "androidx.compose.ui:ui-viewbinding:1.4.3"
       ]
     },
-    "composeTestDependency": {
+    "androidTestDependency": {
       "$comment": "Versions from Compose BOM at https://developer.android.com/jetpack/compose/bom/bom-mapping",
       "enum": [
         "androidx.compose.ui:ui-test:1.4.3",
