@@ -1141,7 +1141,7 @@ Pot.yaml:
 product: jvm/app
 
 dependencies:  # lists appended
-  - ../common
+  - ../shared
   - ../jvm-util
 
 settings:  # objects merged
