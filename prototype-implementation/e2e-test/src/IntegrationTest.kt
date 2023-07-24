@@ -72,4 +72,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `2 targets, language version 1-9 for common code should not fail`() = test(
+        "multiplatform-lib-propagation",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }

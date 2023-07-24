@@ -149,6 +149,7 @@ class KMPPBindingPluginPart(
                 fragment.isTest -> test(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }
+
                 else -> executable(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                     entryPoint = part?.entryPoint
@@ -229,6 +230,8 @@ class KMPPBindingPluginPart(
                 }
             }
 
+            val sourceSetsNotAdjusted = kotlinMPE.sourceSets.toMutableSet()
+
             // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
             module.fragments.forEach { fragment ->
                 val sourceSets = fragment.matchingKotlinSourceSets
@@ -236,8 +239,19 @@ class KMPPBindingPluginPart(
                 for (sourceSet in sourceSets) {
                     // Apply language settings.
                     sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
+                    sourceSetsNotAdjusted.remove(sourceSet)
                 }
+            }
 
+            // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
+            // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
+            sourceSetsNotAdjusted.forEach { sourceSet ->
+                module.fragmentsByName["common"]?.parts?.find<KotlinPart>()?.let {
+                    sourceSet.doApplyPart(it)
+                }
+            }
+
+            module.fragments.forEach { fragment ->
                 val sourceSet = fragment.kotlinSourceSet
                 // Set dependencies.
                 fragment.fragmentDependencies.forEach {

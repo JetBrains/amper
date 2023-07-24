@@ -60,7 +60,9 @@ class TestArtifactWrapper(
 
 open class FragmentWrapper(
     private val fragment: Fragment
-) : Fragment by fragment, PlatformAware
+) : Fragment by fragment, PlatformAware {
+    override fun toString(): String = "FragmentWrapper(fragment=${fragment.name})"
+}
 
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 class LeafFragmentWrapper(
