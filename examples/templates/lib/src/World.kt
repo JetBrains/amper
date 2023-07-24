@@ -1,3 +1,3 @@
-class World() {
+class World {
     fun get() = "World"
 }

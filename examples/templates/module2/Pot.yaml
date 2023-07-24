@@ -11,4 +11,4 @@ dependencies:
 # Override templated settings
 settings:
   kotlin:
-    languageVersion: 1.9
+    debug: true

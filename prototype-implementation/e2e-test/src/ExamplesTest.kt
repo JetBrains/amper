@@ -45,6 +45,20 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
+    fun `compose desktop build task`() = test(
+        projectName = "compose-desktop",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
+    fun `templates build task`() = test(
+        projectName = "templates",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
     fun `variants builds`() = test(
         projectName = "build-variants",
         "build",
