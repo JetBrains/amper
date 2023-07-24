@@ -19,11 +19,11 @@ import kotlin.test.fail
 private const val fastReplaceExpected_USE_CAREFULLY = false
 
 context (Path)
-internal fun testParse(resourceName: String, init: TestDirectory.() -> Unit = { directory("src") }) {
+internal fun testParse(resourceName: String, osDetector: OsDetector = DefaultOsDetector(), init: TestDirectory.() -> Unit = { directory("src") }) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
     val parsed = Yaml().load<Settings>(text)
-    doTestParse(resourceName, parsed)
+    doTestParse(resourceName, parsed, osDetector)
 }
 
 context (Path)
@@ -49,13 +49,14 @@ context (Path)
 internal fun doTestParse(
     baseName: String,
     parsed: Settings,
+    osDetector: OsDetector = DefaultOsDetector(),
     init: TestDirectory.() -> Unit = { directory("src") }
 ) {
     project(parent.toFile()) { init() }
 
     // When
     val module = withBuildFile(toAbsolutePath()) {
-        parseModule(parsed)
+        parseModule(parsed, osDetector)
     }
 
     // Then

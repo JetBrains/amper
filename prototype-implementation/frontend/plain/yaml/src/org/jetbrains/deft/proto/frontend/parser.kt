@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
-import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
@@ -12,7 +11,7 @@ internal fun parseError(message: CharSequence): Nothing {
 }
 
 context(BuildFileAware)
-fun parseModule(config: Settings): PotatoModule {
+fun parseModule(config: Settings, osDetector: OsDetector = DefaultOsDetector()): PotatoModule {
     val (productType: ProductType, platforms: Set<Platform>) = parseProductAndPlatforms(config)
 
     val dependencySubsets = config.keys
@@ -59,7 +58,7 @@ fun parseModule(config: Settings): PotatoModule {
 
     fragments = fragments.multiplyFragments(config.variants)
     with(aliasMap) {
-        fragments.handleExternalDependencies(config.transformed)
+        fragments.handleExternalDependencies(config.transformed, osDetector)
         fragments.handleSettings(config.transformed)
     }
     with(config) {

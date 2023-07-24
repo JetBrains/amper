@@ -52,7 +52,7 @@ private fun String.searchFlags(): DefaultScopedNotation {
 }
 
 context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) {
+internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings, osDetector: OsDetector = DefaultOsDetector()) {
     config.handleFragmentSettings<List<Any>>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
             when (dep) {
@@ -62,7 +62,7 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) 
                     if (dep.startsWith(".") || dep.startsWith("/")) {
                         DefaultPotatoModuleDependency(notation, flags.compile, flags.runtime, flags.exported)
                     } else {
-                        MavenDependency(notation, flags.compile, flags.runtime, flags.exported)
+                        replaceWithOsDependant(osDetector, MavenDependency(notation, flags.compile, flags.runtime, flags.exported))
                     }
                 }
                 is Map<*, *> -> {
@@ -75,14 +75,33 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings) 
                     if (path != null) {
                         DefaultPotatoModuleDependency(path, compile, runtime, exported)
                     } else if (notation != null) {
-                        MavenDependency(notation, compile, runtime, exported)
+                        replaceWithOsDependant(osDetector, MavenDependency(notation, compile, runtime, exported))
                     } else parseError("Error while parsing dependencies for fragment $name")
                 }
 
                 else -> parseError("Error while parsing dependencies for fragment $name")
             }
-
         }
         externalDependencies.addAll(resolved)
     }
+}
+
+fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDependency): MavenDependency {
+    if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:")) {
+        return MavenDependency(
+            mavenDependency.coordinates.replace("org.jetbrains.compose.desktop:desktop-jvm", "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"),
+            mavenDependency.compile,
+            mavenDependency.runtime,
+            mavenDependency.exported,
+        )
+    }
+    if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop:")) {
+        return MavenDependency(
+            mavenDependency.coordinates.replace("org.jetbrains.compose.desktop:desktop", "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"),
+            mavenDependency.compile,
+            mavenDependency.runtime,
+            mavenDependency.exported,
+        )
+    }
+    return mavenDependency
 }

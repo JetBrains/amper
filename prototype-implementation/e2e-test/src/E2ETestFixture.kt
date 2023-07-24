@@ -20,7 +20,6 @@ open class E2ETestFixture(private val pathToProjects: String) {
                 .withProjectDir(tempDir.toFile())
                 .withArguments(*buildArguments, "--stacktrace")
             val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
-
             assertContains(buildResult.output, expectOutputToHave)
         } finally {
             tempDir.deleteRecursively()
