@@ -73,5 +73,5 @@ sealed interface FragmentPart<SelfT> {
 
     // Default propagation is overwriting.
     fun propagate(parent: SelfT): FragmentPart<*> = this
-    fun default(): FragmentPart<*>
+    fun default(module: PotatoModule): FragmentPart<*>
 }

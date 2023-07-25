@@ -110,7 +110,6 @@ class AndroidBindingPluginPart(
                 compileOptions.setTargetCompatibility(it)
             }
         }
-        androidPE?.namespace = "com.example.sampleproject"
         if (module.leafNonTestFragments.any { it.parts.find<ComposePart>()?.enabled == true }) {
             @Suppress("UnstableApiUsage")
             androidPE?.buildFeatures?.compose = true

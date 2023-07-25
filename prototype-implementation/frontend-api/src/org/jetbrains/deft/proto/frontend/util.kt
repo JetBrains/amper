@@ -6,7 +6,9 @@ import kotlin.reflect.KMutableProperty0
 
 private val prettyRegex = "_.".toRegex()
 fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
-fun String.doCapitalize() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun String.doCapitalize() =
+    this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
 fun String.camelMerge(other: String) = when {
     isBlank() -> other
     other.isBlank() -> this
@@ -60,3 +62,8 @@ private fun Fragment.doTraverseDependencies(
  */
 infix fun <T : Any> KMutableProperty0<T>.trySet(value: T?) =
     value?.let { set(it) }
+
+
+fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: String, symbol: String ->
+    acc.replace(symbol, "")
+}

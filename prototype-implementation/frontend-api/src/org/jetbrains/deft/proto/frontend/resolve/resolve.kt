@@ -8,13 +8,13 @@ val Model.resolved: Model
         override val modules: List<PotatoModule>
             get() = this@resolved.modules.map {
                 object : PotatoModule by it {
-                    override val fragments = it.fragments.resolve()
+                    override val fragments = it.fragments.resolve(it)
                 }
             }
     }
 
 
-fun List<Fragment>.resolve(): List<Fragment> = buildList {
+fun List<Fragment>.resolve(module: PotatoModule): List<Fragment> = buildList {
     var root: Fragment? = this@resolve.firstOrNull()
     while (root?.fragmentDependencies?.isNotEmpty() == true) {
         root = root.fragmentDependencies.firstOrNull()?.target
@@ -22,7 +22,7 @@ fun List<Fragment>.resolve(): List<Fragment> = buildList {
     val deque = ArrayDeque<Fragment>()
     val alreadyResolved = mutableSetOf<String>()
     root?.let {
-        val resolvedFragment = it.resolve()
+        val resolvedFragment = it.resolve(module)
         add(resolvedFragment)
         deque.add(resolvedFragment)
         alreadyResolved.add(it.name)
@@ -35,7 +35,7 @@ fun List<Fragment>.resolve(): List<Fragment> = buildList {
             // Equals comparison works not good for anonymous objects.
             // Also, fragment names are unique, so we can use it.
             if (dependant.name !in alreadyResolved) {
-                val resolved = dependant.resolve(fragment)
+                val resolved = dependant.resolve(fragment, module)
                 alreadyResolved.add(resolved.name)
                 deque.add(resolved)
                 add(resolved)
@@ -45,18 +45,18 @@ fun List<Fragment>.resolve(): List<Fragment> = buildList {
 }
 
 
-fun Fragment.resolve(parent: Fragment): Fragment {
-    return resolveParts(parts + parent.parts)
+fun Fragment.resolve(parent: Fragment, module: PotatoModule): Fragment {
+    return resolveParts(parts + parent.parts, module)
 }
 
-fun Fragment.resolve(): Fragment {
-    return resolveParts(parts)
+fun Fragment.resolve(module: PotatoModule): Fragment {
+    return resolveParts(parts, module)
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun Fragment.resolveParts(parts: ClassBasedSet<FragmentPart<*>>): Fragment {
+private fun Fragment.resolveParts(parts: ClassBasedSet<FragmentPart<*>>, module: PotatoModule): Fragment {
     val resolvedParts = parts.map {
-        propagateFor(it as FragmentPart<Any>).default()
+        propagateFor(it as FragmentPart<Any>).default(module)
     }.toClassBasedSet()
     return createResolvedAdapter(resolvedParts)
 }

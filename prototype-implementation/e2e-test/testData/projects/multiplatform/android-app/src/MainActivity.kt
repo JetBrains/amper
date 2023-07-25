@@ -1,5 +1,6 @@
 package hello.deft
 
+import World
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +22,7 @@ fun Screen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BasicText("Hello, Deft!")
+            BasicText("Hello, ${World().get()}!")
         }
     }
 }

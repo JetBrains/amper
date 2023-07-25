@@ -33,7 +33,7 @@ data class KotlinPart(
             optIns.ifEmpty { parent.optIns },
         )
 
-    override fun default(): FragmentPart<*> {
+    override fun default(module: PotatoModule): FragmentPart<*> {
         return KotlinPart(
             languageVersion = languageVersion ?: "1.8",
             apiVersion = apiVersion ?: languageVersion,
@@ -50,7 +50,7 @@ data class TestPart(val junitPlatform: Boolean?) : FragmentPart<TestPart> {
     override fun propagate(parent: TestPart): FragmentPart<*> =
         TestPart(junitPlatform ?: parent.junitPlatform)
 
-    override fun default(): FragmentPart<*> = TestPart(junitPlatform ?: true)
+    override fun default(module: PotatoModule): FragmentPart<*> = TestPart(junitPlatform ?: true)
 }
 
 data class AndroidPart(
@@ -62,10 +62,11 @@ data class AndroidPart(
     val applicationId: String? = null,
     val namespace: String? = null,
 ) : FragmentPart<AndroidPart> {
-    override fun default(): FragmentPart<AndroidPart> =
+    override fun default(module: PotatoModule): FragmentPart<AndroidPart> =
         AndroidPart(
             compileSdkVersion = compileSdkVersion ?: "android-33",
             minSdk = minSdk ?: "21",
+            namespace = "com.example.${module.userReadableName.prepareToNamespace()}"
         )
 }
 
@@ -76,7 +77,7 @@ data class JavaPart(
     val source: String?,
     val moduleName: String? = null,
 ) : FragmentPart<JavaPart> {
-    override fun default(): FragmentPart<JavaPart> =
+    override fun default(module: PotatoModule): FragmentPart<JavaPart> =
         JavaPart(
             mainClass ?: "MainKt",
             packagePrefix ?: "",
@@ -98,7 +99,7 @@ data class JsPart(
         val runTask: NodeJsExec.() -> Unit = {}
     ) : Mode
 
-    override fun default() = JsPart(Browser())
+    override fun default(module: PotatoModule) = JsPart(Browser())
 }
 
 data class NativeApplicationPart(
@@ -110,7 +111,7 @@ data class NativeApplicationPart(
     val optimized: Boolean? = null,
     val binaryOptions: Map<String, String> = emptyMap(),
 ) : FragmentPart<NativeApplicationPart> {
-    override fun default(): FragmentPart<NativeApplicationPart> =
+    override fun default(module: PotatoModule): FragmentPart<NativeApplicationPart> =
         NativeApplicationPart(entryPoint ?: "main")
 }
 
@@ -118,12 +119,12 @@ data class PublicationPart(
     val group: String?,
     val version: String?,
 ) : FragmentPart<PublicationPart> {
-    override fun default(): FragmentPart<PublicationPart> =
+    override fun default(module: PotatoModule): FragmentPart<PublicationPart> =
         PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
 }
 
 data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
-    override fun default(): FragmentPart<*> {
+    override fun default(module: PotatoModule): FragmentPart<*> {
         return ComposePart(enabled ?: false)
     }
 

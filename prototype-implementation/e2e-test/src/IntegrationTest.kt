@@ -100,4 +100,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun multiplatform() = test(
+        "multiplatform",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }
