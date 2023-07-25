@@ -10,6 +10,7 @@
 /ZeppelinRemoteNotebooks/
 
 # Imported modules info
+/.name
 /modules/
 /modules.xml
 /*.iml
