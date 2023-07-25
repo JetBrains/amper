@@ -52,7 +52,13 @@ private fun String.searchFlags(): DefaultScopedNotation {
 }
 
 context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings, osDetector: OsDetector = DefaultOsDetector()) {
+internal fun List<FragmentBuilder>.handleExternalDependencies(
+    config: Settings,
+    osDetector: OsDetector = DefaultOsDetector()
+) = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
+
+context (Map<String, Set<Platform>>, BuildFileAware)
+private fun List<FragmentBuilder>.addRawDependencies(config: Settings, osDetector: OsDetector) {
     config.handleFragmentSettings<List<Any>>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
             when (dep) {
@@ -62,9 +68,13 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings, 
                     if (dep.startsWith(".") || dep.startsWith("/")) {
                         DefaultPotatoModuleDependency(notation, flags.compile, flags.runtime, flags.exported)
                     } else {
-                        replaceWithOsDependant(osDetector, MavenDependency(notation, flags.compile, flags.runtime, flags.exported))
+                        replaceWithOsDependant(
+                            osDetector,
+                            MavenDependency(notation, flags.compile, flags.runtime, flags.exported)
+                        )
                     }
                 }
+
                 is Map<*, *> -> {
                     dep as Settings
                     val path = dep.getStringValue("path")
@@ -86,10 +96,26 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(config: Settings, 
     }
 }
 
+private fun List<FragmentBuilder>.addKotlinTestIfNotIncluded() {
+    filter { it.variants.contains("test") }
+        .singleOrNull { it.dependencies.none { it.dependencyKind == MutableFragmentDependency.DependencyKind.Refines } }
+        ?.let { fragment ->
+            val isKotlinTestNotIncluded = fragment.externalDependencies
+                .filterIsInstance<MavenDependency>()
+                .none { it.coordinates.startsWith("org.jetbrains.kotlin:kotlin-test") }
+            if (isKotlinTestNotIncluded) {
+                fragment.externalDependencies.add(MavenDependency("org.jetbrains.kotlin:kotlin-test:1.8.20"))
+            }
+        }
+}
+
 fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDependency): MavenDependency {
     if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:")) {
         return MavenDependency(
-            mavenDependency.coordinates.replace("org.jetbrains.compose.desktop:desktop-jvm", "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"),
+            mavenDependency.coordinates.replace(
+                "org.jetbrains.compose.desktop:desktop-jvm",
+                "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"
+            ),
             mavenDependency.compile,
             mavenDependency.runtime,
             mavenDependency.exported,
@@ -97,7 +123,10 @@ fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDepende
     }
     if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop:")) {
         return MavenDependency(
-            mavenDependency.coordinates.replace("org.jetbrains.compose.desktop:desktop", "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"),
+            mavenDependency.coordinates.replace(
+                "org.jetbrains.compose.desktop:desktop",
+                "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"
+            ),
             mavenDependency.compile,
             mavenDependency.runtime,
             mavenDependency.exported,

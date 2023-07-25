@@ -1,7 +1,11 @@
 Module {{ userReadableName }}
 Fragments:
-  ios
+  android
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.4.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.activity:activity-compose:1.7.2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Parts:
@@ -11,13 +15,13 @@ Fragments:
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
-      ComposePart(enabled=null)
-  iosTest
+      ComposePart(enabled=true)
+  androidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
-      ios (FRIEND)
+      android (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -28,15 +32,10 @@ Fragments:
       ComposePart(enabled=null)
 Artifacts:
   isTest: false
-  [IOS_ARM64]
+  [ANDROID]
     Fragments:
-      ios
+      android
   isTest: true
-  [IOS_ARM64]
+  [ANDROID]
     Fragments:
-      iosTest
-Repositories:
-  - id: https://a.b
-    url: https://a.b
-  - id: x
-    url: https://x.y
+      androidTest
