@@ -30,6 +30,13 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `implicit kotlin tests`() = test(
+        projectName = "implicit-kotlin-tests",
+        "test",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
     fun `disabling junit platform`() = test(
         projectName = "disable-junit",
         ":cleanJvmTest", ":jvmTest", "--tests", "SimpleTest.test",
