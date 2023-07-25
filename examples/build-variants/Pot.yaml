@@ -1,6 +1,4 @@
-product: 
-  type: app
-  platforms: [ iosArm64 ]
+product: jvm/app
 
 variants: [ debug, release ]
 
