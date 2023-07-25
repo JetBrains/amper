@@ -1,5 +1,5 @@
 actual class World {
     actual fun get(): String {
-        return "Android World"
+        return "JVM World"
     }
 }

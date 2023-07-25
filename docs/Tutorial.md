@@ -150,161 +150,216 @@ Use one of the following dependencies:_
 - org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1
 ```
 
-Examples: [compose-desktop](../examples/compose-desktop), [compose-android](../examples/compose-android).
+Examples: [compose-desktop](../examples/compose-desktop), [compose-android](../examples/compose-android)
 
 Documentation:
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
 
-### Step 6. Make project multi-platform
+### Step 6. Modularize
 
-One of the primary target use cases is the Kotlin Multiplatform project (see [Mercury](https://jetbrains.team/blog/Introducing_Project_Mercury) project). 
+Let's split our app into a library and an application modules:
 
-Let’s see how we can configure multi-platform library for iOS and Android platforms. (The files, dependencies and settings are for DSL demonstration, they’ll probably be different for real projects)
-
-Pot.yaml:
-
+/app/Pot.yaml:
 ```YAML
-product:
-  type: lib
-  platforms: [android, iosArm64]
+product: jvm/app
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-
-dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
+  - ../shared
+  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  kotlin:
-    languageVersion: 1.8
-
-settings@ios:
-  kotlin:
-    debug: true
+  compose:
+    enabled: true
 ```
-
-And the file layout:
-
-```
-|-src/
-|  |-Util.kt
-|-test/
-|  |-MyTest.kt
-|-src@android/
-|  |-AndroidUtil.kt
-|-src@ios/
-|  |-iOSUtil.kt
-|-Pot.yaml
-```
-
-One thing you might have noticed is the `@platform` suffixes. They are platform qualifiers which instruct the build tool to only use the corresponding declaration when building for the corresponding platform. `@platform` qualifier can be applied to source folders, `dependencies:` and `settings:`.
-
-Another interesting thing is `pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS. It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
-
-Documentation:
-- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
-
-### Step 7. Modularize
-
-Let's add a couple of application modules that use our multi-platform library:
 
 /shared/Pot.yaml:
 ```YAML
 product:
   type: lib
-  platforms: [android, iosArm64]
+  platforms: [jvm]
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 
-dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
-
-settings:
-  kotlin:
-    languageVersion: 1.8
 ```
 
-/android/Pot.yaml:
+File layout:
+```
+|-app/
+|  |-src/
+|  |  |-main.kt
+|  |-Pot.yaml
+|-shared/
+|  |-src/
+|  |  |-Util.kt
+|  |-test/
+|  |  |-UtilTest.kt
+|  |-Pot.yaml
+```
+
+In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.
+
+Examples: [modularized](.././examples/modularized).
+
+Documentation:
+- [Internal dependencies](Documentation.md#internal-dependencies)
+
+### Step 7. Make project multi-platform
+
+One of the primary target use cases is the Kotlin Multiplatform (see the [Mercury project](https://jetbrains.team/blog/Introducing_Project_Mercury)). 
+So let’s add client Android and iOS apps our project. 
+
+Pot.yaml for Android:
 ```YAML
 product: android/app
 
 dependencies:
   - ../shared
+  - org.jetbrains.compose.foundation:foundation:1.4.1
+  - org.jetbrains.compose.material:material:1.4.1
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  kotlin:
-    languageVersion: 1.8
-  android:
-    applicationId: my.deft.app
+  compose:
+    enabled: true
 ```
 
-/ios/Pot.yaml:
+Pot.yaml for iOS:
+_NOTE: iOS applications are currently not implemented._
 
 ```YAML
 product: ios/app
 
 dependencies:
   - ../shared
+  - org.jetbrains.compose.foundation:foundation:1.4.1
+  - org.jetbrains.compose.material:material:1.4.1
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  kotlin:
-    languageVersion: 1.8
-  ios:
-    sceneDelegateClass: AppDelegate
+  compose:
+    enabled: true
 ```
 
-File layout:
+And update the shared module:
+_NOTE: Currently lib modules require an explicit list of platform. We plan to automatically configure library modules with required platforms in the future_   
 
+/shared/Pot.yaml:
+```YAML
+product:
+  type: lib
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64]
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.0
 ```
+
+The new file layout:
+```
+|-android-app/
+|  |-src/
+|  |  |-main.kt
+|  |  |-AndroidManifest.xml
+|  |-Pot.yaml
+|-ios-app/
+|  |-src/
+|  |  |-main.kt
+|  |-Pot.yaml
+|-jvm-app/
+|  |-src/
+|  |  |-main.kt
+|  |-Pot.yaml
 |-shared/
 |  |-src/
 |  |  |-Util.kt
 |  |-test/
-|  |  |-MyTest.kt
-|  |-src@android/
-|  |  |-AndroidUtil.kt
-|  |-src@ios/
-|  |  |-iOSUtil.kt
-|  |-Pot.yaml
-|-android/
-|  |-src/
-|  |  |-MainActivity.kt
-|  |-resources/
-|  |  |-AndroidManifest.xml
-|  |-Pot.yaml
-|-ios/
-|  |-src/
-|  |  |-AppDelegate.kt
+|  |  |-UtilTest.kt
 |  |-Pot.yaml
 ```
 
-In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.
+Now we have a `shared` module, which is used by client apps on different platforms. 
+So we might need to add some platform-specific code, like [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html) and corresponding dependencies.
 
-Examples: [kmp-mobile-modularized](.././examples/kmp-mobile-modularized).
+Let's add some platform-specific networking code and dependencies.
+
+_NOTE: Native dependencies (like CocoaPods) are currently not implemented._
+
+/shared/Pot.yaml:
+```YAML
+product:
+  type: lib
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64]
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+    
+dependenceis@ios:
+  - pod: 'Alamofire'
+    version: '~> 2.0.1'
+
+dependenceis@android:
+  - com.squareup.retrofit2:retrofit:2.9.0
+
+dependenceis@jvm:
+  - com.squareup.okhttp3:mockwebserver:4.10.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.0
+```
+
+Possible file layout:
+```
+|-android-app/
+|  |-...
+|-ios-app/
+|  |-...
+|-jvm-app/
+|  |-...
+|-shared/
+|  |-src/
+|  |  |-Util.kt
+|  |  |-networking.kt
+|  |-src@android/
+|  |  |-networking.kt
+|  |-src@jvm/
+|  |  |-networking.kt
+|  |-src@ios/
+|  |  |-networking.kt
+|  |-test/
+|  |  |-UtilTest.kt
+|  |-Pot.yaml
+```
+
+One thing you might have noticed is the `@platform` suffixes. 
+They are platform qualifiers which instruct the build tool to only use the corresponding declaration when building for the corresponding platform.
+`@platform` qualifier can be applied to source folders, `dependencies:` and `settings:`.
+
+Another interesting thing is `- pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS.
+It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
+
+Examples: [multiplatform](../examples/multiplatform)
 
 Documentation:
-- [Internal dependencies](Documentation.md#internal-dependencies)
+- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
+
 
 ### Step 8. Deduplicate common parts
 
-You might have noticed that there are some common settings present in all `Pot.yaml` files. We now can extract the into a template.
+You might have noticed that there are some common dependencies and settings present in `Pot.yaml` files. We now can extract the into a template.
 
-Let's create a `<name>.Pot-template.yaml` file:
+Let's create a couple of `<name>.Pot-template.yaml` files:
 
 /common.Pot-template.yaml:
 ```YAML
@@ -314,6 +369,16 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
+```
+
+/app.Pot-template.yaml:
+```YAML
+dependencies:
+  - ./shared
+  
+settings:
+  compose:
+    enabled: true
 ```
 
 And apply it to our Pot.yaml files:
@@ -329,55 +394,72 @@ apply:
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-
-dependencies@ios:
+    
+dependenceis@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
+
+dependenceis@android:
+  - com.squareup.retrofit2:retrofit:2.9.0
+
+dependenceis@jvm:
+  - com.squareup.okhttp3:mockwebserver:4.10.0
 ```
 
-/android/Pot.yaml:
+/android-app/Pot.yaml:
 ```YAML
 product: android/app
 
 apply:
   - ../common.Pot-template.yaml
+  - ../app.Pot-template.yaml
 
 dependencies:
-  - ../shared
-
-settings:
-  android:
-    applicationId: my.deft.app
+  - org.jetbrains.compose.foundation:foundation:1.4.1
+  - org.jetbrains.compose.material:material:1.4.1
 ```
 
-/ios/Pot.yaml:
-
+/ios-app/Pot.yaml:
 ```YAML
 product: ios/app
 
 apply:
   - ../common.Pot-template.yaml
+  - ../app.Pot-template.yaml
 
 dependencies:
-  - ../shared
+  - org.jetbrains.compose.foundation:foundation:1.4.1
+  - org.jetbrains.compose.material:material:1.4.1
+```
 
-settings:
-  ios:
-    sceneDelegateClass: AppDelegate
+/jvm-app/Pot.yaml:
+```YAML
+product: ios/app
+
+apply:
+  - ../common.Pot-template.yaml
+  - ../app.Pot-template.yaml
+
+dependencies:
+  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
 ```
 
 File layout:
 ```
+|-android-app/
+|  |-...
+|  |-Pot.yaml
+|-ios-app/
+|  |-...
+|  |-Pot.yaml
+|-jvm-app/
+|  |-...
+|  |-Pot.yaml
 |-shared/
 |  |-...
 |  |-Pot.yaml
-|-android/
-|  |-...
-|  |-Pot.yaml
-|-ios/
-|  |-...
-|  |-Pot.yaml
 |-common.Pot-template.yaml
+|-app.Pot-template.yaml
 ```
 
 Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical configurations in our codebase.

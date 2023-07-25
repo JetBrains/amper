@@ -1,9 +1,0 @@
-product:
-  type: app
-  platforms: [iosArm64]
-
-dependencies:
-  - ../shared
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.9.0

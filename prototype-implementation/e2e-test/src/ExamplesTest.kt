@@ -31,15 +31,15 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `kmp-mobile test task succeeds`() = test(
-        projectName = "kmp-mobile",
+    fun `modularized test task succeeds`() = test(
+        projectName = "modularized",
         "test",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
     @Test
-    fun `kmp-mobile-modularized test task succeeds`() = test(
-        projectName = "kmp-mobile-modularized",
+    fun `multiplatform test task succeeds`() = test(
+        projectName = "multiplatform",
         "test",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
