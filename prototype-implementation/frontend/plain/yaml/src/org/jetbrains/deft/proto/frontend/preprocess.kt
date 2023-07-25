@@ -18,13 +18,8 @@ fun Yaml.parseAndPreprocess(
 
     val templateNames = rootConfig
         .getValue<List<String>>("apply") ?: emptyList()
-    // TODO Remove this when we will move to new version of deft.
-    val oldSectionTemplateNames = rootConfig
-        .getValue<List<String>>("include") ?: emptyList()
 
-    val allTemplates = templateNames + oldSectionTemplateNames
-
-    val appliedTemplates = allTemplates
+    val appliedTemplates = templateNames
         .map(absoluteTemplateLoader)
         .map { it.parent to (load<Settings>(it.readText()) ?: emptyMap()) }
 
