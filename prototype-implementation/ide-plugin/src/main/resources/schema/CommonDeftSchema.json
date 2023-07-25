@@ -37,7 +37,7 @@
           "$ref": "#/$defs/dependencyList"
         },
         "dependencies@android": {
-          "$ref": "#/$defs/androidDependencyList"
+          "$ref": "#/$defs/dependencyList"
         },
         "dependencies@ios": {
           "$ref": "#/$defs/dependencyList"
@@ -49,7 +49,7 @@
           "$ref": "#/$defs/testDependencyList"
         },
         "test-dependencies@android": {
-          "$ref": "#/$defs/testAndroidDependencyList"
+          "$ref": "#/$defs/testDependencyList"
         },
         "test-dependencies@ios": {
           "$ref": "#/$defs/testDependencyList"
@@ -129,6 +129,9 @@
         },
         {
           "$ref": "#/$defs/ktorDependency"
+        },
+        {
+          "$ref": "#/$defs/androidDependency"
         }
       ]
     },
@@ -152,6 +155,9 @@
         },
         {
           "$ref": "#/$defs/ktorTestDependency"
+        },
+        {
+          "$ref": "#/$defs/androidTestDependency"
         }
       ]
     },
@@ -167,34 +173,6 @@
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/testDependency"
-      }
-    },
-    "androidDependencyList": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "anyOf": [
-          {
-            "$ref": "#/$defs/dependency"
-          },
-          {
-            "$ref": "#/$defs/androidDependency"
-          }
-        ]
-      }
-    },
-    "testAndroidDependencyList": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "anyOf": [
-          {
-            "$ref": "#/$defs/testDependency"
-          },
-          {
-            "$ref": "#/$defs/androidTestDependency"
-          }
-        ]
       }
     },
     "settings": {
