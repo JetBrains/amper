@@ -4,8 +4,8 @@ product:
 
 settings:
   java:
-    jvmTarget: 1.8
+    target: 1.8
 
 settings@android:
   java:
-    jvmTarget: 17
+    target: 17
