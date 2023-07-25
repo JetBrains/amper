@@ -18,7 +18,7 @@ plugins {
 //
 //    dependencies {
 //        // !!! Use syncVersions.kts to update these versions
-//        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.2.11")
+//        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.2.12")
 //    }
 //}
 //
