@@ -5,6 +5,7 @@ import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
+import org.jetbrains.kotlin.konan.file.File
 import java.nio.file.Path
 import kotlin.io.path.isSameFileAs
 import kotlin.io.path.relativeTo
@@ -52,7 +53,7 @@ private fun doInitProjects(
         settings.project(":").projectDir = rootPath.toFile()
     }
 
-    fun Path.toGradlePath() = ":" + relativeTo(rootPath).toString().replace("/", ":")
+    fun Path.toGradlePath() = ":" + relativeTo(rootPath).toString().replace(File.separator, ":")
 
     // Go by ascending path length and generate projects.
     sortedByPath.forEach {
