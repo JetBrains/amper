@@ -9,6 +9,7 @@ import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ArrayUtilRt
 import org.jetbrains.deft.ide.DeftPotReferenceManager.PotFilter
+import java.nio.file.InvalidPathException
 
 internal class DeftPotReference(element: PsiElement, private val template: Boolean) :
     PsiReferenceBase.Poly<PsiElement>(element, false), ResolvingHint {
@@ -19,10 +20,15 @@ internal class DeftPotReference(element: PsiElement, private val template: Boole
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
         val referenceManager = DeftPotReferenceManager.getInstance(element.project)
         val currentPotParent = element.containingFile?.virtualFile?.parent
-        val referencePath = currentPotParent?.findFileOrDirectory(element.text) ?: return ResolveResult.EMPTY_ARRAY
+        val potPath = element.text?.takeIf { template || it.startsWith(".") } ?: return ResolveResult.EMPTY_ARRAY
+        val referenceFile = try {
+            currentPotParent?.findFileOrDirectory(potPath)
+        } catch (e: InvalidPathException) {
+            null
+        } ?: return ResolveResult.EMPTY_ARRAY
 
         val files = referenceManager.findPotFiles(potFilter).filter {
-            if (template) it.virtualFile == referencePath else it.parent?.virtualFile == referencePath
+            if (template) it.virtualFile == referenceFile else it.parent?.virtualFile == referenceFile
         }
         return PsiElementResolveResult.createResults(files)
     }
