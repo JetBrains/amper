@@ -556,10 +556,7 @@
         "org.jetbrains.compose.ui:ui-tooling:1.4.1",
         "org.jetbrains.compose.ui:ui-tooling-preview:1.4.1",
 
-        "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1",
-        "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1"
+        "org.jetbrains.compose.desktop:desktop-jvm:1.4.1"
       ]
     },
     "jetpackComposeTestDependency": {

@@ -420,20 +420,13 @@ JVM Desktop:
 product: jvm/app
 
 dependencies:
-  # add Compose dependencies (*depending on the build platform)
-  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
+  # add Compose dependencies
+  - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
     
 settings: 
+  # enable Compose toolchain
   compose:
     enabled: true
-```
-_NOTE: Currently you need to manually specify desktop dependency for your current platform. This is a limitation what we plan to address in the future.
-Use one of the following dependencies:_
-```yaml
-- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
-- org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1
-- org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1
-- org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1
 ```
 
 Android:
