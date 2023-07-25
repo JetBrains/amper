@@ -19,7 +19,15 @@
 - Install JDK 17 (you can use IntelliJ IDEA [new project wizard](https://www.jetbrains.com/help/idea/new-project-wizard.html#new-project-no-frameworks) to install a compatible JDK version)
 
   ![](images/jdk.png)
- 
+
+
+- After specifying a project JDK, check that Gradle has it properly configured as well.
+
+  ![](images/gradle-settings.png)
+
+
+- Android projects require their own SDK, so don't forget to enable the corresponding IDE plugin, install Android SDK, and mention it in `local.properties` via `sdk.path`.
+
 
 - Try opening examples projects:
   - [JVM Hello World](../examples/jvm-kotlin+java)
