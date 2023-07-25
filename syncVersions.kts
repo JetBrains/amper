@@ -6,7 +6,7 @@ import kotlin.io.path.name
 import kotlin.io.path.walk
 
 val versions = mapOf(
-    "org.jetbrains.deft.proto.settings.plugin:gradle-integration:" to "1.2.12",
+    "org.jetbrains.deft.proto.settings.plugin:gradle-integration:" to "1.2.13",
     "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:" to "1.9.20-dev-6845",
     "https\\://services.gradle.org/distributions/gradle-" to "8.1.1-bin.zip"
 )
