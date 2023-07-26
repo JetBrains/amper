@@ -8,11 +8,15 @@ buildscript {
         //region local version
 
         //region scratch version
-        val localProperties = java.util.Properties().apply {
-            val stream = rootDir.resolve("root.local.properties")
-                .takeIf { it.exists() }
-                ?.inputStream()
-            if (stream != null) load(stream)
+        java.util.Properties().apply {
+            rootDir.resolve("root.local.properties")
+                .also {
+                    if (!it.exists()) {
+                        it.writeText("scratch.username=\nscratch.password=")
+                    }
+                }
+                .inputStream()
+                .let { load(it) }
         }
         maven("https://jitpack.io")
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
