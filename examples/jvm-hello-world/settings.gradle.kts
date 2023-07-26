@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.kts to update these versions
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:1.2.15")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:78-STABLE")
     }
 }
 
