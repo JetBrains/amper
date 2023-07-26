@@ -28,7 +28,8 @@
 
 - Android projects require their own SDK. To install it:
   - either install and configure Android Studio
-  - or enable Android plugin in IntelliJ IDEA, install Android SDK from the Project Structure dialog,and mention it in `<project_root>/local.properties` via `sdk.path=<path_to_sdk>`.
+  - or install Android SDK manually using [these instructions](https://stackoverflow.com/questions/45268254/how-do-i-install-the-standalone-android-sdk-and-then-add-it-to-intellij-idea-on/45268592#45268592).
+    Enable Android plugin in IntelliJ IDEA, add Android SDK in the Project Structure dialog, and mention it in `<project_root>/local.properties` via `sdk.path=<path_to_sdk>`.
 
   ![](images/android-sdk.png)
 
