@@ -3,10 +3,10 @@
 
 - Install [Toolbox App](https://www.jetbrains.com/lp/toolbox/)
 
-- [Connect IntelliJ IDEA with Toolbox Enterprise](https://tbe.labs.jb.gg/) for the Deft plugin
+- [Connect IntelliJ IDEA with Toolbox Enterprise](https://tbe.labs.jb.gg/) for the Deft plugin.
 
   ![](images/tbe-app.png)
-  ![](images/tbe-settings.png).
+  ![](images/tbe-settings.png)
 
 
 - Install Deft plugin for IntelliJ IDEA.
@@ -26,7 +26,11 @@
   ![](images/gradle-settings.png)
 
 
-- Android projects require their own SDK, so don't forget to enable the corresponding IDE plugin, install Android SDK, and mention it in `local.properties` via `sdk.path`.
+- Android projects require their own SDK. To install it:
+  - either install and configure Android Studio
+  - or enable Android plugin in IntelliJ IDEA, install Android SDK from the Project Structure dialog,and mention it in `<project_root>/local.properties` via `sdk.path=<path_to_sdk>`.
+
+  ![](images/android-sdk.png)
 
 
 - Try opening examples projects:
