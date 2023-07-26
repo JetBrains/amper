@@ -30,6 +30,20 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `detecting jvm entry point`() = test(
+        projectName = "entry-point-detection-jvm",
+        "run",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
+    fun `detecting native entry point`() = test(
+        projectName = "entry-point-detection-native",
+        "runMacosArm64DebugExecutableMacosArm64",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
     fun `implicit kotlin tests`() = test(
         projectName = "implicit-kotlin-tests",
         "test",

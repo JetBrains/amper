@@ -3,11 +3,9 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.FoundEntryPoint
-import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.*
-import org.jetbrains.deft.proto.gradle.findEntryPoint
+import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilationName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
@@ -142,7 +140,6 @@ class KMPPBindingPluginPart(
         kotlinNativeCompilation: KotlinNativeCompilation,
         fragment: LeafFragmentWrapper,
     ) {
-        fun FoundEntryPoint.native() = if (pkg != null) "$pkg.main" else "main"
         if (module.type != PotatoModuleType.APPLICATION) return
         val part = fragment.parts.find<NativeApplicationPart>()
 
@@ -154,8 +151,11 @@ class KMPPBindingPluginPart(
 
                 else -> executable(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
-                    entryPoint = part?.entryPoint
-                        ?: findEntryPoint("main.kt", fragment).native()
+                    entryPoint = if (part?.entryPoint != null) {
+                        part.entryPoint
+                    } else {
+                        findEntryPoint(fragment, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
+                    }
                 }
             }
         }

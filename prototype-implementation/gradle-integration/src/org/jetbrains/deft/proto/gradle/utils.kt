@@ -3,6 +3,7 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.slf4j.Logger
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -63,13 +64,15 @@ data class FoundEntryPoint(
  * Try to find entry point for application.
  */
 // TODO Add caching for separated fragments.
+enum class EntryPointType(val symbolName: String) { NATIVE("main"), JVM("MainKt") }
+
 context(DeftNamingConventions)
 @OptIn(ExperimentalPathApi::class)
 internal fun findEntryPoint(
-    mainFileName: String,
     fragment: LeafFragmentWrapper,
-    caseSensitive: Boolean = false,
-) = with(module) {
+    entryPointType: EntryPointType,
+    logger: Logger,
+): String = with(module) {
     // Collect all fragment paths.
     val allSources = buildSet<Path> {
         fragment.forClosure {
@@ -77,39 +80,24 @@ internal fun findEntryPoint(
         }
     }
 
-    val collectedMains = allSources.flatMap { path ->
-        path.walk()
-            .filter {
-                if (caseSensitive)
-                    it.name == mainFileName
-                else
-                    it.name.lowercase() == mainFileName.lowercase()
-            }
-            .map { it.normalize().toAbsolutePath() }
+    val implicitMainFile = allSources.firstNotNullOfOrNull { sourceFolder ->
+        sourceFolder.walk(PathWalkOption.BREADTH_FIRST)
+            .find { it.name.equals("main.kt", ignoreCase = true) }
+            ?.normalize()
+            ?.toAbsolutePath()
     }
 
-    val implicitMainFile = when {
-        collectedMains.size > 1 -> error(
-            "Cannot define entry point for fragment ${fragment.name} implicitly: " +
-                    "there is more that one $mainFileName file. " +
-                    "Specify it explicitly or remove all but one."
-        )
-
-        collectedMains.isEmpty() -> error(
-            "Cannot define entry point for fragment ${fragment.name} implicitly: " +
-                    "there is no $mainFileName file. " +
-                    "Specify it explicitly or add one."
-        )
-
-        else -> collectedMains.single()
+    if (implicitMainFile == null) {
+        val result = entryPointType.symbolName
+        logger.warn("Entry point cannot be discovered for ${fragment}. Defaulting to $result")
+        return result
     }
 
-    val packageRegex = "^package( [^$]+)$".toRegex()
-    val matchResult = packageRegex.find(implicitMainFile.readText())
+    val packageRegex = "^package\\s+([\\w.]+)".toRegex(RegexOption.MULTILINE)
+    val pkg = packageRegex.find(implicitMainFile.readText())?.let { it.groupValues[1].trim() }
 
-    return@with FoundEntryPoint(
-        implicitMainFile,
-        mainFileName,
-        matchResult?.let { it.groupValues[1].trim() }
-    )
+    val result = if (pkg != null) "$pkg.${entryPointType.symbolName}" else entryPointType.symbolName
+
+    logger.info("Entry point discovered at $result")
+    return result
 }

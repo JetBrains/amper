@@ -79,7 +79,7 @@ data class JavaPart(
 ) : FragmentPart<JavaPart> {
     override fun default(module: PotatoModule): FragmentPart<JavaPart> =
         JavaPart(
-            mainClass ?: "MainKt",
+            mainClass,
             packagePrefix ?: "",
             target ?: "17",
             source ?: "17",
@@ -112,7 +112,7 @@ data class NativeApplicationPart(
     val binaryOptions: Map<String, String> = emptyMap(),
 ) : FragmentPart<NativeApplicationPart> {
     override fun default(module: PotatoModule): FragmentPart<NativeApplicationPart> =
-        NativeApplicationPart(entryPoint ?: "main")
+        NativeApplicationPart(entryPoint)
 }
 
 data class PublicationPart(

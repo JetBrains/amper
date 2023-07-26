@@ -8,7 +8,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModuleType
-import org.jetbrains.deft.proto.gradle.FoundEntryPoint
+import org.jetbrains.deft.proto.gradle.EntryPointType
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
@@ -88,9 +88,11 @@ class JavaBindingPluginPart(
         val javaPart = fragment.parts.find<JavaPart>()
         javaAPE.apply {
             if (module.type != PotatoModuleType.APPLICATION) return@apply
-            fun FoundEntryPoint.java() = if (pkg != null) "$pkg.MainKt" else "MainKt"
-            val foundMainClass = javaPart?.mainClass
-                ?: findEntryPoint("main.kt", fragment).java()
+            val foundMainClass = if (javaPart?.mainClass != null) {
+                javaPart.mainClass
+            } else {
+                findEntryPoint(fragment, EntryPointType.JVM, logger)
+            }
             mainClass.set(foundMainClass)
         }
         javaPart?.target?.let {
