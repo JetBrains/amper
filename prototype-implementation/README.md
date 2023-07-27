@@ -1,7 +1,7 @@
 **Quick start:**
 
 * Check [setup instructions](/docs/Setup.md)
-* Open `./prototype-implementation` in IntelliJ IDEA.
+* Open the checked out `<deft-prototype>/` folder in IntelliJ IDEA.
 
 **Project structure:**
 
