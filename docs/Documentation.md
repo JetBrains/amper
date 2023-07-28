@@ -314,29 +314,29 @@ dependencies:
  - ../ui/utils: runtime-only
 ```
 
-All dependencies by default are not transitive, and not accessibly from the dependent code.  
-In order to make a dependency visible to a dependent Pot, you need to explicitly mark it as `transitive` (aka Gradle API-dependency). 
+All dependencies by default are not accessible from the dependent code.  
+In order to make a dependency visible to a dependent Pot, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
 
 ```yaml
 dependencies:
  - io.ktor:ktor-client-core:2.2.0:
-     transitive: true 
+     exported: true 
  - ../ui/utils:
-     transitive: true 
+     exported: true 
 ```
 There is also an inline form: 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0: transitive  
- - ../ui/utils: transitive
+ - io.ktor:ktor-client-core:2.2.0: exported  
+ - ../ui/utils: exported
 ```
 
-Here is an example of a `compile-only` and `transitive` dependency:
+Here is an example of a `compile-only` and `exported` dependency:
 ```yaml
 dependencies:
  - io.ktor:ktor-client-core:2.2.0:
      scope: compile-only
-     transitive: true
+     exported: true
 ```
 
 #### Native dependencies
@@ -583,7 +583,7 @@ Auxiliary test-utils/Pot.yaml
 product: lib
 
 dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.10: transitive
+  - org.jetbrains.kotlin:kotlin-test:1.8.10: exported
 ```
 
 Auxiliary instrumented-tests/Pot.yaml:
