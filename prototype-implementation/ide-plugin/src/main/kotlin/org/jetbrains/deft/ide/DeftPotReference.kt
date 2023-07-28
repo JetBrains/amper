@@ -4,7 +4,6 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.openapi.vfs.findFileOrDirectory
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ArrayUtilRt
@@ -22,7 +21,7 @@ internal class DeftPotReference(element: PsiElement, private val template: Boole
         val currentPotParent = element.containingFile?.virtualFile?.parent
         val potPath = element.text?.takeIf { template || it.startsWith(".") } ?: return ResolveResult.EMPTY_ARRAY
         val referenceFile = try {
-            currentPotParent?.findFileOrDirectory(potPath)
+            currentPotParent?.findFileByRelativePath(potPath)
         } catch (e: InvalidPathException) {
             null
         } ?: return ResolveResult.EMPTY_ARRAY
