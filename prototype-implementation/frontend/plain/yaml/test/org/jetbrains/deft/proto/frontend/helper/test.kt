@@ -18,7 +18,7 @@ import kotlin.test.fail
 @Deprecated("This deprecation is set just to be sure this flag will be used carefully")
 private const val fastReplaceExpected_USE_CAREFULLY = false
 
-context (Path)
+context (BuildFileAware)
 internal fun testParse(resourceName: String, osDetector: OsDetector = DefaultOsDetector(), init: TestDirectory.() -> Unit = { directory("src") }) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
@@ -26,7 +26,7 @@ internal fun testParse(resourceName: String, osDetector: OsDetector = DefaultOsD
     doTestParse(resourceName, parsed, osDetector)
 }
 
-context (Path)
+context (BuildFileAware)
 internal fun testParseWithTemplates(resourceName: String, properties: Properties = Properties()) {
     val path = Path(".")
         .toAbsolutePath()
@@ -45,17 +45,17 @@ internal fun testParseWithTemplates(resourceName: String, properties: Properties
     doTestParse(resourceName, parsed)
 }
 
-context (Path)
+context (BuildFileAware)
 internal fun doTestParse(
     baseName: String,
     parsed: Settings,
     osDetector: OsDetector = DefaultOsDetector(),
     init: TestDirectory.() -> Unit = { directory("src") }
 ) {
-    project(parent.toFile()) { init() }
+    project(buildFile.parent.toFile()) { init() }
 
     // When
-    val module = withBuildFile(toAbsolutePath()) {
+    val module = withBuildFile(buildFile.toAbsolutePath()) {
         parseModule(parsed, osDetector)
     }
 

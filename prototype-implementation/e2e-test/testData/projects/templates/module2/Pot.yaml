@@ -1,0 +1,14 @@
+product: jvm/app
+
+apply:
+  - ../common.Pot-template.yaml
+  - ../module.Pot-template.yaml
+
+# Add dependencies
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+# Override templated settings
+settings:
+  kotlin:
+    debug: true

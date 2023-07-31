@@ -65,7 +65,7 @@ private fun List<FragmentBuilder>.addRawDependencies(config: Settings, osDetecto
                 is String -> {
                     val flags = dep.searchFlags()
                     val notation = "^\\S+".toRegex().findAll(dep).single().value
-                    if (dep.startsWith(".") || dep.startsWith("/") || "[A-Z]:.*".toRegex().matches(dep)) {
+                    if (dep.startsWith(".") || dep.startsWith("/")) {
                         DefaultPotatoModuleDependency(notation, flags.compile, flags.runtime, flags.exported)
                     } else {
                         replaceWithOsDependant(

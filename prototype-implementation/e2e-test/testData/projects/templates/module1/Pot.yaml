@@ -1,0 +1,5 @@
+product: jvm/app
+
+apply:
+  - ../common.Pot-template.yaml
+  - ../module.Pot-template.yaml

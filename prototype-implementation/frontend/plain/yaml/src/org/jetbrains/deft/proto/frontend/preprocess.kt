@@ -6,7 +6,7 @@ import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.readText
 
-context(InterpolateCtx)
+context(InterpolateCtx, BuildFileAware)
 fun Yaml.parseAndPreprocess(
     originPath: Path,
     templatePathLoader: (String) -> Path,
@@ -33,6 +33,7 @@ fun Yaml.parseAndPreprocess(
  * Simple merge algorithm that do not handle lists at all and just overrides
  * key/value pairs.
  */
+context (BuildFileAware)
 private fun mergeTemplate(
     template: Settings,
     origin: Settings,
@@ -99,6 +100,7 @@ private fun mergeTemplate(
 /**
  * Make literal adjustments, when applying template, like changing paths.
  */
+context (BuildFileAware)
 private fun adjustTemplateValue(
     value: Any,
     templateDir: Path,
@@ -115,12 +117,14 @@ private fun adjustTemplateValue(
 /**
  * Make literal adjustments, when applying template, like changing paths.
  */
+context (BuildFileAware)
 private fun adjustTemplateLiteral(
     value: Any,
     templateDir: Path,
 ) = when {
-    value is String && value.startsWith(".") ->
-        templateDir.resolve(value).normalize().absolutePathString()
+    value is String && value.startsWith(".") -> {
+        buildFile.parent.relativize(templateDir.resolve(value).normalize()).toString()
+    }
     else ->
         value
 }

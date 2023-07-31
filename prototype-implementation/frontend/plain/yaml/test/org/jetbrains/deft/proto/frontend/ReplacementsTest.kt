@@ -9,7 +9,10 @@ class ReplacementsTest {
     @TempDir
     lateinit var tempDir: Path
 
-    private val buildFile get() = tempDir.resolve("build.yaml")
+    private val buildFile get() = object: BuildFileAware {
+        override val buildFile: Path
+            get() = tempDir.resolve("build.yaml")
+    }
 
     @Test
     fun `common library replacement`() {
