@@ -78,7 +78,7 @@ internal fun doTestParse(
         val expected = resourceFileText
             .replace("{{ userReadableName }}", userReadableName)
             .replace("{{ buildDir }}", buildDir)
-            .replace("{{ potDir }}", potDir)
+            .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
             .replace("{{ testProcessDir }}", testProcessDir)
         assertEquals(expected, actual)
     } else {
