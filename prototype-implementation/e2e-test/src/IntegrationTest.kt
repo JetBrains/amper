@@ -121,4 +121,18 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun templates() = test(
+        "templates",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    fun `build-variants`() = test(
+        "build-variants",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }

@@ -19,6 +19,14 @@
           </set>
         </option>
       </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/build-variants" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/prototype-implementation/e2e-test/testData/projects/build-variants" />
+          </set>
+        </option>
+      </GradleProjectSettings>
     </option>
   </component>
 </project>
