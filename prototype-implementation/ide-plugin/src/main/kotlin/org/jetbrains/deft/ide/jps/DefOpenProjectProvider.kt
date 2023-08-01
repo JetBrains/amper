@@ -19,6 +19,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.impl.LanguageLevelProjectExtensionImpl
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.workspaceModel.jps.JpsImportedEntitySource
 import com.intellij.util.DisposeAwareRunnable
 import com.intellij.workspaceModel.ide.WorkspaceModel
 import com.intellij.workspaceModel.ide.getInstance
@@ -38,8 +39,9 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
 
     companion object {
         private val JAVADOC_TYPE: LibraryRootTypeId = LibraryRootTypeId("JAVADOC")
-        private val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById("Deft")
-        private val projectSystemId = ProjectSystemId("Deft")
+        private const val DEFT_ID = "Deft"
+        private val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(DEFT_ID)
+        private val projectSystemId = ProjectSystemId(DEFT_ID)
         private const val SETTINGS_GRADLE_KTS = "settings.gradle.kts"
     }
 
@@ -103,7 +105,7 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
                     val workspaceModel = WorkspaceModel.getInstance(project)
                     workspaceModel.updateProjectModel("Deft update project model") { storage ->
                         storage.replaceBySource({
-                            true
+                            (it as? JpsImportedEntitySource)?.externalSystemId == DEFT_ID
                         }, builder)
                     }
                 }
