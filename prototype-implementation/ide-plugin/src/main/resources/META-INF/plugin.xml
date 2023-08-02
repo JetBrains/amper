@@ -36,7 +36,6 @@
 
         <!--- JPS -->
         <projectOpenProcessor implementation="org.jetbrains.deft.ide.jps.DeftOpenProjectProcessor"/>
-        <backgroundPostStartupActivity implementation="org.jetbrains.deft.ide.jps.DeftSaveProjectSettingActivity"/>
         <!--- /JPS -->
     </extensions>
 
