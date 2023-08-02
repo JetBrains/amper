@@ -23,11 +23,16 @@ import kotlin.io.path.name
  * This solution is based on the [MavenProjectsAware] and [ProjectAware] classes from IntelliJ.
  * It doesn't look like a proper way to do things, but it works.
  */
+@Suppress("UnstableApiUsage")
 class DeftExternalSystemProjectAware(
     private val project: Project,
     private val externalProjectPath: String
 ) : ExternalSystemProjectAware {
-    private val systemId = ProjectSystemId("Deft", "Deft")
+
+    companion object {
+        internal val systemId = ProjectSystemId("DEFT")
+    }
+
     private val isImportCompleted = AtomicBooleanProperty(true)
 
     override val projectId: ExternalSystemProjectId

@@ -29,6 +29,7 @@ import com.intellij.workspaceModel.storage.MutableEntityStorage
 import com.intellij.workspaceModel.storage.bridgeEntities.*
 import com.intellij.workspaceModel.storage.url.VirtualFileUrl
 import com.intellij.workspaceModel.storage.url.VirtualFileUrlManager
+import org.jetbrains.deft.ide.externalTool.DeftExternalSystemProjectAware
 import org.jetbrains.deft.ide.isPot
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties
 import org.jetbrains.jps.model.serialization.library.JpsLibraryTableSerializer
@@ -41,12 +42,11 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         private val JAVADOC_TYPE: LibraryRootTypeId = LibraryRootTypeId("JAVADOC")
         private const val DEFT_ID = "Deft"
         private val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(DEFT_ID)
-        private val projectSystemId = ProjectSystemId(DEFT_ID)
         private const val SETTINGS_GRADLE_KTS = "settings.gradle.kts"
     }
 
     override val systemId: ProjectSystemId
-        get() = projectSystemId
+        get() = DeftExternalSystemProjectAware.systemId
 
     override fun canOpenProject(file: VirtualFile): Boolean =
         super.canOpenProject(file) && if (file.isDirectory) file.findChild(SETTINGS_GRADLE_KTS) == null else true
