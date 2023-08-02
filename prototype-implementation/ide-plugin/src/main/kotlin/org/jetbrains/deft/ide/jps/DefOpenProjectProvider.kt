@@ -19,6 +19,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.impl.LanguageLevelProjectExtensionImpl
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.platform.workspaceModel.jps.JpsImportedEntitySource
 import com.intellij.util.DisposeAwareRunnable
 import com.intellij.workspaceModel.ide.WorkspaceModel
@@ -31,6 +32,9 @@ import com.intellij.workspaceModel.storage.url.VirtualFileUrl
 import com.intellij.workspaceModel.storage.url.VirtualFileUrlManager
 import org.jetbrains.deft.ide.externalTool.DeftExternalSystemProjectAware
 import org.jetbrains.deft.ide.isPot
+import org.jetbrains.deft.proto.frontend.Fragment
+import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
+import org.jetbrains.deft.proto.frontend.YamlModelInit
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties
 import org.jetbrains.jps.model.serialization.library.JpsLibraryTableSerializer
 import org.jetbrains.jps.model.serialization.module.JpsModuleRootModelSerializer
@@ -64,67 +68,35 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
 
         val builder = MutableEntityStorage.create()
         val virtualFileUrlManager = VirtualFileUrlManager.getInstance(project)
+        val virtualFileManager = VirtualFileManager.getInstance()
 
-        val baseModuleDir = projectFile.toVirtualFileUrl(virtualFileUrlManager)
-        val moduleSource = LegacyBridgeJpsEntitySourceFactory.createEntitySourceForModule(
-            project, baseModuleDir, externalSource
-        )
+        val model = YamlModelInit().getModel(projectRoot.toNioPath())
+        for (module in model.modules) {
+            val source = module.source as? PotatoModuleFileSource ?: continue
+            val baseDir = virtualFileManager.findFileByNioPath(source.buildDir) ?: continue
+            val baseModuleDir = baseDir.toVirtualFileUrl(virtualFileUrlManager)
 
-        val kotlinDependency = addDependency(
-            builder,
-            project,
-            virtualFileUrlManager,
-            "KotlinJavaRuntime",
-            ModuleDependencyItem.DependencyScope.COMPILE,
-            RepositoryLibraryProperties(
-                /* groupId = */ "org.jetbrains.kotlin",
-                /* artifactId = */ "kotlin-stdlib",
-                /* version = */ "1.8.20",
-                /* includeTransitiveDependencies = */ true,
-                /* excludedDependencies = */ emptyList()
+            val dependencies = module.fragments.mapNotNull { fragment ->
+                addModule(builder, virtualFileManager, virtualFileUrlManager, project, fragment)
+            }.map {
+                ModuleDependencyItem.Exportable.ModuleDependency(
+                    it.symbolicId,
+                    false,
+                    ModuleDependencyItem.DependencyScope.COMPILE,
+                    false
+                )
+            }.toMutableList<ModuleDependencyItem>()
+            dependencies.add(0, ModuleDependencyItem.ModuleSourceDependency)
+            dependencies.add(0, ModuleDependencyItem.InheritedSdkDependency)
+
+            val moduleEntity = addModuleEntity(
+                project,
+                baseModuleDir,
+                builder,
+                module.userReadableName,
+                dependencies
             )
-        )
-        val kotlinTestDependency = addDependency(
-            builder,
-            project,
-            virtualFileUrlManager,
-            "KotlinTest",
-            ModuleDependencyItem.DependencyScope.TEST,
-            RepositoryLibraryProperties(
-                /* groupId = */ "org.jetbrains.kotlin",
-                /* artifactId = */ "kotlin-test-junit5",
-                /* version = */ "1.8.20",
-                /* includeTransitiveDependencies = */ true,
-                /* excludedDependencies = */ emptyList()
-            )
-        )
-
-        val dependencies = listOf(
-            ModuleDependencyItem.InheritedSdkDependency,
-            ModuleDependencyItem.ModuleSourceDependency,
-            kotlinDependency,
-            kotlinTestDependency,
-        )
-        val moduleEntity = builder addEntity ModuleEntity(projectFile.name, dependencies, moduleSource) {
-            this.type = ModuleTypeId.JAVA_MODULE
-        }
-        val buildUrl = baseModuleDir.append("build")
-        val contentRootEntity = exclude(builder, buildUrl, moduleEntity, baseModuleDir)
-
-        val classesUrl = buildUrl.append("classes")
-        configureCompilerOutput(builder, moduleEntity, classesUrl)
-
-        for (file in projectFile.children) {
-            if (!file.isDirectory) {
-                continue
-            }
-            val rootType = when {
-                file.name.startsWith("src") -> JpsModuleRootModelSerializer.JAVA_SOURCE_ROOT_TYPE_ID
-                file.name.startsWith("test") -> JpsModuleRootModelSerializer.JAVA_TEST_ROOT_TYPE_ID
-                else -> continue
-            }
-            val url = file.toVirtualFileUrl(virtualFileUrlManager)
-            addSourceRoot(builder, contentRootEntity, rootType, url)
+            addContentRoot(builder, baseModuleDir, moduleEntity, listOf())
         }
 
         ApplicationManager.getApplication().invokeAndWait(
@@ -139,6 +111,86 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
                 }
             }, project)
         )
+    }
+
+    private fun addModule(
+        builder: MutableEntityStorage,
+        virtualFileManager: VirtualFileManager,
+        virtualFileUrlManager: VirtualFileUrlManager,
+        project: Project,
+        fragment: Fragment
+    ): ModuleEntity? {
+        val kotlinDependency = addDependency(
+            builder,
+            project,
+            virtualFileUrlManager,
+            "KotlinJavaRuntime",
+            ModuleDependencyItem.DependencyScope.COMPILE,
+            RepositoryLibraryProperties(
+                /* groupId = */ "org.jetbrains.kotlin",
+                /* artifactId = */ "kotlin-stdlib",
+                /* version = */ "1.8.20",
+                /* includeTransitiveDependencies = */ true,
+                /* excludedDependencies = */ emptyList()
+            )
+        )
+
+        val dependencies = mutableListOf(
+            ModuleDependencyItem.InheritedSdkDependency,
+            ModuleDependencyItem.ModuleSourceDependency,
+            kotlinDependency,
+        )
+
+        if (fragment.isTest) {
+            val kotlinTestDependency = addDependency(
+                builder,
+                project,
+                virtualFileUrlManager,
+                "KotlinTest",
+                ModuleDependencyItem.DependencyScope.TEST,
+                RepositoryLibraryProperties(
+                    /* groupId = */ "org.jetbrains.kotlin",
+                    /* artifactId = */ "kotlin-test-junit5",
+                    /* version = */ "1.8.20",
+                    /* includeTransitiveDependencies = */ true,
+                    /* excludedDependencies = */ emptyList()
+                )
+            )
+            dependencies.add(kotlinTestDependency)
+        }
+
+        val projectFile = virtualFileManager.findFileByNioPath(fragment.src ?: return null) ?: return null
+        val baseModuleDir = projectFile.toVirtualFileUrl(virtualFileUrlManager)
+        val moduleEntity = addModuleEntity(project, baseModuleDir, builder, fragment.name, dependencies)
+
+        val buildUrl = baseModuleDir.append("build")
+        val classesUrl = buildUrl.append("classes")
+        configureCompilerOutput(builder, moduleEntity, classesUrl)
+
+        val contentRootEntity = exclude(builder, buildUrl, moduleEntity, baseModuleDir)
+        val rootType = when {
+            fragment.isTest -> JpsModuleRootModelSerializer.JAVA_TEST_ROOT_TYPE_ID
+            else -> JpsModuleRootModelSerializer.JAVA_SOURCE_ROOT_TYPE_ID
+        }
+        addSourceRoot(builder, contentRootEntity, rootType, baseModuleDir)
+
+        return moduleEntity
+    }
+
+    private fun addModuleEntity(
+        project: Project,
+        baseModuleDir: VirtualFileUrl,
+        builder: MutableEntityStorage,
+        moduleName: String,
+        dependencies: List<ModuleDependencyItem>
+    ): ModuleEntity {
+        val moduleSource = LegacyBridgeJpsEntitySourceFactory.createEntitySourceForModule(
+            project, baseModuleDir, externalSource
+        )
+        val moduleEntity = builder addEntity ModuleEntity(moduleName, dependencies, moduleSource) {
+            this.type = ModuleTypeId.JAVA_MODULE
+        }
+        return moduleEntity
     }
 
     private fun isNotTrustedProject(project: Project, projectRoot: VirtualFile) =
@@ -222,12 +274,21 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         baseModuleDir: VirtualFileUrl
     ): ContentRootEntity {
         val excludeUrlEntity = builder addEntity ExcludeUrlEntity(buildUrl, moduleEntity.entitySource)
+        return addContentRoot(builder, baseModuleDir, moduleEntity, listOf(excludeUrlEntity))
+    }
+
+    private fun addContentRoot(
+        builder: MutableEntityStorage,
+        baseModuleDir: VirtualFileUrl,
+        moduleEntity: ModuleEntity,
+        excludes: List<ExcludeUrlEntity>
+    ): ContentRootEntity {
         val contentRootEntity = builder addEntity ContentRootEntity(
             url = baseModuleDir,
             excludedPatterns = emptyList(),
             entitySource = moduleEntity.entitySource
         ) {
-            excludedUrls = listOf(excludeUrlEntity)
+            excludedUrls = excludes
             module = moduleEntity
         }
         return contentRootEntity
