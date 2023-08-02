@@ -70,12 +70,40 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
             project, baseModuleDir, externalSource
         )
 
-        val kotlinDependency = addKotlinDependency(builder, project, virtualFileUrlManager)
+        val kotlinDependency = addDependency(
+            builder,
+            project,
+            virtualFileUrlManager,
+            "KotlinJavaRuntime",
+            ModuleDependencyItem.DependencyScope.COMPILE,
+            RepositoryLibraryProperties(
+                /* groupId = */ "org.jetbrains.kotlin",
+                /* artifactId = */ "kotlin-stdlib",
+                /* version = */ "1.8.20",
+                /* includeTransitiveDependencies = */ true,
+                /* excludedDependencies = */ emptyList()
+            )
+        )
+        val kotlinTestDependency = addDependency(
+            builder,
+            project,
+            virtualFileUrlManager,
+            "KotlinTest",
+            ModuleDependencyItem.DependencyScope.TEST,
+            RepositoryLibraryProperties(
+                /* groupId = */ "org.jetbrains.kotlin",
+                /* artifactId = */ "kotlin-test-junit5",
+                /* version = */ "1.8.20",
+                /* includeTransitiveDependencies = */ true,
+                /* excludedDependencies = */ emptyList()
+            )
+        )
 
         val dependencies = listOf(
             ModuleDependencyItem.InheritedSdkDependency,
             ModuleDependencyItem.ModuleSourceDependency,
-            kotlinDependency
+            kotlinDependency,
+            kotlinTestDependency,
         )
         val moduleEntity = builder addEntity ModuleEntity(projectFile.name, dependencies, moduleSource) {
             this.type = ModuleTypeId.JAVA_MODULE
@@ -132,19 +160,15 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         }
     }
 
-    private fun addKotlinDependency(
+    private fun addDependency(
         builder: MutableEntityStorage,
         project: Project,
-        virtualFileUrlManager: VirtualFileUrlManager
+        virtualFileUrlManager: VirtualFileUrlManager,
+        name: String,
+        dependencyScope: ModuleDependencyItem.DependencyScope,
+        properties: RepositoryLibraryProperties
     ): ModuleDependencyItem.Exportable.LibraryDependency {
-        val properties = RepositoryLibraryProperties(
-            /* groupId = */ "org.jetbrains.kotlin",
-            /* artifactId = */ "kotlin-stdlib",
-            /* version = */ "1.8.0",
-            /* includeTransitiveDependencies = */ true,
-            /* excludedDependencies = */ emptyList()
-        )
-        val libraryId = LibraryId("KotlinJavaRuntime", LibraryTableId.ProjectLibraryTableId)
+        val libraryId = LibraryId(name, LibraryTableId.ProjectLibraryTableId)
         if (libraryId !in builder) {
             val libraryRootsProvider = {
                 JarRepositoryManager.loadDependenciesModal(
@@ -187,7 +211,7 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         return ModuleDependencyItem.Exportable.LibraryDependency(
             library = libraryId,
             exported = false,
-            scope = ModuleDependencyItem.DependencyScope.COMPILE
+            scope = dependencyScope
         )
     }
 
