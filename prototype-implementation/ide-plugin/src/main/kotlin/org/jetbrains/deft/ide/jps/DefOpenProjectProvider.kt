@@ -33,6 +33,7 @@ import com.intellij.workspaceModel.storage.url.VirtualFileUrlManager
 import org.jetbrains.deft.ide.externalTool.DeftExternalSystemProjectAware
 import org.jetbrains.deft.ide.isPot
 import org.jetbrains.deft.proto.frontend.Fragment
+import org.jetbrains.deft.proto.frontend.MavenDependency
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
 import org.jetbrains.deft.proto.frontend.YamlModelInit
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties
@@ -76,18 +77,19 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
             val baseDir = virtualFileManager.findFileByNioPath(source.buildDir) ?: continue
             val baseModuleDir = baseDir.toVirtualFileUrl(virtualFileUrlManager)
 
-            val dependencies = module.fragments.mapNotNull { fragment ->
-                addModule(builder, virtualFileManager, virtualFileUrlManager, project, fragment)
-            }.map {
-                ModuleDependencyItem.Exportable.ModuleDependency(
-                    it.symbolicId,
-                    false,
-                    ModuleDependencyItem.DependencyScope.COMPILE,
-                    false
-                )
-            }.toMutableList<ModuleDependencyItem>()
-            dependencies.add(0, ModuleDependencyItem.ModuleSourceDependency)
-            dependencies.add(0, ModuleDependencyItem.InheritedSdkDependency)
+            val moduleEntities = mutableMapOf<Fragment, ModuleEntity>()
+            for (fragment in module.fragments) {
+                val moduleEntity =
+                    addModule(builder, virtualFileManager, virtualFileUrlManager, project, fragment, moduleEntities)
+                        ?: continue
+                moduleEntities[fragment] = moduleEntity
+            }
+
+            val dependencies = mutableListOf(
+                ModuleDependencyItem.InheritedSdkDependency,
+                ModuleDependencyItem.ModuleSourceDependency,
+            )
+            dependencies.addAll(moduleEntities.values.map { it.toDependency() })
 
             val moduleEntity = addModuleEntity(
                 project,
@@ -118,45 +120,81 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         virtualFileManager: VirtualFileManager,
         virtualFileUrlManager: VirtualFileUrlManager,
         project: Project,
-        fragment: Fragment
+        fragment: Fragment,
+        moduleEntities: MutableMap<Fragment, ModuleEntity>
     ): ModuleEntity? {
-        val kotlinDependency = addDependency(
-            builder,
-            project,
-            virtualFileUrlManager,
-            "KotlinJavaRuntime",
-            ModuleDependencyItem.DependencyScope.COMPILE,
-            RepositoryLibraryProperties(
-                /* groupId = */ "org.jetbrains.kotlin",
-                /* artifactId = */ "kotlin-stdlib",
-                /* version = */ "1.8.20",
-                /* includeTransitiveDependencies = */ true,
-                /* excludedDependencies = */ emptyList()
-            )
-        )
-
         val dependencies = mutableListOf(
             ModuleDependencyItem.InheritedSdkDependency,
             ModuleDependencyItem.ModuleSourceDependency,
-            kotlinDependency,
         )
 
-        if (fragment.isTest) {
-            val kotlinTestDependency = addDependency(
+        for (fragmentDependency in fragment.fragmentDependencies) {
+            moduleEntities[fragmentDependency.target]?.toDependency()?.let(dependencies::add)
+        }
+
+        for (externalDependency in fragment.externalDependencies) {
+            val mavenDependency = externalDependency as? MavenDependency ?: continue
+            val (groupId, artifactId, version) = mavenDependency.coordinates.split(":")
+            val scope = when {
+                externalDependency.compile -> ModuleDependencyItem.DependencyScope.COMPILE
+                externalDependency.runtime -> ModuleDependencyItem.DependencyScope.RUNTIME
+                else -> ModuleDependencyItem.DependencyScope.PROVIDED
+            }
+
+            if (groupId == "org.jetbrains.kotlin" && artifactId == "kotlin-test") {
+                val dependency = addDependency(
+                    builder,
+                    project,
+                    virtualFileUrlManager,
+                    "KotlinTest",
+                    scope,
+                    RepositoryLibraryProperties(
+                        /* groupId = */ groupId,
+                        /* artifactId = */ "kotlin-test-junit5",
+                        /* version = */ version,
+                        /* includeTransitiveDependencies = */ true,
+                        /* excludedDependencies = */ emptyList()
+                    ),
+                    externalDependency.exported,
+                )
+                dependencies.add(dependency)
+                continue
+            }
+
+            if (groupId == "org.jetbrains.kotlinx" && artifactId == "kotlinx-datetime") {
+                val dependency = addDependency(
+                    builder,
+                    project,
+                    virtualFileUrlManager,
+                    "KotlinXDatetime",
+                    scope,
+                    RepositoryLibraryProperties(
+                        /* groupId = */ groupId,
+                        /* artifactId = */ "kotlinx-datetime-jvm",
+                        /* version = */ version,
+                        /* includeTransitiveDependencies = */ true,
+                        /* excludedDependencies = */ emptyList()
+                    ),
+                    externalDependency.exported,
+                )
+                dependencies.add(dependency)
+                continue
+            }
+            addDependency(
                 builder,
                 project,
                 virtualFileUrlManager,
-                "KotlinTest",
-                ModuleDependencyItem.DependencyScope.TEST,
+                "Deft:${externalDependency.coordinates}",
+                scope,
                 RepositoryLibraryProperties(
-                    /* groupId = */ "org.jetbrains.kotlin",
-                    /* artifactId = */ "kotlin-test-junit5",
-                    /* version = */ "1.8.20",
+                    groupId,
+                    artifactId,
+                    version,
                     /* includeTransitiveDependencies = */ true,
                     /* excludedDependencies = */ emptyList()
-                )
-            )
-            dependencies.add(kotlinTestDependency)
+                ),
+                externalDependency.exported,
+            ).let(dependencies::add)
         }
 
         val projectFile = virtualFileManager.findFileByNioPath(fragment.src ?: return null) ?: return null
@@ -193,6 +231,13 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         return moduleEntity
     }
 
+    private fun ModuleEntity.toDependency() = ModuleDependencyItem.Exportable.ModuleDependency(
+        symbolicId,
+        false,
+        ModuleDependencyItem.DependencyScope.COMPILE,
+        false
+    )
+
     private fun isNotTrustedProject(project: Project, projectRoot: VirtualFile) =
         !ExternalSystemTrustedProjectDialog.confirmLinkingUntrustedProject(project, systemId, projectRoot.toNioPath())
 
@@ -218,7 +263,8 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         virtualFileUrlManager: VirtualFileUrlManager,
         name: String,
         dependencyScope: ModuleDependencyItem.DependencyScope,
-        properties: RepositoryLibraryProperties
+        properties: RepositoryLibraryProperties,
+        exported: Boolean
     ): ModuleDependencyItem.Exportable.LibraryDependency {
         val libraryId = LibraryId(name, LibraryTableId.ProjectLibraryTableId)
         if (libraryId !in builder) {
@@ -262,7 +308,7 @@ class DefOpenProjectProvider : AbstractOpenProjectProvider() {
         }
         return ModuleDependencyItem.Exportable.LibraryDependency(
             library = libraryId,
-            exported = false,
+            exported = exported,
             scope = dependencyScope
         )
     }
