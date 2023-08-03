@@ -7,9 +7,9 @@ plugins {
 }
 
 group = "org.jetbrains.deft.ide"
-version = properties("ide-plugin.version").get()
+version = properties("ide-plugin.version")
 
-fun properties(key: String) = providers.gradleProperty(key)
+fun properties(key: String) = project.properties[key].toString()
 fun env(key: String) = providers.environmentVariable(key)
 
 val localProperties = Properties().apply {
@@ -32,7 +32,7 @@ intellij {
     pluginName = properties("ide-plugin.name")
     version = properties("ide-plugin.platform.version")
     type = properties("ide-plugin.platform.type")
-    plugins = properties("ide-plugin.platform.plugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
+    plugins = properties("ide-plugin.platform.plugins").split(',').map(String::trim).filter(String::isNotEmpty)
 }
 
 tasks {
@@ -45,7 +45,7 @@ tasks {
         toolboxEnterprise = true
         host = "https://tbe.labs.jb.gg"
         token = localProperties.getProperty("ide-plugin.publish.token")
-        channels = listOf(properties("ide-plugin.channel").get())
+        channels = listOf(properties("ide-plugin.channel"))
     }
 }
 
