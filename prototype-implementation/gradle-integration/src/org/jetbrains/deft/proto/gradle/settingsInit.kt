@@ -78,7 +78,7 @@ class SettingsPluginRun(
     }
 }
 
-private val pluginApplicationRegex = "\\/\\/ plugin (\\S+)( version (\\S+))?\n".toRegex()
+private val pluginApplicationRegex = "// plugin (\\S+)( version (\\S+))?\n".toRegex()
 
 fun parseAdditionalScript(script: Path): List<Pair<String, String?>> {
     val matches = pluginApplicationRegex.findAll(script.readText())
