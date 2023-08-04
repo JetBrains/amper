@@ -47,7 +47,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    @EnabledOnOs(value = [OS.LINUX], architectures = ["x86_64"])
+    @EnabledOnOs(value = [OS.LINUX], architectures = ["amd64"])
     fun `detecting native entry point on linux (CI)`() = test(
         projectName = "entry-point-detection-native-linux",
         "runLinuxX64DebugExecutableLinuxX64",
