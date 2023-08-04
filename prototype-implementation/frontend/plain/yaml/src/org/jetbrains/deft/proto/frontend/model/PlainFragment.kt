@@ -3,9 +3,9 @@ package org.jetbrains.deft.proto.frontend.model
 import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal open class PlainFragment(
-    val fragmentBuilder: FragmentBuilder
+        val fragmentBuilder: FragmentBuilder
 ) : Fragment {
     override val isTest: Boolean
         get() = fragmentBuilder.isTest
@@ -85,9 +85,11 @@ internal open class PlainFragment(
 
     override val src: Path?
         get() = fragmentBuilder.src
+    override val variants: List<String>
+        get() = (fragmentBuilder.variants - defaultVariants - dimensionVariants).toList()
 }
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal class PlainLeafFragment(
     fragmentBuilder: FragmentBuilder
 ) : PlainFragment(fragmentBuilder), LeafFragment {

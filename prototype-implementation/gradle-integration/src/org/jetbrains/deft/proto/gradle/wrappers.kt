@@ -36,6 +36,27 @@ class PotatoModuleWrapper(
         .filter { !it.isTest }
     val leafTestFragments = leafFragments
         .filter { it.isTest }
+
+    fun sharedPlatformFragment(platform: Platform, test: Boolean): FragmentWrapper? {
+        // find the most common fragment
+        val commonFragment = passedModule.fragments.firstOrNull { it.fragmentDependencies.isEmpty() } ?: return null
+
+        // dfs
+        val queue = ArrayDeque<Fragment>()
+        queue.add(commonFragment)
+        while (queue.isNotEmpty()) {
+            val fragment = queue.removeFirst()
+            if (fragment.platforms == setOf(platform) && fragment.isTest == test) {
+                return fragment.wrapped
+            }
+
+            fragment.fragmentDependants.forEach {
+                queue.add(it.target)
+            }
+        }
+
+        return null
+    }
 }
 
 fun Artifact.wrap(module: PotatoModuleWrapper) =

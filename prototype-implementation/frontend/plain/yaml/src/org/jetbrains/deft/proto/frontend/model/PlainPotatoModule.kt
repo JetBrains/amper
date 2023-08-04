@@ -3,7 +3,7 @@ package org.jetbrains.deft.proto.frontend.model
 import org.jetbrains.deft.proto.frontend.*
 import kotlin.io.path.name
 
-context (BuildFileAware, Stateful<FragmentBuilder, Fragment>)
+context (BuildFileAware, Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal class PlainPotatoModule(
     private val productType: ProductType,
     private val fragmentBuilders: List<FragmentBuilder>,

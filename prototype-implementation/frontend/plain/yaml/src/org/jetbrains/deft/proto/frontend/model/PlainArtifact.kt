@@ -2,7 +2,7 @@ package org.jetbrains.deft.proto.frontend.model
 
 import org.jetbrains.deft.proto.frontend.*
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal open class PlainArtifact(
     private val artifactBuilder: ArtifactBuilder
 ) : Artifact {
@@ -15,6 +15,6 @@ internal open class PlainArtifact(
 }
 
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal class TestPlainArtifact(artifactBuilder: ArtifactBuilder) : PlainArtifact(artifactBuilder),
     TestArtifact

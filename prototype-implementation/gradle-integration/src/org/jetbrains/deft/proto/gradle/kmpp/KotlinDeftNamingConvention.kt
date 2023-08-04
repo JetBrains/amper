@@ -7,6 +7,7 @@ import org.jetbrains.deft.proto.frontend.pretty
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -34,24 +35,16 @@ object KotlinDeftNamingConvention {
         get() = kotlinMPE.targets.findByName(targetName)
 
     context(KMPEAware, SpecificPlatformPluginPart)
-    val FragmentWrapper.kotlinSourceSetName: String
-        get() = when (name) {
-            leafNonTestFragment?.name -> "${leafNonTestFragment.targetName}Main"
-            leafTestFragment?.name -> "${leafTestFragment.targetName}Test"
-            else -> name
-        }
-
-    context(KMPEAware, SpecificPlatformPluginPart)
-    val FragmentWrapper.commonKotlinSourceSetName: String
-        get() = when (name) {
-            leafNonTestFragment?.name -> "commonMain"
-            leafTestFragment?.name -> "commonTest"
+    private val FragmentWrapper.commonKotlinSourceSetName: String
+        get() = when {
+            !isTest -> "commonMain"
+            isTest -> "commonTest"
             else -> name
         }
 
     context(KMPEAware, SpecificPlatformPluginPart)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
-        get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
+        get() = kotlinMPE.sourceSets.findByName(name)
 
     context(KMPEAware, SpecificPlatformPluginPart)
     val FragmentWrapper.matchingKotlinSourceSets: List<KotlinSourceSet>
@@ -59,7 +52,7 @@ object KotlinDeftNamingConvention {
             if (fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }) {
                 kotlinMPE.sourceSets.findByName(commonKotlinSourceSetName)?.let { add(it) }
             }
-            kotlinMPE.sourceSets.findByName(kotlinSourceSetName)?.let { add(it) }
+            kotlinMPE.sourceSets.findByName(name)?.let { add(it) }
         }
 
     val LeafFragment.compilationName: String
@@ -74,7 +67,6 @@ object KotlinDeftNamingConvention {
         get() = compilations.findByName(compilationName)
 
     context(KotlinTarget)
-    fun LeafFragment.maybeCreateCompilation(block: KotlinCompilation<*>.() -> Unit) =
+    fun LeafFragment.maybeCreateCompilation(block: KotlinCompilation<*>.() -> Unit): KotlinCompilation<KotlinCommonOptions>? =
         compilations.maybeCreate(compilationName).apply(block)
-
 }

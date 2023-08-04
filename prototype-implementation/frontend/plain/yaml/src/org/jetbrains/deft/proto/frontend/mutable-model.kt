@@ -1,7 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.model.*
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
-import org.jetbrains.deft.proto.frontend.model.PlainFragment
 import org.jetbrains.deft.proto.frontend.model.PlainLeafFragment
 import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
 import java.nio.file.Path
@@ -82,12 +82,12 @@ internal data class FragmentBuilder(
         mutableFragmentDependencies.forEach { addDependency(it) }
     }
 
-    context (Stateful<FragmentBuilder, Fragment>)
+    context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
     fun build(): Fragment = state.computeIfAbsent(this) {
         if (it.isLeaf) PlainLeafFragment(it) else PlainFragment(it)
     }
 
-    context (Stateful<FragmentBuilder, Fragment>)
+    context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
     fun buildLeaf(): LeafFragment = build() as PlainLeafFragment
 
     override fun equals(other: Any?): Boolean {
@@ -127,7 +127,7 @@ internal data class ArtifactBuilder(
     val variants: MutableSet<String> = mutableSetOf(),
     val fragments: MutableList<FragmentBuilder> = mutableListOf(),
 ) {
-    context (Stateful<FragmentBuilder, Fragment>)
+    context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
     fun build(): Artifact {
         if (variants.contains("test")) {
             return TestPlainArtifact(this)

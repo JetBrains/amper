@@ -1,4 +1,9 @@
 :outer
+  common:
+   depends(jvmMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
   commonMain:
    depends()
    sourceDirs()
@@ -20,6 +25,11 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
 :outer:intermediate:inner
+  common:
+   depends(jvmMain)
+   sourceDirs(common/src)
+   lang(api=null version=null progressive=false features=)
+   implDeps()
   commonMain:
    depends()
    sourceDirs()

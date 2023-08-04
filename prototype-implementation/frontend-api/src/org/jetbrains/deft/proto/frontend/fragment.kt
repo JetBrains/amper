@@ -22,6 +22,8 @@ interface Fragment {
      */
     val isDefault: Boolean
     val src: Path?
+
+    val variants: List<String>
 }
 
 /**

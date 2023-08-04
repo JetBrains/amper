@@ -62,6 +62,8 @@ open class MockFragment(
     override val parts = classBasedSet<FragmentPart<*>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override var src: Path? = null
+    override val variants: List<String> = listOf()
+
     fun refines(other: MockFragment) = fragmentDependencies.add(
         MockFragmentLink(other, FragmentDependencyType.REFINE)
     )

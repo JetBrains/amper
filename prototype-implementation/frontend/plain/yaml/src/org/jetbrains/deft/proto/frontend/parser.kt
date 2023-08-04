@@ -81,12 +81,14 @@ fun parseModule(config: Settings, osDetector: OsDetector = DefaultOsDetector()):
             get() = mutableState
     }
     return with(mutableState) {
-        PlainPotatoModule(
-            productType, 
-            fragments,
-            artifacts,
-            parseModuleParts(config),
-        )
+        with(config.variants.typeSafe) {
+            PlainPotatoModule(
+                productType,
+                fragments,
+                artifacts,
+                parseModuleParts(config),
+            )
+        }
     }
 }
 

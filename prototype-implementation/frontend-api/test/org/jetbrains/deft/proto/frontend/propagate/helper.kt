@@ -52,6 +52,8 @@ class FragmentBuilder(var name: String) {
     private val platforms: MutableSet<Platform> = mutableSetOf()
     var src: Path? = null
 
+    private val variants: MutableList<String> = mutableListOf()
+
     context (PotatoModuleBuilder) fun dependsOn(
         to: String, init: FragmentLinkProvider.FragmentLinkProviderBuilder.() -> Unit = {}
     ) {
@@ -104,6 +106,8 @@ class FragmentBuilder(var name: String) {
                 get() = true
             override val src: Path?
                 get() = this@FragmentBuilder.src
+            override val variants: List<String>
+                get() = this@FragmentBuilder.variants
         }
     }
 }

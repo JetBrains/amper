@@ -1,25 +1,28 @@
 package org.jetbrains.deft.proto.gradle.java
 
 import org.gradle.api.tasks.SourceSet
+import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
 
-@Suppress("UnstableApiUsage")
 object JavaDeftNamingConvention {
 
     context(JavaBindingPluginPart)
     private val FragmentWrapper.javaSourceSetName: String
-        get() = when (name) {
-            leafNonTestFragment?.name -> "main"
-            leafTestFragment?.name -> "test"
-            else -> name
+        get() {
+            return when {
+                isTest -> "test"
+                else -> "main"
+            }
         }
 
     context(JavaBindingPluginPart)
     val SourceSet.deftFragment
-        get(): FragmentWrapper? = when (this.name) {
-            "main" -> leafNonTestFragment
-            "test" -> leafTestFragment
-            else -> module.fragmentsByName[name]
+        get(): FragmentWrapper? {
+            return when (name) {
+                "main" -> module.sharedPlatformFragment(Platform.JVM, false)
+                "test" -> module.sharedPlatformFragment(Platform.JVM, true)
+                else -> module.fragmentsByName[name]
+            }
         }
 
     context(JavaBindingPluginPart)

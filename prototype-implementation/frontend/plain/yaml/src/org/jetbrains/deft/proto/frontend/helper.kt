@@ -3,6 +3,8 @@ package org.jetbrains.deft.proto.frontend
 import org.jetbrains.deft.proto.frontend.util.*
 import java.nio.file.Path
 
+typealias TypesafeVariants = List<Variant>
+
 interface BuildFileAware {
     val buildFile: Path
 }
@@ -115,15 +117,15 @@ fun String.transformKey(): String {
     return "${otherVariantOptionParts[0]}@${otherVariantOptionParts[1]}+${modeParts[0]}"
 }
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal val List<FragmentBuilder>.immutableFragments: List<Fragment> get() = map {
     it.build()
 }
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal val List<FragmentBuilder>.immutableLeafFragments: List<LeafFragment> get() = map {
     it.buildLeaf()
 }
 
-context (Stateful<FragmentBuilder, Fragment>)
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal val List<ArtifactBuilder>.immutableArtifacts: List<Artifact> get() = map { it.build() }

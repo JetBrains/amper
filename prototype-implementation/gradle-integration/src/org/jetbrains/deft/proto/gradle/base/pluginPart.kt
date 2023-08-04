@@ -24,7 +24,6 @@ interface BindingPluginPart {
     val Fragment.path get() = module.buildDir.resolve(name)
 }
 
-@Suppress("LeakingThis")
 open class NoneAwarePart(
     ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, null), DeftNamingConventions
@@ -44,43 +43,19 @@ open class PluginPartCtx(
  */
 open class SpecificPlatformPluginPart(
         ctx: BindingPluginPart,
-        private val platform: Platform?
+        private val platform: Platform?,
 ) : BindingPluginPart by ctx {
 
     @Suppress("LeakingThis")
     val platformArtifacts = module.artifacts.filterByPlatform(platform)
 
-    @Suppress("LeakingThis")
     val ArtifactWrapper.platformFragments get() = fragments.filterByPlatform(platform)
-
-    val platformNonTestArtifacts = platformArtifacts.filter { !it.isTest }
-
-    val platformTestArtifacts = platformArtifacts.filter { it.isTest }
 
     @Suppress("LeakingThis")
     val platformFragments = module.fragments.filterByPlatform(platform)
 
     @Suppress("LeakingThis")
     val leafPlatformFragments = module.leafFragments.filterByPlatform(platform)
-
-    internal val leafNonTestFragment = if (platformArtifacts.isEmpty()) null else {
-        val artifact = platformNonTestArtifacts.requireSingle {
-            "There must be exactly one non test ${platform?.pretty} artifact!"
-        }
-        artifact.fragments.filterByPlatform(platform).requireSingle {
-            "There must be only one non test ${platform?.pretty} leaf fragment!"
-        }
-    }
-
-    // TODO Can be redone if we will have multiple test artifacts.
-    internal val leafTestFragment = if (platformArtifacts.isEmpty()) null else {
-        val artifact = platformTestArtifacts.singleOrZero {
-            error("There must be one or none test ${platform?.pretty} artifact!")
-        }
-        artifact?.fragments?.filterByPlatform(platform)?.singleOrZero {
-            error("There must be one or none test ${platform?.pretty} leaf fragment!")
-        }
-    }
 
     private fun <T : PlatformAware> Collection<T>.filterByPlatform(platform: Platform?) =
             if (platform != null) filter { it.platforms.contains(platform) } else emptyList()

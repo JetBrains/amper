@@ -3,13 +3,15 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.*
+import org.jetbrains.deft.proto.gradle.EntryPointType
+import org.jetbrains.deft.proto.gradle.FragmentWrapper
+import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
 import org.jetbrains.deft.proto.gradle.base.*
+import org.jetbrains.deft.proto.gradle.findEntryPoint
 import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilationName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
-import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
@@ -113,7 +115,7 @@ class KMPPBindingPluginPart(
         }
 
         // Skip tests binary creation for now.
-        module.leafFragments.filter { !it.isTest }.forEach { fragment ->
+        module.leafFragments.forEach { fragment ->
             val target = fragment.target ?: return@forEach
             with(target) target@{
                 if (fragment.platform != Platform.ANDROID) {
@@ -290,9 +292,10 @@ class KMPPBindingPluginPart(
                         // FIXME ??
                     }
                     val compilation = fragment.compilation ?: return@forEach
+                    compilation.source(fragment.kotlinSourceSet ?: error("AAAA"))
                     val compilationSourceSet = compilation.defaultSourceSet
                     if (compilationSourceSet != fragment.kotlinSourceSet) {
-                        compilationSourceSet.doDependsOn(fragment)
+                        fragment.kotlinSourceSet?.dependsOn(compilationSourceSet)
                     }
                 }
             }
@@ -304,7 +307,7 @@ class KMPPBindingPluginPart(
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit
     ) {
-        val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
+        val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
         sourceSet.block()
     }
 }
