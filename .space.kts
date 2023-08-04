@@ -29,6 +29,11 @@ fun `prototype implementation job`(
             it.addCreds()
             it.scriptBody()
         }
+
+        fileArtifacts {
+            localPath = "e2e-test/build/reports/tests/allTests/index.html"
+            remotePath = "test-reports/index.html"
+        }
     }
 }
 
