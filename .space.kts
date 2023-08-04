@@ -29,13 +29,6 @@ fun `prototype implementation job`(
             it.addCreds()
             it.scriptBody()
         }
-
-        fileArtifacts {
-            localPath = "prototype-implementation/e2e-test/build/reports/tests/allTests"
-            remotePath = "test-report.zip"
-            archive = true
-            onStatus = OnStatus.ALWAYS
-        }
     }
 }
 

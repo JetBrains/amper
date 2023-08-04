@@ -1,4 +1,6 @@
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 
 class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
@@ -37,6 +39,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @EnabledOnOs(value = [OS.MAC])
     fun `detecting native entry point`() = test(
         projectName = "entry-point-detection-native",
         "runMacosArm64DebugExecutableMacosArm64",
