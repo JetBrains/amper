@@ -14,6 +14,7 @@ kotlin {
             kotlin.srcDirs("src/")
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
                 implementation(dependencies.gradleTestKit())
             }
         }

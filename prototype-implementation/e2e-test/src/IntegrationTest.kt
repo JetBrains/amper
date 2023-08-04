@@ -39,7 +39,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    @EnabledOnOs(value = [OS.MAC])
+    @EnabledOnOs(value = [OS.MAC], architectures = ["aarch64"])
     fun `detecting native entry point`() = test(
         projectName = "entry-point-detection-native",
         "runMacosArm64DebugExecutableMacosArm64",
@@ -47,10 +47,10 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    @EnabledOnOs(value = [OS.LINUX])
+    @EnabledOnOs(value = [OS.LINUX], architectures = ["x86_64"])
     fun `detecting native entry point on linux (CI)`() = test(
         projectName = "entry-point-detection-native-linux",
-        "runLinuxArm64DebugExecutableLinuxArm64",
+        "runLinuxX64DebugExecutableLinuxX64",
         expectOutputToHave = "Hello, World!",
     )
 
