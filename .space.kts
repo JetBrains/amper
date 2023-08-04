@@ -37,7 +37,7 @@ fun `prototype implementation job`(
     gradlew(
         "--info",
         "--stacktrace",
-        "test"
+        "allTests"
     )
 }
 
