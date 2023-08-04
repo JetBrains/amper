@@ -47,6 +47,14 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @EnabledOnOs(value = [OS.LINUX])
+    fun `detecting native entry point on linux (CI)`() = test(
+        projectName = "entry-point-detection-native-linux",
+        "runLinuxArm64DebugExecutableLinuxArm64",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
     fun `implicit kotlin tests`() = test(
         projectName = "implicit-kotlin-tests",
         "test",
