@@ -31,8 +31,10 @@ fun `prototype implementation job`(
         }
 
         fileArtifacts {
-            localPath = "e2e-test/build/reports/tests/allTests/index.html"
-            remotePath = "test-reports/index.html"
+            localPath = "prototype-implementation/e2e-test/build/reports/tests/allTests"
+            remotePath = "test-report.zip"
+            archive = true
+            onStatus = OnStatus.ALWAYS
         }
     }
 }
