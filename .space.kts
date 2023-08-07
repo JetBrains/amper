@@ -45,14 +45,18 @@ fun `prototype implementation job`(
 `prototype implementation job`(
     "Build and publish",
     customTrigger = { schedule { cron("0 0 * * *") } },
-    customParameters = { text("version", value = "") }
+    customParameters = {
+        text("channel", value = "Nightly") {
+            options("Stable", "Nightly")
+        }
+    }
 ) {
-    val file = File("common.Pot-template.yaml")
-    val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
-    val newVersion = "version: ${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
-    val oldVersion = "version: 1.0-SNAPSHOT"
-    val newContent = file.readText().replace(oldVersion, newVersion)
-    file.writeText(newContent)
+    val newVersion = ChannelAndVersion.from(this).version
+
+    File("common.Pot-template.yaml").apply {
+        val updated = readText().replace("version: 1.0-SNAPSHOT", "version: $newVersion")
+        writeText(updated)
+    }
 
     // Do the work.
     gradlew(
@@ -70,7 +74,6 @@ fun `prototype implementation job`(
     "Intellij plugin (Build and publish)",
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
-        text("version", value = "")
         text("channel", value = "Nightly") {
             options("Stable", "Nightly")
         }
@@ -78,18 +81,14 @@ fun `prototype implementation job`(
     },
     customContainerBody = { env[tbePluginTokenEnv] = "{{ tbe.plugin.token }}" }
 ) {
-    val file = File("gradle.properties")
-    val nightlyVersion = "${executionNumber()}-NIGHTLY-SNAPSHOT"
-    val newVersion = "ide-plugin.version=${parameters["version"]?.takeIf { it.isNotBlank() } ?: nightlyVersion}"
-    val oldVersion = "ide-plugin.version=0.2-SNAPSHOT"
+    val (newChannel, newVersion) = ChannelAndVersion.from(this)
 
-    val newChannel = "ide-plugin.channel=${parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"}"
-    val oldChannel = "ide-plugin.channel=Nightly"
-
-    val newContent = file.readText()
-        .replace(oldVersion, newVersion)
-        .replace(oldChannel, newChannel)
-    file.writeText(newContent)
+    File("gradle.properties").apply {
+        val updated = readText()
+            .replace("ide-plugin.version=1.0-SNAPSHOT", "ide-plugin.version=$newVersion")
+            .replace("ide-plugin.channel=Nightly", "ide-plugin.channel=$newChannel")
+        writeText(updated)
+    }
 
     gradlew(
         "--info",
@@ -97,4 +96,14 @@ fun `prototype implementation job`(
         "--quiet",
         "publishPlugin",
     )
+}
+
+data class ChannelAndVersion(val channel: String, val version: String) {
+    companion object {
+        fun from(api: ScriptApi): ChannelAndVersion {
+            val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"
+            val version = "${api.executionNumber()}-${channel.uppercase()}"
+            return ChannelAndVersion(channel, version)
+        }
+    }
 }
