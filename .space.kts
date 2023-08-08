@@ -13,7 +13,7 @@ fun ScriptApi.addCreds() {
     )
 }
 
-fun `prototype implementation job`(
+fun registerJobInPrototypeDir(
     name: String,
     customTrigger: (Triggers.() -> Unit)? = null,
     customParameters: Parameters.() -> Unit = { },
@@ -33,7 +33,7 @@ fun `prototype implementation job`(
 }
 
 // Common build for every push.
-`prototype implementation job`("Build") {
+registerJobInPrototypeDir("Build") {
     gradlew(
         "--info",
         "--stacktrace",
@@ -42,7 +42,7 @@ fun `prototype implementation job`(
 }
 
 // Nightly build for auto publishing.
-`prototype implementation job`(
+registerJobInPrototypeDir(
     "Build and publish",
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
@@ -51,12 +51,13 @@ fun `prototype implementation job`(
         }
     }
 ) {
-    val newVersion = ChannelAndVersion.from(this).version
+    val channelAndVersion = ChannelAndVersion.from(this)
+    println("Publishing with version: ${channelAndVersion.version}")
 
-    File("common.Pot-template.yaml").apply {
-        val updated = readText().replace("version: 1.0-SNAPSHOT", "version: $newVersion")
-        writeText(updated)
-    }
+    channelAndVersion.writeTo(
+        filePath = "common.Pot-template.yaml",
+        versionPrefix = "version: "
+    )
 
     // Do the work.
     gradlew(
@@ -70,7 +71,7 @@ fun `prototype implementation job`(
 }
 
 // Build for publishing plugin.
-`prototype implementation job`(
+registerJobInPrototypeDir(
     "Intellij plugin (Build and publish)",
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
@@ -81,14 +82,14 @@ fun `prototype implementation job`(
     },
     customContainerBody = { env[tbePluginTokenEnv] = "{{ tbe.plugin.token }}" }
 ) {
-    val (newChannel, newVersion) = ChannelAndVersion.from(this)
-
-    File("gradle.properties").apply {
-        val updated = readText()
-            .replace("ide-plugin.version=1.0-SNAPSHOT", "ide-plugin.version=$newVersion")
-            .replace("ide-plugin.channel=Nightly", "ide-plugin.channel=$newChannel")
-        writeText(updated)
-    }
+    val channelAndVersion = ChannelAndVersion.from(this)
+    println("Publishing to channel: ${channelAndVersion.channel} with version: ${channelAndVersion.version}")
+    
+    channelAndVersion.writeTo(
+        filePath = "gradle.properties",
+        channelPrefix = "ide-plugin.channel=",
+        versionPrefix = "ide-plugin.version="
+    )
 
     gradlew(
         "--info",
@@ -99,6 +100,42 @@ fun `prototype implementation job`(
 }
 
 data class ChannelAndVersion(val channel: String, val version: String) {
+    fun writeTo(
+        filePath: String,
+        channelPrefix: String? = null,
+        versionPrefix: String? = null
+    ) {
+        val file = File(filePath).absoluteFile
+        if (!file.isFile) error("file not found: $file")
+
+        var text = file.readText()
+        if (text.isEmpty()) error("file is empty: $file")
+
+        fun replace(old: String, new: String) {
+            if (!text.contains(old)) error(
+                "cannot replace text in file: $file\n" +
+                        "  text to replace not found : $old"
+            )
+
+            text = text.replace(old, new)
+
+            if (!text.contains(new)) error(
+                "cannot replace text in file: $file\n" +
+                        "  old: $old" +
+                        "  new: $new"
+            )
+        }
+
+        if (channelPrefix != null) {
+            replace("${channelPrefix}Nightly", "${channelPrefix}${channel}")
+        }
+        if (versionPrefix != null) {
+            replace("${versionPrefix}1.0-SNAPSHOT", "${versionPrefix}${version}")
+        }
+
+        file.writeText(text)
+    }
+
     companion object {
         fun from(api: ScriptApi): ChannelAndVersion {
             val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"
