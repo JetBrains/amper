@@ -5,9 +5,9 @@
 
 **Project structure:**
 
-As you can see [frontend-api](frontend-api) - java services are used to separate
+As you can see [frontend-api](prototype-implementation/frontend-api) - java services are used to separate
 model parsing implementation from actual model, so you can replace model library
-with any other, see [frontend](frontend) subdirectories.
+with any other, see [frontend](prototype-implementation/frontend) subdirectories.
 
 **Using locally built Gradle plugin:**
 
@@ -27,3 +27,7 @@ plugins {
     id("org.jetbrains.deft.proto.settings.plugin")
 }
 ```
+                    
+**IntelliJ Deft Plugin**
+
+The plugin is published into Toolbox Enterprise: https://tbe.labs.jb.gg/plugins/details/b3JnLmpldGJyYWlucy5kZWZ0 
