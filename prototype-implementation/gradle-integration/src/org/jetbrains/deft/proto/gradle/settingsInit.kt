@@ -45,11 +45,14 @@ class SettingsPluginRun(
 
         // Initialize plugins for each module.
         settings.gradle.beforeProject { project ->
-            // Add repositories for KMPP to work.
+            /**
+             * Repositories for bundled plugins
+             */
             project.repositories.google()
             project.repositories.jcenter()
             // To be able to have import using dev versions of kotlin
             project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
+            project.repositories.gradlePluginPortal()
 
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject
