@@ -12,8 +12,8 @@ internal class PlainPotatoModule(
 ) : PotatoModule {
     override val userReadableName: String
         get() = buildFile.parent.name
-    override val type: PotatoModuleType
-        get() = if (productType.isLibrary()) PotatoModuleType.LIBRARY else PotatoModuleType.APPLICATION
+    override val type: ProductType
+        get() = productType
     override val source: PotatoModuleSource
         get() = PotatoModuleFileSource(buildFile)
 

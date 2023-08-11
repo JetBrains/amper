@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend.propagate
 
 import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.resolve.resolved
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

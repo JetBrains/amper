@@ -3,7 +3,7 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.ModelInit
-import org.jetbrains.deft.proto.frontend.propagate.resolved
+import org.jetbrains.deft.proto.frontend.resolve.resolved
 
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {

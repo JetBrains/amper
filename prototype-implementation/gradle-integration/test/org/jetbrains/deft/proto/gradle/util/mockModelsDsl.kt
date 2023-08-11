@@ -12,10 +12,10 @@ class MockModel(
 }
 
 class MockPotatoModule(
-    buildFile: Path,
-    override var type: PotatoModuleType = PotatoModuleType.APPLICATION,
-    override var userReadableName: String = "module",
-    override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
+        buildFile: Path,
+        override var type: ProductType = ProductType.JVM_APP,
+        override var userReadableName: String = "module",
+        override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
 ) : PotatoModule {
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()

@@ -3,8 +3,8 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.ModelInit
-import org.jetbrains.deft.proto.frontend.PotatoModuleType
-import org.jetbrains.deft.proto.frontend.propagate.resolved
+import org.jetbrains.deft.proto.frontend.ProductType
+import org.jetbrains.deft.proto.frontend.resolve.resolved
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import java.nio.file.Path
 import kotlin.io.path.extension
@@ -59,8 +59,8 @@ class SettingsPluginRun(
 
             // Apply Android plugin.
             if (connectedModule.androidNeeded) when (connectedModule.type) {
-                PotatoModuleType.APPLICATION -> project.plugins.apply("com.android.application")
-                PotatoModuleType.LIBRARY -> project.plugins.apply("com.android.library")
+                ProductType.LIB -> project.plugins.apply("com.android.library")
+                else -> project.plugins.apply("com.android.application")
             }
 
             // Apply additional plugins.

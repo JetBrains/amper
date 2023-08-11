@@ -1,4 +1,4 @@
-package org.jetbrains.deft.proto.frontend.propagate
+package org.jetbrains.deft.proto.frontend.resolve
 
 import org.jetbrains.deft.proto.frontend.*
 

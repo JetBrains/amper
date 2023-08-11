@@ -6,8 +6,8 @@ import java.nio.file.Path
 class DumbGradleModule(private val file: Path) : PotatoModule {
     override val userReadableName: String
         get() = file.parent.fileName.toString()
-    override val type: PotatoModuleType
-        get() = PotatoModuleType.LIBRARY
+    override val type: ProductType
+        get() = ProductType.LIB
     override val source: PotatoModuleSource
         get() = PotatoModuleFileSource(file)
     override val fragments: List<Fragment>

@@ -10,11 +10,6 @@ data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
     val buildDir get() = buildFile.parent
 }
 
-enum class PotatoModuleType {
-    LIBRARY,
-    APPLICATION,
-}
-
 sealed interface ModulePart<SelfT> {
     fun default(): ModulePart<SelfT> = error("No default!")
 }
@@ -40,7 +35,7 @@ interface PotatoModule {
      */
     val userReadableName: String
 
-    val type: PotatoModuleType
+    val type: ProductType
 
     val source: PotatoModuleSource
 

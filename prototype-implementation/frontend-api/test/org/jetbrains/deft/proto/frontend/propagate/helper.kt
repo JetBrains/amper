@@ -1,19 +1,20 @@
-package org.jetbrains.deft.proto.frontend
+package org.jetbrains.deft.proto.frontend.propagate
 
+import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 
 context (PotatoModuleBuilder) class FragmentLinkProvider(
-    override val type: FragmentDependencyType,
-    private val fragmentName: String
+        override val type: FragmentDependencyType,
+        private val fragmentName: String
 ) : FragmentLink {
     override val target: Fragment
         get() = fragments.firstOrNull { it.name == fragmentName }?.build()
             ?: error("There is no such fragment with name: $fragmentName")
 
     data class FragmentLinkProviderBuilder(
-        val sourceFragment: FragmentBuilder,
-        var name: String = "",
-        var type: FragmentDependencyType = FragmentDependencyType.REFINE
+            val sourceFragment: FragmentBuilder,
+            var name: String = "",
+            var type: FragmentDependencyType = FragmentDependencyType.REFINE
     )
 
     companion object {
@@ -132,7 +133,7 @@ class KotlinFragmentPartBuilder {
 }
 
 class PotatoModuleBuilder(var name: String) {
-    var type: PotatoModuleType = PotatoModuleType.APPLICATION
+    var type: ProductType = ProductType.JVM_APP
     var source: PotatoModuleSource = PotatoModuleProgrammaticSource
     val fragments: MutableList<FragmentBuilder> = mutableListOf()
     private val artifacts = emptyList<Artifact>()
@@ -149,7 +150,7 @@ class PotatoModuleBuilder(var name: String) {
         return object : PotatoModule {
             override val userReadableName: String
                 get() = this@PotatoModuleBuilder.name
-            override val type: PotatoModuleType
+            override val type: ProductType
                 get() = this@PotatoModuleBuilder.type
             override val source: PotatoModuleSource
                 get() = this@PotatoModuleBuilder.source

@@ -7,7 +7,6 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.frontend.PotatoModuleType
 import org.jetbrains.deft.proto.gradle.EntryPointType
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -87,7 +86,7 @@ class JavaBindingPluginPart(
         val fragment = leafPlatformFragments.firstOrNull() ?: return
         val javaPart = fragment.parts.find<JavaPart>()
         javaAPE.apply {
-            if (module.type != PotatoModuleType.APPLICATION) return@apply
+            if (module.type.isLibrary()) return@apply
             val foundMainClass = if (javaPart?.mainClass != null) {
                 javaPart.mainClass
             } else {

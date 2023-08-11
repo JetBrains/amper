@@ -142,7 +142,7 @@ class KMPPBindingPluginPart(
         kotlinNativeCompilation: KotlinNativeCompilation,
         fragment: LeafFragmentWrapper,
     ) {
-        if (module.type != PotatoModuleType.APPLICATION) return
+        if (module.type.isLibrary()) return
         val part = fragment.parts.find<NativeApplicationPart>()
 
         target.binaries {

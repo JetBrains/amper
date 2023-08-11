@@ -86,7 +86,7 @@ object Models : ModelInit {
 
     val threeFragmentsSingleArtifactModel by mockModel {
         module(it.buildToml) {
-            type = PotatoModuleType.LIBRARY
+            type = ProductType.LIB
             val common = fragment()
             val jvm = leafFragment("jvm") {
                 refines(common)
