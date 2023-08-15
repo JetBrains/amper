@@ -18,6 +18,7 @@ open class E2ETestFixture(private val pathToProjects: String) {
         try {
             val runner = GradleRunner.create()
                 .withProjectDir(tempDir.toFile())
+                .withDebug(true)
                 .withArguments(*buildArguments, "--stacktrace")
             val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
             assertContains(buildResult.output, expectOutputToHave)

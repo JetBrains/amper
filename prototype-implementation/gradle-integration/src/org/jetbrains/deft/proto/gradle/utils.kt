@@ -37,6 +37,8 @@ operator fun PotatoModuleWrapper.contains(platform: Platform) =
 val PotatoModuleWrapper.androidNeeded get() = Platform.ANDROID in this
 val PotatoModuleWrapper.javaNeeded get() = Platform.JVM in this
 
+val PotatoModuleWrapper.appleNeeded get() = type == ProductType.IOS_APP
+
 val PotatoModuleWrapper.composeNeeded: Boolean get() = leafFragments.any { it.parts.find<ComposePart>()?.enabled == true }
 
 /**

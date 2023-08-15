@@ -146,4 +146,8 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    @EnabledOnOs(value = [OS.MAC])
+    fun iosApp() = test("ios-app", "buildIosAppMain", expectOutputToHave = "BUILD SUCCESSFUL")
 }
