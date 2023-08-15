@@ -32,4 +32,5 @@ tasks.withType<Test> {
             }
         }
     }
+    maxHeapSize = "4g"
 }
