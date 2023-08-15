@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.AndroidPart
-import org.jetbrains.deft.proto.frontend.ComposePart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
@@ -110,10 +109,10 @@ class AndroidBindingPluginPart(
                 compileOptions.setTargetCompatibility(it)
             }
         }
-        if (module.leafNonTestFragments.any { it.parts.find<ComposePart>()?.enabled == true }) {
-            @Suppress("UnstableApiUsage")
-            androidPE?.buildFeatures?.compose = true
-        }
+//        if (module.leafNonTestFragments.any { it.parts.find<ComposePart>()?.enabled == true }) {
+//            @Suppress("UnstableApiUsage")
+//            androidPE?.buildFeatures?.compose = true
+//        }
         leafPlatformFragments.forEach { fragment ->
             val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {

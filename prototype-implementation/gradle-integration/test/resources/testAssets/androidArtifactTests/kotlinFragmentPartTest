@@ -1,77 +1,42 @@
 :
-  androidAndroidTest:
-   depends(commonTest)
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidAndroidTestDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidAndroidTestRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
   androidDebug:
-   depends(common)
-   sourceDirs()
+   depends(common,commonMain)
+   sourceDirs(src/debug/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidDebugAndroidTest:
+  androidInstrumentedTest:
    depends()
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidDebugUnitTest:
+  androidInstrumentedTestDebug:
    depends()
-   sourceDirs()
+   sourceDirs(src/androidTestDebug/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidMain:
-   depends(commonMain,common)
+   depends(common,commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidRelease:
-   depends(common)
-   sourceDirs()
+   depends(common,commonMain)
+   sourceDirs(src/release/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidReleaseUnitTest:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidTest:
+  androidUnitTest:
    depends(commonTest)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidTestDebug:
-   depends()
-   sourceDirs()
+  androidUnitTestDebug:
+   depends(commonTest)
+   sourceDirs(src/testDebug/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
-  androidTestFixtures:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidTestFixturesDebug:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidTestFixturesRelease:
-   depends()
-   sourceDirs()
-   lang(api=null version=null progressive=false features=)
-   implDeps()
-  androidTestRelease:
-   depends()
-   sourceDirs()
+  androidUnitTestRelease:
+   depends(commonTest)
+   sourceDirs(src/testRelease/kotlin)
    lang(api=null version=null progressive=false features=)
    implDeps()
   common:

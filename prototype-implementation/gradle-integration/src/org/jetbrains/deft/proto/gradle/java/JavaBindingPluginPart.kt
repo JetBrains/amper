@@ -66,7 +66,6 @@ class JavaBindingPluginPart(
                 fragment.parts.find<JavaPart>()?.target?.let { jvmTarget ->
                     fragment.compilation?.compileTaskProvider?.configure {
                         it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                        println("Java compilation ${it.name} has jvmTarget $jvmTarget")
                         it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
                     }
                 }

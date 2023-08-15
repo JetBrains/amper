@@ -12,10 +12,10 @@ settings:
 dependencies:
   - ../frontend-api
   - ../frontend/plain/yaml
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.8.20
-  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.8.20
-  - com.android.library:com.android.library.gradle.plugin:7.4.0
-  - org.jetbrains.compose:compose-gradle-plugin:1.4.1
+  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0
+  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.0
+  - com.android.library:com.android.library.gradle.plugin:8.1.0
+  - org.jetbrains.compose:compose-gradle-plugin:1.5.0-beta01
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.22
 
 test-dependencies:

@@ -4,7 +4,7 @@ dependencies:
   - ../shared
   # Currently you need to manually specify desktop dependency for your current platform.
   # This is a limitation what we plan to address in the future.
-  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.4.1
+  - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.0-beta01
   #- org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.4.1
   #- org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.4.1
   #- org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.4.1
