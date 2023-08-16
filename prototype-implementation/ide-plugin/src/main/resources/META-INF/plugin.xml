@@ -33,10 +33,6 @@
         <externalSystemSettingsListener
                 implementation="org.jetbrains.deft.ide.externalTool.DeftProjectsWatcher"/>
         <iconProvider order="first" implementation="org.jetbrains.deft.ide.DeftIconProvider"/>
-
-        <!--- JPS -->
-        <projectOpenProcessor implementation="org.jetbrains.deft.ide.jps.DeftOpenProjectProcessor"/>
-        <!--- /JPS -->
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
