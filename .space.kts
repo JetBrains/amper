@@ -86,7 +86,7 @@ registerJobInPrototypeDir(
     println("Publishing to channel: ${channelAndVersion.channel} with version: ${channelAndVersion.version}")
     
     channelAndVersion.writeTo(
-        filePath = "ide-plugin/gradle.properties",
+        filePath = "ide-plugin-231-232/gradle.properties",
         channelPrefix = "ide-plugin.channel=",
         versionPrefix = "ide-plugin.version="
     )

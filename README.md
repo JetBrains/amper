@@ -9,6 +9,9 @@ As you can see [frontend-api](prototype-implementation/frontend-api) - java serv
 model parsing implementation from actual model, so you can replace model library
 with any other, see [frontend](prototype-implementation/frontend) subdirectories.
 
+Actual IJ Deft plugin is located [in the intellij repository](https://jetbrains.team/p/ij/repositories/intellij/files/d938effc4b30bb213b939051ceec78bf4e0c2e6d/plugins/deft) and bundled automatically.
+IJ plugin for previous IDE versions is in [ide-plugin-231-232](prototype-implementation/ide-plugin-231-232). 
+
 **Using locally built Gradle plugin:**
 
 Launch `:publishToMavenLocal` gradle task on `prototype-implementation` project.
@@ -27,7 +30,3 @@ plugins {
     id("org.jetbrains.deft.proto.settings.plugin")
 }
 ```
-                    
-**IntelliJ Deft Plugin**
-
-The plugin is published into Toolbox Enterprise: https://tbe.labs.jb.gg/plugins/details/b3JnLmpldGJyYWlucy5kZWZ0 

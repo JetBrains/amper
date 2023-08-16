@@ -52,7 +52,7 @@ plugins {
 }
 
 include(
-    "ide-plugin",
+    "ide-plugin-231-232",
 )
 
 rootProject.name = "prototype-implementation"

@@ -48,12 +48,3 @@ tasks {
         channels = listOf(properties("ide-plugin.channel"))
     }
 }
-
-dependencies {
-    implementation(project(mapOf("path" to ":frontend:plain:yaml")) as ProjectDependency) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    implementation(project(mapOf("path" to ":frontend-api")) as ProjectDependency) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-}
