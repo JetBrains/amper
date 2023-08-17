@@ -144,6 +144,9 @@ class KMPPBindingPluginPart(
 
         target.binaries {
             when {
+                (module.type == ProductType.IOS_APP && !fragment.isTest) -> framework(fragment.name) {
+                    adjustExecutable(fragment, kotlinNativeCompilation)
+                }
                 fragment.isTest -> test(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }

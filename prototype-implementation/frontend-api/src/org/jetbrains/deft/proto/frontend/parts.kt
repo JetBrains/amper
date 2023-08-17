@@ -64,7 +64,7 @@ data class AndroidPart(
 ) : FragmentPart<AndroidPart> {
     override fun default(module: PotatoModule): FragmentPart<AndroidPart> =
         AndroidPart(
-            compileSdkVersion = compileSdkVersion ?: "android-33",
+            compileSdkVersion = compileSdkVersion ?: "android-34",
             minSdk = minSdk ?: "21",
             namespace = "com.example.${module.userReadableName.prepareToNamespace()}"
         )
@@ -112,7 +112,7 @@ data class NativeApplicationPart(
     val binaryOptions: Map<String, String> = emptyMap(),
 ) : FragmentPart<NativeApplicationPart> {
     override fun default(module: PotatoModule): FragmentPart<NativeApplicationPart> =
-        NativeApplicationPart(entryPoint)
+        NativeApplicationPart(entryPoint, "kotlin")
 }
 
 data class PublicationPart(
