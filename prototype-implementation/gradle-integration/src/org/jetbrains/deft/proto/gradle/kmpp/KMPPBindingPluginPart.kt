@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
@@ -61,8 +60,6 @@ class KMPPBindingPluginPart(
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
-        // Use the old style of dependency resolution, otherwise IntelliJ import fails.
-        project.extraProperties.set("kotlin.mpp.import.enableKgpDependencyResolution", "false")
         initTargets()
         initFragments()
     }
@@ -273,7 +270,14 @@ class KMPPBindingPluginPart(
                 val sourceSet = fragment.kotlinSourceSet
                 // Set dependencies.
                 fragment.fragmentDependencies.forEach {
-                    sourceSet?.doDependsOn(it.target)
+                    when(it.type) {
+                        FragmentDependencyType.REFINE ->
+                            sourceSet?.doDependsOn(it.target)
+                        FragmentDependencyType.FRIEND ->
+                            // TODO Add associate with for related compilations.
+                            // Not needed for default "test" - "main" relations.
+                            run {  }
+                    }
                 }
 
                 // Set sources and resources.

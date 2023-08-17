@@ -56,12 +56,6 @@ fun <T> Collection<T>.requireSingle(errorMessage: () -> String): T =
     if (size > 1 || isEmpty()) error(errorMessage())
     else first()
 
-data class FoundEntryPoint(
-    val file: Path,
-    val mainName: String,
-    val pkg: String?,
-)
-
 /**
  * Try to find entry point for application.
  */
