@@ -4,14 +4,6 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/examples/jvm-kotlin+java" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>
