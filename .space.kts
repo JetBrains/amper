@@ -37,7 +37,6 @@ registerJobInPrototypeDir("Build") {
     gradlew(
         "--info",
         "--stacktrace",
-        "--fail-fast",
         "allTests"
     )
 }
@@ -66,7 +65,6 @@ registerJobInPrototypeDir(
         "--stacktrace",
         "--quiet",
         "allTests",
-        "--fail-fast",
         "publishAllPublicationsToScratchRepository",
     )
 }
