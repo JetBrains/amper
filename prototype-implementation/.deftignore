@@ -1,6 +1,7 @@
 frontend/fragments/yaml/build
 frontend/fragments/yaml/test/resources
 try
+ide-plugin-231-232/samples
 e2e-test/resources
 e2e-test/build
 e2e-test/testData
