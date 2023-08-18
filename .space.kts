@@ -1,5 +1,11 @@
+@file:DependsOn("com.slack.api:slack-api-client:1.30.0")
+
 import circlet.pipelines.script.ScriptApi
+import com.slack.api.Slack
 import java.io.File
+import java.util.*
+import kotlin.script.experimental.dependencies.DependsOn
+import kotlin.system.exitProcess
 
 private val tbePluginTokenEnv = "TBE_PLUGIN_TOKEN"
 
@@ -21,13 +27,30 @@ fun registerJobInPrototypeDir(
     scriptBody: ScriptApi.() -> Unit,
 ) = job(name) {
     if (customTrigger != null) startOn { customTrigger() }
-    parameters { customParameters() }
+    parameters {
+        secret("slack_secret_space_alerts_app", value = "{{ project:slack_secret_space_alerts_app }}")
+        customParameters()
+    }
     container(displayName = name, image = "thyrlian/android-sdk") {
         workDir = "prototype-implementation"
+        env["SLACK_TOKEN"] = "{{ slack_secret_space_alerts_app }}"
         customContainerBody()
         kotlinScript {
             it.addCreds()
-            it.scriptBody()
+            try {
+                it.scriptBody()
+            }
+            catch (ex: Exception) {
+                println("Sending notification to slack")
+                val slack = Slack.getInstance()
+                val token = System.getenv("SLACK_TOKEN")
+                val branchName = System.getenv("JB_SPACE_GIT_BRANCH").substringAfterLast("/")
+
+                slack.methods(token).chatPostMessage { req ->
+                    req.channel("#deft-build-alerts").text("<${it.executionUrl()}|${name} `#${it.executionNumber()}`> are failed in branch `${branchName}`")
+                }
+                exitProcess(1)
+            }
         }
     }
 }
@@ -83,7 +106,7 @@ registerJobInPrototypeDir(
 ) {
     val channelAndVersion = ChannelAndVersion.from(this)
     println("Publishing to channel: ${channelAndVersion.channel} with version: ${channelAndVersion.version}")
-    
+
     channelAndVersion.writeTo(
         filePath = "ide-plugin-231-232/gradle.properties",
         channelPrefix = "ide-plugin.channel=",
@@ -138,7 +161,7 @@ data class ChannelAndVersion(val channel: String, val version: String) {
     companion object {
         fun from(api: ScriptApi): ChannelAndVersion {
             val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"
-            val version = "${api.executionNumber()}-${channel.uppercase()}"
+            val version = "${api.executionNumber()}-${channel.uppercase(Locale.getDefault())}"
             return ChannelAndVersion(channel, version)
         }
     }
