@@ -5,6 +5,9 @@ If you want to follow the tutorial:
 * Open [a new project template](../examples/new-project-template) in the IDE  
 
 If you are looking to more detailed info, check [the documentation](Documentation.md).
+ 
+_NOTE: Since the current implementation is Gradle-based, every project needs a settings.gradle.kts. 
+New templates and example projects are preconfigured. To manually configure your project, see [documentation on Gradle-based projects](Documentation.md#gradle-based-projects)._
 
 ### Step 1. Hello, World
 
@@ -33,7 +36,7 @@ fun main() {
 
 That’s it, we’ve just created a simple JVM application.
 
-Oh, and since it’s JVM, let’s also add some Java code.
+And since it’s JVM, let’s also add some Java code.
 
 ```
 |-src/
@@ -43,6 +46,14 @@ Oh, and since it’s JVM, let’s also add some Java code.
 ```
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
+
+_NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
+```
+|-src/
+|  |-...
+|-Pot.yaml
+|-settings.gradle.kts
+```
 
 Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../examples/jvm-kotlin+java).
 
@@ -192,6 +203,17 @@ File layout:
 |  |-test/
 |  |  |-UtilTest.kt
 |  |-Pot.yaml
+```
+
+_NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
+```
+|-app/
+|  |-...
+|  |-Pot.yaml
+|-shared/
+|  |-...
+|  |-Pot.yaml
+|-settings.gradle.kts
 ```
 
 In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.

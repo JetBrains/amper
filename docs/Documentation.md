@@ -23,7 +23,16 @@ The basic Pot layout looks like this:
 |-Pot.yaml
 ```
 
-_NOTE: By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application._ 
+By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+
+_NOTE: In a Gradle-based project the settings.gradle.kts should be located in the project root:_
+```
+|-...
+|-Pot.yaml
+|-settings.gradle.kts
+```
+
+See  
 
 In a JVM Pot you can mix Kotlin and Java code:
 ```
@@ -1207,6 +1216,52 @@ class MySourceProcessor : SourceProcessorExtension {
 ```
 
 The DSL engine would be able to quickly discover DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
+
+## Gradle-based projects
+
+The current implementation is Gradle-based. You need a settings.gradle.kts file in the project root with the DSL plugin:
+```
+|-src/
+|  |-...
+|-Pot.yaml
+|-settings.gradle.kts
+```
+
+Or in case or multi-module projects:
+
+```
+|-app/
+|  |-...
+|  |-Pot.yaml
+|-lib/
+|  |-...
+|  |-Pot.yaml
+|-settings.gradle.kts
+```
+
+settings.gradle.kts:
+```kotlin
+buildscript {
+    // Configured repositories required for the DSL plugin
+    repositories {
+        maven("https://jitpack.io")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        mavenCentral()
+        google()
+        jcenter()
+        gradlePluginPortal()
+        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
+    }
+
+    // Add the DSL plugin into Gradle's classpath
+    dependencies {
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:103-NIGHTLY")
+    }
+}
+
+// Apply the DSL plugin
+plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+```
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).

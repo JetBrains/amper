@@ -20,6 +20,7 @@ fun updateFiles(path: Path, versions: Map<String, String>) {
 
     path.walk(PathWalkOption.BREADTH_FIRST).forEach {
         if (it.name == "settings.gradle.kts"
+            || it.name.endsWith(".md")
             || it.name.endsWith(".properties")) {
             updateFile(it, versions)
         }
