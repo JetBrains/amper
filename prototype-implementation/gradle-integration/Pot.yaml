@@ -15,7 +15,7 @@ dependencies:
   - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0
   - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.0
   - com.android.library:com.android.library.gradle.plugin:8.1.0
-  - org.jetbrains.compose:compose-gradle-plugin:1.5.0-beta01
+  - org.jetbrains.compose:compose-gradle-plugin:1.5.0-rc01
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.22
 
 test-dependencies:

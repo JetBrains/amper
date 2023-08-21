@@ -53,6 +53,7 @@ class SettingsPluginRun(
             // To be able to have import using dev versions of kotlin
             project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
             project.repositories.gradlePluginPortal()
+            project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject

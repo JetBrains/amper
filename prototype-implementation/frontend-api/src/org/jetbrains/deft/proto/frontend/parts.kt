@@ -35,7 +35,7 @@ data class KotlinPart(
 
     override fun default(module: PotatoModule): FragmentPart<*> {
         return KotlinPart(
-            languageVersion = languageVersion ?: "1.8",
+            languageVersion = languageVersion ?: "1.9",
             apiVersion = apiVersion ?: languageVersion,
             debug = null,
             progressiveMode = progressiveMode ?: false,
@@ -124,6 +124,9 @@ data class PublicationPart(
 }
 
 data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
+    override fun propagate(parent: ComposePart): FragmentPart<*> {
+        return ComposePart(enabled ?: parent.enabled)
+    }
     override fun default(module: PotatoModule): FragmentPart<*> {
         return ComposePart(enabled ?: false)
     }

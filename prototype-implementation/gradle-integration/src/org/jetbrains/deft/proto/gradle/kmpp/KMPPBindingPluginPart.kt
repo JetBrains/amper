@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
@@ -60,6 +61,7 @@ class KMPPBindingPluginPart(
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     fun apply() {
+        project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
         initTargets()
         initFragments()
     }
@@ -299,7 +301,7 @@ class KMPPBindingPluginPart(
                         // FIXME ??
                     }
                     val compilation = fragment.compilation ?: return@forEach
-                    compilation.source(fragment.kotlinSourceSet ?: error("AAAA"))
+                    compilation.source(fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}"))
                     val compilationSourceSet = compilation.defaultSourceSet
                     if (compilationSourceSet != fragment.kotlinSourceSet) {
                         fragment.kotlinSourceSet?.dependsOn(compilationSourceSet)
