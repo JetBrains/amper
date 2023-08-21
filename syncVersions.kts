@@ -6,7 +6,7 @@ import kotlin.io.path.name
 import kotlin.io.path.walk
 
 val versions = mapOf(
-    "org.jetbrains.deft.proto.settings.plugin:gradle-integration:" to "78-STABLE",
+    "org.jetbrains.deft.proto.settings.plugin:gradle-integration:" to "103-NIGHTLY",
     "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:" to "1.9.20-dev-6845",
     "org.jetbrains.compose:compose-gradle-plugin:" to "1.5.0-beta01",
     "https\\://services.gradle.org/distributions/gradle-" to "8.1.1-bin.zip"

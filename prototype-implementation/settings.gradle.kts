@@ -5,19 +5,9 @@ buildscript {
         // Uncomment this if you want to use local published version.
         //region local version
         mavenLocal()
-        //region local version
+        //endregion local version
 
         //region scratch version
-        java.util.Properties().apply {
-            rootDir.resolve("root.local.properties")
-                .also {
-                    if (!it.exists()) {
-                        it.writeText("scratch.username=\nscratch.password=")
-                    }
-                }
-                .inputStream()
-                .let { load(it) }
-        }
         maven("https://jitpack.io")
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         maven {
@@ -38,7 +28,7 @@ buildscript {
 
     dependencies {
         // !!! Use updateVersions.kts to update these versions
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:96-NIGHTLY")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:103-NIGHTLY")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-dev-6845")
         classpath("com.github.johnrengelman:shadow:8.1.1")
     }
@@ -53,5 +43,3 @@ plugins {
 include(
     "ide-plugin-231-232",
 )
-
-rootProject.name = "prototype-implementation"
