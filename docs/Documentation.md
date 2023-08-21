@@ -1244,11 +1244,8 @@ settings.gradle.kts:
 buildscript {
     // Configured repositories required for the DSL plugin
     repositories {
-        maven("https://jitpack.io")
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         mavenCentral()
         google()
-        jcenter()
         gradlePluginPortal()
         maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }

@@ -1,29 +1,17 @@
 buildscript {
     repositories {
-        // Uncomment this if you use published in scratch version.
-
-        // Uncomment this if you want to use local published version.
-        //region local version
-        mavenLocal()
-        //endregion local version
-
-        //region scratch version
-        maven("https://jitpack.io")
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-        maven {
-            name = "spacePackages"
-            url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
-        }
-        // TODO remove after internal preview
-        maven {
-            name = "legacySpacePackages"
-            url = java.net.URI.create("https://packages.jetbrains.team/maven/p/deft/scratch")
-        }
-        //endregion scratch version
-
         mavenCentral()
         google()
         gradlePluginPortal()
+
+        // For dev versions of KMP Gradle plugins
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+
+        // For locally published plugin versions
+        mavenLocal()
+
+        // For published version
+        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
 
     dependencies {
