@@ -1,3 +1,4 @@
+import org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -5,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
@@ -16,24 +18,28 @@ class BootstrapTest {
     @Test
     fun `deft could build itself using version from sources`() {
         // given
+        val commonTemplateString = Path.of("../common.Pot-template.yaml").toAbsolutePath().readText()
+        val yamlMap = Yaml().load<Map<String, Map<String, Map<String, String>>>>(commonTemplateString)
+        val version = yamlMap["settings"]?.get("publishing")?.get("version")
+
         val gradleIntegration = Path.of("../")
             .toAbsolutePath()
-            .resolve("gradle-integration/build/libs/gradle-integration-jvm-1.0-SNAPSHOT.jar")
+            .resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
             .normalize()
 
         val frontendApi = Path.of("../")
             .toAbsolutePath()
-            .resolve("frontend-api/build/libs/frontend-api-jvm-1.0-SNAPSHOT.jar")
+            .resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
             .normalize()
 
         val plainFrontend = Path.of("../")
             .toAbsolutePath()
-            .resolve("frontend/plain/yaml/build/libs/yaml-jvm-1.0-SNAPSHOT.jar")
+            .resolve("frontend/plain/yaml/build/libs/yaml-jvm-$version.jar")
             .normalize()
 
         val util = Path.of("../")
             .toAbsolutePath()
-            .resolve("frontend/util/build/libs/util-jvm-1.0-SNAPSHOT.jar")
+            .resolve("frontend/util/build/libs/util-jvm-$version.jar")
             .normalize()
 
         val settingsContent = """
