@@ -1263,6 +1263,10 @@ buildscript {
 plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 ```
 
+### Gradle interop
+
+Work in progress, documentation is coming soon...
+
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
 YAML is indent-sensitive.
