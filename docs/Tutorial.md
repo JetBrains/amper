@@ -205,6 +205,8 @@ File layout:
 |  |-Pot.yaml
 ```
 
+In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.
+
 _NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
 ```
 |-app/
@@ -215,8 +217,6 @@ _NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the s
 |  |-Pot.yaml
 |-settings.gradle.kts
 ```
-
-In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.
 
 Examples: [modularized](.././examples/modularized).
 

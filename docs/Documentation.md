@@ -25,7 +25,7 @@ The basic Pot layout looks like this:
 
 By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
 
-_NOTE: In a Gradle-based project the settings.gradle.kts should be located in the project root:_
+_NOTE: In [a Gradle-based project](#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
 ```
 |-...
 |-Pot.yaml
