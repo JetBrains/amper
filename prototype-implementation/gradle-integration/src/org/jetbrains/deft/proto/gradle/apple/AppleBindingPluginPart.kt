@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.gradle.apple
 
 import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.ProductType
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
@@ -10,15 +11,15 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 val iosPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS, Platform.IOS_SIMULATOR_ARM64, Platform.IOS_X64)
 
-fun applyAppleAttributes(ctx: PluginPartCtx) = AppleBindingPluginPart(ctx).apply()
-
 class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart by ctx {
     override val kotlinMPE: KotlinMultiplatformExtension
         get() = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     private val applePE: AppleProjectExtension? get() = project.extensions.findByName("apple") as AppleProjectExtension?
 
-    fun apply() {
+    override val needToApply by lazy { module.type == ProductType.IOS_APP }
+
+    override fun applyBeforeEvaluate() {
         // Apply plugin
         project.plugins.apply("org.jetbrains.gradle.apple.applePlugin")
 

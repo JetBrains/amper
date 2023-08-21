@@ -16,12 +16,12 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
 :outer:inner2
@@ -42,12 +42,12 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
 :outer:intermediate:inner1
@@ -68,11 +68,11 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(common/src)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

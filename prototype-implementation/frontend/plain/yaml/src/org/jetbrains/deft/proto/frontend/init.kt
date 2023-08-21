@@ -58,8 +58,12 @@ class YamlModelInit : ModelInit {
                 }
                 .collect(Collectors.toList())
 
+            val moduleNames = modules.map { it.userReadableName }.toSet()
+
             val gradleModuleWrappers = Files.walk(root)
                 .filter { setOf("build.gradle.kts", "build.gradle").contains(it.name) }
+                .filter { it.parent.fileName.name !in moduleNames }
+                .filter { ignorePaths.none { ignorePath -> it.startsWith(ignorePath) } }
                 .map { DumbGradleModule(it) }
                 .collect(Collectors.toList())
 

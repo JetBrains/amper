@@ -42,7 +42,7 @@ object KotlinDeftNamingConvention {
             else -> name
         }
 
-    context(KMPEAware, SpecificPlatformPluginPart)
+    context(KMPEAware)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(name)
 

@@ -8,19 +8,24 @@ import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.PublicationPart
 import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
 import org.jetbrains.deft.proto.frontend.TestPart
-import org.jetbrains.deft.proto.gradle.android.applyAndroidAttributes
-import org.jetbrains.deft.proto.gradle.apple.applyAppleAttributes
+import org.jetbrains.deft.proto.gradle.android.AndroidBindingPluginPart
+import org.jetbrains.deft.proto.gradle.apple.AppleBindingPluginPart
+import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
-import org.jetbrains.deft.proto.gradle.compose.applyComposeAttributes
-import org.jetbrains.deft.proto.gradle.java.applyJavaAttributes
+import org.jetbrains.deft.proto.gradle.compose.ComposePluginPart
+import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KMPPBindingPluginPart
 import java.net.URI
-import kotlin.io.path.absolutePathString
 
 /**
  * Gradle project plugin entry point.
  */
 class BindingProjectPlugin : Plugin<Project> {
+
+    lateinit var appliedParts: List<BindingPluginPart>
+
+    fun onDefExtensionChanged() = appliedParts.forEach { it.onDefExtensionChanged() }
+
     override fun apply(project: Project) {
         // Prepare context.
         val model = project.gradle.knownModel ?: return
@@ -29,19 +34,32 @@ class BindingProjectPlugin : Plugin<Project> {
         val linkedModule = projectToModule[project.path] ?: return
         val pluginCtx = PluginPartCtx(project, model, linkedModule, moduleToProject)
 
-        // Apply parts.
-        if (linkedModule.androidNeeded) applyAndroidAttributes(pluginCtx)
+        // Find applied parts. Preserve order!
         val kmppBindingPluginPart = KMPPBindingPluginPart(pluginCtx)
-        kmppBindingPluginPart.apply()
-        if (linkedModule.javaNeeded) applyJavaAttributes(pluginCtx)
-        if (linkedModule.composeNeeded) applyComposeAttributes(pluginCtx)
-        if (linkedModule.appleNeeded) applyAppleAttributes(pluginCtx)
+        val registeredParts = listOf(
+            AndroidBindingPluginPart(pluginCtx),
+            kmppBindingPluginPart,
+            JavaBindingPluginPart(pluginCtx),
+            ComposePluginPart(pluginCtx),
+            AppleBindingPluginPart(pluginCtx),
+        )
+        appliedParts = registeredParts.filter { it.needToApply }
+
+        // Apply before evaluate.
+        appliedParts.forEach(BindingPluginPart::applyBeforeEvaluate)
         kmppBindingPluginPart.afterAll()
 
+        // Apply other settings.
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
         applyTest(linkedModule, project)
-        applyAdditionalScript(project, linkedModule)
+
+        project.extensions.add("deft", DeftGradleExtension(project))
+
+        // Apply after evaluate (For example to access deft extension).
+        project.afterEvaluate {
+            appliedParts.forEach(BindingPluginPart::applyAfterEvaluate)
+        }
     }
 
     private fun applyRepositoryAttributes(
@@ -80,12 +98,6 @@ class BindingProjectPlugin : Plugin<Project> {
                     }
                 }
             }
-        }
-    }
-
-    private fun applyAdditionalScript(project: Project, linkedModule: PotatoModuleWrapper) {
-        linkedModule.additionalScript?.apply {
-            project.apply(mapOf("from" to absolutePathString()))
         }
     }
 

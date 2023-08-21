@@ -3,14 +3,11 @@ package org.jetbrains.deft.proto.gradle.kmpp
 import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.EntryPointType
-import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.LeafFragmentWrapper
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.*
-import org.jetbrains.deft.proto.gradle.findEntryPoint
 import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
-import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilationName
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -60,18 +57,46 @@ class KMPPBindingPluginPart(
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-    fun apply() {
+    override val needToApply = true
+
+    override fun applyBeforeEvaluate() {
         project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
         initTargets()
         initFragments()
     }
 
+    override fun applyAfterEvaluate() {
+        clearNonManagerSourceSetDirs()
+        if (useDeftLayout) adjustSourceDirsDeftSpecific()
+    }
+
+    private fun clearNonManagerSourceSetDirs() {
+        // Clear sources and resources for non created by us source sets.
+        // Can be called after project evaluation.
+        kotlinMPE.sourceSets.all {
+            if (it.deftFragment != null) return@all
+            it.kotlin.setSrcDirs(emptyList<File>())
+            it.resources.setSrcDirs(emptyList<File>())
+        }
+    }
+
+    /**
+     * Set deft specific directory layout.
+     */
+    private fun adjustSourceDirsDeftSpecific() {
+        module.fragments.forEach { fragment ->
+            val sourceSet = fragment.kotlinSourceSet
+            // Set sources and resources.
+            sourceSet?.kotlin?.setSrcDirs(fragment.sourcePaths)
+            sourceSet?.resources?.setSrcDirs(fragment.resourcePaths)
+        }
+    }
+
     fun afterAll() {
-        // Need after evaluate to catch up android compilations creation.
+        // Need after evaluate to catch up android compilation creation.
         project.afterEvaluate {
             module.leafFragments.forEach { fragment ->
                 with(fragment.target ?: return@forEach) {
-                    val name = fragment.compilationName
                     fragment.compilation?.apply {
                         fragment.parts.find<KotlinPart>()?.let {
                             kotlinOptions::allWarningsAsErrors trySet it.allWarningsAsErrors
@@ -149,6 +174,7 @@ class KMPPBindingPluginPart(
                 (module.type == ProductType.IOS_APP && !fragment.isTest) -> framework(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }
+
                 fragment.isTest -> test(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }
@@ -193,14 +219,6 @@ class KMPPBindingPluginPart(
         val isJava = module.fragments.any { it.platforms.contains(Platform.JVM) }
         val aware = if (isAndroid) androidAware else if (isJava) javaAware else noneAware
         with(aware) aware@{
-            // Clear sources and resources for non created by us source sets.
-            // Can be called after project evaluation.
-            kotlinMPE.sourceSets.all {
-                if (it.deftFragment != null) return@all
-                it.kotlin.setSrcDirs(emptyList<File>())
-                it.resources.setSrcDirs(emptyList<File>())
-            }
-
             // First iteration - create source sets and add dependencies.
             module.fragments.forEach { fragment ->
                 fragment.maybeCreateSourceSet {
@@ -275,19 +293,16 @@ class KMPPBindingPluginPart(
                 val sourceSet = fragment.kotlinSourceSet
                 // Set dependencies.
                 fragment.fragmentDependencies.forEach {
-                    when(it.type) {
+                    when (it.type) {
                         FragmentDependencyType.REFINE ->
                             sourceSet?.doDependsOn(it.target)
+
                         FragmentDependencyType.FRIEND ->
                             // TODO Add associate with for related compilations.
                             // Not needed for default "test" - "main" relations.
-                            run {  }
+                            run { }
                     }
                 }
-
-                // Set sources and resources.
-                sourceSet?.kotlin?.setSrcDirs(fragment.sourcePaths)
-                sourceSet?.resources?.setSrcDirs(fragment.resourcePaths)
             }
 
             // Third iteration - adjust kotlin prebuilt source sets to match created ones.

@@ -3,12 +3,9 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.ModelInit
-import org.jetbrains.deft.proto.frontend.ProductType
 import org.jetbrains.deft.proto.frontend.resolve.resolved
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import java.nio.file.Path
 import kotlin.io.path.extension
-import kotlin.io.path.readText
 
 
 /**
@@ -29,20 +26,6 @@ class SettingsPluginRun(
         settings.gradle.knownModel = model
         initProjects(settings, model)
 
-        // Search for additional plugins to apply.
-        val foundPlugins = model.modules.flatMap { module ->
-            val additionalScript = module.additionalScript
-            val foundPlugins = additionalScript?.let { parseAdditionalScript(it) }
-            foundPlugins ?: emptyList()
-        }.toMap()
-        settings.pluginManagement { pluginMgmnt ->
-            foundPlugins.forEach {
-                if (it.value != null) {
-                    pluginMgmnt.plugins.id(it.key).version(it.value!!)
-                }
-            }
-        }
-
         // Initialize plugins for each module.
         settings.gradle.beforeProject { project ->
             /**
@@ -58,17 +41,6 @@ class SettingsPluginRun(
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject
 
-            // Apply Android plugin.
-            if (connectedModule.androidNeeded) when (connectedModule.type) {
-                ProductType.LIB -> project.plugins.apply("com.android.library")
-                else -> project.plugins.apply("com.android.application")
-            }
-
-            // Apply additional plugins.
-            val foundProjectPlugins = connectedModule.additionalScript
-                ?.let { parseAdditionalScript(it) }
-            foundProjectPlugins?.forEach { project.plugins.apply(it.first) }
-
             // Apply Kotlin plugins.
             if (connectedModule.buildFile.extension == "yaml") {
                 project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
@@ -80,16 +52,4 @@ class SettingsPluginRun(
             }
         }
     }
-}
-
-private val pluginApplicationRegex = "// plugin (\\S+)( version (\\S+))?\n".toRegex()
-
-fun parseAdditionalScript(script: Path): List<Pair<String, String?>> {
-    val matches = pluginApplicationRegex.findAll(script.readText())
-    val foundPlugins = matches.map {
-        val pluginId = it.groupValues[1]
-        val pluginVersion = if (it.groupValues.size > 3) it.groupValues[3] else null
-        pluginId to pluginVersion
-    }.toList()
-    return foundPlugins
 }

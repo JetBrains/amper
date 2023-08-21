@@ -1,7 +1,11 @@
 package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.PotatoModule
+import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
+import org.jetbrains.deft.proto.frontend.forClosure
+import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -10,11 +14,6 @@ import kotlin.io.path.*
 val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
 val PotatoModule.buildDir get() = buildFile.parent
-
-val PotatoModule.additionalScript
-    get() = buildDir
-        .resolve("Pot.gradle.kts")
-        .takeIf { it.exists() }
 
 /**
  * Get or create string key-ed binding map from extension properties.
@@ -33,13 +32,6 @@ fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String) = try {
  */
 operator fun PotatoModuleWrapper.contains(platform: Platform) =
     artifactPlatforms.contains(platform)
-
-val PotatoModuleWrapper.androidNeeded get() = Platform.ANDROID in this
-val PotatoModuleWrapper.javaNeeded get() = Platform.JVM in this
-
-val PotatoModuleWrapper.appleNeeded get() = type == ProductType.IOS_APP
-
-val PotatoModuleWrapper.composeNeeded: Boolean get() = leafFragments.any { it.parts.find<ComposePart>()?.enabled == true }
 
 /**
  * Try extract zero or single element from collection,
@@ -61,6 +53,10 @@ fun <T> Collection<T>.requireSingle(errorMessage: () -> String): T =
  */
 // TODO Add caching for separated fragments.
 enum class EntryPointType(val symbolName: String) { NATIVE("main"), JVM("MainKt") }
+
+val BindingPluginPart.hasGradleScripts get() = module.buildDir.run {
+    resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
+}
 
 context(DeftNamingConventions)
 @OptIn(ExperimentalPathApi::class)

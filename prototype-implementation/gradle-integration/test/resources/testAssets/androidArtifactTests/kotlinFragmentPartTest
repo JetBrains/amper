@@ -1,7 +1,7 @@
 :
   androidDebug:
    depends(common,commonMain)
-   sourceDirs(src/debug/kotlin)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidInstrumentedTest:
@@ -11,7 +11,7 @@
    implDeps()
   androidInstrumentedTestDebug:
    depends()
-   sourceDirs(src/androidTestDebug/kotlin)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidMain:
@@ -21,7 +21,7 @@
    implDeps()
   androidRelease:
    depends(common,commonMain)
-   sourceDirs(src/release/kotlin)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidUnitTest:
@@ -31,12 +31,12 @@
    implDeps()
   androidUnitTestDebug:
    depends(commonTest)
-   sourceDirs(src/testDebug/kotlin)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidUnitTestRelease:
    depends(commonTest)
-   sourceDirs(src/testRelease/kotlin)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   common:

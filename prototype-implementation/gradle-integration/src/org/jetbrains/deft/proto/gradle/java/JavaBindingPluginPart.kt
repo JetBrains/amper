@@ -17,6 +17,7 @@ import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragmen
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
+import org.jetbrains.deft.proto.gradle.useDeftLayout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -25,8 +26,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-fun applyJavaAttributes(ctx: PluginPartCtx) = JavaBindingPluginPart(ctx).apply()
 
 /**
  * Plugin logic, bind to specific module, when only default target is available.
@@ -45,7 +44,9 @@ class JavaBindingPluginPart(
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-    fun apply() {
+    override val needToApply by lazy { Platform.JVM in module }
+
+    override fun applyBeforeEvaluate() {
         applyJavaTargetForKotlin()
 
         if (Platform.ANDROID in module) {
@@ -58,6 +59,10 @@ class JavaBindingPluginPart(
 
         adjustJavaGeneralProperties()
         addJavaIntegration()
+    }
+
+    override fun applyAfterEvaluate() {
+        if (useDeftLayout) adjustSourceDirsDeftSpecific()
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
@@ -118,7 +123,9 @@ class JavaBindingPluginPart(
         platformFragments.forEach {
             it.maybeCreateJavaSourceSet()
         }
+    }
 
+    private fun adjustSourceDirsDeftSpecific() {
         javaPE.sourceSets.all {
             val fragment = it.deftFragment ?: return@all
             it.java.setSrcDirs(fragment.sourcePaths)

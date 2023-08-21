@@ -16,11 +16,11 @@
    implDeps()
   jvmMain:
    depends(commonMain)
-   sourceDirs(src/jvmMain/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmTest:
    depends(commonTest)
-   sourceDirs(src/jvmTest/java)
+   sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()

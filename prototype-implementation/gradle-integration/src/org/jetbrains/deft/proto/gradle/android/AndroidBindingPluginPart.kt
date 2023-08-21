@@ -4,26 +4,31 @@ import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.AndroidPart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.ProductType
+import org.jetbrains.deft.proto.gradle.android.AndroidDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.deft.proto.gradle.contains
+import org.jetbrains.deft.proto.gradle.hasGradleScripts
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
+import org.jetbrains.deft.proto.gradle.useDeftLayout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-
-fun applyAndroidAttributes(ctx: PluginPartCtx) = AndroidBindingPluginPart(ctx).apply()
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
     ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.ANDROID), DeftNamingConventions {
 
-    internal val androidPE = project.extensions.findByName("android") as BaseExtension?
+    // Use `get()` property notation, since extension is undefined before [applyBeforeEvaluate] call.
+    internal val androidPE get() = project.extensions.findByName("android") as BaseExtension?
 
+    // Use `get()` property notation, since extension is undefined before [applyBeforeEvaluate] call.
     internal val androidSourceSets get() = androidPE?.sourceSets
 
 }
@@ -38,19 +43,46 @@ class AndroidBindingPluginPart(
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
+    override val needToApply by lazy { Platform.ANDROID in module }
+
     /**
      * Entry point for this plugin part.
      */
-    fun apply() {
+    override fun applyBeforeEvaluate() {
+        when (module.type) {
+            ProductType.LIB -> project.plugins.apply("com.android.library")
+            else -> project.plugins.apply("com.android.application")
+        }
+
         adjustCompilations()
-        adjustAndroidSourceSets()
         applySettings()
+        clearNonManagerSourceSetDirs()
+        if (!hasGradleScripts) adjustAndroidSourceSetsDeftSpecific()
     }
 
-    private fun adjustAndroidSourceSets() = with(AndroidDeftNamingConvention) {
+    override fun onDefExtensionChanged() {
+        // Called only when extension in script is toggled, so
+        // [adjustAndroidSourceSetsDeftSpecific] invocation in [applyBeforeEvaluate]
+        // was not triggered.
+        if (useDeftLayout) adjustAndroidSourceSetsDeftSpecific()
+    }
+
+    private fun clearNonManagerSourceSetDirs() {
         // Clear android source sets that are not created by us.
+        // Can be evaluated after project evaluation.
+        androidSourceSets?.all {
+            val fragment = it.deftFragment
+            if (fragment == null) {
+                it.kotlin.setSrcDirs(emptyList<Any>())
+                it.java.setSrcDirs(emptyList<Any>())
+                it.resources.setSrcDirs(emptyList<Any>())
+            }
+        }
+    }
+
+    private fun adjustAndroidSourceSetsDeftSpecific() = with(AndroidDeftNamingConvention) {
         // Adjust that source sets whose matching kotlin source sets are created by us.
-        // Can be called after project evaluation.
+        // Can be evaluated after project evaluation.
         androidSourceSets?.all {
             val fragment = it.deftFragment
             if (fragment != null) {
@@ -58,11 +90,8 @@ class AndroidBindingPluginPart(
                 it.java.setSrcDirs(fragment.sourcePaths)
                 it.resources.setSrcDirs(fragment.resourcePaths)
                 it.res.setSrcDirs(fragment.androidResPaths)
+                println("FOO - ${fragment.sourcePath}/Manifest.xml")
                 it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
-            } else {
-                it.kotlin.setSrcDirs(emptyList<Any>())
-                it.java.setSrcDirs(emptyList<Any>())
-                it.resources.setSrcDirs(emptyList<Any>())
             }
         }
     }
@@ -109,10 +138,6 @@ class AndroidBindingPluginPart(
                 compileOptions.setTargetCompatibility(it)
             }
         }
-//        if (module.leafNonTestFragments.any { it.parts.find<ComposePart>()?.enabled == true }) {
-//            @Suppress("UnstableApiUsage")
-//            androidPE?.buildFeatures?.compose = true
-//        }
         leafPlatformFragments.forEach { fragment ->
             val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {
