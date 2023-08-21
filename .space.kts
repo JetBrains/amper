@@ -86,7 +86,6 @@ registerJobInPrototypeDir(
     gradlew(
         "--info",
         "--stacktrace",
-        "--quiet",
         "allTests",
         "publishAllPublicationsToScratchRepository",
     )
