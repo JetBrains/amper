@@ -67,7 +67,7 @@ class KMPPBindingPluginPart(
     override fun applyAfterEvaluate() {
         // IOS Compose uses UiKit, so we need to explicitly enable it, since it is experimental.
         project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
-        clearNonManagerSourceSetDirs()
+        if (useDeftLayout) clearNonManagerSourceSetDirs()
         if (useDeftLayout) adjustSourceDirsDeftSpecific()
     }
 
