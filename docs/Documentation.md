@@ -120,7 +120,6 @@ Other product types what we plan to support in the future:
 
 The product types is supposed to be [extensible](#extensibility), so the following types are also possible:
 - `jvm/war`
-- `jvm/deft-plugin`
 - `jvm/intellij-plugin`
 
 It's also possible to specify several products (not yet implemented), which can come handy for multi-platform applications, or interop with other build tools like Xcode:
