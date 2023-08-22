@@ -24,7 +24,9 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
         project.plugins.apply("org.jetbrains.gradle.apple.applePlugin")
 
         // Add ios App
-        applePE?.iosApp()
+        applePE?.iosApp {
+            productInfo["UILaunchScreen"] = mapOf<String, Any>()
+        }
 
         // Get main and test apple sourcesets added by apple plugins
         val appleMain = applePE?.sourceSets?.findByName("iosAppMain") ?: error("It is required to have iosAppMain sourceSet")
