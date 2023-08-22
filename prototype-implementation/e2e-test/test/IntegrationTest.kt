@@ -149,5 +149,23 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
-    fun iosApp() = test("ios-app", "buildIosAppMain", expectOutputToHave = "BUILD SUCCESSFUL")
+    fun iosApp() = test(
+        "ios-app",
+        "buildIosAppMain",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    fun `testing gradle interoperability`() = test(
+        projectName = "gradle-interoperability-gradle-layout",
+        "testRun",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
+    fun `testing gradle interoperability with deft layout`() = test(
+        projectName = "gradle-interoperability-deft-layout",
+        "testRun",
+        expectOutputToHave = "Hello, World!",
+    )
 }
