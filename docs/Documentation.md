@@ -1,6 +1,6 @@
 ## Basics
 
-**Pot** is a directory with a `Pot.yaml` manifest file, sources resources used to build a certain product.  A Pot manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
+**Pot** is a directory with a `Pot.yaml` manifest file, sources and resources, which are used to build a certain product.  A Pot manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
 _How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
 Sources and resources can't be shared by several Pots.
@@ -58,7 +58,7 @@ _NOTE: In the future we plan to also support a 'flat' multi-platform layout like
 It requires some investment in the IntelliJ platform, so we haven't yet done it._ 
  
 ```
-|-src/             # common and platform-specisic code
+|-src/             # common and platform-specific code
 |  |-main.kt      
 |  |-util.kt       #  API with ‘expect’ part
 |  |-util@ios.kt   #  API implementation with ‘actual’ part for iOS
@@ -1076,7 +1076,7 @@ Platforms and variants in the file layout:
 
 ## Templates
 
-In modularized projects there is often a need to have certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
+In modularized projects there is often a need to have a certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
 DSL offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.Pot-template.yaml` and have same structure as `Pot.yaml` files. Templates could be applied to any Pot.yaml in the `apply:` section.
 
@@ -1100,7 +1100,7 @@ settings:
 
 Sections in the template can also have `@platform`-qualifiers. See the [Multi-platform configuration](#multi-platform-configuration) section for details.
 
-_NOTE: Template files can't have `products:` and `apply:` sections. That is templates can't be recursive. Templates can't define product lists._
+_NOTE: Template files can't have `products:` and `apply:` sections. That is, templates can't be recursive. Templates can't define product lists._
 
 Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
 - Scalar values (strings,  numbers etc.) are overridden.
