@@ -306,21 +306,20 @@ class KMPPBindingPluginPart(
                 }
             }
 
-            // Third iteration - adjust kotlin prebuilt source sets to match created ones.
+            // Third iteration - adjust kotlin prebuilt source sets (UNMANAGED ones)
+            // to match created ones.
             module.leafFragments.forEach { fragment ->
                 val platform = fragment.platform
                 val target = fragment.target ?: return@forEach
                 with(target) {
-                    // setting jvmTarget for android (as android compilations are appeared after project evaluation,
-                    // also their names do not match with our artifact names)
-                    if (platform == Platform.ANDROID) {
-                        // FIXME ??
-                    }
                     val compilation = fragment.compilation ?: return@forEach
                     compilation.source(fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}"))
                     val compilationSourceSet = compilation.defaultSourceSet
                     if (compilationSourceSet != fragment.kotlinSourceSet) {
-                        fragment.kotlinSourceSet?.dependsOn(compilationSourceSet)
+                        // Add dependency from compilation source set ONLY for unmanaged source sets.
+                        if (compilationSourceSet.deftFragment == null) {
+                            compilationSourceSet.dependsOn(fragment.kotlinSourceSet ?: return@with)
+                        }
                     }
                 }
             }

@@ -1,6 +1,6 @@
 :
   common:
-   depends(jvmMain)
+   depends()
    sourceDirs(common/src)
    lang(api=1.9 version=1.9 progressive=true features=InlineClasses)
    implDeps()
@@ -15,7 +15,7 @@
    lang(api=1.9 version=1.9 progressive=true features=InlineClasses)
    implDeps()
   jvmMain:
-   depends(commonMain)
+   depends(common,commonMain)
    sourceDirs()
    lang(api=1.9 version=1.9 progressive=true features=InlineClasses)
    implDeps()

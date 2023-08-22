@@ -1,6 +1,6 @@
 :outer
   common:
-   depends(jvmMain)
+   depends()
    sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -15,7 +15,7 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmMain:
-   depends(commonMain)
+   depends(common,commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -26,7 +26,7 @@
    implDeps()
 :outer:intermediate:inner
   common:
-   depends(jvmMain)
+   depends()
    sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -41,7 +41,7 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   jvmMain:
-   depends(commonMain)
+   depends(common,commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
