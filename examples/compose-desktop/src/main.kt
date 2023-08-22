@@ -19,7 +19,7 @@ fun App() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BasicText("Hello, Deft!")
+            BasicText("Hello, World!")
         }
     }
 }
