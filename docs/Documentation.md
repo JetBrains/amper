@@ -109,7 +109,7 @@ Product type describes the target platform and the type of the product at the sa
 - `linux/app`
 - `macos/app`
 - `android/app` - an Android VM application  
-- `ios/app` - an iOS/iPadOS application (not yet implemented)
+- `ios/app` - an iOS/iPadOS application
 - `watchos/app` - an Apple Watch application (not yet implemented)
 
 Other product types what we plan to support in the future:

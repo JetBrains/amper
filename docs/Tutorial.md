@@ -246,7 +246,6 @@ settings:
 ```
 
 Pot.yaml for iOS:
-_NOTE: iOS applications are currently not implemented._
 
 ```YAML
 product: ios/app
