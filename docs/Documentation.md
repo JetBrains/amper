@@ -453,13 +453,13 @@ settings:
 _NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
 Also, certain dependencies might be added automatically when Compose is enabled._
 
-_NOTE: For Compose Android you also need to set a couple if flags in `gradle.properties`:_
+_NOTE: For Compose Android and iOS you also need to set a couple if flags in `gradle.properties`:_
 ```properties
 # Compose requires AndroidX
 android.useAndroidX=true
 
-# Android Gradle Plugin a log of memory
-org.gradle.jvmargs=-Xmx3g
+# Android and iOS build require more memory
+org.gradle.jvmargs=-Xmx4g
 ```
 
 ### Tests
