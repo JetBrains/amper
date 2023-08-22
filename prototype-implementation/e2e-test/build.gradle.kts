@@ -1,20 +1,9 @@
-plugins {
-    kotlin("multiplatform")
-}
-
-repositories {
-    mavenCentral()
-}
+deft.useDeftLayout = true
 
 kotlin {
-    jvm()
-
     sourceSets {
-        commonTest.configure {
-            kotlin.srcDirs("src/")
+        val commonTest by sourceSets.getting {
             dependencies {
-                implementation(kotlin("test"))
-                implementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
                 implementation(dependencies.gradleTestKit())
             }
         }

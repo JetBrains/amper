@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
@@ -64,6 +65,8 @@ class KMPPBindingPluginPart(
     }
 
     override fun applyAfterEvaluate() {
+        // IOS Compose uses UiKit, so we need to explicitly enable it, since it is experimental.
+        project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
         clearNonManagerSourceSetDirs()
         if (useDeftLayout) adjustSourceDirsDeftSpecific()
     }

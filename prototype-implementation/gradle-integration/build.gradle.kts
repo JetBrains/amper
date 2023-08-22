@@ -1,10 +1,13 @@
-// Don't remove this comment! It is parsed.
-// plugin org.gradle.java-gradle-plugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-apply(plugin="com.github.johnrengelman.shadow")
 
+plugins {
+    id("java-gradle-plugin")
+    id("com.github.johnrengelman.shadow")
+}
 
-extensions.findByType(GradlePluginDevelopmentExtension::class.java)?.apply {
+deft.useDeftLayout = true
+
+gradlePlugin {
     plugins {
         create("deftProtoSettingsPlugin") {
             id = "org.jetbrains.deft.proto.settings.plugin"
@@ -16,7 +19,7 @@ extensions.findByType(GradlePluginDevelopmentExtension::class.java)?.apply {
 // A workaround about hard coded "java" software component, that
 // is used in gradle development plugin.
 afterEvaluate {
-    extensions.findByType(PublishingExtension::class.java)!!.apply {
+    publishing {
         publications.findByName("pluginMaven")?.let {
             publications.remove(it)
             publications.maybeCreate("pluginMavenDecorated", MavenPublication::class.java).apply {
@@ -43,16 +46,16 @@ afterEvaluate {
 //
 // So, I have to copy such resources manually.
 //
-val copyDescriptorsHack = tasks.create<Copy>("copyDescriptorsHack") {
+val copyDescriptorsHack by tasks.creating(Copy::class) {
     dependsOn("pluginDescriptors")
     from("build/pluginDescriptors")
     destinationDir = file("build/pluginDescriptorsHack/META-INF/gradle-plugins")
 }
 
-tasks.findByName("jvmProcessResources")!!.apply {
-    dependsOn("pluginDescriptors")
-    dependsOn("copyDescriptorsHack")
+tasks.findByName("jvmProcessResources")?.apply {
     this as AbstractCopyTask
+    dependsOn("pluginDescriptors")
+    dependsOn(copyDescriptorsHack)
     from(file("build/pluginDescriptorsHack"))
 }
 
@@ -70,17 +73,14 @@ tasks.withType<PluginUnderTestMetadata>().configureEach {
 }
 
 // Workaround for somehow appearing duplicates.
-tasks.all {
-    if (name != "distTar" && name != "distZip") return@all
+tasks.configureEach {
+    if (name != "distTar" && name != "distZip") return@configureEach
     this as AbstractCopyTask
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-
-extensions.getByType(JavaApplication::class).mainClass = ""
-
+application.mainClass = ""
 val jvmRuntimeClasspathConfiguration = configurations.getByName("jvmRuntimeClasspath")
-
 tasks.withType<ShadowJar> {
     archiveBaseName = "gradle-integration"
     archiveAppendix = ""
@@ -89,6 +89,5 @@ tasks.withType<ShadowJar> {
     configurations.clear()
     configurations.add(jvmRuntimeClasspathConfiguration)
 }
-
 tasks.getByName("jar").dependsOn("shadowJar")
 tasks.getByName("jar").enabled = false
