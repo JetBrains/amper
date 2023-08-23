@@ -8,7 +8,6 @@ import androidx.compose.ui.window.ComposeUIViewController
 
 @Composable
 fun App() {
-
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize(),
