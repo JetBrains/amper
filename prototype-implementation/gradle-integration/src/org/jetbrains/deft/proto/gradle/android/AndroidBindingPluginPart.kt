@@ -14,11 +14,15 @@ import org.jetbrains.deft.proto.gradle.hasGradleScripts
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
+import org.jetbrains.deft.proto.gradle.trySetSystemProperty
 import org.jetbrains.deft.proto.gradle.useDeftLayout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import javax.xml.stream.XMLEventFactory
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLOutputFactory
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
@@ -49,6 +53,7 @@ class AndroidBindingPluginPart(
      * Entry point for this plugin part.
      */
     override fun applyBeforeEvaluate() {
+        adjustXmlFactories()
         when (module.type) {
             ProductType.LIB -> project.plugins.apply("com.android.library")
             else -> project.plugins.apply("com.android.application")
@@ -58,6 +63,25 @@ class AndroidBindingPluginPart(
         applySettings()
         clearNonManagerSourceSetDirs()
         if (!hasGradleScripts) adjustAndroidSourceSetsDeftSpecific()
+    }
+
+    /**
+     * W/A for service loading conflict between apple plugin
+     * and android plugin.
+     */
+    private fun adjustXmlFactories() {
+        trySetSystemProperty(
+            XMLInputFactory::class.qualifiedName!!,
+            "com.sun.xml.internal.stream.XMLInputFactoryImpl"
+        )
+        trySetSystemProperty(
+            XMLOutputFactory::class.qualifiedName!!,
+            "com.sun.xml.internal.stream.XMLOutputFactoryImpl"
+        )
+        trySetSystemProperty(
+            XMLEventFactory::class.qualifiedName!!,
+            "com.sun.xml.internal.stream.events.XMLEventFactoryImpl"
+        )
     }
 
     override fun onDefExtensionChanged() {

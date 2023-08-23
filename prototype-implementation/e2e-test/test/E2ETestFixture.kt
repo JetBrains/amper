@@ -52,6 +52,11 @@ open class E2ETestFixture(private val pathToProjects: String) {
         gradleFile.writeText(
             """
                 pluginManagement {
+                    repositories {
+                        mavenCentral()
+                        google()
+                        gradlePluginPortal()
+                    }
                     includeBuild("$implementationDir")
                 }
     

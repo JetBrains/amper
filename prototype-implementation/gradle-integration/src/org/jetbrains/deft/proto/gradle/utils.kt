@@ -54,9 +54,10 @@ fun <T> Collection<T>.requireSingle(errorMessage: () -> String): T =
 // TODO Add caching for separated fragments.
 enum class EntryPointType(val symbolName: String) { NATIVE("main"), JVM("MainKt") }
 
-val BindingPluginPart.hasGradleScripts get() = module.buildDir.run {
-    resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
-}
+val BindingPluginPart.hasGradleScripts
+    get() = module.buildDir.run {
+        resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
+    }
 
 context(DeftNamingConventions)
 @OptIn(ExperimentalPathApi::class)
@@ -92,4 +93,12 @@ internal fun findEntryPoint(
 
     logger.info("Entry point discovered at $result")
     return result
+}
+
+/**
+ * Set the property if its value is missing.
+ */
+fun trySetSystemProperty(key: String, value: String) {
+    if (System.getProperty(key) == null)
+        System.setProperty(key, value)
 }

@@ -2,7 +2,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java-gradle-plugin")
-    id("com.github.johnrengelman.shadow")
 }
 
 deft.useDeftLayout = true
@@ -78,16 +77,3 @@ tasks.configureEach {
     this as AbstractCopyTask
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
-application.mainClass = ""
-val jvmRuntimeClasspathConfiguration = configurations.getByName("jvmRuntimeClasspath")
-tasks.withType<ShadowJar> {
-    archiveBaseName = "gradle-integration"
-    archiveAppendix = ""
-    archiveClassifier = ""
-    isZip64 = true
-    configurations.clear()
-    configurations.add(jvmRuntimeClasspathConfiguration)
-}
-tasks.getByName("jar").dependsOn("shadowJar")
-tasks.getByName("jar").enabled = false
