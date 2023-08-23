@@ -5,14 +5,14 @@
 - Install and configure the latest Xcode for iOS samples.
  
 
- - Try opening examples projects:
-   - [JVM Hello World](../examples/jvm-kotlin+java)
-   - [Compose Desktop](../examples/compose-desktop)
-   - [Kotlin Multiplatform](../examples/multiplatform)
+- Try opening examples projects:
+  - [JVM Hello World](../examples/jvm-kotlin+java)
+  - [Compose Desktop](../examples/compose-desktop)
+  - [Kotlin Multiplatform](../examples/multiplatform)
 
 
- - See the [tutorial](Tutorial.md) and [documentation](Documentation.md) for the next steps.
- 
+- See the [tutorial](Tutorial.md) and [documentation](Documentation.md) for the next steps.
+- Also, check the list of [known issues](KnownIssues.md)  
 
 
 
