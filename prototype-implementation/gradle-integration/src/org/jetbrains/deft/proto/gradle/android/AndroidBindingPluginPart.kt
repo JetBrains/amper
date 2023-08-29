@@ -56,6 +56,11 @@ class AndroidBindingPluginPart(
 
         adjustCompilations()
         applySettings()
+        // Adjust android source sets in case of gradle script absence.
+        // We need to do this here, since AGP tries to access manifest before
+        // `afterProject` evaluation.
+        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
+            adjustAndroidSourceSetsDeftSpecific()
     }
 
     override fun applyAfterEvaluate() {
@@ -84,17 +89,21 @@ class AndroidBindingPluginPart(
         }
     }
 
+    private var sourceSetsAdjusted = false
+
     private fun adjustAndroidSourceSetsDeftSpecific() = with(AndroidDeftNamingConvention) {
-        // Adjust that source sets whose matching kotlin source sets are created by us.
-        // Can be evaluated after project evaluation.
-        androidSourceSets?.all {
-            val fragment = it.deftFragment ?: return@all
-            it.kotlin.setSrcDirs(fragment.sourcePaths)
-            it.java.setSrcDirs(fragment.sourcePaths)
-            it.resources.setSrcDirs(fragment.resourcePaths)
-            it.res.setSrcDirs(fragment.androidResPaths)
-            println("FOO - ${fragment.sourcePath}/Manifest.xml")
-            it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
+        if (!sourceSetsAdjusted) {
+            sourceSetsAdjusted = true
+            // Adjust that source sets whose matching kotlin source sets are created by us.
+            // Can be evaluated after project evaluation.
+            androidSourceSets?.all {
+                val fragment = it.deftFragment ?: return@all
+                it.kotlin.setSrcDirs(fragment.sourcePaths)
+                it.java.setSrcDirs(fragment.sourcePaths)
+                it.resources.setSrcDirs(fragment.resourcePaths)
+                it.res.setSrcDirs(fragment.androidResPaths)
+                it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
+            }
         }
     }
 

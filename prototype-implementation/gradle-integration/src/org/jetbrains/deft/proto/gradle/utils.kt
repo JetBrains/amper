@@ -55,7 +55,10 @@ fun <T> Collection<T>.requireSingle(errorMessage: () -> String): T =
 enum class EntryPointType(val symbolName: String) { NATIVE("main"), JVM("MainKt") }
 
 val BindingPluginPart.hasGradleScripts
-    get() = module.buildDir.run {
+    get() = module.hasGradleScripts
+
+val PotatoModule.hasGradleScripts
+    get() = buildDir.run {
         resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
     }
 

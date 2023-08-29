@@ -15,7 +15,6 @@ val BindingPluginPart.deftLayout
         project.extensions
             .findByType(DeftGradleExtension::class.java)
             ?.layout
-            ?: error("[deft.layout] setting must be specified in build script!")
     else LayoutMode.DEFT
 
 fun <T : Any> Collection<KotlinSourceSet>.markSourceSetsWith(
