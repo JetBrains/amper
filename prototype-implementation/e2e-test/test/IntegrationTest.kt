@@ -168,6 +168,22 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "testRun",
         expectOutputToHave = "Hello, World!",
     )
+
+    @Test
+    fun `compose-multiplatform-ios-android-template (android)`() = test(
+        projectName = "compose-multiplatform-ios-android-template",
+        ":androidApp:assembleDebug",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    @EnabledOnOs(value = [OS.MAC])
+    fun `compose-multiplatform-ios-android-template (ios)`() = test(
+        projectName = "compose-multiplatform-ios-android-template",
+        ":shared:linkPodDebugFrameworkIosSimulatorArm64",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
     @Test
     fun `testing gradle interoperability with combined layout`() = test(
         projectName = "gradle-interoperability-combined-layout",

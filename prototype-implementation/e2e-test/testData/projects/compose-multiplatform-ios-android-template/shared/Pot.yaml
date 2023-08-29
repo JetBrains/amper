@@ -1,0 +1,28 @@
+product:
+  type: lib
+  platforms:
+    - iosArm64
+    - iosSimulatorArm64
+    - iosX64
+    - android
+
+apply:
+  - ../common.Pot-template.yaml
+
+settings:
+  android:
+    namespace: com.myapplication.common
+
+
+dependencies:
+  - org.jetbrains.compose.foundation:foundation:1.5.0-rc04
+  - org.jetbrains.compose.material:material:1.5.0-rc04
+  - org.jetbrains.compose.components:components-resources:1.5.0-rc04
+
+dependencies@android:
+  - notation: androidx.activity:activity-compose:1.6.1
+    exported: true
+  - notation: androidx.appcompat:appcompat:1.6.1
+    exported: true
+  - notation: androidx.core:core-ktx:1.9.0
+    exported: true

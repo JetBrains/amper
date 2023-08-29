@@ -54,11 +54,24 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
       ComposePart(enabled=null)
+  ios
+    External dependencies:
+    Src folder: src@ios
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
   iosArm64
     External dependencies:
     Src folder: src@iosArm64
     Fragment dependencies:
-      common (REFINE)
+      ios (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -71,7 +84,7 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64
     Fragment dependencies:
-      commonTest (REFINE)
+      iosTest (REFINE)
       iosArm64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
@@ -86,7 +99,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@iosSimulator
     Fragment dependencies:
-      common (REFINE)
+      ios (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -126,8 +139,22 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulator
     Fragment dependencies:
-      commonTest (REFINE)
+      iosTest (REFINE)
       iosSimulator (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
+  iosTest
+    External dependencies:
+    Src folder: test@ios
+    Fragment dependencies:
+      commonTest (REFINE)
+      ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)

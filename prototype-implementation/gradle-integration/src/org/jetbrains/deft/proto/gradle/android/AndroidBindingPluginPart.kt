@@ -127,6 +127,9 @@ class AndroidBindingPluginPart(
                         }
                     }
 
+                    // It is related with JetGradle plugin, which uses only `declaredSourceSets` for import
+                    // TODO (Anton Prokhorov): investigate
+                    it.source(fragment.kotlinSourceSet ?: error("Can not find a sourceSet for fragment: ${fragment.name}"))
                     it.kotlinSourceSets.forEach { compilationSourceSet ->
                         if (compilationSourceSet != fragment.kotlinSourceSet) {
                             println("Attaching fragment ${fragment.name} to compilation ${it.name}")

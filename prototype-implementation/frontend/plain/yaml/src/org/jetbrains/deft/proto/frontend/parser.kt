@@ -45,7 +45,14 @@ fun parseModule(config: Settings, osDetector: OsDetector = DefaultOsDetector()):
         .sortedBy { it.value.size }
         .associate { (key, value) -> key to (platforms intersect value) }
 
-    val subsets = (dependencySubsets + folderSubsets)
+    val aliasSubsets = aliasMap
+        .values
+        .filter { it.isNotEmpty() }
+        .map { it.map { it.pretty } }
+        .distinct()
+        .toSet()
+
+    val subsets = (dependencySubsets + folderSubsets + aliasSubsets)
         .map {
             it.flatMap {
                 aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it))

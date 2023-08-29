@@ -136,16 +136,16 @@ Fragments:
       ComposePart(enabled=null)
 Artifacts:
   isTest: false
-  [JVM, ANDROID, IOS_ARM64, JS]
+  [IOS_ARM64, JVM, ANDROID, JS]
     Fragments:
+      ios
       jvm
       android
-      ios
       js
   isTest: true
-  [JVM, ANDROID, IOS_ARM64, JS]
+  [IOS_ARM64, JVM, ANDROID, JS]
     Fragments:
+      iosTest
       jvmTest
       androidTest
-      iosTest
       jsTest

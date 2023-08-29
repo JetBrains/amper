@@ -26,11 +26,24 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
       ComposePart(enabled=null)
+  macos
+    External dependencies:
+    Src folder: src
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
   macosArm64
     External dependencies:
     Src folder: src@macosArm64
     Fragment dependencies:
-      common (REFINE)
+      macos (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -43,8 +56,22 @@ Fragments:
     External dependencies:
     Src folder: test@macosArm64
     Fragment dependencies:
-      commonTest (REFINE)
+      macosTest (REFINE)
       macosArm64 (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      TestPart(junitPlatform=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
+  macosTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      commonTest (REFINE)
+      macos (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -57,7 +84,7 @@ Fragments:
     External dependencies:
     Src folder: src@macosX64
     Fragment dependencies:
-      common (REFINE)
+      macos (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
@@ -70,7 +97,7 @@ Fragments:
     External dependencies:
     Src folder: test@macosX64
     Fragment dependencies:
-      commonTest (REFINE)
+      macosTest (REFINE)
       macosX64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])

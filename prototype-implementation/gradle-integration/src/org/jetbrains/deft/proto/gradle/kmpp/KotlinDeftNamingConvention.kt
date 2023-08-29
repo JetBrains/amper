@@ -63,8 +63,23 @@ object KotlinDeftNamingConvention {
         }
 
     context(KotlinTarget)
-    val LeafFragment.compilation
-        get() = compilations.findByName(compilationName)
+    val LeafFragment.compilation: KotlinCompilation<KotlinCommonOptions>?
+        get() {
+            if (platform == Platform.ANDROID) {
+                val androidCompilationName = buildString {
+                    if (variants.contains("debug") || variants.isEmpty()) {
+                        append("debug")
+                    } else {
+                        append("release")
+                    }
+                    if (isTest) {
+                        append("UnitTest")
+                    }
+                }
+                return compilations.findByName(androidCompilationName)
+            }
+            return compilations.findByName(compilationName)
+        }
 
     context(KotlinTarget)
     fun LeafFragment.maybeCreateCompilation(block: KotlinCompilation<*>.() -> Unit): KotlinCompilation<KotlinCommonOptions>? =
