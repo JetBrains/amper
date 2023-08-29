@@ -168,4 +168,18 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "testRun",
         expectOutputToHave = "Hello, World!",
     )
+    @Test
+    fun `testing gradle interoperability with combined layout`() = test(
+        projectName = "gradle-interoperability-combined-layout",
+        "testRun",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
+    fun `testing deft layout presence check`() = test(
+        projectName = "gradle-interoperability-layout-absence",
+        "testRun",
+        expectOutputToHave = "[deft.layout] setting must be specified in build script!",
+        shouldSucceed = false,
+    )
 }

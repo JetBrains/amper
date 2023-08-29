@@ -5,24 +5,20 @@ import org.jetbrains.deft.proto.frontend.AndroidPart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.ProductType
+import org.jetbrains.deft.proto.gradle.LayoutMode
 import org.jetbrains.deft.proto.gradle.android.AndroidDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.contains
-import org.jetbrains.deft.proto.gradle.hasGradleScripts
+import org.jetbrains.deft.proto.gradle.deftLayout
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
-import org.jetbrains.deft.proto.gradle.trySetSystemProperty
-import org.jetbrains.deft.proto.gradle.useDeftLayout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import javax.xml.stream.XMLEventFactory
-import javax.xml.stream.XMLInputFactory
-import javax.xml.stream.XMLOutputFactory
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
@@ -53,7 +49,6 @@ class AndroidBindingPluginPart(
      * Entry point for this plugin part.
      */
     override fun applyBeforeEvaluate() {
-        adjustXmlFactories()
         when (module.type) {
             ProductType.LIB -> project.plugins.apply("com.android.library")
             else -> project.plugins.apply("com.android.application")
@@ -61,46 +56,31 @@ class AndroidBindingPluginPart(
 
         adjustCompilations()
         applySettings()
-        clearNonManagerSourceSetDirs()
-        if (!hasGradleScripts) adjustAndroidSourceSetsDeftSpecific()
     }
 
-    /**
-     * W/A for service loading conflict between apple plugin
-     * and android plugin.
-     */
-    private fun adjustXmlFactories() {
-        trySetSystemProperty(
-            XMLInputFactory::class.qualifiedName!!,
-            "com.sun.xml.internal.stream.XMLInputFactoryImpl"
-        )
-        trySetSystemProperty(
-            XMLOutputFactory::class.qualifiedName!!,
-            "com.sun.xml.internal.stream.XMLOutputFactoryImpl"
-        )
-        trySetSystemProperty(
-            XMLEventFactory::class.qualifiedName!!,
-            "com.sun.xml.internal.stream.events.XMLEventFactoryImpl"
-        )
+    override fun applyAfterEvaluate() {
+        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED) {
+            clearNonManagerSourceSetDirs()
+            adjustAndroidSourceSetsDeftSpecific()
+        }
     }
 
     override fun onDefExtensionChanged() {
         // Called only when extension in script is toggled, so
         // [adjustAndroidSourceSetsDeftSpecific] invocation in [applyBeforeEvaluate]
         // was not triggered.
-        if (useDeftLayout) adjustAndroidSourceSetsDeftSpecific()
+        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
+            adjustAndroidSourceSetsDeftSpecific()
     }
 
     private fun clearNonManagerSourceSetDirs() {
         // Clear android source sets that are not created by us.
         // Can be evaluated after project evaluation.
         androidSourceSets?.all {
-            val fragment = it.deftFragment
-            if (fragment == null) {
-                it.kotlin.setSrcDirs(emptyList<Any>())
-                it.java.setSrcDirs(emptyList<Any>())
-                it.resources.setSrcDirs(emptyList<Any>())
-            }
+            it.deftFragment ?: return@all
+            it.kotlin.setSrcDirs(emptyList<Any>())
+            it.java.setSrcDirs(emptyList<Any>())
+            it.resources.setSrcDirs(emptyList<Any>())
         }
     }
 
@@ -108,15 +88,13 @@ class AndroidBindingPluginPart(
         // Adjust that source sets whose matching kotlin source sets are created by us.
         // Can be evaluated after project evaluation.
         androidSourceSets?.all {
-            val fragment = it.deftFragment
-            if (fragment != null) {
-                it.kotlin.setSrcDirs(fragment.sourcePaths)
-                it.java.setSrcDirs(fragment.sourcePaths)
-                it.resources.setSrcDirs(fragment.resourcePaths)
-                it.res.setSrcDirs(fragment.androidResPaths)
-                println("FOO - ${fragment.sourcePath}/Manifest.xml")
-                it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
-            }
+            val fragment = it.deftFragment ?: return@all
+            it.kotlin.setSrcDirs(fragment.sourcePaths)
+            it.java.setSrcDirs(fragment.sourcePaths)
+            it.resources.setSrcDirs(fragment.resourcePaths)
+            it.res.setSrcDirs(fragment.androidResPaths)
+            println("FOO - ${fragment.sourcePath}/Manifest.xml")
+            it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
         }
     }
 

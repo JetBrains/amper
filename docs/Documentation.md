@@ -1261,7 +1261,69 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 
 ### Gradle interop
 
-Work in progress, documentation is coming soon...
+*TL;DR:* There are examples of interop in [gradle-migration-part-1](../examples/gradle-migration-part-1)
+ and [gradle-migration-part-2](../examples/gradle-migration-part-2) directories.
+
+In a nutshell, current version of Deft runs on top of Gradle, so Gradle build scripts
+are supported natively. Within a Deft module you can add `build.gradle` or `build.gradle.kts` file
+to alter Gradle configurations. Build scripts settings has a higher priority, than ones in Pot files.
+
+Deft logic comes first, so all Deft managed kotlin source sets will be available in `kotlin` block.
+
+Say, if your `Pot.yaml` is like this:
+```yaml
+# Pot.yaml
+product:
+  type: lib
+  platforms: [jvm, android]
+```
+so you can access `common`, `jvm`, `android` kotlin source sets within Gradle build script:
+```kotlin
+// build.gradle.kts
+kotlin {
+    sourceSets {
+        val jvm by getting {
+            // your configs here
+        }
+        // ...
+    }
+}
+```
+
+Since Deft is applied before Gradle scripts are evaluated you need to remove `targets` part from
+kotlin block, since they will be already defined.
+
+*Note:* Current implementation has a limitation - you can't specify a version of a kotlin
+multiplatform plugin, android plugin, compose plugin or apple plugin, since they are bundled
+into Deft. So applying theese plugins will be like:
+```kotlin
+// build.gradle.kts
+plugins {
+    kotlin("multiplatform") // without version here.
+}
+```
+
+Yet, there are tricky cases with source layouts.
+To prevent confusion and provide smooth migration from Gradle to Deft you must specify 
+Deft layout setting within every project (in a build file) when Deft plugin is applied:
+```kotlin
+// build.gradle.kts
+deft {
+    layout = LayoutMode.DEFT
+    // layout = LayoutMode.GRADLE
+    // layout = LayoutMode.COMBINED
+}
+```
+When:
+ - DEFT layout mode is applied - all non deft source sets (event custom ones) are cleared.
+ - GRADLE layout is applied - all Gradle source set directories are preserved untouched.
+ - COMBINED layout is applied - all default source sets are cleared. All custom source sets
+   (created in build scripts) are untouched.
+   Also, `src` directory (common sources within DEFT layout) is renamed to `src@common` to
+   prevent messing with custom Gradle source sets in `src/<sourceSetName>/kotlin` directories.
+
+*Note:* Current implementation has a limitation - when using Gradle layout you need to rename
+`commonMain` source set directory with just `common`.
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).

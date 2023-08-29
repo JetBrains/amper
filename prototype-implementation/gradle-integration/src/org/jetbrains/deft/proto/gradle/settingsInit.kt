@@ -51,5 +51,22 @@ class SettingsPluginRun(
                 project.plugins.apply(BindingProjectPlugin::class.java)
             }
         }
+
+        settings.gradle.afterProject {
+            // W/A for XML factories mess within apple plugin classpath.
+            val hasAndroidPlugin = it.plugins.hasPlugin("com.android.application") ||
+                    it.plugins.hasPlugin("com.android.library")
+            if (hasAndroidPlugin) {
+                adjustXmlFactories()
+            }
+
+            // If project is managed by deft.
+            if (it.plugins.hasPlugin(BindingProjectPlugin::class.java)) {
+                // Just toggle layout field to check if [deft.layout] property
+                // is present in the build file.
+                it.extensions.findByType(DeftGradleExtension::class.java)?.layout
+            }
+            // Check if deft.layout property is specified
+        }
     }
 }

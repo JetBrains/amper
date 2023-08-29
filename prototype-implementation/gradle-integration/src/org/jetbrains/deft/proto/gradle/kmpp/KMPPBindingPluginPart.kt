@@ -61,14 +61,29 @@ class KMPPBindingPluginPart(
 
     override fun applyBeforeEvaluate() {
         initTargets()
+
+        // Mark all existing source sets to distinct them from user defined in build scripts.
+        kotlinMPE.sourceSets.markSourceSetsWith(notUserDefinedKey, NotUserDefined)
+
         initFragments()
     }
 
     override fun applyAfterEvaluate() {
         // IOS Compose uses UiKit, so we need to explicitly enable it, since it is experimental.
         project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
-        if (useDeftLayout) clearNonManagerSourceSetDirs()
-        if (useDeftLayout) adjustSourceDirsDeftSpecific()
+
+        // Clear commonMain source set explicitly, since it is not included in
+        // Deft fragments hierarchy.
+        kotlinMPE.sourceSets.all {
+            if (it.name == "commonMain") {
+                it.kotlin.setSrcDirs(emptyList<File>())
+                it.resources.setSrcDirs(emptyList<File>())
+            }
+        }
+        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED) {
+            clearNonManagerSourceSetDirs()
+            adjustSourceDirsDeftSpecific()
+        }
     }
 
     private fun clearNonManagerSourceSetDirs() {
@@ -76,8 +91,12 @@ class KMPPBindingPluginPart(
         // Can be called after project evaluation.
         kotlinMPE.sourceSets.all {
             if (it.deftFragment != null) return@all
-            it.kotlin.setSrcDirs(emptyList<File>())
-            it.resources.setSrcDirs(emptyList<File>())
+            val shouldClear = deftLayout == LayoutMode.DEFT ||
+                    deftLayout == LayoutMode.COMBINED && it.notUserDefined
+            if (shouldClear) {
+                it.kotlin.setSrcDirs(emptyList<File>())
+                it.resources.setSrcDirs(emptyList<File>())
+            }
         }
     }
 
@@ -182,10 +201,15 @@ class KMPPBindingPluginPart(
 
                 else -> executable(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
-                    entryPoint = if (part?.entryPoint != null) {
-                        part.entryPoint
-                    } else {
-                        findEntryPoint(fragment, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
+                    project.afterEvaluate {
+                        // Check if entry point was not set in build script.
+                        if (entryPoint == null) {
+                            entryPoint = if (part?.entryPoint != null) {
+                                part.entryPoint
+                            } else {
+                                findEntryPoint(fragment, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
+                            }
+                        }
                     }
                 }
             }

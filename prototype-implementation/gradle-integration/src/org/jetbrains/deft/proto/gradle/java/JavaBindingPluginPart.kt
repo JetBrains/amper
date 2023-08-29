@@ -7,17 +7,14 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.gradle.EntryPointType
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.deft.proto.gradle.contains
-import org.jetbrains.deft.proto.gradle.findEntryPoint
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
-import org.jetbrains.deft.proto.gradle.useDeftLayout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -62,7 +59,8 @@ class JavaBindingPluginPart(
     }
 
     override fun applyAfterEvaluate() {
-        if (useDeftLayout) adjustSourceDirsDeftSpecific()
+        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
+            adjustSourceDirsDeftSpecific()
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
@@ -89,15 +87,6 @@ class JavaBindingPluginPart(
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
         val javaPart = fragment.parts.find<JavaPart>()
-        javaAPE.apply {
-            if (module.type.isLibrary()) return@apply
-            val foundMainClass = if (javaPart?.mainClass != null) {
-                javaPart.mainClass
-            } else {
-                findEntryPoint(fragment, EntryPointType.JVM, logger)
-            }
-            mainClass.set(foundMainClass)
-        }
         javaPart?.target?.let {
             javaPE.targetCompatibility = JavaVersion.toVersion(it)
         }
@@ -106,6 +95,21 @@ class JavaBindingPluginPart(
         }
         project.tasks.withType(KotlinCompile::class.java).configureEach {
             it.javaPackagePrefix = javaPart?.packagePrefix
+        }
+        // Do when layout is known.
+        project.afterEvaluate {
+            javaAPE.apply {
+                // Check if main class is set in the build script.
+                if (mainClass.orNull == null) {
+                    if (module.type.isLibrary()) return@apply
+                    val foundMainClass = if (javaPart?.mainClass != null) {
+                        javaPart.mainClass
+                    } else {
+                        findEntryPoint(fragment, EntryPointType.JVM, logger)
+                    }
+                    mainClass.set(foundMainClass)
+                }
+            }
         }
     }
 

@@ -71,4 +71,18 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `gradle migration part 1`() = test(
+        projectName = "gradle-migration-part-1",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
+    fun `gradle migration part 2`() = test(
+        projectName = "gradle-migration-part-2",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
 }
