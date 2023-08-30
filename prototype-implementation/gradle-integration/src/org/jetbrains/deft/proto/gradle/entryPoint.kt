@@ -5,6 +5,7 @@ import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.resolve.resolved
 
+@Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val rootPath = settings.rootDir.toPath().toAbsolutePath()

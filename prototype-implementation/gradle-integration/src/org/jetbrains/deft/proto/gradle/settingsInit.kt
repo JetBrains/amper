@@ -2,8 +2,6 @@ package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.Model
-import org.jetbrains.deft.proto.frontend.ModelInit
-import org.jetbrains.deft.proto.frontend.resolve.resolved
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import kotlin.io.path.extension
 
@@ -14,15 +12,12 @@ import kotlin.io.path.extension
  * 2. Applying kotlin or KMP plugins.
  * 3. Associate gradle projects with modules.
  */
-@Suppress("unused")
 class SettingsPluginRun(
     private val settings: Settings,
     private val model: Model,
 ) {
 
     fun run() {
-        val rootPath = settings.rootDir.toPath().toAbsolutePath()
-        val model = ModelInit.getModel(rootPath).resolved
         settings.gradle.knownModel = model
         initProjects(settings, model)
 
