@@ -1264,11 +1264,12 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 *TL;DR:* There are examples of interop in [gradle-migration-part-1](../examples/gradle-migration-part-1)
  and [gradle-migration-part-2](../examples/gradle-migration-part-2) directories.
 
-In a nutshell, current version of Deft runs on top of Gradle, so Gradle build scripts
-are supported natively. Within a Deft module you can add `build.gradle` or `build.gradle.kts` file
+In a nutshell, current version runs on top of Gradle, so Gradle build scripts
+are supported natively. Within a Pot module you can add `build.gradle` or `build.gradle.kts` file
 to alter Gradle configurations. Build scripts settings has a higher priority, than ones in Pot files.
 
-Deft logic comes first, so all Deft managed kotlin source sets will be available in `kotlin` block.
+Pot configurations come first, so all managed kotlin source sets (created from Pot) will be 
+available in `kotlin` block.
 
 Say, if your `Pot.yaml` is like this:
 ```yaml
@@ -1290,12 +1291,12 @@ kotlin {
 }
 ```
 
-Since Deft is applied before Gradle scripts are evaluated you need to remove `targets` part from
-kotlin block, since they will be already defined.
+Since Pot configuration is applied before Gradle scripts are evaluated, you need to 
+remove `targets` part from kotlin block, since they will be already defined.
 
 *Note:* Current implementation has a limitation - you can't specify a version of a kotlin
-multiplatform plugin, android plugin, compose plugin or apple plugin, since they are bundled
-into Deft. So applying theese plugins will be like:
+multiplatform plugin, android plugin, compose plugin or apple plugin, since they are bundled. 
+So applying these plugins will be like:
 ```kotlin
 // build.gradle.kts
 plugins {
@@ -1304,8 +1305,8 @@ plugins {
 ```
 
 Yet, there are tricky cases with source layouts.
-To prevent confusion and provide smooth migration from Gradle to Deft you must specify 
-Deft layout setting within every project (in a build file) when Deft plugin is applied:
+To prevent confusion and provide smooth migration from Gradle you must specify 
+layout setting within every project (in a build file):
 ```kotlin
 // build.gradle.kts
 deft {
@@ -1315,7 +1316,7 @@ deft {
 }
 ```
 When:
- - DEFT layout mode is applied - all non deft source sets (event custom ones) are cleared.
+ - DEFT layout mode is applied - all non managed source sets (even custom ones) are cleared.
  - GRADLE layout is applied - all Gradle source set directories are preserved untouched.
  - COMBINED layout is applied - all default source sets are cleared. All custom source sets
    (created in build scripts) are untouched.
