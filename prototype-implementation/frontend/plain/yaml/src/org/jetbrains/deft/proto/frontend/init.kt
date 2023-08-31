@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.*
 import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
 import org.jetbrains.deft.proto.frontend.util.inputStreamOrNull
 import org.yaml.snakeyaml.Yaml
@@ -23,7 +24,7 @@ class YamlModelInit : ModelInit {
 
     override val name = "plain"
 
-    override fun getModel(root: Path): Model {
+    override fun getModel(root: Path): Result<Model> {
         val yaml = Yaml()
 
         if (!root.exists()) {
@@ -67,9 +68,11 @@ class YamlModelInit : ModelInit {
                 .map { DumbGradleModule(it) }
                 .collect(Collectors.toList())
 
-            object : Model {
-                override val modules: List<PotatoModule> = modules + gradleModuleWrappers
-            }
+            Result.success(
+                object : Model {
+                    override val modules: List<PotatoModule> = modules + gradleModuleWrappers
+                }
+            )
         }
     }
 }
