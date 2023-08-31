@@ -22,6 +22,11 @@ class BootstrapTest {
         val yamlMap = Yaml().load<Map<String, Map<String, Map<String, String>>>>(commonTemplateString)
         val version = yamlMap["settings"]?.get("publishing")?.get("version")
 
+        val core = Path.of("../")
+            .toAbsolutePath()
+            .resolve("core/build/libs/core-jvm-$version.jar")
+            .normalize()
+
         val gradleIntegration = Path.of("../")
             .toAbsolutePath()
             .resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
@@ -54,6 +59,7 @@ buildscript {
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0")
         classpath("org.yaml:snakeyaml:2.0")
         classpath("com.github.johnrengelman:shadow:8.1.1")
+        classpath(files("$core"))
         classpath(files("$gradleIntegration"))
         classpath(files("$frontendApi"))
         classpath(files("$plainFrontend"))

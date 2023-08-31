@@ -10,6 +10,7 @@ settings:
     group: org.jetbrains.deft.proto.settings.plugin
 
 dependencies:
+  - ../core
   - ../frontend-api
   - ../frontend/plain/yaml
   - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0

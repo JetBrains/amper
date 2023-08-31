@@ -1,24 +1,35 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.DeftException
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import java.nio.file.Path
-import java.util.ServiceLoader
+import java.util.*
 
 interface ModelInit {
-
     companion object {
-
         const val MODEL_NAME_ENV = "DEFT_MODEL_TYPE"
 
         const val MODEL_NAME_PROPERTY = "org.jetbrains.deft.model.type"
 
-        fun getModel(root: Path): Model {
+        context(ProblemReporterContext)
+        fun getModel(root: Path): Result<Model> {
             val services = ServiceLoader.load(ModelInit::class.java).associateBy { it.name }
-            check(services.isNotEmpty()) { "No ModelInit service found" }
+            if (services.isEmpty()) {
+                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"))
+                return Result.failure(DeftException())
+            }
+
             val modelName = System.getProperty(MODEL_NAME_PROPERTY)
-                    ?: System.getenv(MODEL_NAME_ENV)
-                    ?: "plain"
-            return services[modelName]?.getModel(root)
-                    ?: error("Model with name $modelName is not found!")
+                ?: System.getenv(MODEL_NAME_ENV)
+                ?: "plain"
+            val service = services[modelName]
+            if (service == null) {
+                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName))
+                return Result.failure(DeftException())
+            }
+
+            return service.getModel(root)
         }
     }
 
@@ -27,6 +38,6 @@ interface ModelInit {
      */
     val name: String
 
-    fun getModel(root: Path): Model
-
+    context(ProblemReporterContext)
+    fun getModel(root: Path): Result<Model>
 }

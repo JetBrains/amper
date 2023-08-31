@@ -1,5 +1,8 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.jetbrains.deft.proto.core.DeftException
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.util.MockModel
 import org.jetbrains.deft.proto.gradle.util.MockPotatoModule
@@ -23,6 +26,7 @@ object Models : ModelInit {
     private lateinit var root: Path
 
     private val modelsMap = mutableMapOf<String, MockModelHandle>()
+
     private fun mockModel(builder: MockModel.(Path) -> Unit) =
         PropertyDelegateProvider<Models, ProviderDelegate<MockModelHandle>> { _, property ->
             val modelHandle = MockModelHandle(property.name, builder).apply { modelsMap[property.name] = this }
@@ -31,16 +35,21 @@ object Models : ModelInit {
 
     override val name = "test"
 
-    override fun getModel(root: Path): MockModel {
+    context(ProblemReporterContext)
+    override fun getModel(root: Path): Result<MockModel> {
         val modelName = getMockModelName()
-            ?: error(
-                "No mock model name specified via MOCK_MODEL env! " +
-                        "\nDebug mode: $withDebug"
-            )
+        if (modelName == null) {
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug))
+            return Result.failure(DeftException())
+        }
         this.root = root
-        val modelHandle: MockModelHandle = modelsMap[modelName] ?: error("No mock model with name $modelName is found!")
+        val modelHandle = modelsMap[modelName]
+        if (modelHandle == null) {
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName))
+            return Result.failure(DeftException())
+        }
         val modelBuilder = modelHandle.builder
-        return MockModel(modelHandle.name).apply { modelBuilder(root) }
+        return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
     }
 
     private val Path.buildToml: Path get() = resolve("Pot.yaml")
@@ -242,7 +251,7 @@ object Models : ModelInit {
         }
     }
 
-    fun MockPotatoModule.singleFragmentJvmArtifact() {
+    private fun MockPotatoModule.singleFragmentJvmArtifact() {
         artifact(
             "myApp",
             setOf(Platform.JVM),
