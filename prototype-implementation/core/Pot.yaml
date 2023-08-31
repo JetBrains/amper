@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+apply:
+  - ../common.Pot-template.yaml
+
+settings:
+  publishing:
+    group: org.jetbrains.deft.proto.core
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.20
