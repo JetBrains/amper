@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/core" />
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />
