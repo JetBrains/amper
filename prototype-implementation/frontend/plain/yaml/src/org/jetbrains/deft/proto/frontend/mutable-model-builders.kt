@@ -16,7 +16,7 @@ enum class KotlinVersion(internal val version: String) {
     Kotlin10("1.0");
 
     override fun toString(): String = version
-    companion object Index : EnumMap<KotlinVersion>(
+    companion object Index : EnumMap<KotlinVersion, String>(
         KotlinVersion::values,
         KotlinVersion::version,
         KotlinVersion::class

@@ -14,14 +14,4 @@ object AndroidDeftNamingConvention {
             "test" -> module.sharedPlatformFragment(Platform.ANDROID, true)
             else -> module.fragmentsByName[name]
         }
-
-
-    context(AndroidAwarePart)
-    private val FragmentWrapper.androidResPath
-        get() = src?.resolve("res")
-            ?: path.resolve("res")
-
-    context(AndroidAwarePart)
-    val FragmentWrapper.androidResPaths get() = listOf(androidResPath)
-
 }

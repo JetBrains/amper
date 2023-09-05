@@ -2,18 +2,8 @@ product:
   type: lib
   platforms: [jvm, android]
 
-settings:
-  java:
-    target: 17
-  android:
-    namespace: "com.example"
-    targetSdk: 17
-    minSdkPreview: 21
-    compileSdkVersion: android-34
-
-test-settings:
-  junit:
-    platformEnabled: true
+deft:
+  layout: gradle
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -26,3 +16,10 @@ dependencies@jvm:
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
+
+settings:
+  java:
+    target: 17
+  android:
+    compileSdkVersion: 17
+    targetSdk: 17

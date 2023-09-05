@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import java.util.*
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty0
 
 
@@ -66,4 +67,26 @@ infix fun <T : Any> KMutableProperty0<T>.trySet(value: T?) =
 
 fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: String, symbol: String ->
     acc.replace(symbol, "")
+}
+
+/**
+ * Simple class to associate enum values by some string key.
+ */
+abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
+    values: () -> Array<EnumT>,
+    private val key: EnumT.() -> KeyT,
+    private val klass: KClass<EnumT>,
+) {
+    private val enumMap: Map<KeyT, EnumT> = buildMap {
+        values().forEach { put(key(it), it) }
+    }
+
+    // TODO REFACTOR Rename to "fromKey"
+    fun fromString(value: KeyT): EnumT? = enumMap[value]
+
+    // TODO REFACTOR Rename to "requireFromKey"
+    fun requireFromString(value: KeyT): EnumT = enumMap[value]
+        ?: error("No valid value of ${klass.simpleName} for key $value")
+
+    operator fun get(key: KeyT) = requireFromString(key)
 }

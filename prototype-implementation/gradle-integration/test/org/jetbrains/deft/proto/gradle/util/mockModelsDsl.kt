@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.gradle.util
 
 import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 class MockModel(
     val name: String
@@ -20,6 +21,9 @@ class MockPotatoModule(
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
+    init {
+        parts.add(MetaModulePart(layout = Layout.DEFT))
+    }
 
     fun fragment(name: String = "common", builder: MockFragment.() -> Unit = {}) =
         MockFragment(name).apply(builder).apply { fragments.add(this) }
@@ -61,7 +65,8 @@ open class MockFragment(
     override val isDefault: Boolean = true
     override val parts = classBasedSet<FragmentPart<*>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
-    override var src: Path? = null
+    override val src = Path(name).resolve("src")
+    override val resourcesPath = src.resolve("resources")
     override val variants: List<String> = listOf()
 
     fun refines(other: MockFragment) = fragmentDependencies.add(

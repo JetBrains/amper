@@ -53,15 +53,6 @@ class SettingsPluginRun(
                 if (hasAndroidPlugin) {
                     adjustXmlFactories()
                 }
-
-                // Check if [deft.layout] property is present in the build file,
-                // if project is managed by deft.
-                if (it.plugins.hasPlugin(BindingProjectPlugin::class.java)) {
-                    if (connectedModule.hasGradleScripts) {
-                        it.extensions.findByType(DeftGradleExtension::class.java)?.layout
-                            ?: error("[deft.layout] setting must be specified in build script!")
-                    }
-                }
             }
         }
     }

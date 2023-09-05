@@ -4,6 +4,35 @@ context(BuildFileAware)
 fun parseModuleParts(
     config: Settings,
 ): ClassBasedSet<ModulePart<*>> {
+    // Collect parts.
+    return buildClassBasedSet {
+        add(parseRepositories(config))
+        add(parseMetaSettings(config))
+    }
+}
+
+context(BuildFileAware)
+private fun parseMetaSettings(config: Settings): MetaModulePart {
+    val meta = config.getValue<Settings>("deft") ?: return MetaModulePart() // TODO Check for type.
+
+    fun parseLayout(): Layout? {
+        return when (val layoutValue = meta["layout"]) {
+            null -> return null
+            !is String -> parseError("Layout value is not string: $layoutValue")
+            "deft" -> Layout.DEFT
+            "gradle" -> Layout.GRADLE
+            "gradle-jvm" -> Layout.GRADLE_JVM
+            else -> parseError("Unknown layout: $layoutValue")
+        }
+    }
+
+    return MetaModulePart(
+        parseLayout() ?: Layout.DEFT
+    )
+}
+
+context(BuildFileAware)
+private fun parseRepositories(config: Settings): RepositoriesModulePart {
     val repos = config.getValue<List<Any>>("repositories")
         ?: emptyList()
 
@@ -41,10 +70,5 @@ fun parseModuleParts(
         }
     }
 
-    val publicationModulePart = RepositoriesModulePart(parsedRepos)
-
-    // Collect parts.
-    return buildClassBasedSet {
-        add(publicationModulePart)
-    }
+    return RepositoriesModulePart(parsedRepos)
 }

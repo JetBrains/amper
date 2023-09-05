@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.gradle.base
 
 import org.gradle.api.Project
-import org.jetbrains.deft.proto.frontend.Fragment
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModule
@@ -25,9 +24,6 @@ interface BindingPluginPart {
             moduleToProject[buildDir]
                 ?: error("No linked Gradle project found for module $userReadableName")
         )
-
-    // FIXME Rewrite path conventions completely!
-    val Fragment.path get() = module.buildDir.resolve(name)
 
     val needToApply: Boolean get() = false
 

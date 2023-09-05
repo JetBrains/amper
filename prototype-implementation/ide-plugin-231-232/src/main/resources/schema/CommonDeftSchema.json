@@ -6,6 +6,14 @@
   "$defs": {
     "DeftSchema": {
       "properties": {
+        "deft": {
+          "type": "object",
+          "properties": {
+            "layout": {
+              "type": "string"
+            }
+          }
+        },
         "aliases": {
           "type": "object",
           "patternProperties": {

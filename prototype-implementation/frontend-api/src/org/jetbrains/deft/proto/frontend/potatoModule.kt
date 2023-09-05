@@ -10,9 +10,7 @@ data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
     val buildDir get() = buildFile.parent
 }
 
-sealed interface ModulePart<SelfT> {
-    fun default(): ModulePart<SelfT> = error("No default!")
-}
+sealed interface ModulePart<SelfT>
 
 data class RepositoriesModulePart(
     val mavenRepositories: List<Repository>
@@ -25,6 +23,31 @@ data class RepositoriesModulePart(
         val publish: Boolean,
     )
 }
+
+enum class Layout {
+    /**
+     * Mode, when Gradle kotlin source sets layout is preserved.
+     * `commonMain` directory is renamed to `common`.
+     */
+    GRADLE,
+
+    /**
+     * Mode, like [GRADLE], except that `jvm` source set is
+     * renamed by `main` to be compatible with kotlin("jvm")
+     */
+    GRADLE_JVM,
+
+    /**
+     * Mode, when `src` and `src@jvm` like platform
+     * specific directories layout are used.
+     * Non-deft source sets have no directories at all.
+     */
+    DEFT,
+}
+
+data class MetaModulePart(
+    val layout: Layout = Layout.DEFT
+) : ModulePart<MetaModulePart>
 
 /**
  * Just an aggregator for fragments and artifacts.

@@ -45,6 +45,15 @@ class BindingProjectPlugin : Plugin<Project> {
         )
         appliedParts = registeredParts.filter { it.needToApply }
 
+        // Apply after evaluate (For example to access deft extension).
+        // But register handlers first, so they will run before all other, that are registered
+        // within "beforeEvaluate".
+        project.afterEvaluate {
+            appliedParts.forEach(BindingPluginPart::applyAfterEvaluate)
+        }
+
+        project.extensions.add("deft", DeftGradleExtension(project))
+
         // Apply before evaluate.
         appliedParts.forEach(BindingPluginPart::applyBeforeEvaluate)
         kmppBindingPluginPart.afterAll()
@@ -53,13 +62,6 @@ class BindingProjectPlugin : Plugin<Project> {
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
         applyTest(linkedModule, project)
-
-        project.extensions.add("deft", DeftGradleExtension(project))
-
-        // Apply after evaluate (For example to access deft extension).
-        project.afterEvaluate {
-            appliedParts.forEach(BindingPluginPart::applyAfterEvaluate)
-        }
     }
 
     private fun applyRepositoryAttributes(

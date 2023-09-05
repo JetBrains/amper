@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
-import java.io.File
 
 
 // Introduced function to remember to propagate language settings.
@@ -32,7 +31,6 @@ fun KotlinSourceSet.doDependsOn(it: Fragment) {
 
 private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinPart?) = languageSettings.apply {
     kotlinPart ?: return@apply
-    // TODO Change defaults to some merge chain. Now languageVersion checking ruins build.
     languageVersion = kotlinPart.languageVersion
     apiVersion = kotlinPart.apiVersion
     if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode =
@@ -62,9 +60,6 @@ class KMPPBindingPluginPart(
     override fun applyBeforeEvaluate() {
         initTargets()
 
-        // Mark all existing source sets to distinct them from user defined in build scripts.
-        kotlinMPE.sourceSets.markSourceSetsWith(notUserDefinedKey, NotUserDefined)
-
         initFragments()
     }
 
@@ -72,43 +67,36 @@ class KMPPBindingPluginPart(
         // IOS Compose uses UiKit, so we need to explicitly enable it, since it is experimental.
         project.extraProperties.set("org.jetbrains.compose.experimental.uikit.enabled", "true")
 
-        // Clear commonMain source set explicitly, since it is not included in
-        // Deft fragments hierarchy.
-        kotlinMPE.sourceSets.all {
-            if (it.name == "commonMain") {
-                it.kotlin.setSrcDirs(emptyList<File>())
-                it.resources.setSrcDirs(emptyList<File>())
-            }
-        }
-        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED) {
-            clearNonManagerSourceSetDirs()
-            adjustSourceDirsDeftSpecific()
-        }
-    }
-
-    private fun clearNonManagerSourceSetDirs() {
-        // Clear sources and resources for non created by us source sets.
-        // Can be called after project evaluation.
-        kotlinMPE.sourceSets.all {
-            if (it.deftFragment != null) return@all
-            val shouldClear = deftLayout == LayoutMode.DEFT ||
-                    deftLayout == LayoutMode.COMBINED && it.notUserDefined
-            if (shouldClear) {
-                it.kotlin.setSrcDirs(emptyList<File>())
-                it.resources.setSrcDirs(emptyList<File>())
-            }
+        // Do after fragments init!
+        adjustSourceSetDirectories()
+        project.afterEvaluate {
+            // We need to do that second time, because of tricky gradle/KMPP/android stuff.
+            //
+            // First call is needed because we need to search for entry point.
+            // Second call is needed, because we need to rewrite changes from KMPP that
+            // are done in "afterEvaluate" also.
+            adjustSourceSetDirectories(false)
         }
     }
 
     /**
      * Set deft specific directory layout.
      */
-    private fun adjustSourceDirsDeftSpecific() {
-        module.fragments.forEach { fragment ->
-            val sourceSet = fragment.kotlinSourceSet
-            // Set sources and resources.
-            sourceSet?.kotlin?.setSrcDirs(fragment.sourcePaths)
-            sourceSet?.resources?.setSrcDirs(fragment.resourcePaths)
+    private fun adjustSourceSetDirectories(firstTime: Boolean = true) {
+        with(layoutMode) {
+            kotlinMPE.sourceSets.all { sourceSet ->
+                val fragment = sourceSet.deftFragment
+                if (fragment != null) {
+                    // Only modify managed source sets once.
+                    if (firstTime) {
+                        fragment.modifyManagedSources()?.let { sourceSet.kotlin.setSrcDirs(it) }
+                        fragment.modifyManagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+                    }
+                } else {
+                    sourceSet.modifyUnmanagedSources()?.let { sourceSet.kotlin.setSrcDirs(it) }
+                    sourceSet.modifyUnmanagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+                }
+            }
         }
     }
 
@@ -207,7 +195,8 @@ class KMPPBindingPluginPart(
                             entryPoint = if (part?.entryPoint != null) {
                                 part.entryPoint
                             } else {
-                                findEntryPoint(fragment, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
+                                val sources = kotlinNativeCompilation.defaultSourceSet.closureSources
+                                findEntryPoint(sources, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
                             }
                         }
                     }

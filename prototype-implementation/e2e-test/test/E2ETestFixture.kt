@@ -17,6 +17,7 @@ open class E2ETestFixture(private val pathToProjects: String) {
         val tempDir = prepareTempDirWithProject(projectName)
         try {
             val runner = GradleRunner.create()
+                .withPluginClasspath()
                 .withProjectDir(tempDir.toFile())
                 .withDebug(true)
                 .withArguments(*buildArguments, "--stacktrace")
@@ -57,7 +58,6 @@ open class E2ETestFixture(private val pathToProjects: String) {
                         google()
                         gradlePluginPortal()
                     }
-                    includeBuild("$implementationDir")
                 }
     
                 plugins {

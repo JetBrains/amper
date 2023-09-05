@@ -5,16 +5,15 @@ import org.jetbrains.deft.proto.frontend.AndroidPart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.ProductType
-import org.jetbrains.deft.proto.gradle.LayoutMode
 import org.jetbrains.deft.proto.gradle.android.AndroidDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
 import org.jetbrains.deft.proto.gradle.contains
-import org.jetbrains.deft.proto.gradle.deftLayout
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
+import org.jetbrains.deft.proto.gradle.layoutMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -56,26 +55,8 @@ class AndroidBindingPluginPart(
 
         adjustCompilations()
         applySettings()
-        // Adjust android source sets in case of gradle script absence.
-        // We need to do this here, since AGP tries to access manifest before
-        // `afterProject` evaluation.
-        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
-            adjustAndroidSourceSetsDeftSpecific()
-    }
-
-    override fun applyAfterEvaluate() {
-        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED) {
-            clearNonManagerSourceSetDirs()
-            adjustAndroidSourceSetsDeftSpecific()
-        }
-    }
-
-    override fun onDefExtensionChanged() {
-        // Called only when extension in script is toggled, so
-        // [adjustAndroidSourceSetsDeftSpecific] invocation in [applyBeforeEvaluate]
-        // was not triggered.
-        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
-            adjustAndroidSourceSetsDeftSpecific()
+        clearNonManagerSourceSetDirs()
+        adjustAndroidSourceSets()
     }
 
     private fun clearNonManagerSourceSetDirs() {
@@ -89,20 +70,26 @@ class AndroidBindingPluginPart(
         }
     }
 
-    private var sourceSetsAdjusted = false
-
-    private fun adjustAndroidSourceSetsDeftSpecific() = with(AndroidDeftNamingConvention) {
-        if (!sourceSetsAdjusted) {
-            sourceSetsAdjusted = true
-            // Adjust that source sets whose matching kotlin source sets are created by us.
-            // Can be evaluated after project evaluation.
+    private fun adjustAndroidSourceSets() = with(AndroidDeftNamingConvention) {
+        // Adjust that source sets whose matching kotlin source sets are created by us.
+        // Can be evaluated after project evaluation.
+        with(layoutMode) {
             androidSourceSets?.all {
                 val fragment = it.deftFragment ?: return@all
-                it.kotlin.setSrcDirs(fragment.sourcePaths)
-                it.java.setSrcDirs(fragment.sourcePaths)
-                it.resources.setSrcDirs(fragment.resourcePaths)
-                it.res.setSrcDirs(fragment.androidResPaths)
-                it.manifest.srcFile("${fragment.sourcePath}/Manifest.xml")
+
+                val sources = fragment.modifyManagedSources()
+                if (sources != null) {
+                    it.kotlin.setSrcDirs(sources)
+                    it.java.setSrcDirs(sources)
+                    // FIXME Replace by more complicated layout mode (I guess).
+                    it.manifest.srcFile(sources.first().resolve("Manifest.xml"))
+                }
+
+                val resources = fragment.modifyManagedResources()
+                if (resources != null) {
+                    it.resources.setSrcDirs(resources)
+                    it.res.setSrcDirs(resources)
+                }
             }
         }
     }

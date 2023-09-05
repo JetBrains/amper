@@ -15,7 +15,3 @@ kotlin {
         }
     }
 }
-
-deft {
-    useDeftLayout = true 
-}

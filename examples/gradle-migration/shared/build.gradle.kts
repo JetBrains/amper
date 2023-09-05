@@ -1,5 +1,3 @@
-import org.jetbrains.deft.proto.gradle.LayoutMode
-
 plugins {
     // You can apply any plugins as usual.
     // Yet, android, multiplatform, apple plugins are bundled,
@@ -20,10 +18,6 @@ kotlin {
 //        androidTarget()
 //    }
 
-    // Here you can configure your project as if it were
-    // just an ordinary KMP project.
-    jvmToolchain(17)
-
     // You can access all source sets configured by Deft plugin:
     sourceSets {
         val jvm by getting {
@@ -32,19 +26,10 @@ kotlin {
     }
 }
 
-// Deft layout is set to GRADLE to preserve KMPP and Gradle layout settings.
-deft {
-    layout = LayoutMode.GRADLE
-}
-
 // You can configure all other plugins also.
 android {
     namespace = "com.example"
     compileSdkVersion = "android-34"
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }
 
 // You can do usual Gradle stuff here:

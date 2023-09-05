@@ -4,10 +4,11 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
-import org.jetbrains.deft.proto.frontend.forClosure
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
-import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.tooling.core.withClosure
 import org.slf4j.Logger
+import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -62,21 +63,21 @@ val PotatoModule.hasGradleScripts
         resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
     }
 
-context(DeftNamingConventions)
+val KotlinSourceSet.closure: Set<KotlinSourceSet> get() = this
+    .withClosure { it.dependsOn }
+
+val KotlinSourceSet.closureSources: List<Path> get() = this.closure
+    .flatMap { it.kotlin.srcDirs }
+    .map { it.toPath() }
+    .filter { it.exists() }
+
 @OptIn(ExperimentalPathApi::class)
 internal fun findEntryPoint(
-    fragment: LeafFragmentWrapper,
+    sources: List<Path>,
     entryPointType: EntryPointType,
     logger: Logger,
-): String = with(module) {
-    // Collect all fragment paths.
-    val allSources = buildSet<Path> {
-        fragment.forClosure {
-            add(it.wrapped.sourcePath.absolute().normalize())
-        }
-    }
-
-    val implicitMainFile = allSources.firstNotNullOfOrNull { sourceFolder ->
+): String {
+    val implicitMainFile = sources.firstNotNullOfOrNull { sourceFolder ->
         sourceFolder.walk(PathWalkOption.BREADTH_FIRST)
             .find { it.name.equals("main.kt", ignoreCase = true) }
             ?.normalize()
@@ -85,7 +86,10 @@ internal fun findEntryPoint(
 
     if (implicitMainFile == null) {
         val result = entryPointType.symbolName
-        logger.warn("Entry point cannot be discovered for ${fragment}. Defaulting to $result")
+        logger.warn(
+            "Entry point cannot be discovered for sources ${sources.joinToString { "$it" }}. " +
+                    "Defaulting to $result"
+        )
         return result
     }
 
@@ -104,4 +108,32 @@ internal fun findEntryPoint(
 fun trySetSystemProperty(key: String, value: String) {
     if (System.getProperty(key) == null)
         System.setProperty(key, value)
+}
+
+/**
+ * Replace last path entry that is matched by [matcher] by given name.
+ */
+fun File.replaceLast(newName: String, matcher: (String) -> Boolean): File {
+    val nonMatching = mutableListOf<String>()
+    var current = this
+    while (!matcher(current.name)) {
+        nonMatching.add(current.name)
+        current = current.parentFile ?: return this
+    }
+    val newBase = current.parentFile?.resolve(newName) ?: File(newName)
+    return nonMatching.foldRight(newBase) { it, acc -> acc.resolve(it) }
+}
+
+/**
+ * Replace last path entry that is matched by [matcher] by given name.
+ */
+fun Path.replaceLast(newName: String, matcher: (String) -> Boolean): Path {
+    val nonMatching = mutableListOf<String>()
+    var current = this
+    while (!matcher(current.name)) {
+        nonMatching.add(current.name)
+        current = current.parent ?: return this
+    }
+    val newBase = current.parent?.resolve(newName) ?: Path(newName)
+    return nonMatching.foldRight(newBase) { it, acc -> acc.resolve(it) }
 }

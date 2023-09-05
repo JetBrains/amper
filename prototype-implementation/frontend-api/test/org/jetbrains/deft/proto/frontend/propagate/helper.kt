@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend.propagate
 
 import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 context (PotatoModuleBuilder) class FragmentLinkProvider(
         override val type: FragmentDependencyType,
@@ -51,7 +52,6 @@ class FragmentBuilder(var name: String) {
     private val externalDependencies: MutableList<Notation> = mutableListOf()
     private val parts: ClassBasedSet<FragmentPart<*>> = classBasedSet()
     private val platforms: MutableSet<Platform> = mutableSetOf()
-    var src: Path? = null
 
     private val variants: MutableList<String> = mutableListOf()
 
@@ -105,8 +105,8 @@ class FragmentBuilder(var name: String) {
                 get() = false
             override val isDefault: Boolean
                 get() = true
-            override val src: Path?
-                get() = this@FragmentBuilder.src
+            override val src: Path get() = Path(name).resolve("main")
+            override val resourcesPath get() = Path(name).resolve("resources")
             override val variants: List<String>
                 get() = this@FragmentBuilder.variants
         }

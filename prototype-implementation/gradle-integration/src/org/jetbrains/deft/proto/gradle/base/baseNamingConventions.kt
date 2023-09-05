@@ -1,9 +1,6 @@
 package org.jetbrains.deft.proto.gradle.base
 
 import org.jetbrains.deft.proto.gradle.FragmentWrapper
-import org.jetbrains.deft.proto.gradle.LayoutMode
-import org.jetbrains.deft.proto.gradle.deftLayout
-import java.nio.file.Path
 
 /**
  * Basic deft layout naming conventions.
@@ -14,21 +11,8 @@ import java.nio.file.Path
 // `Inherited platform declarations clash` unfortunately.
 interface DeftNamingConventions : BindingPluginPart {
 
-    // TODO Replace by Path, but evade recursion in AGP.
-    val FragmentWrapper.sourcePath: Path
-        get() = (src ?: path.resolve("src")).let {
-            if (deftLayout == LayoutMode.COMBINED && it.endsWith("src")) {
-                it.parent.resolve("src@common")
-            }
-            else it
-        }
-
-    val FragmentWrapper.sourcePaths get() = listOf(sourcePath)
-
-    // TODO Replace by Path, but evade recursion in AGP.
     private val FragmentWrapper.resourcePath
-        get() = src?.resolve("resources")
-            ?: path.resolve("resources").toString()
+        get() = src.resolve("resources")
 
     val FragmentWrapper.resourcePaths get() = listOf(resourcePath)
 

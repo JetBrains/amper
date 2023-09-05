@@ -23,3 +23,11 @@ tasks.withType<Test> {
     }
     maxHeapSize = "4g"
 }
+
+private val pluginClasspathDir = "pluginUnderTestMetadata"
+
+tasks.findByName("jvmTestProcessResources")?.apply {
+    this as AbstractCopyTask
+    dependsOn(":gradle-integration:copyDescriptorsHack")
+    from(project(":gradle-integration").buildDir.resolve(pluginClasspathDir))
+}

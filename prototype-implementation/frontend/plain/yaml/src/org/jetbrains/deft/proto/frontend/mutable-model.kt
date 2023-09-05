@@ -1,7 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.deft.proto.frontend.model.*
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
+import org.jetbrains.deft.proto.frontend.model.PlainFragment
 import org.jetbrains.deft.proto.frontend.model.PlainLeafFragment
 import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
 import java.nio.file.Path
@@ -32,7 +32,6 @@ internal data class FragmentBuilder(
      */
     val variants: MutableSet<String> = mutableSetOf(),
     var alias: String? = null,
-    var src: Path? = null,
 
     // parts
     var kotlin: KotlinPartBuilder? = KotlinPartBuilder {},
@@ -45,6 +44,9 @@ internal data class FragmentBuilder(
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {}
 ) {
+
+    lateinit var src: Path
+    lateinit var resourcesPath: Path
 
     /**
      * Simple copy ctor.
@@ -438,17 +440,9 @@ internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
     val defaultOptions = defaultOptionMap.values.toSet()
     val nonStdOptions = optionMap.filter { it.value.getStringValue("dimension") != "mode" }.keys
 
-    val testOption = "test"
-
     for (fragment in this) {
         val options = fragment.variants.filter { nonStdOptions.contains(it) }.toSet()
-        val dir = buildString {
-            if (fragment.variants.contains(testOption)) {
-                append("test")
-            } else {
-                append("src")
-            }
-
+        val postfix = buildString {
             val optionsWithoutDefault = options.filter { !defaultOptions.contains(it) }
 
             if (fragment.platforms != platforms || optionsWithoutDefault.isNotEmpty()) {
@@ -472,6 +466,13 @@ internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
             }
         }
 
-        fragment.src = buildFile.parent.resolve(dir)
+        val srcDir = buildFile.parent
+        if (fragment.isTest) {
+            fragment.src = srcDir.resolve("test$postfix")
+            fragment.resourcesPath = srcDir.resolve("testResources$postfix")
+        } else {
+            fragment.src = srcDir.resolve("src$postfix")
+            fragment.resourcesPath = srcDir.resolve("resources$postfix")
+        }
     }
 }

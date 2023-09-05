@@ -83,8 +83,12 @@ internal open class PlainFragment(
     override val platforms: Set<Platform>
         get() = fragmentBuilder.platforms
 
-    override val src: Path?
+    override val src: Path
         get() = fragmentBuilder.src
+
+    override val resourcesPath: Path
+        get() = fragmentBuilder.resourcesPath
+
     override val variants: List<String>
         get() = (fragmentBuilder.variants - defaultVariants - dimensionVariants).toList()
 }

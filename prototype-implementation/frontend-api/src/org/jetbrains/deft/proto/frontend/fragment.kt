@@ -21,7 +21,16 @@ interface Fragment {
      * no variants are specified?
      */
     val isDefault: Boolean
-    val src: Path?
+
+    /**
+     * Path to the sources' directory.
+     */
+    val src: Path
+
+    /**
+     * Path to the resources' directory.
+     */
+    val resourcesPath: Path
 
     val variants: List<String>
 }

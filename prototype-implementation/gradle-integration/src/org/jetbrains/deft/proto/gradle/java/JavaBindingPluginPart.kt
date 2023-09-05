@@ -15,6 +15,7 @@ import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.deftFragmen
 import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -59,8 +60,7 @@ class JavaBindingPluginPart(
     }
 
     override fun applyAfterEvaluate() {
-        if (deftLayout == LayoutMode.DEFT || deftLayout == LayoutMode.COMBINED)
-            adjustSourceDirsDeftSpecific()
+        adjustSourceDirs()
     }
 
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
@@ -105,7 +105,8 @@ class JavaBindingPluginPart(
                     val foundMainClass = if (javaPart?.mainClass != null) {
                         javaPart.mainClass
                     } else {
-                        findEntryPoint(fragment, EntryPointType.JVM, logger)
+                        val sources = fragment.kotlinSourceSet?.closureSources ?: emptyList()
+                        findEntryPoint(sources, EntryPointType.JVM, logger)
                     }
                     mainClass.set(foundMainClass)
                 }
@@ -129,11 +130,14 @@ class JavaBindingPluginPart(
         }
     }
 
-    private fun adjustSourceDirsDeftSpecific() {
-        javaPE.sourceSets.all {
-            val fragment = it.deftFragment ?: return@all
-            it.java.setSrcDirs(fragment.sourcePaths)
-            it.resources.setSrcDirs(fragment.resourcePaths)
+    private fun adjustSourceDirs() {
+        with(layoutMode) {
+            javaPE.sourceSets.all { sourceSet ->
+                val fragment = sourceSet.deftFragment ?: return@all
+
+                fragment.modifyManagedSources()?.let { sourceSet.java.setSrcDirs(it) }
+                fragment.modifyManagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+            }
         }
     }
 }

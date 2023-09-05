@@ -1,4 +1,7 @@
 product: jvm/app
 
+deft:
+  layout: gradle-jvm
+
 # entry point should be auto-discovered
 

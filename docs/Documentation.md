@@ -1261,19 +1261,17 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 
 ### Gradle interop
 
-*TL;DR:* There are examples of interop in [gradle-migration-part-1](../examples/gradle-migration-part-1)
- and [gradle-migration-part-2](../examples/gradle-migration-part-2) directories.
+*TL;DR:* There is an example of interop in [gradle-migration](../examples/gradle-migration) directory.
 
 In a nutshell, current version runs on top of Gradle, so Gradle build scripts
 are supported natively. Within a Pot module you can add `build.gradle` or `build.gradle.kts` file
 to alter Gradle configurations. Build scripts settings has a higher priority, than ones in Pot files.
 
-Pot configurations come first, so all managed kotlin source sets (created from Pot) will be 
+Yaml configurations come first, so all managed kotlin source sets (created from config file) will be 
 available in `kotlin` block.
 
-Say, if your `Pot.yaml` is like this:
+Say, if your config file is like this:
 ```yaml
-# Pot.yaml
 product:
   type: lib
   platforms: [jvm, android]
@@ -1291,7 +1289,7 @@ kotlin {
 }
 ```
 
-Since Pot configuration is applied before Gradle scripts are evaluated, you need to 
+Since configuration is applied before Gradle scripts are evaluated, you need to 
 remove `targets` part from kotlin block, since they will be already defined.
 
 *Note:* Current implementation has a limitation - you can't specify a version of a kotlin
@@ -1305,26 +1303,18 @@ plugins {
 ```
 
 Yet, there are tricky cases with source layouts.
-To prevent confusion and provide smooth migration from Gradle you must specify 
-layout setting within every project (in a build file):
-```kotlin
-// build.gradle.kts
-deft {
-    layout = LayoutMode.DEFT
-    // layout = LayoutMode.GRADLE
-    // layout = LayoutMode.COMBINED
-}
+To prevent confusion and provide smooth migration from Gradle you can specify 
+layout setting within every project (in a config file):
+```yaml
+deft: 
+    layout: deft
+#   layout: gradle
+#   layout: gradle-jvm
 ```
 When:
- - DEFT layout mode is applied - all non managed source sets (even custom ones) are cleared.
- - GRADLE layout is applied - all Gradle source set directories are preserved untouched.
- - COMBINED layout is applied - all default source sets are cleared. All custom source sets
-   (created in build scripts) are untouched.
-   Also, `src` directory (common sources within DEFT layout) is renamed to `src@common` to
-   prevent messing with custom Gradle source sets in `src/<sourceSetName>/kotlin` directories.
-
-*Note:* Current implementation has a limitation - when using Gradle layout you need to rename
-`commonMain` source set directory with just `common`.
+ - deft layout mode is applied - all non managed source sets (even custom ones) are cleared.
+ - gradle layout is applied - all Gradle source set directories are preserved untouched.
+ - gradle-jvm layout is applied - jvm source set is renamed to main to be more like kotlin("jvm").
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).

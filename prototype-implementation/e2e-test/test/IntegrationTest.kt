@@ -156,9 +156,16 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `testing gradle interoperability`() = test(
+    fun `testing gradle interoperability with gradle layout`() = test(
         projectName = "gradle-interoperability-gradle-layout",
         "testRun",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
+    fun `testing gradle interoperability with gradle-jvm layout`() = test(
+        projectName = "gradle-interoperability-gradle-jvm-layout",
+        "run",
         expectOutputToHave = "Hello, World!",
     )
 
@@ -182,20 +189,5 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         projectName = "compose-multiplatform-ios-android-template",
         ":shared:linkPodDebugFrameworkIosSimulatorArm64",
         expectOutputToHave = "BUILD SUCCESSFUL"
-    )
-
-    @Test
-    fun `testing gradle interoperability with combined layout`() = test(
-        projectName = "gradle-interoperability-combined-layout",
-        "testRun",
-        expectOutputToHave = "Hello, World!",
-    )
-
-    @Test
-    fun `testing deft layout presence check`() = test(
-        projectName = "gradle-interoperability-layout-absence",
-        "testRun",
-        expectOutputToHave = "[deft.layout] setting must be specified in build script!",
-        shouldSucceed = false,
     )
 }
