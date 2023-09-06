@@ -313,7 +313,7 @@ _NOTE: Native dependencies (like CocoaPods) are currently not implemented._
 ```YAML
 product:
   type: lib
-  platforms: [jvm, android, iosArm64, iosSimulatorArm64]
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
