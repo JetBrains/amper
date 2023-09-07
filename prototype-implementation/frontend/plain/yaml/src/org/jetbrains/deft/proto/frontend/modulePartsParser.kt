@@ -63,7 +63,7 @@ private fun parseRepositories(config: Settings): RepositoriesModulePart {
                     url,
                     userName,
                     password,
-                    it.getValue<Boolean>("publish") ?: false,
+                    it.getBooleanValue("publish") ?: false,
                 )
             }
             else -> parseError("Unsupported repository: $it")
@@ -72,3 +72,4 @@ private fun parseRepositories(config: Settings): RepositoriesModulePart {
 
     return RepositoriesModulePart(parsedRepos)
 }
+

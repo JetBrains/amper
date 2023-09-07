@@ -10,6 +10,7 @@ settings:
     group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
 
 dependencies:
+  - ../../../core
   - ../../../frontend-api
   - ../../util
   - org.jetbrains.kotlin:kotlin-reflect:1.9.0
