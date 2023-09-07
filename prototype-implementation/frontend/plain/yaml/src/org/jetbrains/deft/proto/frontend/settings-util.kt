@@ -9,41 +9,32 @@ open class SettingsKey<T : Any>(val name: String)
 open class DefaultedKey<T : Any>(name: String, val default: T) : SettingsKey<T>(name)
 
 internal inline operator fun <reified T : Any> Settings.get(key: SettingsKey<T>): T? =
-        this[key.name] as? T
+    this[key.name] as? T
 
 internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>): T =
-        this[key.name] as? T ?: key.default
+    this[key.name] as? T ?: key.default
 
 
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
 internal inline fun <reified T : Any> Settings.getValue(
-        key: String, block: (T) -> Unit
+    key: String, block: (T) -> Unit
 ) {
     (this[key] as? T)?.let(block)
 }
 
 internal fun Settings.getStringValue(key: String) = this[key]?.toString()
+internal fun Settings.getStringValue(key: String, block: (String) -> Unit) = getStringValue(key)?.let(block)
 
-fun Settings.getSettings(key: String): Settings? = getValue<Settings>(key)
-internal inline fun <reified T : Any> Settings.getByPath(vararg path: String): T? {
-    var settings = this
-    path.forEachIndexed { index, element ->
-        val isLast = index == path.size - 1
-        if (isLast) {
-            return settings.getValue(element)
-        }
-        settings = settings.getSettings(element) ?: return null
-    }
-
-    return null
-}
+internal fun Settings.getBooleanValue(key: String): Boolean? = getStringValue(key)?.toBooleanStrictOrNull()
+internal fun Settings.getBooleanValue(key: String, block: (Boolean) -> Unit) =
+    getStringValue(key)?.toBooleanStrictOrNull()?.let(block)
 
 context (Map<String, Set<Platform>>, BuildFileAware)
 internal inline fun <reified T : Any> Settings.handleFragmentSettings(
-        fragments: List<FragmentBuilder>,
-        key: String,
-        init: FragmentBuilder.(T) -> Unit
+    fragments: List<FragmentBuilder>,
+    key: String,
+    init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
     val (_, platforms) = parseProductAndPlatforms(originalSettings)
@@ -54,8 +45,8 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
         val split = settingsKey.split("@")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
-                .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
-                .toSet()
+            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
+            .toSet()
 
         for (option in options) {
             val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
@@ -63,16 +54,16 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
         }
 
         val normalizedPlatforms = specialization
-                .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
-                .ifEmpty { platforms }
-                .toSet()
+            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
+            .ifEmpty { platforms }
+            .toSet()
 
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
 
         val targetFragment = fragments
-                .filter { it.platforms == normalizedPlatforms }
-                .firstOrNull { it.variants == normalizedOptions }
-                ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+            .filter { it.platforms == normalizedPlatforms }
+            .firstOrNull { it.variants == normalizedOptions }
+            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
         if (settingsValue is T) {
             targetFragment.init(settingsValue)
@@ -82,9 +73,9 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
 
 context (Map<String, Set<Platform>>, BuildFileAware)
 internal inline fun <reified T : Any> Settings.handleArtifactSettings(
-        fragments: List<FragmentBuilder>,
-        key: String,
-        init: FragmentBuilder.(T) -> Unit
+    fragments: List<FragmentBuilder>,
+    key: String,
+    init: FragmentBuilder.(T) -> Unit
 ) {
     val originalSettings = this
     val (_, platforms) = parseProductAndPlatforms(originalSettings)
@@ -95,8 +86,8 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
         val split = settingsKey.split("@")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
-                .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
-                .toSet()
+            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
+            .toSet()
 
         for (option in options) {
             val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
@@ -104,16 +95,16 @@ internal inline fun <reified T : Any> Settings.handleArtifactSettings(
         }
 
         val normalizedPlatforms = specialization
-                .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
-                .ifEmpty { platforms }
-                .toSet()
+            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
+            .ifEmpty { platforms }
+            .toSet()
 
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
 
         val targetFragment = fragments
-                .filter { it.platforms == normalizedPlatforms }
-                .firstOrNull { it.variants == normalizedOptions }
-                ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+            .filter { it.platforms == normalizedPlatforms }
+            .firstOrNull { it.variants == normalizedOptions }
+            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
 
         if (settingsValue is T) targetFragment.init(settingsValue)
     }
@@ -169,35 +160,35 @@ internal val Settings.variants: List<Settings>
         val convertedInitialVariants: List<Settings> = initialVariants.map {
             val dimension = "dimension${++i}"
             mapOf(
-                    dimensionKey.name to dimension,
-                    optionsKey.name to it.mapIndexed { index, optionName ->
-                        mapOf(
-                                nameKey.name to optionName,
-                                dependsOnKey.name to listOf(
-                                        mapOf("target" to dimension)
-                                ),
-                                isDefaultFragmentKey.name to (index == 0),
-                        )
-                    } + mapOf(
-                            nameKey.name to dimension,
-                            isDefaultKey.name to true
+                dimensionKey.name to dimension,
+                optionsKey.name to it.mapIndexed { index, optionName ->
+                    mapOf(
+                        nameKey.name to optionName,
+                        dependsOnKey.name to listOf(
+                            mapOf("target" to dimension)
+                        ),
+                        isDefaultFragmentKey.name to (index == 0),
                     )
+                } + mapOf(
+                    nameKey.name to dimension,
+                    isDefaultKey.name to true
+                )
             )
         }
         return if (!convertedInitialVariants.any { it.getStringValue("dimension") == "mode" }) {
             convertedInitialVariants + mapOf(
-                    dimensionKey.name to "mode",
-                    optionsKey.name to listOf(
-                            mapOf(
-                                    nameKey.name to "main",
-                                    isDefaultKey.name to true,
-                                    isDefaultFragmentKey.name to true
-                            ),
-                            mapOf(
-                                    nameKey.name to "test",
-                                    dependsOnKey.name to listOf(mapOf("target" to "main", "kind" to "friend"))
-                            )
+                dimensionKey.name to "mode",
+                optionsKey.name to listOf(
+                    mapOf(
+                        nameKey.name to "main",
+                        isDefaultKey.name to true,
+                        isDefaultFragmentKey.name to true
+                    ),
+                    mapOf(
+                        nameKey.name to "test",
+                        dependsOnKey.name to listOf(mapOf("target" to "main", "kind" to "friend"))
                     )
+                )
             )
         } else {
             convertedInitialVariants
@@ -211,8 +202,8 @@ internal val Settings.defaultOptionMap: Map<Settings, String>
         return buildMap {
             for (variant in with(originalSettings) { variants }) {
                 val option = (variant[optionsKey])
-                        .firstOrNull { it[isDefaultKey] }
-                        ?: error("Something went wrong")
+                    .firstOrNull { it[isDefaultKey] }
+                    ?: error("Something went wrong")
                 put(variant, option.getStringValue("name") ?: error("Something went wrong"))
             }
         }
@@ -225,7 +216,7 @@ internal val Settings.optionMap: Map<String, Settings>
         return buildMap {
             for (variant in with(originalSettings) { variants }) {
                 for (option in (variant[optionsKey])
-                        .mapNotNull { it.getStringValue("name") }) {
+                    .mapNotNull { it.getStringValue("name") }) {
                     put(option, variant)
                 }
             }
@@ -247,16 +238,18 @@ data class Variant(val dimension: String, val default: Boolean, val options: Lis
 val List<Settings>.typeSafe: List<Variant>
     get() = map {
         Variant(
-                dimension = it.getValue<String>(dimensionKey.name) ?: error("Missing dimension"),
-                default = it[isDefaultKey],
-                options = it.getValue<List<Settings>>(optionsKey.name)?.map {
-                    Variant.Option(
-                            name = it.getValue<String>(nameKey.name) ?: error("Missing option name"),
-                            default = it[isDefaultKey]
-                    )
-                } ?: emptyList()
+            dimension = it.getStringValue(dimensionKey.name) ?: error("Missing dimension"),
+            default = it[isDefaultKey],
+            options = it.getValue<List<Settings>>(optionsKey.name)?.map {
+                Variant.Option(
+                    name = it.getStringValue(nameKey.name) ?: error("Missing option name"),
+                    default = it[isDefaultKey]
+                )
+            } ?: emptyList()
         )
     }
 
-val List<Variant>.dimensionVariants: Set<String> get() = asSequence().filter { !it.default }.flatMap { it.options }.filter { it.default }.map { it.name }.toSet()
-val List<Variant>.defaultVariants: Set<String> get() = asSequence().filter { it.default }.flatMap { it.options }.map { it.name }.toSet()
+val List<Variant>.dimensionVariants: Set<String>
+    get() = asSequence().filter { !it.default }.flatMap { it.options }.filter { it.default }.map { it.name }.toSet()
+val List<Variant>.defaultVariants: Set<String>
+    get() = asSequence().filter { it.default }.flatMap { it.options }.map { it.name }.toSet()

@@ -1,32 +1,79 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.DeftException
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.getOrElse
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
+import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.readText
+import kotlin.io.path.exists
+import kotlin.io.path.reader
 
-context(InterpolateCtx, BuildFileAware)
+context(ProblemReporterContext)
+private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
+    if (!path.exists()) {
+        problemReporter.reportError(FrontendYamlBundle.message("cant.find.template", path))
+        return Result.failure(DeftException())
+    }
+
+    val node = compose(path.reader())?.toYamlNode() ?: YamlNode.Mapping.Empty
+    if (node !is YamlNode.Mapping) {
+        problemReporter.reportError(FrontendYamlBundle.message("invalid.yaml", path), file = path)
+        return Result.failure(DeftException())
+    }
+    return Result.success(node)
+}
+
+context(InterpolateCtx, BuildFileAware, ProblemReporterContext)
 fun Yaml.parseAndPreprocess(
     originPath: Path,
     templatePathLoader: (String) -> Path,
-): Settings {
+): Result<Settings> {
     val absoluteOriginPath = originPath.absolute()
-    val absoluteTemplateLoader: (String) -> Path = { templatePathLoader(it).absolute() }
+    val rootConfig = loadFile(absoluteOriginPath).getOrElse { return Result.failure(DeftException()) }
 
-    val rootConfig = load<Settings>(absoluteOriginPath.readText()) ?: emptyMap()
+    val templateNames = rootConfig["apply"]
+    if (templateNames !is YamlNode.Sequence?) {
+        problemReporter.reportError(
+            FrontendYamlBundle.message("apply.must.be.sequence", templateNames?.nodeType ?: "null"),
+            file = originPath,
+            line = templateNames?.startMark?.line ?: 0
+        )
+        return Result.failure(DeftException())
+    }
 
-    val templateNames = rootConfig
-        .getValue<List<String>>("apply") ?: emptyList()
-
+    var hasBrokenTemplates = false
     val appliedTemplates = templateNames
-        .map(absoluteTemplateLoader)
-        .map { it.parent to (load<Settings>(it.readText()) ?: emptyMap()) }
+        ?.mapNotNull { templatePath ->
+            if (templatePath !is YamlNode.Scalar) {
+                problemReporter.reportError(
+                    FrontendYamlBundle.message("apply.template.should.be.path", templatePath.nodeType),
+                    file = originPath,
+                    line = templatePath.startMark.line + 1
+                )
+                return@mapNotNull null
+            }
 
-    val resultConfig = appliedTemplates
-        .fold(rootConfig) { acc, from -> mergeTemplate(from.second, acc, from.first) }
+            val path = templatePathLoader(templatePath.value).absolute()
+            val template = loadFile(path.normalize())
+            template.getOrElse {
+                hasBrokenTemplates = true
+                problemReporter.reportError(
+                    FrontendYamlBundle.message("cant.apply.template", templatePath.value),
+                    file = originPath,
+                    line = templatePath.startMark.line + 1
+                )
+                null
+            }?.let { path.parent to it }
+        } ?: emptyList()
+    if (hasBrokenTemplates) return Result.failure(DeftException())
 
-    return resultConfig.doInterpolate()
+    val resultConfig: Settings = appliedTemplates
+        .fold(rootConfig.toSettings()) { acc: Settings, from -> mergeTemplate(from.second.toSettings(), acc, from.first) }
+
+    return Result.success(resultConfig.doInterpolate())
 }
 
 /**

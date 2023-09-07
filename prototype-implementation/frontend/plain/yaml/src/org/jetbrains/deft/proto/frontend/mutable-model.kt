@@ -363,19 +363,19 @@ internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
         kotlin = KotlinPartBuilder {
             it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
                 // Special
-                kotlinSettings.getValue<Double>("languageVersion") {
-                    languageVersion = KotlinVersion.requireFromString(it.toString())
+                kotlinSettings.getStringValue("languageVersion") {
+                    languageVersion = KotlinVersion.requireFromString(it)
                 }
-                kotlinSettings.getValue<Double>("apiVersion") {
-                    apiVersion = KotlinVersion.requireFromString(it.toString())
+                kotlinSettings.getStringValue("apiVersion") {
+                    apiVersion = KotlinVersion.requireFromString(it)
                 }
 
                 // Boolean
-                kotlinSettings.getValue<Boolean>("allWarningsAsErrors") { allWarningsAsErrors = it }
-                kotlinSettings.getValue<Boolean>("suppressWarnings") { suppressWarnings = it }
-                kotlinSettings.getValue<Boolean>("verbose") { verbose = it }
-                kotlinSettings.getValue<Boolean>("debug") { debug = it }
-                kotlinSettings.getValue<Boolean>("progressiveMode") { progressiveMode = it }
+                kotlinSettings.getBooleanValue("allWarningsAsErrors") { allWarningsAsErrors = it }
+                kotlinSettings.getBooleanValue("suppressWarnings") { suppressWarnings = it }
+                kotlinSettings.getBooleanValue("verbose") { verbose = it }
+                kotlinSettings.getBooleanValue("debug") { debug = it }
+                kotlinSettings.getBooleanValue("progressiveMode") { progressiveMode = it }
 
                 // Lists
                 kotlinSettings.getValue<List<String>>("languageFeatures") { languageFeatures.addAll(it) }
@@ -386,7 +386,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
 
         junit = JunitPartBuilder {
             it.getValue<Settings>("junit")?.let { testSettings ->
-                platformEnabled = testSettings.getValue<Boolean>("platformEnabled")
+                platformEnabled = testSettings.getBooleanValue("platformEnabled")
             }
         }
     }
@@ -403,7 +403,7 @@ internal fun List<ArtifactBuilder>.handleSettings(
                 compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")
                 minSdk = androidSettings.getStringValue("minSdk")
                 minSdkPreview = androidSettings.getStringValue("minSdkPreview")
-                maxSdk = androidSettings.getValue<Int>("maxSdk")
+                maxSdk = androidSettings.getStringValue("maxSdk")?.toInt()
                 targetSdk = androidSettings.getStringValue("targetSdk")
                 applicationId = androidSettings.getStringValue("applicationId")
                 namespace = androidSettings.getStringValue("namespace")
@@ -413,7 +413,7 @@ internal fun List<ArtifactBuilder>.handleSettings(
         publishing = PublishingPartBuilder {
             it.getValue<Settings>("publishing")?.let { publishSettings ->
                 group = publishSettings.getStringValue("group")
-                version = publishSettings.getValue<Any>("version").toString()
+                version = publishSettings.getStringValue("version")
             }
         }
 
@@ -427,8 +427,8 @@ internal fun List<ArtifactBuilder>.handleSettings(
         }
 
         compose = ComposePartBuilder {
-            it.getByPath<Boolean>("compose", "enabled")?.let {
-                enabled = it
+            it.getValue<Settings>("compose")?.let { composeSettings ->
+                enabled = composeSettings.getBooleanValue("enabled")
             }
         }
     }
