@@ -107,10 +107,9 @@ inline fun <reified T : Throwable> assertThrowsWithErrorMessage(expectedMessage:
     return e
 }
 
-private object TestProblemReporter : ProblemReporter {
-    private val errors = mutableListOf<BuildProblem>()
-
+private object TestProblemReporter : CollectingProblemReporter() {
     fun tearDown() {
+        val errors = problems.filter { it.level == Level.Error }
         if (errors.isNotEmpty()) {
             fail(buildString {
                 appendLine()
@@ -118,13 +117,14 @@ private object TestProblemReporter : ProblemReporter {
                     append(renderMessage(error))
                     appendLine()
                 }
-            }.also { errors.clear() })
+            }.also { problems.clear() })
         }
     }
 
-    override fun reportMessage(message: BuildProblem) {
-        if (message.level == Level.Error) errors.add(message)
-        else println("WARNING: ${message.message}")
+    override fun doReportMessage(message: BuildProblem) {
+        if (message.level == Level.Warning) {
+            println("WARNING: " + renderMessage(message))
+        }
     }
 }
 

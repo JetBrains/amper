@@ -36,19 +36,15 @@ private object SLF4JProblemReporterContext : ProblemReporterContext {
     override val problemReporter: ProblemReporter = SLF4JProblemReporter(BindingSettingsPlugin::class.java)
 }
 
-private class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : ProblemReporter {
+private class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
     private val logger = LoggerFactory.getLogger(loggerClass)
-    private val errors = mutableListOf<String>()
 
-    override fun reportMessage(message: BuildProblem) {
+    override fun doReportMessage(message: BuildProblem) {
         when (message.level) {
             Level.Warning -> logger.warn(renderMessage(message))
-            Level.Error -> {
-                logger.error(renderMessage(message))
-                errors.add(renderMessage(message))
-            }
+            Level.Error -> logger.error(renderMessage(message))
         }
     }
 
-    fun getErrors(): List<String> = errors
+    fun getErrors(): List<String> = problems.map(::renderMessage)
 }

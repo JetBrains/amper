@@ -12,6 +12,17 @@ interface ProblemReporterContext {
     val problemReporter: ProblemReporter
 }
 
+abstract class CollectingProblemReporter : ProblemReporter {
+    protected val problems: MutableList<BuildProblem> = mutableListOf()
+
+    protected abstract fun doReportMessage(message: BuildProblem)
+
+    override fun reportMessage(message: BuildProblem) {
+        problems.add(message)
+        doReportMessage(message)
+    }
+}
+
 fun renderMessage(problem: BuildProblem): String = buildString {
     problem.file?.let { file ->
         append(file.normalize())
