@@ -35,6 +35,14 @@ fun registerJobInPrototypeDir(
         workDir = "prototype-implementation"
         env["SLACK_TOKEN"] = "{{ slack_secret_space_alerts_app }}"
         customContainerBody()
+
+        // Add e2e test report.
+        fileArtifacts {
+            localPath = "e2e-test/build/reports/tests"
+            optional = true
+            onStatus = OnStatus.ALWAYS
+        }
+
         kotlinScript {
             it.addCreds()
             try {
