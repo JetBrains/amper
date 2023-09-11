@@ -12,6 +12,7 @@ interface ProblemReporterContext {
     val problemReporter: ProblemReporter
 }
 
+// TODO: Can be refactored to the reporter chain to avoid inheritance.
 abstract class CollectingProblemReporter : ProblemReporter {
     protected val problems: MutableList<BuildProblem> = mutableListOf()
 
