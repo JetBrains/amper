@@ -48,7 +48,7 @@ internal fun testParseWithTemplates(resourceName: String, properties: Properties
                     .resolve("test/resources/$it")
             }
         }
-        (this.problemReporter as TestProblemReporter).tearDown()
+        problemReporter.tearDown()
 
         doTestParse(resourceName, parsed.getOrElse { fail("Failed to parse: $path") })
     }
@@ -129,5 +129,5 @@ private object TestProblemReporter : CollectingProblemReporter() {
 }
 
 private object TestProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: ProblemReporter = TestProblemReporter
+    override val problemReporter: TestProblemReporter = TestProblemReporter
 }
