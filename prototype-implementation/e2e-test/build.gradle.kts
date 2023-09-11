@@ -29,5 +29,6 @@ private val pluginClasspathDir = "pluginUnderTestMetadata"
 tasks.findByName("jvmTestProcessResources")?.apply {
     this as AbstractCopyTask
     dependsOn(":gradle-integration:copyDescriptorsHack")
+    dependsOn(":gradle-integration:pluginUnderTestMetadata")
     from(project(":gradle-integration").buildDir.resolve(pluginClasspathDir))
 }
