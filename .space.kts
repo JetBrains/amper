@@ -41,6 +41,7 @@ fun registerJobInPrototypeDir(
             localPath = "e2e-test/build/reports/tests"
             optional = true
             onStatus = OnStatus.ALWAYS
+            remotePath = "{{ run:number }}/e2e-tests-report"
         }
 
         kotlinScript {
