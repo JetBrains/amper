@@ -19,11 +19,11 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
     }
 
     val node = compose(path.reader())?.toYamlNode() ?: YamlNode.Mapping.Empty
-    if (node !is YamlNode.Mapping) {
-        problemReporter.reportError(FrontendYamlBundle.message("invalid.yaml", path), file = path)
-        return Result.failure(DeftException())
+    return if (node.castOrReport<YamlNode.Mapping>(path, FrontendYamlBundle.message("element.name.pot"))) {
+        Result.success(node)
+    } else {
+        Result.failure(DeftException())
     }
-    return Result.success(node)
 }
 
 context(InterpolateCtx, BuildFileAware, ProblemReporterContext)
@@ -35,26 +35,14 @@ fun Yaml.parseAndPreprocess(
     val rootConfig = loadFile(absoluteOriginPath).getOrElse { return Result.failure(DeftException()) }
 
     val templateNames = rootConfig["apply"]
-    if (templateNames !is YamlNode.Sequence?) {
-        problemReporter.reportError(
-            FrontendYamlBundle.message("apply.must.be.sequence", templateNames?.nodeType ?: "null"),
-            file = originPath,
-            line = (templateNames?.startMark?.line ?: 0) + 1
-        )
+    if (!templateNames.castOrReport<YamlNode.Sequence?>(originPath, FrontendYamlBundle.message("element.name.apply"))) {
         return Result.failure(DeftException())
     }
 
     var hasBrokenTemplates = false
     val appliedTemplates = templateNames
         ?.mapNotNull { templatePath ->
-            if (templatePath !is YamlNode.Scalar) {
-                problemReporter.reportError(
-                    FrontendYamlBundle.message("apply.template.should.be.path", templatePath.nodeType),
-                    file = originPath,
-                    line = templatePath.startMark.line + 1
-                )
-                return@mapNotNull null
-            }
+            if (!templatePath.castOrReport<YamlNode.Scalar>(originPath, FrontendYamlBundle.message("element.name.template.path"))) return@mapNotNull null
 
             val path = templatePathLoader(templatePath.value).absolute()
             val template = loadFile(path.normalize())
