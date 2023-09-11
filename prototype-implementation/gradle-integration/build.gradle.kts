@@ -50,7 +50,8 @@ val copyDescriptorsHack by tasks.creating(Copy::class) {
     destinationDir = file("build/pluginDescriptorsHack/META-INF/gradle-plugins")
 }
 
-tasks.findByName("jvmTestProcessResources")?.apply {
+// Do not change the task name!
+tasks.findByName("jvmProcessResources")?.apply {
     this as AbstractCopyTask
     dependsOn("pluginDescriptors")
     dependsOn(copyDescriptorsHack)
