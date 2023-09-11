@@ -39,7 +39,7 @@ fun Yaml.parseAndPreprocess(
         problemReporter.reportError(
             FrontendYamlBundle.message("apply.must.be.sequence", templateNames?.nodeType ?: "null"),
             file = originPath,
-            line = templateNames?.startMark?.line ?: 0
+            line = (templateNames?.startMark?.line ?: 0) + 1
         )
         return Result.failure(DeftException())
     }
