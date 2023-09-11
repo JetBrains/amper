@@ -42,7 +42,10 @@ fun Yaml.parseAndPreprocess(
     var hasBrokenTemplates = false
     val appliedTemplates = templateNames
         ?.mapNotNull { templatePath ->
-            if (!templatePath.castOrReport<YamlNode.Scalar>(originPath, FrontendYamlBundle.message("element.name.template.path"))) return@mapNotNull null
+            if (!templatePath.castOrReport<YamlNode.Scalar>(originPath, FrontendYamlBundle.message("element.name.template.path"))) {
+                hasBrokenTemplates = true
+                return@mapNotNull null
+            }
 
             val path = templatePathLoader(templatePath.value).absolute()
             val template = loadFile(path.normalize())
