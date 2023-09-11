@@ -21,7 +21,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
                 throw GradleException("""
                     |Deft model initialization failed. 
                     |Errors: 
-                    |  - ${(problemReporter as SLF4JProblemReporter).getErrors().joinToString("\n|  - ")}
+                    |  - ${problemReporter.getErrors().joinToString("\n|  - ")}
                     |See logs for details.""".trimMargin())
             }
 
@@ -33,7 +33,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
 }
 
 private class SLF4JProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: ProblemReporter = SLF4JProblemReporter(BindingSettingsPlugin::class.java)
+    override val problemReporter: SLF4JProblemReporter = SLF4JProblemReporter(BindingSettingsPlugin::class.java)
 }
 
 private class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
