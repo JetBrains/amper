@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val rootPath = settings.rootDir.toPath().toAbsolutePath()
-        with(SLF4JProblemReporterContext) {
+        with(SLF4JProblemReporterContext()) {
             val model = ModelInit.getModel(rootPath)
             if (model is Result.Failure<Model>) {
                 throw GradleException("""
@@ -32,7 +32,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
     }
 }
 
-private object SLF4JProblemReporterContext : ProblemReporterContext {
+private class SLF4JProblemReporterContext : ProblemReporterContext {
     override val problemReporter: ProblemReporter = SLF4JProblemReporter(BindingSettingsPlugin::class.java)
 }
 
