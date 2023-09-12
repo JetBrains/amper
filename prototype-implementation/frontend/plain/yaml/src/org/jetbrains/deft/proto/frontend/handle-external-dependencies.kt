@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.dependency.parseDependency
 import org.jetbrains.deft.proto.frontend.util.requireSingleOrNull
 import kotlin.io.path.Path
 
@@ -61,36 +62,11 @@ context (Map<String, Set<Platform>>, BuildFileAware)
 private fun List<FragmentBuilder>.addRawDependencies(config: Settings, osDetector: OsDetector) {
     config.handleFragmentSettings<List<Any>>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
-            when (dep) {
-                is String -> {
-                    val flags = dep.searchFlags()
-                    val notation = "^\\S+".toRegex().findAll(dep).single().value
-                    if (dep.startsWith(".") || dep.startsWith("/")) {
-                        DefaultPotatoModuleDependency(notation, flags.compile, flags.runtime, flags.exported)
-                    } else {
-                        replaceWithOsDependant(
-                            osDetector,
-                            MavenDependency(notation, flags.compile, flags.runtime, flags.exported)
-                        )
-                    }
-                }
-
-                is Map<*, *> -> {
-                    dep as Settings
-                    val path = dep.getStringValue("path")
-                    val notation = dep.getStringValue("notation")
-                    val compile = dep.getValue<Boolean>("compile") ?: true
-                    val runtime = dep.getValue<Boolean>("runtime") ?: true
-                    val exported = dep.getValue<Boolean>("exported") ?: true
-                    if (path != null) {
-                        DefaultPotatoModuleDependency(path, compile, runtime, exported)
-                    } else if (notation != null) {
-                        replaceWithOsDependant(osDetector, MavenDependency(notation, compile, runtime, exported))
-                    } else parseError("Error while parsing dependencies for fragment $name")
-                }
-
-                else -> parseError("Error while parsing dependencies for fragment $name")
-            }
+            parseDependency(dep) ?: parseError("Error while parsing dependencies for fragment $name")
+        }.map {
+            if (it is MavenDependency) {
+                replaceWithOsDependant(osDetector, it)
+            } else it
         }
         externalDependencies.addAll(resolved)
     }
