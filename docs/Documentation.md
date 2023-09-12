@@ -54,7 +54,7 @@ In a multi-platform Pot platform-specific code is located in the folders with `@
 |-Pot.yaml
 ```
 
-_NOTE: In the future we plan to also support a 'flat' multi-platform layout like the one below.
+_NOTE: In the future we plan to also support a more light-weight multi-platform layout like the one below.
 It requires some investment in the IntelliJ platform, so we haven't yet done it._ 
  
 ```
@@ -1261,60 +1261,162 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 
 ### Gradle interop
 
-*TL;DR:* There is an example of interop in [gradle-migration](../examples/gradle-migration) directory.
+Gradle interop supports two main scenarios:
+* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Pot,
+* writing custom Gradle tasks or using existing Gradle plugins in an existing Pot.
 
-In a nutshell, current version runs on top of Gradle, so Gradle build scripts
-are supported natively. Within a Pot module you can add `build.gradle` or `build.gradle.kts` file
-to alter Gradle configurations. Build scripts settings has a higher priority, than ones in Pot files.
-
-Yaml configurations come first, so all managed kotlin source sets (created from config file) will be 
-available in `kotlin` block.
-
-Say, if your config file is like this:
-```yaml
-product:
-  type: lib
-  platforms: [jvm, android]
+To use Gradle interop in a Pot, place either a `build.gradle.kts` or a `build.gradle` file next to your `Pot.yaml` file:
 ```
-so you can access `common`, `jvm`, `android` kotlin source sets within Gradle build script:
+|-src/
+|  |-main.kt
+|-Pot.yaml
+|-build.gradle.kts
+```
+
+#### Writing custom Gradle tasks:
+
+As an example let's use the following `Pot.yaml`:
+```yaml
+product: jvm/app
+```
+
+Here is how to write a custom task in the `build.gradle.kts`:
 ```kotlin
-// build.gradle.kts
-kotlin {
-    sourceSets {
-        val jvm by getting {
-            // your configs here
+tasks.register("hello") {
+    doLast {
+        println("Hello world!")
+    }
+}
+```
+Read more on [writing Gradle tasks](https://docs.gradle.org/current/userguide/more_about_tasks.html).
+
+
+#### Using Gradle plugins
+
+It's possible to use any existing a Gradle plugin, e.g. a popular [SQLDelight](https://cashapp.github.io/sqldelight/2.0.0/multiplatform_sqlite/):
+```kotlin
+plugins { 
+    id("app.cash.sqldelight") version "2.0.0"
+}
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("com.example")
         }
-        // ...
     }
 }
 ```
 
-Since configuration is applied before Gradle scripts are evaluated, you need to 
-remove `targets` part from kotlin block, since they will be already defined.
+_Note: The following plugins are preconfigured and their versions can't be changed:_
+* `org.jetbrains.kotlin.multiplatform`
+* `org.jetbrains.kotlin.android`
+* `com.android.library`
+* `com.android.application`
+* `org.jetbrains.compose`
 
-*Note:* Current implementation has a limitation - you can't specify a version of a kotlin
-multiplatform plugin, android plugin, compose plugin or apple plugin, since they are bundled. 
-So applying these plugins will be like:
+Here is how to use in these plugins in a Gradle script:
 ```kotlin
-// build.gradle.kts
 plugins {
-    kotlin("multiplatform") // without version here.
+    kotlin("multiplatform")     // don't specify version here,
+    id("com.android.library")   // here,
+    id("org.jetbrains.compose") // and here
 }
 ```
 
-Yet, there are tricky cases with source layouts.
-To prevent confusion and provide smooth migration from Gradle you can specify 
-layout setting within every project (in a config file):
-```yaml
-deft: 
-    layout: deft
-#   layout: gradle
-#   layout: gradle-jvm
+Configuration in `build.gradle*` file has precedence over `Pot.yml`. That means that a Gradle script can be used to tune/change the final configuration of your Pot.
+E.g. the following Gradle script configures the working dir and the `mainClass` property: 
+```kotlin
+application {
+    executableDir = "my_dir"
+    mainClass.set("my.package.Kt")
+}
 ```
-When:
- - deft layout mode is applied - all non managed source sets (even custom ones) are cleared.
- - gradle layout is applied - all Gradle source set directories are preserved untouched.
- - gradle-jvm layout is applied - jvm source set is renamed to main to be more like kotlin("jvm").
+
+#### File layout with Gradle interop
+
+By default, a [Pot file layout](#project-layout) is used. This layout suites best for new Pots:
+The file layout is:  
+```
+|-src/
+|  |-main.kt
+|-resources/
+|  |-...
+|-test/
+|  |-test.kt
+|-testResources/
+|  |-...
+|-Pot.yaml
+|-build.gradle.kts
+```
+
+For migration of existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
+To set the compatibility mode, add the following snippet to a Pot.yaml file:
+```yaml
+pot:
+   layout: gradle  # may be 'default', 'gradle', `gradle-jvm`
+```
+
+Here are possible layout modes:
+ - `default`: Pot's ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
+ - `gradle`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source set configured in the Gradle script are preserved. 
+ - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source set configured in the Gradle script are preserved.
+
+
+E.g. for the Pot.yaml:
+```yaml
+product: jvm/app
+
+pot:
+   layout: gradle
+```
+
+The file layout is:
+```
+|-src/
+|  |-commonMain/
+|  |  |-koltin
+|  |  |  |-...
+|  |  |-resources
+|  |  |  |-...
+|  |-commonTest/
+|  |  |-koltin
+|  |  |  |-...
+|  |  |-resources
+|  |  |  |-...
+|  |-jvmMain/
+|  |  |-koltin
+|  |  |  |-main.kt
+|  |  |-resources
+|  |  |  |-...
+|  |-jvmTest/
+|  |  |-koltin
+|  |  |  |-test.kt
+|  |  |-resources
+|  |  |  |-...
+|-Pot.yaml
+|-build.gradle.kts
+```
+
+In the compatibility mode source sets could be configured or amended in the Gradle script. They are accessible by their names: `commonMain`, `commonTest`, `jvmMain`, `jvmTest`, etc.:
+```kotlin
+kotlin {
+    sourceSets {
+        // configure an existing source set
+        val jvmMain by getting {
+            // your configuration here
+        }
+        
+        // add a new source set
+        val mySourceSet by creating {
+            // your configuration here
+        }
+    }
+}
+```
+
+See also documentation on [Kotlin Multiplatform source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and [custom source sets configuration](https://kotlinlang.org/docs/multiplatform-dsl-reference.html#custom-source-sets).
+
 
 ## Brief YAML reference
 YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
