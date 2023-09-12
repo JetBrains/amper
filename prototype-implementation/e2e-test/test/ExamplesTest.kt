@@ -1,6 +1,30 @@
 import org.junit.jupiter.api.Test
+import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.name
+import kotlin.io.path.pathString
+import kotlin.io.path.walk
+import kotlin.reflect.full.declaredFunctions
+import kotlin.test.Ignore
+import kotlin.test.assertEquals
 
 class ExamplesTest : E2ETestFixture("../../examples/") {
+    @Test
+    fun `check all example projects are tested`() {
+        @OptIn(ExperimentalPathApi::class)
+        val testProjects = Path.of(pathToProjects).walk().filter {
+            it.name.startsWith("settings.gradle", ignoreCase = true)
+        }.sorted()
+
+        val testMethods = this::class.declaredFunctions.count {
+            it.annotations.any { it.annotationClass.qualifiedName == "org.junit.jupiter.api.Test" }
+        }
+
+        assertEquals(testProjects.count(), testMethods - 1/*except this test method*/,
+            message = "Unexpected tests count, there are ${testProjects.count()} test projects:\n"
+                    + testProjects.joinToString("\n") { it.parent.pathString })
+    }
+
     @Test
     fun `new project template runs and prints Hello, World`() = test(
         projectName = "new-project-template",
@@ -52,6 +76,14 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
+    @Ignore
+    fun `compose desktop ios task`() = test(
+        projectName = "compose-ios",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
     fun `compose android build task`() = test(
         projectName = "compose-android",
         "build",
@@ -73,9 +105,35 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `gradle migration`() = test(
-        projectName = "gradle-migration",
+    fun `gradle interop`() = test(
+        projectName = "gradle-interop",
+        "build", ":hello", ":run",
+        expectOutputToHave = listOf(
+            """
+            > Task :hello
+            Hello from Gradle task!
+            """.trimIndent(),
+
+            """
+            > Task :run
+            Hello, World!
+            """.trimIndent(),
+
+            "BUILD SUCCESSFUL"
+        )
+    )
+
+    @Test
+    fun `gradle migration jvm`() = test(
+        projectName = "gradle-migration-jvm",
+        "build", ":app:run",
+        expectOutputToHave = listOf("Hello, World!", "BUILD SUCCESSFUL"),
+    )
+
+    @Test
+    fun `gradle migration kmp`() = test(
+        projectName = "gradle-migration-kmp",
         "build",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "BUILD SUCCESSFUL"
     )
 }

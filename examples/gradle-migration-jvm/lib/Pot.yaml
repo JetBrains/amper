@@ -1,0 +1,10 @@
+product: 
+  type: lib
+  platforms:
+    - jvm
+
+# Enable Gradle-compatible file layout
+deft:
+  layout: gradle-jvm
+
+

@@ -1,4 +1,17 @@
 plugins {
+    // Apply any plugins as usual.
+    // Note: The following plugins are preconfigured and their versions can't be changed:
+    //   * `org.jetbrains.kotlin.multiplatform`
+    //   * `org.jetbrains.kotlin.android`  ¡
+    //   * `com.android.library`
+    //   * `com.android.application`
+    //   * `org.jetbrains.compose`
+    //
+    // The following code:
+    //   `kotlin("multiplatform") version 1.9.0`
+    // should be replaced with:
+    //   `kotlin("multiplatform")`
+
     id("com.android.application")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
@@ -14,6 +27,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                // Use a Pot as a dependency
                 implementation(project(":shared"))
             }
         }
