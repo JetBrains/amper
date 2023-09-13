@@ -82,7 +82,7 @@ data class JavaPart(
             mainClass,
             packagePrefix ?: "",
             target ?: "17",
-            source ?: "17",
+            source ?: target ?: "17",
         )
 }
 
