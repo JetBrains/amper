@@ -2,7 +2,6 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.DeftException
 import org.jetbrains.deft.proto.core.Result
-import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
@@ -26,7 +25,7 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
     }
 }
 
-context(InterpolateCtx, BuildFileAware, ProblemReporterContext)
+context(BuildFileAware, ProblemReporterContext)
 fun Yaml.parseAndPreprocess(
     originPath: Path,
     templatePathLoader: (String) -> Path,
@@ -61,10 +60,8 @@ fun Yaml.parseAndPreprocess(
         } ?: emptyList()
     if (hasBrokenTemplates) return Result.failure(DeftException())
 
-    val resultConfig: Settings = appliedTemplates
-        .fold(rootConfig.toSettings()) { acc: Settings, from -> mergeTemplate(from.second.toSettings(), acc, from.first) }
-
-    return Result.success(resultConfig.doInterpolate())
+    return Result.success(appliedTemplates
+        .fold(rootConfig.toSettings()) { acc: Settings, from -> mergeTemplate(from.second.toSettings(), acc, from.first) })
 }
 
 /**
@@ -166,37 +163,3 @@ private fun adjustTemplateLiteral(
     else ->
         value
 }
-
-context(InterpolateCtx)
-internal fun Settings.doInterpolate(): Settings =
-    transformLeafs { leaf ->
-        if (leaf !is String)
-            leaf
-        else
-            leaf.tryInterpolate()
-    }
-
-internal fun Settings.transformLeafs(transform: (Any) -> Any): Settings =
-    buildMap {
-        this@transformLeafs.entries.map { entry ->
-            val value = entry.value
-            val key = entry.key
-            @Suppress("SENSELESS_COMPARISON")
-            if (value != null) {
-                when (value) {
-                    is List<*> -> {
-                        // The list contains other objects.
-                        if (value.isNotEmpty() && value.first() is Map<*, *>)
-                            put(key, value.map { (it as Settings).transformLeafs(transform) })
-                        // The list contains only leaf elements or is empty.
-                        else
-                            put(key, value.map { it?.let(transform) })
-                    }
-
-                    is Map<*, *> -> put(key, (value as Settings).transformLeafs(transform))
-                    else -> put(key, transform(value))
-                }
-            }
-
-        }
-    }

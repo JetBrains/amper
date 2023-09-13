@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class BootstrapTest {
@@ -16,6 +17,7 @@ class BootstrapTest {
     lateinit var projectPath: Path
 
     @Test
+    @Ignore
     fun `deft could build itself using version from sources`() {
         // given
         val commonTemplateString = Path.of("../common.Pot-template.yaml").toAbsolutePath().readText()

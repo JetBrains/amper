@@ -30,11 +30,15 @@ internal fun testParse(
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
     val parsed = Yaml().load<Settings>(text)
-    doTestParse(resourceName, parsed, osDetector)
+    doTestParse(resourceName, parsed, osDetector, init)
 }
 
 context (BuildFileAware)
-internal fun testParseWithTemplates(resourceName: String, properties: Properties = Properties()) {
+internal fun testParseWithTemplates(
+    resourceName: String,
+    properties: Properties = Properties(),
+    init: TestDirectory.() -> Unit = { directory("src") },
+) {
     val path = Path(".")
         .toAbsolutePath()
         .resolve("test/resources/$resourceName.yaml")
@@ -50,7 +54,7 @@ internal fun testParseWithTemplates(resourceName: String, properties: Properties
         }
         problemReporter.tearDown()
 
-        doTestParse(resourceName, parsed.getOrElse { fail("Failed to parse: $path") })
+        doTestParse(resourceName, parsed.getOrElse { fail("Failed to parse: $path") }, init = init)
     }
 }
 
@@ -61,6 +65,7 @@ internal fun doTestParse(
     osDetector: OsDetector = DefaultOsDetector(),
     init: TestDirectory.() -> Unit = { directory("src") }
 ) {
+
     project(buildFile.parent.toFile()) { init() }
 
     // When

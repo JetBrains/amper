@@ -18,9 +18,9 @@ data class RepositoriesModulePart(
     data class Repository(
         val id: String,
         val url: String,
-        val userName: String?,
-        val password: String?,
-        val publish: Boolean,
+        val publish: Boolean = false,
+        val userName: String? = null,
+        val password: String? = null,
     )
 }
 
