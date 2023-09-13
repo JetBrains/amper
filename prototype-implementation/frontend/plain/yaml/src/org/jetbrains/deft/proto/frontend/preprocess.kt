@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.DeftException
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
