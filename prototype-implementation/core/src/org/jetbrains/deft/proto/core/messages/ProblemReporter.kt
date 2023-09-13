@@ -13,6 +13,8 @@ interface ProblemReporterContext {
 }
 
 // TODO: Can be refactored to the reporter chain to avoid inheritance.
+// Note: This class is not thread-safe.
+// Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
 abstract class CollectingProblemReporter : ProblemReporter {
     protected val problems: MutableList<BuildProblem> = mutableListOf()
 
