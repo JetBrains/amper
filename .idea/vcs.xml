@@ -7,6 +7,10 @@
           <option name="issueRegexp" value="DEFT-T-(\d+)" />
           <option name="linkRegexp" value="https://jetbrains.team/p/deft/issues?issues=DEFT-T-$1" />
         </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="[A-Z]+\-\d+" />
+          <option name="linkRegexp" value="https://youtrack.jetbrains.com/issue/$0" />
+        </IssueNavigationLink>
       </list>
     </option>
   </component>
