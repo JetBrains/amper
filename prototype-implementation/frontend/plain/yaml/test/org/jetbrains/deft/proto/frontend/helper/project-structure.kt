@@ -26,14 +26,13 @@ internal class TestDirectory(val dir: File) {
         TestDirectory(newDir).apply(block)
     }
 
-    inline fun file(name: String, block: TestFile.() -> Unit = {}) {
-        val testFile = TestFile().apply(block)
-        val file = File(dir, name)
-        FileWriter(file).use { fileWriter ->
-            BufferedWriter(fileWriter).use {
-                it.write(testFile.content)
-            }
-        }
+    inline fun file(name: String, block: File.() -> Unit = {}) {
+        File(dir, name).apply { createNewFile() }.block()
+    }
+
+    fun copyLocal(localName: String, newName: String = localName) {
+        val localFile = File(".").resolve("test/resources/$localName").normalize().takeIf(File::exists)
+        localFile?.copyTo(File(dir, newName), overwrite = true)
     }
 }
 

@@ -39,6 +39,9 @@ internal fun PotatoModule.prettyPrint(): String {
             repositories.forEach {
                 appendLine("  - id: ${it.id}")
                 appendLine("    url: ${it.url}")
+                appendLine("    publish: ${it.publish}")
+                appendLine("    username: ${it.userName}")
+                appendLine("    password: ${it.password}")
             }
         }
     }
