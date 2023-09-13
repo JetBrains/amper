@@ -1,13 +1,11 @@
 package org.jetbrains.deft.proto.gradle
 
 import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.tasks.SourceSet
 import org.jetbrains.deft.proto.frontend.Layout
-import org.jetbrains.deft.proto.frontend.LeafFragment
 import org.jetbrains.deft.proto.frontend.MetaModulePart
-import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
-import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
 
@@ -17,18 +15,33 @@ import java.io.File
  * existing layout", else "overwrite it with return value".
  *
  */
+// TODO Rewrite the whole approach when we migrate to external target API.
 sealed interface LayoutMode {
-    context(KMPEAware)
-    fun FragmentWrapper.modifyManagedSources(): List<File>?
+    /**
+     * Is called upon any source set, that has bind fragment.
+     */
+    context(KMPEAware) fun FragmentWrapper.modifyManagedSources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ): List<File>?
 
-    context(KMPEAware)
-    fun FragmentWrapper.modifyManagedResources(): List<File>?
+    /**
+     * Is called upon any source set, that has bind fragment.
+     */
+    context(KMPEAware) fun FragmentWrapper.modifyManagedResources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ): List<File>?
 
-    context(KMPEAware)
-    fun KotlinSourceSet.modifyUnmanagedSources(): List<File>?
+    /**
+     * Is called upon kotlin source sets that are not bind to fragment.
+     */
+    context(KMPEAware) fun modifyUnmanagedSources(sourceSet: KotlinSourceSet): List<File>?
 
-    context(KMPEAware)
-    fun KotlinSourceSet.modifyUnmanagedResources(): List<File>?
+    /**
+     * Is called upon kotlin source sets that are not bind to fragment.
+     */
+    context(KMPEAware) fun modifyUnmanagedResources(sourceSet: KotlinSourceSet): List<File>?
 }
 
 /**
@@ -36,73 +49,89 @@ sealed interface LayoutMode {
  * `commonMain` is hidden and "replaced" by `common`.
  */
 data object GradleLayoutMode : LayoutMode {
-    context(KMPEAware)
-    private fun FragmentWrapper.modifyManaged(
+    context(KMPEAware) private fun FragmentWrapper.modifyManaged(
         getter: KotlinSourceSet.() -> SourceDirectorySet
     ): List<File>? {
         if (name != "common") return null
         val commonMainSources = kotlinMPE.sourceSets.findByName("commonMain")?.getter() ?: return null
         val commonMainSrcDirs = commonMainSources.srcDirs
-        commonMainSources.setSrcDirs(emptyList<File>())
         return commonMainSrcDirs.toList()
     }
 
     // Replace "common" source set directories by "commonMain".
-    context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedSources() =
-        modifyManaged(KotlinSourceSet::kotlin)
+    context(KMPEAware) override fun FragmentWrapper.modifyManagedSources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ) = modifyManaged(KotlinSourceSet::kotlin)
 
-    context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedResources() =
-        modifyManaged(KotlinSourceSet::resources)
+    context(KMPEAware) override fun FragmentWrapper.modifyManagedResources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ) = modifyManaged(KotlinSourceSet::resources)
 
 
     // Clear all directories for non managed common main source set.
     // (since it is replaced by common source set)
-    context(KMPEAware)
-    private fun KotlinSourceSet.modifyNonManaged() =
-        if (name == "commonMain") emptyList<File>() else null
+    context(KMPEAware) private fun modifyNonManaged(sourceSet: KotlinSourceSet) =
+        if (sourceSet.name == "commonMain") emptyList<File>() else null
 
-    context(KMPEAware)
-    override fun KotlinSourceSet.modifyUnmanagedSources() = modifyNonManaged()
-
-    context(KMPEAware)
-    override fun KotlinSourceSet.modifyUnmanagedResources() = modifyNonManaged()
+    context(KMPEAware) override fun modifyUnmanagedSources(sourceSet: KotlinSourceSet) = modifyNonManaged(sourceSet)
+    context(KMPEAware) override fun modifyUnmanagedResources(sourceSet: KotlinSourceSet) = modifyNonManaged(sourceSet)
 }
 
 /**
- * Layout mode that works like [GradleLayoutMode], but also, renames "jvm" source set directories
+ * Layout mode that works like [GradleLayoutMode], but also, renames "jvmMain" source set directories
  * by "main"/"test" maven like to make it kotlin("jvm") compatible.
  */
 data object GradleJvmLayoutMode : LayoutMode by GradleLayoutMode {
-    context(KMPEAware)
-    private fun FragmentWrapper.modifyManaged(
-        getter: KotlinSourceSet.() -> SourceDirectorySet,
-    ) = if (this is LeafFragment && platform == Platform.JVM) {
+    context(KMPEAware) private fun FragmentWrapper.modifyManaged(
+        sourceSet: Any,
+        oldSources: Collection<File>?,
+    ) = if (sourceSet is SourceSet && (sourceSet.name == "main" || sourceSet.name == "test")) {
         val newName = if (isTest) "test" else "main"
-        kotlinSourceSet?.getter()?.srcDirs?.map { it.replaceLast(newName) { it == name } }
+        oldSources?.map { it.replacePenultimate(newName) }
     } else null
 
-    // TODO Add check, that there is only one platform (JVM) and JVM like Deft setup.
-    context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedSources() =
-        modifyManaged(KotlinSourceSet::kotlin)
-    context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedResources() =
-        modifyManaged(KotlinSourceSet::resources)
+    context(KMPEAware) override fun FragmentWrapper.modifyManagedSources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ) = modifyManaged(sourceSet, oldSources)
 
-    // TODO Nullify all leaf KMPP created source sets.
+    context(KMPEAware) override fun FragmentWrapper.modifyManagedResources(
+        sourceSet: Any,
+        oldSources: Collection<File>?
+    ) = modifyManaged(sourceSet, oldSources)
+
+    context(KMPEAware) private fun modifyUnmanaged(
+        sourceSet: KotlinSourceSet,
+        getter: KotlinSourceSet.() -> SourceDirectorySet,
+    ): List<File>? {
+        return when {
+            sourceSet.name == "jvmMain" -> sourceSet.getter().srcDirs.map { it.replacePenultimate("main") }
+            sourceSet.name == "jvmTest" -> sourceSet.getter().srcDirs.map { it.replacePenultimate("test") }
+            else -> null
+        }
+    }
+
+    context(KMPEAware) override fun modifyUnmanagedSources(sourceSet: KotlinSourceSet) =
+        modifyUnmanaged(sourceSet, KotlinSourceSet::kotlin)
+    context(KMPEAware) override fun modifyUnmanagedResources(sourceSet: KotlinSourceSet) =
+        modifyUnmanaged(sourceSet, KotlinSourceSet::resources)
 }
 
 data object DeftLayoutMode : LayoutMode {
     context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedSources() = listOf(src.toFile())
+    override fun FragmentWrapper.modifyManagedSources(sourceSet: Any, oldSources: Collection<File>?) =
+        listOf(src.toFile())
+
     context(KMPEAware)
-    override fun FragmentWrapper.modifyManagedResources() = listOf(resourcesPath.toFile())
-    context(KMPEAware)
-    override fun KotlinSourceSet.modifyUnmanagedSources() = emptyList<File>()
-    context(KMPEAware)
-    override fun KotlinSourceSet.modifyUnmanagedResources() = emptyList<File>()
+    override fun FragmentWrapper.modifyManagedResources(sourceSet: Any, oldSources: Collection<File>?) =
+        listOf(resourcesPath.toFile())
+
+    context(KMPEAware) override fun modifyUnmanagedSources(sourceSet: KotlinSourceSet) =
+        emptyList<File>()
+    context(KMPEAware) override fun modifyUnmanagedResources(sourceSet: KotlinSourceSet) =
+        emptyList<File>()
 }
 
 private val BindingPluginPart.layout

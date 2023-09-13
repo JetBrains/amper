@@ -89,12 +89,14 @@ class KMPPBindingPluginPart(
                 if (fragment != null) {
                     // Only modify managed source sets once.
                     if (firstTime) {
-                        fragment.modifyManagedSources()?.let { sourceSet.kotlin.setSrcDirs(it) }
-                        fragment.modifyManagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+                        fragment.modifyManagedSources(sourceSet.name, sourceSet.kotlin.srcDirs)
+                            ?.let { sourceSet.kotlin.setSrcDirs(it) }
+                        fragment.modifyManagedResources(sourceSet.name, sourceSet.resources.srcDirs)
+                            ?.let { sourceSet.resources.setSrcDirs(it) }
                     }
                 } else {
-                    sourceSet.modifyUnmanagedSources()?.let { sourceSet.kotlin.setSrcDirs(it) }
-                    sourceSet.modifyUnmanagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+                    modifyUnmanagedSources(sourceSet)?.let { sourceSet.kotlin.setSrcDirs(it) }
+                    modifyUnmanagedResources(sourceSet)?.let { sourceSet.resources.setSrcDirs(it) }
                 }
             }
         }

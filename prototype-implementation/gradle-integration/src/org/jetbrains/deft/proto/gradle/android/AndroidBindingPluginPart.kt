@@ -77,7 +77,7 @@ class AndroidBindingPluginPart(
             androidSourceSets?.all {
                 val fragment = it.deftFragment ?: return@all
 
-                val sources = fragment.modifyManagedSources()
+                val sources = fragment.modifyManagedSources(it.name, null)
                 if (sources != null) {
                     it.kotlin.setSrcDirs(sources)
                     it.java.setSrcDirs(sources)
@@ -85,7 +85,7 @@ class AndroidBindingPluginPart(
                     it.manifest.srcFile(sources.first().resolve("Manifest.xml"))
                 }
 
-                val resources = fragment.modifyManagedResources()
+                val resources = fragment.modifyManagedResources(it.name, null)
                 if (resources != null) {
                     it.resources.setSrcDirs(resources)
                     it.res.setSrcDirs(resources)

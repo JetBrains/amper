@@ -6,7 +6,7 @@
   "$defs": {
     "DeftSchema": {
       "properties": {
-        "deft": {
+        "pot": {
           "type": "object",
           "properties": {
             "layout": {

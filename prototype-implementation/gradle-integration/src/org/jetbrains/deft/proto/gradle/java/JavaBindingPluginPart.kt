@@ -134,9 +134,10 @@ class JavaBindingPluginPart(
         with(layoutMode) {
             javaPE.sourceSets.all { sourceSet ->
                 val fragment = sourceSet.deftFragment ?: return@all
-
-                fragment.modifyManagedSources()?.let { sourceSet.java.setSrcDirs(it) }
-                fragment.modifyManagedResources()?.let { sourceSet.resources.setSrcDirs(it) }
+                fragment.modifyManagedSources(sourceSet, sourceSet.java.srcDirs)
+                    ?.let { sourceSet.java.setSrcDirs(it) }
+                fragment.modifyManagedResources(sourceSet, sourceSet.resources.srcDirs)
+                    ?.let { sourceSet.resources.setSrcDirs(it) }
             }
         }
     }

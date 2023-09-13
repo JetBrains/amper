@@ -1,7 +1,11 @@
 product: jvm/app
 
-deft:
+pot:
   layout: gradle-jvm
 
 # entry point should be auto-discovered
 
+settings:
+  java:
+    target: 11
+    source: 11

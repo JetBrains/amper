@@ -13,14 +13,15 @@ fun parseModuleParts(
 
 context(BuildFileAware)
 private fun parseMetaSettings(config: Settings): MetaModulePart {
-    val meta = config.getValue<Settings>("deft") ?: return MetaModulePart() // TODO Check for type.
+    val meta = config.getValue<Settings>("pot")
+        ?: return MetaModulePart() // TODO Check for type.
 
     fun parseLayout(): Layout? {
         return when (val layoutValue = meta["layout"]) {
             null -> return null
             !is String -> parseError("Layout value is not string: $layoutValue")
-            "deft" -> Layout.DEFT
-            "gradle" -> Layout.GRADLE
+            "default" -> Layout.DEFT
+            "gradle-kmp" -> Layout.GRADLE
             "gradle-jvm" -> Layout.GRADLE_JVM
             else -> parseError("Unknown layout: $layoutValue")
         }

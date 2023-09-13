@@ -2,8 +2,8 @@ product:
   type: lib
   platforms: [jvm, android]
 
-deft:
-  layout: gradle
+pot:
+  layout: gradle-kmp
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0

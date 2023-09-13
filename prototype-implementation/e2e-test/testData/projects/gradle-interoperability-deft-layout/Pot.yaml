@@ -1,4 +1,7 @@
 product: jvm/app
 
+pot:
+  layout: default
+
 # entry point should be auto-discovered
 
