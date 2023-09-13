@@ -5,6 +5,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 
+//  TODO Reaplce by version, when layouts are published.
     includeBuild("../../prototype-implementation")
 }
 

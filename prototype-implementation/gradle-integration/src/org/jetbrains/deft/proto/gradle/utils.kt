@@ -111,29 +111,14 @@ fun trySetSystemProperty(key: String, value: String) {
 }
 
 /**
- * Replace last path entry that is matched by [matcher] by given name.
+ * Replace penultimate path entry that is matched by [matcher] by given name.
  */
-fun File.replaceLast(newName: String, matcher: (String) -> Boolean): File {
-    val nonMatching = mutableListOf<String>()
-    var current = this
-    while (!matcher(current.name)) {
-        nonMatching.add(current.name)
-        current = current.parentFile ?: return this
+fun File.replacePenultimate(newName: String): File {
+    val lastEntry = name
+    val penultimateFile = parentFile ?: return this
+    return if (penultimateFile.parent == null) {
+        File(newName).resolve(lastEntry)
+    } else {
+        penultimateFile.parentFile.resolve(newName).resolve(lastEntry)
     }
-    val newBase = current.parentFile?.resolve(newName) ?: File(newName)
-    return nonMatching.foldRight(newBase) { it, acc -> acc.resolve(it) }
-}
-
-/**
- * Replace last path entry that is matched by [matcher] by given name.
- */
-fun Path.replaceLast(newName: String, matcher: (String) -> Boolean): Path {
-    val nonMatching = mutableListOf<String>()
-    var current = this
-    while (!matcher(current.name)) {
-        nonMatching.add(current.name)
-        current = current.parent ?: return this
-    }
-    val newBase = current.parent?.resolve(newName) ?: Path(newName)
-    return nonMatching.foldRight(newBase) { it, acc -> acc.resolve(it) }
 }

@@ -8,7 +8,7 @@ As you can see three modules are configured differently:
 
 Settings are shared between `Pot.yaml` and `build.gradle.kts` for the sake of example.
 
-There is a specified `gradle` layout in `Pot.yaml`.
+There is a specified `gradle-kmp` layout in `Pot.yaml`.
 
 Look for comments inside `shared/build.gradle.kts`.
 
