@@ -1218,7 +1218,8 @@ The DSL engine would be able to quickly discover DSL schema for `setting:my-sour
 
 ## Gradle-based projects
 
-The current implementation is Gradle-based. You need a settings.gradle.kts file in the project root with the DSL plugin:
+The current implementation is Gradle-based. You need a `settings.gradle.kts` file in the project root with the DSL
+plugin:
 ```
 |-src/
 |  |-...
@@ -1226,7 +1227,9 @@ The current implementation is Gradle-based. You need a settings.gradle.kts file 
 |-settings.gradle.kts
 ```
 
-Or in case or multi-module projects:
+In case of a multi-module projects, the `settings.gradle.kts` should be placed in the root as usual.
+The Pot.yaml files in the subdirectories are discovered automatically by looking recursively into each directory
+starting from the location of `settings.gradle.kts`.
 
 ```
 |-app/
