@@ -1354,21 +1354,44 @@ For migration of existing Gradle project there is a compatibility mode (see also
 To set the compatibility mode, add the following snippet to a Pot.yaml file:
 ```yaml
 pot:
-   layout: gradle  # may be 'default', 'gradle', `gradle-jvm`
+   layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
 ```
 
 Here are possible layout modes:
  - `default`: Pot's ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
- - `gradle`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source set configured in the Gradle script are preserved. 
  - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source set configured in the Gradle script are preserved.
-
+ - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source set configured in the Gradle script are preserved. 
 
 E.g. for the Pot.yaml:
 ```yaml
 product: jvm/app
+pot:
+   layout: gradle-jvm
+```
+
+The file layout is:
+```
+|-src/
+|  |-main/
+|  |  |-koltin
+|  |  |  |-main.kt
+|  |  |-resources
+|  |  |  |-...
+|  |-test/
+|  |  |-koltin
+|  |  |  |-test.kt
+|  |  |-resources
+|  |  |  |-...
+|-Pot.yaml
+|-build.gradle.kts
+```
+
+While for the Pot.yaml:
+```yaml
+product: jvm/app
 
 pot:
-   layout: gradle
+   layout: gradle-kmp
 ```
 
 The file layout is:

@@ -145,5 +145,34 @@ kotlin {
 # Step 5. Optionally, switch to Pot file layout
 
 
+By default, a [Pot file layout](./Documentation.md#project-layout) is used. This layout suites best for new Pots:
+The file layout is:  
+```
+|-src/
+|  |-main.kt
+|-resources/
+|  |-...
+|-test/
+|  |-test.kt
+|-testResources/
+|  |-...
+|-Pot.yaml
+|-build.gradle.kts
+```
+
+For migration of existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)) 
+
+E.g. for the Pot.yaml:
+```yaml
+product: jvm/app
+
+pot:
+   layout: gradle  # may be 'default' or 'gradle
+```
+
+Pot uses the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html) or [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets):
+
+
+
 
 
