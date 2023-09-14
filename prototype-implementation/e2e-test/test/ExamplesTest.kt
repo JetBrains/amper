@@ -76,10 +76,9 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    @Ignore
     fun `compose desktop ios task`() = test(
         projectName = "compose-ios",
-        "build",
+        "buildIosAppMain",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
