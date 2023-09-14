@@ -15,3 +15,7 @@ kotlin {
         }
     }
 }
+
+android {
+    sourceSets["main"].resources.srcDirs("resources")
+}
