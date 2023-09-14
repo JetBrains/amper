@@ -27,7 +27,3 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
 }
-
-include(
-    "ide-plugin-231-232",
-)
