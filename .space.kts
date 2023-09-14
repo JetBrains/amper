@@ -8,7 +8,7 @@ import kotlin.script.experimental.dependencies.DependsOn
 import kotlin.system.exitProcess
 
 fun ScriptApi.addCreds() {
-    File("root.local.properties").writeText(
+    File("local.properties").writeText(
         """
                 scratch.username=${spaceClientId()}
                 scratch.password=${spaceClientSecret()}
