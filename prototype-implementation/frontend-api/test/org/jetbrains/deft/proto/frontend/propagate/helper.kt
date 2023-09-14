@@ -106,7 +106,7 @@ class FragmentBuilder(var name: String) {
             override val isDefault: Boolean
                 get() = true
             override val src: Path get() = Path(name).resolve("main")
-            override val resourcesPath get() = Path(name).resolve("resources")
+            override val resourcesPath get() = Path(name).resolve("")
             override val variants: List<String>
                 get() = this@FragmentBuilder.variants
         }

@@ -17,7 +17,6 @@ class BootstrapTest {
     lateinit var projectPath: Path
 
     @Test
-    @Ignore
     fun `deft could build itself using version from sources`() {
         // given
         val commonTemplateString = Path.of("../common.Pot-template.yaml").toAbsolutePath().readText()

@@ -41,7 +41,7 @@ internal fun testParseWithTemplates(
 ) {
     val path = Path(".")
         .toAbsolutePath()
-        .resolve("test/resources/$resourceName.yaml")
+        .resolve("testResources/$resourceName.yaml")
     if (!path.exists()) fail("Resource not found: $path")
 
     with(TestProblemReporterContext) {
@@ -49,7 +49,7 @@ internal fun testParseWithTemplates(
             Yaml().parseAndPreprocess(path) {
                 Path(".")
                     .toAbsolutePath()
-                    .resolve("test/resources/$it")
+                    .resolve("testResources/$it")
             }
         }
         problemReporter.tearDown()
@@ -78,7 +78,7 @@ internal fun doTestParse(
     val actual = module.prettyPrint()
 
     val resourceFile = File(".").absoluteFile
-        .resolve("test/resources/$expectedResourceName")
+        .resolve("testResources/$expectedResourceName")
         .takeIf { it.exists() } ?: fail("Resource $expectedResourceName not found")
 
     val buildDir = (module.source as PotatoModuleFileSource).buildDir.normalize().toString()
