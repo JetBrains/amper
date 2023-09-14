@@ -1362,8 +1362,10 @@ pot:
 
 Here are possible layout modes:
  - `default`: Pot's ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
- - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source set configured in the Gradle script are preserved.
- - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source set configured in the Gradle script are preserved. 
+ - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source sets configured in the Gradle script are preserved.
+ - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source sets configured in the Gradle script are preserved.
+
+See the [Gradle and Pot layouts comparison](#gradle-vs-pot-project-layout).
 
 E.g. for the Pot.yaml:
 ```yaml
@@ -1376,12 +1378,12 @@ The file layout is:
 ```
 |-src/
 |  |-main/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-main.kt
 |  |  |-resources
 |  |  |  |-...
 |  |-test/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-test.kt
 |  |  |-resources
 |  |  |  |-...
@@ -1401,22 +1403,22 @@ The file layout is:
 ```
 |-src/
 |  |-commonMain/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-...
 |  |  |-resources
 |  |  |  |-...
 |  |-commonTest/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-...
 |  |  |-resources
 |  |  |  |-...
 |  |-jvmMain/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-main.kt
 |  |  |-resources
 |  |  |  |-...
 |  |-jvmTest/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-test.kt
 |  |  |-resources
 |  |  |  |-...
@@ -1440,6 +1442,32 @@ kotlin {
     }
 }
 ```
+
+#### Gradle vs Pot project layout
+
+Here is how Gradle layout maps to the Pot file layout:
+
+| Gradle JVM         | Pot           |
+|--------------------|---------------|
+| src/main/kotlin    | src           |
+| src/main/java      | src           |
+| src/main/resources | resources     |
+| src/test/kotlin    | test          |
+| src/test/java      | test          |
+| src/test/resources | testResources |
+
+| Gradle KMP               | Pot           |
+|--------------------------|---------------|
+| src/commonMain/kotlin    | src           |
+| src/commonMain/java      | src           |
+| src/commonMain/resources | resources     |
+| src/jvmMain/kotlin       | src@jvm       |
+| src/jvmMain/java         | src@jvm       |
+| src/jvmMain/resources    | resources@jvm |
+| src/test/kotlin          | test          |
+| src/test/java            | test          |
+| src/test/resources       | testResources |
+
 
 See also documentation on [Kotlin Multiplatform source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and [custom source sets configuration](https://kotlinlang.org/docs/multiplatform-dsl-reference.html#custom-source-sets).
 
