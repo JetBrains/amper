@@ -7,6 +7,7 @@ import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.gradle.apple.AppleProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 
 val iosPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS, Platform.IOS_SIMULATOR_ARM64, Platform.IOS_X64)
@@ -20,6 +21,8 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
     override val needToApply by lazy { module.type == ProductType.IOS_APP }
 
     override fun applyBeforeEvaluate() {
+        project.extraProperties.set("generateBuildableXcodeproj.skipKotlinFrameworkDependencies", "true")
+
         // Apply plugin
         project.plugins.apply("org.jetbrains.gradle.apple.applePlugin")
 
