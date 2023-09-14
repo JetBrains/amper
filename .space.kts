@@ -7,14 +7,11 @@ import java.util.*
 import kotlin.script.experimental.dependencies.DependsOn
 import kotlin.system.exitProcess
 
-private val tbePluginTokenEnv = "TBE_PLUGIN_TOKEN"
-
 fun ScriptApi.addCreds() {
     File("root.local.properties").writeText(
         """
                 scratch.username=${spaceClientId()}
                 scratch.password=${spaceClientSecret()}
-                ide-plugin.publish.token=${System.getenv(tbePluginTokenEnv)}
             """.trimIndent()
     )
 }
@@ -99,35 +96,6 @@ registerJobInPrototypeDir(
         "--stacktrace",
         "allTests",
         "publishAllPublicationsToScratchRepository",
-    )
-}
-
-// Build for publishing plugin.
-registerJobInPrototypeDir(
-    "Intellij plugin (Build and publish)",
-    customTrigger = { schedule { cron("0 0 * * *") } },
-    customParameters = {
-        text("channel", value = "Nightly") {
-            options("Stable", "Nightly")
-        }
-        secret("tbe.plugin.token", value = "{{ project:tbe.plugin.token }}", description = "Toolbox Enterprise token for publishing")
-    },
-    customContainerBody = { env[tbePluginTokenEnv] = "{{ tbe.plugin.token }}" }
-) {
-    val channelAndVersion = ChannelAndVersion.from(this)
-    println("Publishing to channel: ${channelAndVersion.channel} with version: ${channelAndVersion.version}")
-
-    channelAndVersion.writeTo(
-        filePath = "ide-plugin-231-232/gradle.properties",
-        channelPrefix = "ide-plugin.channel=",
-        versionPrefix = "ide-plugin.version="
-    )
-
-    gradlew(
-        "--info",
-        "--stacktrace",
-        "--quiet",
-        "publishPlugin",
     )
 }
 
