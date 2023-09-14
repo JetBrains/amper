@@ -1,9 +1,11 @@
 repositories:
   - id: scratch
     url: https://packages.jetbrains.team/maven/p/deft/deft-prototype
-    username: ${scratch.username}
-    password: ${scratch.password}
     publish: true
+    credentials:
+      file: ./root.local.properties
+      usernameKey: scratch.username
+      passwordKey: scratch.password
   - id: mavenCentral
     url: https://repo.maven.apache.org/maven2/
   - id: jitpack

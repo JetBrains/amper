@@ -31,7 +31,7 @@ internal class TestDirectory(val dir: File) {
     }
 
     fun copyLocal(localName: String, newName: String = localName) {
-        val localFile = File(".").resolve("test/resources/$localName").normalize().takeIf(File::exists)
+        val localFile = File(".").resolve("testResources/$localName").normalize().takeIf(File::exists)
         localFile?.copyTo(File(dir, newName), overwrite = true)
     }
 }

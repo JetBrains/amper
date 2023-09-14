@@ -1,5 +1,5 @@
 frontend/fragments/yaml/build
-frontend/fragments/yaml/test/resources
+frontend/fragments/yaml/testResources
 try
 samples-jps
 e2e-test/resources
