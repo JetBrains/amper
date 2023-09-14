@@ -3,7 +3,7 @@ repositories:
     url: https://packages.jetbrains.team/maven/p/deft/deft-prototype
     publish: true
     credentials:
-      file: ./root.local.properties
+      file: ./local.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
   - id: mavenCentral
