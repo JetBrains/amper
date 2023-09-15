@@ -11,6 +11,9 @@ import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.resolve.resolved
 import org.slf4j.LoggerFactory
 
+private const val ERROR_PREFIX = "  - "
+private const val ERROR_INDENT = "    "
+
 @Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
@@ -21,7 +24,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
                 throw GradleException("""
                     |Deft model initialization failed. 
                     |Errors: 
-                    |  - ${problemReporter.getErrors().joinToString("\n|  - ")}
+                    |$ERROR_PREFIX${problemReporter.getErrors().joinToString("\n|$ERROR_PREFIX") { it.replace("\n", "\n$ERROR_INDENT") } }
                     |See logs for details.""".trimMargin())
             }
 
