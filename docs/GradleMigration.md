@@ -124,7 +124,7 @@ of [the supported product types](Documentation.md#product-types)
 Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 
 ```
-|-lib/
+|-src/
 |  |-main/
 |  |  |-koltin
 |  |  |  |-main.kt
@@ -181,7 +181,7 @@ See example project [gradle-migration-jvm](../examples/gradle-migration-jvm).
 Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 
 ```
-|-lib/
+|-src/
 |  |-commonMain/
 |  |  |-koltin
 |  |  |  |-main.kt
