@@ -44,14 +44,14 @@ private val fullDependencyFormat: (Any) -> NotationWithFlags? = { dependency ->
         val notation = entry.key
 
         (entry.value as? Settings)?.let {
-            val scope = it.getValue<String>("scope") ?: "all"
+            val scope = it.getStringValue("scope") ?: "all"
             val (compile, runtime) = when (scope) {
                 "compile-only" -> true to false
                 "runtime-only" -> false to true
                 "all" -> true to true
                 else -> true to true
             }
-            val exported = it.getValue<Boolean>("exported") ?: false
+            val exported = it.getBooleanValue("exported") ?: false
             NotationWithFlags(notation, compile, runtime, exported)
         }
     }
