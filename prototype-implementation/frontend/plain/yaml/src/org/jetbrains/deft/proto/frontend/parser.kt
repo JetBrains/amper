@@ -1,7 +1,10 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.toSettings
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -11,8 +14,9 @@ internal fun parseError(message: CharSequence): Nothing {
     error("$buildFile: $message")
 }
 
-context(BuildFileAware)
-fun parseModule(config: Settings, osDetector: OsDetector = DefaultOsDetector()): Result<PotatoModule> {
+context(BuildFileAware, ProblemReporterContext)
+fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDetector()): Result<PotatoModule> {
+    val config = config.toSettings()
     val (productType: ProductType, platforms: Set<Platform>) = parseProductAndPlatforms(config)
 
     val dependencySubsets = config.keys
