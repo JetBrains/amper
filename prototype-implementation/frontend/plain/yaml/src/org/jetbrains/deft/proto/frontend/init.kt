@@ -6,7 +6,6 @@ import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
 import java.util.stream.Collectors
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -56,7 +55,7 @@ class YamlModelInit : ModelInit {
 
         if (modules.any { it is Result.Failure }) return Result.failure(DeftException())
 
-            val moduleNames = modules.unwrap().map { it.userReadableName }.toSet()
+        val moduleNames = modules.unwrap().map { it.userReadableName }.toSet()
 
         val gradleModuleWrappers = Files.walk(root)
             .filter { setOf("build.gradle.kts", "build.gradle").contains(it.name) }
