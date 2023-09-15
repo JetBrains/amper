@@ -60,18 +60,16 @@ fun Yaml.parseAndPreprocess(
                 null
             }?.let { path to it }
         } ?: emptyList()
-    if (hasBrokenTemplates) return Result.failure(DeftException())
 
     var currentConfig = rootConfig
-    var hasErrors = false
     appliedTemplates.forEach { (templatePath, template) ->
         val newConfig = mergeTemplate(template, currentConfig, templatePath).getOrElse {
-            hasErrors = true
+            hasBrokenTemplates = true
             currentConfig
         }
         currentConfig = newConfig
     }
-    if (hasErrors) return Result.failure(DeftException())
+    if (hasBrokenTemplates) return Result.failure(DeftException())
     return Result.success(currentConfig.toSettings())
 }
 
