@@ -31,7 +31,7 @@ context(BuildFileAware, ProblemReporterContext)
 fun Yaml.parseAndPreprocess(
     originPath: Path,
     templatePathLoader: (String) -> Path,
-): Result<Settings> {
+): Result<YamlNode.Mapping> {
     val absoluteOriginPath = originPath.absolute()
     val rootConfig = loadFile(absoluteOriginPath).getOrElse { return Result.failure(DeftException()) }
 
@@ -70,7 +70,7 @@ fun Yaml.parseAndPreprocess(
         currentConfig = newConfig
     }
     if (hasBrokenTemplates) return Result.failure(DeftException())
-    return Result.success(currentConfig.toSettings())
+    return Result.success(currentConfig)
 }
 
 /**

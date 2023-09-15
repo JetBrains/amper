@@ -4,6 +4,8 @@ import org.jetbrains.deft.proto.core.get
 import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.*
 import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.toYamlNode
 import org.junit.jupiter.api.assertThrows
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -25,12 +27,16 @@ context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
     osDetector: OsDetector = DefaultOsDetector(),
-    init: TestDirectory.() -> Unit = { directory("src") }
+    init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
-    val parsed = Yaml().load<Settings>(text)
-    doTestParse(resourceName, parsed, osDetector, init)
+    val parsed = Yaml().compose(text.reader()).toYamlNode() as? YamlNode.Mapping
+        ?: fail("Failed to parse: $resourceName.yaml")
+    with(TestProblemReporterContext) {
+        doTestParse(resourceName, parsed, osDetector, init)
+        problemReporter.tearDown()
+    }
 }
 
 context (BuildFileAware)
@@ -52,20 +58,22 @@ internal fun testParseWithTemplates(
                     .resolve("testResources/$it")
             }
         }
-        problemReporter.tearDown()
+        doTestParse(resourceName, parsed.getOrElse {
+            problemReporter.tearDown()
+            fail("Failed to parse: $path")
+        }, init = init)
 
-        doTestParse(resourceName, parsed.getOrElse { fail("Failed to parse: $path") }, init = init)
+        problemReporter.tearDown()
     }
 }
 
-context (BuildFileAware)
+context (BuildFileAware, ProblemReporterContext)
 internal fun doTestParse(
     baseName: String,
-    parsed: Settings,
+    parsed: YamlNode.Mapping,
     osDetector: OsDetector = DefaultOsDetector(),
-    init: TestDirectory.() -> Unit = { directory("src") }
+    init: TestDirectory.() -> Unit = { directory("src") },
 ) {
-
     project(buildFile.parent.toFile()) { init() }
 
     // When
