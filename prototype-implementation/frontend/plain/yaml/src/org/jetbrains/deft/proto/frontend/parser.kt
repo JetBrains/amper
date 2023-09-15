@@ -1,10 +1,10 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
-import org.jetbrains.deft.proto.frontend.nodes.YamlNode
-import org.jetbrains.deft.proto.frontend.nodes.toSettings
+import org.jetbrains.deft.proto.frontend.nodes.*
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -16,8 +16,13 @@ internal fun parseError(message: CharSequence): Nothing {
 
 context(BuildFileAware, ProblemReporterContext)
 fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDetector()): Result<PotatoModule> {
+    val productAndPlatforms = parseProductAndPlatforms(config)
+    if (productAndPlatforms !is Result.Success) {
+        return deftFailure()
+    }
+
+    val (productType: ProductType, platforms: Set<Platform>) = productAndPlatforms.value
     val config = config.toSettings()
-    val (productType: ProductType, platforms: Set<Platform>) = parseProductAndPlatforms(config)
 
     val dependencySubsets = config.keys
         .asSequence()
@@ -104,6 +109,142 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     })
 }
 
+context(BuildFileAware, ProblemReporterContext)
+internal fun parseProductAndPlatforms(config: YamlNode.Mapping): Result<Pair<ProductType, Set<Platform>>> {
+    val productValue = config["product"]
+    if (productValue == null) {
+        problemReporter.reportError(
+            FrontendYamlBundle.message("product.field.is.missing"),
+            file = buildFile,
+            line = config.startMark.line + 1
+        )
+        return deftFailure()
+    }
+
+    val productTypeNode: YamlNode.Scalar
+    val productPlatformNode: YamlNode.Sequence?
+
+    when (productValue) {
+        is YamlNode.Scalar -> {
+            productTypeNode = productValue
+            productPlatformNode = null
+        }
+
+        is YamlNode.Mapping -> {
+            val typeNode = productValue["type"]
+            if (!typeNode.castOrReport<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.product.type") }) {
+                return deftFailure()
+            }
+            productTypeNode = typeNode
+            val platformNode = productValue["platforms"]
+            if (!platformNode.castOrReport<YamlNode.Sequence?> { FrontendYamlBundle.message("element.name.platforms.list") }) {
+                return deftFailure()
+            }
+            productPlatformNode = platformNode
+        }
+
+        else -> {
+            problemReporter.reportError(
+                FrontendYamlBundle.message(
+                    "wrong.product.field.format",
+                    productValue.nodeType,
+                    ProductType.entries,
+                ),
+                file = buildFile,
+                line = productValue.startMark.line + 1,
+            )
+            return deftFailure()
+        }
+    }
+
+    val actualType = ProductType.findForValue(productTypeNode.value)
+    if (actualType == null) {
+        problemReporter.reportError(
+            FrontendYamlBundle.message(
+                "wrong.product.type",
+                productTypeNode.value,
+                ProductType.entries,
+            ),
+            file = buildFile,
+            line = productTypeNode.startMark.line + 1,
+        )
+        return deftFailure()
+    }
+
+    val actualPlatforms = if (productPlatformNode != null) {
+        val platformsValue =
+            productPlatformNode.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.platforms.list") }
+                ?: return deftFailure()
+
+        if (platformsValue.isEmpty()) {
+            problemReporter.reportError(
+                FrontendYamlBundle.message("product.platforms.should.not.be.empty"),
+                file = buildFile,
+                line = productPlatformNode.startMark.line + 1
+            )
+            return deftFailure()
+        }
+
+        val knownPlatforms = mutableMapOf<Platform, YamlNode>()
+        val unknownPlatforms = mutableSetOf<YamlNode.Scalar>()
+        platformsValue.forEach {
+            val mapped = getPlatformFromFragmentName(it.value)
+            if (mapped != null) {
+                knownPlatforms[mapped] = it
+            } else {
+                unknownPlatforms.add(it)
+            }
+        }
+
+        if (unknownPlatforms.isNotEmpty()) {
+            unknownPlatforms.forEach { platform ->
+                problemReporter.reportError(
+                    FrontendYamlBundle.message(
+                        "product.unknown.platform",
+                        platform.value,
+                    ),
+                    file = buildFile,
+                    line = platform.startMark.line + 1,
+                )
+            }
+            return deftFailure()
+        }
+
+        val unsupportedPlatforms = knownPlatforms.keys.subtract(actualType.supportedPlatforms)
+        if (unsupportedPlatforms.isNotEmpty()) {
+            unsupportedPlatforms.forEach { platform ->
+                problemReporter.reportError(
+                    FrontendYamlBundle.message(
+                        "product.unsupported.platform",
+                        actualType,
+                        platform.pretty,
+                        actualType.supportedPlatforms.map { it.pretty },
+                    ),
+                    file = buildFile,
+                    line = (knownPlatforms[platform]?.startMark?.line ?: 0) + 1,
+                )
+            }
+            return deftFailure()
+        }
+
+        knownPlatforms.keys
+    } else {
+        val defaultPlatforms = actualType.defaultPlatforms
+        if (defaultPlatforms == null) {
+            problemReporter.reportError(
+                FrontendYamlBundle.message("product.type.does.not.have.default.platforms", actualType),
+                file = buildFile,
+                line = productTypeNode.startMark.line + 1,
+            )
+            return deftFailure()
+        }
+        defaultPlatforms
+    }
+
+    return Result.success(actualType to actualPlatforms.toSet())
+}
+
+
 context(BuildFileAware)
 internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<Platform>> {
     val productValue = config.getValue<Any>("product") ?: parseError("product: section is missing")
@@ -163,7 +304,7 @@ internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<P
         if (unknownPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unknownPlatforms)
 
         val unsupportedPlatforms = knownPlatforms.subtract(actualType.supportedPlatforms)
-        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms.map { it.pretty} )
+        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms.map { it.pretty })
 
         knownPlatforms
     } else {

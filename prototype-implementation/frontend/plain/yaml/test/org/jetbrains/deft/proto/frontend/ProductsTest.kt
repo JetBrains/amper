@@ -1,40 +1,35 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.deft.proto.frontend.helper.assertThrowsWithErrorMessage
+import org.jetbrains.deft.proto.frontend.helper.assertHasSingleProblem
 import org.jetbrains.deft.proto.frontend.helper.testParse
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.test.Test
-import kotlin.test.assertNotNull
+import kotlin.test.assertEquals
 
 internal class ProductsTest {
 
     @TempDir
     lateinit var tempDir: Path
 
-    private val buildFile get() = object: BuildFileAware {
-        override val buildFile: Path
-            get() = tempDir.resolve("build.yaml")
-    }
+    private val buildFile
+        get() = object : BuildFileAware {
+            override val buildFile: Path
+                get() = tempDir.resolve("build.yaml")
+        }
 
     @Test
     fun `product with unsupported type `() {
         with(buildFile) {
-            val e = assertThrows<Exception>("11") {
-                testParse("product-with-unsupported-type")
-            }
-            val message = e.message
-            assertNotNull(message)
-            assertTrue(
-                message.startsWith("$buildFile: unsupported product type 'foo/bar', supported types:"),
-                message)
-            assertTrue(
-                message.contains("jvm/app"),
-                message)
-
+            testParse("product-with-unsupported-type", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertTrue("foo/bar" in message, message)
+                    assertTrue("Unsupported product type" in message, message)
+                    assertTrue("lib" in message, message)
+                    assertTrue("jvm/app" in message, message)
+                }
+            })
         }
     }
 
@@ -49,27 +44,33 @@ internal class ProductsTest {
     @Test
     fun `product lib without platforms full`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product:platforms: should not be empty for 'lib' product type") {
-                testParse("product-lib-without-platforms-full")
-            }
+            testParse("product-lib-without-platforms-full", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertTrue(message.startsWith("Product type lib should have its platforms declared "), message)
+                }
+            })
         }
     }
 
     @Test
     fun `product lib without platforms inline`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product:platforms: should not be empty for 'lib' product type") {
-                testParse("product-lib-without-platforms-inline")
-            }
+            testParse("product-lib-without-platforms-inline", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertTrue(message.startsWith("Product type lib should have its platforms declared "), message)
+                }
+            })
         }
     }
 
     @Test
     fun `product lib with empty platforms inline`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product:platforms: should not be empty for 'lib' product type") {
-                testParse("product-lib-with-empty-platforms")
-            }
+            testParse("product-lib-with-empty-platforms", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertEquals("Product platforms list should not be empty.", message)
+                }
+            })
         }
     }
 
@@ -111,27 +112,39 @@ internal class ProductsTest {
     @Test
     fun `product with incompatible platforms`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product type 'jvm/app' doesn't support 'iosArm64' platform") {
-                testParse("product-with-incompatible-platforms")
-            }
+            testParse("product-with-incompatible-platforms", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertTrue("jvm/app" in message, message)
+                    assertTrue("iosArm64" in message, message)
+                    assertTrue("Only supported platforms are: [jvm]" in message, message)
+                }
+            })
         }
     }
 
     @Test
     fun `product with single unsupported platform`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product type 'lib' doesn't support 'foo' platform") {
-                testParse("product-with-single-unsupported-platform")
-            }
+            testParse("product-with-single-unsupported-platform", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertEquals("Unknown platform: foo.", message)
+                }
+            })
         }
     }
 
     @Test
     fun `product with multiple unsupported platforms`() {
         with(buildFile) {
-            assertThrowsWithErrorMessage<Exception>("$buildFile: product type 'lib' doesn't support 'foo', 'bar' platforms") {
-                testParse("product-with-multiple-unsupported-platforms")
-            }
+            testParse("product-with-multiple-unsupported-platforms", checkErrors = { problems ->
+                assertTrue(problems.size == 2)
+                problems[0].apply {
+                    assertEquals("Unknown platform: foo.", message)
+                }
+                problems[1].apply {
+                    assertEquals("Unknown platform: bar.", message)
+                }
+            })
         }
     }
 
