@@ -1,10 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.deft.proto.core.DeftException
-import org.jetbrains.deft.proto.core.Result
-import org.jetbrains.deft.proto.core.getOrElse
+import org.jetbrains.deft.proto.core.*
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
-import org.jetbrains.deft.proto.core.templateName
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Path
@@ -16,14 +13,14 @@ context(ProblemReporterContext)
 private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
     if (!path.exists()) {
         problemReporter.reportError(FrontendYamlBundle.message("cant.find.template", path))
-        return Result.failure(DeftException())
+        return deftFailure()
     }
 
     val node = compose(path.reader())?.toYamlNode() ?: YamlNode.Mapping.Empty
     return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.pot") }) {
         Result.success(node)
     } else {
-        Result.failure(DeftException())
+        deftFailure()
     }
 }
 
@@ -33,11 +30,11 @@ fun Yaml.parseAndPreprocess(
     templatePathLoader: (String) -> Path,
 ): Result<YamlNode.Mapping> {
     val absoluteOriginPath = originPath.absolute()
-    val rootConfig = loadFile(absoluteOriginPath).getOrElse { return Result.failure(DeftException()) }
+    val rootConfig = loadFile(absoluteOriginPath).getOrElse { return deftFailure() }
 
     val templateNames = rootConfig["apply"]
     if (!templateNames.castOrReport<YamlNode.Sequence?>(originPath) { FrontendYamlBundle.message("element.name.apply") }) {
-        return Result.failure(DeftException())
+        return deftFailure()
     }
 
     var hasBrokenTemplates = false
@@ -69,7 +66,7 @@ fun Yaml.parseAndPreprocess(
         }
         currentConfig = newConfig
     }
-    if (hasBrokenTemplates) return Result.failure(DeftException())
+    if (hasBrokenTemplates) return deftFailure()
     return Result.success(currentConfig)
 }
 
@@ -149,7 +146,7 @@ private fun mergeTemplate(
         }
     }
 
-    if (hasProblems) return Result.failure(DeftException())
+    if (hasProblems) return deftFailure()
 
     return Result.success(
         YamlNode.Mapping(
