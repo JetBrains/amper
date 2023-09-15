@@ -1338,8 +1338,7 @@ application {
 
 #### File layout with Gradle interop
 
-By default, a [Pot file layout](#project-layout) is used. This layout suites best for new Pots:
-The file layout is:  
+The default [Pot file layout](#project-layout) suites best for the newly created modules:  
 ```
 |-src/
 |  |-main.kt
