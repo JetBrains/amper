@@ -2,7 +2,11 @@ package org.jetbrains.deft.proto.frontend.nodes
 
 import org.jetbrains.deft.proto.frontend.Settings
 
-data class Mark(val line: Int, val column: Int)
+data class Mark(val line: Int, val column: Int) {
+    companion object {
+        val Unknown = Mark(0, 0)
+    }
+}
 
 sealed interface YamlNode {
     val startMark: Mark
@@ -20,7 +24,7 @@ sealed interface YamlNode {
         override val endMark: Mark
     ) : YamlNode, List<Pair<YamlNode, YamlNode>> by mappings {
         companion object {
-            val Empty = Mapping(emptyList(), Mark(0, 0), Mark(0, 0))
+            val Empty = Mapping(emptyList(), Mark.Unknown, Mark.Unknown)
         }
     }
 }
