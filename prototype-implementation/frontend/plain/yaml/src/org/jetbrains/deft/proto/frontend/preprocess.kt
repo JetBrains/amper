@@ -20,7 +20,7 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
     }
 
     val node = compose(path.reader())?.toYamlNode() ?: YamlNode.Mapping.Empty
-    return if (node.castOrReport<YamlNode.Mapping>(path, FrontendYamlBundle.message("element.name.pot"))) {
+    return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.pot") }) {
         Result.success(node)
     } else {
         Result.failure(DeftException())
@@ -36,18 +36,14 @@ fun Yaml.parseAndPreprocess(
     val rootConfig = loadFile(absoluteOriginPath).getOrElse { return Result.failure(DeftException()) }
 
     val templateNames = rootConfig["apply"]
-    if (!templateNames.castOrReport<YamlNode.Sequence?>(originPath, FrontendYamlBundle.message("element.name.apply"))) {
+    if (!templateNames.castOrReport<YamlNode.Sequence?>(originPath) { FrontendYamlBundle.message("element.name.apply") }) {
         return Result.failure(DeftException())
     }
 
     var hasBrokenTemplates = false
     val appliedTemplates = templateNames
         ?.mapNotNull { templatePath ->
-            if (!templatePath.castOrReport<YamlNode.Scalar>(
-                    originPath,
-                    FrontendYamlBundle.message("element.name.template.path")
-                )
-            ) {
+            if (!templatePath.castOrReport<YamlNode.Scalar>(originPath) { FrontendYamlBundle.message("element.name.template.path") }) {
                 hasBrokenTemplates = true
                 return@mapNotNull null
             }
@@ -90,7 +86,7 @@ private fun mergeTemplate(
     templatePath: Path,
     currentKeyPath: String = "",
     // By default, restrict sub templates.
-    ignoreTemplateKeys: Collection<String> = setOf("apply", "include")
+    ignoreTemplateKeys: Collection<String> = setOf("apply", "include"),
 ): Result<YamlNode.Mapping> {
     var hasProblems = false
 

@@ -8,7 +8,10 @@ import kotlin.contracts.contract
 
 context(ProblemReporterContext)
 @OptIn(ExperimentalContracts::class)
-inline fun <reified YamlNodeT : YamlNode?> YamlNode?.castOrReport(file: Path, elementName: String): Boolean {
+inline fun <reified YamlNodeT : YamlNode?> YamlNode?.castOrReport(
+    file: Path,
+    lazyElementName: () -> String,
+): Boolean {
     contract {
         returns(true) implies (this@castOrReport is YamlNodeT)
     }
@@ -23,7 +26,12 @@ inline fun <reified YamlNodeT : YamlNode?> YamlNode?.castOrReport(file: Path, el
     }
 
     problemReporter.reportError(
-        FrontendYamlBundle.message("wrong.element.type", elementName, expected ?: "null", this?.nodeType ?: "null"),
+        FrontendYamlBundle.message(
+            "wrong.element.type",
+            lazyElementName(),
+            expected ?: "null",
+            this?.nodeType ?: "null"
+        ),
         file = file,
         line = (this?.startMark?.line ?: 0) + 1
     )
