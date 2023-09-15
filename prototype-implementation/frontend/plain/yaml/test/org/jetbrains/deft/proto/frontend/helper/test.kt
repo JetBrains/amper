@@ -1,6 +1,5 @@
 package org.jetbrains.deft.proto.frontend.helper
 
-import org.jetbrains.deft.proto.core.get
 import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.*
 import org.jetbrains.deft.proto.frontend.*
@@ -27,6 +26,7 @@ context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
     osDetector: OsDetector = DefaultOsDetector(),
+    checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
@@ -34,8 +34,18 @@ internal fun testParse(
     val parsed = Yaml().compose(text.reader()).toYamlNode() as? YamlNode.Mapping
         ?: fail("Failed to parse: $resourceName.yaml")
     with(TestProblemReporterContext) {
-        doTestParse(resourceName, parsed, osDetector, init)
+        val parseException = runCatching {
+            doTestParse(resourceName, parsed, shouldFail = checkErrors != null, osDetector, init)
+        }
+        val checkErrorException = runCatching {
+            if (checkErrors != null) {
+                problemReporter.errorsChecked()
+                checkErrors(problemReporter.getErrors())
+            }
+        }
         problemReporter.tearDown()
+        parseException.exceptionOrNull()?.let { throw it }
+        checkErrorException.exceptionOrNull()?.let { throw it }
     }
 }
 
@@ -71,6 +81,7 @@ context (BuildFileAware, ProblemReporterContext)
 internal fun doTestParse(
     baseName: String,
     parsed: YamlNode.Mapping,
+    shouldFail: Boolean = false,
     osDetector: OsDetector = DefaultOsDetector(),
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
@@ -79,7 +90,11 @@ internal fun doTestParse(
     // When
     val module = withBuildFile(buildFile.toAbsolutePath()) {
         parseModule(parsed, osDetector)
-    }.get()
+    }.getOrElse {
+        if (shouldFail) return else {
+            fail("Failed to parse: $baseName.yaml")
+        }
+    }
 
     // Then
     val expectedResourceName = "$baseName.result.txt"
@@ -120,17 +135,32 @@ inline fun <reified T : Throwable> assertThrowsWithErrorMessage(expectedMessage:
     return e
 }
 
+fun List<BuildProblem>.assertHasSingleProblem(block: BuildProblem.() -> Unit) {
+    assertEquals(1, size)
+    first().block()
+}
+
 private object TestProblemReporter : CollectingProblemReporter() {
+    private var errorsChecked: Boolean = false
+
     fun tearDown() {
         val errors = problems.filter { it.level == Level.Error }
         if (errors.isNotEmpty()) {
-            fail(buildString {
-                appendLine()
-                errors.forEach { error ->
-                    append(renderMessage(error))
-                    appendLine()
+            try {
+                if (!errorsChecked) {
+                    fail(buildString {
+                        append("There are unchecked errors in test")
+                        appendLine()
+                        errors.forEach { error ->
+                            append(renderMessage(error))
+                            appendLine()
+                        }
+                    })
                 }
-            }.also { problems.clear() })
+            } finally {
+                problems.clear()
+                errorsChecked = false
+            }
         }
     }
 
@@ -138,6 +168,12 @@ private object TestProblemReporter : CollectingProblemReporter() {
         if (message.level == Level.Warning) {
             println("WARNING: " + renderMessage(message))
         }
+    }
+
+    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error }
+
+    fun errorsChecked() {
+        errorsChecked = true
     }
 }
 
