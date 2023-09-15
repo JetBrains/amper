@@ -28,7 +28,7 @@ class YamlModelInit : ModelInit {
 
         if (!root.exists()) {
             problemReporter.reportError(FrontendYamlBundle.message("no.root.found", root.name))
-            return Result.failure(DeftException())
+            return deftFailure()
         }
 
         val ignore = root.resolve(".deftignore")
@@ -53,7 +53,7 @@ class YamlModelInit : ModelInit {
             }
             .collect(Collectors.toList())
 
-        if (modules.any { it is Result.Failure }) return Result.failure(DeftException())
+        if (modules.any { it is Result.Failure }) return deftFailure()
 
         val moduleNames = modules.unwrap().map { it.userReadableName }.toSet()
 

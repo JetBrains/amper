@@ -1,7 +1,7 @@
 package org.jetbrains.deft.proto.gradle
 
-import org.jetbrains.deft.proto.core.DeftException
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.util.MockModel
@@ -40,13 +40,13 @@ object Models : ModelInit {
         val modelName = getMockModelName()
         if (modelName == null) {
             problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug))
-            return Result.failure(DeftException())
+            return deftFailure()
         }
         this.root = root
         val modelHandle = modelsMap[modelName]
         if (modelHandle == null) {
             problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName))
-            return Result.failure(DeftException())
+            return deftFailure()
         }
         val modelBuilder = modelHandle.builder
         return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
