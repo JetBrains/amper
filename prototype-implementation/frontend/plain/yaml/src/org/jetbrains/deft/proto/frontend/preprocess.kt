@@ -4,6 +4,7 @@ import org.jetbrains.deft.proto.core.DeftException
 import org.jetbrains.deft.proto.core.Result
 import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
+import org.jetbrains.deft.proto.core.templateName
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Path
@@ -42,13 +43,17 @@ fun Yaml.parseAndPreprocess(
     var hasBrokenTemplates = false
     val appliedTemplates = templateNames
         ?.mapNotNull { templatePath ->
-            if (!templatePath.castOrReport<YamlNode.Scalar>(originPath, FrontendYamlBundle.message("element.name.template.path"))) {
+            if (!templatePath.castOrReport<YamlNode.Scalar>(
+                    originPath,
+                    FrontendYamlBundle.message("element.name.template.path")
+                )
+            ) {
                 hasBrokenTemplates = true
                 return@mapNotNull null
             }
 
-            val path = templatePathLoader(templatePath.value).absolute()
-            val template = loadFile(path.normalize())
+            val path = templatePathLoader(templatePath.value).absolute().normalize()
+            val template = loadFile(path)
             template.getOrElse {
                 hasBrokenTemplates = true
                 problemReporter.reportError(
@@ -57,80 +62,108 @@ fun Yaml.parseAndPreprocess(
                     line = templatePath.startMark.line + 1
                 )
                 null
-            }?.let { path.parent to it }
+            }?.let { path to it }
         } ?: emptyList()
     if (hasBrokenTemplates) return Result.failure(DeftException())
 
-    return Result.success(appliedTemplates
-        .fold(rootConfig.toSettings()) { acc: Settings, from -> mergeTemplate(from.second.toSettings(), acc, from.first) })
+    var currentConfig = rootConfig
+    var hasErrors = false
+    appliedTemplates.forEach { (templatePath, template) ->
+        val newConfig = mergeTemplate(template, currentConfig, templatePath).getOrElse {
+            hasErrors = true
+            currentConfig
+        }
+        currentConfig = newConfig
+    }
+    if (hasErrors) return Result.failure(DeftException())
+    return Result.success(currentConfig.toSettings())
 }
 
 /**
  * Simple merge algorithm that do not handle lists at all and just overrides
  * key/value pairs.
  */
-context (BuildFileAware)
+context (BuildFileAware, ProblemReporterContext)
 private fun mergeTemplate(
-    template: Settings,
-    origin: Settings,
-    templateDir: Path,
-    previousPath: String = "",
+    template: YamlNode.Mapping,
+    origin: YamlNode.Mapping,
+    templatePath: Path,
+    currentKeyPath: String = "",
     // By default, restrict sub templates.
     ignoreTemplateKeys: Collection<String> = setOf("apply", "include")
-): Settings = buildMap {
-    val allKeys = template.keys + origin.keys
+): Result<YamlNode.Mapping> {
+    var hasProblems = false
 
-    // Pass all "origin" keys, that are ignored on "template" side.
-    ignoreTemplateKeys.forEach { key ->
-        origin[key]?.let { put(key, it) }
-    }
+    val mappings = buildList {
+        val allKeys = template.keys + origin.keys
 
-    // Merge all other keys.
-    allKeys.filter { it !in ignoreTemplateKeys }.forEach { key ->
-        val nextPath = "$previousPath.$key"
-        val templateValue = template[key]
-        val originValue = origin[key]
-        if (templateValue != null && originValue == null)
-            put(key, adjustTemplateValue(templateValue, templateDir))
-        else if (originValue != null && templateValue == null)
-            put(key, originValue)
-        // Need or condition to enable smart casts.
-        else if (templateValue == null || originValue == null)
-            return@forEach
-        else {
+        // Pass all "origin" keys that are ignored on the "template" side.
+        ignoreTemplateKeys.forEach { templateKey ->
+            origin.getMapping(templateKey)?.let(::add)
+        }
+
+        // Merge all other keys.
+        allKeys.filter { it !in ignoreTemplateKeys }.forEach { key ->
+            val nextKeyPath = if (currentKeyPath.isNotBlank()) "$currentKeyPath.$key" else key
+            val templateMapping = template.getMapping(key)
+            val originMapping = origin.getMapping(key)
             when {
-                templateValue is Map<*, *> && originValue is Map<*, *> ->
-                    put(
-                        key,
-                        mergeTemplate(
-                            templateValue as Settings,
-                            originValue as Settings,
-                            templateDir,
-                            nextPath
-                        )
+                templateMapping != null && originMapping == null -> add(
+                    templateMapping.first to adjustTemplateValue(
+                        templateMapping.second,
+                        templatePath
                     )
+                )
 
-                templateValue is List<*> && originValue is List<*> ->
-                    put(
-                        key,
-                        (adjustTemplateValue(templateValue, templateDir) as List<*>) + originValue
-                    )
+                originMapping != null && templateMapping == null -> add(originMapping)
+                templateMapping != null && originMapping != null -> {
+                    val (_, templateValue) = templateMapping
+                    val (originKey, originValue) = originMapping
 
-                templateValue::class == originValue::class ->
-                    put(key, originValue)
+                    when {
+                        templateValue is YamlNode.Mapping && originValue is YamlNode.Mapping ->
+                            mergeTemplate(templateValue, originValue, templatePath, nextKeyPath).getOrElse {
+                                hasProblems = true
+                                null
+                            }?.let { add(originKey to it) }
 
-                else -> {
-                    error(
-                        "Error while merging two configs: " +
-                                "Values under path $nextPath have different types." +
-                                "First config type: ${templateValue::class.simpleName}. " +
-                                "Second config type: ${originValue::class.simpleName}." +
-                                "(Maybe type is a container type and there is an inner type conflict)"
-                    )
+                        templateValue is YamlNode.Sequence && originValue is YamlNode.Sequence -> {
+                            val adjustedList = adjustTemplateValue(templateValue, templatePath) as YamlNode.Sequence
+                            add(originKey to originValue.copy(elements = adjustedList.elements + originValue.elements))
+                        }
+
+                        templateValue::class == originValue::class -> add(originMapping)
+
+                        else -> {
+                            hasProblems = true
+                            problemReporter.reportError(
+                                FrontendYamlBundle.message(
+                                    "cant.merge.templates",
+                                    templatePath.templateName,
+                                    nextKeyPath,
+                                    originValue.nodeType,
+                                    templateValue.nodeType,
+                                    "$templatePath:${templateValue.startMark.line + 1}",
+                                ),
+                                file = buildFile,
+                                line = originValue.startMark.line + 1
+                            )
+                        }
+                    }
                 }
             }
         }
     }
+
+    if (hasProblems) return Result.failure(DeftException())
+
+    return Result.success(
+        YamlNode.Mapping(
+            mappings,
+            template.startMark,
+            origin.endMark
+        )
+    )
 }
 
 /**
@@ -138,16 +171,15 @@ private fun mergeTemplate(
  */
 context (BuildFileAware)
 private fun adjustTemplateValue(
-    value: Any,
-    templateDir: Path,
-): Any = when (value) {
-    is List<*> ->
-        (value as List<Any>).map { adjustTemplateValue(it, templateDir) }
-    is Map<*, *> ->
-        (value as Settings).entries
-            .associate { it.key to (adjustTemplateValue(it.value, templateDir)) }
-    else ->
-        adjustTemplateLiteral(value, templateDir)
+    node: YamlNode,
+    templatePath: Path,
+): YamlNode = when (node) {
+    is YamlNode.Mapping -> node.copy(mappings = node.mappings.map { (k, v) ->
+        k to adjustTemplateValue(v, templatePath)
+    })
+
+    is YamlNode.Sequence -> node.copy(elements = node.elements.map { adjustTemplateValue(it, templatePath) })
+    is YamlNode.Scalar -> node.copy(value = adjustTemplateLiteral(node.value, templatePath))
 }
 
 /**
@@ -155,12 +187,12 @@ private fun adjustTemplateValue(
  */
 context (BuildFileAware)
 private fun adjustTemplateLiteral(
-    value: Any,
-    templateDir: Path,
-) = when {
-    value is String && value.startsWith(".") -> {
-        buildFile.parent.relativize(templateDir.resolve(value).normalize()).toString()
+    value: String,
+    templatePath: Path,
+): String = when {
+    value.startsWith(".") -> {
+        buildFile.parent.relativize(templatePath.parent.resolve(value).normalize()).toString()
     }
-    else ->
-        value
+
+    else -> value
 }
