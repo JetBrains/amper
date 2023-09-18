@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.tasks.testing.Test
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
@@ -270,6 +271,13 @@ class KMPPBindingPluginPart(
                 }
             }
 
+            if (module.leafTestFragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
+                val commonTest = module.fragments
+                    .filter { it.isTest }
+                    .find { it.fragmentDependencies.none { dep -> dep.type == FragmentDependencyType.REFINE } }
+                addTestDependencies(commonTest)
+            }
+
             val adjustedSourceSets = mutableSetOf<KotlinSourceSet>()
 
             // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
@@ -328,7 +336,9 @@ class KMPPBindingPluginPart(
                 val target = fragment.target ?: return@forEach
                 with(target) {
                     val compilation = fragment.compilation ?: return@forEach
-                    compilation.source(fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}"))
+                    compilation.source(
+                        fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}")
+                    )
                     val compilationSourceSet = compilation.defaultSourceSet
                     if (compilationSourceSet != fragment.kotlinSourceSet) {
                         // Add dependency from compilation source set ONLY for unmanaged source sets.
@@ -338,6 +348,14 @@ class KMPPBindingPluginPart(
                     }
                 }
             }
+        }
+    }
+
+    private fun addTestDependencies(commonTest: FragmentWrapper?) {
+        commonTest?.kotlinSourceSet?.dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+            implementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
+            implementation("junit:junit:4.12")
         }
     }
 
