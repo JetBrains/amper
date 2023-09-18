@@ -4,7 +4,7 @@ import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
-context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettings(
     fragments: List<FragmentBuilder>,
     key: String,
@@ -15,11 +15,11 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
 
     val settings = this.mappings.map { (it.first as YamlNode.Scalar) to it.second }.filter { it.first.startsWith(key) }
     for ((settingsKey, settingsValue) in settings) {
-        variantSet = this@TypesafeVariants.toMutableSet()
+        variantSet = variants.toMutableSet()
         val split = settingsKey.split("@")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
-            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
+            .filter { getPlatformFromFragmentName(it) == null && !aliasMap.containsKey(it) }
             .toSet()
 
         for (option in options) {
@@ -28,8 +28,8 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
         }
 
         val normalizedPlatforms = specialization
-            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
-            .ifEmpty { this@DefaultPlatforms }
+            .flatMap { aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
+            .ifEmpty { platforms }
             .toSet()
 
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
@@ -45,20 +45,20 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
     }
 }
 
-context(TypesafeVariants)
+context(ParsingContext)
 internal val YamlNode.Mapping.defaultOptionMap: Map<Variant, String>
     get() = buildMap<Variant, String> {
-        for (variant in this@TypesafeVariants) {
+        for (variant in variants) {
             val option = variant.options.firstOrNull { it.isDefaultOption }
             checkNotNull(option) { "Each variant should have default options" }
             put(variant, option.name)
         }
     }
 
-context(TypesafeVariants)
+context(ParsingContext)
 internal val YamlNode.Mapping.optionMap: Map<String, Variant>
     get() = buildMap {
-        for (variant in this@TypesafeVariants) {
+        for (variant in variants) {
             for (option in variant.options) {
                 put(option.name, variant)
             }

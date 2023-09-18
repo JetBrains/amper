@@ -89,7 +89,9 @@ internal fun doTestParse(
 
     // When
     val module = withBuildFile(buildFile.toAbsolutePath()) {
-        parseModule(parsed, osDetector)
+        with(ParsingContext(parsed)) {
+            parseModule(osDetector)
+        }
     }.getOrElse {
         if (shouldFail) return else {
             fail("Failed to parse: $baseName.yaml")

@@ -48,7 +48,11 @@ class YamlModelInit : ModelInit {
                     val result = yaml.parseAndPreprocess(it) { includePath ->
                         buildFile.parent.resolve(includePath)
                     }
-                    result.flatMap { settings -> parseModule(settings) }
+                    result.flatMap { settings ->
+                        with(ParsingContext(settings)) {
+                            parseModule()
+                        }
+                    }
                 }
             }
             .collect(Collectors.toList())

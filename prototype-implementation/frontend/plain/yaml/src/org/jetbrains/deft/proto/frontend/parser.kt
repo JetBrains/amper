@@ -9,20 +9,28 @@ import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
+class ParsingContext(val config: YamlNode.Mapping) {
+    lateinit var aliasMap: Map<String, Set<Platform>>
+    lateinit var platforms: Set<Platform>
+    lateinit var variants: List<Variant>
+}
+
 context(BuildFileAware)
 internal fun parseError(message: CharSequence): Nothing {
     error("$buildFile: $message")
 }
 
-context(BuildFileAware, ProblemReporterContext)
-fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDetector()): Result<PotatoModule> {
+context(BuildFileAware, ProblemReporterContext, ParsingContext)
+fun parseModule(
+    osDetector: OsDetector = DefaultOsDetector(),
+): Result<PotatoModule> = with(ParsingContext(config)) parsingContext@{
     val productAndPlatforms = parseProductAndPlatforms(config)
     if (productAndPlatforms !is Result.Success) {
         return deftFailure()
     }
 
-    val (productType: ProductType, platforms: Set<Platform>) = productAndPlatforms.value
-
+    val productType = productAndPlatforms.value.first
+    platforms = productAndPlatforms.value.second
     val dependencySubsets = config.keys
         .asSequence()
         .map { it.split("@") }
@@ -37,10 +45,11 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
         .map { it.split("+").toSet() }
         .toSet()
 
+    aliasMap = emptyMap()
     val naturalHierarchy = Platform.entries
         .filter { !it.isLeaf }
         .filter { it != Platform.COMMON }
-        .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } to it.leafChildren.toSet() }
+        .associate { setOf(it).toCamelCaseString().first to it.leafChildren.toSet() }
 
     val aliases = config["aliases"] ?: YamlNode.Mapping.Empty
     if (!aliases.castOrReport<YamlNode.Mapping> { FrontendYamlBundle.message("element.name.aliases") }) {
@@ -48,13 +57,14 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     }
 
     var hasBrokenAliases = false
-    val aliasMap: Map<String, Set<Platform>> = aliases.mappings.associate { (key, value) ->
+    aliasMap = aliases.mappings.associate { (key, value) ->
         val name = (key as YamlNode.Scalar).value
         if (!value.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.alias.platforms") }) {
             hasBrokenAliases = true
             return@associate name to emptySet()
         }
-        val platformsList = value.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.alias.platforms") }
+        val platformsList =
+            value.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.alias.platforms") }
         if (platformsList == null) {
             hasBrokenAliases = true
             return@associate name to emptySet()
@@ -89,27 +99,19 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
         .filter { it.isNotEmpty() }
         .toSet() + platforms.map { setOf(it) }
 
-    var fragments = with(aliasMap) { subsets.basicFragments }
+    var fragments = with(this@parsingContext) { subsets.basicFragments }
 
     val configVariants = getVariants(config)
     if (configVariants !is Result.Success) {
         return deftFailure()
     }
-    val variants = configVariants.value
+    variants = configVariants.value
 
     fragments = fragments.multiplyFragments(variants)
 
-    with(aliasMap) {
-        with(platforms) {
-            with(variants) {
-                fragments.handleExternalDependencies(config.transformed, osDetector)
-                fragments.handleSettings(config.transformed)
-                with (config) {
-                    fragments.calculateSrcDir()
-                }
-            }
-        }
-    }
+    fragments.handleExternalDependencies(config.transformed, osDetector)
+    fragments.handleSettings(config.transformed)
+    fragments.calculateSrcDir()
 
     val artifacts = fragments.artifacts(
         variants,
@@ -117,13 +119,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
         platforms
     )
 
-    with(aliasMap) {
-        with(platforms) {
-            with(variants) {
-                artifacts.handleSettings(config.transformed, fragments)
-            }
-        }
-    }
+    artifacts.handleSettings(config.transformed, fragments)
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
         private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()
@@ -142,7 +138,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     })
 }
 
-context(BuildFileAware, ProblemReporterContext)
+context(BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun parseProductAndPlatforms(config: YamlNode.Mapping): Result<Pair<ProductType, Set<Platform>>> {
     val productValue = config["product"]
     if (productValue == null) {
