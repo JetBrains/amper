@@ -267,7 +267,7 @@ By default, Maven Central and Google Android repositories are pre-configured. To
 ```yaml
 repositories:
   - https://repo.spring.io/ui/native/release
-  
+  - url: https://dl.google.com/dl/android/maven2/
   - id: jitpack
     url: https://jitpack.io
 ```
