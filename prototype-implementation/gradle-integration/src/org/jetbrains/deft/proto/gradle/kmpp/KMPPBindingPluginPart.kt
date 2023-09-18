@@ -135,7 +135,7 @@ class KMPPBindingPluginPart(
         module.artifactPlatforms.forEach {
             val targetName = it.targetName
             when (it) {
-                Platform.ANDROID -> kotlinMPE.android(targetName)
+                Platform.ANDROID -> kotlinMPE.androidTarget(targetName)
                 Platform.JVM -> kotlinMPE.jvm(targetName)
                 Platform.IOS_ARM64 -> kotlinMPE.iosArm64(targetName)
                 Platform.IOS_SIMULATOR_ARM64 -> kotlinMPE.iosSimulatorArm64(targetName)
