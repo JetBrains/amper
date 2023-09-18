@@ -91,8 +91,13 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
 
     var fragments = with(aliasMap) { subsets.basicFragments }
 
+    val configVariants = getVariants(config)
+    if (configVariants !is Result.Success) {
+        return deftFailure()
+    }
+
+    fragments = fragments.multiplyFragments(configVariants.value)
     val config = config.toSettings()
-    fragments = fragments.multiplyFragments(config.variants)
     with(aliasMap) {
         fragments.handleExternalDependencies(config.transformed, osDetector)
         fragments.handleSettings(config.transformed)
@@ -102,7 +107,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     }
 
     val artifacts = fragments.artifacts(
-        config.variants,
+        configVariants.value,
         productType,
         platforms
     )
@@ -117,7 +122,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
             get() = mutableState
     }
     return Result.success(with(mutableState) {
-        with(config.variants.typeSafe) {
+        with(configVariants.value) {
             PlainPotatoModule(
                 productType,
                 fragments,

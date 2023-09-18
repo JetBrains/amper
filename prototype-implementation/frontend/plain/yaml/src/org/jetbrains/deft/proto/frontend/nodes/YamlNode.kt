@@ -14,7 +14,11 @@ sealed interface YamlNode {
         CharSequence by value
 
     data class Sequence(val elements: List<YamlNode>, override val startMark: Mark, override val endMark: Mark) :
-        YamlNode, List<YamlNode> by elements
+        YamlNode, List<YamlNode> by elements {
+            companion object {
+                val Empty = Sequence(emptyList(), Mark.Unknown, Mark.Unknown)
+            }
+        }
 
     data class Mapping(
         val mappings: List<Pair<YamlNode, YamlNode>>,

@@ -138,21 +138,21 @@ internal data class ArtifactBuilder(
     }
 }
 
-internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): List<FragmentBuilder> {
+internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Variant>): List<FragmentBuilder> {
     val fragments = this.toMutableList()
     // multiply
     for (variant in variants) {
-        val options = variant[optionsKey]
+        val options = variant.options
         assert(options.isNotEmpty()) { "Options are required" }
-        assert(options.count { it[isDefaultKey] } == 1) { "Default value is required and must be single" }
+        assert(options.count { it.isDefaultOption } == 1) { "Default value is required and must be single" }
 
         // copy fragments
         val fragmentMap = buildMap {
             for (option in options) {
-                val optionName = option[nameKey] ?: error("Name is required for option")
+                val optionName = option.name
                 val newFragmentList = buildList {
                     for (element in fragments) {
-                        val newFragmentName = if (option[isDefaultKey])
+                        val newFragmentName = if (option.isDefaultOption)
                             element.name
                         else
                             element.name.camelMerge(optionName)
@@ -163,7 +163,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 
                             // Place a default flag for fragments that should be built by default and
                             // for their direct test descendants.
-                            isDefault = element.isDefault && option[isDefaultFragmentKey]
+                            isDefault = element.isDefault && option.isDefaultFragment
                                     || isTest && element.isDefault
 
                         }
@@ -179,8 +179,8 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
 
         // set dependencies between potatoes
         for (option in options) {
-            val dependencies = option[dependsOnKey]
-            val name = option[nameKey] ?: error("Name is required for option")
+            val dependencies = option.dependsOn
+            val name = option.name
 
             val sourceFragments = fragmentMap[name] ?: error("Something went wrong")
             // correct previous old dependencies references after copying
@@ -203,12 +203,12 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Settings>): 
             }
 
             for (dependency in dependencies) {
-                val dependencyTarget = dependency.getStringValue("target")
+                val dependencyTarget = dependency.target
                 // add new dependencies related to copying
                 fragmentMap[dependencyTarget]?.let { targetFragments ->
                     for (i in sourceFragments.indices) {
-                        val kind = when (dependency.getStringValue("kind")) {
-                            "friend" -> MutableFragmentDependency.DependencyKind.Friend
+                        val kind = when {
+                            dependency.isFriend -> MutableFragmentDependency.DependencyKind.Friend
                             else -> MutableFragmentDependency.DependencyKind.Refines
                         }
                         sourceFragments[i].addDependency(MutableFragmentDependency(targetFragments[i], kind))
@@ -247,7 +247,7 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
 
 context(BuildFileAware)
 internal fun List<FragmentBuilder>.artifacts(
-    variants: List<Settings>,
+    variants: List<Variant>,
     productType: ProductType,
     platforms: Set<Platform>
 ): List<ArtifactBuilder> {
@@ -262,20 +262,20 @@ internal fun List<FragmentBuilder>.artifacts(
 
     val options = buildList {
         for (variant in variants) {
-            val options = variant[optionsKey]
+            val options = variant.options
             add(buildList {
                 var default: String? = null
                 var addDefault = true
                 for (option in options) {
                     // add default if all dependencies are friends
-                    if (option[isDefaultKey]) {
-                        default = option[nameKey]
+                    if (option.isDefaultOption) {
+                        default = option.name
                     } else {
                         add(
-                            option[nameKey] ?: parseError("Name is required for variant option")
+                            option.name
                         )
 
-                        if (option[dependsOnKey].any { it.getStringValue("kind") != "friend" }) {
+                        if (option.dependsOn.any { !it.isFriend }) {
                             addDefault = false
                         }
                     }
