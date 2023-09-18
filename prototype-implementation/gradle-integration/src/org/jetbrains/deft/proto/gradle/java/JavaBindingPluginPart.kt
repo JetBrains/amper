@@ -80,7 +80,8 @@ class JavaBindingPluginPart(
         project.plugins.apply(ApplicationPlugin::class.java)
 
         if (leafPlatformFragments.size > 1)
-            logger.warn(
+            // TODO Add check that all parts values are the same instead of this approach.
+            logger.info(
                 "Cant apply multiple settings for application plugin. " +
                         "Affected artifacts: ${platformArtifacts.joinToString { it.name }}. " +
                         "Applying application settings from first one."

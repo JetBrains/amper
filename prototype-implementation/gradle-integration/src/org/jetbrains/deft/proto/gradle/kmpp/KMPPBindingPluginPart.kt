@@ -60,7 +60,6 @@ class KMPPBindingPluginPart(
 
     override fun applyBeforeEvaluate() {
         initTargets()
-
         initFragments()
     }
 
