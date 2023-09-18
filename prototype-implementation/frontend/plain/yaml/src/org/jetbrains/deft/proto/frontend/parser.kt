@@ -95,28 +95,34 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     if (configVariants !is Result.Success) {
         return deftFailure()
     }
+    val variants = configVariants.value
 
-    fragments = fragments.multiplyFragments(configVariants.value)
+    fragments = fragments.multiplyFragments(variants)
 
     with(aliasMap) {
-        val config = config.toSettings()
-        fragments.handleExternalDependencies(config.transformed, osDetector)
-        fragments.handleSettings(config.transformed)
-    }
-    with(configVariants.value) {
-        with(config) {
-            fragments.calculateSrcDir(platforms)
+        with(platforms) {
+            with(variants) {
+                fragments.handleExternalDependencies(config.transformed, osDetector)
+                fragments.handleSettings(config.transformed)
+                with (config) {
+                    fragments.calculateSrcDir()
+                }
+            }
         }
     }
 
     val artifacts = fragments.artifacts(
-        configVariants.value,
+        variants,
         productType,
         platforms
     )
 
     with(aliasMap) {
-        artifacts.handleSettings(config.toSettings().transformed, fragments)
+        with(platforms) {
+            with(variants) {
+                artifacts.handleSettings(config.transformed, fragments)
+            }
+        }
     }
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
@@ -125,12 +131,12 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
             get() = mutableState
     }
     return Result.success(with(mutableState) {
-        with(configVariants.value) {
+        with(variants) {
             PlainPotatoModule(
                 productType,
                 fragments,
                 artifacts,
-                parseModuleParts(config.toSettings()),
+                parseModuleParts(config),
             )
         }
     })
@@ -270,76 +276,3 @@ internal fun parseProductAndPlatforms(config: YamlNode.Mapping): Result<Pair<Pro
 
     return Result.success(actualType to actualPlatforms.toSet())
 }
-
-
-context(BuildFileAware)
-internal fun parseProductAndPlatforms(config: Settings): Pair<ProductType, Set<Platform>> {
-    val productValue = config.getValue<Any>("product") ?: parseError("product: section is missing")
-    val typeValue: String
-    val platformsValue: List<String>?
-
-    fun unsupportedType(userValue: Any): Nothing {
-        parseError(
-            "unsupported product type '$userValue', supported types:\n"
-                    + ProductType.entries.joinToString("\n")
-        )
-    }
-
-    when (productValue) {
-        is String -> {
-            typeValue = productValue
-            platformsValue = null
-        }
-
-        is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            productValue as Settings
-
-            typeValue = productValue.getStringValue("type") ?: parseError("product:type: is missing")
-            platformsValue = productValue.getValue<List<String>>("platforms")
-        }
-
-        else -> {
-            unsupportedType(productValue)
-        }
-    }
-
-    val actualType = ProductType.findForValue(typeValue) ?: unsupportedType(typeValue)
-
-    val actualPlatforms = if (platformsValue != null) {
-        if (platformsValue.isEmpty()) {
-            parseError("product:platforms: should not be empty")
-        }
-
-        val knownPlatforms = mutableSetOf<Platform>()
-        val unknownPlatforms = mutableSetOf<String>()
-        platformsValue.forEach {
-            val mapped = getPlatformFromFragmentName(it)
-            if (mapped != null) {
-                knownPlatforms.add(mapped)
-            } else {
-                unknownPlatforms.add(it)
-            }
-        }
-
-        fun reportUnsupportedPlatforms(toReport: Collection<String>) {
-            val message = StringBuilder("product type '$actualType' doesn't support ")
-            toReport.joinTo(message) { "'$it'" }
-            message.append(if (toReport.size == 1) " platform" else " platforms")
-            parseError(message)
-        }
-        if (unknownPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unknownPlatforms)
-
-        val unsupportedPlatforms = knownPlatforms.subtract(actualType.supportedPlatforms)
-        if (unsupportedPlatforms.isNotEmpty()) reportUnsupportedPlatforms(unsupportedPlatforms.map { it.pretty })
-
-        knownPlatforms
-    } else {
-        actualType.defaultPlatforms
-            ?: parseError("product:platforms: should not be empty for '$actualType' product type")
-    }
-
-    return Pair(actualType, actualPlatforms.toSet())
-}
-
-

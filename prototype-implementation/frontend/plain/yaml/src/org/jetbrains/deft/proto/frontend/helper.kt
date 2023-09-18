@@ -5,6 +5,8 @@ import java.nio.file.Path
 
 typealias TypesafeVariants = List<Variant>
 
+typealias DefaultPlatforms = Set<Platform>
+
 interface BuildFileAware {
     val buildFile: Path
 }
