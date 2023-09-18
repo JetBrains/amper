@@ -75,14 +75,14 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
 
     val aliasSubsets = aliasMap
         .values
-        .filter { it.isNotEmpty() }
-        .map { it.map { it.pretty } }
+        .filter { platformSet -> platformSet.isNotEmpty() }
+        .map { platformSet -> platformSet.map { it.pretty } }
         .distinct()
         .toSet()
 
     val subsets = (dependencySubsets + folderSubsets + aliasSubsets)
-        .map {
-            it.flatMap {
+        .map { platformSet ->
+            platformSet.flatMap {
                 aliasMap[it] ?: listOfNotNull(getPlatformFromFragmentName(it))
             }.filter { it != Platform.COMMON }.toSet()
         }
