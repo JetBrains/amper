@@ -3,6 +3,7 @@ package org.jetbrains.deft.proto.gradle
 import org.gradle.api.initialization.Settings
 import org.jetbrains.deft.proto.frontend.Model
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import kotlin.io.path.extension
 
 
@@ -35,6 +36,9 @@ class SettingsPluginRun(
 
             // Can be empty for root.
             val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject
+
+            // Disable warning about Default Kotlin Hierarchy.
+            project.extraProperties.set("kotlin.mpp.applyDefaultHierarchyTemplate", "false")
 
             // Apply Kotlin plugins.
             if (connectedModule.buildFile.extension == "yaml") {
