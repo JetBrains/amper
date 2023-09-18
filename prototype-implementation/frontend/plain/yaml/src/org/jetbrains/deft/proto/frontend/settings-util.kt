@@ -71,45 +71,6 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     }
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware)
-internal inline fun <reified T : Any> Settings.handleArtifactSettings(
-    fragments: List<FragmentBuilder>,
-    key: String,
-    init: FragmentBuilder.(T) -> Unit
-) {
-    val originalSettings = this
-    val (_, platforms) = parseProductAndPlatforms(originalSettings)
-    var variantSet: MutableSet<Settings>
-
-    for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
-        variantSet = with(originalSettings) { variants }.toMutableSet()
-        val split = settingsKey.split("@")
-        val specialization = if (split.size > 1) split[1].split("+") else listOf()
-        val options = specialization
-            .filter { getPlatformFromFragmentName(it) == null && !this@Map.containsKey(it) }
-            .toSet()
-
-        for (option in options) {
-            val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
-            variantSet.remove(variant)
-        }
-
-        val normalizedPlatforms = specialization
-            .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
-            .ifEmpty { platforms }
-            .toSet()
-
-        val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
-
-        val targetFragment = fragments
-            .filter { it.platforms == normalizedPlatforms }
-            .firstOrNull { it.variants == normalizedOptions }
-            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
-
-        if (settingsValue is T) targetFragment.init(settingsValue)
-    }
-}
-
 private fun MutableList<FragmentBuilder>.withDependencies(): MutableList<FragmentBuilder> = buildSet {
     val deque = ArrayDeque<FragmentBuilder>()
     this@withDependencies.firstOrNull()?.let {
