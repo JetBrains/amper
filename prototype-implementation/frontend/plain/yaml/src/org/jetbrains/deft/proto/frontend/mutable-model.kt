@@ -44,7 +44,7 @@ internal data class FragmentBuilder(
     var native: NativePartBuilder? = NativePartBuilder {},
     var java: JavaPartBuilder? = JavaPartBuilder {},
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
-    var compose: ComposePartBuilder? = ComposePartBuilder {}
+    var compose: ComposePartBuilder? = ComposePartBuilder {},
 ) {
 
     lateinit var src: Path
@@ -55,7 +55,7 @@ internal data class FragmentBuilder(
      */
     constructor(
         name: String,
-        copyFrom: FragmentBuilder
+        copyFrom: FragmentBuilder,
     ) : this(name, copyFrom.platforms) {
         variants.addAll(copyFrom.variants)
         isTest = copyFrom.isTest
@@ -227,7 +227,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Variant>): L
     return fragments
 }
 
-context (Map<String, Set<Platform>>)
+context (ParsingContext)
 internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
     get() {
         val platforms = this
@@ -251,7 +251,7 @@ context(BuildFileAware)
 internal fun List<FragmentBuilder>.artifacts(
     variants: List<Variant>,
     productType: ProductType,
-    platforms: Set<Platform>
+    platforms: Set<Platform>,
 ): List<ArtifactBuilder> {
     fun joinToCamelCase(strings: Set<String>): String {
         val list = strings.toList()
@@ -359,7 +359,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
     add(fragment)
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
     config.handleFragmentSettings<YamlNode.Mapping>(this, "settings") {
         kotlin = KotlinPartBuilder {
@@ -380,9 +380,18 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
                 kotlinSettings.getBooleanValue("progressiveMode") { progressiveMode = it }
 
                 // Lists
-                kotlinSettings.getSequenceValue("languageFeatures") { languageFeatures.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
-                kotlinSettings.getSequenceValue("optIns") { optIns.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
-                kotlinSettings.getSequenceValue("freeCompilerArgs") { freeCompilerArgs.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
+                kotlinSettings.getSequenceValue("languageFeatures") {
+                    languageFeatures.addAll(
+                        it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value })
+                }
+                kotlinSettings.getSequenceValue("optIns") {
+                    optIns.addAll(
+                        it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value })
+                }
+                kotlinSettings.getSequenceValue("freeCompilerArgs") {
+                    freeCompilerArgs.addAll(
+                        it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value })
+                }
             }
         }
 
@@ -394,10 +403,10 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
     }
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<ArtifactBuilder>.handleSettings(
     config: YamlNode.Mapping,
-    fragments: List<FragmentBuilder>
+    fragments: List<FragmentBuilder>,
 ) {
     config.handleFragmentSettings<YamlNode.Mapping>(fragments, "settings") {
         android = AndroidPartBuilder {
@@ -436,11 +445,10 @@ internal fun List<ArtifactBuilder>.handleSettings(
     }
 }
 
-context (BuildFileAware, YamlNode.Mapping, TypesafeVariants, DefaultPlatforms)
+context (BuildFileAware, ParsingContext)
 internal fun List<FragmentBuilder>.calculateSrcDir() {
-    val platforms = this@DefaultPlatforms
-    val defaultOptions = defaultOptionMap.values.toSet()
-    val nonStdOptions = optionMap.filter { it.value.dimension != "mode" }.keys
+    val defaultOptions = config.defaultOptionMap.values.toSet()
+    val nonStdOptions = config.optionMap.filter { it.value.dimension != "mode" }.keys
 
     for (fragment in this) {
         val options = fragment.variants.filter { it in nonStdOptions }.toSet()
@@ -455,7 +463,7 @@ internal fun List<FragmentBuilder>.calculateSrcDir() {
                 if (fragment.alias != null) {
                     append("${fragment.alias}")
                 } else {
-                    append(fragment.platforms.joinToString("+") { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } })
+                    append(fragment.platforms.joinToString("+") { setOf(it).toCamelCaseString().first })
                 }
             }
 

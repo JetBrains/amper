@@ -53,13 +53,13 @@ private fun String.searchFlags(): DefaultScopedNotation {
     }
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleExternalDependencies(
     config: YamlNode.Mapping,
     osDetector: OsDetector = DefaultOsDetector()
 ) = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
 
-context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+context (BuildFileAware, ProblemReporterContext, ParsingContext)
 private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector) {
     config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->

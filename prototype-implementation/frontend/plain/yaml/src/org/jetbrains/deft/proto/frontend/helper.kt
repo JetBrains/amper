@@ -5,8 +5,6 @@ import java.nio.file.Path
 
 typealias TypesafeVariants = List<Variant>
 
-typealias DefaultPlatforms = Set<Platform>
-
 interface BuildFileAware {
     val buildFile: Path
 }
@@ -24,11 +22,11 @@ fun <T> cartesianSets(elements: Iterable<Collection<T>>): List<Set<T>> =
         preserveEmpty = false,
     )
 
-context (Map<String, Set<Platform>>)
+context (ParsingContext)
 fun Set<Platform>.toCamelCaseString(): Pair<String, String?> {
     val platforms = this.toMutableSet()
     val aliases: List<String> = buildList {
-        entries
+        aliasMap.entries
             .filter { it.value.isNotEmpty() }
             .filter { platforms.containsAll(it.value) }
             .sortedByDescending { it.value.size }
