@@ -1,10 +1,11 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
 import org.jetbrains.deft.proto.frontend.model.PlainLeafFragment
 import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
-import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.*
 import java.nio.file.Path
 import java.util.*
 
@@ -358,11 +359,11 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
     add(fragment)
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware)
-internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
-    config.handleFragmentSettings<Settings>(this, "settings") {
+context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
+    config.handleFragmentSettings<YamlNode.Mapping>(this, "settings") {
         kotlin = KotlinPartBuilder {
-            it.getValue<Settings>("kotlin")?.let { kotlinSettings ->
+            it.getMappingValue("kotlin")?.let { kotlinSettings ->
                 // Special
                 kotlinSettings.getStringValue("languageVersion") {
                     languageVersion = KotlinVersion.requireFromString(it)
@@ -379,28 +380,28 @@ internal fun List<FragmentBuilder>.handleSettings(config: Settings) {
                 kotlinSettings.getBooleanValue("progressiveMode") { progressiveMode = it }
 
                 // Lists
-                kotlinSettings.getValue<List<String>>("languageFeatures") { languageFeatures.addAll(it) }
-                kotlinSettings.getValue<List<String>>("optIns") { optIns.addAll(it) }
-                kotlinSettings.getValue<List<String>>("freeCompilerArgs") { freeCompilerArgs.addAll(it) }
+                kotlinSettings.getSequenceValue("languageFeatures") { languageFeatures.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
+                kotlinSettings.getSequenceValue("optIns") { optIns.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
+                kotlinSettings.getSequenceValue("freeCompilerArgs") { freeCompilerArgs.addAll(it.elements.filterIsInstance<YamlNode.Scalar>().map { it.value }) }
             }
         }
 
         junit = JunitPartBuilder {
-            it.getValue<Settings>("junit")?.let { testSettings ->
+            it.getMappingValue("junit")?.let { testSettings ->
                 platformEnabled = testSettings.getBooleanValue("platformEnabled")
             }
         }
     }
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware)
+context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
 internal fun List<ArtifactBuilder>.handleSettings(
-    config: Map<String, Any>,
+    config: YamlNode.Mapping,
     fragments: List<FragmentBuilder>
 ) {
-    config.handleFragmentSettings<Settings>(fragments, "settings") {
+    config.handleFragmentSettings<YamlNode.Mapping>(fragments, "settings") {
         android = AndroidPartBuilder {
-            it.getValue<Settings>("android")?.let { androidSettings ->
+            it.getMappingValue("android")?.let { androidSettings ->
                 compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")
                 minSdk = androidSettings.getStringValue("minSdk")
                 minSdkPreview = androidSettings.getStringValue("minSdkPreview")
@@ -412,14 +413,14 @@ internal fun List<ArtifactBuilder>.handleSettings(
         }
 
         publishing = PublishingPartBuilder {
-            it.getValue<Settings>("publishing")?.let { publishSettings ->
+            it.getMappingValue("publishing")?.let { publishSettings ->
                 group = publishSettings.getStringValue("group")
                 version = publishSettings.getStringValue("version")
             }
         }
 
         java = JavaPartBuilder {
-            it.getValue<Settings>("java")?.let { javaSettings ->
+            it.getMappingValue("java")?.let { javaSettings ->
                 mainClass = javaSettings.getStringValue("mainClass")
                 packagePrefix = javaSettings.getStringValue("packagePrefix")
                 target = javaSettings.getStringValue("target")
@@ -428,15 +429,16 @@ internal fun List<ArtifactBuilder>.handleSettings(
         }
 
         compose = ComposePartBuilder {
-            it.getValue<Settings>("compose")?.let { composeSettings ->
+            it.getMappingValue("compose")?.let { composeSettings ->
                 enabled = composeSettings.getBooleanValue("enabled")
             }
         }
     }
 }
 
-context (BuildFileAware, YamlNode.Mapping, TypesafeVariants)
-internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
+context (BuildFileAware, YamlNode.Mapping, TypesafeVariants, DefaultPlatforms)
+internal fun List<FragmentBuilder>.calculateSrcDir() {
+    val platforms = this@DefaultPlatforms
     val defaultOptions = defaultOptionMap.values.toSet()
     val nonStdOptions = optionMap.filter { it.value.dimension != "mode" }.keys
 

@@ -1,6 +1,12 @@
 package org.jetbrains.deft.proto.frontend.dependency
 
-import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.frontend.BuildFileAware
+import org.jetbrains.deft.proto.frontend.DefaultPotatoModuleDependency
+import org.jetbrains.deft.proto.frontend.MavenDependency
+import org.jetbrains.deft.proto.frontend.Notation
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.getBooleanValue
+import org.jetbrains.deft.proto.frontend.nodes.getStringValue
 
 private data class NotationWithFlags(
     val notation: String,
@@ -9,50 +15,48 @@ private data class NotationWithFlags(
     val exported: Boolean
 )
 
-private val stringDependencyFormat: (Any) -> NotationWithFlags? = { dependency ->
-    (dependency as? String)?.let { NotationWithFlags(it, runtime = true, compile = true, exported = false) }
+private val stringDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
+    (dependency as? YamlNode.Scalar)?.let { NotationWithFlags(dependency.value, runtime = true, compile = true, exported = false) }
 }
 
-private val inlineDependencyFormat: (Any) -> NotationWithFlags? = { dependency ->
-    @Suppress("UNCHECKED_CAST")
-    (dependency as? Settings)?.let {
-        if (it.size != 1) {
+private val inlineDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
+    (dependency as? YamlNode.Mapping)?.let {
+        if (dependency.size != 1) {
             return@let null
         }
-        val entry = it.entries.first()
-        val notation = entry.key
-        (entry.value as? String)?.let {
-            val (compile, runtime, exported) = when (it) {
+        val entry = dependency.mappings.first()
+        val notation = entry.first as YamlNode.Scalar
+        (entry.second as? YamlNode.Scalar)?.let {
+            val (compile, runtime, exported) = when (it.value) {
                 "compile-only" -> Triple(true, false, false)
                 "runtime-only" -> Triple(false, true, false)
                 "all" -> Triple(true, true, false)
                 "exported" -> Triple(true, true, true)
                 else -> Triple(true, true, false)
             }
-            NotationWithFlags(notation, compile, runtime, exported)
+            NotationWithFlags(notation.value, compile, runtime, exported)
         }
     }
 }
 
-private val fullDependencyFormat: (Any) -> NotationWithFlags? = { dependency ->
-    @Suppress("UNCHECKED_CAST")
-    (dependency as? Settings)?.let {
-        if (it.size != 1) {
+private val fullDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
+    (dependency as? YamlNode.Mapping)?.let {
+        if (dependency.size != 1) {
             return@let null
         }
-        val entry = it.entries.first()
-        val notation = entry.key
+        val entry = dependency.mappings.first()
+        val notation = entry.first as YamlNode.Scalar
 
-        (entry.value as? Settings)?.let {
-            val scope = it.getStringValue("scope") ?: "all"
+        (entry.second as? YamlNode.Mapping)?.let { dependencySettings ->
+            val scope = dependencySettings.getStringValue("scope") ?: "all"
             val (compile, runtime) = when (scope) {
                 "compile-only" -> true to false
                 "runtime-only" -> false to true
                 "all" -> true to true
                 else -> true to true
             }
-            val exported = it.getBooleanValue("exported") ?: false
-            NotationWithFlags(notation, compile, runtime, exported)
+            val exported = dependencySettings.getBooleanValue("exported") ?: false
+            NotationWithFlags(notation.value, compile, runtime, exported)
         }
     }
 }
@@ -94,7 +98,7 @@ private infix fun <A, B, C> List<(A) -> B?>.combine(functions: List<(B) -> C?>):
 }
 
 context(BuildFileAware)
-fun parseDependency(dependency: Any): Notation? {
+fun parseDependency(dependency: YamlNode): Notation? {
     val dependencyFormats = listOf(
         stringDependencyFormat,
         inlineDependencyFormat,

@@ -1,12 +1,13 @@
 package org.jetbrains.deft.proto.frontend
 
-import java.util.Properties
+import org.jetbrains.deft.proto.frontend.nodes.*
+import java.util.*
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 
 context(BuildFileAware)
 fun parseModuleParts(
-    config: Settings,
+    config: YamlNode.Mapping,
 ): ClassBasedSet<ModulePart<*>> {
     // Collect parts.
     return buildClassBasedSet {
@@ -16,18 +17,21 @@ fun parseModuleParts(
 }
 
 context(BuildFileAware)
-private fun parseMetaSettings(config: Settings): MetaModulePart {
-    val meta = config.getValue<Settings>("pot")
+private fun parseMetaSettings(config: YamlNode.Mapping): MetaModulePart {
+    val meta = config.getMappingValue("pot")
         ?: return MetaModulePart() // TODO Check for type.
 
     fun parseLayout(): Layout? {
-        return when (val layoutValue = meta["layout"]) {
+        val metaNode = meta["layout"]
+        if (metaNode !is YamlNode.Scalar?) {
+            parseError("Layout is not scalar: $metaNode")
+        }
+        return when (metaNode?.value) {
             null -> return null
-            !is String -> parseError("Layout value is not string: $layoutValue")
             "default" -> Layout.DEFT
             "gradle-kmp" -> Layout.GRADLE
             "gradle-jvm" -> Layout.GRADLE_JVM
-            else -> parseError("Unknown layout: $layoutValue")
+            else -> parseError("Unknown layout: ${metaNode?.value}")
         }
     }
 
@@ -36,29 +40,23 @@ private fun parseMetaSettings(config: Settings): MetaModulePart {
     )
 }
 
-val repositoriesKey = SettingsKey<List<Any>>("repositories")
-val credentialsKey = SettingsKey<Settings>("credentials")
-
 context(BuildFileAware)
-private fun parseRepositories(config: Settings): RepositoriesModulePart {
-    val repos = config[repositoriesKey] ?: emptyList()
+private fun parseRepositories(config: YamlNode.Mapping): RepositoriesModulePart {
+    val repos = config.getSequenceValue("repositories") ?: emptyList()
 
     // Parse repositories.
     val parsedRepos = repos.map {
         when (it) {
-            is String -> {
-                RepositoriesModulePart.Repository(it, it)
+            is YamlNode.Scalar -> {
+                RepositoriesModulePart.Repository(it.value, it.value)
             }
 
-            is Map<*, *> -> {
-                @Suppress("UNCHECKED_CAST")
-                it as Settings
-
+            is YamlNode.Mapping -> {
                 val url = it.getStringValue("url") ?: parseError("No repository url")
                 val id = it.getStringValue("id") ?: url
                 val shouldPublish = it.getBooleanValue("publish") ?: false
 
-                val credentials = it[credentialsKey]
+                val credentials = it.getMappingValue("credentials")
                 if (credentials == null) {
                     RepositoriesModulePart.Repository(id, url, shouldPublish)
                 } else {

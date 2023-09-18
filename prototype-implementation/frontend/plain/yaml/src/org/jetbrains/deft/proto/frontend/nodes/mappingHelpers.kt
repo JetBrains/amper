@@ -1,7 +1,5 @@
 package org.jetbrains.deft.proto.frontend.nodes
 
-import org.jetbrains.deft.proto.frontend.Settings
-
 fun YamlNode.Mapping.getMapping(key: String): Pair<YamlNode, YamlNode>? =
     mappings.firstOrNull { (k, _) -> (k as? YamlNode.Scalar)?.value == key }
 
@@ -11,12 +9,16 @@ operator fun YamlNode.Mapping.get(key: String): YamlNode? =
 val YamlNode.Mapping.keys: Set<String>
     get() = mappings.mapNotNull { (k, _) -> (k as? YamlNode.Scalar)?.value }.toSet()
 
-fun YamlNode.Mapping.toSettings(): Settings = mappings.mapNotNull { (k, v) ->
-    if (k is YamlNode.Scalar) k.value to v.convert() else null
-}.toMap()
+fun YamlNode.Mapping.getStringValue(key: String): String? = this[key]?.let { (it as? YamlNode.Scalar)?.value }
 
-private fun YamlNode.convert(): Any = when (this) {
-    is YamlNode.Scalar -> value
-    is YamlNode.Sequence -> elements.map { it.convert() }
-    is YamlNode.Mapping -> mappings.associate { (k, v) -> k.convert() to v.convert() }
-}
+fun YamlNode.Mapping.getStringValue(key: String, block: (String) -> Unit) = this[key]?.let { (it as? YamlNode.Scalar)?.value }?.let(block)
+
+fun YamlNode.Mapping.getBooleanValue(key: String): Boolean? = getStringValue(key)?.toBooleanStrictOrNull()
+
+fun YamlNode.Mapping.getBooleanValue(key: String, block: (Boolean) -> Unit) = getStringValue(key)?.toBooleanStrictOrNull()?.let(block)
+
+fun YamlNode.Mapping.getSequenceValue(key: String): YamlNode.Sequence? = this[key] as? YamlNode.Sequence
+
+fun YamlNode.Mapping.getSequenceValue(key: String, block: (YamlNode.Sequence) -> Unit) = (this[key] as? YamlNode.Sequence)?.let(block)
+
+fun YamlNode.Mapping.getMappingValue(key: String): YamlNode.Mapping? = this[key] as? YamlNode.Mapping

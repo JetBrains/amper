@@ -1,9 +1,10 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.dependency.parseDependency
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.util.requireSingleOrNull
 import kotlin.io.path.Path
-
 
 context (BuildFileAware)
 class DefaultPotatoModuleDependency(
@@ -52,15 +53,15 @@ private fun String.searchFlags(): DefaultScopedNotation {
     }
 }
 
-context (Map<String, Set<Platform>>, BuildFileAware)
+context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
 internal fun List<FragmentBuilder>.handleExternalDependencies(
-    config: Settings,
+    config: YamlNode.Mapping,
     osDetector: OsDetector = DefaultOsDetector()
 ) = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
 
-context (Map<String, Set<Platform>>, BuildFileAware)
-private fun List<FragmentBuilder>.addRawDependencies(config: Settings, osDetector: OsDetector) {
-    config.handleFragmentSettings<List<Any>>(this, "dependencies") { depList ->
+context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector) {
+    config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
         val resolved = depList.map { dep ->
             parseDependency(dep) ?: parseError("Error while parsing dependencies for fragment $name")
         }.map {

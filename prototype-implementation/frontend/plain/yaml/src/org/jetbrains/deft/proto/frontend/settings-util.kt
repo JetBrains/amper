@@ -1,48 +1,21 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
-internal typealias Settings = Map<String, Any>
-
-// Simplification of map access.
-open class SettingsKey<T : Any>(val name: String)
-open class DefaultedKey<T : Any>(name: String, val default: T) : SettingsKey<T>(name)
-
-internal inline operator fun <reified T : Any> Settings.get(key: SettingsKey<T>): T? =
-    this[key.name] as? T
-
-internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>): T =
-    this[key.name] as? T ?: key.default
-
-
-internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
-
-internal inline fun <reified T : Any> Settings.getValue(
-    key: String, block: (T) -> Unit,
-) {
-    (this[key] as? T)?.let(block)
-}
-
-internal fun Settings.getStringValue(key: String) = this[key]?.toString()
-internal fun Settings.getStringValue(key: String, block: (String) -> Unit) = getStringValue(key)?.let(block)
-
-internal fun Settings.getBooleanValue(key: String): Boolean? = getStringValue(key)?.toBooleanStrictOrNull()
-internal fun Settings.getBooleanValue(key: String, block: (Boolean) -> Unit) =
-    getStringValue(key)?.toBooleanStrictOrNull()?.let(block)
-
-context (Map<String, Set<Platform>>, BuildFileAware)
-internal inline fun <reified T : Any> Settings.handleFragmentSettings(
+context (Map<String, Set<Platform>>, BuildFileAware, ProblemReporterContext, DefaultPlatforms, TypesafeVariants)
+internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettings(
     fragments: List<FragmentBuilder>,
     key: String,
     init: FragmentBuilder.(T) -> Unit,
 ) {
     val originalSettings = this
-    val (_, platforms) = parseProductAndPlatforms(originalSettings)
-    var variantSet: MutableSet<Settings>
+    var variantSet: MutableSet<Variant>
 
-    for ((settingsKey, settingsValue) in filterKeys { it.startsWith(key) }) {
-        variantSet = with(originalSettings) { variants }.toMutableSet()
+    val settings = this.mappings.map { (it.first as YamlNode.Scalar) to it.second }.filter { it.first.startsWith(key) }
+    for ((settingsKey, settingsValue) in settings) {
+        variantSet = this@TypesafeVariants.toMutableSet()
         val split = settingsKey.split("@")
         val specialization = if (split.size > 1) split[1].split("+") else listOf()
         val options = specialization
@@ -56,7 +29,7 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
 
         val normalizedPlatforms = specialization
             .flatMap { this@Map[it] ?: listOfNotNull(getPlatformFromFragmentName(it)) }
-            .ifEmpty { platforms }
+            .ifEmpty { this@DefaultPlatforms }
             .toSet()
 
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
@@ -71,126 +44,6 @@ internal inline fun <reified T : Any> Settings.handleFragmentSettings(
         }
     }
 }
-
-private fun MutableList<FragmentBuilder>.withDependencies(): MutableList<FragmentBuilder> = buildSet {
-    val deque = ArrayDeque<FragmentBuilder>()
-    this@withDependencies.firstOrNull()?.let {
-        deque.add(it)
-        add(it)
-    }
-    while (!deque.isEmpty()) {
-        val fragment = deque.removeFirst()
-        for (dep in fragment.dependencies.map { it.target }) {
-            if (!contains(dep)) {
-                deque.add(dep)
-                add(dep)
-            }
-        }
-
-    }
-}.toMutableList()
-
-/**
- * Key used to propagate naming correctly for fragments while multiplying.
- */
-val isDefaultKey = DefaultedKey("default", false)
-
-/**
- * Key used to determine, which fragment is built by default.
- */
-val isDefaultFragmentKey = DefaultedKey("defaultFragment", false)
-val dependsOnKey = DefaultedKey<List<Settings>>("dependsOn", emptyList())
-val optionsKey = DefaultedKey<List<Settings>>("options", emptyList())
-val dimensionKey = SettingsKey<String>("dimension")
-val nameKey = SettingsKey<String>("name")
-
-internal val Settings.variants: List<Settings>
-    get() {
-        val initialVariants = (this["variants"] as? List<*>)?.let {
-            if (it.isNotEmpty()) {
-                if (it[0] is String) {
-                    listOf(getValue<List<String>>("variants") ?: listOf())
-                } else {
-                    getValue<List<List<String>>>("variants") ?: listOf()
-                }
-            } else {
-                listOf()
-            }
-        } ?: listOf()
-
-        var i = 0
-        val convertedInitialVariants: List<Settings> = initialVariants.map {
-            val dimension = "dimension${++i}"
-            mapOf(
-                dimensionKey.name to dimension,
-                optionsKey.name to it.mapIndexed { index, optionName ->
-                    mapOf(
-                        nameKey.name to optionName,
-                        dependsOnKey.name to listOf(
-                            mapOf("target" to dimension)
-                        ),
-                        isDefaultFragmentKey.name to (index == 0),
-                    )
-                } + mapOf(
-                    nameKey.name to dimension,
-                    isDefaultKey.name to true
-                )
-            )
-        }
-        return if (!convertedInitialVariants.any { it.getStringValue("dimension") == "mode" }) {
-            convertedInitialVariants + mapOf(
-                dimensionKey.name to "mode",
-                optionsKey.name to listOf(
-                    mapOf(
-                        nameKey.name to "main",
-                        isDefaultKey.name to true,
-                        isDefaultFragmentKey.name to true
-                    ),
-                    mapOf(
-                        nameKey.name to "test",
-                        dependsOnKey.name to listOf(mapOf("target" to "main", "kind" to "friend"))
-                    )
-                )
-            )
-        } else {
-            convertedInitialVariants
-        }
-    }
-
-internal val Settings.defaultOptionMap: Map<Settings, String>
-    get() {
-        val originalSettings = this
-
-        return buildMap {
-            for (variant in with(originalSettings) { variants }) {
-                val option = (variant[optionsKey])
-                    .firstOrNull { it[isDefaultKey] }
-                    ?: error("Something went wrong")
-                put(variant, option.getStringValue("name") ?: error("Something went wrong"))
-            }
-        }
-    }
-
-internal val Settings.optionMap: Map<String, Settings>
-    get() {
-        val originalSettings = this
-
-        return buildMap {
-            for (variant in with(originalSettings) { variants }) {
-                for (option in (variant[optionsKey])
-                    .mapNotNull { it.getStringValue("name") }) {
-                    put(option, variant)
-                }
-            }
-        }
-    }
-
-internal val Settings.transformed: Settings
-    get() = buildMap {
-        for ((key, value) in this@transformed) {
-            put(key.transformKey(), value)
-        }
-    }
 
 context(TypesafeVariants)
 internal val YamlNode.Mapping.defaultOptionMap: Map<Variant, String>
@@ -211,3 +64,9 @@ internal val YamlNode.Mapping.optionMap: Map<String, Variant>
             }
         }
     }
+
+internal val YamlNode.Scalar.transformed: YamlNode.Scalar
+    get() = copy(value = value.transformKey())
+
+internal val YamlNode.Mapping.transformed: YamlNode.Mapping
+    get() = copy(mappings = mappings.map { (key, value) -> (key as YamlNode.Scalar).transformed to value })
