@@ -3,7 +3,6 @@ package org.jetbrains.deft.proto.frontend
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.dependency.parseDependency
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
-import org.jetbrains.deft.proto.frontend.util.requireSingleOrNull
 import kotlin.io.path.Path
 
 context (BuildFileAware)
@@ -40,16 +39,6 @@ class DefaultPotatoModuleDependency(
 
     override fun toString(): String {
         return "InternalDependency(module=$depPath)"
-    }
-}
-
-private fun String.searchFlags(): DefaultScopedNotation {
-    fun MatchResult.toBooleanFlag() = !groupValues[1].startsWith("!")
-    fun Regex.parseFlag() = findAll(this@searchFlags).requireSingleOrNull()?.toBooleanFlag()
-    return object : DefaultScopedNotation {
-        override val compile = "[,\\s]((!)?compile)".toRegex().parseFlag() ?: true
-        override val runtime = "[,\\s]((!)?runtime)".toRegex().parseFlag() ?: true
-        override val exported = "[,\\s]((!)?exported)".toRegex().parseFlag() ?: false
     }
 }
 
