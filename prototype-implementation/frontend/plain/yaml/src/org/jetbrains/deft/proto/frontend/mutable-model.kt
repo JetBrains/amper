@@ -397,7 +397,7 @@ internal fun List<ArtifactBuilder>.handleSettings(
     config: Map<String, Any>,
     fragments: List<FragmentBuilder>
 ) {
-    config.handleArtifactSettings<Settings>(fragments, "settings") {
+    config.handleFragmentSettings<Settings>(fragments, "settings") {
         android = AndroidPartBuilder {
             it.getValue<Settings>("android")?.let { androidSettings ->
                 compileSdkVersion = androidSettings.getStringValue("compileSdkVersion")
