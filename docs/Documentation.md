@@ -275,7 +275,8 @@ repositories:
 To configure repository credentials use the following DSL:
 ```yaml
 repositories:
-  - url: https://my.private.repository/
+  - id: my.repo
+    url: https://my.private.repository/
     credentials:
       file: ../local.properties # relative path to the file with credentials
       usernameKey: my.private.repository.username  
