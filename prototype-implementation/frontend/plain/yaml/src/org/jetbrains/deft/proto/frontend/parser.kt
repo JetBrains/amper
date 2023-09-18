@@ -22,7 +22,6 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     }
 
     val (productType: ProductType, platforms: Set<Platform>) = productAndPlatforms.value
-    val config = config.toSettings()
 
     val dependencySubsets = config.keys
         .asSequence()
@@ -43,17 +42,36 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
         .filter { it != Platform.COMMON }
         .associate { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } to it.leafChildren.toSet() }
 
-    val aliases: Settings = config.getValue<Settings>("aliases") ?: mapOf()
-    val aliasMap: Map<String, Set<Platform>> = aliases.entries.associate {
-        val name = it.key
-        val platformSet = aliases.getValue<List<String>>(it.key)
-            ?.mapNotNull { getPlatformFromFragmentName(it) }
-            ?.toSet() ?: setOf()
+    val aliases = config["aliases"] ?: YamlNode.Mapping.Empty
+    if (!aliases.castOrReport<YamlNode.Mapping> { FrontendYamlBundle.message("element.name.aliases") }) {
+        return deftFailure()
+    }
+
+    var hasBrokenAliases = false
+    val aliasMap: Map<String, Set<Platform>> = aliases.mappings.associate { (key, value) ->
+        val name = (key as YamlNode.Scalar).value
+        if (!value.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.alias.platforms") }) {
+            hasBrokenAliases = true
+            return@associate name to emptySet()
+        }
+        val platformsList = value.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.alias.platforms") }
+        if (platformsList == null) {
+            hasBrokenAliases = true
+            return@associate name to emptySet()
+        }
+
+        val platformSet = platformsList
+            .mapNotNull { getPlatformFromFragmentName(it.value) }
+            .toSet()
         name to platformSet
     } + naturalHierarchy
         .entries
         .sortedBy { it.value.size }
         .associate { (key, value) -> key to (platforms intersect value) }
+
+    if (hasBrokenAliases) {
+        return deftFailure()
+    }
 
     val aliasSubsets = aliasMap
         .values
@@ -73,6 +91,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
 
     var fragments = with(aliasMap) { subsets.basicFragments }
 
+    val config = config.toSettings()
     fragments = fragments.multiplyFragments(config.variants)
     with(aliasMap) {
         fragments.handleExternalDependencies(config.transformed, osDetector)
