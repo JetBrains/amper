@@ -47,7 +47,7 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
 
 context(ParsingContext)
 internal val YamlNode.Mapping.defaultOptionMap: Map<Variant, String>
-    get() = buildMap<Variant, String> {
+    get() = buildMap {
         for (variant in variants) {
             val option = variant.options.firstOrNull { it.isDefaultOption }
             checkNotNull(option) { "Each variant should have default options" }
