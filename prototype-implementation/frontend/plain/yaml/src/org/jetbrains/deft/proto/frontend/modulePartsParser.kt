@@ -55,7 +55,7 @@ private fun parseRepositories(config: Settings): RepositoriesModulePart {
                 it as Settings
 
                 val url = it.getStringValue("url") ?: parseError("No repository url")
-                val id = it.getStringValue("id") ?: parseError("No repository id")
+                val id = it.getStringValue("id") ?: url
                 val shouldPublish = it.getBooleanValue("publish") ?: false
 
                 val credentials = it[credentialsKey]

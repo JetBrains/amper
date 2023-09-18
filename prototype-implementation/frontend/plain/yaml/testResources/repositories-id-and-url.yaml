@@ -4,6 +4,7 @@ product:
 
 repositories:
   - https://a.b
+  - url: https://c.d
   - id: x
     url: https://x.y
 

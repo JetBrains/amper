@@ -41,6 +41,11 @@ Repositories:
     publish: false
     username: null
     password: null
+  - id: https://c.d
+    url: https://c.d
+    publish: false
+    username: null
+    password: null
   - id: x
     url: https://x.y
     publish: false
