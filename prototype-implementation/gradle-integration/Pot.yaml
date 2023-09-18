@@ -21,5 +21,4 @@ dependencies:
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
-  - org.junit.jupiter:junit-jupiter-api:5.9.2
-  - org.junit.jupiter:junit-jupiter-engine:5.9.2
+  - junit:junit:4.12
