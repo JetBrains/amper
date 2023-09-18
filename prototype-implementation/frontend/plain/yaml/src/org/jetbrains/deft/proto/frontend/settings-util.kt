@@ -190,27 +190,3 @@ internal val Settings.transformed: Settings
             put(key.transformKey(), value)
         }
     }
-
-
-data class Variant(val dimension: String, val default: Boolean, val options: List<Option>) {
-    data class Option(val name: String, val default: Boolean)
-}
-
-val List<Settings>.typeSafe: List<Variant>
-    get() = map {
-        Variant(
-            dimension = it.getStringValue(dimensionKey.name) ?: error("Missing dimension"),
-            default = it[isDefaultKey],
-            options = it.getValue<List<Settings>>(optionsKey.name)?.map {
-                Variant.Option(
-                    name = it.getStringValue(nameKey.name) ?: error("Missing option name"),
-                    default = it[isDefaultKey]
-                )
-            } ?: emptyList()
-        )
-    }
-
-val List<Variant>.dimensionVariants: Set<String>
-    get() = asSequence().filter { !it.default }.flatMap { it.options }.filter { it.default }.map { it.name }.toSet()
-val List<Variant>.defaultVariants: Set<String>
-    get() = asSequence().filter { it.default }.flatMap { it.options }.map { it.name }.toSet()
