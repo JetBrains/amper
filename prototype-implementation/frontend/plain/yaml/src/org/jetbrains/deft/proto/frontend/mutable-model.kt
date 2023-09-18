@@ -4,6 +4,7 @@ import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
 import org.jetbrains.deft.proto.frontend.model.PlainLeafFragment
 import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import java.nio.file.Path
 import java.util.*
 
@@ -434,16 +435,15 @@ internal fun List<ArtifactBuilder>.handleSettings(
     }
 }
 
-context (BuildFileAware, Settings)
+context (BuildFileAware, YamlNode.Mapping, TypesafeVariants)
 internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
-
     val defaultOptions = defaultOptionMap.values.toSet()
-    val nonStdOptions = optionMap.filter { it.value.getStringValue("dimension") != "mode" }.keys
+    val nonStdOptions = optionMap.filter { it.value.dimension != "mode" }.keys
 
     for (fragment in this) {
-        val options = fragment.variants.filter { nonStdOptions.contains(it) }.toSet()
+        val options = fragment.variants.filter { it in nonStdOptions }.toSet()
         val postfix = buildString {
-            val optionsWithoutDefault = options.filter { !defaultOptions.contains(it) }
+            val optionsWithoutDefault = options.filter { it !in defaultOptions }
 
             if (fragment.platforms != platforms || optionsWithoutDefault.isNotEmpty()) {
                 append("@")
@@ -453,8 +453,7 @@ internal fun List<FragmentBuilder>.calculateSrcDir(platforms: Set<Platform>) {
                 if (fragment.alias != null) {
                     append("${fragment.alias}")
                 } else {
-                    append(fragment.platforms.map { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } }
-                        .joinToString("+"))
+                    append(fragment.platforms.joinToString("+") { with(mapOf<String, Set<Platform>>()) { setOf(it).toCamelCaseString().first } })
                 }
             }
 

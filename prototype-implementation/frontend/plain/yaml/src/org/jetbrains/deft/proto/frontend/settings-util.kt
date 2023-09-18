@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
 internal typealias Settings = Map<String, Any>
@@ -18,7 +19,7 @@ internal inline operator fun <reified T : Any> Settings.get(key: DefaultedKey<T>
 internal inline fun <reified T : Any> Settings.getValue(key: String): T? = this[key] as? T
 
 internal inline fun <reified T : Any> Settings.getValue(
-    key: String, block: (T) -> Unit
+    key: String, block: (T) -> Unit,
 ) {
     (this[key] as? T)?.let(block)
 }
@@ -34,7 +35,7 @@ context (Map<String, Set<Platform>>, BuildFileAware)
 internal inline fun <reified T : Any> Settings.handleFragmentSettings(
     fragments: List<FragmentBuilder>,
     key: String,
-    init: FragmentBuilder.(T) -> Unit
+    init: FragmentBuilder.(T) -> Unit,
 ) {
     val originalSettings = this
     val (_, platforms) = parseProductAndPlatforms(originalSettings)
@@ -188,5 +189,25 @@ internal val Settings.transformed: Settings
     get() = buildMap {
         for ((key, value) in this@transformed) {
             put(key.transformKey(), value)
+        }
+    }
+
+context(TypesafeVariants)
+internal val YamlNode.Mapping.defaultOptionMap: Map<Variant, String>
+    get() = buildMap<Variant, String> {
+        for (variant in this@TypesafeVariants) {
+            val option = variant.options.firstOrNull { it.isDefaultOption }
+            checkNotNull(option) { "Each variant should have default options" }
+            put(variant, option.name)
+        }
+    }
+
+context(TypesafeVariants)
+internal val YamlNode.Mapping.optionMap: Map<String, Variant>
+    get() = buildMap {
+        for (variant in this@TypesafeVariants) {
+            for (option in variant.options) {
+                put(option.name, variant)
+            }
         }
     }

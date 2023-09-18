@@ -97,13 +97,16 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     }
 
     fragments = fragments.multiplyFragments(configVariants.value)
-    val config = config.toSettings()
+
     with(aliasMap) {
+        val config = config.toSettings()
         fragments.handleExternalDependencies(config.transformed, osDetector)
         fragments.handleSettings(config.transformed)
     }
-    with(config) {
-        fragments.calculateSrcDir(platforms)
+    with(configVariants.value) {
+        with(config) {
+            fragments.calculateSrcDir(platforms)
+        }
     }
 
     val artifacts = fragments.artifacts(
@@ -113,7 +116,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
     )
 
     with(aliasMap) {
-        artifacts.handleSettings(config.transformed, fragments)
+        artifacts.handleSettings(config.toSettings().transformed, fragments)
     }
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
@@ -127,7 +130,7 @@ fun parseModule(config: YamlNode.Mapping, osDetector: OsDetector = DefaultOsDete
                 productType,
                 fragments,
                 artifacts,
-                parseModuleParts(config),
+                parseModuleParts(config.toSettings()),
             )
         }
     })
