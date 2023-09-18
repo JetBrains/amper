@@ -272,6 +272,24 @@ repositories:
     url: https://jitpack.io
 ```
 
+To configure repository credentials use the following DSL:
+```yaml
+repositories:
+  - url: https://my.private.repository/
+    credentials:
+      file: ../local.properties # relative path to the file with credentials
+      usernameKey: my.private.repository.username  
+      passwordKey: my.private.repository.password  
+```
+
+Here is the file `../local.properties`:
+```properties
+my.private.repository.username=...
+my.private.repository.password=...
+```
+
+_Note: Currently only *.property files are supported._
+
 #### Internal dependencies
 To depend on another Pot, use a relative path to the folder which contains the corresponding `Pot.yaml`. 
 Internal dependency should start either with `./` or `../`.
