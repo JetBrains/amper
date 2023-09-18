@@ -82,7 +82,7 @@ class AndroidBindingPluginPart(
                     it.kotlin.setSrcDirs(sources)
                     it.java.setSrcDirs(sources)
                     // FIXME Replace by more complicated layout mode (I guess).
-                    it.manifest.srcFile(sources.first().resolve("Manifest.xml"))
+                    it.manifest.srcFile(sources.first().resolve("AndroidManifest.xml"))
                 }
 
                 val resources = fragment.modifyManagedResources(it.name, null)
