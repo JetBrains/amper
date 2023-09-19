@@ -16,6 +16,7 @@ class ParsingContext(val config: YamlNode.Mapping) {
 }
 
 context(BuildFileAware)
+@Deprecated("Use ErrorReporter.reportError instead")
 internal fun parseError(message: CharSequence): Nothing {
     error("$buildFile: $message")
 }
@@ -131,6 +132,11 @@ fun parseModule(
         return deftFailure()
     }
 
+    val partsResult = parseModuleParts(config)
+    if (partsResult !is Result.Success) {
+        return deftFailure()
+    }
+
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
         private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()
         override val state: MutableMap<FragmentBuilder, Fragment>
@@ -142,7 +148,7 @@ fun parseModule(
                 productType,
                 fragments,
                 artifacts,
-                parseModuleParts(config),
+                partsResult.value,
             )
         }
     })

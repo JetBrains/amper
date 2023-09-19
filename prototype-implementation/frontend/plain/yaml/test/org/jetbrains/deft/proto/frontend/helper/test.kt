@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend.helper
 
+import org.jetbrains.deft.proto.core.get
 import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.*
 import org.jetbrains.deft.proto.frontend.*
@@ -53,6 +54,7 @@ context (BuildFileAware)
 internal fun testParseWithTemplates(
     resourceName: String,
     properties: Properties = Properties(),
+    checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     val path = Path(".")
@@ -68,12 +70,19 @@ internal fun testParseWithTemplates(
                     .resolve("testResources/$it")
             }
         }
-        doTestParse(resourceName, parsed.getOrElse {
-            problemReporter.tearDown()
-            fail("Failed to parse: $path")
-        }, init = init)
+        val parseException = runCatching {
+            doTestParse(resourceName, parsed.get(), shouldFail = checkErrors != null, init = init)
+        }
+        val checkErrorException = runCatching {
+            if (checkErrors != null) {
+                problemReporter.errorsChecked()
+                checkErrors(problemReporter.getErrors())
+            }
+        }
 
         problemReporter.tearDown()
+        parseException.exceptionOrNull()?.let { throw it }
+        checkErrorException.exceptionOrNull()?.let { throw it }
     }
 }
 
