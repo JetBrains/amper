@@ -6,6 +6,7 @@ import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.castOrReport
 import org.jetbrains.deft.proto.frontend.nodes.get
+import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
 
 data class Variant(
     val dimension: String,
@@ -62,10 +63,10 @@ fun getVariants(config: YamlNode.Mapping): Result<List<Variant>> {
     val initialVariants: List<List<String>> = when (variantsNode.elements[0]) {
         is YamlNode.Scalar -> {
             if (!variantsNode.elements.all { it is YamlNode.Scalar }) {
-                problemReporter.reportError(
+                problemReporter.reportNodeError(
                     FrontendYamlBundle.message("incorrect.variants.format"),
+                    node = variantsNode,
                     file = buildFile,
-                    line = variantsNode.startMark.line
                 )
                 return deftFailure()
             }
@@ -74,10 +75,10 @@ fun getVariants(config: YamlNode.Mapping): Result<List<Variant>> {
 
         is YamlNode.Sequence -> {
             if (!variantsNode.elements.all { dimension -> dimension is YamlNode.Sequence && dimension.elements.all { it is YamlNode.Scalar } }) {
-                problemReporter.reportError(
+                problemReporter.reportNodeError(
                     FrontendYamlBundle.message("incorrect.variants.format"),
+                    node = variantsNode,
                     file = buildFile,
-                    line = variantsNode.startMark.line
                 )
                 return deftFailure()
             }
@@ -87,10 +88,10 @@ fun getVariants(config: YamlNode.Mapping): Result<List<Variant>> {
         }
 
         else -> {
-            problemReporter.reportError(
+            problemReporter.reportNodeError(
                 FrontendYamlBundle.message("incorrect.variants.format"),
+                node = variantsNode,
                 file = buildFile,
-                line = variantsNode.startMark.line
             )
             return deftFailure()
         }
