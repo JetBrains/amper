@@ -16,7 +16,7 @@ If you are looking to more detailed info on Gradle interop, check [the documenta
 
 ### Step 1. Configure settings.gradle.kts
 
-By default, a basic `gradle.setting.kts` file looks like this:
+By default, a basic `setting.gradle.kts` file looks like this:
 ```kotlin
 pluginManagement {
     repositories {
