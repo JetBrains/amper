@@ -4,6 +4,3 @@ product:
 
 apply:
   - ../common.Pot-template.yaml
-
-test-dependencies:
-  - org.junit.jupiter:junit-jupiter-api:5.9.2

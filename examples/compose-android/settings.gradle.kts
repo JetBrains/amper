@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.kts to update these versions
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:151-NIGHTLY")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:158-NIGHTLY")
     }
 }
 
