@@ -31,20 +31,19 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-                implementation(compose.components.resources)
-            }
+//            dependencies {
+//                implementation(compose.runtime)
+//                implementation(compose.foundation)
+//                implementation(compose.material)
+//                implementation(compose.components.resources)
+//            }
         }
         val androidMain by getting {
-            dependencies {
-                api("androidx.activity:activity-compose:1.7.2")
-                api("androidx.appcompat:appcompat:1.6.1")
-                api("androidx.core:core-ktx:1.10.1")
-            }
+//            dependencies {
+//                api("androidx.activity:activity-compose:1.7.2")
+//                api("androidx.appcompat:appcompat:1.6.1")
+//                api("androidx.core:core-ktx:1.10.1")
+//            }
         }
         val iosX64Main by getting
         val iosArm64Main by getting
@@ -58,7 +57,7 @@ kotlin {
 //        val desktopMain by getting { //previously
         val jvmMain by getting { //need to be jvmMain because deft don't support target renaming
             dependencies {
-                implementation(compose.desktop.common)
+//                implementation(compose.desktop.common)
             }
         }
     }
