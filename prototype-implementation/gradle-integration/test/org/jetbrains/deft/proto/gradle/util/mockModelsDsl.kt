@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.gradle.util
 
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.*
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -52,7 +54,8 @@ class MockFragmentLink(
 ) : FragmentLink
 
 class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDependency {
-    override val Model.module get() = myModule
+    context(ProblemReporterContext)
+    override val Model.module: Result<PotatoModule> get() = Result.success(myModule)
 }
 
 open class MockFragment(

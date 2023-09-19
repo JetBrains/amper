@@ -1,13 +1,12 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.PublicationPart
 import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
-import org.jetbrains.deft.proto.frontend.TestPart
 import org.jetbrains.deft.proto.gradle.android.AndroidBindingPluginPart
 import org.jetbrains.deft.proto.gradle.apple.AppleBindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
@@ -26,7 +25,7 @@ class BindingProjectPlugin : Plugin<Project> {
 
     fun onDefExtensionChanged() = appliedParts.forEach { it.onDefExtensionChanged() }
 
-    override fun apply(project: Project) {
+    override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
         // Prepare context.
         val model = project.gradle.knownModel ?: return
         val projectToModule = project.gradle.projectPathToModule
@@ -61,6 +60,10 @@ class BindingProjectPlugin : Plugin<Project> {
         // Apply other settings.
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
+
+        if (problemReporter.getErrors().isNotEmpty()) {
+            throw GradleException(problemReporter.getGradleError())
+        }
     }
 
     private fun applyRepositoryAttributes(

@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import java.nio.file.Path
 
 
@@ -57,7 +59,8 @@ interface DefaultScopedNotation : Notation {
 
 interface PotatoModuleDependency : DefaultScopedNotation {
     // A dirty hack to make module resolution lazy.
-    val Model.module: PotatoModule
+    context (ProblemReporterContext)
+    val Model.module: Result<PotatoModule>
 }
 
 data class MavenDependency(
