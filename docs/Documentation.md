@@ -771,6 +771,10 @@ Common code is visible from `@platform`-specific code, but not vice versa:
 |-Pot.yaml
 ```
 
+For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
+
+#### Aliases
+
 Also, you can share code between several platforms by using `aliases:`
 
 ```yaml
@@ -796,8 +800,6 @@ dependencies@jvm:
 |-src@jvm/           # sees declarations from src/ and src@jvmAndAndroid/              
 |-src@android/       # sees declarations from src/ and src@jvmAndAndroid/             
 ```
-
-For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
 
 ### Multi-platform dependencies
 
@@ -1457,6 +1459,36 @@ kotlin {
         // add a new source set
         val mySourceSet by creating {
             // your configuration here
+        }
+    }
+}
+```
+
+Additionally, source sets are generated for each [alias](#aliases). E.g. given a following Pot:  
+
+```yaml
+product:
+  type: lib
+  platforms: [android, jvm]
+  
+pot:
+  layout: gradle-kmp
+
+aliases:
+  jvmAndAndroid: [jvm, android]
+```
+
+two source sets are generated: `jvmAndAndroid` and `jvmAndAndroidTest` and can be used as following:
+
+```kotlin
+kotlin {
+    sourceSets {
+        val jvmAndAndroid by getting {
+            // configure the main source set
+        }
+        
+        val jvmAndAndroidTest by getting {
+            // configure the test source set
         }
     }
 }
