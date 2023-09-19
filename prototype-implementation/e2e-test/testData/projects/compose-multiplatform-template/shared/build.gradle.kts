@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
@@ -20,6 +22,12 @@ kotlin {
 //            isStatic = true
 //        }
 //    }
+    targets.withType(KotlinNativeTarget::class.java).configureEach { // WA for integration with iosApp
+        binaries.framework {
+            baseName = "shared"
+            isStatic = true
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
