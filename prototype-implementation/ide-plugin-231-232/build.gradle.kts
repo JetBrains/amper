@@ -13,7 +13,7 @@ fun properties(key: String) = project.properties[key].toString()
 fun env(key: String) = providers.environmentVariable(key)
 
 val localProperties = Properties().apply {
-    val stream = rootDir.resolve("root.local.properties")
+    val stream = rootDir.resolve("local.properties")
         .takeIf { it.exists() }
         ?.inputStream()
     if (stream != null) load(stream)
