@@ -5,20 +5,21 @@ plugins {
 }
 
 kotlin {
-    androidTarget()
-
-    jvm("desktop")
-
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "shared"
-            isStatic = true
-        }
-    }
+//    androidTarget()
+//
+////    jvm("desktop")
+    jvm()
+//
+//    listOf(
+//        iosX64(),
+//        iosArm64(),
+//        iosSimulatorArm64()
+//    ).forEach { iosTarget ->
+//        iosTarget.binaries.framework {
+//            baseName = "shared"
+//            isStatic = true
+//        }
+//    }
 
     sourceSets {
         val commonMain by getting {
@@ -46,7 +47,8 @@ kotlin {
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
         }
-        val desktopMain by getting {
+//        val desktopMain by getting { //previously
+        val jvmMain by getting { //need to be jvmMain because deft don't support target renaming
             dependencies {
                 implementation(compose.desktop.common)
             }
