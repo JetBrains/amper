@@ -6,7 +6,9 @@ plugins {
     id("org.jetbrains.compose")
 }
 
+@OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
+    targetHierarchy.default()
     targets.withType(KotlinNativeTarget::class.java).configureEach { // WA for integration with iosApp
         binaries.framework {
             baseName = "shared"
