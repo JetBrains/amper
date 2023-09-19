@@ -1,4 +1,4 @@
-package org.jetbrains.deft.ide
+package com.intellij.deft.codeInsight
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.patterns.PatternCondition
@@ -20,21 +20,21 @@ internal fun String.stripTemplateSuffix(): String = removeSuffix(TEMPLATE_FILE_S
 internal fun VirtualFile.isDeftFile(): Boolean = isPot() || isPotTemplate()
 
 internal fun fromDeftFile(): PatternCondition<PsiElement> = object : PatternCondition<PsiElement>("from-deft-file") {
-    override fun accepts(t: PsiElement, context: ProcessingContext?): Boolean = t.containingFile.originalFile.isDeftFile()
+  override fun accepts(t: PsiElement, context: ProcessingContext?): Boolean = t.containingFile.originalFile.isDeftFile()
 }
 
 internal fun PsiElement.isDeftFile(): Boolean = isPot() || isPotTemplate()
 
 internal fun PsiElement.isPot(): Boolean {
-    if (this !is YAMLFile) return false
-    return CachedValuesManager.getCachedValue(this) {
-        CachedValueProvider.Result(this.virtualFile.isPot(), this)
-    }
+  if (this !is YAMLFile) return false
+  return CachedValuesManager.getCachedValue(this) {
+    CachedValueProvider.Result(this.virtualFile.isPot(), this)
+  }
 }
 
 internal fun PsiElement.isPotTemplate(): Boolean {
-    if (this !is YAMLFile) return false
-    return CachedValuesManager.getCachedValue(this) {
-        CachedValueProvider.Result(this.virtualFile.isPotTemplate(), this)
-    }
+  if (this !is YAMLFile) return false
+  return CachedValuesManager.getCachedValue(this) {
+    CachedValueProvider.Result(this.virtualFile.isPotTemplate(), this)
+  }
 }

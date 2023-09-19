@@ -62,6 +62,7 @@
             "jvm/app",
             "macos/app",
             "android/app",
+            "ios/app",
             "linux/app"
         ]
     },
