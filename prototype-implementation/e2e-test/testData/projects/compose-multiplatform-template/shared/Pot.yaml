@@ -18,3 +18,14 @@ dependencies@android:
 
 dependencies@jvm:
     - org.jetbrains.compose.desktop:desktop:1.5.0-rc01
+
+settings:
+    android:
+        namespace: "com.myapplication.common"
+        compileSdkVersion: 34
+        targetSdk: 34
+        minSdk: 24
+    java:
+      target: 17
+
+
