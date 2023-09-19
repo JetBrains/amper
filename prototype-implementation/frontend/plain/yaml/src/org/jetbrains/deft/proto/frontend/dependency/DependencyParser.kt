@@ -94,7 +94,7 @@ private val externalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> 
 }
 
 private infix fun <A, B, C> List<(A) -> B?>.combine(functions: List<(B) -> C?>): (A) -> C? = { value ->
-    functions.firstNotNullOf { it(firstNotNullOf { it(value) }) }
+    functions.firstNotNullOfOrNull { firstNotNullOfOrNull { it(value) }?.let(it) }
 }
 
 context(BuildFileAware)
