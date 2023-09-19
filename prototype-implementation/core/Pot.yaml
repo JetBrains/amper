@@ -9,6 +9,3 @@ apply:
 settings:
   publishing:
     group: org.jetbrains.deft.proto.core
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.20

@@ -60,7 +60,7 @@ context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleExternalDependencies(
     config: YamlNode.Mapping,
     osDetector: OsDetector = DefaultOsDetector()
-): Result<Unit> = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
+): Result<Unit> = addRawDependencies(config, osDetector)
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
 private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector): Result<Unit> =
@@ -88,19 +88,6 @@ private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, o
         externalDependencies.addAll(resolved)
         Result.success(Unit)
     }
-
-private fun List<FragmentBuilder>.addKotlinTestIfNotIncluded() {
-    filter { it.variants.contains("test") }
-        .singleOrNull { it.dependencies.none { it.dependencyKind == MutableFragmentDependency.DependencyKind.Refines } }
-        ?.let { fragment ->
-            val isKotlinTestNotIncluded = fragment.externalDependencies
-                .filterIsInstance<MavenDependency>()
-                .none { it.coordinates.startsWith("org.jetbrains.kotlin:kotlin-test") }
-            if (isKotlinTestNotIncluded) {
-                fragment.externalDependencies.add(MavenDependency("org.jetbrains.kotlin:kotlin-test:1.8.20"))
-            }
-        }
-}
 
 fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDependency): MavenDependency {
     if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:")) {

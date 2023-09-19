@@ -60,6 +60,7 @@ class BindingProjectPlugin : Plugin<Project> {
         // Apply other settings.
         applyRepositoryAttributes(linkedModule, project)
         applyPublicationAttributes(linkedModule, project)
+        applyTest(linkedModule, project)
 
         if (problemReporter.getErrors().isNotEmpty()) {
             throw GradleException(problemReporter.getGradleError())
@@ -101,6 +102,14 @@ class BindingProjectPlugin : Plugin<Project> {
                         cred.password = declared.password
                     }
                 }
+            }
+        }
+    }
+
+    private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
+        if (linkedModule.leafTestFragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
+            project.tasks.withType(Test::class.java) {
+                it.useJUnitPlatform()
             }
         }
     }

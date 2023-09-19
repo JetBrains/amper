@@ -10,6 +10,3 @@ dependencies@android:
 
 dependencies@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
