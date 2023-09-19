@@ -372,6 +372,9 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
                     apiVersion = KotlinVersion.requireFromString(it)
                 }
 
+                // String
+                kotlinSettings.getStringValue("jvmTarget") { jvmTarget = it }
+
                 // Boolean
                 kotlinSettings.getBooleanValue("allWarningsAsErrors") { allWarningsAsErrors = it }
                 kotlinSettings.getBooleanValue("suppressWarnings") { suppressWarnings = it }

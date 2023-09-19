@@ -26,6 +26,7 @@ enum class KotlinVersion(internal val version: String) {
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
+    var jvmTarget: String? = null,
     var allWarningsAsErrors: Boolean? = null,
     val freeCompilerArgs: MutableList<String> = mutableListOf(),
     var suppressWarnings: Boolean? = null,
