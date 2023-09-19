@@ -25,6 +25,7 @@ internal open class PlainFragment(
             KotlinPart(
                 languageVersion = languageVersion?.version,
                 apiVersion = apiVersion?.version,
+                jvmTarget = jvmTarget,
                 allWarningsAsErrors = allWarningsAsErrors,
                 freeCompilerArgs = freeCompilerArgs,
                 suppressWarnings = suppressWarnings,

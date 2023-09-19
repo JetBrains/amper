@@ -6,12 +6,13 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
+    val jvmTarget: String? = null,
     val allWarningsAsErrors: Boolean? = null,
     val freeCompilerArgs: List<String> = emptyList(),
     val suppressWarnings: Boolean? = null,
     val verbose: Boolean? = null,
     val linkerOpts: List<String> = emptyList(),
-    val debug: Boolean?,
+    val debug: Boolean? = null,
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
@@ -20,6 +21,7 @@ data class KotlinPart(
         KotlinPart(
             languageVersion ?: parent.languageVersion,
             apiVersion ?: parent.apiVersion,
+            jvmTarget ?: parent.jvmTarget,
             allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
             (freeCompilerArgs + parent.freeCompilerArgs),
             suppressWarnings ?: true || parent.suppressWarnings ?: false,
@@ -34,14 +36,10 @@ data class KotlinPart(
         )
 
     override fun default(module: PotatoModule): FragmentPart<*> {
-        return KotlinPart(
+        return copy(
             languageVersion = languageVersion ?: "1.9",
             apiVersion = apiVersion ?: languageVersion,
-            debug = null,
             progressiveMode = progressiveMode ?: false,
-            languageFeatures = languageFeatures.takeIf { it.isNotEmpty() } ?: listOf(),
-            optIns = optIns.takeIf { it.isNotEmpty() } ?: listOf(),
-            linkerOpts = emptyList(),
         )
     }
 }
@@ -127,6 +125,7 @@ data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
     override fun propagate(parent: ComposePart): FragmentPart<*> {
         return ComposePart(enabled ?: parent.enabled)
     }
+
     override fun default(module: PotatoModule): FragmentPart<*> {
         return ComposePart(enabled ?: false)
     }

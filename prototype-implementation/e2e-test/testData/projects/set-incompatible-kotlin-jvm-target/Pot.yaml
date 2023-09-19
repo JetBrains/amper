@@ -1,0 +1,11 @@
+product:
+  type: jvm/app
+
+# Check that setting jvmTarget different from java target,
+# but compatible does not break the build.
+settings:
+  kotlin:
+    jvmTarget: 17
+  java:
+    target: 11
+    source: 11

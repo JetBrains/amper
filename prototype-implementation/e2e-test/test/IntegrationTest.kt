@@ -106,6 +106,14 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `setting incompatible kotlin jvm target`() = test(
+        projectName = "set-incompatible-kotlin-jvm-target",
+        "run",
+        expectOutputToHave = "FAILURE:",
+        shouldSucceed = false,
+    )
+
+    @Test
     fun `2 targets, language version 1-9 for common code should not fail`() = test(
         "multiplatform-lib-propagation",
         "build",

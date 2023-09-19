@@ -116,11 +116,13 @@ class KMPPBindingPluginPart(
                         }
 
                         // Set jvm target for all jvm like compilations.
-                        fragment.parts.find<JavaPart>()?.target?.let { jvmTarget ->
+                        val selectedJvmTarget = fragment.parts.find<KotlinPart>()?.jvmTarget
+                            ?: fragment.parts.find<JavaPart>()?.target
+                        if (selectedJvmTarget != null) {
                             compileTaskProvider.configure {
                                 it.compilerOptions.apply {
                                     this as? KotlinJvmCompilerOptions ?: return@apply
-                                    this.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                                    this.jvmTarget.set(JvmTarget.fromTarget(selectedJvmTarget))
                                 }
                             }
                         }

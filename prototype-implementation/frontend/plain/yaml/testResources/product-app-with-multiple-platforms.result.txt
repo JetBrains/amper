@@ -5,7 +5,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -19,7 +19,7 @@ Fragments:
     Fragment dependencies:
       common (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -32,7 +32,7 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -45,7 +45,7 @@ Fragments:
     Fragment dependencies:
       macos (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -59,7 +59,7 @@ Fragments:
       macosTest (REFINE)
       macosArm64 (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -73,7 +73,7 @@ Fragments:
       commonTest (REFINE)
       macos (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -86,7 +86,7 @@ Fragments:
     Fragment dependencies:
       macos (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
@@ -100,7 +100,7 @@ Fragments:
       macosTest (REFINE)
       macosX64 (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
+      KotlinPart(languageVersion=null, apiVersion=null, jvmTarget=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[])
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       JavaPart(mainClass=null, packagePrefix=null, target=null, source=null, moduleName=null)
