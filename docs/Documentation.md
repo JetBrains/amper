@@ -262,6 +262,8 @@ dependencies:
   - io.ktor:ktor-client-core:2.2.0
 ```
 
+#### Managing Maven repositories
+
 By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 
 
 ```yaml
@@ -275,8 +277,7 @@ repositories:
 To configure repository credentials use the following DSL:
 ```yaml
 repositories:
-  - id: my.repo
-    url: https://my.private.repository/
+  - url: https://my.private.repository/
     credentials:
       file: ../local.properties # relative path to the file with credentials
       usernameKey: my.private.repository.username  
