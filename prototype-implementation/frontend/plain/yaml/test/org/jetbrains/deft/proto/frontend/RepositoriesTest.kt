@@ -1,10 +1,11 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.helper.assertHasSingleProblem
 import org.jetbrains.deft.proto.frontend.helper.testParseWithTemplates
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.test.Test
-import kotlin.test.assertFails
 
 internal class RepositoriesTest {
 
@@ -35,10 +36,13 @@ internal class RepositoriesTest {
 
     @Test
     fun `repositories no credentials file`() {
-        assertFails("Credentials file non.existing.file does not exist") {
-            with(buildFile) {
-                testParseWithTemplates("repositories-no-credentials-file")
-            }
+        with(buildFile) {
+            testParseWithTemplates("repositories-no-credentials-file", checkErrors = { problems ->
+                problems.assertHasSingleProblem {
+                    assertTrue("does not exist" in message, message)
+                    assertTrue("non.existing.file" in message, message)
+                }
+            })
         }
     }
 }

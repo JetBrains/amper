@@ -1,47 +1,61 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.*
 import java.util.*
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 
-context(BuildFileAware)
+context(BuildFileAware, ProblemReporterContext)
 fun parseModuleParts(
     config: YamlNode.Mapping,
-): ClassBasedSet<ModulePart<*>> {
+): Result<ClassBasedSet<ModulePart<*>>> {
     // Collect parts.
-    return buildClassBasedSet {
-        add(parseRepositories(config))
-        add(parseMetaSettings(config))
+    val parseRepositoryResult = parseRepositories(config)
+    val parseMetaSettingsResult = parseMetaSettings(config)
+    if (parseRepositoryResult !is Result.Success || parseMetaSettingsResult !is Result.Success) {
+        return deftFailure()
     }
+
+    return Result.success(buildClassBasedSet {
+        add(parseRepositoryResult.value)
+        add(parseMetaSettingsResult.value)
+    })
 }
 
-context(BuildFileAware)
-private fun parseMetaSettings(config: YamlNode.Mapping): MetaModulePart {
+context(BuildFileAware, ProblemReporterContext)
+private fun parseMetaSettings(config: YamlNode.Mapping): Result<MetaModulePart> {
     val meta = config.getMappingValue("pot")
-        ?: return MetaModulePart() // TODO Check for type.
-
-    fun parseLayout(): Layout? {
-        val metaNode = meta["layout"]
-        if (metaNode !is YamlNode.Scalar?) {
-            parseError("Layout is not scalar: $metaNode")
-        }
-        return when (metaNode?.value) {
-            null -> return null
-            "default" -> Layout.DEFT
-            "gradle-kmp" -> Layout.GRADLE
-            "gradle-jvm" -> Layout.GRADLE_JVM
-            else -> parseError("Unknown layout: ${metaNode?.value}")
-        }
+        ?: return Result.success(MetaModulePart()) // TODO Check for type.
+    val metaNode = meta["layout"]
+    if (!metaNode.castOrReport<YamlNode.Scalar?> { FrontendYamlBundle.message("element.name.pot.layout") }) {
+        return deftFailure()
+    }
+    val layout = when (metaNode?.value) {
+        null -> Layout.DEFT
+        "default" -> Layout.DEFT
+        "gradle-kmp" -> Layout.GRADLE
+        "gradle-jvm" -> Layout.GRADLE_JVM
+        else -> return deftFailure()
     }
 
-    return MetaModulePart(
-        parseLayout() ?: Layout.DEFT
+    return Result.Success(MetaModulePart(layout))
+}
+
+
+context(BuildFileAware, ProblemReporterContext)
+private fun reportMissingField(fieldName: String, presentationName: String, node: YamlNode) {
+    problemReporter.reportNodeError(
+        FrontendYamlBundle.message("field.must.be.present", presentationName, fieldName),
+        node = node,
+        file = buildFile,
     )
 }
 
-context(BuildFileAware)
-private fun parseRepositories(config: YamlNode.Mapping): RepositoriesModulePart {
+context(BuildFileAware, ProblemReporterContext)
+private fun parseRepositories(config: YamlNode.Mapping): Result<RepositoriesModulePart> {
     val repos = config.getSequenceValue("repositories") ?: emptyList()
 
     // Parse repositories.
@@ -52,7 +66,11 @@ private fun parseRepositories(config: YamlNode.Mapping): RepositoriesModulePart 
             }
 
             is YamlNode.Mapping -> {
-                val url = it.getStringValue("url") ?: parseError("No repository url")
+                val url = it.getStringValue("url")
+                if (url == null) {
+                    reportMissingField("url", FrontendYamlBundle.message("element.name.repository.url"), it)
+                    return deftFailure()
+                }
                 val id = it.getStringValue("id") ?: url
                 val shouldPublish = it.getBooleanValue("publish") ?: false
 
@@ -61,21 +79,71 @@ private fun parseRepositories(config: YamlNode.Mapping): RepositoriesModulePart 
                     RepositoriesModulePart.Repository(id, url, shouldPublish)
                 } else {
                     val credentialsPath = credentials.getStringValue("file")
-                        ?: parseError("Must specify credentials file in credentials section.")
+                    if (credentialsPath == null) {
+                        reportMissingField(
+                            "file",
+                            FrontendYamlBundle.message("element.name.credentials.file"),
+                            credentials
+                        )
+                        return deftFailure()
+                    }
                     val userNameKey = credentials.getStringValue("usernameKey")
-                        ?: parseError("Must specify \"usernameKey\" in credentials section.")
+                    if (userNameKey == null) {
+                        reportMissingField(
+                            "usernameKey",
+                            FrontendYamlBundle.message("element.name.credentials.usernameKey"),
+                            credentials
+                        )
+                        return deftFailure()
+                    }
                     val passwordKey = credentials.getStringValue("passwordKey")
-                        ?: parseError("Must specify \"passwordKey\" in credentials section.")
+                    if (passwordKey == null) {
+                        reportMissingField(
+                            "passwordKey",
+                            FrontendYamlBundle.message("element.name.credentials.passwordKey"),
+                            credentials
+                        )
+                        return deftFailure()
+                    }
 
                     val credentialsRelative = buildFile.parent.resolve(credentialsPath).normalize()
-                    val credentialsFile = credentialsRelative.takeIf { it.exists() }
-                        ?: parseError("Credentials file $credentialsRelative does not exist.")
+                    val credentialsFile = credentialsRelative.takeIf { file -> file.exists() }
+                    if (credentialsFile == null) {
+                        problemReporter.reportNodeError(
+                            FrontendYamlBundle.message("credentials.file.does.not.exist", credentialsRelative),
+                            node = credentials,
+                            file = buildFile,
+                        )
+                        return deftFailure()
+                    }
                     val credentialProperties = Properties().apply { load(credentialsFile.reader()) }
 
                     val userName = credentialProperties.getProperty(userNameKey)
-                        ?: parseError("Has no key \"$it\" in passed file: $credentialsPath.")
+                    if (userName == null) {
+                        problemReporter.reportNodeError(
+                            FrontendYamlBundle.message(
+                                "credentials.file.does.not.have.user.key",
+                                credentialsRelative,
+                                userNameKey
+                            ),
+                            node = credentials,
+                            file = buildFile,
+                        )
+                        return deftFailure()
+                    }
                     val password = credentialProperties.getProperty(passwordKey)
-                        ?: parseError("Has no key \"$it\" in passed file: $credentialsPath.")
+                    if (password == null) {
+                        problemReporter.reportNodeError(
+                            FrontendYamlBundle.message(
+                                "credentials.file.does.not.have.password.key",
+                                credentialsRelative,
+                                passwordKey,
+                            ),
+                            node = credentials,
+                            file = buildFile,
+                        )
+                        return deftFailure()
+                    }
 
                     RepositoriesModulePart.Repository(
                         id = id,
@@ -87,10 +155,17 @@ private fun parseRepositories(config: YamlNode.Mapping): RepositoriesModulePart 
                 }
             }
 
-            else -> parseError("Unsupported repository: $it")
+            else -> {
+                problemReporter.reportNodeError(
+                    FrontendYamlBundle.message("wrong.repository.format"),
+                    node = it,
+                    file = buildFile,
+                )
+                return deftFailure()
+            }
         }
     }
 
-    return RepositoriesModulePart(parsedRepos)
+    return Result.success(RepositoriesModulePart(parsedRepos))
 }
 
