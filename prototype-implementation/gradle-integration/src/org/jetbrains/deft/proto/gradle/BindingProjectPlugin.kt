@@ -5,8 +5,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.deft.proto.frontend.PublicationPart
 import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
+import org.jetbrains.deft.proto.frontend.TestPart
 import org.jetbrains.deft.proto.gradle.android.AndroidBindingPluginPart
 import org.jetbrains.deft.proto.gradle.apple.AppleBindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart

@@ -59,6 +59,12 @@ class KMPPBindingPluginPart(
     override fun applyBeforeEvaluate() {
         initTargets()
         initFragments()
+        project.configurations.all { config ->
+            config.resolutionStrategy.capabilitiesResolution.withCapability("org.jetbrains.kotlin:kotlin-test-framework-impl") {
+                it.select(it.candidates.first())
+                it.because("Select first, because they are the same")
+            }
+        }
     }
 
     override fun applyAfterEvaluate() {
@@ -231,8 +237,6 @@ class KMPPBindingPluginPart(
     }
 
     private fun initFragments() = with(KotlinDeftNamingConvention) {
-        val onlyJvm = module.artifactPlatforms.all { it == Platform.JVM || it == Platform.ANDROID }
-
         // First iteration - create source sets and add dependencies.
         module.fragments.forEach { fragment ->
             fragment.maybeCreateSourceSet {
@@ -269,8 +273,9 @@ class KMPPBindingPluginPart(
                     // Add implicit tests dependencies.
                     // TODO In the future we wil need a flag to disable this on user will.
                     if (fragment.isTest) {
-                        if (onlyJvm) {
+                        if (fragment.platforms.all { it == Platform.JVM || it == Platform.ANDROID }) {
                             implementation(kotlin("test-junit5"))
+                            implementation(kotlin("test"))
                             implementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
                             implementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
                         } else {
