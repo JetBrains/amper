@@ -1,0 +1,41 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>org.jetbrains.deft</id>
+    <name>Deft</name>
+    <vendor>JetBrains</vendor>
+    <category>Build Tools</category>
+
+    <description>
+        <![CDATA[
+      Provides integration with Deft Tool for automation of building, testing, publishing, and deployment of software packages.
+      ]]>
+    </description>
+
+    <dependencies>
+        <plugin id="com.intellij.modules.externalSystem"/>
+        <plugin id="com.intellij.modules.platform"/>
+        <plugin id="com.intellij.modules.json"/>
+
+        <plugin id="com.intellij.gradle"/>
+
+        <plugin id="org.jetbrains.plugins.yaml"/>
+
+        <plugin id="com.intellij.java"/>
+    </dependencies>
+
+    <resource-bundle>messages.DeftBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <psi.referenceContributor language="yaml" implementation="org.jetbrains.deft.ide.DeftPlatformReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="org.jetbrains.deft.ide.yaml.DeftFileReferenceContributor"/>
+        <completion.contributor language="yaml" implementationClass="org.jetbrains.deft.ide.yaml.DeftCompletionContributor"/>
+        <annotator language="yaml" implementationClass="org.jetbrains.deft.ide.DeftPlatformAnnotator"/>
+        <externalSystemSettingsListener
+                implementation="org.jetbrains.deft.ide.externalTool.DeftProjectsWatcher"/>
+        <iconProvider order="first" implementation="org.jetbrains.deft.ide.DeftIconProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="org.jetbrains.deft.ide.DeftJsonSchemaProviderFactory"/>
+    </extensions>
+</idea-plugin>

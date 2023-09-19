@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "/deft/pot-dsl",
+  "title": "Deft Pot DSL",
+  "allOf": [
+    {
+      "$ref": "CommonDeftSchema.json#/$defs/DeftSchema"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "apply": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "product": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "$ref": "#/$defs/productType"
+                },
+                "platforms": {
+                  "$ref": "CommonDeftSchema.json#/$defs/platformList"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "lib"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "platforms"
+                ]
+              }
+            },
+            {
+              "$ref": "#/$defs/topLevelProductType"
+            }
+          ]
+        }
+      },
+      "required": [
+        "product"
+      ]
+    }
+  ],
+
+  "$defs": {
+    "topLevelProductType": {
+        "enum": [
+            "jvm/app",
+            "macos/app",
+            "android/app",
+            "linux/app"
+        ]
+    },
+    "productType": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/topLevelProductType"
+        },
+        {
+          "const": "lib"
+        }
+      ]
+    }
+  }
+}
