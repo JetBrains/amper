@@ -16,7 +16,7 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
         return deftFailure()
     }
 
-    val node = compose(path.reader())?.toYamlNode() ?: YamlNode.Mapping.Empty
+    val node = compose(path.reader())?.toYamlNode(path) ?: YamlNode.Mapping.Empty
     return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.pot") }) {
         Result.success(node)
     } else {
@@ -37,8 +37,10 @@ fun Yaml.parseAndPreprocess(
         return deftFailure()
     }
 
+    data class AppliedTemplate(val path: Path, val template: YamlNode.Mapping, val applyNode: YamlNode)
+
     var hasBrokenTemplates = false
-    val appliedTemplates = templateNames
+    val appliedTemplates: List<AppliedTemplate> = templateNames
         ?.mapNotNull { templatePath ->
             if (!templatePath.castOrReport<YamlNode.Scalar>(originPath) { FrontendYamlBundle.message("element.name.template.path") }) {
                 hasBrokenTemplates = true
@@ -49,21 +51,22 @@ fun Yaml.parseAndPreprocess(
             val template = loadFile(path)
             template.getOrElse {
                 hasBrokenTemplates = true
-                problemReporter.reportError(
+                problemReporter.reportNodeError(
                     FrontendYamlBundle.message("cant.apply.template", templatePath.value),
+                    node = templatePath,
                     file = originPath,
-                    line = templatePath.startMark.line + 1
                 )
                 null
-            }?.let { path to it }
+            }?.let { AppliedTemplate(path, it, templatePath) }
         } ?: emptyList()
 
     var currentConfig = rootConfig
-    appliedTemplates.forEach { (templatePath, template) ->
-        val newConfig = mergeTemplate(template, currentConfig, templatePath).getOrElse {
-            hasBrokenTemplates = true
-            currentConfig
-        }
+    appliedTemplates.forEach { (templatePath, template, applyNode) ->
+        val newConfig =
+            mergeTemplate(template.withReference(applyNode.startMark), currentConfig, templatePath).getOrElse {
+                hasBrokenTemplates = true
+                currentConfig
+            }
         currentConfig = newConfig
     }
     if (hasBrokenTemplates) return deftFailure()
@@ -102,7 +105,7 @@ private fun mergeTemplate(
                 templateMapping != null && originMapping == null -> add(
                     templateMapping.first to adjustTemplateValue(
                         templateMapping.second,
-                        templatePath
+                        templatePath,
                     )
                 )
 

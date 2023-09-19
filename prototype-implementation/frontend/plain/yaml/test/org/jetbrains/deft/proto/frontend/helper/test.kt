@@ -31,7 +31,7 @@ internal fun testParse(
 ) {
     val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
         ?: fail("Resource not found")
-    val parsed = Yaml().compose(text.reader()).toYamlNode() as? YamlNode.Mapping
+    val parsed = Yaml().compose(text.reader()).toYamlNode(buildFile) as? YamlNode.Mapping
         ?: fail("Failed to parse: $resourceName.yaml")
     with(TestProblemReporterContext) {
         val parseException = runCatching {
