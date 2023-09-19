@@ -34,7 +34,7 @@ object KotlinDeftNamingConvention {
     val LeafFragmentWrapper.target
         get() = kotlinMPE.targets.findByName(targetName)
 
-    context(KMPEAware, SpecificPlatformPluginPart)
+    context(KMPEAware)
     private val FragmentWrapper.commonKotlinSourceSetName: String
         get() = when {
             !isTest -> "commonMain"
@@ -46,7 +46,7 @@ object KotlinDeftNamingConvention {
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
         get() = kotlinMPE.sourceSets.findByName(name)
 
-    context(KMPEAware, SpecificPlatformPluginPart)
+    context(KMPEAware)
     val FragmentWrapper.matchingKotlinSourceSets: List<KotlinSourceSet>
         get() = buildList {
             if (fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }) {

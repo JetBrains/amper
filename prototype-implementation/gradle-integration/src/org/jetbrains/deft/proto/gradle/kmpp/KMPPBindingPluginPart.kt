@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 
 
 // Introduced function to remember to propagate language settings.
-context(KMPEAware, SpecificPlatformPluginPart)
+context(KMPEAware)
 fun KotlinSourceSet.doDependsOn(it: Fragment) {
     val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
     val dependency = wrapper.kotlinSourceSet
@@ -48,10 +48,6 @@ context(ProblemReporterContext)
 class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
-
-    private val androidAware = SpecificPlatformPluginPart(ctx, Platform.ANDROID)
-    private val javaAware = SpecificPlatformPluginPart(ctx, Platform.JVM)
-    private val noneAware = NoneAwarePart(ctx)
 
     internal val fragmentsByName = module.fragments.associateBy { it.name }
 
@@ -235,135 +231,130 @@ class KMPPBindingPluginPart(
     }
 
     private fun initFragments() = with(KotlinDeftNamingConvention) {
-        val isAndroid = module.fragments.any { it.platforms.contains(Platform.ANDROID) }
-        val isJava = module.fragments.any { it.platforms.contains(Platform.JVM) }
-        val aware = if (isAndroid) androidAware else if (isJava) javaAware else noneAware
-        with(aware) aware@{
-            // First iteration - create source sets and add dependencies.
-            module.fragments.forEach { fragment ->
-                fragment.maybeCreateSourceSet {
-                    dependencies {
-                        fragment.externalDependencies.forEach { externalDependency ->
-                            val depFunction: KotlinDependencyHandler.(Any) -> Unit =
-                                if (externalDependency is DefaultScopedNotation) with(externalDependency) {
-                                    // tmp variable fixes strangely red code with "ambiguity"
-                                    val tmp: KotlinDependencyHandler.(Any) -> Unit = when {
-                                        compile && runtime && !exported -> KotlinDependencyHandler::implementation
-                                        !compile && runtime && !exported -> KotlinDependencyHandler::runtimeOnly
-                                        compile && !runtime && !exported -> KotlinDependencyHandler::compileOnly
-                                        compile && runtime && exported -> KotlinDependencyHandler::api
-                                        compile && !runtime && exported -> error("Not supported")
-                                        !compile && runtime && exported -> error("Not supported")
-                                        !compile && !runtime -> error("At least one scope of (compile, runtime) must be declared")
-                                        else -> KotlinDependencyHandler::implementation
-                                    }
-                                    tmp
-                                } else {
-                                    { implementation(it) }
-                                }
-                            when (externalDependency) {
-                                is MavenDependency -> depFunction(externalDependency.coordinates)
-                                is PotatoModuleDependency -> with(externalDependency) {
-                                    model.module.map { depFunction(it.linkedProject) }
-                                }
+        val onlyJvm = module.artifactPlatforms.all { it == Platform.JVM || it == Platform.ANDROID }
 
-                                else -> error("Unsupported dependency type: $externalDependency")
+        // First iteration - create source sets and add dependencies.
+        module.fragments.forEach { fragment ->
+            fragment.maybeCreateSourceSet {
+                dependencies {
+                    fragment.externalDependencies.forEach { externalDependency ->
+                        val depFunction: KotlinDependencyHandler.(Any) -> Unit =
+                            if (externalDependency is DefaultScopedNotation) with(externalDependency) {
+                                // tmp variable fixes strangely red code with "ambiguity"
+                                val tmp: KotlinDependencyHandler.(Any) -> Unit = when {
+                                    compile && runtime && !exported -> KotlinDependencyHandler::implementation
+                                    !compile && runtime && !exported -> KotlinDependencyHandler::runtimeOnly
+                                    compile && !runtime && !exported -> KotlinDependencyHandler::compileOnly
+                                    compile && runtime && exported -> KotlinDependencyHandler::api
+                                    compile && !runtime && exported -> error("Not supported")
+                                    !compile && runtime && exported -> error("Not supported")
+                                    !compile && !runtime -> error("At least one scope of (compile, runtime) must be declared")
+                                    else -> KotlinDependencyHandler::implementation
+                                }
+                                tmp
+                            } else {
+                                { implementation(it) }
                             }
+                        when (externalDependency) {
+                            is MavenDependency -> depFunction(externalDependency.coordinates)
+                            is PotatoModuleDependency -> with(externalDependency) {
+                                model.module.map { depFunction(it.linkedProject) }
+                            }
+
+                            else -> error("Unsupported dependency type: $externalDependency")
+                        }
+                    }
+
+                    // Add a separator to WA kotlin-test bug: https://youtrack.jetbrains.com/issue/KT-60913/Rework-kotlin-test-jvm-variant-inference
+                    // Add implicit tests dependencies.
+                    // TODO In the future we wil need a flag to disable this on user will.
+                    if (fragment.isTest) {
+                        if (onlyJvm) {
+                            implementation(kotlin("test-junit5"))
+                            implementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+                            implementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+                        } else {
+                            implementation(kotlin("test"))
                         }
                     }
                 }
             }
+        }
 
-            if (module.leafTestFragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
-                val commonTest = module.fragments
-                    .filter { it.isTest }
-                    .find { it.fragmentDependencies.none { dep -> dep.type == FragmentDependencyType.REFINE } }
-                addTestDependencies(commonTest)
+        val adjustedSourceSets = mutableSetOf<KotlinSourceSet>()
+
+        // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
+        module.fragments.forEach { fragment ->
+            val sourceSets = fragment.matchingKotlinSourceSets
+
+            for (sourceSet in sourceSets) {
+                // Apply language settings.
+                sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
+                adjustedSourceSets.add(sourceSet)
             }
+        }
 
-            val adjustedSourceSets = mutableSetOf<KotlinSourceSet>()
+        // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
+        // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
+        val commonKotlinPart = module.fragments
+            .firstOrNull { it.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE } }
+            ?.parts
+            ?.find<KotlinPart>()
 
-            // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
-            module.fragments.forEach { fragment ->
-                val sourceSets = fragment.matchingKotlinSourceSets
-
-                for (sourceSet in sourceSets) {
-                    // Apply language settings.
-                    sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
-                    adjustedSourceSets.add(sourceSet)
-                }
+        (kotlinMPE.sourceSets.toSet() - adjustedSourceSets).forEach { sourceSet ->
+            commonKotlinPart?.let {
+                sourceSet.doApplyPart(it)
             }
+        }
 
-            // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
-            // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
-            val commonKotlinPart = module.fragments
-                .firstOrNull { it.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE } }
-                ?.parts
-                ?.find<KotlinPart>()
-
-            (kotlinMPE.sourceSets.toSet() - adjustedSourceSets).forEach { sourceSet ->
+        // it is implied newly added sourceSets will depend on common
+        kotlinMPE.sourceSets
+            .matching { !adjustedSourceSets.contains(it) }
+            .configureEach { sourceSet ->
                 commonKotlinPart?.let {
                     sourceSet.doApplyPart(it)
                 }
             }
 
-            // it is implied newly added sourceSets will depend on common
-            kotlinMPE.sourceSets
-                .matching { !adjustedSourceSets.contains(it) }
-                .configureEach { sourceSet ->
-                    commonKotlinPart?.let {
-                        sourceSet.doApplyPart(it)
-                    }
-                }
+        module.fragments.forEach { fragment ->
+            val sourceSet = fragment.kotlinSourceSet
+            // Set dependencies.
+            fragment.fragmentDependencies.forEach {
+                when (it.type) {
+                    FragmentDependencyType.REFINE ->
+                        sourceSet?.doDependsOn(it.target)
 
-            module.fragments.forEach { fragment ->
-                val sourceSet = fragment.kotlinSourceSet
-                // Set dependencies.
-                fragment.fragmentDependencies.forEach {
-                    when (it.type) {
-                        FragmentDependencyType.REFINE ->
-                            sourceSet?.doDependsOn(it.target)
-
-                        FragmentDependencyType.FRIEND ->
-                            // TODO Add associate with for related compilations.
-                            // Not needed for default "test" - "main" relations.
-                            run { }
-                    }
+                    FragmentDependencyType.FRIEND ->
+                        // TODO Add associate with for related compilations.
+                        // Not needed for default "test" - "main" relations.
+                        run { }
                 }
             }
+        }
 
-            // Third iteration - adjust kotlin prebuilt source sets (UNMANAGED ones)
-            // to match created ones.
-            module.leafFragments.forEach { fragment ->
-                val platform = fragment.platform
-                val target = fragment.target ?: return@forEach
-                with(target) {
-                    val compilation = fragment.compilation ?: return@forEach
-                    compilation.source(
-                        fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}")
-                    )
-                    val compilationSourceSet = compilation.defaultSourceSet
-                    if (compilationSourceSet != fragment.kotlinSourceSet) {
-                        // Add dependency from compilation source set ONLY for unmanaged source sets.
-                        if (compilationSourceSet.deftFragment == null) {
-                            compilationSourceSet.dependsOn(fragment.kotlinSourceSet ?: return@with)
-                        }
+        // Third iteration - adjust kotlin prebuilt source sets (UNMANAGED ones)
+        // to match created ones.
+        module.leafFragments.forEach { fragment ->
+            val platform = fragment.platform
+            val target = fragment.target ?: return@forEach
+            with(target) {
+                val compilation = fragment.compilation ?: return@forEach
+                compilation.source(
+                    fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}")
+                )
+                val compilationSourceSet = compilation.defaultSourceSet
+                if (compilationSourceSet != fragment.kotlinSourceSet) {
+                    // Add dependency from compilation source set ONLY for unmanaged source sets.
+                    if (compilationSourceSet.deftFragment == null) {
+                        compilationSourceSet.dependsOn(fragment.kotlinSourceSet ?: return@with)
                     }
                 }
             }
         }
-    }
 
-    private fun addTestDependencies(commonTest: FragmentWrapper?) {
-        commonTest?.kotlinSourceSet?.dependencies {
-            implementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
-            implementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
-            implementation("junit:junit:4.12")
-        }
     }
 
     // ------
-    context (SpecificPlatformPluginPart)
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit,
     ) {

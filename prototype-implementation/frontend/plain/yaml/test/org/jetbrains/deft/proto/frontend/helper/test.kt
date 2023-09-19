@@ -140,12 +140,6 @@ internal fun doTestParse(
     }
 }
 
-inline fun <reified T : Throwable> assertThrowsWithErrorMessage(expectedMessage: String, executable: () -> Unit): T {
-    val e = assertThrows<T>(executable)
-    assertEquals(expectedMessage, e.message)
-    return e
-}
-
 fun List<BuildProblem>.assertHasSingleProblem(block: BuildProblem.() -> Unit) {
     assertEquals(1, size)
     first().block()

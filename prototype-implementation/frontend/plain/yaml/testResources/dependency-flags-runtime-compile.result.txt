@@ -17,7 +17,6 @@ Fragments:
       ComposePart(enabled=null)
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       jvm (FRIEND)
