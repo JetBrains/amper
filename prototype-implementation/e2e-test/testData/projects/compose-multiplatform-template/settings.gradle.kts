@@ -31,7 +31,7 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
-    id("org.jetbrains.deft.proto.settings.plugin").version("146-NIGHTLY")
+    id("org.jetbrains.deft.proto.settings.plugin").version("157-NIGHTLY")
 }
 
 dependencyResolutionManagement {

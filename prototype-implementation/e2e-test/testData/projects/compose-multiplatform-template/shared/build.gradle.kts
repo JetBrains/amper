@@ -8,7 +8,7 @@ kotlin {
 //    androidTarget()
 //
 ////    jvm("desktop")
-    jvm()
+//    jvm()
 //
 //    listOf(
 //        iosX64(),

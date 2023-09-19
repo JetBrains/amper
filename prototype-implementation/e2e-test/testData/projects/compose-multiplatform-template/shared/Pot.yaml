@@ -1,6 +1,6 @@
 product:
     type: lib
-    platforms: [android, iosArm64, iosSimulatorArm64, iosX64]
+    platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 pot: 
     layout: gradle-kmp
