@@ -71,3 +71,10 @@ val YamlNode.nodeType: String
         is YamlNode.Sequence -> "list"
         is YamlNode.Mapping -> "map"
     }
+
+val YamlNode.pretty: String
+    get() = when (this) {
+        is YamlNode.Scalar -> value
+        is YamlNode.Sequence -> elements.joinToString(", ", "[", "]") { it.pretty }
+        is YamlNode.Mapping -> mappings.joinToString("\n, ", "{", "}") { (key, value) -> "${key.pretty}: ${value.pretty}" }
+    }

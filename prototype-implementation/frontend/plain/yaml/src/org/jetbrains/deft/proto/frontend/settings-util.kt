@@ -1,19 +1,23 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettings(
     fragments: List<FragmentBuilder>,
     key: String,
-    init: FragmentBuilder.(T) -> Unit,
-) {
+    init: FragmentBuilder.(T) -> Result<Unit>,
+): Result<Unit> {
     val originalSettings = this
     var variantSet: MutableSet<Variant>
 
     val settings = this.mappings.map { (it.first as YamlNode.Scalar) to it.second }.filter { it.first.startsWith(key) }
+    var hasErrors = false
     for ((settingsKey, settingsValue) in settings) {
         variantSet = variants.toMutableSet()
         val split = settingsKey.split("@")
@@ -23,7 +27,20 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
             .toSet()
 
         for (option in options) {
-            val variant = originalSettings.optionMap[option] ?: parseError("There is no such variant option $option")
+            val variant = originalSettings.optionMap[option]
+            if (variant == null) {
+                problemReporter.reportNodeError(
+                    FrontendYamlBundle.message(
+                        "unknown.variant.option",
+                        option,
+                        originalSettings.optionMap.keys.filterNot { it.isSyntheticOption() }
+                    ),
+                    node = settingsKey,
+                    file = buildFile,
+                )
+                hasErrors = true
+                continue
+            }
             variantSet.remove(variant)
         }
 
@@ -37,11 +54,32 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
         val targetFragment = fragments
             .filter { it.platforms == normalizedPlatforms }
             .firstOrNull { it.variants == normalizedOptions }
-            ?: parseError("Can't find a variant with platforms $normalizedPlatforms and variant options $normalizedOptions")
+        if (targetFragment == null) {
+            problemReporter.reportNodeError(
+                FrontendYamlBundle.message(
+                    "cant.find.target.with.platforms.and.options",
+                    normalizedPlatforms.map { it.pretty },
+                    normalizedOptions.filterNot { it.isSyntheticOption() }
+                ),
+                node = settingsKey,
+                file = buildFile,
+            )
+            hasErrors = true
+            continue
+        }
 
         if (settingsValue is T) {
-            targetFragment.init(settingsValue)
+            val result = targetFragment.init(settingsValue)
+            if (result !is Result.Success) {
+                hasErrors = true
+            }
         }
+    }
+
+    return if (hasErrors) {
+        deftFailure()
+    } else {
+        Result.success(Unit)
     }
 }
 

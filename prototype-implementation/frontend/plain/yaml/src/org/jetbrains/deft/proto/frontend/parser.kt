@@ -109,8 +109,15 @@ fun parseModule(
 
     fragments = fragments.multiplyFragments(variants)
 
-    fragments.handleExternalDependencies(config.transformed, osDetector)
-    fragments.handleSettings(config.transformed)
+    // TODO: Find out if these errors can be accumulated
+    val dependenciesResult = fragments.handleExternalDependencies(config.transformed, osDetector)
+    if (dependenciesResult !is Result.Success) {
+        return deftFailure()
+    }
+    val fragmentSettingsResult = fragments.handleSettings(config.transformed)
+    if (fragmentSettingsResult !is Result.Success) {
+        return deftFailure()
+    }
     fragments.calculateSrcDir()
 
     val artifacts = fragments.artifacts(
@@ -119,7 +126,10 @@ fun parseModule(
         platforms
     )
 
-    artifacts.handleSettings(config.transformed, fragments)
+    val artifactSettingsResult = artifacts.handleSettings(config.transformed, fragments)
+    if (artifactSettingsResult !is Result.Success) {
+        return deftFailure()
+    }
 
     val mutableState = object : Stateful<FragmentBuilder, Fragment> {
         private val mutableState = mutableMapOf<FragmentBuilder, Fragment>()

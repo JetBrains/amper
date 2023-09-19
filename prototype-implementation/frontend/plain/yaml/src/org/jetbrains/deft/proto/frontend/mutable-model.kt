@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.Result
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
@@ -360,7 +361,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
 }
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
-internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
+internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Mapping>(this, "settings") {
         kotlin = KotlinPartBuilder {
             it.getMappingValue("kotlin")?.let { kotlinSettings ->
@@ -403,14 +404,15 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping) {
                 platformEnabled = testSettings.getBooleanValue("platformEnabled")
             }
         }
+
+        Result.success(Unit)
     }
-}
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<ArtifactBuilder>.handleSettings(
     config: YamlNode.Mapping,
     fragments: List<FragmentBuilder>,
-) {
+): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Mapping>(fragments, "settings") {
         android = AndroidPartBuilder {
             it.getMappingValue("android")?.let { androidSettings ->
@@ -445,8 +447,9 @@ internal fun List<ArtifactBuilder>.handleSettings(
                 enabled = composeSettings.getBooleanValue("enabled")
             }
         }
+
+        Result.success(Unit)
     }
-}
 
 context (BuildFileAware, ParsingContext)
 internal fun List<FragmentBuilder>.calculateSrcDir() {

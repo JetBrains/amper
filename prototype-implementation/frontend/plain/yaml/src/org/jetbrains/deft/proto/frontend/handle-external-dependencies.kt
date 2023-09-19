@@ -1,8 +1,12 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.dependency.parseDependency
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
+import org.jetbrains.deft.proto.frontend.nodes.pretty
+import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
 import kotlin.io.path.Path
 
 context (BuildFileAware)
@@ -46,21 +50,34 @@ context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleExternalDependencies(
     config: YamlNode.Mapping,
     osDetector: OsDetector = DefaultOsDetector()
-) = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
+): Result<Unit> = addRawDependencies(config, osDetector).also { addKotlinTestIfNotIncluded() }
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
-private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector) {
+private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
-        val resolved = depList.map { dep ->
-            parseDependency(dep) ?: parseError("Error while parsing dependencies for fragment $name")
+        var hasErrors = false
+        val resolved = depList.mapNotNull { dep ->
+            val dependency = parseDependency(dep)
+            if (dependency == null) {
+                problemReporter.reportNodeError(
+                    FrontendYamlBundle.message("cant.parse.dependency", name, dep.pretty),
+                    node = dep,
+                    file = buildFile,
+                )
+                hasErrors = true
+            }
+            dependency
         }.map {
             if (it is MavenDependency) {
                 replaceWithOsDependant(osDetector, it)
             } else it
         }
+        if (hasErrors) {
+            return@handleFragmentSettings deftFailure()
+        }
         externalDependencies.addAll(resolved)
+        Result.success(Unit)
     }
-}
 
 private fun List<FragmentBuilder>.addKotlinTestIfNotIncluded() {
     filter { it.variants.contains("test") }

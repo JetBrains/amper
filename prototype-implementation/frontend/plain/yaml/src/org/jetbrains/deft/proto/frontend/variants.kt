@@ -51,6 +51,12 @@ private val mainVariant = Variant(
     )
 )
 
+private val SYNTHETIC_OPTION_REGEX = Regex("dimension\\d+")
+
+internal fun String.isSyntheticOption(): Boolean {
+    return this == "main" || this == "test" || SYNTHETIC_OPTION_REGEX.matchEntire(this) != null
+}
+
 context(BuildFileAware, ProblemReporterContext)
 fun getVariants(config: YamlNode.Mapping): Result<List<Variant>> {
     val variantsNode = config["variants"] ?: YamlNode.Sequence.Empty
