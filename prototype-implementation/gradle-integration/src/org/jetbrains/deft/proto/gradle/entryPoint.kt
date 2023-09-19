@@ -11,9 +11,6 @@ import org.jetbrains.deft.proto.frontend.ModelInit
 import org.jetbrains.deft.proto.frontend.resolve.resolved
 import org.slf4j.LoggerFactory
 
-private const val ERROR_PREFIX = "  - "
-private const val ERROR_INDENT = "    "
-
 @Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
@@ -21,11 +18,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
         with(SLF4JProblemReporterContext()) {
             val model = ModelInit.getModel(rootPath)
             if (model is Result.Failure<Model>) {
-                throw GradleException("""
-                    |Deft model initialization failed. 
-                    |Errors: 
-                    |$ERROR_PREFIX${problemReporter.getErrors().joinToString("\n|$ERROR_PREFIX") { it.replace("\n", "\n$ERROR_INDENT") } }
-                    |See logs for details.""".trimMargin())
+                throw GradleException(problemReporter.getGradleError())
             }
 
             // Use [ModelWrapper] to cache and preserve links on [PotatoModule].
@@ -35,11 +28,16 @@ class BindingSettingsPlugin : Plugin<Settings> {
     }
 }
 
-private class SLF4JProblemReporterContext : ProblemReporterContext {
+internal class SLF4JProblemReporterContext : ProblemReporterContext {
     override val problemReporter: SLF4JProblemReporter = SLF4JProblemReporter(BindingSettingsPlugin::class.java)
 }
 
-private class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
+internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::class.java) : CollectingProblemReporter() {
+    companion object {
+        private const val ERROR_PREFIX = "  - "
+        private const val ERROR_INDENT = "    "
+    }
+
     private val logger = LoggerFactory.getLogger(loggerClass)
 
     override fun doReportMessage(message: BuildProblem) {
@@ -50,4 +48,11 @@ private class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::clas
     }
 
     fun getErrors(): List<String> = problems.map(::renderMessage)
+
+    fun getGradleError(): String =
+        """
+        |Deft model initialization failed. 
+        |Errors: 
+        |$ERROR_PREFIX${getErrors().joinToString("\n|$ERROR_PREFIX") { it.replace("\n", "\n$ERROR_INDENT") }}
+        |See logs for details.""".trimMargin()
 }

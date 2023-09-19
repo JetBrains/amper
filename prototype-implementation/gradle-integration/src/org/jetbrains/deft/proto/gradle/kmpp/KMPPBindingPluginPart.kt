@@ -1,8 +1,9 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.tasks.testing.Test
 import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.deft.proto.core.map
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.*
@@ -43,6 +44,7 @@ private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinPart?) = languageSetti
 /**
  * Plugin logic, bind to specific module, when multiple targets are available.
  */
+context(ProblemReporterContext)
 class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
@@ -218,7 +220,7 @@ class KMPPBindingPluginPart(
 
     private fun NativeBinary.adjustExecutable(
         fragment: LeafFragmentWrapper,
-        kotlinNativeCompilation: KotlinNativeCompilation
+        kotlinNativeCompilation: KotlinNativeCompilation,
     ) {
         compilation = kotlinNativeCompilation
         fragment.parts.find<NativeApplicationPart>()?.let {
@@ -262,7 +264,7 @@ class KMPPBindingPluginPart(
                             when (externalDependency) {
                                 is MavenDependency -> depFunction(externalDependency.coordinates)
                                 is PotatoModuleDependency -> with(externalDependency) {
-                                    depFunction(model.module.linkedProject)
+                                    model.module.map { depFunction(it.linkedProject) }
                                 }
 
                                 else -> error("Unsupported dependency type: $externalDependency")
@@ -363,7 +365,7 @@ class KMPPBindingPluginPart(
     // ------
     context (SpecificPlatformPluginPart)
     private fun FragmentWrapper.maybeCreateSourceSet(
-        block: KotlinSourceSet.() -> Unit
+        block: KotlinSourceSet.() -> Unit,
     ) {
         val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
         sourceSet.block()

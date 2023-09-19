@@ -15,8 +15,10 @@ class DefaultPotatoModuleDependency(
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
+    private val node: YamlNode,
 ) : PotatoModuleDependency {
-    override val Model.module: PotatoModule
+    context (ProblemReporterContext)
+    override val Model.module: Result<PotatoModule>
         get() = modules.find {
             val source = it.source as? PotatoModuleFileSource
                 ?: return@find false
@@ -39,7 +41,15 @@ class DefaultPotatoModuleDependency(
                 buildFile.parent.resolve("$depPath/build.gradle.kts").normalize().toAbsolutePath()
 
             targetModulePotFilePath == sourceModulePotFilePath || targetModulePotFilePath == sourceModuleGradleFilePath
-        } ?: parseError("No module $depPath found")
+        }?.let { Result.success(it) } ?: run {
+            val message = FrontendYamlBundle.message("cant.find.module", depPath)
+            problemReporter.reportNodeError(
+                message,
+                node = node,
+                file = buildFile,
+            )
+            deftFailure()
+        }
 
     override fun toString(): String {
         return "InternalDependency(module=$depPath)"

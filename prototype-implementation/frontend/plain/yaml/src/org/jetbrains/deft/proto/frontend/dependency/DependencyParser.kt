@@ -12,11 +12,12 @@ private data class NotationWithFlags(
     val notation: String,
     val runtime: Boolean,
     val compile: Boolean,
-    val exported: Boolean
+    val exported: Boolean,
+    val node: YamlNode,
 )
 
 private val stringDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
-    (dependency as? YamlNode.Scalar)?.let { NotationWithFlags(dependency.value, runtime = true, compile = true, exported = false) }
+    (dependency as? YamlNode.Scalar)?.let { NotationWithFlags(dependency.value, runtime = true, compile = true, exported = false, dependency) }
 }
 
 private val inlineDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
@@ -34,7 +35,7 @@ private val inlineDependencyFormat: (YamlNode) -> NotationWithFlags? = { depende
                 "exported" -> Triple(true, true, true)
                 else -> Triple(true, true, false)
             }
-            NotationWithFlags(notation.value, compile, runtime, exported)
+            NotationWithFlags(notation.value, compile, runtime, exported, notation)
         }
     }
 }
@@ -56,7 +57,7 @@ private val fullDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependenc
                 else -> true to true
             }
             val exported = dependencySettings.getBooleanValue("exported") ?: false
-            NotationWithFlags(notation.value, compile, runtime, exported)
+            NotationWithFlags(notation.value, compile, runtime, exported, notation)
         }
     }
 }
@@ -70,7 +71,8 @@ private val internalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> 
                     notationWithFlags.notation,
                     notationWithFlags.compile,
                     notationWithFlags.runtime,
-                    notationWithFlags.exported
+                    notationWithFlags.exported,
+                    notationWithFlags.node,
                 )
             }
         }

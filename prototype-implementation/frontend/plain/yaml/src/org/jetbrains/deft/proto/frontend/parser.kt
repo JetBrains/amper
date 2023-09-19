@@ -15,12 +15,6 @@ class ParsingContext(val config: YamlNode.Mapping) {
     lateinit var variants: List<Variant>
 }
 
-context(BuildFileAware)
-@Deprecated("Use ErrorReporter.reportError instead")
-internal fun parseError(message: CharSequence): Nothing {
-    error("$buildFile: $message")
-}
-
 context(BuildFileAware, ProblemReporterContext, ParsingContext)
 fun parseModule(
     osDetector: OsDetector = DefaultOsDetector(),
