@@ -129,7 +129,7 @@ Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 ```
 |-src/
 |  |-main/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-main.kt
 |  |  |-resources
 |  |  |  |-...
@@ -186,7 +186,7 @@ Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 ```
 |-src/
 |  |-commonMain/
-|  |  |-koltin
+|  |  |-kotlin
 |  |  |  |-main.kt
 |  |  |-resources
 |  |  |  |-...
