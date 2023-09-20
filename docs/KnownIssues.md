@@ -6,4 +6,4 @@
   - Opening a project for the first takes long due to indexing.
   - Building a project takes long due to the lack of incrementality and inefficient use of `xcodebuild` tool. 
 - [build-variants](../examples/build-variants) example currently doesn't work
-- There is currently no Test Runner UI in Fleet.
+
