@@ -141,7 +141,7 @@ Pot.yaml:
 # Produce a JVM library
 product:
   type: lib
-  platforms: [ jvm ]
+  platforms: [jvm]
 
 # Enable Gradle-compatible file layout 
 pot:
@@ -202,7 +202,7 @@ Pot.yaml:
 # Produce a JVM library
 product:
   type: lib
-  platforms: [ jvm, android ]
+  platforms: [jvm, android]
 
 # Enable Gradle-compatible Multiplatform file layout 
 pot:
@@ -382,10 +382,36 @@ As the next optional step you may also consider to migrate to the [lightweight P
 To do so, you need to rearrange the sources folders according to [these tables](Documentation.md#gradle-vs-pot-project-layout), and disable the Gradle compatibility mode.
 To enable the Pot layout, set `layout:` to `default` or simply remove the section:
 ```yaml
-...
+product:
+  type: lib
+  platforms: [jvm, android]
+
 pot:
   layout: default
 ...
+```
+
+and remove the source set configuration from your `build.gradle.kts` file:
+```kotlin
+kotlin {
+    // Remote the following block
+    sourceSets {
+        val commonMain by getting {
+            ...
+        }
+        val commonTest by getting {
+            ...
+        } 
+        val jvmMain by getting {
+            ...
+        }
+        val androidMain by getting {
+            ...
+        }
+        ...
+    }
+}
+
 ```
 
 # Step 7. Migrate other Gradle subprojects
