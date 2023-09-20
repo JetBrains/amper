@@ -1,4 +1,4 @@
-- Make sure you have the latest EAP/nightly IntelliJ IDEA 2023.3 build.
+- For the best experience use IntelliJ IDEA 2023.3 EAP/Nightly build. IntelliJ IDEA 2023.2 is also supported but with limited code assistance.
 
 - Install [Toolbox App](https://www.jetbrains.com/lp/toolbox/)
 
