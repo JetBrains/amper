@@ -5,6 +5,7 @@ import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.*
@@ -99,17 +100,24 @@ class JavaBindingPluginPart(
         }
         // Do when layout is known.
         project.afterEvaluate {
+            if (module.type.isLibrary()) return@afterEvaluate
+            val foundMainClass = if (javaPart?.mainClass != null) {
+                javaPart.mainClass
+            } else {
+                val sources = fragment.kotlinSourceSet?.closureSources ?: emptyList()
+                findEntryPoint(sources, EntryPointType.JVM, logger)
+            }
+
             javaAPE.apply {
                 // Check if main class is set in the build script.
                 if (mainClass.orNull == null) {
-                    if (module.type.isLibrary()) return@apply
-                    val foundMainClass = if (javaPart?.mainClass != null) {
-                        javaPart.mainClass
-                    } else {
-                        val sources = fragment.kotlinSourceSet?.closureSources ?: emptyList()
-                        findEntryPoint(sources, EntryPointType.JVM, logger)
-                    }
                     mainClass.set(foundMainClass)
+                }
+            }
+            // TODO Handle deft variants gere, when we will switch to manual java source sets creation.
+            project.tasks.withType(Jar::class.java) {
+                it.manifest {
+                    it.attributes["Main-Class"] = foundMainClass
                 }
             }
         }
