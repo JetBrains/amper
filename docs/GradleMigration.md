@@ -1,7 +1,5 @@
 This tutorial demonstrates how to add Pot files to existing Gradle JVM and Kotlin Multiplatform projects.
 
-### Step 0. Prepare
-
 If you want to follow the tutorial:
 * Check the [setup instructions](Setup.md)
 * Open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
@@ -13,6 +11,11 @@ Also, see project examples:
 
 If you are looking to more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
 
+### Step 0. Prepare
+
+* JDK 17+ is required. Make sure you have it installed and selected in the IDE. 
+* Gradle 8.1.1+ is recommended. Make sure your project uses the corresponding Gradle version, 
+  check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
 
 ### Step 1. Configure settings.gradle.kts
 

@@ -1,4 +1,4 @@
-### Step 0. Prepare
+This tutorial gives a short introduction to the DSL and how to use it a new project.
 
 If you want to follow the tutorial:
 * Check the [setup instructions](Setup.md)
@@ -8,6 +8,10 @@ If you are looking to more detailed info, check [the documentation](Documentatio
  
 _NOTE: Since the current implementation is Gradle-based, every project needs a settings.gradle.kts. 
 New templates and example projects are preconfigured. To manually configure your project, see [documentation on Gradle-based projects](Documentation.md#gradle-based-projects)._
+
+### Step 0. Prepare
+
+* JDK 17+ is required. Make sure you have it installed. 
 
 ### Step 1. Hello, World
 
