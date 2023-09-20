@@ -6,6 +6,7 @@ import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, DeftNamingConventions, BindingPluginPart by ctx {
@@ -19,7 +20,8 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, DeftNamingConventions, 
     override fun applyBeforeEvaluate() {
         project.plugins.apply("org.jetbrains.compose")
 
-        kotlinMPE.sourceSets.findByName("commonMain")?.dependencies {
+        val commonFragment = module.fragments.find { it.fragmentDependencies.isEmpty() }
+        commonFragment?.kotlinSourceSet?.dependencies {
             implementation(ComposePlugin.Dependencies(project).runtime)
         }
     }

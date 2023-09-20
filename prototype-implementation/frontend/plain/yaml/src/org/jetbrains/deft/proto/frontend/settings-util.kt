@@ -51,9 +51,30 @@ internal inline fun <reified T : YamlNode> YamlNode.Mapping.handleFragmentSettin
 
         val normalizedOptions = options + variantSet.mapNotNull { defaultOptionMap[it] }
 
-        val targetFragment = fragments
+        // First find matching fragments.
+        val candidateFragments = fragments
             .filter { it.platforms == normalizedPlatforms }
-            .firstOrNull { it.variants == normalizedOptions }
+            .filter { it.variants == normalizedOptions }
+            .toMutableList()
+
+        // Then, find most common one.
+        while (candidateFragments.size > 1) {
+            // Cut version of topology sort, since we just need topmost element.
+            val forRemoval = candidateFragments.find { candidate ->
+                candidate.dependencies.any { it.target in candidateFragments }
+            }
+            if (forRemoval != null)
+                candidateFragments.remove(forRemoval)
+            else {
+                problemReporter.reportWithinNode(
+                    settingsKey,
+                    "Ambiguity: Cannot determine the fragment for dependencies."
+                )
+                return deftFailure()
+            }
+        }
+        val targetFragment = candidateFragments.firstOrNull()
+
         if (targetFragment == null) {
             problemReporter.reportNodeError(
                 FrontendYamlBundle.message(
