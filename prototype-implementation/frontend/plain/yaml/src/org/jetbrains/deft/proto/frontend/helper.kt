@@ -1,5 +1,9 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.messages.BuildProblem
+import org.jetbrains.deft.proto.core.messages.Level
+import org.jetbrains.deft.proto.core.messages.ProblemReporter
+import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.util.*
 import java.nio.file.Path
 
@@ -7,6 +11,19 @@ typealias TypesafeVariants = List<Variant>
 
 interface BuildFileAware {
     val buildFile: Path
+
+    fun ProblemReporter.reportWithinFile(message: String) =
+        reportMessage(BuildProblem(message = message, file = buildFile, level = Level.Error))
+
+    fun ProblemReporter.reportWithinNode(node: YamlNode, message: String) =
+        reportMessage(
+            BuildProblem(
+                message = message,
+                file = buildFile,
+                level = Level.Error,
+                line = node.startMark.line,
+            )
+        )
 }
 
 interface Stateful<K, V> {
@@ -118,14 +135,17 @@ fun String.transformKey(): String {
 }
 
 context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
-internal val List<FragmentBuilder>.immutableFragments: List<Fragment> get() = map {
-    it.build()
-}
+internal val List<FragmentBuilder>.immutableFragments: List<Fragment>
+    get() = map {
+        it.build()
+    }
 
 context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
-internal val List<FragmentBuilder>.immutableLeafFragments: List<LeafFragment> get() = map {
-    it.buildLeaf()
-}
+internal val List<FragmentBuilder>.immutableLeafFragments: List<LeafFragment>
+    get() = map {
+        it.buildLeaf()
+    }
 
 context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
-internal val List<ArtifactBuilder>.immutableArtifacts: List<Artifact> get() = map { it.build() }
+internal val List<ArtifactBuilder>.immutableArtifacts: List<Artifact>
+    get() = map { it.build() }
