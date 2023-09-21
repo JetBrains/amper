@@ -14,9 +14,6 @@ pluginManagement {
     }
 
     plugins {
-//        val kotlinVersion = extra["kotlin.version"] as String
-//        val agpVersion = extra["agp.version"] as String
-//        val composeVersion = extra["compose.version"] as String
 
         kotlin("jvm")
         kotlin("multiplatform")
@@ -31,7 +28,7 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
-    id("org.jetbrains.deft.proto.settings.plugin").version("158-NIGHTLY")
+    id("org.jetbrains.deft.proto.settings.plugin").version("160-NIGHTLY")
 }
 
 dependencyResolutionManagement {

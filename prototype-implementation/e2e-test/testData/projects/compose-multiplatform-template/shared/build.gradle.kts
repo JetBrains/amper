@@ -6,9 +6,7 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-@OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
     targets.withType(KotlinNativeTarget::class.java).configureEach { // WA for integration with iosApp
         binaries.framework {
             baseName = "shared"
@@ -17,8 +15,3 @@ kotlin {
     }
 }
 
-android {
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-}

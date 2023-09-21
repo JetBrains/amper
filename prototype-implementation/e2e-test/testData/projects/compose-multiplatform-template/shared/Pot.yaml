@@ -2,9 +2,6 @@ product:
     type: lib
     platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
-pot: 
-    layout: gradle-kmp
-
 dependencies:
     - org.jetbrains.compose.runtime:runtime:1.5.0-rc01
     - org.jetbrains.compose.foundation:foundation:1.5.0-rc01
@@ -22,8 +19,8 @@ dependencies@jvm:
 settings:
     android:
         namespace: "com.myapplication.common"
-        compileSdkVersion: 34
-        targetSdk: 34
+        compileSdkVersion: 33
+        targetSdk: 33
         minSdk: 24
     java:
       target: 17
