@@ -431,12 +431,11 @@ All toolchain settings are specified in the dedicated groups in the `settings:` 
 settings: 
   kotlin:
     languageVersion: 1.8
-    languageFeatures: [contextReceivers]
   android:
     compileSdkVersion: android-31
 ```
 
-Here is the list of [currently supported toolchains and their settings](SettingsList.md).   
+Here is the list of [currently supported toolchains and their settings](PotReference.md#compose).   
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
@@ -923,7 +922,7 @@ product:
 settings:           # common toolchain settings
   kotlin:           # Kotlin toolchain
     languageVersion: 1.8
-    languageFeatures: [x]
+    freeCompilerArgs: [x]
   ios:              # iOS toolchain
     deploymentTarget: 17
 
@@ -934,7 +933,7 @@ settings@android:   # specialization for Android platform
 settings@ios:       # specialization for all iOS platforms
   kotlin:           # Kotlin toolchain
     languageVersion: 1.9
-    languageFeatures: [y]
+    freeCompilerArgs: [y]
 
 settings@iosArm64:  # specialization for iOS arm64 platform 
   ios:              # iOS toolchain
@@ -945,7 +944,7 @@ The effective settings are:
 settings@android:
   kotlin:
     languageVersion: 1.8   # from settings:
-    languageFeatures: [x]  # from settings:
+    freeCompilerArgs: [x]  # from settings:
   compose:
    enabled: true           # from settings@android:
 ```
@@ -953,7 +952,7 @@ settings@android:
 settings@iosArm64:
   kotlin:
     languageVersion: 1.9      # from settings@ios:
-    languageFeatures: [x, y]  # merged from settings: and settings@ios:
+    freeCompilerArgs: [x, y]  # merged from settings: and settings@ios:
   ios:
     deploymentTarget: 18      # from settings@iosArm64:
 ```
@@ -961,7 +960,7 @@ settings@iosArm64:
 settings@iosSimulatorArm64:
   kotlin:
     languageVersion: 1.9      # from settings@ios:
-    languageFeatures: [x, y]  # merged from settings: and settings@ios:
+    freeCompilerArgs: [x, y]  # merged from settings: and settings@ios:
   ios:
     deploymentTarget: 17      # from settings:
 ```

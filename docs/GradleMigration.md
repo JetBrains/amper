@@ -354,7 +354,7 @@ settings:
     compileSdkVersion: android-34
 ```
 
-See the [full list of supported settings](SettingsList.md).
+See the [full list of supported settings](PotReference.md#compose).
 
 # Step 6. Optionally, switch to the Pot file layout
 
