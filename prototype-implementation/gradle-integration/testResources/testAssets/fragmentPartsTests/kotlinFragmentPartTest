@@ -17,7 +17,7 @@
   jvmMain:
    depends(common,commonMain)
    sourceDirs()
-   lang(api=1.9 version=1.9 progressive=true features=InlineClasses)
+   lang(api=1.9 version=1.9 progressive=true features=)
    implDeps()
   jvmTest:
    depends(commonTest)
