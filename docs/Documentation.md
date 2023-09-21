@@ -69,6 +69,8 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 _NOTE: Sources and resources can't be shared by several Pots._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
+See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the project layout.
+
 ## Pot Manifest file anatomy
 
 `Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
