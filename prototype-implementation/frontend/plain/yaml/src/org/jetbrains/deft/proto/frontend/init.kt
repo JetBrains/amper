@@ -4,12 +4,14 @@ import org.jetbrains.deft.proto.core.*
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.DumbGradleModule
 import org.yaml.snakeyaml.Yaml
+import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readLines
+import kotlin.io.path.reader
 
 internal fun withBuildFile(buildFile: Path, func: BuildFileAware.() -> Result<PotatoModule>): Result<PotatoModule> =
     with(object : BuildFileAware {
@@ -34,6 +36,43 @@ class YamlModelInit : ModelInit {
         return buildModelTopDown(root, ignorePaths)
     }
 
+    /**
+     * Warning! Do not read content from [pot]
+     *
+     * This method is used from IDE, which uses VirtualFileSystem. VFS state is more up-to-date than on-disk state.
+     * [contentReader] reads state directly from VFS, while attempting to invoke something like `pot.readLines()`
+     * will return stale content of the Pot
+     */
+    context(ProblemReporterContext)
+    @UsedInIdePlugin
+    fun getPartialModel(pot: Path, contentReader: Reader): Result<Model> {
+        if (!pot.isModuleYaml()) {
+            return Result.failure(
+                DeftException("Expected Pot-file for partial model building, got: ${pot.toAbsolutePath()}")
+            )
+        }
+
+        val ignorePaths = pot.findAndParseIgnorePaths()
+        if (ignorePaths.any { it.startsWith(pot) }) return Result.success(object : Model {
+            override val modules: List<PotatoModule> = emptyList()
+        })
+
+        val yaml = Yaml()
+        val partialModules = pot.parseModule(yaml, contentReader)
+
+        return partialModules.map { object : Model {
+            override val modules: List<PotatoModule> = listOf(it)
+        } }
+    }
+
+    /**
+     * Finds a .deftignore in the current folder or any parent, and if found, parses a list of ignore-paths from it.
+     */
+    private fun Path.findAndParseIgnorePaths(): List<Path> = sequence<Path> { parent }
+        .firstNotNullOfOrNull { deftIgnoreIfAny }
+        ?.parseIgnorePaths()
+        .orEmpty()
+
     // NB: assumes that .deftignore is in the "root
     private fun Path.parseIgnorePaths(): List<Path> {
         val root = parent
@@ -55,7 +94,7 @@ class YamlModelInit : ModelInit {
             .filter {
                 it.isModuleYaml() && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
             }
-            .map { it.parseModule(yaml) }
+            .map { it.parseModule(yaml, it.reader()) }
             .collect(Collectors.toList())
 
         if (modules.any { it is Result.Failure }) return deftFailure()
@@ -77,8 +116,11 @@ class YamlModelInit : ModelInit {
     }
 
     context(ProblemReporterContext)
-    private fun Path.parseModule(yaml: Yaml) = withBuildFile(toAbsolutePath()) {
-        val result = yaml.parseAndPreprocess(this@parseModule) { includePath ->
+    private fun Path.parseModule(
+        yaml: Yaml,
+        contentReader: Reader
+    ) = withBuildFile(toAbsolutePath()) {
+        val result = yaml.parseAndPreprocess(this@parseModule, contentReader) { includePath ->
             buildFile.parent.resolve(includePath)
         }
         result.flatMap { settings ->

@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.UsedInIdePlugin
 import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.flatMap
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
@@ -14,7 +15,8 @@ interface ModelInit {
         const val MODEL_NAME_PROPERTY = "org.jetbrains.deft.model.type"
 
         context(ProblemReporterContext)
-        private fun loadModelInitService(): Result<ModelInit> {
+        @UsedInIdePlugin
+        fun loadModelInitService(): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"))

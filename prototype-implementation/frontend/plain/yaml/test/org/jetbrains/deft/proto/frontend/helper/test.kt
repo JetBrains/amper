@@ -15,7 +15,7 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.exists
-import kotlin.io.path.writeText
+import kotlin.io.path.reader
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -58,15 +58,10 @@ internal fun testParseWithTemplates(
 ) {
     val testData = getTestDataResource("$resourceName.yaml")
     val testDataText = testData.readText().removeDiagnosticsAnnotations()
-    // TODO(dsavvinov): hack to let parseAndPreprocess read the file without diagnostic annotations.
-    //   can be removed when 'Reader' to parseAndPreprocess is added
-    val testDataFileWithCleanedText = buildFile.parent.resolve("cleaned-$resourceName.yaml").also {
-        it.writeText(testDataText)
-    }
 
     with(TestProblemReporterContext()) {
         val parsed = with(properties) {
-            Yaml().parseAndPreprocess(testDataFileWithCleanedText) {
+            Yaml().parseAndPreprocess(testData.toPath(), testDataText.reader()) {
                 Path(".")
                     .toAbsolutePath()
                     .resolve("testResources/$it")

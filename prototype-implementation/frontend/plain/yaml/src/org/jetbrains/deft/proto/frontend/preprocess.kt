@@ -4,19 +4,20 @@ import org.jetbrains.deft.proto.core.*
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.yaml.snakeyaml.Yaml
+import java.io.Reader
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 
 context(ProblemReporterContext)
-private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
+private fun Yaml.loadFile(path: Path, contentReader: Reader): Result<YamlNode.Mapping> {
     if (!path.exists()) {
         problemReporter.reportError(FrontendYamlBundle.message("cant.find.template", path))
         return deftFailure()
     }
 
-    val node = compose(path.reader())?.toYamlNode(path) ?: YamlNode.Mapping.Empty
+    val node = compose(contentReader)?.toYamlNode(path) ?: YamlNode.Mapping.Empty
     return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.module") }) {
         Result.success(node)
     } else {
@@ -27,10 +28,11 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
 context(BuildFileAware, ProblemReporterContext)
 fun Yaml.parseAndPreprocess(
     originPath: Path,
+    contentReader: Reader, // IDE passes custom reader that reads directly from PsiFile, see [ModelInit.getPartialModel]
     templatePathLoader: (String) -> Path,
 ): Result<YamlNode.Mapping> {
     val absoluteOriginPath = originPath.absolute()
-    val rootConfig = loadFile(absoluteOriginPath).getOrElse { return deftFailure() }
+    val rootConfig = loadFile(absoluteOriginPath, contentReader).getOrElse { return deftFailure() }
 
     val templateNames = rootConfig["apply"]
     if (!templateNames.castOrReport<YamlNode.Sequence?>(originPath) { FrontendYamlBundle.message("element.name.apply") }) {
@@ -48,7 +50,7 @@ fun Yaml.parseAndPreprocess(
             }
 
             val path = templatePathLoader(templatePath.value).absolute().normalize()
-            val template = loadFile(path)
+            val template = loadFile(path, path.reader())
             template.getOrElse {
                 hasBrokenTemplates = true
                 problemReporter.reportNodeError(
