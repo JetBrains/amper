@@ -206,17 +206,18 @@ the [Pot tests](Documentation.md#tests).
 
 `settings:kotlin:` configures the Kotlin language and the compiler.
 
-| Attribute                       | Description                                                                                                                                                          | Default |
-|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `languageVersion: enum`         | Provide source compatibility with the specified version of Kotlin.                                                                                                   |         |
-| `apiVersion: enum`              | Allow using declarations only from the specified version of Kotlin bundled libraries.                                                                                |         |
-| `allWarningsAsErrors: boolean`  | Turn any warnings into a compilation error.                                                                                                                          |         |
-| `suppressWarnings: boolean`     | Suppress the compiler from displaying warnings during compilation.                                                                                                   |         |
-| `verbose: boolean`              | Enable verbose logging output which includes details of the compilation process.                                                                                     |         |
-| `progressiveMode: boolean`      | Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive).                                                     |         |
-| `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. |         |
-| `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |         |
-| `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               |         |
+| Attribute                       | Description                                                                                                                                                          | Default       |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| `languageVersion: enum`         | Provide source compatibility with the specified version of Kotlin.                                                                                                   |               |
+| `apiVersion: enum`              | Allow using declarations only from the specified version of Kotlin bundled libraries.                                                                                |               |
+| `allWarningsAsErrors: boolean`  | Turn any warnings into a compilation error.                                                                                                                          |               |
+| `suppressWarnings: boolean`     | Suppress the compiler from displaying warnings during compilation.                                                                                                   |               |
+| `verbose: boolean`              | Enable verbose logging output which includes details of the compilation process.                                                                                     |               |
+| `progressiveMode: boolean`      | Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive).                                                     |               |
+| `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. |               |
+| `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |               |
+| `jvmTarget: enum`               | (Only for the JVM target). Specify the target version of the generated JVM bytecode.                                                                                 | `java.target` |
+| `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               |               |
 
 Examples:
 
