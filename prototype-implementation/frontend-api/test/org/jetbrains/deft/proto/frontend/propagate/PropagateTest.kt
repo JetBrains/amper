@@ -22,11 +22,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : Model {
-            override val modules: List<PotatoModule>
-                get() = listOf(module)
-
-        }
+        val model = ModelImpl(module)
 
         // when
         val resultModel = model.resolved
@@ -57,11 +53,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : Model {
-            override val modules: List<PotatoModule>
-                get() = listOf(module)
-
-        }
+        val model = ModelImpl(module)
 
         // when
         val resultModel = model.resolved
@@ -87,14 +79,8 @@ class PropagateTest {
             }
         }
 
-        val model = object : Model {
-            override val modules: List<PotatoModule>
-                get() = listOf(module)
-
-        }
-
+        val model = ModelImpl(module)
         val resultModel = model.resolved
-
 
         assertEquals(
             "1.9",
@@ -115,12 +101,7 @@ class PropagateTest {
             }
         }
 
-        val model = object : Model {
-            override val modules: List<PotatoModule>
-                get() = listOf(module)
-
-        }
-
+        val model = ModelImpl(module)
         val resultModel = model.resolved
 
         val jvmFragment = resultModel.modules.first().fragments.find { it.name == "jvm" }

@@ -53,16 +53,12 @@ class YamlModelInit : ModelInit {
         }
 
         val ignorePaths = pot.findAndParseIgnorePaths()
-        if (ignorePaths.any { it.startsWith(pot) }) return Result.success(object : Model {
-            override val modules: List<PotatoModule> = emptyList()
-        })
+        if (ignorePaths.any { it.startsWith(pot) }) return Result.success(ModelImpl())
 
         val yaml = Yaml()
         val partialModules = pot.parseModule(yaml, contentReader)
 
-        return partialModules.map { object : Model {
-            override val modules: List<PotatoModule> = listOf(it)
-        } }
+        return partialModules.map { ModelImpl(it) }
     }
 
     /**
@@ -109,9 +105,7 @@ class YamlModelInit : ModelInit {
             .collect(Collectors.toList())
 
         return Result.success(
-            object : Model {
-                override val modules: List<PotatoModule> = modules.mapNotNull { it.getOrNull() } + gradleModuleWrappers
-            }
+            ModelImpl(modules.mapNotNull { it.getOrNull() } + gradleModuleWrappers)
         )
     }
 

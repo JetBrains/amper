@@ -4,14 +4,13 @@ import org.jetbrains.deft.proto.frontend.*
 
 
 val Model.resolved: Model
-    get() = object : Model {
-        override val modules: List<PotatoModule>
-            get() = this@resolved.modules.map {
-                object : PotatoModule by it {
-                    override val fragments = it.fragments.resolve(it)
-                }
+    get() = ModelImpl(
+        this@resolved.modules.map {
+            object : PotatoModule by it {
+                override val fragments = it.fragments.resolve(it)
             }
-    }
+        }
+    )
 
 
 fun List<Fragment>.resolve(module: PotatoModule): List<Fragment> = buildList {
