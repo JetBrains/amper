@@ -10,11 +10,20 @@ import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.reader
 
+/**
+ * [reportOn] is passed if there's a node on which loading errors can be reported (happens when [loadFile]
+ * is called during template substitution)
+ */
 context(ProblemReporterContext)
-private fun Yaml.loadFile(path: Path, contentReader: Reader): Result<YamlNode.Mapping> {
+private fun Yaml.loadFile(path: Path, contentReader: Reader, reportOn: YamlNode? = null): Result<YamlNode.Mapping> {
     if (!path.exists()) {
-        problemReporter.reportError(FrontendYamlBundle.message("cant.find.template", path))
-        return deftFailure()
+        if (reportOn == null) {
+            problemReporter.reportError(FrontendYamlBundle.message("cant.find.template", path), path)
+            return deftFailure()
+        } else {
+            problemReporter.reportNodeError(FrontendYamlBundle.message("cant.find.template", path), reportOn, path)
+        }
+
     }
 
     val node = compose(contentReader)?.toYamlNode(path) ?: YamlNode.Mapping.Empty
@@ -50,7 +59,7 @@ fun Yaml.parseAndPreprocess(
             }
 
             val path = templatePathLoader(templatePath.value).absolute().normalize()
-            val template = loadFile(path, path.reader())
+            val template = loadFile(path, path.reader(), reportOn = templateNames)
             template.getOrElse {
                 hasBrokenTemplates = true
                 problemReporter.reportNodeError(
