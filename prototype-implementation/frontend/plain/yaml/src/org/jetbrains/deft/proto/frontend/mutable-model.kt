@@ -399,12 +399,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
 
                 kotlinSettings["serialization"]?.let { kSerialization ->
                     fun reportEngineError(message: String) {
-                        val file = kSerialization.originalFile
-
-                        if (file == null)
-                            problemReporter.reportError(message)
-                        else
-                            problemReporter.reportError(message, file, kSerialization.startMark.line)
+                        problemReporter.reportNodeError(message, kSerialization, kSerialization.originalFile)
                     }
 
                     when (kSerialization) {

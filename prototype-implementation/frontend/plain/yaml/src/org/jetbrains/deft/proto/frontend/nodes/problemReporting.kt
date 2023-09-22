@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.frontend.nodes
 
+import org.jetbrains.deft.proto.core.messages.BuildProblem
+import org.jetbrains.deft.proto.core.messages.Level
 import org.jetbrains.deft.proto.core.messages.ProblemReporter
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.BuildFileAware
@@ -23,16 +25,22 @@ fun ProblemReporter.reportNodeError(
             }
             "\n" + FrontendYamlBundle.message("applied.to.file", fileReference)
         } ?: ""
-        reportError(
-            message = message + fileSuffix,
-            file = node?.originalFile ?: return,
-            line = node.startMark.line + 1,
+        reportMessage(
+            BuildProblem(
+                message = message + fileSuffix,
+                level = Level.Error,
+                file = node?.originalFile ?: return,
+                line = node.startMark.line + 1,
+            )
         )
     } else {
-        reportError(
-            message = message,
-            file = file ?: node?.originalFile ?: return,
-            line = node?.startMark?.line?.let { it + 1 },
+        reportMessage(
+            BuildProblem(
+                message = message,
+                level = Level.Error,
+                file = file ?: node?.originalFile ?: return,
+                line = node?.startMark?.line?.let { it + 1 },
+            )
         )
     }
 }

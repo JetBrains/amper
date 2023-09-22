@@ -141,7 +141,7 @@ private fun mergeTemplate(
 
                         else -> {
                             hasProblems = true
-                            problemReporter.reportError(
+                            problemReporter.reportNodeError(
                                 FrontendYamlBundle.message(
                                     "cant.merge.templates",
                                     templatePath.templateName,
@@ -150,8 +150,7 @@ private fun mergeTemplate(
                                     templateValue.nodeType,
                                     "$templatePath:${templateValue.startMark.line + 1}",
                                 ),
-                                file = buildFile,
-                                line = originValue.startMark.line + 1
+                                origin
                             )
                         }
                     }

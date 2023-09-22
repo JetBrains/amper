@@ -4,8 +4,13 @@ import java.nio.file.Path
 
 interface ProblemReporter {
     fun reportMessage(message: BuildProblem)
+
+    /**
+     * This method reports a diagnostic that doesn't point to a location in file. It is displayed in IDE as a bar
+     * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
+     * positioning of the highlighting
+     */
     fun reportError(message: String, file: Path? = null) = reportMessage(BuildProblem(message = message, file = file, level = Level.Error))
-    fun reportError(message: String, file: Path, line: Int? = null) = reportMessage(BuildProblem(message = message, level = Level.Error, file = file, line = line))
 }
 
 interface ProblemReporterContext {
