@@ -24,37 +24,38 @@ class YamlModelInit : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModel(root: Path): Result<Model> {
-        val yaml = Yaml()
-
         if (!root.exists()) {
             problemReporter.reportError(FrontendYamlBundle.message("no.root.found", root.name))
             return deftFailure()
         }
 
-        val ignore = root.resolve(".deftignore")
-        val ignoreLines = if (ignore.exists()) {
-            ignore.readLines()
+        val ignorePaths = root.deftIgnoreIfAny?.parseIgnorePaths().orEmpty()
+
+        return buildModelTopDown(root, ignorePaths)
+    }
+
+    // NB: assumes that .deftignore is in the "root
+    private fun Path.parseIgnorePaths(): List<Path> {
+        val root = parent
+        val ignoreLines = if (exists()) {
+            readLines()
         } else {
             emptyList()
         }
-        val ignorePaths = ignoreLines.map { root.resolve(it) }
+        return ignoreLines.map { root.resolve(it) }
+    }
 
+    context(ProblemReporterContext)
+    private fun buildModelTopDown(
+        root: Path,
+        ignorePaths: List<Path>
+    ): Result<Model> {
+        val yaml = Yaml()
         val modules: List<Result<PotatoModule>> = Files.walk(root)
             .filter {
-                (it.name == "module.yaml" || it.name == "Pot.yaml") && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
+                it.isModuleYaml() && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
             }
-            .map {
-                withBuildFile(it.toAbsolutePath()) {
-                    val result = yaml.parseAndPreprocess(it) { includePath ->
-                        buildFile.parent.resolve(includePath)
-                    }
-                    result.flatMap { settings ->
-                        with(ParsingContext(settings)) {
-                            parseModule()
-                        }
-                    }
-                }
-            }
+            .map { it.parseModule(yaml) }
             .collect(Collectors.toList())
 
         if (modules.any { it is Result.Failure }) return deftFailure()
@@ -73,5 +74,17 @@ class YamlModelInit : ModelInit {
                 override val modules: List<PotatoModule> = modules.mapNotNull { it.getOrNull() } + gradleModuleWrappers
             }
         )
+    }
+
+    context(ProblemReporterContext)
+    private fun Path.parseModule(yaml: Yaml) = withBuildFile(toAbsolutePath()) {
+        val result = yaml.parseAndPreprocess(this@parseModule) { includePath ->
+            buildFile.parent.resolve(includePath)
+        }
+        result.flatMap { settings ->
+            with(ParsingContext(settings)) {
+                parseModule()
+            }
+        }
     }
 }

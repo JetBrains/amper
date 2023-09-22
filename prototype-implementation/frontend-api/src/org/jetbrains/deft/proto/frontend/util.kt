@@ -1,6 +1,9 @@
 package org.jetbrains.deft.proto.frontend
 
+import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty0
 
@@ -90,3 +93,8 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
 
     operator fun get(key: KeyT) = requireFromString(key)
 }
+
+fun Path.isModuleYaml() = name == "module.yaml" || name == "Pot.yaml"
+
+val Path.deftIgnoreIfAny: Path?
+    get() = resolve(".deftignore").takeIf { it.exists() }

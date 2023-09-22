@@ -2,6 +2,7 @@ package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.Result
 import org.jetbrains.deft.proto.core.deftFailure
+import org.jetbrains.deft.proto.core.flatMap
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import java.nio.file.Path
 import java.util.*
@@ -13,7 +14,7 @@ interface ModelInit {
         const val MODEL_NAME_PROPERTY = "org.jetbrains.deft.model.type"
 
         context(ProblemReporterContext)
-        fun getModel(root: Path): Result<Model> {
+        private fun loadModelInitService(): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"))
@@ -24,12 +25,17 @@ interface ModelInit {
                 ?: System.getenv(MODEL_NAME_ENV)
                 ?: "plain"
             val service = services[modelName]
-            if (service == null) {
+            return if (service == null) {
                 problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName))
-                return deftFailure()
+                deftFailure()
+            } else {
+                Result.success(service)
             }
+        }
 
-            return service.getModel(root)
+        context(ProblemReporterContext)
+        fun getModel(root: Path): Result<Model> {
+            return loadModelInitService().flatMap { it.getModel(root) }
         }
     }
 
