@@ -9,7 +9,7 @@ internal class ProductsTest : AbstractTestWithBuildFile() {
     @Test
     fun `product with unsupported type `() {
         withBuildFile {
-            testParse("product-with-unsupported-type", checkErrors = true)
+            testParse("product-with-unsupported-type")
         }
     }
 
@@ -24,21 +24,21 @@ internal class ProductsTest : AbstractTestWithBuildFile() {
     @Test
     fun `product lib without platforms full`() {
         withBuildFile {
-            testParse("product-lib-without-platforms-full", checkErrors = true)
+            testParse("product-lib-without-platforms-full")
         }
     }
 
     @Test
     fun `product lib without platforms inline`() {
         withBuildFile {
-            testParse("product-lib-without-platforms-inline", checkErrors = true)
+            testParse("product-lib-without-platforms-inline")
         }
     }
 
     @Test
     fun `product lib with empty platforms inline`() {
         withBuildFile {
-            testParse("product-lib-with-empty-platforms", checkErrors = true)
+            testParse("product-lib-with-empty-platforms")
         }
     }
 
@@ -80,21 +80,21 @@ internal class ProductsTest : AbstractTestWithBuildFile() {
     @Test
     fun `product with incompatible platforms`() {
         withBuildFile {
-            testParse("product-with-incompatible-platforms", checkErrors = true)
+            testParse("product-with-incompatible-platforms")
         }
     }
 
     @Test
     fun `product with single unsupported platform`() {
         withBuildFile {
-            testParse("product-with-single-unsupported-platform", checkErrors = true)
+            testParse("product-with-single-unsupported-platform")
         }
     }
 
     @Test
     fun `product with multiple unsupported platforms`() {
         withBuildFile {
-            testParse("product-with-multiple-unsupported-platforms", checkErrors = true)
+            testParse("product-with-multiple-unsupported-platforms")
         }
     }
 

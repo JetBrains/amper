@@ -30,7 +30,6 @@ context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
-    checkErrors: Boolean = false,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     val testData = getTestDataResource("$resourceName.yaml")
@@ -39,9 +38,7 @@ internal fun testParse(
         ?: fail("Failed to parse: $resourceName.yaml")
     with(TestProblemReporterContext()) {
         doTestParse(resourceName, parsed, systemInfo, init)
-        if (checkErrors) {
-            checkDiagnostics(testData, text, buildFile.parent, problemReporter.getErrors())
-        }
+        checkDiagnostics(testData, text, buildFile.parent, problemReporter.getErrors())
     }
 }
 
@@ -57,7 +54,6 @@ context (BuildFileAware)
 internal fun testParseWithTemplates(
     resourceName: String,
     properties: Properties = Properties(),
-    checkErrors: Boolean = false,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     val testData = getTestDataResource("$resourceName.yaml")
@@ -78,9 +74,7 @@ internal fun testParseWithTemplates(
         }
 
         doTestParse(resourceName, parsed.get(), init = init)
-        if (checkErrors) {
-            checkDiagnostics(testData, testDataText, buildFile.parent, problemReporter.getErrors())
-        }
+        checkDiagnostics(testData, testDataText, buildFile.parent, problemReporter.getErrors())
     }
 }
 

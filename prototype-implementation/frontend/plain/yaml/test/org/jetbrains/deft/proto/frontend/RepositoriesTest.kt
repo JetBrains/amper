@@ -25,7 +25,7 @@ internal class RepositoriesTest : AbstractTestWithBuildFile() {
     @Test
     fun `repositories no credentials file`() {
         withBuildFile {
-            testParseWithTemplates("repositories-no-credentials-file", checkErrors = true)
+            testParseWithTemplates("repositories-no-credentials-file")
         }
     }
 }
