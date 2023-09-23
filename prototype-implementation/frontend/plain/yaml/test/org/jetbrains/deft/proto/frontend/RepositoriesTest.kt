@@ -1,9 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.frontend.helper.AbstractTestWithBuildFile
-import org.jetbrains.deft.proto.frontend.helper.assertHasSingleProblem
 import org.jetbrains.deft.proto.frontend.helper.testParseWithTemplates
-import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 
 internal class RepositoriesTest : AbstractTestWithBuildFile() {
@@ -27,12 +25,7 @@ internal class RepositoriesTest : AbstractTestWithBuildFile() {
     @Test
     fun `repositories no credentials file`() {
         withBuildFile {
-            testParseWithTemplates("repositories-no-credentials-file", checkErrors = { problems ->
-                problems.assertHasSingleProblem {
-                    assertTrue("does not exist" in message, message)
-                    assertTrue("non.existing.file" in message, message)
-                }
-            })
+            testParseWithTemplates("repositories-no-credentials-file", checkErrors = true)
         }
     }
 }

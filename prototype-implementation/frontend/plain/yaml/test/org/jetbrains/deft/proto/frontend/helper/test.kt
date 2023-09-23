@@ -1,7 +1,8 @@
 package org.jetbrains.deft.proto.frontend.helper
 
+import com.intellij.rt.execution.junit5.FileComparisonFailedError
 import org.jetbrains.deft.proto.core.get
-import org.jetbrains.deft.proto.core.getOrElse
+import org.jetbrains.deft.proto.core.getOrNull
 import org.jetbrains.deft.proto.core.messages.*
 import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
 import org.jetbrains.deft.proto.core.system.SystemInfo
@@ -14,6 +15,7 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.exists
+import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -28,25 +30,18 @@ context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
-    checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
+    checkErrors: Boolean = false,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
-    val text = getTestDataResource("$resourceName.yaml").readText()
+    val testData = getTestDataResource("$resourceName.yaml")
+    val text = testData.readText().removeDiagnosticsAnnotations()
     val parsed = Yaml().compose(text.reader()).toYamlNode(buildFile) as? YamlNode.Mapping
         ?: fail("Failed to parse: $resourceName.yaml")
-    with(TestProblemReporterContext) {
-        val parseException = runCatching {
-            doTestParse(resourceName, parsed, shouldFail = checkErrors != null, systemInfo, init)
+    with(TestProblemReporterContext()) {
+        doTestParse(resourceName, parsed, systemInfo, init)
+        if (checkErrors) {
+            checkDiagnostics(testData, text, buildFile.parent, problemReporter.getErrors())
         }
-        val checkErrorException = runCatching {
-            if (checkErrors != null) {
-                problemReporter.errorsChecked()
-                checkErrors(problemReporter.getErrors())
-            }
-        }
-        problemReporter.tearDown()
-        parseException.exceptionOrNull()?.let { throw it }
-        checkErrorException.exceptionOrNull()?.let { throw it }
     }
 }
 
@@ -62,35 +57,30 @@ context (BuildFileAware)
 internal fun testParseWithTemplates(
     resourceName: String,
     properties: Properties = Properties(),
-    checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
+    checkErrors: Boolean = false,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
-    val path = Path(".")
-        .toAbsolutePath()
-        .resolve("testResources/$resourceName.yaml")
-    if (!path.exists()) fail("Resource not found: $path")
+    val testData = getTestDataResource("$resourceName.yaml")
+    val testDataText = testData.readText().removeDiagnosticsAnnotations()
+    // TODO(dsavvinov): hack to let parseAndPreprocess read the file without diagnostic annotations.
+    //   can be removed when 'Reader' to parseAndPreprocess is added
+    val testDataFileWithCleanedText = buildFile.parent.resolve("cleaned-$resourceName.yaml").also {
+        it.writeText(testDataText)
+    }
 
-    with(TestProblemReporterContext) {
+    with(TestProblemReporterContext()) {
         val parsed = with(properties) {
-            Yaml().parseAndPreprocess(path) {
+            Yaml().parseAndPreprocess(testDataFileWithCleanedText) {
                 Path(".")
                     .toAbsolutePath()
                     .resolve("testResources/$it")
             }
         }
-        val parseException = runCatching {
-            doTestParse(resourceName, parsed.get(), shouldFail = checkErrors != null, init = init)
-        }
-        val checkErrorException = runCatching {
-            if (checkErrors != null) {
-                problemReporter.errorsChecked()
-                checkErrors(problemReporter.getErrors())
-            }
-        }
 
-        problemReporter.tearDown()
-        parseException.exceptionOrNull()?.let { throw it }
-        checkErrorException.exceptionOrNull()?.let { throw it }
+        doTestParse(resourceName, parsed.get(), init = init)
+        if (checkErrors) {
+            checkDiagnostics(testData, testDataText, buildFile.parent, problemReporter.getErrors())
+        }
     }
 }
 
@@ -98,22 +88,15 @@ context (BuildFileAware, ProblemReporterContext)
 internal fun doTestParse(
     baseName: String,
     parsed: YamlNode.Mapping,
-    shouldFail: Boolean = false,
     sustemInfo: SystemInfo = DefaultSystemInfo,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     project(buildFile.parent.toFile()) { init() }
 
     // When
-    val module = withBuildFile(buildFile.toAbsolutePath()) {
-        with(ParsingContext(parsed)) {
-            parseModule(sustemInfo)
-        }
-    }.getOrElse {
-        if (shouldFail) return else {
-            fail("Failed to parse: $baseName.yaml")
-        }
-    }
+    val module = with(ParsingContext(parsed)) {
+        parseModule(sustemInfo)
+    }.getOrNull() ?: return
 
     // Then
     val expectedResourceName = "$baseName.result.txt"
@@ -146,48 +129,19 @@ internal fun doTestParse(
     }
 }
 
-fun List<BuildProblem>.assertHasSingleProblem(block: BuildProblem.() -> Unit) {
-    assertEquals(1, size)
-    first().block()
-}
-
-private object TestProblemReporter : CollectingProblemReporter() {
-    private var errorsChecked: Boolean = false
-
-    fun tearDown() {
-        val errors = problems.filter { it.level == Level.Error }
-        if (errors.isNotEmpty()) {
-            try {
-                if (!errorsChecked) {
-                    fail(buildString {
-                        append("There are unchecked errors in test")
-                        appendLine()
-                        errors.forEach { error ->
-                            append(renderMessage(error))
-                            appendLine()
-                        }
-                    })
-                }
-            } finally {
-                problems.clear()
-                errorsChecked = false
-            }
-        }
-    }
-
-    override fun doReportMessage(message: BuildProblem) {
-        if (message.level == Level.Warning) {
-            println("WARNING: " + renderMessage(message))
-        }
-    }
+private class TestProblemReporter : CollectingProblemReporter() {
+    override fun doReportMessage(message: BuildProblem) {}
 
     fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error }
 
-    fun errorsChecked() {
-        errorsChecked = true
-    }
 }
 
-private object TestProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: TestProblemReporter = TestProblemReporter
+private class TestProblemReporterContext : ProblemReporterContext {
+    override val problemReporter: TestProblemReporter = TestProblemReporter()
+}
+
+fun assertFileContentEquals(expectedContent: String, actualContent: String, originalFile: File) {
+    if (expectedContent != actualContent) {
+        throw FileComparisonFailedError("Comparison failed", expectedContent, actualContent, originalFile.absolutePath)
+    }
 }
