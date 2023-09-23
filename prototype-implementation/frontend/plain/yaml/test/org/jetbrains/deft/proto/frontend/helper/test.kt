@@ -31,8 +31,7 @@ internal fun testParse(
     checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
-    val text = ParserKtTest::class.java.getResource("/$resourceName.yaml")?.readText()
-        ?: fail("Resource not found")
+    val text = getTestDataResource("$resourceName.yaml").readText()
     val parsed = Yaml().compose(text.reader()).toYamlNode(buildFile) as? YamlNode.Mapping
         ?: fail("Failed to parse: $resourceName.yaml")
     with(TestProblemReporterContext) {
@@ -50,6 +49,14 @@ internal fun testParse(
         checkErrorException.exceptionOrNull()?.let { throw it }
     }
 }
+
+internal fun getTestDataResource(testDataFileName: String): File {
+    val file = File(".").absoluteFile
+        .resolve("testResources/$testDataFileName")
+    if (!file.exists()) fail("Resource $testDataFileName not found. Looked at ${file.canonicalPath}")
+    return file
+}
+
 
 context (BuildFileAware)
 internal fun testParseWithTemplates(
@@ -112,9 +119,7 @@ internal fun doTestParse(
     val expectedResourceName = "$baseName.result.txt"
     val actual = module.prettyPrint()
 
-    val resourceFile = File(".").absoluteFile
-        .resolve("testResources/$expectedResourceName")
-        .takeIf { it.exists() } ?: fail("Resource $expectedResourceName not found")
+    val resourceFile = getTestDataResource(expectedResourceName)
 
     val buildDir = (module.source as PotatoModuleFileSource).buildDir.normalize().toString()
     val userReadableName = module.userReadableName
