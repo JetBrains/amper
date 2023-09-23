@@ -1,37 +1,28 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.frontend.helper.AbstractTestWithBuildFile
 import org.jetbrains.deft.proto.frontend.helper.testParse
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
 import kotlin.test.Test
 
-internal class ParserKtTest {
-
-    @TempDir
-    lateinit var tempDir: Path
-
-    private val buildFile get() = object: BuildFileAware {
-        override val buildFile: Path
-            get() = tempDir.resolve("build.yaml")
-    }
-
+internal class ParserKtTest : AbstractTestWithBuildFile() {
+    
     @Test
     fun `single platform`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("0-single-platform")
         }
     }
 
     @Test
     fun `multiplatform app`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("1-multiplatform-app")
         }
     }
 
     @Test
     fun aliases() {
-        with(buildFile) {
+        withBuildFile {
             testParse("2-aliases") {
                 directory("iosSimulator")
             }
@@ -40,21 +31,21 @@ internal class ParserKtTest {
 
     @Test
     fun variants() {
-        with(buildFile) {
+        withBuildFile {
             testParse("3-variants")
         }
     }
 
     @Test
     fun `jvm run`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("4-jvm-run")
         }
     }
 
     @Test
     fun `common folder bug`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("5-common-folder-bug") {
                 directory("common") {
                     directory("src")
@@ -65,77 +56,77 @@ internal class ParserKtTest {
 
     @Test
     fun `empty key`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("6-empty-list-key")
         }
     }
 
     @Test
     fun `variants even more simplified`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("8-variants-simplified")
         }
     }
 
     @Test
     fun `test-dependencies is the same as dependencies@test`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("9-test-dependencies")
         }
     }
 
     @Test
     fun `android properties should be passed in lib`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("10-android-lib")
         }
     }
 
     @Test
     fun `plain frontend dogfooding`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("11-frontend-plain")
         }
     }
 
     @Test
     fun `multiplatform library`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("12-multiplatform-lib")
         }
     }
 
     @Test
     fun `jvmTarget adds to artifacts in android and jvm platforms`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("13-multiplatform-jvmtarget")
         }
     }
 
     @Test
     fun `check artifacts of multi-variant builds`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("14-check-artifacts-of-multi-variant-build")
         }
     }
 
     @Test
     fun `compose full form`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("compose-full-form")
         }
     }
 
     @Test
     fun `compose inline form`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("compose-inline-form")
         }
     }
 
     @Test
     fun `check kotlin serialization settings`() {
-        with(buildFile) {
+        withBuildFile {
             testParse("20-kotlin-serialization")
         }
     }
