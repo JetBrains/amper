@@ -8,7 +8,7 @@ import kotlin.io.path.walk
 val versions = mapOf(
     "org.jetbrains.deft.proto.settings.plugin:gradle-integration:" to "160-NIGHTLY",
     "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:" to "1.9.20-Beta",
-    "org.jetbrains.compose:compose-gradle-plugin:" to "1.5.0-beta01",
+    "org.jetbrains.compose:compose-gradle-plugin:" to "1.5.10-beta01",
     "https\\://services.gradle.org/distributions/gradle-" to "8.1.1-bin.zip"
 )
 
