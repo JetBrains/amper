@@ -715,7 +715,7 @@ From the user's point of view the joint compilation is transparent; they could s
 ### Platform qualifier
 
 Use the `@platform`-qualifier to mark platform-specific source folders and sections in the Pot.yaml files. 
-You can use Kotlin Multiplatform [platform names and families](https://kotlinlang.org/docs/multiplatform-hierarchy.html) as `@platform`-qualifier.
+You can use Kotlin Multiplatform [platform names](https://kotlinlang.org/docs/native-target-support.html) and families as `@platform`-qualifier.
 ```yaml
 dependencies:                   # common dependencies for all platforms
 dependencies@ios:               # ios is a platform family name  
@@ -776,7 +776,7 @@ For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/doc
 
 #### Aliases
 
-Also, you can share code between several platforms by using `aliases:`
+Also, you can share code between several platforms by using custom `aliases:`
 
 ```yaml
 product:

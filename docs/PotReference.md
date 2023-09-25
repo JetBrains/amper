@@ -43,6 +43,58 @@ product:
   platforms: [ jvm, android ]
 ```
 
+### Aliases
+
+`aliases:` section defines the names for the custom code sharing groups. Aliases can be used as `@platform` qualifiers. Read more about [aliases](Documentation.md#aliases).
+
+Examples:
+
+```yaml
+# Create an alias to share code between JVM and Android platforms.  
+product:
+  type: lib
+  platforms: [ jvm, android, iosArm64, iosSimulatorArm64 ]
+
+aliases:
+  - jvmAndAndroid: [jvm, android]
+
+# Dependencies for JVM and Android platforms:
+dependencies@jvmAndAndroid:
+  ...
+```
+
+### Variants
+
+`variants:` section defines the list of build variants for the product. Variants name can be used as `@platform` qualifiers. Read more about [variants](Documentation.md#build-variants).
+
+Examples:
+
+```yaml
+# Define two build variants: `debug` and `release`  
+product: android/app
+
+variant: [debug, release]
+
+# Dependencies for the debug build variant:
+dependencies@debug:
+  ...
+```
+
+```yaml
+# Define multi-dimensional variants   
+product: android/app
+
+variants:
+  - [debug, release]
+  - [paid, free]
+
+dependencies@paid:
+  - ...
+
+dependencies@debug:
+  - ...
+```
+
 ### Pot
 
 `pot:` section defines the non-code/product related aspects of the Pot, such as file layout.
