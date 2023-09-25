@@ -26,6 +26,8 @@ settings:
     sdk:
       version: 1.9.0
     languageVersion: 1.9
+    languageFeatures:
+      - contextReceivers
     freeCompilerArgs:
       - -Xcontext-receivers
   junit:
