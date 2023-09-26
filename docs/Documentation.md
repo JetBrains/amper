@@ -784,7 +784,7 @@ product:
   platforms: [iosArm64, android, jvm]
 
 aliases:
-  jvmAndAndroid: [jvm, android]
+  - jvmAndAndroid: [jvm, android]
 
 # these dependencies will be visible in jvm and android code
 dependencies@jvmAndAndroid:
@@ -1476,7 +1476,7 @@ pot:
   layout: gradle-kmp
 
 aliases:
-  jvmAndAndroid: [jvm, android]
+  - jvmAndAndroid: [jvm, android]
 ```
 
 two source sets are generated: `jvmAndAndroid` and `jvmAndAndroidTest` and can be used as following:
