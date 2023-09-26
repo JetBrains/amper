@@ -6,9 +6,9 @@ product:
     - iosArm64
 
 aliases:
-  jvmAndAndroid:
-    - jvm
-    - android
+  - jvmAndAndroid:
+      - jvm
+      - android
 
 apply:
   - templates/empty.Pot-template.yaml

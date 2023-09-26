@@ -46,29 +46,44 @@ fun parseModule(
         .filter { it != Platform.COMMON }
         .associate { setOf(it).toCamelCaseString().first to it.leafChildren.toSet() }
 
-    val aliases = config["aliases"] ?: YamlNode.Mapping.Empty
-    if (!aliases.castOrReport<YamlNode.Mapping> { FrontendYamlBundle.message("element.name.aliases") }) {
+    val aliases = config["aliases"] ?: YamlNode.Sequence.Empty
+    if (!aliases.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.aliases") }) {
         return deftFailure()
+    }
+    aliases.elements.forEach { alias ->
+        if (!alias.castOrReport<YamlNode.Mapping> { FrontendYamlBundle.message("element.name.aliases") }) {
+            return deftFailure()
+        }
     }
 
     var hasBrokenAliases = false
-    aliasMap = aliases.mappings.associate { (key, value) ->
-        val name = (key as YamlNode.Scalar).value
-        if (!value.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.alias.platforms") }) {
-            hasBrokenAliases = true
-            return@associate name to emptySet()
-        }
-        val platformsList =
-            value.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.alias.platforms") }
-        if (platformsList == null) {
-            hasBrokenAliases = true
-            return@associate name to emptySet()
+
+    aliasMap = aliases.elements.map { alias ->
+        if (!alias.castOrReport<YamlNode.Mapping> { FrontendYamlBundle.message("element.name.aliases") }) {
+            return deftFailure()
         }
 
-        val platformSet = platformsList
-            .mapNotNull { getPlatformFromFragmentName(it.value) }
-            .toSet()
-        name to platformSet
+        alias.mappings.associate { (key, value) ->
+            val name = (key as YamlNode.Scalar).value
+            if (!value.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.alias.platforms") }) {
+                hasBrokenAliases = true
+                return@associate name to emptySet()
+            }
+            val platformsList =
+                value.getListOfElementsOrNull<YamlNode.Scalar> { FrontendYamlBundle.message("element.name.alias.platforms") }
+            if (platformsList == null) {
+                hasBrokenAliases = true
+                return@associate name to emptySet()
+            }
+
+            val platformSet = platformsList
+                .mapNotNull { getPlatformFromFragmentName(it.value) }
+                .toSet()
+            name to platformSet
+        }
+    }.fold(hashMapOf<String, Set<Platform>>()) { acc, map ->
+        acc.putAll(map)
+        acc
     } + naturalHierarchy
         .entries
         .sortedBy { it.value.size }

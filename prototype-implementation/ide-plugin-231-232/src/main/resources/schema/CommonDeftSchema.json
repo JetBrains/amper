@@ -15,7 +15,7 @@
           }
         },
         "aliases": {
-          "type": "object",
+          "type": "array",
           "patternProperties": {
             "^[^@+:]+$": {
               "$ref": "#/$defs/platformList"
