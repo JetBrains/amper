@@ -1277,7 +1277,7 @@ buildscript {
 
     // Add the DSL plugin into Gradle's classpath
     dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:160-NIGHTLY")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:167-NIGHTLY")
     }
 }
 
