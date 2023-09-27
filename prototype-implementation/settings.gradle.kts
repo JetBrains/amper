@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         // !!! Use updateVersions.kts to update these versions
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:160-NIGHTLY")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:167-NIGHTLY")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-Beta")
         classpath("com.github.johnrengelman:shadow:8.1.1")
     }
