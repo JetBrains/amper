@@ -111,9 +111,7 @@ class PropagateTest {
             }
             fragment("jvm") {
                 dependsOn("common")
-                javaPart {
-                    packagePrefix = "org.jetbrains.deft"
-                }
+                jvmPart {}
             }
         }
 
@@ -129,7 +127,7 @@ class PropagateTest {
         val parts = jvmFragment?.parts
         assertEquals(
             "17",
-            parts?.find<JavaPart>()?.target
+            parts?.find<JvmPart>()?.target
         )
     }
 }

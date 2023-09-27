@@ -79,8 +79,8 @@ class FragmentBuilder(var name: String) {
         parts.add(builder.build())
     }
 
-    fun javaPart(init: JavaPartBuilder.() -> Unit) {
-        val builder = JavaPartBuilder()
+    fun jvmPart(init: JvmPartBuilder.() -> Unit) {
+        val builder = JvmPartBuilder()
         builder.init()
         parts.add(builder.build())
     }
@@ -164,18 +164,14 @@ class PotatoModuleBuilder(var name: String) {
     }
 }
 
-class JavaPartBuilder {
+class JvmPartBuilder {
     var mainClass: String? = null
-    var packagePrefix: String? = null
     var target: String? = null
-    var source: String? = null
 
-    fun build(): JavaPart {
-        return JavaPart(
+    fun build(): JvmPart {
+        return JvmPart(
             mainClass = mainClass,
-            packagePrefix = packagePrefix,
             target = target,
-            source = source,
         )
     }
 }

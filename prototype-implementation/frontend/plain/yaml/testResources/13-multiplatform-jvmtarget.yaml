@@ -3,9 +3,9 @@ product:
   platforms: [ jvm, android ]
 
 settings:
-  java:
+  jvm:
     target: 1.8
 
 settings@android:
-  java:
+  jvm:
     target: 17
