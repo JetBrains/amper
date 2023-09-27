@@ -7,5 +7,6 @@ module:
 
 settings:
   java:
-    target: 11
     source: 11
+  jvm:
+    target: 11

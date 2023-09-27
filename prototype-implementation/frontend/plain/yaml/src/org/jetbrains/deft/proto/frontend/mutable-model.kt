@@ -44,6 +44,7 @@ internal data class FragmentBuilder(
     var android: AndroidPartBuilder? = AndroidPartBuilder {},
     var native: NativePartBuilder? = NativePartBuilder {},
     var java: JavaPartBuilder? = JavaPartBuilder {},
+    var jvm: JvmPartBuilder? = JvmPartBuilder {},
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {},
 ) {
@@ -373,9 +374,6 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                     apiVersion = KotlinVersion.requireFromString(it)
                 }
 
-                // String
-                kotlinSettings.getStringValue("jvmTarget") { jvmTarget = it }
-
                 // Boolean
                 kotlinSettings.getBooleanValue("allWarningsAsErrors") { allWarningsAsErrors = it }
                 kotlinSettings.getBooleanValue("suppressWarnings") { suppressWarnings = it }
@@ -435,10 +433,14 @@ internal fun List<ArtifactBuilder>.handleSettings(
 
         java = JavaPartBuilder {
             it.getMappingValue("java")?.let { javaSettings ->
-                mainClass = javaSettings.getStringValue("mainClass")
-                packagePrefix = javaSettings.getStringValue("packagePrefix")
-                target = javaSettings.getStringValue("target")
                 source = javaSettings.getStringValue("source")
+            }
+        }
+
+        jvm = JvmPartBuilder {
+            it.getMappingValue("jvm")?.let { javaSettings ->
+                mainClass = javaSettings.getStringValue("mainClass")
+                target = javaSettings.getStringValue("target")
             }
         }
 

@@ -64,15 +64,7 @@ object Models : ModelInit {
                 setOf(Platform.JVM),
                 leafFragment {
                     platforms.add(Platform.JVM)
-                    addPart(
-                        JavaPart(
-                            mainClass = "MainKt",
-                            null,
-                            null,
-                            null,
-                            null
-                        )
-                    )
+                    addPart(JvmPart(mainClass = "MainKt"))
                 }
             )
         }
@@ -129,15 +121,7 @@ object Models : ModelInit {
                             optIns = listOf("org.mylibrary.OptInAnnotation"),
                         ),
                     )
-                    addPart(
-                        JavaPart(
-                            mainClass = "MainKt",
-                            null,
-                            null,
-                            null,
-                            null
-                        )
-                    )
+                    addPart(JvmPart(mainClass = "MainKt"))
                     platforms.add(Platform.JVM)
                 }
             )
@@ -168,15 +152,7 @@ object Models : ModelInit {
                 setOf(Platform.JVM),
                 leafFragment {
                     platforms.add(Platform.JVM)
-                    addPart(
-                        JavaPart(
-                            mainClass = "MainKt",
-                            null,
-                            null,
-                            null,
-                            null
-                        )
-                    )
+                    addPart(JvmPart(mainClass = "MainKt"))
                 }
             )
         }
@@ -187,15 +163,7 @@ object Models : ModelInit {
                 leafFragment {
                     dependency(module1)
                     platforms.add(Platform.JVM)
-                    addPart(
-                        JavaPart(
-                            mainClass = "MainKt",
-                            null,
-                            null,
-                            null,
-                            null
-                        )
-                    )
+                    addPart(JvmPart(mainClass = "MainKt"))
                 }
             )
         }
@@ -257,15 +225,7 @@ object Models : ModelInit {
             setOf(Platform.JVM),
             leafFragment {
                 platforms.add(Platform.JVM)
-                addPart(
-                    JavaPart(
-                        mainClass = "MainKt",
-                        null,
-                        null,
-                        null,
-                        null
-                    )
-                )
+                addPart(JvmPart(mainClass = "MainKt"))
             }
         )
     }

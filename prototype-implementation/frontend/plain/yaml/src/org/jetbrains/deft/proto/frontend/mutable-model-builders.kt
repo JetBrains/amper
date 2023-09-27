@@ -26,7 +26,6 @@ enum class KotlinVersion(internal val version: String) {
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
-    var jvmTarget: String? = null,
     var allWarningsAsErrors: Boolean? = null,
     val freeCompilerArgs: MutableList<String> = mutableListOf(),
     var suppressWarnings: Boolean? = null,
@@ -53,12 +52,16 @@ data class AndroidPartBuilder(
 }
 
 data class JavaPartBuilder(
-    var mainClass: String? = null,
-    var packagePrefix: String? = null,
-    var target: String? = null,
     var source: String? = null,
 ) {
     companion object : BuilderCompanion<JavaPartBuilder>(::JavaPartBuilder)
+}
+
+data class JvmPartBuilder(
+    var mainClass: String? = null,
+    var target: String? = null,
+) {
+    companion object : BuilderCompanion<JvmPartBuilder>(::JvmPartBuilder)
 }
 
 data class PublishingPartBuilder(

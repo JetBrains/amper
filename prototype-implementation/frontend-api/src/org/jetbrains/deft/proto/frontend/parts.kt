@@ -3,7 +3,6 @@ package org.jetbrains.deft.proto.frontend
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
-    val jvmTarget: String? = null,
     val allWarningsAsErrors: Boolean? = null,
     val freeCompilerArgs: List<String> = emptyList(),
     val suppressWarnings: Boolean? = null,
@@ -18,7 +17,6 @@ data class KotlinPart(
         KotlinPart(
             languageVersion ?: parent.languageVersion,
             apiVersion ?: parent.apiVersion,
-            jvmTarget ?: parent.jvmTarget,
             allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
             (freeCompilerArgs + parent.freeCompilerArgs),
             suppressWarnings ?: true || parent.suppressWarnings ?: false,
@@ -65,21 +63,20 @@ data class AndroidPart(
         )
 }
 
-data class JavaPart(
-    val mainClass: String?,
-    val packagePrefix: String?,
-    val target: String?,
-    val source: String?,
-    val moduleName: String? = null,
-) : FragmentPart<JavaPart> {
-    override fun default(module: PotatoModule): FragmentPart<JavaPart> =
-        JavaPart(
+data class JvmPart(
+    val mainClass: String? = null,
+    val target: String? = null,
+) : FragmentPart<JvmPart> {
+    override fun default(module: PotatoModule): FragmentPart<JvmPart> =
+        JvmPart(
             mainClass,
-            packagePrefix ?: "",
             target ?: "17",
-            source ?: target ?: "17",
         )
 }
+
+data class JavaPart(
+    val source: String?,
+) : FragmentPart<JavaPart>
 
 data class NativeApplicationPart(
     val entryPoint: String?,

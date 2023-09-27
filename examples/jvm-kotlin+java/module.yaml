@@ -11,4 +11,5 @@ settings:
     languageVersion: 1.8
   java:
     source: 17
+  jvm:
     target: 17

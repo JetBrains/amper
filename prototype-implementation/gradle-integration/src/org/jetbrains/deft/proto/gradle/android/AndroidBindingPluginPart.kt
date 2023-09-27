@@ -1,10 +1,7 @@
 package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
-import org.jetbrains.deft.proto.frontend.AndroidPart
-import org.jetbrains.deft.proto.frontend.JavaPart
-import org.jetbrains.deft.proto.frontend.Platform
-import org.jetbrains.deft.proto.frontend.ProductType
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.android.AndroidDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -104,7 +101,7 @@ class AndroidBindingPluginPart(
                     androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
                 }
                 compilations.configureEach {
-                    fragment.parts.find<JavaPart>()?.let { part ->
+                    fragment.parts.find<JvmPart>()?.let { part ->
                         it.compileTaskProvider.configure {
                             part.target?.let { target ->
                                 it as KotlinCompilationTask<KotlinJvmCompilerOptions>
@@ -132,11 +129,13 @@ class AndroidBindingPluginPart(
         val firstAndroidFragment = leafPlatformFragments.first()
         androidPE?.compileOptions {
             val compileOptions = it
-            firstAndroidFragment.parts.find<JavaPart>()?.source?.let {
-                compileOptions.setSourceCompatibility(it)
-            }
-            firstAndroidFragment.parts.find<JavaPart>()?.target?.let {
+            val jvmTarget = firstAndroidFragment.parts.find<JvmPart>()?.target
+            val javaSource = firstAndroidFragment.parts.find<JavaPart>()?.source ?: jvmTarget
+            jvmTarget?.let {
                 compileOptions.setTargetCompatibility(it)
+            }
+            javaSource?.let {
+                compileOptions.setSourceCompatibility(it)
             }
         }
         leafPlatformFragments.forEach { fragment ->

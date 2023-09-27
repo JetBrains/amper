@@ -7,6 +7,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.deft.proto.frontend.JavaPart
+import org.jetbrains.deft.proto.frontend.JvmPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
@@ -67,7 +68,7 @@ class JavaBindingPluginPart(
     private fun applyJavaTargetForKotlin() = with(KotlinDeftNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
             with(fragment.target!!) {
-                fragment.parts.find<JavaPart>()?.target?.let { jvmTarget ->
+                fragment.parts.find<JvmPart>()?.target?.let { jvmTarget ->
                     fragment.compilation?.compileTaskProvider?.configure {
                         it as KotlinCompilationTask<KotlinJvmCompilerOptions>
                         it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
@@ -88,21 +89,19 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        val javaPart = fragment.parts.find<JavaPart>()
-        javaPart?.target?.let {
+        val jvmPart = fragment.parts.find<JvmPart>()
+        val javaSource = fragment.parts.find<JavaPart>()?.source ?: jvmPart?.target
+        jvmPart?.target?.let {
             javaPE.targetCompatibility = JavaVersion.toVersion(it)
         }
-        javaPart?.source?.let {
+        javaSource?.let {
             javaPE.sourceCompatibility = JavaVersion.toVersion(it)
-        }
-        project.tasks.withType(KotlinCompile::class.java).configureEach {
-            it.javaPackagePrefix = javaPart?.packagePrefix
         }
         // Do when layout is known.
         project.afterEvaluate {
             if (module.type.isLibrary()) return@afterEvaluate
-            val foundMainClass = if (javaPart?.mainClass != null) {
-                javaPart.mainClass
+            val foundMainClass = if (jvmPart?.mainClass != null) {
+                jvmPart.mainClass
             } else {
                 val sources = fragment.kotlinSourceSet?.closureSources ?: emptyList()
                 findEntryPoint(sources, EntryPointType.JVM, logger)
