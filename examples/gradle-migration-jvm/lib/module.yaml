@@ -4,7 +4,7 @@ product:
     - jvm
 
 # Enable Gradle-compatible file layout
-pot:
+module:
   layout: gradle-jvm
 
 
