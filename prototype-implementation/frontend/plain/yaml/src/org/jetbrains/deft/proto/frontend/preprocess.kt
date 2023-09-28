@@ -17,7 +17,7 @@ private fun Yaml.loadFile(path: Path): Result<YamlNode.Mapping> {
     }
 
     val node = compose(path.reader())?.toYamlNode(path) ?: YamlNode.Mapping.Empty
-    return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.pot") }) {
+    return if (node.castOrReport<YamlNode.Mapping>(path) { FrontendYamlBundle.message("element.name.module") }) {
         Result.success(node)
     } else {
         deftFailure()

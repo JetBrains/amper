@@ -27,10 +27,11 @@ fun parseModuleParts(
 
 context(BuildFileAware, ProblemReporterContext)
 private fun parseMetaSettings(config: YamlNode.Mapping): Result<MetaModulePart> {
-    val meta = config.getMappingValue("pot")
+    val meta = config.getMappingValue("module")
+        ?: config.getMappingValue("pot") // todo remove after 05.10 DEFT-145
         ?: return Result.success(MetaModulePart()) // TODO Check for type.
     val metaNode = meta["layout"]
-    if (!metaNode.castOrReport<YamlNode.Scalar?> { FrontendYamlBundle.message("element.name.pot.layout") }) {
+    if (!metaNode.castOrReport<YamlNode.Scalar?> { FrontendYamlBundle.message("element.name.module.layout") }) {
         return deftFailure()
     }
     val layout = when (metaNode?.value) {
