@@ -180,7 +180,7 @@ internal fun List<FragmentBuilder>.multiplyFragments(variants: List<Variant>): L
             }
         }
 
-        // set dependencies between potatoes
+        // set dependencies between modules
         for (option in options) {
             val dependencies = option.dependsOn
             val name = option.name

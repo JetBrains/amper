@@ -359,7 +359,7 @@ See the [full list of supported settings](DSLReference#compose).
 # Step 6. Optionally, switch to the Deft file layout
 
 So far, we have only changed the `module.yaml` and `build.gradle.kts` files and didn't change the source layout.
-Such gradual transition was possible because at the [step 3](#step-3-create-a-potyaml-file-and-migrate-targets) we explicitly set the Gradle-compatibility layout mode
+Such gradual transition was possible because at the [step 3](#step-3-create-a-moduleyaml-file-and-migrate-targets) we explicitly set the Gradle-compatibility layout mode
 ```yaml
 ...
 # Enable Gradle-compatible file layout 
