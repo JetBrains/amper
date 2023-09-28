@@ -89,7 +89,7 @@ registerJobInPrototypeDir(
     println("Publishing with version: ${channelAndVersion.version}")
 
     channelAndVersion.writeTo(
-        filePath = "common.Pot-template.yaml",
+        filePath = "common.module-template.yaml",
         versionPrefix = "version: "
     )
 
