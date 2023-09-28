@@ -11,4 +11,3 @@ settings:
 
 dependencies:
   - ../core
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-Beta
