@@ -7,5 +7,4 @@ dependencies:
   - androidx.appcompat:appcompat:1.6.1 # we need special type of activity
 
 settings:
-  compose:
-    enabled: true
+  compose: enabled

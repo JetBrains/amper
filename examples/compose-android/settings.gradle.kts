@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:170-NIGHTLY")
+        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:171-NIGHTLY")
     }
 }
 
