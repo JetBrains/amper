@@ -118,4 +118,11 @@ internal class ParserKtTest {
             testParse("14-check-artifacts-of-multi-variant-build")
         }
     }
+
+    @Test
+    fun `compose inline form`() {
+        with(buildFile) {
+            testParse("compose-inline-form")
+        }
+    }
 }

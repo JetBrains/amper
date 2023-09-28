@@ -1,0 +1,4 @@
+product: jvm/app
+
+settings:
+  compose: enabled

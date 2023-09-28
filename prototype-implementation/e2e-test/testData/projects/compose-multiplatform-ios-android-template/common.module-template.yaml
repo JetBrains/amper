@@ -6,5 +6,4 @@ settings:
     minSdk: 24
     targetSdk: 34
     compileSdkVersion: android-34
-  compose:
-    enabled: true
+  compose: enabled
