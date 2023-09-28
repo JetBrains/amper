@@ -2,7 +2,7 @@ product:
   type: lib
   platforms: [jvm, android]
 
-pot:
+module:
   layout: gradle-kmp
 
 dependencies:
