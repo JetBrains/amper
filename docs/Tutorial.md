@@ -17,7 +17,7 @@ New templates and example projects are preconfigured. To manually configure your
 
 First thing you’d want to try when getting familiar with a new tool is just a simple hello world application. Here is what we do:
 
-Create a `Pot.yaml` file:
+Create a `module.yaml` file:
 
 ```YAML
 product: jvm/app
@@ -28,7 +28,7 @@ And add some code in the `src/` folder:
 ```
 |-src/
 |  |-main.kt
-|-Pot.yaml
+|-module.yaml
 ```
 
 `main.kt` file:
@@ -46,7 +46,7 @@ And since it’s JVM, let’s also add some Java code.
 |-src/
 |  |-main.kt
 |  |-JavaClass.java
-|-Pot.yaml
+|-module.yaml
 ```
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
@@ -55,7 +55,7 @@ _NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the s
 ```
 |-src/
 |  |-...
-|-Pot.yaml
+|-module.yaml
 |-settings.gradle.kts
 ```
 
@@ -63,7 +63,7 @@ Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../e
 
 Documentation:
 - [Project layout](Documentation.md#project-layout)
-- [Manifest file anatomy](Documentation.md#pot-manifest-file-anatomy)
+- [Manifest file anatomy](Documentation.md#module-manifest-file-anatomy)
 
 ### Step 2. Add dependencies
 
@@ -104,7 +104,7 @@ Then, the test code:
 |  |-...
 |-test/
 |  |-MyTest.kt
-|-Pot.yaml
+|-module.yaml
 ```
 
 Notice that test dependencies are configured as a separate list. It should be very familiar to the Cargo, Flutter and Poetry users.
@@ -143,7 +143,7 @@ Documentation:
 
 To use Compose Multiplatform framework, add corresponding dependencies and a Compose toolchain section in `settings:`.
 
-/android/Pot.yaml:
+/android/module.yaml:
 ```YAML
 product: jvm/app
 
@@ -166,7 +166,7 @@ Documentation:
 
 Let's split our app into a library and an application modules:
 
-/app/Pot.yaml:
+/app/module.yaml:
 ```YAML
 product: jvm/app
 
@@ -182,7 +182,7 @@ settings:
     enabled: true
 ```
 
-/shared/Pot.yaml:
+/shared/module.yaml:
 ```YAML
 product:
   type: lib
@@ -200,25 +200,25 @@ File layout:
 |-app/
 |  |-src/
 |  |  |-main.kt
-|  |-Pot.yaml
+|  |-module.yaml
 |-shared/
 |  |-src/
 |  |  |-Util.kt
 |  |-test/
 |  |  |-UtilTest.kt
-|  |-Pot.yaml
+|  |-module.yaml
 ```
 
-In this example, the internal dependencies on the `shared` pot are declared using relative paths. No need to give additional names to the libraries.
+In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give additional names to the libraries.
 
 _NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
 ```
 |-app/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-shared/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-settings.gradle.kts
 ```
 
@@ -232,7 +232,7 @@ Documentation:
 One of the primary target use cases is the Kotlin Multiplatform (see the [Mercury project](https://jetbrains.team/blog/Introducing_Project_Mercury)). 
 So let’s add client Android and iOS apps our project. 
 
-Pot.yaml for Android:
+module.yaml for Android:
 ```YAML
 product: android/app
 
@@ -249,7 +249,7 @@ settings:
     enabled: true
 ```
 
-Pot.yaml for iOS:
+module.yaml for iOS:
 
 ```YAML
 product: ios/app
@@ -270,7 +270,7 @@ settings:
 And update the shared module:
 _NOTE: Currently lib modules require an explicit list of platform. We plan to automatically configure library modules with required platforms in the future_   
 
-/shared/Pot.yaml:
+/shared/module.yaml:
 ```YAML
 product:
   type: lib
@@ -289,21 +289,21 @@ The new file layout:
 |  |-src/
 |  |  |-main.kt
 |  |  |-AndroidManifest.xml
-|  |-Pot.yaml
+|  |-module.yaml
 |-ios-app/
 |  |-src/
 |  |  |-main.kt
-|  |-Pot.yaml
+|  |-module.yaml
 |-jvm-app/
 |  |-src/
 |  |  |-main.kt
-|  |-Pot.yaml
+|  |-module.yaml
 |-shared/
 |  |-src/
 |  |  |-Util.kt
 |  |-test/
 |  |  |-UtilTest.kt
-|  |-Pot.yaml
+|  |-module.yaml
 ```
 
 Now we have a `shared` module, which is used by client apps on different platforms. 
@@ -313,7 +313,7 @@ Let's add some platform-specific networking code and dependencies.
 
 _NOTE: Native dependencies (like CocoaPods) are currently not implemented._
 
-/shared/Pot.yaml:
+/shared/module.yaml:
 ```YAML
 product:
   type: lib
@@ -356,7 +356,7 @@ Possible file layout:
 |  |  |-networking.kt
 |  |-test/
 |  |  |-UtilTest.kt
-|  |-Pot.yaml
+|  |-module.yaml
 ```
 
 One thing you might have noticed is the `@platform` suffixes. 
@@ -374,11 +374,11 @@ Documentation:
 
 ### Step 8. Deduplicate common parts
 
-You might have noticed that there are some common dependencies and settings present in `Pot.yaml` files. We now can extract the into a template.
+You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract the into a template.
 
-Let's create a couple of `<name>.Pot-template.yaml` files:
+Let's create a couple of `<name>.module-template.yaml` files:
 
-/common.Pot-template.yaml:
+/common.module-template.yaml:
 ```YAML
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
@@ -388,7 +388,7 @@ settings:
     languageVersion: 1.8
 ```
 
-/app.Pot-template.yaml:
+/app.module-template.yaml:
 ```YAML
 dependencies:
   - ./shared
@@ -398,16 +398,16 @@ settings:
     enabled: true
 ```
 
-And apply it to our Pot.yaml files:
+And apply it to our module.yaml files:
 
-/shared/Pot.yaml:
+/shared/module.yaml:
 ```YAML
 product:
   type: lib
   platforms: [android, iosArm64]
 
 apply:
-  - ../common.Pot-template.yaml
+  - ../common.module-template.yaml
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
@@ -423,39 +423,39 @@ dependenceis@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
 ```
 
-/android-app/Pot.yaml:
+/android-app/module.yaml:
 ```YAML
 product: android/app
 
 apply:
-  - ../common.Pot-template.yaml
-  - ../app.Pot-template.yaml
+  - ../common.module-template.yaml
+  - ../app.module-template.yaml
 
 dependencies:
   - org.jetbrains.compose.foundation:foundation:1.4.1
   - org.jetbrains.compose.material:material:1.4.1
 ```
 
-/ios-app/Pot.yaml:
+/ios-app/module.yaml:
 ```YAML
 product: ios/app
 
 apply:
-  - ../common.Pot-template.yaml
-  - ../app.Pot-template.yaml
+  - ../common.module-template.yaml
+  - ../app.module-template.yaml
 
 dependencies:
   - org.jetbrains.compose.foundation:foundation:1.4.1
   - org.jetbrains.compose.material:material:1.4.1
 ```
 
-/jvm-app/Pot.yaml:
+/jvm-app/module.yaml:
 ```YAML
 product: ios/app
 
 apply:
-  - ../common.Pot-template.yaml
-  - ../app.Pot-template.yaml
+  - ../common.module-template.yaml
+  - ../app.module-template.yaml
 
 dependencies:
   - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
@@ -465,18 +465,18 @@ File layout:
 ```
 |-android-app/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-ios-app/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-jvm-app/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-shared/
 |  |-...
-|  |-Pot.yaml
-|-common.Pot-template.yaml
-|-app.Pot-template.yaml
+|  |-module.yaml
+|-common.module-template.yaml
+|-app.module-template.yaml
 ```
 
 Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical configurations in our codebase.

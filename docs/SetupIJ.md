@@ -31,7 +31,7 @@
 
 
 - Try opening [an example project](../examples/jvm-kotlin+java). 
-  You should get completion in the Pot.yaml files:
+  You should get completion in the module.yaml files:
   ![](images/ij-idea.png)
  
 

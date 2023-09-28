@@ -1,6 +1,6 @@
 ### Product
 
-`product:` section defines what should be produced out of the Pot.
+`product:` section defines what should be produced out of the Module.
 Read more about the [product types](Documentation.md#product-types).
 
 | Attribute             | Description                                 |
@@ -95,19 +95,19 @@ dependencies@debug:
   - ...
 ```
 
-### Pot
+### Module
 
-`pot:` section defines the non-code/product related aspects of the Pot, such as file layout.
+`module:` section defines the non-code/product related aspects of the Module, such as file layout.
 
-| Attribute      | Description                  | Default   |
-|----------------|------------------------------|-----------|
-| `layout: enum` | What Pot file layout to use. | `default` |
+| Attribute      | Description               | Default   |
+|----------------|---------------------------|-----------|
+| `layout: enum` | Which file layout to use. | `default` |
 
 Supported file layouts:
 
 | Attribute    | Description                                                                                                                                    |
 |--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `default`    | [Pot file layout](Documentation.md#project-layout) is used.                                                                                    |
+| `default`    | [Default file layout](Documentation.md#project-layout) is used.                                                                                |
 | `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).    |
 | `gradle-kmp` | The file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
 
@@ -116,7 +116,7 @@ See more on the layouts in the [documentation](Documentation.md#file-layout-with
 Examples:
 
 ```yaml
-# Layout is not specified, default Pot layout is used
+# Layout is not specified, default Module layout is used
 product: jvm/app
 ```
 
@@ -126,24 +126,24 @@ product:
   type: lib
   platforms: [ android, jvm ]
 
-pot:
+module:
   layout: gradle-kmp
 ```
 
 ### Dependencies and test dependencies
 
-`dependecies:` section defines the list of modules and libraries necessary to build the Pot.
-Certain dependencies can also be exported as part of the Pot API.
+`dependecies:` section defines the list of modules and libraries necessary to build the Module.
+Certain dependencies can also be exported as part of the Module API.
 Read more about the [dependencies](Documentation.md#dependencies).
 
-`test-dependenceis:` section defines the dependencies necessary to build and run tests of the Pot. Read more about
-the [Pot tests](Documentation.md#tests).
+`test-dependenceis:` section defines the dependencies necessary to build and run tests of the Module. Read more about
+the [Module tests](Documentation.md#tests).
 
 Supported dependency types:
 
 | Notation                                         | Description                                                                                                    |
 |--------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Pot](Documentation.md#internal-dependencies) in the codebase.                           |
+| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Module](Documentation.md#internal-dependencies) in the codebase.                        |
 | `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or  Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
 
 Each dependency has the following attributes:
@@ -201,7 +201,7 @@ dependencies@jvm:
 
 ### Repositories
 
-`repositories:` section defines the list of repositories used to look up and download the Pot dependencies.
+`repositories:` section defines the list of repositories used to look up and download the Module dependencies.
 Read more about the [dependency repositories](Documentation.md#managing-maven-repositories).
 
 | Attribute             | Description                                         |
@@ -251,8 +251,8 @@ repositories:
 `settings:` section configures the toolchains used in the build process. Read more
 about [settings configuration](Documentation.md#settings).
 
-`test-settings:` section controls building and running the Pot tests. Read more about
-the [Pot tests](Documentation.md#tests).
+`test-settings:` section controls building and running the Module tests. Read more about
+the [Module tests](Documentation.md#tests).
 
 #### Kotlin
 
