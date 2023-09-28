@@ -1,8 +1,5 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
@@ -82,22 +79,6 @@ data class JavaPart(
             target ?: "17",
             source ?: target ?: "17",
         )
-}
-
-data class JsPart(
-    val mode: Mode,
-    val outputModuleName: String? = null,
-) : FragmentPart<JsPart> {
-    sealed interface Mode
-    data class Browser(
-        val webpackConfig: KotlinWebpackConfig.() -> Unit = {}
-    ) : Mode
-
-    data class NodeJs(
-        val runTask: NodeJsExec.() -> Unit = {}
-    ) : Mode
-
-    override fun default(module: PotatoModule) = JsPart(Browser())
 }
 
 data class NativeApplicationPart(
