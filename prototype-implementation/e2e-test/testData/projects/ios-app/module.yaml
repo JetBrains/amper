@@ -5,5 +5,4 @@ dependencies:
   - org.jetbrains.compose.material3:material3:1.5.0-rc01
 
 settings:
-  compose:
-    enabled: true
+  compose: enabled

@@ -443,6 +443,14 @@ internal fun List<ArtifactBuilder>.handleSettings(
         }
 
         compose = ComposePartBuilder {
+            // inline form
+            it.getStringValue("compose")?.let { composeValue ->
+                enabled = when(composeValue) {
+                    "enabled" -> true
+                    else -> false
+                }
+            }
+            // full form
             it.getMappingValue("compose")?.let { composeSettings ->
                 enabled = composeSettings.getBooleanValue("enabled")
             }
