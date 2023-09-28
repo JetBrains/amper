@@ -3,7 +3,7 @@
 **Module** is a directory with a `module.yaml` manifest file, sources and resources, which are used to build a certain product.  A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
 _How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
-Sources and resources can't be shared by several Pots.
+Sources and resources can't be shared by several Modules.
 
 _NOTE:_ 🍯 _The name 'Module' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
 
@@ -66,7 +66,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |-module.yaml
 ```
 
-_NOTE: Sources and resources can't be shared by several Pots._
+_NOTE: Sources and resources can't be shared by several Modules._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
 See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the project layout.
@@ -105,7 +105,7 @@ settings:
 ### Product types
 
 Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
-- `lib` - a reusable library which could be used as dependency by other Pots in the codebase.
+- `lib` - a reusable library which could be used as dependency by other Modules in the codebase.
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 app
 - `linux/app`
@@ -531,18 +531,18 @@ test-settings:
 
 Unit tests is an integral part of a Module Manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
 
-In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Pots_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
+In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
 - Auxiliary Module should be located in a subfolder inside its main Module. 
 - There may be multiple Auxiliary Module for a single main Module.
 - Auxiliary Module have an implicit dependency on its main Module.
 - Auxiliary Module is a _friend_ to its main Module and can see the internal declarations which are often needed for white-box of grey-box testing.
 - Auxiliary Module inherit settings from its main Module.
 - Main Module cannot depend on its Auxiliary Module in `dependencies:` section, but can in `test-dependencies:` section.
-- Auxiliary Module is not accessible from outside its main Module, so other Pots can't depend on Auxiliary Pots.
+- Auxiliary Module is not accessible from outside its main Module, so other Modules can't depend on Auxiliary Modules.
 
-You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Pots, which are embedded directly into the main Module's DSL for the convenience.
+You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Modules, which are embedded directly into the main Module's DSL for the convenience.
 
-_NOTE: Auxiliary Pots design is work in progress is not implemented in the prototype._
+_NOTE: Auxiliary Modules design is work in progress is not implemented in the prototype._
 
 #### Android Instrumented tests
 Here is how Android Instrumented tests could be added as an Auxiliary Module:
