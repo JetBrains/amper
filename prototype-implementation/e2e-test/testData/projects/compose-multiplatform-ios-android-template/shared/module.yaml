@@ -7,7 +7,7 @@ product:
     - android
 
 apply:
-  - ../common.Pot-template.yaml
+  - ../common.module-template.yaml
 
 settings:
   android:

@@ -1,4 +1,4 @@
 product: jvm/app
 
 apply:
-  - ./templates-empty-file.Pot-template.yaml
+  - ./templates-empty-file.module-template.yaml

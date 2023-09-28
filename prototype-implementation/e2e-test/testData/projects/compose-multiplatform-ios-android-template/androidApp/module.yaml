@@ -4,7 +4,7 @@ dependencies:
   - ../shared
 
 apply:
-  - ../common.Pot-template.yaml
+  - ../common.module-template.yaml
 
 settings:
   android: 

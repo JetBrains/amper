@@ -41,7 +41,7 @@ class YamlModelInit : ModelInit {
 
         val modules: List<Result<PotatoModule>> = Files.walk(root)
             .filter {
-                it.name == "Pot.yaml" && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
+                (it.name == "module.yaml" || it.name == "Pot.yaml") && ignorePaths.none { ignorePath -> it.startsWith(ignorePath) }
             }
             .map {
                 withBuildFile(it.toAbsolutePath()) {

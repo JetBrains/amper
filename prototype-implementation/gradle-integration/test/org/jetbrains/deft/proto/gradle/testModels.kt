@@ -52,13 +52,13 @@ object Models : ModelInit {
         return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
     }
 
-    private val Path.buildToml: Path get() = resolve("Pot.yaml")
+    private val Path.moduleYaml: Path get() = resolve("module.yaml")
 
     // --- Models ----------------------------------------------------------------------------------------------------------
     // Need to be within [Models] class to be init.
 
     val commonFragmentModel by mockModel {
-        module(it.buildToml) {
+        module(it.moduleYaml) {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -80,7 +80,7 @@ object Models : ModelInit {
 
 
     val jvmTwoFragmentModel by mockModel {
-        module(it.buildToml) {
+        module(it.moduleYaml) {
             val jvm = leafFragment("jvm") {
                 refines(fragment())
                 platforms.add(Platform.JVM)
@@ -94,7 +94,7 @@ object Models : ModelInit {
     }
 
     val threeFragmentsSingleArtifactModel by mockModel {
-        module(it.buildToml) {
+        module(it.moduleYaml) {
             type = ProductType.LIB
             val common = fragment()
             val jvm = leafFragment("jvm") {
@@ -114,7 +114,7 @@ object Models : ModelInit {
     }
 
     val kotlinPartModel by mockModel {
-        module(it.buildToml) {
+        module(it.moduleYaml) {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -145,7 +145,7 @@ object Models : ModelInit {
     }
 
     val singleFragmentAndroidModel by mockModel {
-        module(it.buildToml) {
+        module(it.moduleYaml) {
             artifact(
                 "myApp",
                 setOf(Platform.ANDROID),
@@ -162,7 +162,7 @@ object Models : ModelInit {
     }
 
     val twoModulesModel by mockModel {
-        val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
+        val module1 = module(it.resolve("module1/module.yaml").createDirectories()) {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -180,7 +180,7 @@ object Models : ModelInit {
                 }
             )
         }
-        module(it.resolve("module2/Pot.yaml").createDirectories()) {
+        module(it.resolve("module2/module.yaml").createDirectories()) {
             artifact(
                 "myApp",
                 setOf(Platform.JVM),
@@ -202,7 +202,7 @@ object Models : ModelInit {
     }
 
     val twoModulesTwoFragmentsModel by mockModel {
-        val module1 = module(it.resolve("module1/Pot.yaml").createDirectories()) {
+        val module1 = module(it.resolve("module1/module.yaml").createDirectories()) {
             val jvm = leafFragment("jvm") {
                 refines(fragment())
                 platforms.add(Platform.JVM)
@@ -213,7 +213,7 @@ object Models : ModelInit {
                 jvm
             )
         }
-        module(it.resolve("module2/Pot.yaml").createDirectories()) {
+        module(it.resolve("module2/module.yaml").createDirectories()) {
             val common = fragment {
                 dependency(module1)
             }
@@ -231,22 +231,22 @@ object Models : ModelInit {
     }
 
     val twoDirectoryHierarchyModel by mockModel {
-        module(it.resolve("outer/Pot.yaml").createDirectories()) {
+        module(it.resolve("outer/module.yaml").createDirectories()) {
             singleFragmentJvmArtifact()
         }
-        module(it.resolve("outer/intermediate/inner/Pot.yaml").createDirectories()) {
+        module(it.resolve("outer/intermediate/inner/module.yaml").createDirectories()) {
             singleFragmentJvmArtifact()
         }
     }
 
     val threeDirectoryHierarchyModel by mockModel {
-        module(it.resolve("outer/Pot.yaml").createDirectories()) {
+        module(it.resolve("outer/module.yaml").createDirectories()) {
             singleFragmentJvmArtifact()
         }
-        module(it.resolve("outer/intermediate/inner1/Pot.yaml").createDirectories()) {
+        module(it.resolve("outer/intermediate/inner1/module.yaml").createDirectories()) {
             singleFragmentJvmArtifact()
         }
-        module(it.resolve("outer/inner2/Pot.yaml").createDirectories()) {
+        module(it.resolve("outer/inner2/module.yaml").createDirectories()) {
             singleFragmentJvmArtifact()
         }
     }

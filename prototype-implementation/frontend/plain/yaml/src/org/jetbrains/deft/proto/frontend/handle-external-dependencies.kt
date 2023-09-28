@@ -7,7 +7,9 @@ import org.jetbrains.deft.proto.frontend.dependency.parseDependency
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.pretty
 import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
+import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 context (BuildFileAware)
 class DefaultPotatoModuleDependency(
@@ -26,13 +28,18 @@ class DefaultPotatoModuleDependency(
             val targetModulePotFilePath = source.buildFile.toAbsolutePath()
 
             val dependencyPath = Path(depPath)
+
+            fun Path.resolveModuleFile() =
+                // TODO remove after finishing migration DEFT-145
+                this.resolve("Pot.yaml").takeIf { it.exists() }
+                    ?: this.resolve("module.yaml")
+
             val sourceModulePotFilePath = if (dependencyPath.isAbsolute) {
-                dependencyPath
-                    .resolve("Pot.yaml")
+                dependencyPath.resolveModuleFile()
             } else {
                 buildFile.parent
                     .resolve(dependencyPath)
-                    .resolve("Pot.yaml")
+                    .resolveModuleFile()
                     .normalize()
                     .toAbsolutePath()
             }

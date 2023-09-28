@@ -11,7 +11,7 @@ aliases:
       - android
 
 apply:
-  - templates/empty.Pot-template.yaml
+  - templates/empty.module-template.yaml
 
 dependencies:
   - ./subPot
