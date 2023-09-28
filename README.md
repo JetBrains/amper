@@ -15,7 +15,6 @@ IJ plugin for previous IDE versions is in [ide-plugin-231-232](prototype-impleme
 **Using locally built Gradle plugin:**
 
 Launch `:publishToMavenLocal` gradle task on `prototype-implementation` project.
-Then import `./prototype-implementation/try` project.
 
 **Using Gradle plugins from sources:**  
 
