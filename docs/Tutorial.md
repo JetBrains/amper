@@ -153,8 +153,7 @@ dependencies:
 
 settings:
   # enable Compose toolchain
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 Examples: [compose-desktop](../examples/compose-desktop), [compose-android](../examples/compose-android)
@@ -178,8 +177,7 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 /shared/module.yaml:
@@ -245,8 +243,7 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 module.yaml for iOS:
@@ -263,8 +260,7 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
 
 settings:
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 And update the shared module:
@@ -394,8 +390,7 @@ dependencies:
   - ./shared
   
 settings:
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 And apply it to our module.yaml files:

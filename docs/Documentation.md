@@ -415,8 +415,7 @@ dependencies:
   - compose.material
 
 settings:
-  compose:
-     enabled: true
+  compose: enabled
 ```
 
 Catalogs might be provided by toolchains, defined by user or imported from [Gradle lib.version.toml](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml) files.  
@@ -454,8 +453,7 @@ dependencies:
     
 settings: 
   # enable Compose toolchain
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 Android:
@@ -467,8 +465,7 @@ dependencies:
   - org.jetbrains.compose.material:material:1.4.1 
 
 settings: 
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 _NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
@@ -927,8 +924,7 @@ settings:           # common toolchain settings
     deploymentTarget: 17
 
 settings@android:   # specialization for Android platform
-  compose:          # Compose toolchain
-    enabled: true
+  compose: enabled         # Compose toolchain
 
 settings@ios:       # specialization for all iOS platforms
   kotlin:           # Kotlin toolchain
@@ -945,8 +941,7 @@ settings@android:
   kotlin:
     languageVersion: 1.8   # from settings:
     freeCompilerArgs: [x]  # from settings:
-  compose:
-   enabled: true           # from settings@android:
+  compose: enabled        # from settings@android:
 ```
 ```yaml 
 settings@iosArm64:
@@ -1138,8 +1133,7 @@ dependencies:
 settings: 
   kotlin:
     languageVersion: 1.8
-  compose:
-    enabled: true
+  compose: enabled
 ```
 
 module.yaml:
@@ -1171,8 +1165,7 @@ dependencies:  # lists appended
 settings:  # objects merged
   kotlin:
     languageVersion: 1.9  # module.yaml overwrites value
-  compose:                # from the template
-    enabled: true
+  compose: enabled        # from the template
   java:
     target: 1.8   # from the module.yaml
 ```
