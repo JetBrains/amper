@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    // Use a Pot as a dependency
+    // Use a Deft Module as a dependency
     implementation(project(":lib"))
     testImplementation(kotlin("test"))
 }
