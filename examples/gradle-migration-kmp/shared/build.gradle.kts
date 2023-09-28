@@ -23,7 +23,7 @@ plugins {
 }
 
 kotlin {
-    // Targets are defined in Pot.yaml.
+    // Targets are defined in module.yaml.
     // The following code should be removed from the Gradle build script:
     //
     //    targets {
@@ -31,7 +31,7 @@ kotlin {
     //        androidTarget()
     //    }
 
-    // Access source sets configured in the pot.yaml:
+    // Access source sets configured in the module.yaml:
     sourceSets {
         val jvmMain by getting {
             // Configure the source set here

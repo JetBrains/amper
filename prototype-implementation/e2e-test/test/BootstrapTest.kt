@@ -19,7 +19,7 @@ class BootstrapTest {
     @Test
     fun `deft could build itself using version from sources`() {
         // given
-        val commonTemplateString = Path.of("../common.Pot-template.yaml").toAbsolutePath().readText()
+        val commonTemplateString = Path.of("../common.module-template.yaml").toAbsolutePath().readText()
         val yamlMap = Yaml().load<Map<String, Map<String, Map<String, String>>>>(commonTemplateString)
         val version = yamlMap["settings"]?.get("publishing")?.get("version")
 

@@ -1,8 +1,8 @@
 product: jvm/app
 
 apply:
-  - ../common.Pot-template.yaml
-  - ../module.Pot-template.yaml
+  - ../common.module-template.yaml
+  - ../module.module-template.yaml
 
 # Add dependencies
 dependencies:

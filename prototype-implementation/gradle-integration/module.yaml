@@ -3,7 +3,7 @@ product:
   platforms: [ jvm ]
 
 apply:
-  - ../common.Pot-template.yaml
+  - ../common.module-template.yaml
 
 settings:
   publishing:

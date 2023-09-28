@@ -14,7 +14,7 @@ apply:
   - templates/empty.module-template.yaml
 
 dependencies:
-  - ./subPot
+  - ./subModule
 
 dependencies@jvmAndAndroid:
   - org.jetbrains.compose.runtime:runtime:1.4.1
