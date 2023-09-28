@@ -12,7 +12,7 @@ plugins {
     // should be replaced with:
     //   `kotlin("multiplatform")`
     //
-    // Note: currently kotlin("jvm) plugin not supported in Pot modules.
+    // Note: currently kotlin("jvm) plugin not supported in Deft Modules.
     // Replace
     //    `kotlin("jvm)`
     // with
@@ -31,7 +31,7 @@ kotlin {
     //        androidTarget()
     //    }
 
-    // Access source sets configured in the Pot:
+    // Access source sets configured in the pot.yaml:
     sourceSets {
         val jvmMain by getting {
             // Configure the source set here

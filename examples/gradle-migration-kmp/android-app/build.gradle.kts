@@ -27,7 +27,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Use a Pot as a dependency
+                // Use a Deft Module as a dependency
                 implementation(project(":shared"))
             }
         }

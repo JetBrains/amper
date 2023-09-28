@@ -14,7 +14,7 @@ plugins {
     // should be replaced with:
     //   `kotlin("multiplatform")
     //
-    // Note: currently kotlin("jvm) plugin not supported in Pot modules.
+    // Note: currently kotlin("jvm) plugin not supported in Deft Modules.
     // Replace
     //    `kotlin("jvm)`
     // with
