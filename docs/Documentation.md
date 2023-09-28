@@ -1,18 +1,18 @@
 ## Basics
 
-**Pot** is a directory with a `Pot.yaml` manifest file, sources and resources, which are used to build a certain product.  A Pot manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
+**Module** is a directory with a `module.yaml` manifest file, sources and resources, which are used to build a certain product.  A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
 _How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
 
 Sources and resources can't be shared by several Pots.
 
-_NOTE:_ 🍯 _The name 'Pot' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
+_NOTE:_ 🍯 _The name 'Module' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
 
 The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
 there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
 
 ## Project layout
 
-The basic Pot layout looks like this:
+The basic Module layout looks like this:
 ```
 |-src/             
 |  |-main.kt      
@@ -20,7 +20,7 @@ The basic Pot layout looks like this:
 |  |-...
 |-test/       
 |  |-MainTest.kt 
-|-Pot.yaml
+|-module.yaml
 ```
 
 By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
@@ -28,21 +28,21 @@ By convention a single `main.kt` file (case-insensitive) in the source folder is
 _NOTE: In [a Gradle-based project](#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
 ```
 |-...
-|-Pot.yaml
+|-module.yaml
 |-settings.gradle.kts
 ```
 
 See  
 
-In a JVM Pot you can mix Kotlin and Java code:
+In a JVM Module you can mix Kotlin and Java code:
 ```
 |-src/             
 |  |-main.kt      
 |  |-Util.java      
-|-Pot.yaml
+|-module.yaml
 ```
 
-In a multi-platform Pot platform-specific code is located in the folders with `@platform`-qualifier:
+In a multi-platform Module platform-specific code is located in the folders with `@platform`-qualifier:
 ```
 |-src/             # common code
 |  |-main.kt      
@@ -51,7 +51,7 @@ In a multi-platform Pot platform-specific code is located in the folders with `@
 |  |-util.kt       #  API implementation with ‘actual’ part for iOS
 |-src@jvm/         # code to be compiled only for JVM targets
 |  |-util.kt       #  API implementation with ‘actual’ part for JVM
-|-Pot.yaml
+|-module.yaml
 ```
 
 _NOTE: In the future we plan to also support a more light-weight multi-platform layout like the one below.
@@ -63,7 +63,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |  |-util.kt       #  API with ‘expect’ part
 |  |-util@ios.kt   #  API implementation with ‘actual’ part for iOS
 |  |-util@jvm.kt   #  API implementation with ‘actual’ part for JVM
-|-Pot.yaml
+|-module.yaml
 ```
 
 _NOTE: Sources and resources can't be shared by several Pots._
@@ -71,13 +71,13 @@ This is to make sure that a given source file is always present in a single anal
 
 See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the project layout.
 
-## Pot Manifest file anatomy
+## Module Manifest file anatomy
 
-`Pot.yaml` is a Pot manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
+`module.yaml` is a Module Manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
 
 _NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
 
-A `Pot.yaml` file has several main sections: `product:` (or `products:`), `dependencies:` and `settings:`.  A pot could produce a single reusable library or multiple native platform-specific applications.
+A `module.yaml` file has several main sections: `product:` (or `products:`), `dependencies:` and `settings:`.  A module could produce a single reusable library or multiple native platform-specific applications.
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
@@ -295,7 +295,7 @@ my.private.repository.password=...
 _Note: Currently only *.property files are supported._
 
 #### Internal dependencies
-To depend on another Pot, use a relative path to the folder which contains the corresponding `Pot.yaml`. 
+To depend on another Module, use a relative path to the folder which contains the corresponding `module.yaml`. 
 Internal dependency should start either with `./` or `../`.
 
 Example: given the project layout
@@ -303,13 +303,13 @@ Example: given the project layout
 root/
   |-app/
   |  |-src/
-  |  |-Pot.yaml
+  |  |-module.yaml
   |-ui/
   |  |-utils/
   |  |  |-src/
-  |  |  |-Pot.yaml
+  |  |  |-module.yaml
 ```
-The `app/Pot.yaml` could declare dependency on `ui/utils` as follows:
+The `app/module.yaml` could declare dependency on `ui/utils` as follows:
 ```yaml
 dependencies:
   - ../ui/utils
@@ -318,8 +318,8 @@ dependencies:
 Other examples of the internal dependencies:
 ```yaml
 dependencies:
-  - ./nested-folder-with-pot-yaml
-  - ../sibling-folder-with-pot-yaml
+  - ./nested-folder-with-module-yaml
+  - ../sibling-folder-with-module-yaml
 ```
 
 #### Scopes and visibility
@@ -345,7 +345,7 @@ dependencies:
 ```
 
 All dependencies by default are not accessible from the dependent code.  
-In order to make a dependency visible to a dependent Pot, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
+In order to make a dependency visible to a dependent Module, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
 
 ```yaml
 dependencies:
@@ -435,7 +435,7 @@ settings:
     compileSdkVersion: android-31
 ```
 
-Here is the list of [currently supported toolchains and their settings](PotReference.md#compose).   
+Here is the list of [currently supported toolchains and their settings](DSLReference#compose).   
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
@@ -500,7 +500,7 @@ Example:
 |-test@ios/       # Sees declarations from test/ and src@ios/. Executed on iOS platforms only.  
 |  |-IOSTest.kt 
 |  |-... 
-|-Pot.yaml
+|-module.yaml
 ```
 
 ```yaml
@@ -529,25 +529,25 @@ test-settings:
 
 #### Special types of tests
 
-Unit tests is an integral part of a Pot manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
+Unit tests is an integral part of a Module Manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
 
-In order to keep Pot Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Pots_. Their main purpose is improving usability, and they differ from the regular Pot in some important aspects:
-- Auxiliary Pot should be located in a subfolder inside its main Pot. 
-- There may be multiple Auxiliary Pot for a single main Pot.
-- Auxiliary Pot have an implicit dependency on its main Pot.
-- Auxiliary Pot is a _friend_ to its main Pot and can see the internal declarations which are often needed for white-box of grey-box testing.
-- Auxiliary Pot inherit settings from its main Pot.
-- Main Pot cannot depend on its Auxiliary Pot in `dependencies:` section, but can in `test-dependencies:` section.
-- Auxiliary Pot is not accessible from outside its main Pot, so other Pots can't depend on Auxiliary Pots.
+In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Pots_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
+- Auxiliary Module should be located in a subfolder inside its main Module. 
+- There may be multiple Auxiliary Module for a single main Module.
+- Auxiliary Module have an implicit dependency on its main Module.
+- Auxiliary Module is a _friend_ to its main Module and can see the internal declarations which are often needed for white-box of grey-box testing.
+- Auxiliary Module inherit settings from its main Module.
+- Main Module cannot depend on its Auxiliary Module in `dependencies:` section, but can in `test-dependencies:` section.
+- Auxiliary Module is not accessible from outside its main Module, so other Pots can't depend on Auxiliary Pots.
 
-You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Pots, which are embedded directly into the main Pot's DSL for the convenience.
+You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Pots, which are embedded directly into the main Module's DSL for the convenience.
 
 _NOTE: Auxiliary Pots design is work in progress is not implemented in the prototype._
 
 #### Android Instrumented tests
-Here is how Android Instrumented tests could be added as an Auxiliary Pot:
+Here is how Android Instrumented tests could be added as an Auxiliary Module:
 
-Main Pot.yaml:
+Main module.yaml:
 ```yaml
 product: android/app
 
@@ -562,7 +562,7 @@ settings:
     languageVersion: 1.8
 ```
 
-Auxiliary instrumented-tests/Pot.yaml:
+Auxiliary instrumented-tests/module.yaml:
 ```yaml
 product: android/instrumented-tests
 
@@ -585,14 +585,14 @@ And organize files as following:
 |-instrumented-tests
 |  |-src/
 |  |  |-MyInstrumentedTest.kt 
-|  |-Pot.yaml 
-|-Pot.yaml
+|  |-module.yaml 
+|-module.yaml
 ```
                     
 #### Sharing test utilities
 The test utility code (such as test fixtures) could be shared between Unit and Instrumented tests.
 
-Main Pot.yaml:
+Main module.yaml:
 ```yaml
 product: android/app
 
@@ -607,7 +607,7 @@ settings:
     languageVersion: 1.8
 ```
 
-Auxiliary test-utils/Pot.yaml
+Auxiliary test-utils/module.yaml
 ```yaml
 product: lib
 
@@ -615,7 +615,7 @@ dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10: exported
 ```
 
-Auxiliary instrumented-tests/Pot.yaml:
+Auxiliary instrumented-tests/module.yaml:
 ```yaml
 product: android/instrumented-tests
 
@@ -639,12 +639,12 @@ Here is the file layout:
 |-test-utils/
 |  |-src/
 |  |  |-MyAssertions.kt 
-|  |-Pot.yaml 
+|  |-module.yaml 
 |-instrumented-tests/
 |  |-src/
 |  |  |-MyInstrumentedTest.kt 
-|  |-Pot.yaml 
-|-Pot.yaml
+|  |-module.yaml 
+|-module.yaml
 ```
 
 ## Interop between languages
@@ -707,14 +707,14 @@ From the user's point of view the joint compilation is transparent; they could s
 |-src@ios/             
 |  |-KotlinCode.kt 
 |  |-SwiftCore.swift
-|-Pot.yaml
+|-module.yaml
 ```
 
 ## Multi-platform configuration
 
 ### Platform qualifier
 
-Use the `@platform`-qualifier to mark platform-specific source folders and sections in the Pot.yaml files. 
+Use the `@platform`-qualifier to mark platform-specific source folders and sections in the module.yaml files. 
 You can use Kotlin Multiplatform [platform names](https://kotlinlang.org/docs/native-target-support.html) and families as `@platform`-qualifier.
 ```yaml
 dependencies:                   # common dependencies for all platforms
@@ -769,7 +769,7 @@ Common code is visible from `@platform`-specific code, but not vice versa:
 |  |-...      
 |-src@jvm/                  # sees declarations from src/
 |  |-...      
-|-Pot.yaml
+|-module.yaml
 ```
 
 For [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html), put your `expected` declarations into the `src/` folder, and `actual` declarations into the corresponding `src@<platform>/` folders. 
@@ -804,10 +804,10 @@ dependencies@jvm:
 
 ### Multi-platform dependencies
 
-When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each Pot platform.
+When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each Module platform.
 
 Example:
-To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multi-platform Pot, simply write
+To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multi-platform Module, simply write
 
 ```yaml
 product:
@@ -1011,7 +1011,7 @@ And the basic file layout could look like this:
 |  |-main.kt               
 |-src@debug/
 |  |-debugUtil.kt
-|-Pot.yaml 
+|-module.yaml 
 ```
 
 You might have noticed that build variants configuration uses the `@variant`-qualifier, similarly to the [`@platform`-qualifier](#platform-qualifier). Also, the same rule as with [platform-specific sections](#multi-platform-configuration-1) apply to the build variants.
@@ -1047,7 +1047,7 @@ With a possible file layout:
 |  |-PaidFeature.kt
 |-src@free/
 |  |-AdsUtil.kt
-|-Pot.yaml 
+|-module.yaml 
 ```
 
 #### Build variants and Multiplatform
@@ -1093,24 +1093,24 @@ Platforms and variants in the file layout:
 |-src@android/         # Android-speific code, sees declaration from src/
 |-src@debug/           # debug-only code, sees declaration from src/
 |-src@android+debug/   # Android-specific debug-only code, sees declaration from src/, src@android/ and src@debug/ 
-|-Pot.yaml 
+|-module.yaml 
 ```
 
 ## Templates
 
 In modularized projects there is often a need to have a certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
-DSL offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.Pot-template.yaml` and have same structure as `Pot.yaml` files. Templates could be applied to any Pot.yaml in the `apply:` section.
+DSL offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any module.yaml in the `apply:` section.
 
-E.g. Pot.yaml:
+E.g. module.yaml:
 ```yaml
 product: jvm/app
 
 apply: 
-  - ../common.Pot-template.yaml
+  - ../common.module-template.yaml
 ```
 
-../common.Pot-template.yaml:
+../common.module-template.yaml:
 ```yaml
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10
@@ -1128,9 +1128,9 @@ Templates are applied one by one, using the same rules as [platform-specific dep
 - Scalar values (strings,  numbers etc.) are overridden.
 - Mappings and lists are appended.
 
-Settings and dependencies from the Pot.yaml file are applied last. Position of the `apply:` section doesn't matter, o Pot.yaml file always have precedence E.g.
+Settings and dependencies from the module.yaml file are applied last. Position of the `apply:` section doesn't matter, o module.yaml file always have precedence E.g.
 
-common.Pot-template.yaml:
+common.module-template.yaml:
 ```yaml
 dependencies:
   - ../shared
@@ -1142,12 +1142,12 @@ settings:
     enabled: true
 ```
 
-Pot.yaml:
+module.yaml:
 ```yaml
 product: jvm/app
 
 apply: 
-  - ./common.Pot-template.yaml
+  - ./common.module-template.yaml
 
 dependencies:
   - ../jvm-util
@@ -1159,8 +1159,8 @@ settings:
     target: 1.8
 ```
 
-After template application the resulting effective Pot is:
-Pot.yaml:
+After template application the resulting effective Module is:
+module.yaml:
 ```yaml
 product: jvm/app
 
@@ -1170,11 +1170,11 @@ dependencies:  # lists appended
 
 settings:  # objects merged
   kotlin:
-    languageVersion: 1.9  # Pot.yaml overwrites value
+    languageVersion: 1.9  # module.yaml overwrites value
   compose:                # from the template
     enabled: true
   java:
-    target: 1.8   # from the Pot.yaml
+    target: 1.8   # from the module.yaml
 ```
 
 ## Extensibility
@@ -1217,11 +1217,11 @@ With a convention file layout:
 ```
 |-src/
 |  |-main.kt
-|-pot-extensions/
+|-module-extensions/
 |  |-my-source-processor/
-|  |  |-pot-extension.yaml      # generated or manually created DSL 
+|  |  |-module-extension.yaml      # generated or manually created DSL 
 |  |  |-extension.kt            # implementation
-|-Pot.yaml 
+|-module.yaml 
 ```
 
 And extension.kt code:
@@ -1246,21 +1246,21 @@ plugin:
 ```
 |-src/
 |  |-...
-|-Pot.yaml
+|-module.yaml
 |-settings.gradle.kts
 ```
 
 In case of a multi-module projects, the `settings.gradle.kts` should be placed in the root as usual.
-The Pot.yaml files in the subdirectories are discovered automatically by looking recursively into each directory
+The module.yaml files in the subdirectories are discovered automatically by looking recursively into each directory
 starting from the location of `settings.gradle.kts`.
 
 ```
 |-app/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-lib/
 |  |-...
-|  |-Pot.yaml
+|  |-module.yaml
 |-settings.gradle.kts
 ```
 
@@ -1288,20 +1288,20 @@ plugins.apply("org.jetbrains.deft.proto.settings.plugin")
 ### Gradle interop
 
 Gradle interop supports two main scenarios:
-* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Pot,
-* writing custom Gradle tasks or using existing Gradle plugins in an existing Pot.
+* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Module Manifest,
+* writing custom Gradle tasks or using existing Gradle plugins in an existing Module Manifest.
 
-To use Gradle interop in a Pot, place either a `build.gradle.kts` or a `build.gradle` file next to your `Pot.yaml` file:
+To use Gradle interop in a Module Manifest, place either a `build.gradle.kts` or a `build.gradle` file next to your `module.yaml` file:
 ```
 |-src/
 |  |-main.kt
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
 #### Writing custom Gradle tasks:
 
-As an example let's use the following `Pot.yaml`:
+As an example let's use the following `module.yaml`:
 ```yaml
 product: jvm/app
 ```
@@ -1350,7 +1350,7 @@ plugins {
 }
 ```
 
-Configuration in `build.gradle*` file has precedence over `Pot.yml`. That means that a Gradle script can be used to tune/change the final configuration of your Pot.
+Configuration in `build.gradle*` file has precedence over `Module.yml`. That means that a Gradle script can be used to tune/change the final configuration of your Module Manifest.
 E.g. the following Gradle script configures the working dir and the `mainClass` property: 
 ```kotlin
 application {
@@ -1361,7 +1361,7 @@ application {
 
 #### File layout with Gradle interop
 
-The default [Pot file layout](#project-layout) suites best for the newly created modules:  
+The default [Module layout](#project-layout) suites best for the newly created modules:  
 ```
 |-src/
 |  |-main.kt
@@ -1371,28 +1371,28 @@ The default [Pot file layout](#project-layout) suites best for the newly created
 |  |-test.kt
 |-testResources/
 |  |-...
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
 For migration of existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
-To set the compatibility mode, add the following snippet to a Pot.yaml file:
+To set the compatibility mode, add the following snippet to a module.yaml file:
 ```yaml
-pot:
+module:
    layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
 ```
 
 Here are possible layout modes:
- - `default`: Pot's ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
+ - `default`: Deft ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
  - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source sets configured in the Gradle script are preserved.
  - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source sets configured in the Gradle script are preserved.
 
-See the [Gradle and Pot layouts comparison](#gradle-vs-pot-project-layout).
+See the [Gradle and Deft layouts comparison](#gradle-vs-deft-project-layout).
 
-E.g. for the Pot.yaml:
+E.g. for the module.yaml:
 ```yaml
 product: jvm/app
-pot:
+module:
    layout: gradle-jvm
 ```
 
@@ -1409,15 +1409,15 @@ The file layout is:
 |  |  |  |-test.kt
 |  |  |-resources
 |  |  |  |-...
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
-While for the Pot.yaml:
+While for the module.yaml:
 ```yaml
 product: jvm/app
 
-pot:
+module:
    layout: gradle-kmp
 ```
 
@@ -1444,7 +1444,7 @@ The file layout is:
 |  |  |  |-test.kt
 |  |  |-resources
 |  |  |  |-...
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
@@ -1465,14 +1465,14 @@ kotlin {
 }
 ```
 
-Additionally, source sets are generated for each [alias](#aliases). E.g. given a following Pot:  
+Additionally, source sets are generated for each [alias](#aliases). E.g. given a following Module Manifest:  
 
 ```yaml
 product:
   type: lib
   platforms: [android, jvm]
   
-pot:
+module:
   layout: gradle-kmp
 
 aliases:
@@ -1495,11 +1495,11 @@ kotlin {
 }
 ```
 
-#### Gradle vs Pot project layout
+#### Gradle vs Deft project layout
 
-Here is how Gradle layout maps to the Pot file layout:
+Here is how Gradle layout maps to the Deft file layout:
 
-| Gradle JVM         | Pot           |
+| Gradle JVM         | Deft          |
 |--------------------|---------------|
 | src/main/kotlin    | src           |
 | src/main/java      | src           |
@@ -1508,7 +1508,7 @@ Here is how Gradle layout maps to the Pot file layout:
 | src/test/java      | test          |
 | src/test/resources | testResources |
 
-| Gradle KMP               | Pot           |
+| Gradle KMP               | Deft          |
 |--------------------------|---------------|
 | src/commonMain/kotlin    | src           |
 | src/commonMain/java      | src           |

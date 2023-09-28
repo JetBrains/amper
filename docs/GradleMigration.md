@@ -1,13 +1,13 @@
-This tutorial demonstrates how to add Pot files to existing Gradle JVM and Kotlin Multiplatform projects.
+This tutorial demonstrates how to add Deft Module files to existing Gradle JVM and Kotlin Multiplatform projects.
 
 If you want to follow the tutorial:
 * Check the [setup instructions](Setup.md)
 * Open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
 
 Also, see project examples:
-* [gradle-interop](../examples/gradle-interop) shows how to use Gradle with an exising Pot.yaml.  
-* [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with a Pot module.   
-* [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with a Pot module.
+* [gradle-interop](../examples/gradle-interop) shows how to use Gradle with an exising module.yaml.  
+* [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with a Deft Module.   
+* [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with a Deft Module.
 
 If you are looking to more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
 
@@ -31,7 +31,7 @@ pluginManagement {
 rootProject.name = "my-project-name"
 ```
 
-In order to start using Pot files, add a couple of plugin repositories and apply the plugin:  
+In order to start using Deft, add a couple of plugin repositories and apply the plugin:  
 
 ```kotlin
 buildscript {
@@ -116,7 +116,7 @@ plugins {
 After this step you should be able to build the project without errors.
 If there are problems with the builds, check the previous steps and if they don't help, report the problem.
 
-### Step 3. Create a Pot.yaml file and migrate targets
+### Step 3. Create a module.yaml file and migrate targets
 
 As the next step, chose a Gradle subproject that you want to start with.
 It could be a shared library or an application, such as JVM, Android, iOS, or native. Check the full lis
@@ -124,7 +124,7 @@ of [the supported product types](Documentation.md#product-types)
 
 #### JVM projects
 
-Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
+Add a `module.yaml` file next to the corresponding `build.gradle.kts`:
 
 ```
 |-src/
@@ -134,11 +134,11 @@ Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 |  |  |-resources
 |  |  |  |-...
 |  |-test/
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
-Pot.yaml:
+module.yaml:
 
 ```yaml
 # Produce a JVM library
@@ -147,7 +147,7 @@ product:
   platforms: [jvm]
 
 # Enable Gradle-compatible file layout 
-pot:
+module:
   layout: gradle-jvm
 ```
 
@@ -155,7 +155,7 @@ The `product:` section controls the type of produced artifact, in this case, a l
 The `layout: gradle-jvm` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interop) for JVM
 projects.
 
-_Note: Due to current limitation, when you migrate a JVM subproject to a Pot you need to replace
+_Note: Due to current limitation, when you migrate a JVM subproject to a Deft Module you need to replace
 the `org.jetbrains.kotlin.jvm` plugin with `org.jetbrains.kotlin.multiplatform`._
 Find code like
 
@@ -181,7 +181,7 @@ See example project [gradle-migration-jvm](../examples/gradle-migration-jvm).
 
 #### Kotlin Multiplatform projects
 
-Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
+Add a `module.yaml` file next to the corresponding `build.gradle.kts`:
 
 ```
 |-src/
@@ -195,11 +195,11 @@ Add a `Pot.yaml` file next to the corresponding `build.gradle.kts`:
 |  |-jvmTest/
 |  |-androidMain/
 |  |-androidTest/
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
-Pot.yaml:
+module.yaml:
 
 ```yaml
 # Produce a JVM library
@@ -208,7 +208,7 @@ product:
   platforms: [jvm, android]
 
 # Enable Gradle-compatible Multiplatform file layout 
-pot:
+module:
   layout: gradle-kmp
 ```
 
@@ -218,7 +218,7 @@ The `layout: gradle-kmp` enables a [Gradle-compatible mode](Documentation.md#fil
 Multiplatform
 projects.
 
-After creating a Pot file, remove the [Kotlin targets section](https://kotlinlang.org/docs/multiplatform-set-up-targets.html) from your Gradle build script, since they are configured in Pot.yaml:
+After creating a module.yaml file, remove the [Kotlin targets section](https://kotlinlang.org/docs/multiplatform-set-up-targets.html) from your Gradle build script, since they are configured in module.yaml:
 ```kotlin
 kotlin {
     // Remove the following lines
@@ -259,7 +259,7 @@ dependencies {
 }
 ```
 
-Here is how it maps to the Pot DSL:
+Here is how it maps to the Deft Module DSL:
 ```yaml
 dependencies:
   - ../api: exported  
@@ -308,7 +308,7 @@ kotlin {
 }
 ```
 
-Here is how it maps to the Pot DSL:
+Here is how it maps to the Deft Module DSL:
 ```yaml
 
 dependencies:
@@ -329,7 +329,7 @@ Note, how the platform-specific dependency blocks have [@platform qualifier](Doc
 
 # Step 5. Migrate settings
 
-Settings like Kotlin language version, Java target/source version, Android sdk versions could be moved to the `settings:` section in the Pot.
+Settings like Kotlin language version, Java target/source version, Android sdk versions could be moved to the `settings:` section in the Module Manifest.
 E.g. for the following Gradle script:
 
 ```kotlin
@@ -344,7 +344,7 @@ android {
 
 ```
 
-The Pot settings would look like:
+These settings would look like in a module.yaml file:
 ```yaml
 settings:
   kotlin:
@@ -354,21 +354,21 @@ settings:
     compileSdkVersion: android-34
 ```
 
-See the [full list of supported settings](PotReference.md#compose).
+See the [full list of supported settings](DSLReference#compose).
 
-# Step 6. Optionally, switch to the Pot file layout
+# Step 6. Optionally, switch to the Deft file layout
 
-So far, we have only changed the Pot manifest and `build.gradle.kts` files and didn't change the source layout.
+So far, we have only changed the `module.yaml` and `build.gradle.kts` files and didn't change the source layout.
 Such gradual transition was possible because at the [step 3](#step-3-create-a-potyaml-file-and-migrate-targets) we explicitly set the Gradle-compatibility layout mode
 ```yaml
 ...
 # Enable Gradle-compatible file layout 
-pot:
+module:
   layout: gradle-jvm
 ...
 ```
 
-As the next optional step you may also consider to migrate to the [lightweight Pot layout](Documentation.md#project-layout):
+As the next optional step you may also consider to migrate to the [lightweight layout](Documentation.md#project-layout):
 ```
 |-src/
 |  |-main.kt
@@ -378,18 +378,18 @@ As the next optional step you may also consider to migrate to the [lightweight P
 |  |-test.kt
 |-testResources/
 |  |-...
-|-Pot.yaml
+|-module.yaml
 |-build.gradle.kts
 ```
 
-To do so, you need to rearrange the sources folders according to [these tables](Documentation.md#gradle-vs-pot-project-layout), and disable the Gradle compatibility mode.
-To enable the Pot layout, set `layout:` to `default` or simply remove the section:
+To do so, you need to rearrange the sources folders according to [these tables](Documentation.md#gradle-vs-deft-project-layout), and disable the Gradle compatibility mode.
+To enable the Deft layout, set `layout:` to `default` or simply remove the section:
 ```yaml
 product:
   type: lib
   platforms: [jvm, android]
 
-pot:
+module:
   layout: default
 ...
 ```
@@ -419,4 +419,4 @@ kotlin {
 
 # Step 7. Migrate other Gradle subprojects
 
-After the previous step you have your Gradle subproject fully migrated to Pot. You may now consider to migrate the rest of the subprojects.
+After the previous step you have your Gradle subproject fully migrated to Deft. You may now consider to migrate the rest of the subprojects.
