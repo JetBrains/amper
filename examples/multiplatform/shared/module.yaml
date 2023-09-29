@@ -3,13 +3,12 @@ product:
   platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-
-dependencies@android:
-  - com.squareup.retrofit2:retrofit:2.9.0
-
-dependencies@jvm:
-  - com.squareup.okhttp3:mockwebserver:4.10.0
+  - org.jetbrains.compose.foundation:foundation:1.5.0-rc01: exported
+  - org.jetbrains.compose.material3:material3:1.5.0-rc01: exported
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
+
+settings:
+  compose:
+    enabled: true
