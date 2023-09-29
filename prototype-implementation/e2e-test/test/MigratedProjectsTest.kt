@@ -1,0 +1,20 @@
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
+
+class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/") {
+    @Test
+    fun `compose-multiplatform-ios-android-template (android)`() = test(
+        projectName = "compose-multiplatform-ios-android-template",
+        ":androidApp:assembleDebug",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    @EnabledOnOs(value = [OS.MAC])
+    fun `compose-multiplatform-ios-android-template (ios)`() = test(
+        projectName = "compose-multiplatform-ios-android-template",
+        ":shared:linkPodDebugFrameworkIosSimulatorArm64",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+}
