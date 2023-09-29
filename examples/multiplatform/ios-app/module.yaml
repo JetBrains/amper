@@ -1,0 +1,9 @@
+product: ios/app
+
+dependencies:
+  - ../shared
+  - org.jetbrains.compose.foundation:foundation:1.5.0-rc01
+  - org.jetbrains.compose.material3:material3:1.5.0-rc01
+
+settings:
+  compose: enabled

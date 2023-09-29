@@ -62,10 +62,10 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `multiplatform test task succeeds`() = test(
+    fun `multiplatform build task succeeds`() = test(
         projectName = "multiplatform",
-        "test",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        ":jvm-app:build", ":android-app:build", ":ios-app:build",
+        expectOutputToHave = listOf("BUILD SUCCESSFUL"),
     )
 
     @Test
