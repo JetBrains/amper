@@ -461,11 +461,21 @@ Android:
 product: android/app
 
 dependencies:
+  # add Compose dependencies
   - org.jetbrains.compose.foundation:foundation:1.4.1
   - org.jetbrains.compose.material:material:1.4.1 
 
 settings: 
+  # enable Compose toolchain
   compose: enabled
+```
+
+There is also a full form for enabling or disabling the Compose toolchain:
+```yaml
+...
+settings: 
+  compose:
+    enabled: true
 ```
 
 _NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
@@ -924,7 +934,7 @@ settings:           # common toolchain settings
     deploymentTarget: 17
 
 settings@android:   # specialization for Android platform
-  compose: enabled         # Compose toolchain
+  compose: enabled  # Compose toolchain
 
 settings@ios:       # specialization for all iOS platforms
   kotlin:           # Kotlin toolchain
@@ -941,7 +951,7 @@ settings@android:
   kotlin:
     languageVersion: 1.8   # from settings:
     freeCompilerArgs: [x]  # from settings:
-  compose: enabled        # from settings@android:
+  compose: enabled         # from settings@android:
 ```
 ```yaml 
 settings@iosArm64:

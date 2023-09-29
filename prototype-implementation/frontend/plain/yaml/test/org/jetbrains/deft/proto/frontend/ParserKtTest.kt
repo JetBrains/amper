@@ -120,6 +120,13 @@ internal class ParserKtTest {
     }
 
     @Test
+    fun `compose full form`() {
+        with(buildFile) {
+            testParse("compose-full-form")
+        }
+    }
+
+    @Test
     fun `compose inline form`() {
         with(buildFile) {
             testParse("compose-inline-form")
