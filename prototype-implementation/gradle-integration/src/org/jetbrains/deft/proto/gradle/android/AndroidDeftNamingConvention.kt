@@ -12,6 +12,7 @@ object AndroidDeftNamingConvention {
         when (name) {
             "main" -> module.sharedPlatformFragment(Platform.ANDROID, false)
             "test" -> module.sharedPlatformFragment(Platform.ANDROID, true)
+            "androidTest" -> null
             else -> module.fragmentsByName[name]
         }
 
