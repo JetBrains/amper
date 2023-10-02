@@ -5,8 +5,6 @@ _How_ to produce the desired artifact is responsibility of the build engine and 
 
 Sources and resources can't be shared by several Modules.
 
-_NOTE:_ 🍯 _The name 'Module' is temporary. We intentionally avoid using the term 'module' to prevent confusion with existing terminology (Kotlin module, IntelliJ module etc.)._
-
 The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
 there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
 
