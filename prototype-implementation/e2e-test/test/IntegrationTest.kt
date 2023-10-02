@@ -1,6 +1,9 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.test.assertTrue
 
 class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
@@ -175,4 +178,21 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "testRun",
         expectOutputToHave = "Hello, World!",
     )
+
+    @Test
+    fun `testing android common resources propagation`() = test(
+        projectName = "android-common-resources-propagation",
+        "mergeReleaseJavaResource",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    ) {
+        val pathToMergedResources = it / "build" / "intermediates" / "java_res" / "release" / "out"
+        assertTrue(
+            pathToMergedResources.resolve("commonResource.txt").exists(),
+            "Expected to have common resource in merged resources"
+        )
+        assertTrue(
+            pathToMergedResources.resolve("androidResource.txt").exists(),
+            "Expected to have android resource in merged resources"
+        )
+    }
 }

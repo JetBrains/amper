@@ -1,6 +1,7 @@
 package org.jetbrains.deft.proto.gradle.kmpp
 
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.deft.proto.core.map
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
@@ -21,13 +22,13 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
+import java.io.File
 
 
 // Introduced function to remember to propagate language settings.
 context(KMPEAware)
-fun KotlinSourceSet.doDependsOn(it: Fragment) {
-    val wrapper = it as? FragmentWrapper ?: FragmentWrapper(it)
-    val dependency = wrapper.kotlinSourceSet
+fun KotlinSourceSet.doDependsOn(it: FragmentWrapper) {
+    val dependency = it.kotlinSourceSet
     dependsOn(dependency ?: return)
 }
 
@@ -87,22 +88,45 @@ class KMPPBindingPluginPart(
      * Set deft specific directory layout.
      */
     private fun adjustSourceSetDirectories(firstTime: Boolean = true) {
-        with(layoutMode) {
-            kotlinMPE.sourceSets.all { sourceSet ->
-                val fragment = sourceSet.deftFragment
-                if (fragment != null) {
-                    // Only modify managed source sets once.
-                    if (firstTime) {
-                        fragment.modifyManagedSources(sourceSet.name, sourceSet.kotlin.srcDirs)
-                            ?.let { sourceSet.kotlin.setSrcDirs(it) }
-                        fragment.modifyManagedResources(sourceSet.name, sourceSet.resources.srcDirs)
-                            ?.let { sourceSet.resources.setSrcDirs(it) }
+        kotlinMPE.sourceSets.all { sourceSet ->
+            val fragment = sourceSet.deftFragment
+            when {
+                // Do GRADLE_JVM specific.
+                layout == Layout.GRADLE_JVM -> {
+                    if (sourceSet.name == "jvmMain") {
+                        replacePenultimatePaths(sourceSet.kotlin, sourceSet.resources, "main")
+                    } else if (sourceSet.name == "jvmTest") {
+                        replacePenultimatePaths(sourceSet.kotlin, sourceSet.resources, "test")
                     }
-                } else {
-                    modifyUnmanagedSources(sourceSet)?.let { sourceSet.kotlin.setSrcDirs(it) }
-                    modifyUnmanagedResources(sourceSet)?.let { sourceSet.resources.setSrcDirs(it) }
+                }
+
+                // Do GRADLE specific.
+                firstTime && (layout == Layout.GRADLE || layout == Layout.GRADLE_JVM) ->
+                    adjustForGradleLayout(sourceSet)
+
+                // Do DEFT specific.
+                layout == Layout.DEFT && fragment != null -> {
+                    sourceSet.kotlin.setSrcDirs(listOf(fragment.src))
+                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
+                }
+                layout == Layout.DEFT && fragment == null -> {
+                    sourceSet.kotlin.setSrcDirs(emptyList<File>())
+                    sourceSet.resources.setSrcDirs(emptyList<File>())
                 }
             }
+        }
+    }
+
+    private fun adjustForGradleLayout(sourceSet: KotlinSourceSet) {
+        if (sourceSet.name == "common") {
+            val commonMainSourceSet = kotlinMPE.sourceSets.findByName("commonMain")
+            val commonMainSources = commonMainSourceSet?.kotlin?.srcDirs ?: emptyList()
+            val commonMainResources = commonMainSourceSet?.resources?.srcDirs ?: emptyList()
+
+            sourceSet.kotlin.setSrcDirs(commonMainSources)
+            sourceSet.resources.setSrcDirs(commonMainResources)
+            commonMainSourceSet?.kotlin?.setSrcDirs(emptyList<File>())
+            commonMainSourceSet?.resources?.setSrcDirs(emptyList<File>())
         }
     }
 
@@ -321,17 +345,20 @@ class KMPPBindingPluginPart(
             }
 
         module.fragments.forEach { fragment ->
-            val sourceSet = fragment.kotlinSourceSet
-            // Set dependencies.
-            fragment.fragmentDependencies.forEach {
-                when (it.type) {
-                    FragmentDependencyType.REFINE ->
-                        sourceSet?.doDependsOn(it.target)
+            // TODO Replace with inner classes structure for wrappers.
+            with(module) {
+                val sourceSet = fragment.kotlinSourceSet
+                // Set dependencies.
+                fragment.fragmentDependencies.forEach {
+                    when (it.type) {
+                        FragmentDependencyType.REFINE ->
+                            sourceSet?.doDependsOn(it.target.wrapped)
 
-                    FragmentDependencyType.FRIEND ->
-                        // TODO Add associate with for related compilations.
-                        // Not needed for default "test" - "main" relations.
-                        run { }
+                        FragmentDependencyType.FRIEND ->
+                            // TODO Add associate with for related compilations.
+                            // Not needed for default "test" - "main" relations.
+                            run { }
+                    }
                 }
             }
         }
