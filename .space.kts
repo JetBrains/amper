@@ -31,7 +31,7 @@ fun registerJobInPrototypeDir(
         secret("slack_secret_space_alerts_app", value = "{{ project:slack_secret_space_alerts_app }}")
         customParameters()
     }
-    container(displayName = name, image = "thyrlian/android-sdk") {
+    container(displayName = name, image = "registry.jetbrains.team/p/deft/containers/android-sdk:latest") {
         workDir = "prototype-implementation"
         env["SLACK_TOKEN"] = "{{ slack_secret_space_alerts_app }}"
         customContainerBody()
