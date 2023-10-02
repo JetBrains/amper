@@ -129,6 +129,7 @@ class KotlinFragmentPartBuilder {
             languageFeatures = languageFeatures,
             optIns = optIns,
             linkerOpts = emptyList(),
+            serialization = null
         )
 }
 
