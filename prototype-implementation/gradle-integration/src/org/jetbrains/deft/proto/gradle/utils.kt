@@ -1,6 +1,8 @@
 package org.jetbrains.deft.proto.gradle
 
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.jetbrains.deft.proto.frontend.MetaModulePart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.PotatoModule
 import org.jetbrains.deft.proto.frontend.PotatoModuleFileSource
@@ -15,6 +17,11 @@ import kotlin.io.path.*
 val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
 val PotatoModule.buildDir get() = buildFile.parent
+
+val BindingPluginPart.layout
+    get() = (module.parts.find<MetaModulePart>()
+        ?: error("No mandatory MetaModulePart in the module ${module.userReadableName}"))
+        .layout
 
 /**
  * Get or create string key-ed binding map from extension properties.
@@ -108,6 +115,15 @@ internal fun findEntryPoint(
 fun trySetSystemProperty(key: String, value: String) {
     if (System.getProperty(key) == null)
         System.setProperty(key, value)
+}
+
+fun replacePenultimatePaths(
+    sources: SourceDirectorySet,
+    resources: SourceDirectorySet,
+    newName: String
+) {
+    sources.setSrcDirs(sources.srcDirs.map { it.replacePenultimate(newName) })
+    resources.setSrcDirs(resources.srcDirs.map { it.replacePenultimate(newName) })
 }
 
 /**

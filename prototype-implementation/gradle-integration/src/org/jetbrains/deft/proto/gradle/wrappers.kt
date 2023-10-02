@@ -22,8 +22,8 @@ class PotatoModuleWrapper(
         get() = allFragmentWrappers.computeIfAbsent(this) {
             when (this) {
                 is FragmentWrapper -> this
-                is LeafFragment -> LeafFragmentWrapper(this)
-                else -> FragmentWrapper(this)
+                is LeafFragment -> LeafFragmentWrapper(this@PotatoModuleWrapper, this)
+                else -> FragmentWrapper(this@PotatoModuleWrapper, this)
             }
         }
 
@@ -80,12 +80,20 @@ class TestArtifactWrapper(
 ) : ArtifactWrapper(artifact, module), TestArtifact
 
 open class FragmentWrapper(
+    private val module: PotatoModuleWrapper,
     private val fragment: Fragment
 ) : Fragment by fragment, PlatformAware {
     override fun toString(): String = "FragmentWrapper(fragment=${fragment.name})"
+
+    val refineDependencies by lazy {
+        with(module) {
+            fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.map { it.target.wrapped }
+        }
+    }
 }
 
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 class LeafFragmentWrapper(
-    fragment: LeafFragment
-) : FragmentWrapper(fragment), LeafFragment by fragment, PlatformAware
+    module: PotatoModuleWrapper,
+    fragment: LeafFragment,
+) : FragmentWrapper(module, fragment), LeafFragment by fragment, PlatformAware

@@ -8,6 +8,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.JvmPart
+import org.jetbrains.deft.proto.frontend.Layout
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
@@ -21,11 +22,13 @@ import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSou
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
 
 /**
  * Plugin logic, bind to specific module, when only default target is available.
@@ -82,7 +85,7 @@ class JavaBindingPluginPart(
         project.plugins.apply(ApplicationPlugin::class.java)
 
         if (leafPlatformFragments.size > 1)
-            // TODO Add check that all parts values are the same instead of this approach.
+        // TODO Add check that all parts values are the same instead of this approach.
             logger.info(
                 "Cant apply multiple settings for application plugin. " +
                         "Affected artifacts: ${platformArtifacts.joinToString { it.name }}. " +
@@ -139,13 +142,27 @@ class JavaBindingPluginPart(
     }
 
     private fun adjustSourceDirs() {
-        with(layoutMode) {
-            javaPE.sourceSets.all { sourceSet ->
-                val fragment = sourceSet.deftFragment ?: return@all
-                fragment.modifyManagedSources(sourceSet, sourceSet.java.srcDirs)
-                    ?.let { sourceSet.java.setSrcDirs(it) }
-                fragment.modifyManagedResources(sourceSet, sourceSet.resources.srcDirs)
-                    ?.let { sourceSet.resources.setSrcDirs(it) }
+        javaPE.sourceSets.all { sourceSet ->
+            val fragment = sourceSet.deftFragment
+            when {
+                // Do GRADLE_JVM specific.
+                layout == Layout.GRADLE_JVM -> {
+                    if (sourceSet.name == "main") {
+                        replacePenultimatePaths(sourceSet.java, sourceSet.resources, "main")
+                    } else if (sourceSet.name == "test") {
+                        replacePenultimatePaths(sourceSet.java, sourceSet.resources, "test")
+                    }
+                }
+
+                // Do DEFT specific.
+                layout == Layout.DEFT && fragment != null -> {
+                    sourceSet.java.setSrcDirs(listOf(fragment.src))
+                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
+                }
+                layout == Layout.DEFT && fragment == null -> {
+                    sourceSet.java.setSrcDirs(emptyList<File>())
+                    sourceSet.resources.setSrcDirs(emptyList<File>())
+                }
             }
         }
     }

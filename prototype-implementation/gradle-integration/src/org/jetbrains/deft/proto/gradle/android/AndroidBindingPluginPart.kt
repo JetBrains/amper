@@ -2,19 +2,18 @@ package org.jetbrains.deft.proto.gradle.android
 
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.deft.proto.frontend.*
-import org.jetbrains.deft.proto.gradle.android.AndroidDeftNamingConvention.deftFragment
+import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.deft.proto.gradle.contains
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.doDependsOn
-import org.jetbrains.deft.proto.gradle.layoutMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import java.io.File
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
@@ -52,40 +51,51 @@ class AndroidBindingPluginPart(
 
         adjustCompilations()
         applySettings()
-        clearNonManagerSourceSetDirs()
         adjustAndroidSourceSets()
     }
 
-    private fun clearNonManagerSourceSetDirs() {
-        // Clear android source sets that are not created by us.
-        // Can be evaluated after project evaluation.
-        androidSourceSets?.all {
-            it.deftFragment ?: return@all
-            it.kotlin.setSrcDirs(emptyList<Any>())
-            it.java.setSrcDirs(emptyList<Any>())
-            it.resources.setSrcDirs(emptyList<Any>())
-        }
-    }
-
     private fun adjustAndroidSourceSets() = with(AndroidDeftNamingConvention) {
+        val shouldAddAndroidRes = module.artifactPlatforms.size == 1 &&
+                module.artifactPlatforms.contains(Platform.ANDROID)
+
         // Adjust that source sets whose matching kotlin source sets are created by us.
         // Can be evaluated after project evaluation.
-        with(layoutMode) {
-            androidSourceSets?.all {
-                val fragment = it.deftFragment ?: return@all
+        androidSourceSets?.all { sourceSet ->
+            val fragment = sourceSet.deftFragment
+            when {
+                // Do DEFT specific.
+                layout == Layout.DEFT && fragment != null -> {
+                    sourceSet.kotlin.setSrcDirs(listOf(fragment.src))
+                    sourceSet.java.setSrcDirs(listOf(fragment.src))
+                    sourceSet.manifest.srcFile(fragment.src.resolve("AndroidManifest.xml"))
 
-                val sources = fragment.modifyManagedSources(it.name, null)
-                if (sources != null) {
-                    it.kotlin.setSrcDirs(sources)
-                    it.java.setSrcDirs(sources)
-                    // FIXME Replace by more complicated layout mode (I guess).
-                    it.manifest.srcFile(sources.first().resolve("AndroidManifest.xml"))
+                    if (shouldAddAndroidRes) {
+                        sourceSet.assets.setSrcDirs(listOf(module.buildDir.resolve("assets")))
+                        sourceSet.res.setSrcDirs(listOf(module.buildDir.resolve("res")))
+                    }
+
+                    // Also add all resources from dependants.
+                    val collectedResources = mutableSetOf<File>()
+                    val queue = mutableListOf(fragment)
+                    while(queue.isNotEmpty()) {
+                        val next = queue.removeFirst()
+                        queue.addAll(next.refineDependencies)
+                        if (next.androidSourceSet == null) {
+                            collectedResources.add(next.resourcesPath.toFile())
+                        }
+                    }
+                    collectedResources.add(fragment.resourcesPath.toFile())
+                    sourceSet.resources.setSrcDirs(collectedResources)
                 }
 
-                val resources = fragment.modifyManagedResources(it.name, null)
-                if (resources != null) {
-                    it.resources.setSrcDirs(resources)
-                    it.res.setSrcDirs(resources)
+                layout == Layout.DEFT && fragment == null -> {
+                    listOf(
+                        sourceSet.kotlin,
+                        sourceSet.java,
+                        sourceSet.resources,
+                        sourceSet.assets,
+                        sourceSet.res,
+                    ).forEach { it.setSrcDirs(emptyList<File>()) }
                 }
             }
         }
@@ -113,7 +123,9 @@ class AndroidBindingPluginPart(
 
                     // It is related with JetGradle plugin, which uses only `declaredSourceSets` for import
                     // TODO (Anton Prokhorov): investigate
-                    it.source(fragment.kotlinSourceSet ?: error("Can not find a sourceSet for fragment: ${fragment.name}"))
+                    it.source(
+                        fragment.kotlinSourceSet ?: error("Can not find a sourceSet for fragment: ${fragment.name}")
+                    )
                     it.kotlinSourceSets.forEach { compilationSourceSet ->
                         if (compilationSourceSet != fragment.kotlinSourceSet) {
                             println("Attaching fragment ${fragment.name} to compilation ${it.name}")

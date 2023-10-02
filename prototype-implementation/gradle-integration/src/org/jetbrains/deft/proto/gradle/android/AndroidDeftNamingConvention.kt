@@ -14,4 +14,14 @@ object AndroidDeftNamingConvention {
             "test" -> module.sharedPlatformFragment(Platform.ANDROID, true)
             else -> module.fragmentsByName[name]
         }
+
+    context(AndroidAwarePart)
+    val FragmentWrapper.androidSourceSet: AndroidSourceSet? get() =
+        when (name) {
+            module.sharedPlatformFragment(Platform.ANDROID, false)?.name ->
+                androidSourceSets?.findByName("main")
+            module.sharedPlatformFragment(Platform.ANDROID, true)?.name ->
+                androidSourceSets?.findByName("test")
+            else -> androidSourceSets?.findByName(name)
+        }
 }

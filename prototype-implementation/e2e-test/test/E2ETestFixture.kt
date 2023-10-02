@@ -12,12 +12,14 @@ open class E2ETestFixture(val pathToProjects: String) {
         vararg buildArguments: String,
         expectOutputToHave: String,
         shouldSucceed: Boolean = true,
+        additionalCheck: (Path) -> Unit = {},
     ) {
         test(
             projectName,
             buildArguments = buildArguments,
             listOf(expectOutputToHave),
-            shouldSucceed
+            shouldSucceed,
+            additionalCheck,
         )
     }
 
@@ -27,6 +29,7 @@ open class E2ETestFixture(val pathToProjects: String) {
         vararg buildArguments: String,
         expectOutputToHave: Collection<String>,
         shouldSucceed: Boolean = true,
+        additionalCheck: (Path) -> Unit = {},
     ) {
         val tempDir = prepareTempDirWithProject(projectName)
         try {
@@ -43,6 +46,7 @@ open class E2ETestFixture(val pathToProjects: String) {
                 "The following strings are not found in the build ouptut:\n" +
                         missingStrings.joinToString("\n") { "\t" + it } +
                         "\nOutput:\n$output")
+            additionalCheck(tempDir)
         } finally {
             tempDir.deleteRecursively()
         }
