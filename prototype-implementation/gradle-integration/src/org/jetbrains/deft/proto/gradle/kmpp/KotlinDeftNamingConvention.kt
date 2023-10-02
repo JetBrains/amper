@@ -20,7 +20,9 @@ internal interface KMPEAware {
 object KotlinDeftNamingConvention {
     context(KMPPBindingPluginPart)
     val KotlinSourceSet.deftFragment: FragmentWrapper?
-        get() = fragmentsByName[name]
+        get() = if (name == "androidUnitTest")
+            fragmentsByName["androidTest"]
+        else fragmentsByName[name]
 
     context(KMPEAware)
     val Platform.targetName
@@ -43,8 +45,12 @@ object KotlinDeftNamingConvention {
         }
 
     context(KMPEAware)
+    val FragmentWrapper.kotlinSourceSetName: String
+        get() = if (name == "androidTest") "androidUnitTest" else name
+
+    context(KMPEAware)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?
-        get() = kotlinMPE.sourceSets.findByName(name)
+        get() = kotlinMPE.sourceSets.findByName(kotlinSourceSetName)
 
     context(KMPEAware)
     val FragmentWrapper.matchingKotlinSourceSets: List<KotlinSourceSet>
@@ -52,7 +58,7 @@ object KotlinDeftNamingConvention {
             if (fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }) {
                 kotlinMPE.sourceSets.findByName(commonKotlinSourceSetName)?.let { add(it) }
             }
-            kotlinMPE.sourceSets.findByName(name)?.let { add(it) }
+            kotlinMPE.sourceSets.findByName(kotlinSourceSetName)?.let { add(it) }
         }
 
     val LeafFragment.compilationName: String

@@ -12,6 +12,7 @@ import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.compilation
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.deftFragment
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSetName
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
@@ -389,7 +390,7 @@ class KMPPBindingPluginPart(
     private fun FragmentWrapper.maybeCreateSourceSet(
         block: KotlinSourceSet.() -> Unit,
     ) {
-        val sourceSet = kotlinMPE.sourceSets.maybeCreate(name)
+        val sourceSet = kotlinMPE.sourceSets.maybeCreate(kotlinSourceSetName)
         sourceSet.block()
     }
 }

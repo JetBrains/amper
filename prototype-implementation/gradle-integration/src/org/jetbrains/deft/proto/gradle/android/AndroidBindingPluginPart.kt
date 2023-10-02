@@ -54,6 +54,13 @@ class AndroidBindingPluginPart(
         adjustAndroidSourceSets()
     }
 
+    override fun applyAfterEvaluate() {
+        // Be sure our adjustments are made lastly.
+        project.afterEvaluate {
+            adjustAndroidSourceSets()
+        }
+    }
+
     private fun adjustAndroidSourceSets() = with(AndroidDeftNamingConvention) {
         val shouldAddAndroidRes = module.artifactPlatforms.size == 1 &&
                 module.artifactPlatforms.contains(Platform.ANDROID)
@@ -69,7 +76,7 @@ class AndroidBindingPluginPart(
                     sourceSet.java.setSrcDirs(listOf(fragment.src))
                     sourceSet.manifest.srcFile(fragment.src.resolve("AndroidManifest.xml"))
 
-                    if (shouldAddAndroidRes) {
+                    if (!fragment.isTest && shouldAddAndroidRes) {
                         sourceSet.assets.setSrcDirs(listOf(module.buildDir.resolve("assets")))
                         sourceSet.res.setSrcDirs(listOf(module.buildDir.resolve("res")))
                     }
