@@ -7,7 +7,7 @@ test-dependencies:
   - org.junit.jupiter:junit-jupiter-engine:5.9.3
 
 settings:
-  java:
+  jvm:
     mainClass: MainKt
 
 test-settings:
