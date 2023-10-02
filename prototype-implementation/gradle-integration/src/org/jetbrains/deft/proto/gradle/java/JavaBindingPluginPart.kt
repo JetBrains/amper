@@ -6,6 +6,7 @@ import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.deft.proto.frontend.ComposePart
 import org.jetbrains.deft.proto.frontend.JavaPart
 import org.jetbrains.deft.proto.frontend.JvmPart
 import org.jetbrains.deft.proto.frontend.Layout
@@ -25,7 +26,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -41,7 +41,7 @@ class JavaBindingPluginPart(
         val logger: Logger = LoggerFactory.getLogger("some-logger")
     }
 
-    private val javaAPE: JavaApplication get() = project.extensions.getByType(JavaApplication::class.java)
+    private val javaAPE: JavaApplication? get() = project.extensions.findByType(JavaApplication::class.java)
     internal val javaPE: JavaPluginExtension get() = project.extensions.getByType(JavaPluginExtension::class.java)
 
     override val kotlinMPE: KotlinMultiplatformExtension =
@@ -82,8 +82,6 @@ class JavaBindingPluginPart(
     }
 
     private fun adjustJavaGeneralProperties() {
-        project.plugins.apply(ApplicationPlugin::class.java)
-
         if (leafPlatformFragments.size > 1)
         // TODO Add check that all parts values are the same instead of this approach.
             logger.info(
@@ -92,6 +90,10 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
+        if (fragment.parts.find<ComposePart>()?.enabled != true) {
+            project.plugins.apply(ApplicationPlugin::class.java)
+        }
+
         val jvmPart = fragment.parts.find<JvmPart>()
         val javaSource = fragment.parts.find<JavaPart>()?.source ?: jvmPart?.target
         jvmPart?.target?.let {
@@ -110,7 +112,7 @@ class JavaBindingPluginPart(
                 findEntryPoint(sources, EntryPointType.JVM, logger)
             }
 
-            javaAPE.apply {
+            javaAPE?.apply {
                 // Check if main class is set in the build script.
                 if (mainClass.orNull == null) {
                     mainClass.set(foundMainClass)
