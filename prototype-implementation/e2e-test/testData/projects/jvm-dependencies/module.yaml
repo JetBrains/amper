@@ -7,5 +7,5 @@ test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.9.0
 
 settings:
-  java:
+  jvm:
     mainClass: MainKt

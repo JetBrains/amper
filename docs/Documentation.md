@@ -1157,7 +1157,7 @@ dependencies:
 settings:
   kotlin:
     languageVersion: 1.9
-  java:
+  jvm:
     target: 1.8
 ```
 
@@ -1174,7 +1174,7 @@ settings:  # objects merged
   kotlin:
     languageVersion: 1.9  # module.yaml overwrites value
   compose: enabled        # from the template
-  java:
+  jvm:
     target: 1.8   # from the module.yaml
 ```
 

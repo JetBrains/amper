@@ -39,7 +39,7 @@ settings:
     targetSdk: 33
   compose:
     enabled: true
-  java:
+  jvm:
     mainClass: MainKt
   junit:
     platformEnabled: true

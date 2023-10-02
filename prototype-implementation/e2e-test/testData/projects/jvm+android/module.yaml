@@ -3,7 +3,7 @@ product:
   platforms: [ jvm, android ]
 
 settings:
-  java:
+  jvm:
     mainClass: MainKt
   android:
     compileSdkVersion: android-31

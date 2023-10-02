@@ -130,10 +130,10 @@ test-dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
-    jvmTarget: 17
+  jvm:
+    target: 17
   java:
     source: 17
-    target: 17
 ```
 
 Documentation:

@@ -347,8 +347,8 @@ android {
 These settings would look like in a module.yaml file:
 ```yaml
 settings:
-  kotlin:
-    jvmTarget: 17     
+  jvm:
+    target: 17     
   android:
     namespace: com.example
     compileSdkVersion: android-34
