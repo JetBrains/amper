@@ -34,6 +34,7 @@ internal open class PlainFragment(
                 progressiveMode = progressiveMode,
                 languageFeatures = languageFeatures,
                 optIns = optIns,
+                serialization = serialization?.engine
             )
         }
 

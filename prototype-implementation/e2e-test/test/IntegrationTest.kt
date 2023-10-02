@@ -202,4 +202,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
             "Expected to have android resource in merged resources"
         )
     }
+
+    @Test
+    fun `kotlin serialization`() = test(
+        projectName = "kotlin-serialization",
+        "run",
+        expectOutputToHave = "Hello, World!",
+    )
 }

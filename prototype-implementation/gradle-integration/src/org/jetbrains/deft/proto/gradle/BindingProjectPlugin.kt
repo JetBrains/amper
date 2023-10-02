@@ -16,6 +16,7 @@ import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
 import org.jetbrains.deft.proto.gradle.compose.ComposePluginPart
 import org.jetbrains.deft.proto.gradle.java.JavaBindingPluginPart
 import org.jetbrains.deft.proto.gradle.kmpp.KMPPBindingPluginPart
+import org.jetbrains.deft.proto.gradle.serialization.SerializationPluginPart
 import java.net.URI
 
 /**
@@ -43,6 +44,7 @@ class BindingProjectPlugin : Plugin<Project> {
             JavaBindingPluginPart(pluginCtx),
             ComposePluginPart(pluginCtx),
             AppleBindingPluginPart(pluginCtx),
+            SerializationPluginPart(pluginCtx)
         )
         appliedParts = registeredParts.filter { it.needToApply }
 
