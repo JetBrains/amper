@@ -13,7 +13,6 @@ dependencies:
   - ../core
   - ../frontend-api
   - ../frontend/plain/yaml
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-Beta
   - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.0
   - com.android.library:com.android.library.gradle.plugin:8.0.2
   - org.jetbrains.compose:compose-gradle-plugin:1.5.10-beta01
