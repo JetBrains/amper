@@ -132,4 +132,11 @@ internal class ParserKtTest {
             testParse("compose-inline-form")
         }
     }
+
+    @Test
+    fun `check kotlin serialization settings`() {
+        with(buildFile) {
+            testParse("20-kotlin-serialization")
+        }
+    }
 }

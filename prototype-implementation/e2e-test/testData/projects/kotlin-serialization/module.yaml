@@ -1,0 +1,10 @@
+product: jvm/app
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1
+
+settings:
+  kotlin:
+    version: 1.9
+    serialization:
+      engine: json

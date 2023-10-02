@@ -23,6 +23,17 @@ enum class KotlinVersion(internal val version: String) {
     )
 }
 
+enum class KotlinSerialization(val engine: String) {
+    None("none"),
+    Json("json");
+
+    companion object Index : EnumMap<KotlinSerialization, String>(
+        KotlinSerialization::values,
+        KotlinSerialization::engine,
+        KotlinSerialization::class
+    )
+}
+
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
@@ -35,6 +46,7 @@ data class KotlinPartBuilder(
     var progressiveMode: Boolean? = null,
     val languageFeatures: MutableList<String> = mutableListOf(),
     var optIns: MutableList<String> = mutableListOf(),
+    var serialization: KotlinSerialization? = null
 ) {
     companion object : BuilderCompanion<KotlinPartBuilder>(::KotlinPartBuilder)
 }

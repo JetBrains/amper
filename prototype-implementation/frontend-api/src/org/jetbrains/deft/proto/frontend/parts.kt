@@ -12,6 +12,7 @@ data class KotlinPart(
     val progressiveMode: Boolean?,
     val languageFeatures: List<String>,
     val optIns: List<String>,
+    val serialization: String?
 ) : FragmentPart<KotlinPart> {
     override fun propagate(parent: KotlinPart): FragmentPart<KotlinPart> =
         KotlinPart(
@@ -28,6 +29,7 @@ data class KotlinPart(
             parent.progressiveMode ?: progressiveMode,
             languageFeatures.ifEmpty { parent.languageFeatures },
             optIns.ifEmpty { parent.optIns },
+            serialization ?: parent.serialization
         )
 
     override fun default(module: PotatoModule): FragmentPart<*> {

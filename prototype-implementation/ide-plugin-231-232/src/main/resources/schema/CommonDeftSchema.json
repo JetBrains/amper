@@ -258,6 +258,28 @@
           "items": {
             "type": "string"
           }
+        },
+        "serialization": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "engine": {
+                  "enum": [
+                    "json",
+                    "none"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "enum": [
+                "json",
+                "none"
+              ]
+            }
+          ]
         }
       },
       "additionalProperties": false
