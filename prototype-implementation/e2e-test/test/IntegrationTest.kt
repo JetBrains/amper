@@ -180,6 +180,13 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `compose-desktop packaging`() = test(
+        projectName = "compose-desktop-packaging",
+        "package",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
     fun `testing android common resources propagation`() = test(
         projectName = "android-common-resources-propagation",
         "mergeReleaseJavaResource",
