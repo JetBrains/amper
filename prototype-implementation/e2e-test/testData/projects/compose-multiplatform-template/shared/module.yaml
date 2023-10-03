@@ -19,10 +19,8 @@ dependencies@jvm:
 settings:
     android:
         namespace: "com.myapplication.common"
-        compileSdkVersion: 33
+        compileSdkVersion: android-33
         targetSdk: 33
-        minSdk: 24
+        minSdk: 33
     java:
       target: 17
-
-
