@@ -3,6 +3,8 @@ package org.jetbrains.deft.proto.frontend
 import org.jetbrains.deft.proto.core.Result
 import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
+import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
+import org.jetbrains.deft.proto.core.system.SystemInfo
 import org.jetbrains.deft.proto.frontend.dependency.parseDependency
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.pretty
@@ -66,11 +68,11 @@ class DefaultPotatoModuleDependency(
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleExternalDependencies(
     config: YamlNode.Mapping,
-    osDetector: OsDetector = DefaultOsDetector()
-): Result<Unit> = addRawDependencies(config, osDetector)
+    systemInfo: SystemInfo = DefaultSystemInfo
+): Result<Unit> = addRawDependencies(config, systemInfo)
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
-private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, osDetector: OsDetector): Result<Unit> =
+private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, systemInfo: SystemInfo = DefaultSystemInfo): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
         var hasErrors = false
         val resolved = depList.mapNotNull { dep ->
@@ -86,7 +88,7 @@ private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, o
             dependency
         }.map {
             if (it is MavenDependency) {
-                replaceWithOsDependant(osDetector, it)
+                replaceWithOsDependant(systemInfo, it)
             } else it
         }
         if (hasErrors) {
@@ -96,12 +98,12 @@ private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, o
         Result.success(Unit)
     }
 
-fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDependency): MavenDependency {
+fun replaceWithOsDependant(systemInfo: SystemInfo = DefaultSystemInfo, mavenDependency: MavenDependency): MavenDependency {
     if (mavenDependency.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:")) {
         return MavenDependency(
             mavenDependency.coordinates.replace(
                 "org.jetbrains.compose.desktop:desktop-jvm",
-                "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"
+                "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}"
             ),
             mavenDependency.compile,
             mavenDependency.runtime,
@@ -112,7 +114,7 @@ fun replaceWithOsDependant(osDetector: OsDetector, mavenDependency: MavenDepende
         return MavenDependency(
             mavenDependency.coordinates.replace(
                 "org.jetbrains.compose.desktop:desktop",
-                "org.jetbrains.compose.desktop:desktop-jvm-${osDetector.detect().value}"
+                "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}"
             ),
             mavenDependency.compile,
             mavenDependency.runtime,
