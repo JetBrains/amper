@@ -6,11 +6,7 @@ import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
-import org.jetbrains.deft.proto.frontend.ComposePart
-import org.jetbrains.deft.proto.frontend.JavaPart
-import org.jetbrains.deft.proto.frontend.JvmPart
-import org.jetbrains.deft.proto.frontend.Layout
-import org.jetbrains.deft.proto.frontend.Platform
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.*
 import org.jetbrains.deft.proto.gradle.base.DeftNamingConventions
 import org.jetbrains.deft.proto.gradle.base.PluginPartCtx
@@ -23,7 +19,7 @@ import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSou
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.slf4j.Logger
@@ -108,7 +104,13 @@ class JavaBindingPluginPart(
             val foundMainClass = if (jvmPart?.mainClass != null) {
                 jvmPart.mainClass
             } else {
-                val sources = fragment.kotlinSourceSet?.closureSources ?: emptyList()
+                val sources = fragment.kotlinSourceSet?.closureSources?.ifEmpty {
+                    val kotlinSourceSet = fragment.kotlinSourceSet
+                    (kotlinSourceSet as DefaultKotlinSourceSet).compilations.flatMap {
+                        it.defaultSourceSet.kotlin.srcDirs
+                    }.map { it.toPath() }
+                } ?: emptyList()
+
                 findEntryPoint(sources, EntryPointType.JVM, logger)
             }
 
