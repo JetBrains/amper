@@ -1,8 +1,5 @@
 product: android/app
 
-module: 
-    layout: gradle-kmp
-
 dependencies:
   - ../shared
 
@@ -15,3 +12,5 @@ settings:
         targetSdk: 33
     java: 
         target: 17
+    compose:
+        enabled: true
