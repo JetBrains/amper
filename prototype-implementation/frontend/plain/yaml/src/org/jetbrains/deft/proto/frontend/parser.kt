@@ -3,6 +3,8 @@ package org.jetbrains.deft.proto.frontend
 import org.jetbrains.deft.proto.core.Result
 import org.jetbrains.deft.proto.core.deftFailure
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
+import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
+import org.jetbrains.deft.proto.core.system.SystemInfo
 import org.jetbrains.deft.proto.frontend.model.PlainPotatoModule
 import org.jetbrains.deft.proto.frontend.nodes.*
 import org.jetbrains.deft.proto.frontend.util.getPlatformFromFragmentName
@@ -17,7 +19,7 @@ class ParsingContext(val config: YamlNode.Mapping) {
 
 context(BuildFileAware, ProblemReporterContext, ParsingContext)
 fun parseModule(
-    osDetector: OsDetector = DefaultOsDetector(),
+    systemInfo: SystemInfo = DefaultSystemInfo,
 ): Result<PotatoModule> = with(ParsingContext(config)) parsingContext@{
     val productAndPlatforms = parseProductAndPlatforms(config)
     if (productAndPlatforms !is Result.Success) {
@@ -120,7 +122,7 @@ fun parseModule(
     fragments = fragments.multiplyFragments(variants)
 
     // TODO: Find out if these errors can be accumulated
-    val dependenciesResult = fragments.handleExternalDependencies(config.transformed, osDetector)
+    val dependenciesResult = fragments.handleExternalDependencies(config.transformed, systemInfo)
     if (dependenciesResult !is Result.Success) {
         return deftFailure()
     }

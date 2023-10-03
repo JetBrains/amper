@@ -3,10 +3,11 @@ package org.jetbrains.deft.proto.frontend.helper
 import org.jetbrains.deft.proto.core.get
 import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.*
+import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
+import org.jetbrains.deft.proto.core.system.SystemInfo
 import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.toYamlNode
-import org.junit.jupiter.api.assertThrows
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.nio.file.Path
@@ -26,7 +27,7 @@ private const val fastReplaceExpected_USE_CAREFULLY = false
 context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
-    osDetector: OsDetector = DefaultOsDetector(),
+    systemInfo: SystemInfo = DefaultSystemInfo,
     checkErrors: ((problems: List<BuildProblem>) -> Unit)? = null,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
@@ -36,7 +37,7 @@ internal fun testParse(
         ?: fail("Failed to parse: $resourceName.yaml")
     with(TestProblemReporterContext) {
         val parseException = runCatching {
-            doTestParse(resourceName, parsed, shouldFail = checkErrors != null, osDetector, init)
+            doTestParse(resourceName, parsed, shouldFail = checkErrors != null, systemInfo, init)
         }
         val checkErrorException = runCatching {
             if (checkErrors != null) {
@@ -91,7 +92,7 @@ internal fun doTestParse(
     baseName: String,
     parsed: YamlNode.Mapping,
     shouldFail: Boolean = false,
-    osDetector: OsDetector = DefaultOsDetector(),
+    sustemInfo: SystemInfo = DefaultSystemInfo,
     init: TestDirectory.() -> Unit = { directory("src") },
 ) {
     project(buildFile.parent.toFile()) { init() }
@@ -99,7 +100,7 @@ internal fun doTestParse(
     // When
     val module = withBuildFile(buildFile.toAbsolutePath()) {
         with(ParsingContext(parsed)) {
-            parseModule(osDetector)
+            parseModule(sustemInfo)
         }
     }.getOrElse {
         if (shouldFail) return else {
