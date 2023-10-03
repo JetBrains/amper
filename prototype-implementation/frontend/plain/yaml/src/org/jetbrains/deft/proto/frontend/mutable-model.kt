@@ -9,6 +9,7 @@ import org.jetbrains.deft.proto.frontend.model.TestPlainArtifact
 import org.jetbrains.deft.proto.frontend.nodes.*
 import java.nio.file.Path
 import java.util.*
+import kotlin.collections.ArrayDeque
 
 internal data class MutableFragmentDependency(val target: FragmentBuilder, val dependencyKind: DependencyKind) {
     enum class DependencyKind {
@@ -235,14 +236,14 @@ internal val Set<Set<Platform>>.basicFragments: List<FragmentBuilder>
         val platforms = this
         return buildList {
             val sortedPlatformSubsets = platforms.sortedBy { it.size }
-            val reducedPlatformSet = platforms.reduce { acc, set -> acc + set }
             sortedPlatformSubsets.forEach { platformSet ->
                 val (name, alias) = platformSet.toCamelCaseString()
                 val fragment = FragmentBuilder(name, platformSet, alias = alias)
                 addFragment(fragment, platformSet)
             }
 
-            if (reducedPlatformSet.size > 1) {
+            if (isMultipleRoots()) {
+                val reducedPlatformSet = platforms.reduce { acc, set -> acc + set }
                 val fragment = FragmentBuilder("common", reducedPlatformSet)
                 addFragment(fragment, reducedPlatformSet)
             }
@@ -528,4 +529,34 @@ internal fun List<FragmentBuilder>.calculateSrcDir() {
             fragment.resourcesPath = srcDir.resolve("resources$postfix")
         }
     }
+}
+
+private fun MutableList<FragmentBuilder>.isMultipleRoots() = getCommonRoot() == null
+
+private fun MutableList<FragmentBuilder>.getCommonRoot(): FragmentBuilder? {
+    var root: FragmentBuilder? = null
+
+    val deque = ArrayDeque<FragmentBuilder>()
+
+    for (fragment in this) {
+        deque.add(fragment)
+    }
+
+    while (deque.isNotEmpty()) {
+        val fragment = deque.removeFirst()
+        if (fragment.dependencies.isEmpty()) {
+            if (root == null) {
+                root = fragment
+            } else {
+                if (root != fragment) {
+                    root = null
+                    break
+                }
+            }
+        }
+        for (dependency in fragment.dependencies) {
+            deque.add(dependency.target)
+        }
+    }
+    return root
 }
