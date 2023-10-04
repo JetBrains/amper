@@ -30,8 +30,6 @@ _NOTE: In [a Gradle-based project](#gradle-based-projects) the settings.gradle.k
 |-settings.gradle.kts
 ```
 
-See  
-
 In a JVM Module you can mix Kotlin and Java code:
 ```
 |-src/             
@@ -49,6 +47,21 @@ In a multi-platform Module platform-specific code is located in the folders with
 |  |-util.kt       #  API implementation with ‘actual’ part for iOS
 |-src@jvm/         # code to be compiled only for JVM targets
 |  |-util.kt       #  API implementation with ‘actual’ part for JVM
+|-module.yaml
+```
+
+_NOTE: In module with Android platform additional [resource directories](https://developer.android.com/guide/topics/resources/providing-resources) are included:_
+```
+|-src@android/             
+|  |-...
+|-res/
+|  |-drawable/
+|  |  |-...
+|  |-layout/
+|  |  |-...
+|  |-...
+|-assets/
+|  |-...
 |-module.yaml
 ```
 
