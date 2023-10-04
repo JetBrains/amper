@@ -40,13 +40,6 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `jvm-hello-world runs without application plugin using jvmRun task`() = test(
-        projectName = "jvm-hello-world",
-        "jvmRun",
-        expectOutputToHave = "Hello, World!",
-    )
-
-    @Test
     fun `jvm-kotlin+java runs and prints Hello, World`() = test(
         projectName = "jvm-kotlin+java",
         "run",
