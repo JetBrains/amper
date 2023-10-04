@@ -15,7 +15,6 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.20-Beta")
     implementation("org.jetbrains.kotlin:kotlin-serialization") {
         version {
             strictly("1.9.10")
