@@ -50,21 +50,6 @@ In a multi-platform Module platform-specific code is located in the folders with
 |-module.yaml
 ```
 
-_NOTE: In module with Android platform additional [resource directories](https://developer.android.com/guide/topics/resources/providing-resources) are included:_
-```
-|-src@android/             
-|  |-...
-|-res/
-|  |-drawable/
-|  |  |-...
-|  |-layout/
-|  |  |-...
-|  |-...
-|-assets/
-|  |-...
-|-module.yaml
-```
-
 _NOTE: In the future we plan to also support a more light-weight multi-platform layout like the one below.
 It requires some investment in the IntelliJ platform, so we haven't yet done it._ 
  
@@ -80,6 +65,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 _NOTE: Sources and resources can't be shared by several Modules._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
+See also info on [resources management](#resources).
 See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the project layout.
 
 ## Module Manifest file anatomy
@@ -665,6 +651,46 @@ Here is the file layout:
 |-module.yaml
 ```
 
+## Resources
+
+Files placed into the `resources` folder are copied to the resulting products:
+```
+|-src/             
+|  |-...
+|-resources/     # These files are copied into the final products
+|  |-...
+```
+
+In [multi-platform modules](#multi-platform-configuration) resources are merged from the common folders and corresponding platform-specific folders:
+```
+|-src/             
+|  |-...
+|-resources/          # these resources are copied into the Android and JVM artifact
+|  |-...
+|-resources@android/  # these resources are copied into the Android artifact
+|  |-...
+|-resources@jvm/      # these resources are copied into the JVM artifact
+|  |-...
+```
+
+In case of duplicating names, the common resources are overwritten by the more specific ones. 
+That is `resources/foo.txt` will be overwritten by `resources@android/foo.txt`.  
+
+Android modules also have [res and assets](https://developer.android.com/guide/topics/resources/providing-resources) folders:
+```
+|-src/             
+|  |-...
+|-res/
+|  |-drawable/
+|  |  |-...
+|  |-layout/
+|  |  |-...
+|  |-...
+|-assets/
+|  |-...
+|-module.yaml
+```
+
 ## Interop between languages
 
 Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
@@ -744,6 +770,9 @@ dependencies@iosArm64:          # iosArm64 is a KMP platform name
 |-src@ios/                  # sees declarations from src/ 
 |-src@iosArm64/             # sees declarations from src/ and from src@ios/ 
 ```
+
+See also how the [resources](#resources) are handled in the multiplatform projects.  
+
 
 Only the platform names (but not the platform family names) can be currently used in the `platforms:` list:
 
