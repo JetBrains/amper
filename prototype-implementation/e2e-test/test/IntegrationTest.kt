@@ -14,6 +14,13 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `running jvm using jvmRun`() = test(
+        projectName = "jvm-basic",
+        "jvmRun",
+        expectOutputToHave = "Hello, World!",
+    )
+
+    @Test
     fun `configuring native macos`() = test(
         projectName = "native-macos",
         "build",
