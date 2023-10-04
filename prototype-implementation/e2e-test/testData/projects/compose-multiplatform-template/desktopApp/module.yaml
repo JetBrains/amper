@@ -1,0 +1,9 @@
+product: jvm/app
+
+dependencies:
+    - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10-beta02
+    - ../shared
+
+settings:
+    compose:
+        enabled: false
