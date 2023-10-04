@@ -49,7 +49,7 @@ interface SystemInfo {
         }
 
         val rawArch = System.getProperty("os.arch").lowercase()
-        val arch = if (rawArch.startsWith("aarch64") || rawArch.startsWith("amd64"))
+        val arch = if (rawArch.startsWith("aarch64"))
             Arch.Arm64
         else
             Arch.X64
