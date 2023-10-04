@@ -287,7 +287,7 @@ settings:
 |-------------------------|-------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
 | `source: enum`          | A Java language version of the source files.                                                                                        |                                                  |
 
-#### Jvm
+#### JVM
 
 `settings:jvm:` configures the JVM platform specific settings.
 
@@ -332,3 +332,12 @@ settings:
   compose:
     enabled: true
 ```
+
+#### JUnit
+
+`settings:junit:` configures the junit test runner on the JVM and Android platforms. Read more
+about [testing support](Documentation.md#tests).
+
+| Attribute                  | Description                                                                   | Default |
+|----------------------------|-------------------------------------------------------------------------------|---------|
+| `platformEnabled: boolean` | Whether to use JUnit 5 platform runner. Disable it to use JUnit 4 or earlier. | true    |
