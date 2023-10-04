@@ -16,15 +16,16 @@ import org.jetbrains.deft.proto.gradle.java.JavaDeftNamingConvention.maybeCreate
 import org.jetbrains.deft.proto.gradle.kmpp.KMPEAware
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention
 import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.kotlinSourceSet
+import org.jetbrains.deft.proto.gradle.kmpp.KotlinDeftNamingConvention.target
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 /**
  * Plugin logic, bind to specific module, when only default target is available.
@@ -112,6 +113,11 @@ class JavaBindingPluginPart(
                 } ?: emptyList()
 
                 findEntryPoint(sources, EntryPointType.JVM, logger)
+            }
+
+            @Suppress("OPT_IN_USAGE")
+            (fragment.target as KotlinJvmTarget).mainRun {
+                mainClass.set(foundMainClass)
             }
 
             javaAPE?.apply {
