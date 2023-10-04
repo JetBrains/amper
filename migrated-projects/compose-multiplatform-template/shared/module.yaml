@@ -1,0 +1,28 @@
+product:
+    type: lib
+    platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
+
+dependencies:
+    - org.jetbrains.compose.runtime:runtime:1.5.10-beta02
+    - org.jetbrains.compose.foundation:foundation:1.5.10-beta02
+    - org.jetbrains.compose.material:material:1.5.10-beta02
+    - org.jetbrains.compose.components:components-resources:1.5.10-beta02
+
+dependencies@android:
+    - androidx.activity:activity-compose:1.7.2: exported
+    - androidx.appcompat:appcompat:1.6.1: exported
+    - androidx.core:core-ktx:1.10.1: exported
+
+dependencies@jvm:
+    - org.jetbrains.compose.desktop:desktop:1.5.10-beta02
+
+settings:
+    compose:
+        enabled: true
+    android:
+        namespace: "com.myapplication.common"
+        compileSdkVersion: android-33
+        targetSdk: 33
+        minSdk: 33
+    jvm:
+        target: 17
