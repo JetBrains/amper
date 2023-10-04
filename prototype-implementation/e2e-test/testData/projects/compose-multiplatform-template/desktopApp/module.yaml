@@ -1,9 +1,13 @@
 product: jvm/app
 
+# WA for deduplication of registered run task
+module:
+  layout: gradle-jvm
+
 dependencies:
     - org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10-beta02
     - ../shared
 
 settings:
     compose:
-        enabled: false
+        enabled: true

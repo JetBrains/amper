@@ -14,13 +14,15 @@ dependencies@android:
     - androidx.core:core-ktx:1.10.1: exported
 
 dependencies@jvm:
-    - org.jetbrains.compose.desktop:desktop:1.5.0-rc01
+    - org.jetbrains.compose.desktop:desktop:1.5.10-beta02
 
 settings:
+    compose:
+        enabled: true
     android:
         namespace: "com.myapplication.common"
         compileSdkVersion: android-33
         targetSdk: 33
         minSdk: 33
-    java:
-      target: 17
+    jvm:
+        target: 17
