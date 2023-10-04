@@ -1,7 +1,7 @@
 frontend/fragments/yaml/build
 frontend/fragments/yaml/testResources
 try
-ide-plugin-231-232/samples
+samples-jps
 e2e-test/resources
 e2e-test/build
 e2e-test/testData
