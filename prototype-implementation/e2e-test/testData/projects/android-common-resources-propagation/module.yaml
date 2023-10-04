@@ -1,5 +1,5 @@
 product:
-  type: android/app
+  type: app
   platforms: [ jvm, android ]
 
 settings:
