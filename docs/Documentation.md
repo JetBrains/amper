@@ -467,6 +467,9 @@ settings:
   compose: enabled
 ```
 
+_NOTE: Explicit Compose dependency specification will be replaced with version catalog in future design. 
+Also, certain dependencies might be added automatically when Compose is enabled._
+
 There is also a full form for enabling or disabling the Compose toolchain:
 ```yaml
 ...
@@ -474,9 +477,6 @@ settings:
   compose:
     enabled: true
 ```
-
-_NOTE: Explicit dependency specification will be replaced with version catalog in future design. 
-Also, certain dependencies might be added automatically when Compose is enabled._
 
 _NOTE: For Compose Android and iOS you also need to set a couple if flags in `gradle.properties`:_
 ```properties
