@@ -6,8 +6,10 @@ dependencies:
   - org.jetbrains.compose.foundation:foundation:1.5.0-rc01: exported
   - org.jetbrains.compose.material3:material3:1.5.0-rc01: exported
 
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
+dependencies@android:
+  # integration compose with activities
+  - androidx.activity:activity-compose:1.7.2: exported
+  - androidx.appcompat:appcompat:1.6.1: exported
 
 settings:
   compose:

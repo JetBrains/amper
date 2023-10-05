@@ -4,8 +4,5 @@ dependencies:
   - ../shared
   - org.jetbrains.compose.desktop:desktop-jvm:1.5.0-rc01
 
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-
 settings:
   compose: enabled
