@@ -10,7 +10,7 @@ settings:
         compileSdkVersion: android-33
         minSdk: 33
         targetSdk: 33
-    java: 
+    jvm: 
         target: 17
     compose:
         enabled: true
