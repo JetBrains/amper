@@ -489,9 +489,44 @@ org.gradle.jvmargs=-Xmx4g
 
 ### Tests
 
-Test code is located in the `test/` and `test@platform/` folders. Test settings and dependencies by default are inherited from the main configuration according to the [configuration propagation rules](#dependencysettings-propagation). 
-To add test-only dependencies put them into `test-dependencies:` section. To add or override toolchain settings in tests, use `test-settings:` section.
+Test code is located in the `test/` folder.  By default, the [Kotlin test](https://kotlinlang.org/api/latest/kotlin.test/) framework is preconfigured for each platform. Put additional test-only dependencies into `test-dependencies:` section:
 
+```
+|-src/            # production code
+|  ...      
+|-test/           # tests tests 
+|  |-MainTest.kt
+|  |-... 
+|-module.yaml
+```
+
+module.yaml:
+```yaml
+product: jvm/app
+
+# these dependencies are available in main and test code
+dependencies:
+  - io.ktor:ktor-client-core:2.2.0
+
+# additional dependencies for test code
+test-dependencies:
+  - io.ktor:ktor-server-test-host:2.2.0
+```
+
+To add or override toolchain settings in tests, use `test-settings:` section:
+```yaml
+# these dependencies are available in main and test code
+setting:
+  kotlin:
+    ...
+
+# additional test-specific setting 
+test-settings:
+  kotlin:
+    ...
+```
+
+Test settings and dependencies by default are inherited from the main configuration according to the [configuration propagation rules](#dependencysettings-propagation). 
 Example:
 ```
 |-src/             
@@ -516,7 +551,7 @@ product:
 dependencies:
   - io.ktor:ktor-client-core:2.2.0
 
-# add dependencies for test code
+# dependencies for test code
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.10
   
