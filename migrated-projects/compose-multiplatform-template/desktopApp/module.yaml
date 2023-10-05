@@ -1,6 +1,5 @@
 product: jvm/app
 
-# WA for deduplication of registered run task
 module:
   layout: gradle-jvm
 

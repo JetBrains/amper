@@ -12,18 +12,6 @@ pluginManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
-
-    plugins {
-
-        kotlin("jvm")
-        kotlin("multiplatform")
-        kotlin("android")
-
-        id("com.android.application")
-        id("com.android.library")
-
-        id("org.jetbrains.compose")
-    }
 }
 
 plugins {
