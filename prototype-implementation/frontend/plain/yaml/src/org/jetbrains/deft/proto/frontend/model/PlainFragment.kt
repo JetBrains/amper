@@ -54,6 +54,10 @@ internal open class PlainFragment(
             )
         }
 
+        addPartFrom(fragmentBuilder.ios) {
+            IosPart(devTeamId)
+        }
+
         addPartFrom(fragmentBuilder.java) {
             JavaPart(
                 source,

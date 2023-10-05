@@ -1,5 +1,6 @@
 package org.jetbrains.deft.proto.gradle.apple
 
+import org.jetbrains.deft.proto.frontend.IosPart
 import org.jetbrains.deft.proto.frontend.Platform
 import org.jetbrains.deft.proto.frontend.ProductType
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
@@ -21,13 +22,22 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
     override val needToApply by lazy { module.type == ProductType.IOS_APP }
 
     override fun applyBeforeEvaluate() {
-        project.extraProperties.set("generateBuildableXcodeproj.skipKotlinFrameworkDependencies", "true")
+        val iosDeviceFragments = module.fragments.filter { it.platforms == setOf(Platform.IOS_ARM64) }
+        if (iosDeviceFragments.isEmpty()) {
+            // invariant: if a product type is ios/app, pot has to have at least one device fragment
+            // this is reason why it shouldn't be reported through a problem reporter (because it mustn't happen)
+            error("Module has to have at least one ios device fragment")
+        }
 
+        project.extraProperties.set("generateBuildableXcodeproj.skipKotlinFrameworkDependencies", "true")
         // Apply plugin
         project.plugins.apply("org.jetbrains.gradle.apple.applePlugin")
 
         // Add ios App
         applePE?.iosApp {
+            iosDeviceFragments[0].parts.find<IosPart>()?.devTeamId?.let {
+                buildSettings.DEVELOPMENT_TEAM(it)
+            }
             productInfo["UILaunchScreen"] = mapOf<String, Any>()
         }
 

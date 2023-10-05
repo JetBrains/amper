@@ -43,6 +43,7 @@ internal data class FragmentBuilder(
 
     // Leaf parts.
     var android: AndroidPartBuilder? = AndroidPartBuilder {},
+    var ios: IosPartBuilder? = IosPartBuilder {},
     var native: NativePartBuilder? = NativePartBuilder {},
     var java: JavaPartBuilder? = JavaPartBuilder {},
     var jvm: JvmPartBuilder? = JvmPartBuilder {},
@@ -450,6 +451,12 @@ internal fun List<ArtifactBuilder>.handleSettings(
                 targetSdk = androidSettings.getStringValue("targetSdk")
                 applicationId = androidSettings.getStringValue("applicationId")
                 namespace = androidSettings.getStringValue("namespace")
+            }
+        }
+
+        ios = IosPartBuilder {
+            it.getMappingValue("ios")?.let { iosSettings ->
+                devTeamId = iosSettings.getStringValue("devTeamId")
             }
         }
 
