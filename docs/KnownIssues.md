@@ -4,6 +4,4 @@
 - iOS applications support is highly experimental:
   - iOS applications require at least a single *.swift file with an `@main` with an `App` struct and at least a single *.kt file (even a blank one).
   - Opening a project for the first takes long due to indexing.
-  - Building a project takes long due to the lack of incrementality and inefficient use of `xcodebuild` tool. 
-- [build-variants](../examples/build-variants) example currently doesn't work
 
