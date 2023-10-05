@@ -6,6 +6,8 @@ Deft currently supports Kotlin and Java applications, targeting JVM, Android, iO
 
 Deft is currently using Gradle as the backend and YAML as the frontend, i.e. the project configuration. Custom tasks, publishing of libraries to Maven, CocoaPods, and packaging desktop apps are all provided via Gradle interop for now.
 
+Check the [FAQ for more question](FAQ.md).
+
 Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/DEFT).  
 
 For a quick start:
