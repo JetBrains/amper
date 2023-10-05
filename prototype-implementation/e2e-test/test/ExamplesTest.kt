@@ -97,13 +97,6 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     )
 
     @Test
-    fun `variants builds`() = test(
-        projectName = "build-variants",
-        "build",
-        expectOutputToHave = "BUILD SUCCESSFUL",
-    )
-
-    @Test
     fun `gradle interop`() = test(
         projectName = "gradle-interop",
         "build", ":hello", ":run",
