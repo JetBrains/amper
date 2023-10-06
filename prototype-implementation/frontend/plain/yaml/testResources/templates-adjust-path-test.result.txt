@@ -2,7 +2,7 @@ Module {{ userReadableName }}
 Fragments:
   ios
     External dependencies:
-      InternalDependency(module={{ potDir }}/16-templates/some-dep-2)
+      InternalDependency(module=../../../../../..{{ potDir }}/16-templates/some-dep-2)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
       InternalDependency(module=./some-dep)
     Src folder: src
@@ -11,7 +11,7 @@ Fragments:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
-      IosPart(devTeamId=null)
+      IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
       PublicationPart(group=null, version=null)
@@ -26,7 +26,7 @@ Fragments:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       TestPart(junitPlatform=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
-      IosPart(devTeamId=null)
+      IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
       PublicationPart(group=null, version=null)

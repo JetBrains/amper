@@ -63,7 +63,7 @@ data class AndroidPartBuilder(
     companion object : BuilderCompanion<AndroidPartBuilder>(::AndroidPartBuilder)
 }
 
-data class IosPartBuilder(var devTeamId: String? = null) {
+data class IosPartBuilder(var teamId: String? = null) {
     companion object: BuilderCompanion<IosPartBuilder>(::IosPartBuilder)
 }
 

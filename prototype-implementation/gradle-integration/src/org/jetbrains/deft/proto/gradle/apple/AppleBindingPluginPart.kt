@@ -35,7 +35,7 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
 
         // Add ios App
         applePE?.iosApp {
-            iosDeviceFragments[0].parts.find<IosPart>()?.devTeamId?.let {
+            iosDeviceFragments[0].parts.find<IosPart>()?.teamId?.let {
                 buildSettings.DEVELOPMENT_TEAM(it)
             }
             productInfo["UILaunchScreen"] = mapOf<String, Any>()

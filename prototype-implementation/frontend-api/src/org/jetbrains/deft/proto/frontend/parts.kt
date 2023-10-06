@@ -112,12 +112,12 @@ data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
 
 }
 
-data class IosPart(val devTeamId: String?): FragmentPart<IosPart> {
+data class IosPart(val teamId: String?): FragmentPart<IosPart> {
     override fun propagate(parent: IosPart): FragmentPart<*> {
-        return IosPart(devTeamId ?: parent.devTeamId)
+        return IosPart(teamId ?: parent.teamId)
     }
 
     override fun default(module: PotatoModule): FragmentPart<*> {
-        return IosPart(devTeamId)
+        return IosPart(teamId)
     }
 }

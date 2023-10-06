@@ -456,7 +456,7 @@ internal fun List<ArtifactBuilder>.handleSettings(
 
         ios = IosPartBuilder {
             it.getMappingValue("ios")?.let { iosSettings ->
-                devTeamId = iosSettings.getStringValue("devTeamId")
+                teamId = iosSettings.getStringValue("teamId")
             }
         }
 
