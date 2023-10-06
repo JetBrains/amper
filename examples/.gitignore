@@ -2,3 +2,5 @@
 .gradle
 build
 local.properties
+
+xcuserdata/
