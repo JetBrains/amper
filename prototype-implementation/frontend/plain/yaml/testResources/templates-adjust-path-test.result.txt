@@ -2,7 +2,7 @@ Module {{ userReadableName }}
 Fragments:
   ios
     External dependencies:
-      InternalDependency(module=../../../../../..{{ potDir }}/16-templates/some-dep-2)
+      InternalDependency(module={{ potDir }}/16-templates/some-dep-2)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
       InternalDependency(module=./some-dep)
     Src folder: src
