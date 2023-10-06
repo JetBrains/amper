@@ -371,9 +371,6 @@ class KMPPBindingPluginPart(
             val target = fragment.target ?: return@forEach
             with(target) {
                 val compilation = fragment.compilation ?: return@forEach
-                compilation.source(
-                    fragment.kotlinSourceSet ?: error("Sourceset not found for fragment ${fragment.name}")
-                )
                 val compilationSourceSet = compilation.defaultSourceSet
                 if (compilationSourceSet != fragment.kotlinSourceSet) {
                     // Add dependency from compilation source set ONLY for unmanaged source sets.

@@ -113,7 +113,12 @@ class AndroidBindingPluginPart(
             project.afterEvaluate {
                 val androidTarget = fragment.target ?: return@afterEvaluate
                 val compilations = if (fragment.isTest) {
-                    androidTarget.compilations.matching { it.name.lowercase().contains("test") }
+                    androidTarget.compilations.matching {
+                        val lowercaseName = it.name.lowercase()
+                        // Collect only unit test, but ignore instrumented test, since they will be
+                        // supported by supplementary modules.
+                        lowercaseName.contains("test") && lowercaseName.contains("unit")
+                    }
                 } else {
                     androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
                 }
@@ -122,20 +127,13 @@ class AndroidBindingPluginPart(
                         it.compileTaskProvider.configure {
                             part.target?.let { target ->
                                 it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                println("Compilation ${it.name} has jvmTarget $target")
                                 it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(target))
                             }
                         }
                     }
 
-                    // It is related with JetGradle plugin, which uses only `declaredSourceSets` for import
-                    // TODO (Anton Prokhorov): investigate
-                    it.source(
-                        fragment.kotlinSourceSet ?: error("Can not find a sourceSet for fragment: ${fragment.name}")
-                    )
                     it.kotlinSourceSets.forEach { compilationSourceSet ->
                         if (compilationSourceSet != fragment.kotlinSourceSet) {
-                            println("Attaching fragment ${fragment.name} to compilation ${it.name}")
                             compilationSourceSet.doDependsOn(fragment)
                         }
                     }

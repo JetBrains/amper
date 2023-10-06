@@ -154,7 +154,10 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     fun `build-variants`() = test(
         "build-variants",
         "build",
-        expectOutputToHave = "BUILD SUCCESSFUL"
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        // TODO Variants produce warning aboud kotlin source sets trees. Need to fix when we will
+        // stabilize variants.
+        checkForWarnings = false,
     )
 
     @Test
