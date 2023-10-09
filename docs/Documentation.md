@@ -435,6 +435,25 @@ Here is the list of [currently supported toolchains and their settings](DSLRefer
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
+#### Configuring Kotlin Serialization
+
+To enable the [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), use the following DSL:
+```yaml
+settings:
+  kotlin:
+    serialization: json  # JSON or other format
+```
+This DSL configures compiler and runtime settings, including a dependency on the JSON library.
+
+In its full form it looks like this:
+```yaml
+settings:
+  kotlin:
+    serialization: 
+      format: json
+```
+
+
 
 #### Configuring Compose Multiplatform
 
