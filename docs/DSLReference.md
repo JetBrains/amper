@@ -311,10 +311,10 @@ settings:
 
 `settings:jvm:` configures the JVM platform specific settings.
 
-| Attribute           | Description                                                                                                                         | Default                                          |
-|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
-| `target: enum`      | A bytecode version of generated jvm bytecode (by java or kotlin compiler).                                                          |                                                  |
-| `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types) A fully-qualified name of the class used to run the application. | [auto-detected](Documentation.md#project-layout) |
+| Attribute           | Description                                                                                                                         | Default                               |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `target: enum`      | A bytecode version of generated jvm bytecode (by java or kotlin compiler).                                                          |                                       |
+| `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types) A fully-qualified name of the class used to run the application. | [auto-detected](Documentation.md#jvm) |
 
 #### Android
 

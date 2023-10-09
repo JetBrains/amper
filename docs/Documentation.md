@@ -21,7 +21,7 @@ The basic Module layout looks like this:
 |-module.yaml
 ```
 
-By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+By convention a single `main.kt` file is a default entry point for the application ([read more](#configuring-entry-point)).
 
 _NOTE: In [a Gradle-based project](#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
 ```
@@ -65,7 +65,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 _NOTE: Sources and resources can't be shared by several Modules._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
-See also info on [resources management](#resources).
+See also info on [resource management](#resources).
 See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the project layout.
 
 ## Module Manifest file anatomy
@@ -157,7 +157,6 @@ product: jvm/app
 packaging:
   - product: jvm/app        # reference the product by type or ID
     package: fatJar         # specify type of the package 
-    mainClass: my.app.Main  # specify an entry point 
     include: licenses/**    # and other things such as layout
 ```
 
@@ -453,8 +452,6 @@ settings:
       format: json
 ```
 
-
-
 #### Configuring Compose Multiplatform
 
 In order to enable [Compose](https://www.jetbrains.com/lp/compose-multiplatform/) (with a compiler plugin and required dependencies), add the following configuration:
@@ -504,6 +501,62 @@ android.useAndroidX=true
 
 # Android and iOS build require more memory
 org.gradle.jvmargs=-Xmx4g
+```
+
+#### Configuring entry points
+
+##### JVM
+By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+
+Here is how to specify the entry point explicitly for JVM:
+```yaml
+product: jvm/app
+
+settings:
+  jvm:
+    mainClass: org.example.myapp.MyMainKt
+```
+##### Native
+By convention a single `main.kt` file (case-insensitive) in the source folder is a default entry point for the application.
+
+##### Android
+
+Application entry point is specified in the AndroidManifest.xml file according to the [official Android documentation](https://developer.android.com/guide/topics/manifest/manifest-intro).
+```
+|-src/ 
+|  |-MyActivity.kt
+|  |-AndroidManifest.xml
+|  |-... 
+|-module.yaml
+```
+
+src/AndroidManifest.xml:
+```xml
+<manifest ... >
+  <application ... >
+    <activity android:name="com.example.myapp.MainActivity" ... >
+    </activity>
+  </application>
+</manifest>
+```
+
+##### iOS
+
+Currently, there should be a swift file in the `src/` folder with the `@main` struct:
+```
+|-src/ 
+|  |-main.swift
+|  |-... 
+|-module.yaml
+```
+
+src/main.swift:
+```swift
+...
+@main
+struct iosApp: App {
+   ...
+}
 ```
 
 ### Tests
