@@ -36,7 +36,7 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/") {
     @EnabledOnOs(value = [OS.MAC])
     fun `compose-multiplatform-template (ios)`() = test(
         projectName = "compose-multiplatform-template",
-        ":shared:linkPodDebugFrameworkIosSimulatorArm64",
+        ":shared:linkDebugFrameworkIosSimulatorArm64",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
 }

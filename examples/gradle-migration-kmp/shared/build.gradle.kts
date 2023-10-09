@@ -41,6 +41,6 @@ kotlin {
 
 // Configure existing tasks or plugins
 android {
-    namespace = "com.example"
+    namespace = "com.example.lib"
     compileSdkVersion = "android-34"
 }
