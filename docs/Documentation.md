@@ -74,7 +74,7 @@ See also [Gradle compatibility mode](#file-layout-with-gradle-interop) for the p
 
 _NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
 
-A `module.yaml` file has several main sections: `product:` (or `products:`), `dependencies:` and `settings:`.  A module could produce a single reusable library or multiple native platform-specific applications.
+A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`.  A module could produce a single reusable library or multiple native platform-specific applications.
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
@@ -121,29 +121,6 @@ The product types is supposed to be [extensible](#extensibility), so the followi
 - `jvm/war`
 - `jvm/intellij-plugin`
 
-It's also possible to specify several products (not yet implemented), which can come handy for multi-platform applications, or interop with other build tools like Xcode:
-
-A mobile application:
-```yaml
-products: 
-  - app/ios
-  - app/android
-
-settings:
-  kotlin:
-    languageVersion: 1.9
-```
-
-A reusable library which could also be used as Framework in Xcode:
-```yaml
-products: 
-  - type: lib
-    platforms: [android]
-    
-  - type: ios/framework
-```
-
-
 ### Packaging
 
 Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
@@ -157,24 +134,8 @@ product: jvm/app
 packaging:
   - product: jvm/app        # reference the product by type or ID
     package: fatJar         # specify type of the package 
-    include: licenses/**    # and other things such as layout
-```
-
-Same also works for [multiple products](#product-types): 
-```yaml
-products:
-  - ios/app
-  - android/app
-
-packaging:
-  - product: ios/app        
-    deploymentTarget: 15
-    resources:
-      include: "**/*.png"
-
-  - product: android/app         
-    applicationId: my.app.MyApp    
-    # other android-specific packaging settings
+    resources:              # specify how to lay out the final artifact
+      include: licenses/**    
 ```
 
 ### Publishing
@@ -190,21 +151,19 @@ Here are a few examples of publishing:
 Here is a very rough approximation, how publishing could look like in the DSL:
 
 ```yaml
-products:
-  - type: lib
-    platforms: [android, iosArm64, iosSimulatorArm64]
-
-  - ios/framework
+product:
+  type: lib
+  platforms: [android, iosArm64, iosSimulatorArm64]
 
 publishing:
-  - maven: lib             # reference the product by type or ID        
+  - type: maven        
     groupId: ...
     artifactId: ...
     repository:
       url: ...
       credentials: ...
 
-  - cocoapods: ios/framework # reference the product by type or ID
+  - type: cocoapods
     name: MyCocoaPod
     version: 1.0
     summary: ...
@@ -1274,7 +1233,7 @@ settings:
 
 Sections in the template can also have `@platform`-qualifiers. See the [Multi-platform configuration](#multi-platform-configuration) section for details.
 
-_NOTE: Template files can't have `products:` and `apply:` sections. That is, templates can't be recursive. Templates can't define product lists._
+_NOTE: Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive. Templates can't define product lists._
 
 Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
 - Scalar values (strings,  numbers etc.) are overridden.
