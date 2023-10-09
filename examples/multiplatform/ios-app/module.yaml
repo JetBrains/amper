@@ -6,4 +6,4 @@ dependencies:
 settings:
   compose: enabled
   ios:
-    teamId: SZYW3YCN83
+    teamId: <your team ID here>
