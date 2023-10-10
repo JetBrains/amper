@@ -25,7 +25,27 @@ enum class KotlinVersion(internal val version: String) {
 
 enum class KotlinSerialization(val format: String) {
     None("none"),
-    Json("json");
+    Json("json") {
+        override fun changeDependencies(existing: MutableSet<Notation>) {
+            val coordinate = "org.jetbrains.kotlinx:kotlinx-serialization-json"
+            val version = "1.5.1"
+
+            if (existing.any { it is MavenDependency && it.coordinates.startsWith(coordinate) }) return
+
+            existing.add(
+                MavenDependency(
+                    coordinates = "$coordinate:$version",
+                    compile = true,
+                    runtime = true,
+                    exported = false
+                )
+            )
+        }
+    };
+
+    open fun changeDependencies(existing: MutableSet<Notation>) {
+        // do nothing
+    }
 
     companion object Index : EnumMap<KotlinSerialization, String>(
         KotlinSerialization::values,

@@ -405,15 +405,18 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                     when (kSerialization) {
                         is YamlNode.Mapping -> {
                             (kSerialization.getMapping("format")?.second as? YamlNode.Scalar)?.value?.let { v ->
-                                KotlinSerialization.fromString(v)?.let { serialization = it }
+                                KotlinSerialization.fromString(v)?.let {
+                                    serialization = it
+                                    it.changeDependencies(externalDependencies)
+                                }
                             } ?: {
                                 reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
-
                             }
                         }
                         is YamlNode.Scalar -> {
                             KotlinSerialization.fromString(kSerialization.value)?.let {
                                 serialization = it
+                                it.changeDependencies(externalDependencies)
                             } ?: reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
                         }
                         else -> reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.notation"))

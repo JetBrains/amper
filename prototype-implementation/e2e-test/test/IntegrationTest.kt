@@ -219,4 +219,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "run",
         expectOutputToHave = "Hello, World!",
     )
+
+    @Test
+    fun `kotlin serialization with default lib`() = test(
+        projectName = "kotlin-serialization-default",
+        "run",
+        expectOutputToHave = "Hello, World!",
+    )
 }
