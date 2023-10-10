@@ -5,6 +5,5 @@ dependencies:
 
 settings:
   kotlin:
-    version: 1.9
     serialization:
-      engine: json
+      format: json

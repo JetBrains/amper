@@ -398,25 +398,25 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 }
 
                 kotlinSettings["serialization"]?.let { kSerialization ->
-                    fun reportEngineError(message: String) {
+                    fun reportFormatError(message: String) {
                         problemReporter.reportNodeError(message, kSerialization, kSerialization.originalFile)
                     }
 
                     when (kSerialization) {
                         is YamlNode.Mapping -> {
-                            (kSerialization.getMapping("engine")?.second as? YamlNode.Scalar)?.value?.let { v ->
+                            (kSerialization.getMapping("format")?.second as? YamlNode.Scalar)?.value?.let { v ->
                                 KotlinSerialization.fromString(v)?.let { serialization = it }
                             } ?: {
-                                reportEngineError(FrontendYamlBundle.message("wrong.kotlin.serialization.engine"))
+                                reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
 
                             }
                         }
                         is YamlNode.Scalar -> {
                             KotlinSerialization.fromString(kSerialization.value)?.let {
                                 serialization = it
-                            } ?: reportEngineError(FrontendYamlBundle.message("wrong.kotlin.serialization.engine"))
+                            } ?: reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
                         }
-                        else -> reportEngineError(FrontendYamlBundle.message("wrong.kotlin.serialization.notation"))
+                        else -> reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.notation"))
                     }
                 }
             }

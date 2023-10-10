@@ -23,13 +23,13 @@ enum class KotlinVersion(internal val version: String) {
     )
 }
 
-enum class KotlinSerialization(val engine: String) {
+enum class KotlinSerialization(val format: String) {
     None("none"),
     Json("json");
 
     companion object Index : EnumMap<KotlinSerialization, String>(
         KotlinSerialization::values,
-        KotlinSerialization::engine,
+        KotlinSerialization::format,
         KotlinSerialization::class
     )
 }
