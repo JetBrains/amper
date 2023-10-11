@@ -130,4 +130,11 @@ internal class ParserKtTest : AbstractTestWithBuildFile() {
             testParse("20-kotlin-serialization")
         }
     }
+
+    @Test
+    fun `check android sdk version`() {
+        withBuildFile {
+            testParse("21-android-sdk-version")
+        }
+    }
 }

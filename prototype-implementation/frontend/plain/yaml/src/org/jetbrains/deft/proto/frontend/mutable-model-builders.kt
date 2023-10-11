@@ -54,6 +54,30 @@ enum class KotlinSerialization(val format: String) {
     )
 }
 
+data class AndroidSdkVersion(val version: Int) {
+    fun toIntVersion(): Int = version
+    fun toStringVersion(): String = "$ANDROID_PREFIX$version"
+    fun toIntAsString(): String = version.toString()
+
+    companion object {
+        const val ANDROID_PREFIX = "android-"
+
+        private const val MIN_VERSION = 1
+        private const val MAX_VERSION = 34
+
+        fun fromString(str: String?): AndroidSdkVersion? {
+            if (str == null) return null
+
+            try {
+                val v = Integer.parseInt(str.removePrefix(ANDROID_PREFIX))
+                return if (v in MIN_VERSION..MAX_VERSION) AndroidSdkVersion(v) else null
+            } catch (e: NumberFormatException) {
+                return null
+            }
+        }
+    }
+}
+
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
@@ -72,11 +96,11 @@ data class KotlinPartBuilder(
 }
 
 data class AndroidPartBuilder(
-    var compileSdkVersion: String? = null,
-    var minSdk: String? = null,
-    var minSdkPreview: String? = null,
-    var maxSdk: Int? = null,
-    var targetSdk: String? = null,
+    var compileSdkVersion: AndroidSdkVersion? = null,
+    var minSdk: AndroidSdkVersion? = null,
+    var minSdkPreview: AndroidSdkVersion? = null,
+    var maxSdk: AndroidSdkVersion? = null,
+    var targetSdk: AndroidSdkVersion? = null,
     var applicationId: String? = null,
     var namespace: String? = null,
 ) {
