@@ -145,7 +145,7 @@ Supported dependency types:
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Module](Documentation.md#internal-dependencies) in the codebase.                       |
 | `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
-| `- #<catalog.key>`                               | [Dependency from a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
+| `- $<catalog.key>`                               | [Dependency from a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
 
 Each dependency has the following attributes:
 
