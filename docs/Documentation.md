@@ -356,24 +356,30 @@ dependencies:
       target: "SomePackageTarget"
 ```
 
-### Version Catalogs
+### Dependency/Version Catalogs
 
-_NOTE: Version catalogs are not yet designed or implemented._
+There are several types of dependency catalogs that could be used in Deft:
+- dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.),
+- user-defined dependency catalogs,
+- Gradle version catalogs from [*.versions.toml files](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml).
 
-Here is how we think they could be used in the DSL:
+_NOTE: Dependency catalogs are in a preliminary design. Only toolchains catalogs are currently implemented._
 
+Catalogs could be used via a `$<catalog.key>` reference, for example:
 ```yaml
-product: android/app
-
 dependencies:
-  - compose.foundation
-  - compose.material
-
-settings:
-  compose: enabled
+  - $compose.foundation          # dependency from a Compose Multiplatform catalog
+  - $my-catalog.ktor             # dependency from a custom project catalog with a name 'my-catalog' 
+  - $gradle.lib.commons-lang3    # dependency from a Gradle default 'lib' catalog
 ```
 
-Catalogs might be provided by toolchains, defined by user or imported from [Gradle lib.version.toml](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml) files.  
+Dependencies from catalogs may have [scope and visibility](#scopes-and-visibility):
+
+```yaml
+dependencies:
+  - $compose.foundation: exported
+  - $my-catalog.db-engine: runtime-only 
+```
 
 ### Settings
 

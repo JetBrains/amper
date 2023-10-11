@@ -141,10 +141,11 @@ the [Module tests](Documentation.md#tests).
 
 Supported dependency types:
 
-| Notation                                         | Description                                                                                                    |
-|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Module](Documentation.md#internal-dependencies) in the codebase.                        |
-| `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or  Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
+| Notation                                         | Description                                                                                                   |
+|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Module](Documentation.md#internal-dependencies) in the codebase.                       |
+| `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
+| `- #<catalog.key>`                               | [Dependency from a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
 
 Each dependency has the following attributes:
 
@@ -166,9 +167,10 @@ Examples:
 ```yaml
 # Short form for the dependency attributes
 dependencies:
-  - io.ktor:ktor-client-core:2.2.0
-  - ../common-types: exported
+  - io.ktor:ktor-client-core:2.2.0                   # Kotlin or Java dependency 
   - org.postgresql:postgresql:42.3.3: runtime-only
+  - ../common-types: exported                        # Dependency on another module in the codebase 
+  - $compose.foundation                              # Dependency from the 'compose' catalog
 ```
 
 ```yaml
