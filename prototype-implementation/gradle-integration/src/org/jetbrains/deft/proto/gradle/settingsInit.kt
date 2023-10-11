@@ -45,7 +45,7 @@ class SettingsPluginRun(
                 project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
             }
 
-            // Apply Binding plugin if there is Pot file.
+            // Apply Binding plugin if there is module.yaml file.
             if (connectedModule.buildFile.extension == "yaml") {
                 project.plugins.apply(BindingProjectPlugin::class.java)
             }

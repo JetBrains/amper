@@ -24,7 +24,7 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
     override fun applyBeforeEvaluate() {
         val iosDeviceFragments = module.fragments.filter { it.platforms == setOf(Platform.IOS_ARM64) }
         if (iosDeviceFragments.isEmpty()) {
-            // invariant: if a product type is ios/app, pot has to have at least one device fragment
+            // invariant: if a product type is ios/app, module has to have at least one device fragment
             // this is reason why it shouldn't be reported through a problem reporter (because it mustn't happen)
             error("Module has to have at least one ios device fragment")
         }

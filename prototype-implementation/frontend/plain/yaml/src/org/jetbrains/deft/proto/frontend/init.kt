@@ -37,26 +37,26 @@ class YamlModelInit : ModelInit {
     }
 
     /**
-     * Warning! Do not read content from [pot]
+     * Warning! Do not read content from [moduleYaml]
      *
      * This method is used from IDE, which uses VirtualFileSystem. VFS state is more up-to-date than on-disk state.
-     * [contentReader] reads state directly from VFS, while attempting to invoke something like `pot.readLines()`
-     * will return stale content of the Pot
+     * [contentReader] reads state directly from VFS, while attempting to invoke something like `moduleYaml.readLines()`
+     * will return stale content of the Module
      */
     context(ProblemReporterContext)
     @UsedInIdePlugin
-    fun getPartialModel(pot: Path, contentReader: Reader): Result<Model> {
-        if (!pot.isModuleYaml()) {
+    fun getPartialModel(moduleYaml: Path, contentReader: Reader): Result<Model> {
+        if (!moduleYaml.isModuleYaml()) {
             return Result.failure(
-                DeftException("Expected Pot-file for partial model building, got: ${pot.toAbsolutePath()}")
+                DeftException("Expected Deft module.yaml file for partial model building, got: ${moduleYaml.toAbsolutePath()}")
             )
         }
 
-        val ignorePaths = pot.findAndParseIgnorePaths()
-        if (ignorePaths.any { it.startsWith(pot) }) return Result.success(ModelImpl())
+        val ignorePaths = moduleYaml.findAndParseIgnorePaths()
+        if (ignorePaths.any { it.startsWith(moduleYaml) }) return Result.success(ModelImpl())
 
         val yaml = Yaml()
-        val partialModules = pot.parseModule(yaml, contentReader)
+        val partialModules = moduleYaml.parseModule(yaml, contentReader)
 
         return partialModules.map { ModelImpl(it) }
     }

@@ -32,9 +32,7 @@ class DefaultPotatoModuleDependency(
             val dependencyPath = Path(depPath)
 
             fun Path.resolveModuleFile() =
-                // TODO remove after finishing migration DEFT-145
-                this.resolve("Pot.yaml").takeIf { it.exists() }
-                    ?: this.resolve("module.yaml")
+                this.resolve("module.yaml")
 
             val sourceModulePotFilePath = if (dependencyPath.isAbsolute) {
                 dependencyPath.resolveModuleFile()

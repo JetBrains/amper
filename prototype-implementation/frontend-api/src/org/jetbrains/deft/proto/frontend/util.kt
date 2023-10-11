@@ -94,7 +94,7 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
     operator fun get(key: KeyT) = requireFromString(key)
 }
 
-fun Path.isModuleYaml() = name == "module.yaml" || name == "Pot.yaml"
+fun Path.isModuleYaml() = name == "module.yaml"
 
 val Path.deftIgnoreIfAny: Path?
     get() = resolve(".deftignore").takeIf { it.exists() }
