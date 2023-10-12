@@ -1,0 +1,10 @@
+use_frameworks!
+
+platform :ios, '15.0'
+
+install! 'cocoapods', :deterministic_uuids => false
+
+target 'KaMPKitiOS' do
+    pod 'shared', :path => '../shared/'
+    pod 'SwiftLint'
+end
