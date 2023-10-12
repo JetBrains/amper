@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/plain/yaml" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
             <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
-            <option value="$PROJECT_DIR$/prototype-implementation/ide-plugin-231-232" />
           </set>
         </option>
       </GradleProjectSettings>
