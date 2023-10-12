@@ -6,9 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.deft.proto.frontend.PublicationPart
-import org.jetbrains.deft.proto.frontend.RepositoriesModulePart
-import org.jetbrains.deft.proto.frontend.TestPart
+import org.jetbrains.deft.proto.frontend.*
 import org.jetbrains.deft.proto.gradle.android.AndroidBindingPluginPart
 import org.jetbrains.deft.proto.gradle.apple.AppleBindingPluginPart
 import org.jetbrains.deft.proto.gradle.base.BindingPluginPart
@@ -84,7 +82,7 @@ class BindingProjectPlugin : Plugin<Project> {
     ) {
         project.plugins.apply("maven-publish")
         val extension = project.extensions.getByType(PublishingExtension::class.java)
-        module.leafNonTestFragments.firstOrNull { !it.isTest }?.parts?.find<PublicationPart>()?.let {
+        module.leafNonTestFragments.firstOrNull()?.parts?.find<PublicationPart>()?.let {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
             project.group = it.group ?: ""
             project.version = it.version ?: ""
@@ -111,8 +109,10 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
-        if (linkedModule.leafTestFragments.mapNotNull { it.parts.find<TestPart>() }.any { it.junitPlatform == true }) {
+        if (linkedModule.leafTestFragments.mapNotNull { it.parts.find<JUnitPart>() }.any { it.version == JUnitVersion.JUNIT5 }) {
             project.tasks.withType(Test::class.java) {
+                // TODO Add more comprehensive support - only enable for those thasks,
+                // that relate to fragment.
                 it.useJUnitPlatform()
             }
         }

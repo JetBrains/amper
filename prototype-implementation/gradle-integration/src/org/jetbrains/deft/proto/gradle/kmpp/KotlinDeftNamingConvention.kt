@@ -20,9 +20,22 @@ internal interface KMPEAware {
 object KotlinDeftNamingConvention {
     context(KMPPBindingPluginPart)
     val KotlinSourceSet.deftFragment: FragmentWrapper?
-        get() = if (name == "androidUnitTest")
-            fragmentsByName["androidTest"]
-        else fragmentsByName[name]
+        get() = when(name) {
+            "androidUnitTest" -> fragmentsByName["androidTest"]
+            "commonMain" -> fragmentsByName["common"]
+            else -> fragmentsByName[name]
+        }
+
+    context(KMPPBindingPluginPart)
+    private val KotlinSourceSet.nearestDeftFragments: List<FragmentWrapper>
+        get() = deftFragment?.let { listOf(it) }
+            ?: dependsOn.flatMap { it.nearestDeftFragments }
+
+    context(KMPPBindingPluginPart)
+    val KotlinSourceSet.mostCommonNearestDeftFragment get() = nearestDeftFragments.let { nearest ->
+        nearest.filter { it.fragmentDependencies.none { dep -> dep.target in nearest } }
+            .maxByOrNull { it.platforms.size }
+    }
 
     context(KMPEAware)
     val Platform.targetName
@@ -37,6 +50,10 @@ object KotlinDeftNamingConvention {
         get() = kotlinMPE.targets.findByName(targetName)
 
     context(KMPEAware)
+    val Platform.target
+        get() = kotlinMPE.targets.findByName(targetName)
+
+    context(KMPEAware)
     private val FragmentWrapper.commonKotlinSourceSetName: String
         get() = when {
             !isTest -> "commonMain"
@@ -46,7 +63,13 @@ object KotlinDeftNamingConvention {
 
     context(KMPEAware)
     val FragmentWrapper.kotlinSourceSetName: String
-        get() = if (name == "androidTest") "androidUnitTest" else name
+        get() = when(name) {
+            // TODO Add variants support.
+            "androidTest" -> "androidUnitTest"
+            "common" -> "commonMain"
+            else -> name
+        }
+
 
     context(KMPEAware)
     val FragmentWrapper.kotlinSourceSet: KotlinSourceSet?

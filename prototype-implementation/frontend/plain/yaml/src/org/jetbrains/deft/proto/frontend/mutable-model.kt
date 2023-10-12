@@ -1,6 +1,8 @@
 package org.jetbrains.deft.proto.frontend
 
 import org.jetbrains.deft.proto.core.Result
+import org.jetbrains.deft.proto.core.deftFailure
+import org.jetbrains.deft.proto.core.getOrElse
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.model.PlainArtifact
 import org.jetbrains.deft.proto.frontend.model.PlainFragment
@@ -366,6 +368,7 @@ private fun MutableList<FragmentBuilder>.addFragment(fragment: FragmentBuilder, 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
 internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Mapping>(this, "settings") {
+        var hasErrors = false
         kotlin = KotlinPartBuilder {
             it.getMappingValue("kotlin")?.let { kotlinSettings ->
                 // Special
@@ -400,6 +403,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 kotlinSettings["serialization"]?.let { kSerialization ->
                     fun reportFormatError(message: String) {
                         problemReporter.reportNodeError(message, kSerialization, kSerialization.originalFile)
+                        hasErrors = true
                     }
 
                     when (kSerialization) {
@@ -413,12 +417,14 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                                 reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
                             }
                         }
+
                         is YamlNode.Scalar -> {
                             KotlinSerialization.fromString(kSerialization.value)?.let {
                                 serialization = it
                                 it.changeDependencies(externalDependencies)
                             } ?: reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
                         }
+
                         else -> reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.notation"))
                     }
                 }
@@ -426,12 +432,21 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
         }
 
         junit = JunitPartBuilder {
-            it.getMappingValue("junit")?.let { testSettings ->
-                platformEnabled = testSettings.getBooleanValue("platformEnabled")
+            val junitStringValue = it.getStringValue("junit")
+            jUnitVersion = JUnitVersion.Index.resultFromString(junitStringValue).getOrElse { _ ->
+                problemReporter.reportNodeError(
+                    FrontendYamlBundle.message(
+                        "wrong.enum.type",
+                        JUnitVersion.Index.keys.joinToString { it },
+                    ),
+                    it["junit"],
+                )
+                hasErrors = true
+                null
             }
         }
 
-        Result.success(Unit)
+        if (hasErrors) deftFailure() else Result.success(Unit)
     }
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
@@ -481,7 +496,7 @@ internal fun List<ArtifactBuilder>.handleSettings(
         compose = ComposePartBuilder {
             // inline form
             it.getStringValue("compose")?.let { composeValue ->
-                enabled = when(composeValue) {
+                enabled = when (composeValue) {
                     "enabled" -> true
                     else -> false
                 }

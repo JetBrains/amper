@@ -1,5 +1,7 @@
 package org.jetbrains.deft.proto.frontend
 
+import org.jetbrains.deft.proto.core.DeftException
+import org.jetbrains.deft.proto.core.Result
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.exists
@@ -84,12 +86,19 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
         values().forEach { put(key(it), it) }
     }
 
+    val keys by lazy { enumMap.keys }
+
     // TODO REFACTOR Rename to "fromKey"
     fun fromString(value: KeyT): EnumT? = enumMap[value]
 
     // TODO REFACTOR Rename to "requireFromKey"
     fun requireFromString(value: KeyT): EnumT = enumMap[value]
         ?: error("No valid value of ${klass.simpleName} for key $value")
+
+    fun resultFromString(value: KeyT?): Result<EnumT?> =
+        if (value == null) Result.success(null)
+        else enumMap[value]?.let { Result.success(it) }
+                ?: Result.failure(DeftException("No valid value of ${klass.simpleName} for key $value"))
 
     operator fun get(key: KeyT) = requireFromString(key)
 }

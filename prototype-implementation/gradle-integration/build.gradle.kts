@@ -14,10 +14,14 @@ gradlePlugin {
     }
 }
 
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-serialization") {
-        version {
-            strictly("1.9.10")
+kotlin {
+    sourceSets.named("jvm") {
+        dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-serialization") {
+                version {
+                    strictly("1.9.10")
+                }
+            }
         }
     }
 }

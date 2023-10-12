@@ -41,13 +41,6 @@ data class KotlinPart(
     }
 }
 
-data class TestPart(val junitPlatform: Boolean?) : FragmentPart<TestPart> {
-    override fun propagate(parent: TestPart): FragmentPart<*> =
-        TestPart(junitPlatform ?: parent.junitPlatform)
-
-    override fun default(module: PotatoModule): FragmentPart<*> = TestPart(junitPlatform ?: true)
-}
-
 data class AndroidPart(
     val compileSdkVersion: String?,
     val minSdk: String? = null,
@@ -69,11 +62,34 @@ data class JvmPart(
     val mainClass: String? = null,
     val target: String? = null,
 ) : FragmentPart<JvmPart> {
+    override fun propagate(parent: JvmPart) = JvmPart(
+        mainClass ?: parent.mainClass,
+        target ?: parent.target
+    )
+
     override fun default(module: PotatoModule): FragmentPart<JvmPart> =
         JvmPart(
             mainClass,
             target ?: "17",
         )
+}
+
+enum class JUnitVersion(val key: String) {
+    JUNIT4("junit-4"), JUNIT5("junit-5"), NONE("none");
+
+    companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::key, JUnitVersion::class)
+}
+
+data class JUnitPart(
+    val version: JUnitVersion? = null
+) : FragmentPart<JUnitPart> {
+    override fun propagate(parent: JUnitPart) = JUnitPart(
+        version ?: parent.version
+    )
+
+    override fun default(module: PotatoModule) = JUnitPart(
+        version ?: JUnitVersion.JUNIT5
+    )
 }
 
 data class JavaPart(
@@ -97,6 +113,11 @@ data class PublicationPart(
     val group: String?,
     val version: String?,
 ) : FragmentPart<PublicationPart> {
+    override fun propagate(parent: PublicationPart) = PublicationPart(
+        group ?: parent.group,
+        version ?: parent.version
+    )
+
     override fun default(module: PotatoModule): FragmentPart<PublicationPart> =
         PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
 }
@@ -112,7 +133,7 @@ data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
 
 }
 
-data class IosPart(val teamId: String?): FragmentPart<IosPart> {
+data class IosPart(val teamId: String?) : FragmentPart<IosPart> {
     override fun propagate(parent: IosPart): FragmentPart<*> {
         return IosPart(teamId ?: parent.teamId)
     }

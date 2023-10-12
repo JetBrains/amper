@@ -17,8 +17,7 @@ dependencies@jvm:
     - org.jetbrains.compose.desktop:desktop:1.5.10-beta02
 
 settings:
-    compose:
-        enabled: true
+    compose: enabled
     android:
         namespace: "com.myapplication.common"
         compileSdkVersion: android-33

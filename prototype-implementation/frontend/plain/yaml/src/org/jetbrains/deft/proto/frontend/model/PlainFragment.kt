@@ -38,10 +38,6 @@ internal open class PlainFragment(
             )
         }
 
-        addPartFrom(fragmentBuilder.junit) {
-            TestPart(platformEnabled)
-        }
-
         addPartFrom(fragmentBuilder.android) {
             AndroidPart(
                 compileSdkVersion?.toStringVersion(),
@@ -68,6 +64,12 @@ internal open class PlainFragment(
             JvmPart(
                 mainClass,
                 target,
+            )
+        }
+
+        addPartFrom(fragmentBuilder.junit) {
+            JUnitPart(
+                jUnitVersion,
             )
         }
 

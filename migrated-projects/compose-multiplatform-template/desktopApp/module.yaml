@@ -5,5 +5,4 @@ dependencies:
     - ../shared
 
 settings:
-    compose:
-        enabled: true
+    compose: enabled

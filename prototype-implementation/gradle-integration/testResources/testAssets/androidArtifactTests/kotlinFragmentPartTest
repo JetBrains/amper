@@ -1,6 +1,6 @@
 :
   androidDebug:
-   depends(common,commonMain)
+   depends(commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -15,12 +15,12 @@
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidMain:
-   depends(common,commonMain)
+   depends(commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
   androidRelease:
-   depends(common,commonMain)
+   depends(commonMain)
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
@@ -39,14 +39,9 @@
    sourceDirs()
    lang(api=null version=null progressive=false features=)
    implDeps()
-  common:
-   depends()
-   sourceDirs(common/src)
-   lang(api=null version=null progressive=false features=)
-   implDeps()
   commonMain:
    depends()
-   sourceDirs()
+   sourceDirs(common/src)
    lang(api=null version=null progressive=false features=)
    implDeps()
   commonTest:

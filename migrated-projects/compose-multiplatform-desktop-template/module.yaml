@@ -10,9 +10,5 @@ test-dependencies:
   - org.jetbrains.compose.ui:ui-test-junit4-desktop:1.5.2
 
 settings:
-  compose:
-    enabled: true
-  junit:
-    # temporary workaround:
-    # since ui-test-junit4-desktop support Junit 4 only, we need to disable the Junit5 runner
-    platformEnabled: false
+  compose: enabled
+  junit: junit-4

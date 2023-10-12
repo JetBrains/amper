@@ -138,7 +138,7 @@ data class NativePartBuilder(
 }
 
 data class JunitPartBuilder(
-    var platformEnabled: Boolean? = null,
+    var jUnitVersion: JUnitVersion? = null,
 ) {
     companion object : BuilderCompanion<JunitPartBuilder>(::JunitPartBuilder)
 }

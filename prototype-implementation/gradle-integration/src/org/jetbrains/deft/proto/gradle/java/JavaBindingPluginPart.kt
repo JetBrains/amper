@@ -167,7 +167,8 @@ class JavaBindingPluginPart(
                 // Do DEFT specific.
                 layout == Layout.DEFT && fragment != null -> {
                     sourceSet.java.setSrcDirs(listOf(fragment.src))
-                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
+//                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
+                    sourceSet.resources.setSrcDirs(emptyList<File>())
                 }
                 layout == Layout.DEFT && fragment == null -> {
                     sourceSet.java.setSrcDirs(emptyList<File>())

@@ -12,5 +12,4 @@ settings:
         targetSdk: 33
     jvm: 
         target: 17
-    compose:
-        enabled: true
+    compose: enabled
