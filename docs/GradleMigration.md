@@ -34,20 +34,19 @@ rootProject.name = "my-project-name"
 In order to start using Deft, add a couple of plugin repositories and apply the plugin:  
 
 ```kotlin
-buildscript {
+pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        
         // add repositories:
         google()
         maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
+}
 
-    // add plugin classpath:
-    dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:185-NIGHTLY")
-    }
+plugins {
+    // apply the plugin:
+    id("org.jetbrains.deft.proto.settings.plugin").version("185-NIGHTLY")
 }
 
 rootProject.name = "my-project-name"

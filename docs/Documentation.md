@@ -1381,23 +1381,20 @@ starting from the location of `settings.gradle.kts`.
 
 settings.gradle.kts:
 ```kotlin
-buildscript {
-    // Configured repositories required for the DSL plugin
+pluginManagement {
+    // Configure repositories required for the DSL plugin
     repositories {
         mavenCentral()
-        google()
         gradlePluginPortal()
+        google()
         maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
-    }
-
-    // Add the DSL plugin into Gradle's classpath
-    dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:185-NIGHTLY")
     }
 }
 
-// Apply the DSL plugin
-plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+plugins {
+    // Add the plugin
+    id("org.jetbrains.deft.proto.settings.plugin").version("185-NIGHTLY")
+}
 ```
 
 ### Gradle interop
