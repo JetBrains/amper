@@ -19,7 +19,7 @@ kotlin {
         dependencies {
             implementation("org.jetbrains.kotlin:kotlin-serialization") {
                 version {
-                    strictly("1.9.10")
+                    strictly("1.9.20-RC")
                 }
             }
         }
