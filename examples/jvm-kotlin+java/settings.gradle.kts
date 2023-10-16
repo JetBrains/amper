@@ -1,14 +1,12 @@
-buildscript {
+pluginManagement {
     repositories {
         mavenCentral()
         google()
         gradlePluginPortal()
         maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
-
-    dependencies {
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:185-NIGHTLY")
-    }
 }
 
-plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+plugins {
+    id("org.jetbrains.deft.proto.settings.plugin").version("185-NIGHTLY")
+}
