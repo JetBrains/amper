@@ -12,6 +12,9 @@ DEFT_VERSION="185-NIGHTLY"
 DEFT_PATTERN="org\.jetbrains\.deft\.proto\.settings\.plugin:gradle-integration:"
 DEFT_SED=$(make_sed $DEFT_PATTERN $DEFT_VERSION)
 
+DEFT_PLUGIN_PATTERN='id\(\"org\.jetbrains\.deft\.proto\.settings\.plugin\"\)\.version\(\"'
+DEFT_PLUGIN_SED=$(make_sed $DEFT_PLUGIN_PATTERN $DEFT_VERSION)
+
 KMPP_VERSION="1.9.20-Beta"
 KMPP_PATTERN="org\.jetbrains\.kotlin\.multiplatform:org\.jetbrains\.kotlin\.multiplatform\.gradle\.plugin:"
 KMPP_SED=$(make_sed $KMPP_PATTERN $KMPP_VERSION)
@@ -42,7 +45,7 @@ echo
 
 # Perform replacement.
 cat $FOUND_FILES_FILE | \
-  xargs sed -i "$OLD_FILES_POSTFIX" -r "$DEFT_SED;$COMPOSE_SED;$KMPP_SED;$GRADLE_SED"
+  xargs sed -i "$OLD_FILES_POSTFIX" -r "$DEFT_SED;$DEFT_PLUGIN_SED;$COMPOSE_SED;$KMPP_SED;$GRADLE_SED"
 
 find -E . -regex ".*(settings\.gradle\.kts|\.md|\.properties)$OLD_FILES_POSTFIX$" | \
   grep -v "/build/" 1> $EDITED_FILES_FILE
