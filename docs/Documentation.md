@@ -104,7 +104,7 @@ settings:
 Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
 - `lib` - a reusable library which could be used as dependency by other Modules in the codebase.
 - `jvm/app` - a JVM console or desktop application
-- `windows/app` - a mingw64 app
+- `windows/app` - a mingw64 app (not yet implemented)
 - `linux/app`
 - `macos/app`
 - `android/app` - an Android VM application  
@@ -117,7 +117,7 @@ Other product types what we plan to support in the future:
 - `macos/framework`
 - etc.
 
-The product types is supposed to be [extensible](#extensibility), so the following types are also possible:
+The product types is supposed to be [extensible](#extensibility), so the following types could also be possible in the future:
 - `jvm/war`
 - `jvm/intellij-plugin`
 
@@ -126,21 +126,20 @@ The product types is supposed to be [extensible](#extensibility), so the followi
 Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
 By default, packages are generated according to platform and build tool conventions. When custom configuration is needed DSL offer a separate `packaging:` section.
 
-_NOTE: Packaging configuration is not yet implemented_
+_NOTE: Packaging configuration is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for packaging._
 
 ```yaml
 product: jvm/app
 
 packaging:
-  - product: jvm/app        # reference the product by type or ID
-    package: fatJar         # specify type of the package 
+  - type: fatJar            # specify type of the package 
     resources:              # specify how to lay out the final artifact
       include: licenses/**    
 ```
 
 ### Publishing
 
-_NOTE: Publishing is not yet designed or implemented._
+_NOTE: Publishing configuration is not yet designed or implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for publishing._
 
 Publishing means preparing the resulting [package](#packaging) for external use, and actually uploading or deploying it.
 Here are a few examples of publishing:
@@ -1399,7 +1398,7 @@ plugins {
 
 ### Gradle interop
 
-Gradle interop supports two main scenarios:
+The Gradle interop supports two main scenarios:
 * smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Module Manifest,
 * writing custom Gradle tasks or using existing Gradle plugins in an existing Module Manifest.
 
