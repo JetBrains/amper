@@ -1392,7 +1392,7 @@ pluginManagement {
 
 plugins {
     // Add the plugin
-    id("org.jetbrains.deft.proto.settings.plugin").version("185-NIGHTLY")
+    id("org.jetbrains.deft.proto.settings.plugin").version("197-NIGHTLY")
 }
 ```
 
