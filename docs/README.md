@@ -6,6 +6,28 @@ Deft currently supports Kotlin and Java applications, targeting JVM, Android, iO
 
 Deft is currently using Gradle as the backend and YAML as the frontend, i.e. the project configuration. Custom tasks, publishing of libraries to Maven, CocoaPods, and packaging desktop apps are all provided via Gradle interop for now.
 
+Supported features:
+* Creating and running JVM, Android, iOS, Linux and macOS applications.
+* Creating Kotlin Multiplatform libraries.
+* Running tests.
+* Mixing Kotlin, Java and Swift code.
+* Using [Compose Multiplatform](Documentation.md#configuring-compose-multiplatform).
+* [Multi-module](Documentation.md#internal-dependencies) projects.
+* [Gradle interop](Documentation.md#gradle-interop) (including combining Deft and Gradle modules in one projects).
+* Code assistance for [module manifest files](Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
+
+Planned features:
+* More [product type](Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
+* [Platform-specific test types](Documentation.md#special-types-of-tests), including android instrumented tests.
+* [Native dependencies](Documentation.md#native-dependencies) support, such as CocoaPods, Swift Package Manager.
+* Integration with [Gradle version catalogs](Documentation.md#dependencyversion-catalogs).
+* [Packaging](Documentation.md#packaging) and [publication](Documentation.md#publishing). 
+* [Build variants](Documentation.md#build-variants) support.
+* [Extensibility](Documentation.md#extensibility).
+* Workspaces (organizing multiple modules together).
+* Support more Kotlin and Kotlin Multiplatform scenarios and configurations out-of-the-box.
+
+
 Check the [FAQ for more question](FAQ.md) and the list of [known issues](KnownIssues.md).
 
 Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/DEFT).  
