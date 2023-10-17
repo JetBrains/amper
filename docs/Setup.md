@@ -49,12 +49,10 @@ them.
   ![](images/ij-idea.png)
   ![](images/fleet.png)
 
-
 ### What's next
 See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Try opening the examples projects:
   - [JVM Hello World](../examples/jvm-kotlin+java)
   - [Compose Desktop](../examples/compose-desktop)
   - [Kotlin Multiplatform](../examples/multiplatform)
 
-
-
+Read how to use Deft in [IntelliJ IDEA](README.md#using-deft-in-intellij-idea) and [Fleet](README.md#using-deft-in-fleet).

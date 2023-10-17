@@ -137,3 +137,64 @@ Check our more real world examples:
 * [Multiplatform](../examples/multiplatform) project with shared code.
 * [Gradle interop](../examples/gradle-interop)
 * And [others](../examples)
+
+
+### Using Deft in IntelliJ IDEA
+
+See [the setup instructions](Setup.md) to configure your IDE.
+
+Open a Deft project as usual by pointing at the folder with the main `settings.gradle.kts` file:
+
+To run an application:
+
+* use a 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `product: ` section in a module.yaml file:\
+ ![img.png](images/ij-run-product.png)
+
+
+* use a 'run' (![](images/ij-run-gutter-icon.png)) gutter icon next to the `main()` function:\
+  ![](images/ij-run-main.png)
+
+
+* use [Run/Debug configurations](https://www.jetbrains.com/help/idea/run-debug-configuration.html):\
+  ![](images/ij-run-config-jvm.png)\
+  ![](images/ij-run-config-android.png)
+
+
+* launch a Gradle task directly:\
+  ![](images/ij-run-gradle-task.png)
+  
+
+To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon or Gradle run configuration. Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).
+![](images/ij-run-tests.png)
+
+
+### Using Deft in Fleet
+
+See [the setup instructions](Setup.md) to configure your IDE.
+
+Open a Deft project as usual by pointing at the folder with the main settings.gradle.kts file:
+
+To run an application:
+
+* use a 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon next to the `product: ` section in a module.yaml file:\
+ ![](images/fleet-run-product.png)
+
+
+* use a 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon next to the `main()` function:\
+  ![](images/fleet-run-main.png)
+
+
+* use [Run configurations](https://www.jetbrains.com/help/fleet/getting-started-with-kotlin-in-fleet.html#create-rc):\
+  ![](images/fleet-run-config.png)\
+  ![](images/fleet-run-config-ios.png)
+
+
+* launch a Gradle task directly:\
+  ![](images/fleet-run-gradle-task.png)
+   
+  
+  
+
+To run tests use the same 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration
+
+
