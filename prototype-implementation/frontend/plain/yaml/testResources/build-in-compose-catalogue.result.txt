@@ -1,0 +1,63 @@
+Module {{ userReadableName }}
+Fragments:
+  android
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.animation:animation:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.animation:animation-graphics:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material:material:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.runtime:runtime-saveable:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling-preview:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.material:material-icons-extended:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-resources:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-svg:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-test-utils:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.html:html-core:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-splitpane:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.components:components-animatedimage:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-x64:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.5.10-beta01, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.compose.ui:ui-test-junit4:1.5.10-beta01, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
+  androidTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      android (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      ComposePart(enabled=null)
+Artifacts:
+  isTest: false
+  [ANDROID]
+    Fragments:
+      android
+  isTest: true
+  [ANDROID]
+    Fragments:
+      androidTest

@@ -1,7 +1,6 @@
 package org.jetbrains.deft.proto.frontend
 
-import org.jetbrains.deft.proto.core.Result
-import org.jetbrains.deft.proto.core.deftFailure
+import org.jetbrains.deft.proto.core.*
 import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
 import org.jetbrains.deft.proto.core.system.SystemInfo
@@ -11,7 +10,6 @@ import org.jetbrains.deft.proto.frontend.nodes.pretty
 import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.exists
 
 context (BuildFileAware)
 class DefaultPotatoModuleDependency(
@@ -70,11 +68,14 @@ internal fun List<FragmentBuilder>.handleExternalDependencies(
 ): Result<Unit> = addRawDependencies(config, systemInfo)
 
 context (BuildFileAware, ProblemReporterContext, ParsingContext)
-private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, systemInfo: SystemInfo = DefaultSystemInfo): Result<Unit> =
+private fun List<FragmentBuilder>.addRawDependencies(
+    config: YamlNode.Mapping,
+    systemInfo: SystemInfo = DefaultSystemInfo
+): Result<Unit> =
     config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
         var hasErrors = false
         val resolved = depList.mapNotNull { dep ->
-            val dependency = parseDependency(dep)
+            val dependency = BuiltInCatalogue.parseDependency(dep)
             if (dependency == null) {
                 problemReporter.reportNodeError(
                     FrontendYamlBundle.message("cant.parse.dependency", name, dep.pretty),
@@ -84,10 +85,13 @@ private fun List<FragmentBuilder>.addRawDependencies(config: YamlNode.Mapping, s
                 hasErrors = true
             }
             dependency
-        }.map {
-            if (it is MavenDependency) {
-                replaceWithOsDependant(systemInfo, it)
-            } else it
+        }.mapNotNull {
+            if (it.getOrNull() is MavenDependency) {
+                replaceWithOsDependant(systemInfo, it.get() as MavenDependency)
+            } else it.getOrElse {
+                hasErrors = true
+                null
+            }
         }
         if (hasErrors) {
             return@handleFragmentSettings deftFailure()

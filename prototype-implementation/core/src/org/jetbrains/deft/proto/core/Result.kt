@@ -10,6 +10,8 @@ sealed interface Result<out T> {
     data class Failure<T>(val exception: Throwable) : Result<T>
 }
 
+fun <T> T.asDeftSuccess() = Result.success(this)
+
 fun <T> Result<T>.get(): T = when (this) {
     is Result.Success -> value
     is Result.Failure -> throw exception
@@ -30,9 +32,9 @@ inline fun <T, R> Result<T>.map(transform: (T) -> R): Result<R> = when (this) {
     is Result.Failure -> Result.failure(exception)
 }
 
-inline fun <T, R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> = when (this) {
+inline fun <T, R, V : Result<R>?> Result<T>.flatMap(transform: (T) -> V): V = when (this) {
     is Result.Success -> transform(value)
-    is Result.Failure -> Result.failure(exception)
+    is Result.Failure -> Result.failure<R>(exception) as V
 }
 
 fun <T> List<Result<T>>.unwrap(): List<T> = map { it.get() }

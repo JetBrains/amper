@@ -1,9 +1,8 @@
 package org.jetbrains.deft.proto.frontend.dependency
 
-import org.jetbrains.deft.proto.frontend.BuildFileAware
-import org.jetbrains.deft.proto.frontend.DefaultPotatoModuleDependency
-import org.jetbrains.deft.proto.frontend.MavenDependency
-import org.jetbrains.deft.proto.frontend.Notation
+import org.jetbrains.deft.proto.core.*
+import org.jetbrains.deft.proto.frontend.*
+import org.jetbrains.deft.proto.core.messages.ProblemReporterContext
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.getBooleanValue
 import org.jetbrains.deft.proto.frontend.nodes.getStringValue
@@ -16,17 +15,30 @@ private data class NotationWithFlags(
     val node: YamlNode,
 )
 
-private val stringDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
-    (dependency as? YamlNode.Scalar)?.let { NotationWithFlags(dependency.value, runtime = true, compile = true, exported = false, dependency) }
+context(ProblemReporterContext)
+fun Catalogue.replaceIfInCatalogue(notation: String, node: YamlNode): Result<String> =
+    if (notation.startsWith("$")) {
+        findInCatalogue(notation.removePrefix("$"), node)
+    } else
+        Result.success(notation)
+
+context(ProblemReporterContext)
+private fun stringDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
+    (dependency as? YamlNode.Scalar)?.let {
+        replaceIfInCatalogue(dependency.value, dependency).map {
+            NotationWithFlags(it, runtime = true, compile = true, exported = false, dependency)
+        }
+    }
 }
 
-private val inlineDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
+context(ProblemReporterContext)
+private fun inlineDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
     (dependency as? YamlNode.Mapping)?.let {
         if (dependency.size != 1) {
             return@let null
         }
         val entry = dependency.mappings.first()
-        val notation = entry.first as YamlNode.Scalar
+        val notation = replaceIfInCatalogue((entry.first as YamlNode.Scalar).value, entry.first)
         (entry.second as? YamlNode.Scalar)?.let {
             val (compile, runtime, exported) = when (it.value) {
                 "compile-only" -> Triple(true, false, false)
@@ -35,18 +47,21 @@ private val inlineDependencyFormat: (YamlNode) -> NotationWithFlags? = { depende
                 "exported" -> Triple(true, true, true)
                 else -> Triple(true, true, false)
             }
-            NotationWithFlags(notation.value, compile, runtime, exported, notation)
+            notation.map {
+                NotationWithFlags(it, compile, runtime, exported, entry.first)
+            }
         }
     }
 }
 
-private val fullDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependency ->
+context(ProblemReporterContext)
+private fun fullDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
     (dependency as? YamlNode.Mapping)?.let {
         if (dependency.size != 1) {
             return@let null
         }
         val entry = dependency.mappings.first()
-        val notation = entry.first as YamlNode.Scalar
+        val notation = replaceIfInCatalogue((entry.first as YamlNode.Scalar).value, entry.first)
 
         (entry.second as? YamlNode.Mapping)?.let { dependencySettings ->
             val scope = dependencySettings.getStringValue("scope") ?: "all"
@@ -57,61 +72,63 @@ private val fullDependencyFormat: (YamlNode) -> NotationWithFlags? = { dependenc
                 else -> true to true
             }
             val exported = dependencySettings.getBooleanValue("exported") ?: false
-            NotationWithFlags(notation.value, compile, runtime, exported, notation)
+            notation.map {
+                NotationWithFlags(it, compile, runtime, exported, entry.first)
+            }
         }
     }
 }
 
 
-private val internalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> Notation)? = { notationWithFlags ->
-    if (notationWithFlags.notation.startsWith(".") || notationWithFlags.notation.startsWith("/")) {
-        { context ->
-            with(context) {
-                DefaultPotatoModuleDependency(
+private val internalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> Result<Notation>)? =
+    { notationWithFlags ->
+        if (notationWithFlags.notation.startsWith(".") || notationWithFlags.notation.startsWith("/")) {
+            { context ->
+                with(context) {
+                    DefaultPotatoModuleDependency(
+                        notationWithFlags.notation,
+                        notationWithFlags.compile,
+                        notationWithFlags.runtime,
+                        notationWithFlags.exported,
+                        notationWithFlags.node,
+                    ).asDeftSuccess()
+                }
+            }
+        } else {
+            null
+        }
+    }
+private val externalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> Result<Notation>)? =
+    { notationWithFlags ->
+        if (!notationWithFlags.notation.startsWith(".") && !notationWithFlags.notation.startsWith("/")) {
+            {
+                MavenDependency(
                     notationWithFlags.notation,
                     notationWithFlags.compile,
                     notationWithFlags.runtime,
-                    notationWithFlags.exported,
-                    notationWithFlags.node,
-                )
+                    notationWithFlags.exported
+                ).asDeftSuccess()
             }
+        } else {
+            null
         }
-    } else {
-        null
     }
-}
-private val externalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> Notation)? = { notationWithFlags ->
-    if (!notationWithFlags.notation.startsWith(".") && !notationWithFlags.notation.startsWith("/")) {
-        {
-            MavenDependency(
-                notationWithFlags.notation,
-                notationWithFlags.compile,
-                notationWithFlags.runtime,
-                notationWithFlags.exported
-            )
-        }
-    } else {
-        null
-    }
-}
 
-private infix fun <A, B, C> List<(A) -> B?>.combine(functions: List<(B) -> C?>): (A) -> C? = { value ->
-    functions.firstNotNullOfOrNull { firstNotNullOfOrNull { it(value) }?.let(it) }
-}
-
-context(BuildFileAware)
-fun parseDependency(dependency: YamlNode): Notation? {
+context(BuildFileAware, ProblemReporterContext)
+fun Catalogue.parseDependency(dependency: YamlNode): Result<Notation>? {
     val dependencyFormats = listOf(
-        stringDependencyFormat,
-        inlineDependencyFormat,
-        fullDependencyFormat
+        stringDependencyFormat(),
+        inlineDependencyFormat(),
+        fullDependencyFormat(),
     )
-    val notationFormats: List<(NotationWithFlags) -> ((BuildFileAware) -> Notation)?> = listOf(
+    val notationFormats: List<(NotationWithFlags) -> ((BuildFileAware) -> Result<Notation>)?> = listOf(
         internalNotationFormat,
         externalNotationFormat
     )
-    val resultingFunction = (dependencyFormats combine notationFormats)(dependency)
-    return resultingFunction?.let {
-        it(this@BuildFileAware)
-    }
+    return dependencyFormats
+        .firstNotNullOfOrNull { it(dependency) }
+        ?.flatMap { dep ->
+            val parsed = notationFormats.firstNotNullOfOrNull { it(dep) }
+            parsed?.invoke(this@BuildFileAware)
+        }
 }

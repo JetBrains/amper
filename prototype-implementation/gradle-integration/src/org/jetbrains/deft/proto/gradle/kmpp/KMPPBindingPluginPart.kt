@@ -55,15 +55,17 @@ class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
 
+    companion object {
+        // TODO Pass it from build.
+        internal val embeddedKotlinVersion = "1.9.20-Beta"
+    }
+
     internal val fragmentsByName = module.fragments.associateBy { it.name }
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     override val needToApply = true
-
-    // TODO Pass it from build.
-    private val embeddedKotlinVersion = "1.9.20-Beta"
 
     override fun applyBeforeEvaluate() {
         initTargets()
