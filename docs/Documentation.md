@@ -394,7 +394,7 @@ settings:
     compileSdkVersion: android-31
 ```
 
-Here is the list of [currently supported toolchains and their settings](DSLReference#compose).   
+Here is the list of [currently supported toolchains and their settings](DSLReference.md#compose).   
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
