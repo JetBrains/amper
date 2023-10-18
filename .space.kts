@@ -35,10 +35,10 @@ fun registerJobInPrototypeDir(
 
         // Add e2e test report.
         fileArtifacts {
-            localPath = "e2e-test/build/reports/tests"
+            localPath = "build/aggregatedTestReport.zip"
             optional = true
             onStatus = OnStatus.ALWAYS
-            remotePath = "{{ run:number }}/e2e-tests-report"
+            remotePath = "{{ run:number }}/e2e-tests-report.zip"
         }
 
         kotlinScript {
@@ -68,7 +68,8 @@ registerJobInPrototypeDir("Build") {
     gradlew(
         "--info",
         "--stacktrace",
-        "allTests"
+        "allTests",
+        "aggregatedTestReport"
     )
 }
 
