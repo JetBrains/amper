@@ -3,10 +3,10 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
+        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
-    includeBuild("../../prototype-implementation")
 }
 
 plugins {
-    id("org.jetbrains.deft.proto.settings.plugin")
+    id("org.jetbrains.deft.proto.settings.plugin").version("197-NIGHTLY")
 }
