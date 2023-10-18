@@ -69,7 +69,7 @@ registerJobInPrototypeDir("Build") {
         "--info",
         "--stacktrace",
         "allTests",
-        "aggregatedTestReport"
+        "aggregateTestReports"
     )
 }
 
