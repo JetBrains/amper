@@ -10,7 +10,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.deft.proto.settings.plugin").version("197-NIGHTLY")
+    id("org.jetbrains.deft.proto.settings.plugin").version("199-NIGHTLY")
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
 }
 
