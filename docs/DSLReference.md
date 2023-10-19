@@ -365,9 +365,13 @@ settings:
 
 #### JUnit
 
-`settings:junit:` configures the junit test runner on the JVM and Android platforms. Read more
+`settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
 about [testing support](Documentation.md#tests).
 
-| Attribute                  | Description                                                                   | Default |
-|----------------------------|-------------------------------------------------------------------------------|---------|
-| `platformEnabled: boolean` | Whether to use JUnit 5 platform runner. Disable it to use JUnit 4 or earlier. | true    |
+By default, JUnit 5 is used.
+
+| Value     | Description                                                                         |
+|-----------|-------------------------------------------------------------------------------------|
+| `junit-5` | JUnit 5 dependencies and the test runner are configured. This is the default value. |
+| `junit-4` | JUnit 4 dependencies and the test runner are configured.                            |
+| `none`    | JUnit is not automatically configured.                                              |
