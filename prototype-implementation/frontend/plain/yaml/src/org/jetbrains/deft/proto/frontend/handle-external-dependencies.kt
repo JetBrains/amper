@@ -75,7 +75,7 @@ private fun List<FragmentBuilder>.addRawDependencies(
     config.handleFragmentSettings<YamlNode.Sequence>(this, "dependencies") { depList ->
         var hasErrors = false
         val resolved = depList.mapNotNull { dep ->
-            val dependency = BuiltInCatalogue.parseDependency(dep)
+            val dependency = BuiltInCatalog.parseDependency(dep)
             if (dependency == null) {
                 problemReporter.reportNodeError(
                     FrontendYamlBundle.message("cant.parse.dependency", name, dep.pretty),

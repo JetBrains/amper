@@ -5,16 +5,16 @@ import org.jetbrains.deft.proto.frontend.helper.testParse
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class CatalogueTest : AbstractTestWithBuildFile() {
+internal class CatalogTest : AbstractTestWithBuildFile() {
 
     @Test
     @Ignore
-    fun `check build in compose catalogue versions`() = withBuildFile {
+    fun `check build in compose catalog versions`() = withBuildFile {
         testParse("build-in-compose-catalogue")
     }
 
     @Test
-    fun `check failure with absent catalogue key`() = withBuildFile {
-        testParse("no-catalogue-value")
+    fun `check failure with absent catalog key`() = withBuildFile {
+        testParse("no-catalog-value")
     }
 }

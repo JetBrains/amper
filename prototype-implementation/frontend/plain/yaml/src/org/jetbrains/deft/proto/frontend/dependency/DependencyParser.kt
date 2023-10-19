@@ -16,14 +16,14 @@ private data class NotationWithFlags(
 )
 
 context(ProblemReporterContext)
-fun Catalogue.replaceIfInCatalogue(notation: String, node: YamlNode): Result<String> =
+fun Catalog.replaceIfInCatalogue(notation: String, node: YamlNode): Result<String> =
     if (notation.startsWith("$")) {
         findInCatalogue(notation.removePrefix("$"), node)
     } else
         Result.success(notation)
 
 context(ProblemReporterContext)
-private fun stringDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
+private fun stringDependencyFormat(): Catalog.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
     (dependency as? YamlNode.Scalar)?.let {
         replaceIfInCatalogue(dependency.value, dependency).map {
             NotationWithFlags(it, runtime = true, compile = true, exported = false, dependency)
@@ -32,7 +32,7 @@ private fun stringDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWit
 }
 
 context(ProblemReporterContext)
-private fun inlineDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
+private fun inlineDependencyFormat(): Catalog.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
     (dependency as? YamlNode.Mapping)?.let {
         if (dependency.size != 1) {
             return@let null
@@ -55,7 +55,7 @@ private fun inlineDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWit
 }
 
 context(ProblemReporterContext)
-private fun fullDependencyFormat(): Catalogue.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
+private fun fullDependencyFormat(): Catalog.(YamlNode) -> Result<NotationWithFlags>? = { dependency ->
     (dependency as? YamlNode.Mapping)?.let {
         if (dependency.size != 1) {
             return@let null
@@ -115,7 +115,7 @@ private val externalNotationFormat: (NotationWithFlags) -> ((BuildFileAware) -> 
     }
 
 context(BuildFileAware, ProblemReporterContext)
-fun Catalogue.parseDependency(dependency: YamlNode): Result<Notation>? {
+fun Catalog.parseDependency(dependency: YamlNode): Result<Notation>? {
     val dependencyFormats = listOf(
         stringDependencyFormat(),
         inlineDependencyFormat(),

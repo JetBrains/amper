@@ -8,7 +8,7 @@ import org.jetbrains.deft.proto.core.system.DefaultSystemInfo
 import org.jetbrains.deft.proto.frontend.nodes.YamlNode
 import org.jetbrains.deft.proto.frontend.nodes.reportNodeError
 
-interface Catalogue {
+interface Catalog {
 
     /**
      * Get dependency notation by key.
@@ -18,23 +18,23 @@ interface Catalogue {
 
 }
 
-open class PredefinedCatalogue(
+open class PredefinedCatalog(
     builder: MutableMap<String, String>.() -> Unit
-) : Catalogue {
+) : Catalog {
     private val map = buildMap(builder)
 
     context(ProblemReporterContext)
     override fun findInCatalogue(key: String, node: YamlNode) = map[key]?.let { Result.success(it) }
         ?: run {
             problemReporter.reportNodeError(
-                FrontendYamlBundle.message("no.catalogue.value", key),
+                FrontendYamlBundle.message("no.catalog.value", key),
                 node
             )
             deftFailure()
         }
 }
 
-object BuiltInCatalogue : PredefinedCatalogue({
+object BuiltInCatalog : PredefinedCatalog({
     // TODO Pass version from build.
     // Add kotlin-test.
     val kotlinTestVersion = "1.9.20-Beta"
