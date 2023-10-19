@@ -350,7 +350,7 @@ settings:
     target: 17     
   android:
     namespace: com.example
-    compileSdkVersion: android-34
+    compileSdkVersion: 34
 ```
 
 See the [full list of supported settings](DSLReference#compose).
