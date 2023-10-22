@@ -104,9 +104,24 @@ data class NativeApplicationPart(
     // Do not touch defaults of KMPP.
     val optimized: Boolean? = null,
     val binaryOptions: Map<String, String> = emptyMap(),
+    val declaredFrameworkBasename: String? = null,
+    val frameworkParams: Map<String, String>? = null,
 ) : FragmentPart<NativeApplicationPart> {
+    override fun propagate(parent: NativeApplicationPart): FragmentPart<*> {
+        return NativeApplicationPart(
+            entryPoint = entryPoint ?: parent.entryPoint,
+            declaredFrameworkBasename = declaredFrameworkBasename ?: parent.declaredFrameworkBasename,
+            frameworkParams = frameworkParams ?: parent.frameworkParams,
+        )
+    }
+
     override fun default(module: PotatoModule): FragmentPart<NativeApplicationPart> =
-        NativeApplicationPart(entryPoint, "kotlin")
+        NativeApplicationPart(
+            entryPoint = entryPoint,
+            baseName = "kotlin",
+            declaredFrameworkBasename = declaredFrameworkBasename,
+            frameworkParams = frameworkParams,
+        )
 }
 
 data class PublicationPart(

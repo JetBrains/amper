@@ -82,7 +82,9 @@ internal open class PlainFragment(
 
         addPartFrom(fragmentBuilder.native) {
             NativeApplicationPart(
-                entryPoint
+                entryPoint = entryPoint,
+                declaredFrameworkBasename = frameworkSettings?.declaredBasename,
+                frameworkParams = frameworkSettings?.settings?.toMap()
             )
         }
 

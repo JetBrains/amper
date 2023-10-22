@@ -255,7 +255,6 @@ class KMPPBindingPluginPart(
         kotlinNativeCompilation: KotlinNativeCompilation,
         fragment: LeafFragmentWrapper,
     ) {
-        if (module.type.isLibrary()) return
         val part = fragment.parts.find<NativeApplicationPart>()
 
         target.binaries {
@@ -267,6 +266,10 @@ class KMPPBindingPluginPart(
                 fragment.isTest -> test(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }
+
+                (module.type == ProductType.LIB && !fragment.isTest) -> adjustLib(target, part, fragment)
+
+                (module.type == ProductType.LIB && fragment.isTest) -> return@binaries
 
                 else -> executable(fragment.name) {
                     adjustExecutable(fragment, kotlinNativeCompilation)
@@ -285,11 +288,25 @@ class KMPPBindingPluginPart(
             }
         }
         // workaround to have a few variants of the same darwin target
-        kotlinNativeCompilation.attributes {
+        if (!module.type.isLibrary()) kotlinNativeCompilation.attributes {
             attribute(
                 disambiguationVariantAttribute,
                 target.name
             )
+        }
+    }
+
+    private fun adjustLib(
+        target: KotlinNativeTarget,
+        part: NativeApplicationPart?,
+        fragment: LeafFragmentWrapper,
+    ) {
+        if (!module.type.isLibrary() || fragment.isTest) return
+
+        target.binaries {
+            framework(part?.declaredFrameworkBasename ?: fragment.name) {
+                part?.frameworkParams?.get("isStatic")?.let { isStatic = it == "true" }
+            }
         }
     }
 

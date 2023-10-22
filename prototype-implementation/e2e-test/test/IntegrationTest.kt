@@ -226,4 +226,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "run",
         expectOutputToHave = "Hello, World!",
     )
+
+    @Test
+    fun multiplatformIosFramework() = test(
+        "multiplatform-lib-ios-framework",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }

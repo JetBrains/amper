@@ -78,6 +78,8 @@ data class AndroidSdkVersion(val version: Int) {
     }
 }
 
+data class IosFrameworkSettings(var declaredBasename: String?, val settings: List<Pair<String, String>>)
+
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,
     var apiVersion: KotlinVersion? = null,
@@ -133,6 +135,7 @@ data class PublishingPartBuilder(
 
 data class NativePartBuilder(
     var entryPoint: String? = null,
+    var frameworkSettings: IosFrameworkSettings? = null
 ) {
     companion object : BuilderCompanion<NativePartBuilder>(::NativePartBuilder)
 }

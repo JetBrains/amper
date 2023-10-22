@@ -473,6 +473,24 @@ internal fun List<ArtifactBuilder>.handleSettings(
             }
         }
 
+        if (platforms.any { it.isParent(Platform.IOS) }) {
+            native = NativePartBuilder {
+                it.getMappingValue("ios")?.let { iosSettings ->
+                    iosSettings.getMappingValue("framework")?.let { declaredFramework ->
+                        this.frameworkSettings = IosFrameworkSettings(
+                            declaredFramework.getStringValue("basename"),
+                            declaredFramework.mappings.mapNotNull { (k, v) ->
+                                val key = (k as? YamlNode.Scalar)?.value
+                                val value = (v as? YamlNode.Scalar)?.value
+
+                                if (key != null && value != null && key != "basename") Pair(key, value) else null
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         publishing = PublishingPartBuilder {
             it.getMappingValue("publishing")?.let { publishSettings ->
                 group = publishSettings.getStringValue("group")
