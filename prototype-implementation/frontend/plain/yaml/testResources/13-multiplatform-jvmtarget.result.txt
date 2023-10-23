@@ -19,8 +19,8 @@ Fragments:
     External dependencies:
     Src folder: test@android
     Fragment dependencies:
-      commonTest (REFINE)
       android (FRIEND)
+      commonTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -79,8 +79,8 @@ Fragments:
     External dependencies:
     Src folder: test@jvm
     Fragment dependencies:
-      commonTest (REFINE)
       jvm (FRIEND)
+      commonTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)

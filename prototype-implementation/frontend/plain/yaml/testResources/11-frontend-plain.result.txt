@@ -20,10 +20,10 @@ Fragments:
       ComposePart(enabled=null)
   jvmTest
     External dependencies:
+      MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-api:5.9.2, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.junit.jupiter:junit-jupiter-engine:5.9.2, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       jvm (FRIEND)

@@ -10,12 +10,12 @@ internal fun PotatoModule.prettyPrint(): String {
         for (fragment in fragments.sortedBy { it.name }) {
             appendLine("  ${fragment.name}")
             appendLine("    External dependencies:")
-            for (dependency in fragment.externalDependencies) {
+            for (dependency in fragment.externalDependencies.sortedBy { it.toString() }) {
                 appendLine("      $dependency")
             }
             appendLine("    Src folder: ${fragment.src?.fileName}")
             appendLine("    Fragment dependencies:")
-            for (dependency in fragment.fragmentDependencies) {
+            for (dependency in fragment.fragmentDependencies.sortedBy { it.toString() }) {
                 appendLine("      ${dependency.target.name} (${dependency.type})")
             }
             appendLine("    Parts:")

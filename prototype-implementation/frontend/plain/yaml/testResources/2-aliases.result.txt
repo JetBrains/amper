@@ -19,8 +19,8 @@ Fragments:
     External dependencies:
     Src folder: test@android
     Fragment dependencies:
-      commonTest (REFINE)
       android (FRIEND)
+      commonTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -95,8 +95,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64
     Fragment dependencies:
-      iosTest (REFINE)
       iosArm64 (FRIEND)
+      iosTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -142,8 +142,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64
     Fragment dependencies:
-      iosSimulatorTest (REFINE)
       iosSimulatorArm64 (FRIEND)
+      iosSimulatorTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -158,8 +158,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulator
     Fragment dependencies:
-      iosTest (REFINE)
       iosSimulator (FRIEND)
+      iosTest (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)

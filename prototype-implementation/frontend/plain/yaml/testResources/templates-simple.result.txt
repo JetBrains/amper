@@ -2,8 +2,8 @@ Module {{ userReadableName }}
 Fragments:
   ios
     External dependencies:
-      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Parts:
