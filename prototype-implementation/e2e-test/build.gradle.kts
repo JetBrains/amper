@@ -11,6 +11,9 @@ kotlin {
 }
 
 tasks.withType<Test> {
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = true
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+
     dependsOn(":gradle-integration:jar")
     useJUnitPlatform()
     val inBootstrapMode: String? by project

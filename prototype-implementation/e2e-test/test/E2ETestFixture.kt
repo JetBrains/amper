@@ -1,4 +1,6 @@
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -6,6 +8,16 @@ import kotlin.test.assertTrue
 
 
 open class E2ETestFixture(val pathToProjects: String) {
+
+    @Suppress("unused") // JUnit5 extension.
+    @field:RegisterExtension
+    val daemonManagerExtension = GradleDaemonManager
+
+    /**
+     * Daemon, used to run this test.
+     */
+    lateinit var gradleRunner: GradleRunner
+
     @OptIn(ExperimentalPathApi::class)
     internal fun test(
         projectName: String,
@@ -40,7 +52,7 @@ open class E2ETestFixture(val pathToProjects: String) {
         val tempDir = prepareTempDirWithProject(projectName)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
         try {
-            val runner = GradleRunner.create()
+            val runner = gradleRunner
                 .withPluginClasspath()
                 .withProjectDir(tempDir.toFile())
                 .withEnvironment(newEnv)
