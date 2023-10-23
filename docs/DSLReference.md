@@ -368,7 +368,7 @@ settings:
 `settings:junit:` configures the JUnit test runner on the JVM and Android platforms. Read more
 about [testing support](Documentation.md#tests).
 
-By default, JUnit 5 is used.
+By default, JUnit 4 is used.
 
 | Value     | Description                                                                         |
 |-----------|-------------------------------------------------------------------------------------|
