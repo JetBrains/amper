@@ -16,7 +16,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=true)
   androidTest
     External dependencies:
@@ -31,7 +31,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
 Artifacts:
   isTest: false

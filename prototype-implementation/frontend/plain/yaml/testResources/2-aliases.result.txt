@@ -13,7 +13,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   androidTest
     External dependencies:
@@ -29,7 +29,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   common
     External dependencies:
@@ -44,7 +44,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   commonTest
     External dependencies:
@@ -59,7 +59,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   ios
     External dependencies:
@@ -74,7 +74,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosArm64
     External dependencies:
@@ -89,7 +89,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosArm64Test
     External dependencies:
@@ -105,7 +105,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosSimulator
     External dependencies:
@@ -121,7 +121,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosSimulatorArm64
     External dependencies:
@@ -136,7 +136,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosSimulatorArm64Test
     External dependencies:
@@ -152,7 +152,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosSimulatorTest
     External dependencies:
@@ -168,7 +168,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosTest
     External dependencies:
@@ -184,7 +184,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosX64
     External dependencies:
@@ -199,7 +199,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   iosX64Test
     External dependencies:
@@ -215,7 +215,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
 Artifacts:
   isTest: false

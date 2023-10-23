@@ -12,7 +12,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   macosArm64
     External dependencies:
@@ -27,7 +27,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   macosArm64Test
     External dependencies:
@@ -43,7 +43,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   macosTest
     External dependencies:
@@ -58,7 +58,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   macosX64
     External dependencies:
@@ -73,7 +73,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   macosX64Test
     External dependencies:
@@ -89,7 +89,7 @@ Fragments:
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={})
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
 Artifacts:
   isTest: false
