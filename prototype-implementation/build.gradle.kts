@@ -6,8 +6,7 @@ val aggregateTestReports by tasks.creating(Zip::class) {
     subprojects {
         this@subprojects.buildDir
             .resolve("reports/tests/allTests")
-            .takeIf { it.exists() }
-            ?.let {
+            .let {
                 from(it) {
                     into(this@subprojects.path.replace(":", "/"))
                 }
