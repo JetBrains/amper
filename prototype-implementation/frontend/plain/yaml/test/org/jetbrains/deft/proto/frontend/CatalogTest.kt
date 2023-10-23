@@ -8,7 +8,6 @@ import kotlin.test.Test
 internal class CatalogTest : AbstractTestWithBuildFile() {
 
     @Test
-    @Ignore
     fun `check build in compose catalog versions`() = withBuildFile {
         testParse("build-in-compose-catalogue")
     }
