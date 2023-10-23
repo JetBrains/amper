@@ -15,7 +15,7 @@ internal fun PotatoModule.prettyPrint(): String {
             }
             appendLine("    Src folder: ${fragment.src?.fileName}")
             appendLine("    Fragment dependencies:")
-            for (dependency in fragment.fragmentDependencies.sortedBy { it.toString() }) {
+            for (dependency in fragment.fragmentDependencies) {
                 appendLine("      ${dependency.target.name} (${dependency.type})")
             }
             appendLine("    Parts:")

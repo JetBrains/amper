@@ -34,8 +34,8 @@ Fragments:
     External dependencies:
     Src folder: test@debug
     Fragment dependencies:
-      iosDebug (FRIEND)
       iosTest (REFINE)
+      iosDebug (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)

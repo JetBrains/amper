@@ -101,8 +101,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosArm64
     Fragment dependencies:
-      iosArm64 (FRIEND)
       iosTest (REFINE)
+      iosArm64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -132,8 +132,8 @@ Fragments:
     External dependencies:
     Src folder: test@iosSimulatorArm64
     Fragment dependencies:
-      iosSimulatorArm64 (FRIEND)
       iosTest (REFINE)
+      iosSimulatorArm64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -148,8 +148,8 @@ Fragments:
     External dependencies:
     Src folder: test@ios
     Fragment dependencies:
-      ios (FRIEND)
       commonTest (REFINE)
+      ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)

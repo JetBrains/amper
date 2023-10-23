@@ -88,7 +88,7 @@ data class JUnitPart(
     )
 
     override fun default(module: PotatoModule) = JUnitPart(
-        version ?: JUnitVersion.JUNIT5
+        version ?: JUnitVersion.JUNIT4
     )
 }
 
