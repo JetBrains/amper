@@ -15,11 +15,11 @@ DEFT_SED=$(make_sed $DEFT_PATTERN $DEFT_VERSION)
 DEFT_PLUGIN_PATTERN='id\(\"org\.jetbrains\.deft\.proto\.settings\.plugin\"\)\.version\(\"'
 DEFT_PLUGIN_SED=$(make_sed $DEFT_PLUGIN_PATTERN $DEFT_VERSION)
 
-KMPP_VERSION="1.9.20-Beta"
+KMPP_VERSION="1.9.20-RC"
 KMPP_PATTERN="org\.jetbrains\.kotlin\.multiplatform:org\.jetbrains\.kotlin\.multiplatform\.gradle\.plugin:"
 KMPP_SED=$(make_sed $KMPP_PATTERN $KMPP_VERSION)
 
-COMPOSE_VERSION="1.5.10-beta01"
+COMPOSE_VERSION="1.5.10-rc01"
 COMPOSE_PATTERN="org\.jetbrains\.compose:compose-gradle-plugin:"
 COMPOSE_SED=$(make_sed $COMPOSE_PATTERN $COMPOSE_VERSION)
 

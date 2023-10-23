@@ -57,7 +57,7 @@ class KMPPBindingPluginPart(
 
     companion object {
         // TODO Pass it from build.
-        internal val embeddedKotlinVersion = "1.9.20-Beta"
+        internal val embeddedKotlinVersion = "1.9.20-RC"
     }
 
     internal val fragmentsByName = module.fragments.associateBy { it.name }

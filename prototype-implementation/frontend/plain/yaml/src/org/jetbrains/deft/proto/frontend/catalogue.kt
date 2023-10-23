@@ -37,14 +37,14 @@ open class PredefinedCatalog(
 object BuiltInCatalog : PredefinedCatalog({
     // TODO Pass version from build.
     // Add kotlin-test.
-    val kotlinTestVersion = "1.9.20-Beta"
+    val kotlinTestVersion = "1.9.20-RC"
     put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinTestVersion")
     put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinTestVersion")
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinTestVersion")
 
     // TODO Pass version from build.
     // Add compose.
-    val composeVersion = "1.5.10-beta01"
+    val composeVersion = "1.5.10-rc01"
     put("compose.animation", "org.jetbrains.compose.animation:animation:$composeVersion")
     put("compose.animationGraphics", "org.jetbrains.compose.animation:animation-graphics:$composeVersion")
     put("compose.foundation", "org.jetbrains.compose.foundation:foundation:$composeVersion")
