@@ -32,3 +32,6 @@ settings:
       - -Xcontext-receivers
   junit:
     platformEnabled: true
+
+test-settings:
+  junit: junit-5
