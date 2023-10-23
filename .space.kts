@@ -211,7 +211,7 @@ registerJobInPrototypeDir(
                     
                     git reset --hard HEAD
                     
-                    git cherry-pick ${'$'}JB_SPACE_GIT_REVISION
+                    git cherry-pick -Xtheirs ${'$'}JB_SPACE_GIT_REVISION
                    
                     git push -u origin ${'$'}MAIN_BRANCH_NAME
             """
