@@ -3,7 +3,10 @@
 import circlet.pipelines.script.ScriptApi
 import com.slack.api.Slack
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
+import kotlin.io.path.name
 import kotlin.script.experimental.dependencies.DependsOn
 import kotlin.system.exitProcess
 
@@ -21,11 +24,13 @@ fun registerJobInPrototypeDir(
     customTrigger: (Triggers.() -> Unit)? = null,
     customParameters: Parameters.() -> Unit = { },
     customContainerBody: Container.() -> Unit = { },
+    hostJob: Host.() -> Unit = {},
     scriptBody: ScriptApi.() -> Unit,
 ) = job(name) {
     if (customTrigger != null) startOn { customTrigger() }
     parameters {
         secret("slack_secret_space_alerts_app", value = "{{ project:slack_secret_space_alerts_app }}")
+        secret("git_ssh_key", "{{ project:deft-automation-bot-ssh-key }}")
         customParameters()
     }
     container(displayName = name, image = "registry.jetbrains.team/p/deft/containers/android-sdk:latest") {
@@ -45,8 +50,7 @@ fun registerJobInPrototypeDir(
             it.addCreds()
             try {
                 it.scriptBody()
-            }
-            catch (ex: Exception) {
+            } catch (ex: Exception) {
                 println("Sending notification to slack")
                 val slack = Slack.getInstance()
                 val token = System.getenv("SLACK_TOKEN")
@@ -57,14 +61,28 @@ fun registerJobInPrototypeDir(
                             .text("<${it.executionUrl()}|${name} `#${it.executionNumber()}`> are failed in branch `${branchName}`")
                     }
                 }
+                else if (branchName.contains("update-plugin")) {
+                    slack.methods(token).chatPostMessage { req ->
+                        req.channel("#deft-build-alerts")
+                            .text("<${it.executionUrl()}|${name} `#${it.executionNumber()}`> are failed in branch `${branchName}`." +
+                                    "\nTests failed after update version of gradle plugin to latest, please take a look.")
+                    }
+                }
                 exitProcess(1)
             }
         }
     }
+
+    host { hostJob() }
 }
 
 // Common build for every push.
-registerJobInPrototypeDir("Build") {
+registerJobInPrototypeDir("Build",
+    customTrigger = { gitPush {
+        anyBranchMatching {
+            -"*update-plugin*"
+        }
+    }}) {
     gradlew(
         "--info",
         "--stacktrace",
@@ -81,6 +99,59 @@ registerJobInPrototypeDir(
         text("channel", value = "Nightly") {
             options("Stable", "Nightly")
         }
+    },
+    hostJob = {
+        env["GIT_SSH_KEY"] = "{{ git_ssh_key }}"
+        var newVersion = ""
+
+        kotlinScript("Update plugin version") {
+            val channelAndVersion = ChannelAndVersion.from(it)
+            newVersion = channelAndVersion.version
+            val syncFile = File("syncVersions.sh")
+            val text = syncFile.readText()
+            val currentVersion =
+                Regex("DEFT_VERSION=\".*\"").find(text)!!.value.substringAfter("DEFT_VERSION=").replace("\"", "")
+            println("OLD plugin version $currentVersion")
+            val updatedText = text.replace(currentVersion, newVersion)
+            syncFile.writeText(updatedText)
+
+            Files.walk(Paths.get("")).use { stream ->
+                stream.filter {
+                    Files.isRegularFile(it) && (it.name == "settings.gradle.kts" || it.name.endsWith(".md"))
+                }.forEach {
+                    val file = File(it.toAbsolutePath().toString())
+                    val fileText = file.readText()
+                    val newText = fileText.replace(currentVersion, newVersion)
+                    file.writeText(newText)
+                }
+            }
+        }
+
+        shellScript("Commit and push changes") {
+            content = """
+                mkdir -p ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh
+                    echo "${'$'}GIT_SSH_KEY" >> ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+                    chmod 400 ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+
+                    export GIT_SSH_COMMAND="ssh -i ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+
+                    git config user.name "Space Automation"
+                    git config user.email no-reply@automation.jetbrains.space
+                    
+                    python3 -m pip install tqdm requests
+
+                    export BRANCH_NAME=${'$'}(date +update-plugin-%Y-%m-%d-%H-%M-%S)
+
+                    git checkout -b ${'$'}BRANCH_NAME
+
+                    git add --update
+
+                    git status
+                    git commit -m "Update Deft plugin version"
+                    git push -u origin ${'$'}BRANCH_NAME
+            """
+        }
+
     }
 ) {
     val channelAndVersion = ChannelAndVersion.from(this)
@@ -97,6 +168,61 @@ registerJobInPrototypeDir(
         "--stacktrace",
         "allTests",
         "publishAllPublicationsToScratchRepository",
+    )
+}
+
+// Cherry-pick generated commit with new plugin version if tests passed
+registerJobInPrototypeDir(
+    "Update gradle plugin version",
+    customTrigger = { gitPush {
+        anyBranchMatching {
+            +"*update-plugin*"
+        }
+    }},
+    hostJob = {
+        env["BRANCH"] = "{{ run:git-checkout.ref }}"
+        env["GIT_SSH_KEY"] = "{{ git_ssh_key }}"
+        env["COMMIT_TO_CHERRY_PICK"] = "{{ run:trigger.git-push.commit }}"
+
+        kotlinScript("Print branch name with changes") {
+            val branchName = it.gitBranch().substringAfterLast("/")
+            println("BRANCH NAME $branchName")
+        }
+
+        shellScript("Commit and push changes to new branch") {
+            content = """
+                mkdir -p ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh
+                    echo "${'$'}GIT_SSH_KEY" >> ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+                    chmod 400 ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+
+                    export GIT_SSH_COMMAND="ssh -i ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+
+                    git config user.name "Space Automation"
+                    git config user.email no-reply@automation.jetbrains.space
+                    
+                    python3 -m pip install tqdm requests
+                    
+                    export MAIN_BRANCH_NAME=main
+                    git fetch --all
+                    git checkout -f ${'$'}MAIN_BRANCH_NAME
+                    
+                    git clean -f
+                    
+                    git reset --hard HEAD
+                    
+                    git cherry-pick ${'$'}JB_SPACE_GIT_REVISION
+                   
+                    git push -u origin ${'$'}MAIN_BRANCH_NAME
+            """
+        }
+
+
+    }) {
+    gradlew(
+        "--info",
+        "--stacktrace",
+        "allTests",
+        "aggregateTestReports"
     )
 }
 
