@@ -444,7 +444,6 @@ class KMPPBindingPluginPart(
         // Third iteration - adjust kotlin prebuilt source sets (UNMANAGED ones)
         // to match created ones.
         module.leafFragments.forEach { fragment ->
-            val platform = fragment.platform
             val target = fragment.target ?: return@forEach
             with(target) {
                 val compilation = fragment.compilation ?: return@forEach
@@ -456,6 +455,27 @@ class KMPPBindingPluginPart(
                     }
                 }
             }
+        }
+
+        // TODO: DEFT-189 workaround remove after KTIJ-27212 will be fixed
+        module.leafFragments.forEach { fragment ->
+            val kotlinPart = fragment.parts.find<KotlinPart>()
+            kotlinPart
+                ?.freeCompilerArgs
+                ?.filter { it.startsWith("-X") }
+                ?.map { it.substring(2) }
+                ?.map {
+                    it.split("-").joinToString("") { it.capitalized() }
+                }
+                ?.forEach {
+                    val target = fragment.target ?: return@forEach
+                    with(target) {
+                        val compilation = fragment.compilation ?: return@forEach
+                        val compilationSourceSet = compilation.defaultSourceSet
+                        compilationSourceSet.languageSettings.enableLanguageFeature(it)
+                    }
+                    fragment.kotlinSourceSet?.languageSettings?.enableLanguageFeature(it)
+                }
         }
     }
 
