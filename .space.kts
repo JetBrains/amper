@@ -86,6 +86,7 @@ registerJobInPrototypeDir("Build",
     gradlew(
         "--info",
         "--stacktrace",
+        "--continue",
         "allTests",
         "aggregateTestReports"
     )
