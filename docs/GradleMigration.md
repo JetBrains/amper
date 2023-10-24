@@ -46,7 +46,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.deft.proto.settings.plugin").version("199-NIGHTLY")
+    id("org.jetbrains.deft.proto.settings.plugin").version("215-NIGHTLY")
 }
 
 rootProject.name = "my-project-name"
