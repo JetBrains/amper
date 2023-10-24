@@ -13,7 +13,6 @@ open class E2ETestFixture(val pathToProjects: String) {
         expectOutputToHave: String,
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
-        additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: (Path) -> Unit = {},
     ) {
         test(
@@ -22,7 +21,6 @@ open class E2ETestFixture(val pathToProjects: String) {
             listOf(expectOutputToHave),
             shouldSucceed,
             checkForWarnings,
-            additionalEnv,
             additionalCheck,
         )
     }
@@ -34,16 +32,13 @@ open class E2ETestFixture(val pathToProjects: String) {
         expectOutputToHave: Collection<String>,
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
-        additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: (Path) -> Unit = {},
     ) {
         val tempDir = prepareTempDirWithProject(projectName)
-        val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
         try {
             val runner = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(tempDir.toFile())
-                .withEnvironment(newEnv)
 //                .withDebug(true)
                 .withArguments(*buildArguments, "--stacktrace")
             val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
