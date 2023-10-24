@@ -228,9 +228,19 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun multiplatformIosFramework() = test(
-        "multiplatform-lib-ios-framework",
-        "build",
-        expectOutputToHave = "BUILD SUCCESSFUL"
-    )
+    fun multiplatformIosFramework() {
+        test(
+            projectName = "multiplatform-lib-ios-framework",
+            ":shared:embedAndSignAppleFrameworkForXcode",
+            expectOutputToHave = "BUILD SUCCESSFUL",
+            additionalEnv = mapOf(
+                "CONFIGURATION" to "Debug",
+                "SDK_NAME" to "iphoneos",
+                "ARCHS" to "arm64",
+                "EXPANDED_CODE_SIGN_IDENTITY" to "-",
+                "TARGET_BUILD_DIR" to "./target_xcode_build",
+                "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir"
+            )
+        )
+    }
 }
