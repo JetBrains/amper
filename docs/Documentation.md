@@ -425,7 +425,7 @@ JVM Desktop:
 product: jvm/app
 
 dependencies:
-  # add Compose dependencies
+  # add Compose dependencies using a dependency catalog:
   - $compose.desktop.currentOs
     
 settings: 
@@ -438,7 +438,7 @@ Android:
 product: android/app
 
 dependencies:
-  # add Compose dependencies
+  # add Compose dependencies using a dependency catalog:
   - $compose.foundation
   - $compose.material3
 
