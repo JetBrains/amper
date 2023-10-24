@@ -228,6 +228,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @EnabledOnOs(value = [OS.MAC])
     fun multiplatformIosFramework() {
         test(
             projectName = "multiplatform-lib-ios-framework",
