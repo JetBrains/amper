@@ -8,11 +8,11 @@ echo "s/(.*)($1)([a-zA-Z0-9\.\-]*)(.*)/\1\2$2\4/g"
 }
 
 # Replacement rules.
-DEFT_VERSION="216-NIGHTLY"
-DEFT_PATTERN="org\.jetbrains\.deft\.proto\.settings\.plugin:gradle-integration:"
+DEFT_VERSION="217-NIGHTLY"
+DEFT_PATTERN="org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
 DEFT_SED=$(make_sed $DEFT_PATTERN $DEFT_VERSION)
 
-DEFT_PLUGIN_PATTERN='id\(\"org\.jetbrains\.deft\.proto\.settings\.plugin\"\)\.version\(\"'
+DEFT_PLUGIN_PATTERN='id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
 DEFT_PLUGIN_SED=$(make_sed $DEFT_PLUGIN_PATTERN $DEFT_VERSION)
 
 KMPP_VERSION="1.9.20-RC"

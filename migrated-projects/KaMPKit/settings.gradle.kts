@@ -8,5 +8,5 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.deft.proto.settings.plugin").version("216-NIGHTLY")
+    id("org.jetbrains.amper.settings.plugin").version("217-NIGHTLY")
 }

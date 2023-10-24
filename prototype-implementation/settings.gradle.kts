@@ -23,13 +23,13 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.deft.proto.settings.plugin:gradle-integration:216-NIGHTLY")
+        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:217-NIGHTLY")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-RC")
         classpath("com.github.johnrengelman:shadow:8.1.1")
     }
 }
 
-plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+plugins.apply("org.jetbrains.amper.settings.plugin")
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version ("0.4.0")

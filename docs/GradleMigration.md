@@ -46,13 +46,13 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.deft.proto.settings.plugin").version("216-NIGHTLY")
+    id("org.jetbrains.amper.settings.plugin").version("217-NIGHTLY")
 }
 
 rootProject.name = "my-project-name"
 
 // apply the plugin:
-plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+plugins.apply("org.jetbrains.amper.settings.plugin")
 ```
 
 _Note: after this step the build might fail. That's OK, please proceed to the next step._ 
