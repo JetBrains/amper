@@ -426,7 +426,7 @@ product: jvm/app
 
 dependencies:
   # add Compose dependencies
-  - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
+  - $compose.desktop.currentOs
     
 settings: 
   # enable Compose toolchain
@@ -439,8 +439,8 @@ product: android/app
 
 dependencies:
   # add Compose dependencies
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1 
+  - $compose.foundation
+  - $compose.material3
 
 settings: 
   # enable Compose toolchain

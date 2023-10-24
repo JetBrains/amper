@@ -123,8 +123,8 @@ product:
 
 # Shared Compose dependencies:
 dependencies:
-  - org.jetbrains.compose.foundation:foundation:1.5.0-rc01: exported
-  - org.jetbrains.compose.material3:material3:1.5.0-rc01: exported
+  - $compose.foundation: exported
+  - $compose.material3: exported
 
 # Android-only dependencies  
 dependencies@android:

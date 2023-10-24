@@ -3,10 +3,9 @@ product:
     platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 dependencies:
-    - org.jetbrains.compose.runtime:runtime:1.5.10-beta02
-    - org.jetbrains.compose.foundation:foundation:1.5.10-beta02
-    - org.jetbrains.compose.material:material:1.5.10-beta02
-    - org.jetbrains.compose.components:components-resources:1.5.10-beta02
+    - $compose.foundation
+    - $compose.material
+    - $compose.components.resources
 
 dependencies@android:
     - androidx.activity:activity-compose:1.7.2: exported
@@ -14,7 +13,7 @@ dependencies@android:
     - androidx.core:core-ktx:1.10.1: exported
 
 dependencies@jvm:
-    - org.jetbrains.compose.desktop:desktop:1.5.10-beta02
+  - $compose.desktop.currentOs
 
 settings:
     compose: enabled

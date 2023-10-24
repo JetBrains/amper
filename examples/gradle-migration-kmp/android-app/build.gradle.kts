@@ -18,9 +18,7 @@ plugins {
 }
 
 kotlin {
-    targets {
-        androidTarget()
-    }
+    androidTarget()
 
     jvmToolchain(17)
 
@@ -34,8 +32,8 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("org.jetbrains.compose.foundation:foundation:1.4.1")
-                implementation("org.jetbrains.compose.material3:material3:1.4.1")
+                implementation(compose.foundation)
+                implementation(compose.material3)
                 implementation("androidx.activity:activity-compose:1.7.2")
                 implementation("androidx.appcompat:appcompat:1.6.1")
             }

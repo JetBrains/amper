@@ -149,7 +149,7 @@ product: jvm/app
 
 dependencies:
   # add Compose dependencies
-  - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
+  - $compose.desktop.currentOs
 
 settings:
   # enable Compose toolchain
@@ -171,7 +171,7 @@ product: jvm/app
 
 dependencies:
   - ../shared
-  - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
+  - $compose.desktop.currentOs
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
@@ -236,8 +236,8 @@ product: android/app
 
 dependencies:
   - ../shared
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1
+  - $compose.foundation
+  - $compose.material3
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
@@ -253,8 +253,8 @@ product: ios/app
 
 dependencies:
   - ../shared
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1
+  - $compose.foundation
+  - $compose.material3
 
 test-dependencies:
   - org.jetbrains.kotlin:kotlin-test:1.8.0
@@ -427,8 +427,8 @@ apply:
   - ../app.module-template.yaml
 
 dependencies:
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1
+  - $compose.foundation
+  - $compose.material3
 ```
 
 /ios-app/module.yaml:
@@ -440,8 +440,8 @@ apply:
   - ../app.module-template.yaml
 
 dependencies:
-  - org.jetbrains.compose.foundation:foundation:1.4.1
-  - org.jetbrains.compose.material:material:1.4.1
+  - $compose.foundation
+  - $compose.material3
 ```
 
 /jvm-app/module.yaml:
@@ -453,7 +453,7 @@ apply:
   - ../app.module-template.yaml
 
 dependencies:
-  - org.jetbrains.compose.desktop:desktop-jvm:1.4.1
+  - $compose.desktop.currentOs
 ```
 
 File layout:

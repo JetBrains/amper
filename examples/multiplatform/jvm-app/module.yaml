@@ -2,7 +2,8 @@ product: jvm/app
 
 dependencies:
   - ../shared
-  - org.jetbrains.compose.desktop:desktop-jvm:1.5.0-rc01
+  - $compose.desktop.currentOs
+
 
 settings:
   compose: enabled

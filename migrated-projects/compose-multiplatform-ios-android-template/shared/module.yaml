@@ -15,9 +15,9 @@ settings:
 
 
 dependencies:
-  - org.jetbrains.compose.foundation:foundation:1.5.0-rc04
-  - org.jetbrains.compose.material:material:1.5.0-rc04
-  - org.jetbrains.compose.components:components-resources:1.5.0-rc04
+  - $compose.foundation
+  - $compose.material3
+  - $compose.components.resources
 
 dependencies@android:
   - androidx.activity:activity-compose:1.6.1: exported
