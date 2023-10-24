@@ -34,6 +34,9 @@ open class PredefinedCatalog(
         }
 }
 
+// TODO Pass version from build.
+const val composeVersion = "1.5.10-rc01"
+
 object BuiltInCatalog : PredefinedCatalog({
     // TODO Pass version from build.
     // Add kotlin-test.
@@ -42,9 +45,7 @@ object BuiltInCatalog : PredefinedCatalog({
     put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinTestVersion")
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinTestVersion")
 
-    // TODO Pass version from build.
     // Add compose.
-    val composeVersion = "1.5.10-rc01"
     put("compose.animation", "org.jetbrains.compose.animation:animation:$composeVersion")
     put("compose.animationGraphics", "org.jetbrains.compose.animation:animation-graphics:$composeVersion")
     put("compose.foundation", "org.jetbrains.compose.foundation:foundation:$composeVersion")
@@ -76,8 +77,9 @@ object BuiltInCatalog : PredefinedCatalog({
     context(ProblemReporterContext)
     override fun findInCatalogue(key: String, node: YamlNode) = when (key) {
         // Handle os detection as compose do.
-        "compose.desktop.currentOs" ->
-            "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}".asDeftSuccess()
+        "compose.desktop.currentOs" -> systemInfo.detect().familyArch
+            .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:$composeVersion" }
+            .asDeftSuccess()
 
         else ->
             super.findInCatalogue(key, node)
