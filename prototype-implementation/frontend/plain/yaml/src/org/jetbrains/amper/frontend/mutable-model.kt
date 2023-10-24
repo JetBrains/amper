@@ -457,9 +457,8 @@ internal fun List<ArtifactBuilder>.handleSettings(
     config.handleFragmentSettings<YamlNode.Mapping>(fragments, "settings") {
         android = AndroidPartBuilder {
             it.getMappingValue("android")?.let { androidSettings ->
-                compileSdkVersion = AndroidSdkVersion.fromString(androidSettings.getStringValue("compileSdkVersion"))
+                compileSdk = AndroidSdkVersion.fromString(androidSettings.getStringValue("compileSdk"))
                 minSdk = AndroidSdkVersion.fromString(androidSettings.getStringValue("minSdk"))
-                minSdkPreview = AndroidSdkVersion.fromString(androidSettings.getStringValue("minSdkPreview"))
                 maxSdk = AndroidSdkVersion.fromString(androidSettings.getStringValue("maxSdk"))
                 targetSdk = AndroidSdkVersion.fromString(androidSettings.getStringValue("targetSdk"))
                 applicationId = androidSettings.getStringValue("applicationId")

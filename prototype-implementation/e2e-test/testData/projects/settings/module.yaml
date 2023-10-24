@@ -31,8 +31,8 @@ test-dependencies:
 
 settings:
   android:
-    compileSdkVersion: android-33
-    minSdkPreview: 30
+    compileSdk: android-33
+    minSdk: 30
     applicationId: my-application
     namespace: com.example.namespace
     maxSdk: 33

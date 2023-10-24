@@ -138,7 +138,7 @@ object Models : ModelInit {
                     platforms.add(Platform.ANDROID)
                     addPart(
                         AndroidPart(
-                            "android-31", "24", "17", 17
+                            "android-31", "24", 17
                         )
                     )
                 }

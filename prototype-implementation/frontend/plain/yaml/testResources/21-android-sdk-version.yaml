@@ -6,7 +6,7 @@ dependencies:
 
 settings:
   android:
-    compileSdkVersion: 32
+    compileSdk: 32
     maxSdk: 34
   compose:
     enabled: true

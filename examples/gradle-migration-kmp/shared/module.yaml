@@ -18,5 +18,5 @@ settings:
   jvm:
     target: 17
   android:
-    compileSdkVersion: 17
+    compileSdk: 17
     targetSdk: 17

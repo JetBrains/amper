@@ -158,12 +158,11 @@ class AndroidBindingPluginPart(
         leafPlatformFragments.forEach { fragment ->
             val part = fragment.parts.find<AndroidPart>() ?: return@forEach
             androidPE?.apply {
-                part.compileSdkVersion?.let { compileSdkVersion(it) }
+                part.compileSdk?.let { compileSdkVersion(it) }
                 defaultConfig.apply {
                     part.applicationId?.let { applicationId = it }
                     part.namespace?.let { namespace = it }
                     part.minSdk?.let { minSdkVersion(it) }
-                    part.minSdkPreview?.let { minSdkPreview = it }
                     part.maxSdk?.let { maxSdkVersion(it) }
                     part.targetSdk?.let { targetSdkVersion(it) }
                 }

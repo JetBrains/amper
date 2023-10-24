@@ -42,9 +42,8 @@ data class KotlinPart(
 }
 
 data class AndroidPart(
-    val compileSdkVersion: String?,
+    val compileSdk: String?,
     val minSdk: String? = null,
-    val minSdkPreview: String? = null,
     val maxSdk: Int? = null,
     val targetSdk: String? = null,
     val applicationId: String? = null,
@@ -52,7 +51,7 @@ data class AndroidPart(
 ) : FragmentPart<AndroidPart> {
     override fun default(module: PotatoModule): FragmentPart<AndroidPart> =
         AndroidPart(
-            compileSdkVersion = compileSdkVersion ?: "android-34",
+            compileSdk = compileSdk ?: "android-34",
             minSdk = minSdk ?: "21",
             namespace = "com.example.${module.userReadableName.prepareToNamespace()}"
         )

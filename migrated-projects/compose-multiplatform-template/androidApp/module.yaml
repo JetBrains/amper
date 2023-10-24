@@ -7,7 +7,7 @@ settings:
     android:
         applicationId: "com.myapplication.MyApplication"
         namespace: "com.myapplication"
-        compileSdkVersion: android-33
+        compileSdk: android-33
         minSdk: 33
         targetSdk: 33
     jvm: 

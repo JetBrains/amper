@@ -338,7 +338,7 @@ kotlin {
 
 android {
     namespace = "com.example"
-    compileSdkVersion = "android-34"
+    compileSdk = "android-34"
 }
 
 ```
@@ -350,7 +350,7 @@ settings:
     target: 17     
   android:
     namespace: com.example
-    compileSdkVersion: 34
+    compileSdk: 34
 ```
 
 See the [full list of supported settings](DSLReference#compose).

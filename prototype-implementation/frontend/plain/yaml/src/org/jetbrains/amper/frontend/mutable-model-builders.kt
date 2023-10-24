@@ -98,9 +98,8 @@ data class KotlinPartBuilder(
 }
 
 data class AndroidPartBuilder(
-    var compileSdkVersion: AndroidSdkVersion? = null,
+    var compileSdk: AndroidSdkVersion? = null,
     var minSdk: AndroidSdkVersion? = null,
-    var minSdkPreview: AndroidSdkVersion? = null,
     var maxSdk: AndroidSdkVersion? = null,
     var targetSdk: AndroidSdkVersion? = null,
     var applicationId: String? = null,

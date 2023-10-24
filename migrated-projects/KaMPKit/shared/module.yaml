@@ -14,7 +14,7 @@ settings:
   android:
     namespace: co.touchlab.kampkit
     minSdk: 21
-    compileSdkVersion: 34
+    compileSdk: 34
     targetSdk: 34
   kotlin:
     serialization: json

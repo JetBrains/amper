@@ -7,7 +7,7 @@ Fragments:
       common (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -23,7 +23,7 @@ Fragments:
       android (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -38,7 +38,7 @@ Fragments:
     Fragment dependencies:
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -53,7 +53,7 @@ Fragments:
       common (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -68,7 +68,7 @@ Fragments:
       common (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -83,7 +83,7 @@ Fragments:
       ios (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -99,7 +99,7 @@ Fragments:
       iosArm64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -115,7 +115,7 @@ Fragments:
       ios (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -130,7 +130,7 @@ Fragments:
       iosSimulator (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -146,7 +146,7 @@ Fragments:
       iosSimulatorArm64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -162,7 +162,7 @@ Fragments:
       iosSimulator (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -178,7 +178,7 @@ Fragments:
       ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -193,7 +193,7 @@ Fragments:
       iosSimulator (REFINE)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
@@ -209,7 +209,7 @@ Fragments:
       iosX64 (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdkVersion=null, minSdk=null, minSdkPreview=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)

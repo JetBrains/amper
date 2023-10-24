@@ -40,9 +40,8 @@ internal open class PlainFragment(
 
         addPartFrom(fragmentBuilder.android) {
             AndroidPart(
-                compileSdkVersion?.toStringVersion(),
+                compileSdk?.toStringVersion(),
                 minSdk?.toIntAsString(),
-                minSdkPreview?.toIntAsString(),
                 maxSdk?.toIntVersion(),
                 targetSdk?.toIntAsString(),
                 applicationId,

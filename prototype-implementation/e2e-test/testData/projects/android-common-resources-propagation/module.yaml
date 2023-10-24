@@ -6,4 +6,4 @@ settings:
   jvm:
     mainClass: MainKt
   android:
-    compileSdkVersion: android-31
+    compileSdk: android-31

@@ -197,7 +197,7 @@ settings:
   kotlin:
     languageVersion: 1.8
   android:
-    compileSdkVersion: 33
+    compileSdk: 33
 
 # We can add or override settings for specific platforms. 
 # Let's override the Kotlin language version for iOS code: 
@@ -391,7 +391,7 @@ settings:
   kotlin:
     languageVersion: 1.8
   android:
-    compileSdkVersion: 31
+    compileSdk: 31
 ```
 
 Here is the list of [currently supported toolchains and their settings](DSLReference.md#compose).   
@@ -996,7 +996,7 @@ settings:
 
   # Android-specific settings are used only when building for android
   android:
-    compileSdkVersion: 33
+    compileSdk: 33
 
   # iOS-specific settings are used only when building for iosArm64
   ios:
