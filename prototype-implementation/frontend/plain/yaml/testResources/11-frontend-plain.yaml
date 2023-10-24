@@ -4,7 +4,7 @@ product:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
+    group: org.jetbrains.amper.frontend.without-fragments.yaml
     version: 42-SNAPSHOT
 
   kotlin:
@@ -15,7 +15,7 @@ settings:
       - contextReceivers
 
   java:
-    packagePrefix: org.jetbrains.deft.proto.frontend
+    packagePrefix: org.jetbrains.amper.frontend
 
 dependencies:
   - ../frontend-api

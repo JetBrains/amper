@@ -7,7 +7,7 @@ apply:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.frontend
+    group: org.jetbrains.amper.frontend
 
 dependencies:
   - ../core

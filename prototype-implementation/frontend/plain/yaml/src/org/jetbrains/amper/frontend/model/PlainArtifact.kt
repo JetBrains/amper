@@ -1,0 +1,20 @@
+package org.jetbrains.amper.frontend.model
+
+import org.jetbrains.amper.frontend.*
+
+context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
+internal open class PlainArtifact(
+    private val artifactBuilder: ArtifactBuilder
+) : Artifact {
+    override val name: String
+        get() = artifactBuilder.name
+    override val fragments: List<LeafFragment>
+        get() = artifactBuilder.fragments.immutableLeafFragments
+    override val platforms: Set<Platform>
+        get() = artifactBuilder.platforms
+}
+
+
+context (Stateful<FragmentBuilder, org.jetbrains.amper.frontend.Fragment>, TypesafeVariants)
+internal class TestPlainArtifact(artifactBuilder: ArtifactBuilder) : PlainArtifact(artifactBuilder),
+    TestArtifact

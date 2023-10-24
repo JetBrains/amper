@@ -7,7 +7,7 @@ apply:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.settings.plugin
+    group: org.jetbrains.amper.settings.plugin
 
 dependencies:
   - ../core

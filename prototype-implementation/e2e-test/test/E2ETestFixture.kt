@@ -108,7 +108,7 @@ open class E2ETestFixture(val pathToProjects: String) {
                 }
     
                 plugins {
-                    id("org.jetbrains.deft.proto.settings.plugin")
+                    id("org.jetbrains.amper.settings.plugin")
                 }
                 """.trimIndent()
         )

@@ -7,7 +7,7 @@ apply:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.frontend.without-fragments.yaml
+    group: org.jetbrains.amper.frontend.without-fragments.yaml
 
 dependencies:
   - ../../../core

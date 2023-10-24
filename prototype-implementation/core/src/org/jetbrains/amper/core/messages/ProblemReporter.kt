@@ -1,0 +1,41 @@
+package org.jetbrains.amper.core.messages
+
+import java.nio.file.Path
+
+interface ProblemReporter {
+    fun reportMessage(message: BuildProblem)
+
+    /**
+     * This method reports a diagnostic that doesn't point to a location in file. It is displayed in IDE as a bar
+     * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
+     * positioning of the highlighting
+     */
+    fun reportError(message: String, file: Path? = null) = reportMessage(BuildProblem(message = message, file = file, level = Level.Error))
+}
+
+interface ProblemReporterContext {
+    val problemReporter: ProblemReporter
+}
+
+// TODO: Can be refactored to the reporter chain to avoid inheritance.
+// Note: This class is not thread-safe.
+// Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
+abstract class CollectingProblemReporter : ProblemReporter {
+    protected val problems: MutableList<BuildProblem> = mutableListOf()
+
+    protected abstract fun doReportMessage(message: BuildProblem)
+
+    override fun reportMessage(message: BuildProblem) {
+        problems.add(message)
+        doReportMessage(message)
+    }
+}
+
+fun renderMessage(problem: BuildProblem): String = buildString {
+    problem.file?.let { file ->
+        append(file.normalize())
+        problem.line?.let { line -> append(":$line") }
+        append(": ")
+    }
+    append(problem.message)
+}

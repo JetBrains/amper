@@ -15,7 +15,7 @@ Fragments:
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
       JUnitPart(version=null)
-      PublicationPart(group=org.jetbrains.deft.proto.frontend.without-fragments.yaml, version=42-SNAPSHOT)
+      PublicationPart(group=org.jetbrains.amper.frontend.without-fragments.yaml, version=42-SNAPSHOT)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
   jvmTest

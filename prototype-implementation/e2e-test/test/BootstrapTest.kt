@@ -67,7 +67,7 @@ buildscript {
         classpath(files("$util"))
     }
 }
-plugins.apply("org.jetbrains.deft.proto.settings.plugin")
+plugins.apply("org.jetbrains.amper.settings.plugin")
         """.trimIndent()
 
         copyDirectory(Path.of("../"), projectPath)

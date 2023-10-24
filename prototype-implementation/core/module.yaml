@@ -8,4 +8,4 @@ apply:
 
 settings:
   publishing:
-    group: org.jetbrains.deft.proto.core
+    group: org.jetbrains.amper.core

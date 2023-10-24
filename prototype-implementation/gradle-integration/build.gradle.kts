@@ -8,8 +8,8 @@ deft.useDeftLayout = true
 gradlePlugin {
     plugins {
         create("deftProtoSettingsPlugin") {
-            id = "org.jetbrains.deft.proto.settings.plugin"
-            implementationClass = "org.jetbrains.deft.proto.gradle.BindingSettingsPlugin"
+            id = "org.jetbrains.amper.settings.plugin"
+            implementationClass = "org.jetbrains.amper.gradle.BindingSettingsPlugin"
         }
     }
 }
