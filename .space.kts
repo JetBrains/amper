@@ -227,7 +227,7 @@ registerJobInPrototypeDir(
                 project = ProjectIdentifier.Key(api.projectKey()),
                 reviewId = ReviewIdentifier.Id(review.review.id),
                 deleteSourceBranch = true,
-                mergeMode = GitMergeMode.NO_FF
+                mergeMode = GitMergeMode.FF
             )
         }
     }) {
