@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    // Use a Deft Module as a dependency
+    // Use an Amper Module as a dependency
     implementation(project(":lib"))
     testImplementation(kotlin("test"))
 }

@@ -357,7 +357,7 @@ dependencies:
 
 ### Dependency/Version Catalogs
 
-There are several types of dependency catalogs that could be used in Deft:
+There are several types of dependency catalogs that could be used in Amper:
 - dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.),
 - user-defined dependency catalogs,
 - Gradle version catalogs from [*.versions.toml files](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml).
@@ -1494,11 +1494,11 @@ module:
 ```
 
 Here are possible layout modes:
- - `default`: Deft ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
+ - `default`: Amper ['flat' file layout](#project-layout) is used. Source folders configured in the Gradle script are not available.  
  - `gradle-jvm`: the file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html). Additional source sets configured in the Gradle script are preserved.
  - `gradle-kmp`: the file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). Additional source sets configured in the Gradle script are preserved.
 
-See the [Gradle and Deft layouts comparison](#gradle-vs-deft-project-layout).
+See the [Gradle and Amper layouts comparison](#gradle-vs-amper-project-layout).
 
 E.g. for the module.yaml:
 ```yaml
@@ -1606,11 +1606,11 @@ kotlin {
 }
 ```
 
-#### Gradle vs Deft project layout
+#### Gradle vs Amper project layout
 
-Here is how Gradle layout maps to the Deft file layout:
+Here is how Gradle layout maps to the Amper file layout:
 
-| Gradle JVM         | Deft          |
+| Gradle JVM         | Amper          |
 |--------------------|---------------|
 | src/main/kotlin    | src           |
 | src/main/java      | src           |
@@ -1619,7 +1619,7 @@ Here is how Gradle layout maps to the Deft file layout:
 | src/test/java      | test          |
 | src/test/resources | testResources |
 
-| Gradle KMP               | Deft          |
+| Gradle KMP               | Amper          |
 |--------------------------|---------------|
 | src/commonMain/kotlin    | src           |
 | src/commonMain/java      | src           |

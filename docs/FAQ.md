@@ -17,7 +17,7 @@ Yes. You can configure Compose for Android, iOS, and Desktop.
 We are working on the following functionality: version catalogs, Swift Package Manager support, C-interop, packaging and publication, and extensibility.
 
 ### A feature X is not yet supported, what can I do?
-We plan to expand the list of supported use cases based on the demand. Please submit your requests and suggestions in the [tracker](https://youtrack.jetbrains.com/issues/DEFT) or join the Slack channel<!LINK!> for discussions.
+We plan to expand the list of supported use cases based on the demand. Please submit your requests and suggestions in the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join the Slack channel<!LINK!> for discussions.
 Meanwhile, you can use Gradle plugins and tasks as usual. See the [documentation on the Gradle interop](Documentation.md#gradle-interop).
 
 ### Can I write a custom task or use a plugin?

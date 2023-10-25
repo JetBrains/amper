@@ -1,10 +1,10 @@
-# Deft 
+# Amper
 
-Deft is a tool to help configure projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. It is still very much experimental, and our main goal for opening it up is to validate the ideas and get your feedback.
+Amper is a tool to help configure projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. It is still very much experimental, and our main goal for opening it up is to validate the ideas and get your feedback.
 
-Deft currently supports Kotlin and Java applications, targeting JVM, Android, iOS, macOS, and Linux platforms. In the future it could also support other languages directly. 
+Amper currently supports Kotlin and Java applications, targeting JVM, Android, iOS, macOS, and Linux platforms. In the future it could also support other languages directly. 
 
-Deft is currently using Gradle as the backend and YAML as the frontend, i.e. the project configuration. Custom tasks, publishing of libraries to Maven, CocoaPods, and packaging desktop apps are all provided via Gradle interop for now.
+Amper is currently using Gradle as the backend and YAML as the frontend, i.e. the project configuration. Custom tasks, publishing of libraries to Maven, CocoaPods, and packaging desktop apps are all provided via Gradle interop for now.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux and macOS applications.
@@ -13,7 +13,7 @@ Supported features:
 * Mixing Kotlin, Java and Swift code.
 * Using [Compose Multiplatform](Documentation.md#configuring-compose-multiplatform).
 * [Multi-module](Documentation.md#internal-dependencies) projects.
-* [Gradle interop](Documentation.md#gradle-interop) (including combining Deft and Gradle modules in one projects).
+* [Gradle interop](Documentation.md#gradle-interop) (including combining Amper and Gradle modules in one projects).
 * Code assistance for [module manifest files](Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Planned features:
@@ -30,7 +30,7 @@ Planned features:
 
 Check the [FAQ for more question](FAQ.md) and the list of [known issues](KnownIssues.md).
 
-Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/DEFT).  
+Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER).  
 
 For a quick start:
 * Check the [usage instructions](Setup.md)
@@ -53,7 +53,7 @@ Here is a very basics JVM "Hello, World!" project:
 |-...
 ```
 
-Nothing unexpected in the `main.kt` and `MyTest.kt` files, the interesting part is the `module.yaml`, the Deft manifest file.
+Nothing unexpected in the `main.kt` and `MyTest.kt` files, the interesting part is the `module.yaml`, the Amper manifest file.
 In its simplest form it looks like this:
 ```yaml
 # Produce a JVM application 
@@ -150,7 +150,7 @@ settings:
 A couple of things are worth mentioning. First, the platform-specific `dependencies:` sections with the `@<platform>`-qualifier. [The platform qualifier](Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies and settings for a certain platform.  
 Second, the `dependencies:` section support not only Kotlin and Maven dependencies, but also [platform-specific package managers](Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager and others.
 
-These examples show only a limited set of Deft features, of course. Look at the [tutorial](Tutorial.md), [documentation](Documentation.md) and [example projects](../examples) to get more insight on the Deft design and its functionality.     
+These examples show only a limited set of Amper features, of course. Look at the [tutorial](Tutorial.md), [documentation](Documentation.md) and [example projects](../examples) to get more insight on the Amper design and its functionality.     
 
 ### More examples
 Check our more real world examples:
@@ -161,11 +161,11 @@ Check our more real world examples:
 * And [others](../examples)
 
 
-### Using Deft in IntelliJ IDEA
+### Using Amper in IntelliJ IDEA
 
 See [the setup instructions](Setup.md) to configure your IDE.
 
-Open a Deft project as usual by pointing at the folder with the main `settings.gradle.kts` file:
+Open an Amper project as usual by pointing at the folder with the main `settings.gradle.kts` file:
 
 To run an application:
 
@@ -190,11 +190,11 @@ To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon
 ![](images/ij-run-tests.png)
 
 
-### Using Deft in Fleet
+### Using Amper in Fleet
 
 See [the setup instructions](Setup.md) to configure your IDE.
 
-Open a Deft project as usual by pointing at the folder with the main settings.gradle.kts file:
+Open an Amper project as usual by pointing at the folder with the main settings.gradle.kts file:
 
 To run an application:
 

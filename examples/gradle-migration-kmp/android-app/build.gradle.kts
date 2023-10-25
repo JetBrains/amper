@@ -25,7 +25,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Use a Deft Module as a dependency
+                // Use an Amper Module as a dependency
                 implementation(project(":shared"))
             }
         }

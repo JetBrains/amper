@@ -3,9 +3,9 @@
 The recommended IDE for Kotlin Multiplatform is [Fleet](https://www.jetbrains.com/fleet/) version 1.25.+. For JVM projects use [IntelliJ IDEA 2023.3 EAP](https://www.jetbrains.com/idea/nextversion/).
 The best way to get the most resent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
-If you use IntelliJ IDEA, install the Deft plugin: ![](images/plugin.png)
+If you use IntelliJ IDEA, install the Amper plugin: ![](images/plugin.png)
 
-Fleet + KMP comes with Deft plugin.
+Fleet + KMP comes with Amper plugin.
 
 ## Prepare the environment
 - Install and configure the latest JDK 17+. 
@@ -55,4 +55,4 @@ See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Try openi
   - [Compose Desktop](../examples/compose-desktop)
   - [Kotlin Multiplatform](../examples/multiplatform)
 
-Read how to use Deft in [IntelliJ IDEA](README.md#using-deft-in-intellij-idea) and [Fleet](README.md#using-deft-in-fleet).
+Read how to use Amper in [IntelliJ IDEA](README.md#using-amper-in-intellij-idea) and [Fleet](README.md#using-amper-in-fleet).
