@@ -8,7 +8,7 @@ echo "s/(.*)($1)([a-zA-Z0-9\.\-]*)(.*)/\1\2$2\4/g"
 }
 
 # Replacement rules.
-DEFT_VERSION="217-NIGHTLY"
+DEFT_VERSION="218-NIGHTLY"
 DEFT_PATTERN="org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
 DEFT_SED=$(make_sed $DEFT_PATTERN $DEFT_VERSION)
 

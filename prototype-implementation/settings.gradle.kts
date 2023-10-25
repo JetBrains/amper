@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:217-NIGHTLY")
+        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:218-NIGHTLY")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20-RC")
         classpath("com.github.johnrengelman:shadow:8.1.1")
     }
