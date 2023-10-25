@@ -13,9 +13,4 @@ dependencies:
   - ../../../core
   - ../../../frontend-api
   - ../../util
-  - org.junit.jupiter:junit-jupiter-engine:5.10.0
-  - org.jetbrains.kotlin:kotlin-reflect:1.9.0
   - org.yaml:snakeyaml:2.0
-
-test-dependencies:
-  - com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+

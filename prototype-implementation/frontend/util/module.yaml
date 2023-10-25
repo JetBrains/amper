@@ -11,6 +11,3 @@ settings:
 
 dependencies:
   - ../../frontend-api
-
-test-dependencies:
-  - com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+
