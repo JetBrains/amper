@@ -1,6 +1,7 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.asDeftSuccess
 import org.jetbrains.amper.core.deftFailure
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -34,18 +35,15 @@ open class PredefinedCatalog(
         }
 }
 
-// TODO Pass version from build.
-const val composeVersion = "1.5.10-rc01"
-
 object BuiltInCatalog : PredefinedCatalog({
-    // TODO Pass version from build.
     // Add kotlin-test.
-    val kotlinTestVersion = "1.9.20-RC"
+    val kotlinTestVersion = UsedVersions.kotlinVersion
     put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinTestVersion")
     put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinTestVersion")
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinTestVersion")
 
     // Add compose.
+    val composeVersion = UsedVersions.composeVersion
     put("compose.animation", "org.jetbrains.compose.animation:animation:$composeVersion")
     put("compose.animationGraphics", "org.jetbrains.compose.animation:animation-graphics:$composeVersion")
     put("compose.foundation", "org.jetbrains.compose.foundation:foundation:$composeVersion")
@@ -78,7 +76,7 @@ object BuiltInCatalog : PredefinedCatalog({
     override fun findInCatalogue(key: String, node: YamlNode) = when (key) {
         // Handle os detection as compose do.
         "compose.desktop.currentOs" -> systemInfo.detect().familyArch
-            .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:$composeVersion" }
+            .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}" }
             .asDeftSuccess()
 
         else ->

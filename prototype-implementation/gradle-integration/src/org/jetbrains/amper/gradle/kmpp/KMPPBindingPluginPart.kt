@@ -4,6 +4,7 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.*
@@ -55,11 +56,6 @@ class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, DeftNamingConventions {
 
-    companion object {
-        // TODO Pass it from build.
-        internal val embeddedKotlinVersion = "1.9.20-RC"
-    }
-
     internal val fragmentsByName = module.fragments.associateBy { it.name }
 
     override val kotlinMPE: KotlinMultiplatformExtension =
@@ -80,12 +76,12 @@ class KMPPBindingPluginPart(
                     val selected = if (hasJUnit5) {
                         it.candidates
                             .filter { (it.id as? ModuleComponentIdentifier)?.module == "kotlin-test-junit5" }
-                            .firstOrNull { (it.id as? ModuleComponentIdentifier)?.version == embeddedKotlinVersion }
+                            .firstOrNull { (it.id as? ModuleComponentIdentifier)?.version == UsedVersions.kotlinVersion }
                             ?: error("No kotlin test junit5 dependency variant on classpath. Existing: " +
                                     it.candidates.joinToString { it.variantName })
                     } else {
                         it.candidates
-                            .firstOrNull { (it.id as? ModuleComponentIdentifier)?.version == embeddedKotlinVersion }
+                            .firstOrNull { (it.id as? ModuleComponentIdentifier)?.version == UsedVersions.kotlinVersion }
                             ?: error("No kotlin test junit dependency variant on classpath. Existing: " +
                                     it.candidates.joinToString { it.variantName })
                     }
@@ -365,22 +361,22 @@ class KMPPBindingPluginPart(
                         if (fragment.platforms.all { it == Platform.JVM || it == Platform.ANDROID }) {
                             when (fragment.parts.find<JUnitPart>()?.version) {
                                 JUnitVersion.JUNIT5 -> {
-                                    implementation("org.jetbrains.kotlin:kotlin-test-junit5:$embeddedKotlinVersion")
-                                    implementation("org.jetbrains.kotlin:kotlin-test:$embeddedKotlinVersion")
-                                    implementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-                                    implementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+                                    implementation("org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}")
+                                    implementation("org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}")
+                                    implementation("org.junit.jupiter:junit-jupiter-api:${UsedVersions.junit5Version}")
+                                    implementation("org.junit.jupiter:junit-jupiter-engine:${UsedVersions.junit5Version}")
                                 }
 
                                 JUnitVersion.JUNIT4 -> {
-                                    implementation("org.jetbrains.kotlin:kotlin-test-junit:$embeddedKotlinVersion")
-                                    implementation("org.jetbrains.kotlin:kotlin-test:$embeddedKotlinVersion")
-                                    implementation("junit:junit:4.12")
+                                    implementation("org.jetbrains.kotlin:kotlin-test-junit:${UsedVersions.kotlinVersion}")
+                                    implementation("org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}")
+                                    implementation("junit:junit:${UsedVersions.junit4Version}")
                                 }
 
                                 null, JUnitVersion.NONE -> Unit
                             }
                         } else {
-                            implementation("org.jetbrains.kotlin:kotlin-test:$embeddedKotlinVersion")
+                            implementation("org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}")
                         }
                     }
                 }

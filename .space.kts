@@ -121,7 +121,7 @@ registerJobInPrototypeDir(
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
             val currentVersion =
-                Regex("DEFT_VERSION=\".*\"").find(text)!!.value.substringAfter("DEFT_VERSION=").replace("\"", "")
+                Regex("AMPER_VERSION=\".*\"").find(text)!!.value.substringAfter("AMPER_VERSION=").replace("\"", "")
             println("OLD plugin version $currentVersion")
             val updatedText = text.replace(currentVersion, newVersion)
             syncFile.writeText(updatedText)
@@ -216,7 +216,7 @@ registerJobInPrototypeDir(
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
             val newPluginVersion =
-                Regex("DEFT_VERSION=\".*\"").find(text)!!.value.substringAfter("DEFT_VERSION=").replace("\"", "")
+                Regex("AMPER_VERSION=\".*\"").find(text)!!.value.substringAfter("AMPER_VERSION=").replace("\"", "")
 
             val review = api.space().projects.codeReviews.getAllCodeReviews(
                 project = ProjectIdentifier.Key("deft"),

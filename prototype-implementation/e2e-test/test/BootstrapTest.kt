@@ -59,7 +59,6 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0")
         classpath("org.yaml:snakeyaml:2.0")
-        classpath("com.github.johnrengelman:shadow:8.1.1")
         classpath(files("$core"))
         classpath(files("$gradleIntegration"))
         classpath(files("$frontendApi"))
