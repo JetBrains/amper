@@ -6,9 +6,6 @@ If you want to follow the tutorial:
 
 If you are looking to more detailed info, check [the documentation](Documentation.md).
  
-_NOTE: Since the current implementation is Gradle-based, every project needs a settings.gradle.kts. 
-New templates and example projects are preconfigured. To manually configure your project, see [documentation on Gradle-based projects](Documentation.md#gradle-based-projects)._
-
 ### Step 0. Prepare
 
 * JDK 17+ is required. Make sure you have it installed. 
@@ -38,7 +35,7 @@ fun main() {
 }
 ```
 
-_NOTE: Since Amper is [Gradle-based](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root._
+_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
 _Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
 ```
 |-src/
@@ -210,7 +207,7 @@ File layout:
 
 In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give additional names to the libraries.
 
-_NOTE: Since Amper is [Gradle-based](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root._
+_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
 _Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
 
 ```

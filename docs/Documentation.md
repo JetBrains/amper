@@ -23,7 +23,7 @@ The basic Module layout looks like this:
 
 By convention a single `main.kt` file is a default entry point for the application ([read more](#configuring-entry-point)).
 
-_NOTE: In [a Gradle-based project](#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
+_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root:_
 ```
 |-...
 |-module.yaml
@@ -1293,18 +1293,14 @@ settings:  # objects merged
 
 ## Extensibility
 
-_NOTE: Extensibility is not yet fully designed or implemented._
+_NOTE: Extensibility is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for plugins and custom tasks._
 
-The main design goal for DSL is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform.
-With that in mind, we took an opposite approach to that Gradle follow. 
-Gradle is striving to provide a very flexible and extensible [build execution engine](https://melix.github.io/blog/2021/01/the-problem-with-gradle.html).
-Or focus, on the other hand, is to provide great user experience of the box. That's why there are many aspects that are available in the DSL as first-class citizens. 
-
-
-Aspects, such as streamlined [multiplatform](#multi-platform-configuration) setup,
+The main design goal for Amper is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform. 
+We would like to provide great user experience of the box. That's why there are many aspects that are available in the DSL as first-class citizens. 
+Streamlined [multiplatform](#multi-platform-configuration) setup,
 built-in support for [CocoaPods dependencies](#native-dependencies), 
 straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc., 
-should  enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expand, and more use cases emerge,
+should enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expand, and more use cases emerge,
 its inevitable that some level of extensibility will be needed. 
 
 The following aspects are designed to be extensible:
@@ -1314,7 +1310,7 @@ The following aspects are designed to be extensible:
 - [Toolchains](#settings) - toolchains are the main actors in the build pipeline extensibility - they provide actual build logic for linting, code generation, compilation, obfuscation.  
 
 Extensions are supposed to contribute to DSL using declarative approach (e.g. via schemes),
-and also implement the actual logic with regular imperative language (read, Kotlin). Such a mixed approach should allow for fast project structure evaluation (no configuration phase as in Gradle) and flexibility at the same time. 
+and also implement the actual logic with regular imperative language (e.g. Kotlin). Such a mixed approach should allow for fast project structure evaluation and flexibility at the same time. 
 
 Below is a very rough approximation of a possible toolchain extension:
 
@@ -1351,11 +1347,11 @@ class MySourceProcessor : SourceProcessorExtension {
 }
 ```
 
-The DSL engine would be able to quickly discover DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
+The Amper engine would be able to quickly discover DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
 
 ## Gradle-based projects
 
-The current implementation is Gradle-based. You need a `settings.gradle.kts` file in the project root with the DSL
+The current Amper implementation is Gradle-based. You need a `settings.gradle.kts` file in the project root:
 plugin:
 ```
 |-src/
@@ -1381,7 +1377,7 @@ starting from the location of `settings.gradle.kts`.
 settings.gradle.kts:
 ```kotlin
 pluginManagement {
-    // Configure repositories required for the DSL plugin
+    // Configure repositories required for the Amper plugin
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -1490,7 +1486,7 @@ The default [Module layout](#project-layout) suites best for the newly created m
 |-build.gradle.kts
 ```
 
-For migration of existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
+For migration of an existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
 To set the compatibility mode, add the following snippet to a module.yaml file:
 ```yaml
 module:
