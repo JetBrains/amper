@@ -1,4 +1,4 @@
-This tutorial gives a short introduction to the DSL and how to use it a new project.
+This tutorial gives a short introduction to Amper and how to use it a new project.
 
 If you want to follow the tutorial:
 * Check the [setup instructions](Setup.md)

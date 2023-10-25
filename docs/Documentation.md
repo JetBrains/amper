@@ -5,7 +5,7 @@ _How_ to produce the desired artifact is responsibility of the build engine and 
 
 Sources and resources can't be shared by several Modules.
 
-The DSL supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
+Amper supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
 there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
 
 ## Project layout
@@ -124,7 +124,7 @@ The product types is supposed to be [extensible](#extensibility), so the followi
 ### Packaging
 
 Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
-By default, packages are generated according to platform and build tool conventions. When custom configuration is needed DSL offer a separate `packaging:` section.
+By default, packages are generated according to platform and build tool conventions. When custom configuration is needed, Amper offer a separate `packaging:` section.
 
 _NOTE: Packaging configuration is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for packaging._
 
@@ -147,7 +147,7 @@ Here are a few examples of publishing:
 - Creating a CocoaPods package and publishing it for use in Xcode projects.
 - Preparing and signing an MSI, DMG, or DEB distributions
 
-Here is a very rough approximation, how publishing could look like in the DSL:
+Here is a very rough approximation, how publishing could look like in Amper:
 
 ```yaml
 product:
@@ -230,7 +230,7 @@ repositories:
     url: https://jitpack.io
 ```
 
-To configure repository credentials use the following DSL:
+To configure repository credentials use the following snippet:
 ```yaml
 repositories:
   - url: https://my.private.repository/
@@ -400,13 +400,13 @@ See [multi-platform settings configuration](#multi-platform-settings) for more d
 
 #### Configuring Kotlin Serialization
 
-To enable the [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), use the following DSL:
+To enable the [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), use the following snippet:
 ```yaml
 settings:
   kotlin:
     serialization: json  # JSON or other format
 ```
-This DSL configures compiler and runtime settings, including a dependency on the JSON library.
+This snippet configures compiler and runtime settings, including a dependency on the JSON library.
 
 In its full form it looks like this:
 ```yaml
@@ -606,7 +606,7 @@ test-settings:
 
 Unit tests is an integral part of a Module Manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
 
-In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, the DSL has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
+In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, Amper has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
 - Auxiliary Module should be located in a subfolder inside its main Module. 
 - There may be multiple Auxiliary Module for a single main Module.
 - Auxiliary Module have an implicit dependency on its main Module.
@@ -615,7 +615,7 @@ In order to keep Module Manifest files simple and at the same to offer flexibili
 - Main Module cannot depend on its Auxiliary Module in `dependencies:` section, but can in `test-dependencies:` section.
 - Auxiliary Module is not accessible from outside its main Module, so other Modules can't depend on Auxiliary Modules.
 
-You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Modules, which are embedded directly into the main Module's DSL for the convenience.
+You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Modules, which are embedded directly into the main Module for the convenience.
 
 _NOTE: Auxiliary Modules design is work in progress is not implemented in the prototype._
 
@@ -774,7 +774,7 @@ There are tree distinct scenarios where such interoperability is needed:
 _NOTE: Kotlin JVM supported all these scenarios from the beginning.
 However, full interoperability is currently not supported in the Kotlin Native._
 
-Here is how the interop is designed to work in the current DSL design:
+Here is how the interop is designed to work in the current Amper design:
 
 Consuming: Platform libraries and package managers could be consumed using a dedicated (and [extensible](#extensibility)) [dependency notation](#native-dependencies):
 
@@ -1095,7 +1095,7 @@ In the release configuration settings like compiler optimizations and obfuscatio
 
 In Android world in addition to the [debug and release build types](https://developer.android.com/build/build-variants#build-types), there exists a concept of [product flavors](https://developer.android.com/build/build-variants#product-flavors). Product flavor is a slight modification of the final product, e.g. with paid features or ads for a free version. Product flavors are also used for [white labeling](https://en.wikipedia.org/wiki/White-label_product), e.g. to add a logo or certain resources to the application without modify the code.
 
-To support such configurations the DSL offers a concept of _build variants_. A build variant can have additional code, resources, override/append dependencies and settings.
+To support such configurations Amper offers a concept of _build variants_. A build variant can have additional code, resources, override/append dependencies and settings.
 
 _NOTE: build variants are not yet fully implemented._
                        
@@ -1168,7 +1168,7 @@ With a possible file layout:
 
 #### Build variants and Multiplatform
 
-Build variants can be combined with multi-platform configuration as well. The DSL offers a special `@platform+variant`-notation:
+Build variants can be combined with multi-platform configuration as well. Amper offers a special `@platform+variant`-notation:
 
 ```yaml
 product:
@@ -1216,7 +1216,7 @@ Platforms and variants in the file layout:
 
 In modularized projects there is often a need to have a certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
-DSL offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any module.yaml in the `apply:` section.
+Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any module.yaml in the `apply:` section.
 
 E.g. module.yaml:
 ```yaml
@@ -1296,7 +1296,7 @@ settings:  # objects merged
 _NOTE: Extensibility is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for plugins and custom tasks._
 
 The main design goal for Amper is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform. 
-We would like to provide great user experience of the box. That's why there are many aspects that are available in the DSL as first-class citizens. 
+We would like to provide great user experience of the box. That's why there are many aspects that are available in Amper as first-class citizens. 
 Streamlined [multiplatform](#multi-platform-configuration) setup,
 built-in support for [CocoaPods dependencies](#native-dependencies), 
 straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc., 
@@ -1309,7 +1309,7 @@ The following aspects are designed to be extensible:
 - [External Dependency](#native-dependencies) - similarly to publishing, there might be need to consume dependencies from vcpkg or other package managers.
 - [Toolchains](#settings) - toolchains are the main actors in the build pipeline extensibility - they provide actual build logic for linting, code generation, compilation, obfuscation.  
 
-Extensions are supposed to contribute to DSL using declarative approach (e.g. via schemes),
+Extensions are supposed to contribute to the DSL using declarative approach (e.g. via schemas),
 and also implement the actual logic with regular imperative language (e.g. Kotlin). Such a mixed approach should allow for fast project structure evaluation and flexibility at the same time. 
 
 Below is a very rough approximation of a possible toolchain extension:
@@ -1329,7 +1329,7 @@ With a convention file layout:
 |  |-main.kt
 |-module-extensions/
 |  |-my-source-processor/
-|  |  |-module-extension.yaml      # generated or manually created DSL 
+|  |  |-module-extension.yaml   # generated or manually created extension's DSL schema 
 |  |  |-extension.kt            # implementation
 |-module.yaml 
 ```
@@ -1347,7 +1347,7 @@ class MySourceProcessor : SourceProcessorExtension {
 }
 ```
 
-The Amper engine would be able to quickly discover DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
+The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
 
 ## Gradle-based projects
 
