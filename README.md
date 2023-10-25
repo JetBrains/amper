@@ -189,7 +189,7 @@ To run an application:
   ![](docs/images/ij-run-gradle-task.png)
   
 
-To run tests use the same 'run' (![](docs/images/ij-run-gutter-icon.png)) gutter icon or Gradle run configuration. Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).
+To run tests use the same 'run' (![](docs/images/ij-run-gutter-icon.png)) gutter icon or Gradle run configuration. Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).\
 ![](docs/images/ij-run-tests.png)
 
 
@@ -220,6 +220,6 @@ To run an application:
   
   
 
-To run tests use the same 'run' (![](docs/images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration
+To run tests use the same 'run' (![](docs/images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.
 
 
