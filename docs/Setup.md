@@ -55,4 +55,4 @@ See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Try openi
   - [Compose Desktop](../examples/compose-desktop)
   - [Kotlin Multiplatform](../examples/multiplatform)
 
-Read how to use Amper in [IntelliJ IDEA](README.md#using-amper-in-intellij-idea) and [Fleet](README.md#using-amper-in-fleet).
+Read how to use Amper in [IntelliJ IDEA](../README.md#using-amper-in-intellij-idea) and [Fleet](../README.md#using-amper-in-fleet).
