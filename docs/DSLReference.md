@@ -370,8 +370,8 @@ about [testing support](Documentation.md#tests).
 
 By default, JUnit 4 is used.
 
-| Value     | Description                                                                         |
-|-----------|-------------------------------------------------------------------------------------|
-| `junit-5` | JUnit 5 dependencies and the test runner are configured. This is the default value. |
-| `junit-4` | JUnit 4 dependencies and the test runner are configured.                            |
-| `none`    | JUnit is not automatically configured.                                              |
+| Value     | Description                                              |
+|-----------|----------------------------------------------------------|
+| `junit-5` | JUnit 5 dependencies and the test runner are configured. |
+| `junit-4` | JUnit 4 dependencies and the test runner are configured. |
+| `none`    | JUnit is not automatically configured.                   |
