@@ -59,7 +59,7 @@ _Note: after this step the build might fail. That's OK, please proceed to the ne
 
 ### Step 2. Update plugin versions in Gradle scripts 
 
-Certain plugins come preconfigured and their versions can't be changed. Here are they:
+Certain plugins come preconfigured and their versions can't be changed:
 
 | Plugin                                      | Version     |
 |---------------------------------------------|-------------|
