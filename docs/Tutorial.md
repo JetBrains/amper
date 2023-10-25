@@ -38,6 +38,15 @@ fun main() {
 }
 ```
 
+_NOTE: Since Amper is [Gradle-based](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root._
+_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
+```
+|-src/
+|  |-...
+|-module.yaml
+|-settings.gradle.kts
+```
+
 That’s it, we’ve just created a simple JVM application.
 
 And since it’s JVM, let’s also add some Java code.
@@ -50,14 +59,6 @@ And since it’s JVM, let’s also add some Java code.
 ```
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
-
-_NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
-```
-|-src/
-|  |-...
-|-module.yaml
-|-settings.gradle.kts
-```
 
 Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../examples/jvm-kotlin+java).
 
@@ -209,7 +210,9 @@ File layout:
 
 In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give additional names to the libraries.
 
-_NOTE: In a [Gradle-based project](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root:_
+_NOTE: Since Amper is [Gradle-based](Documentation.md#gradle-based-projects) the settings.gradle.kts should be located in the project root._
+_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
+
 ```
 |-app/
 |  |-...
