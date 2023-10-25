@@ -7,7 +7,7 @@ SQUOTE=\`
 SED_COMMANDS_FILE=$(mktemp /tmp/used_sed_commands.XXXXXX)
 
 append_to_sed_file() {
-  echo "$1" >> $SED_COMMANDS_FILE
+  echo "$1" >> "$SED_COMMANDS_FILE"
 }
 
 # A bit of complex regex.
@@ -70,28 +70,28 @@ echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""
 
 find -E . -regex "$AFFECTED_FILES_REGEX$" | \
-  grep -v "/build/" 1> $FOUND_FILES_FILE
+  grep -v "/build/" 1> "$FOUND_FILES_FILE"
 
-FILES_COUNT=$(wc -l < $FOUND_FILES_FILE | tr -d ' ')
+FILES_COUNT=$(wc -l < "$FOUND_FILES_FILE" | tr -d ' ')
 echo "  $FILES_COUNT matched files found."
 echo "Performing replacement."
 
 # Perform replacement.
-cat $FOUND_FILES_FILE | \
+cat "$FOUND_FILES_FILE" | \
   xargs sed -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
 
 find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
-  grep -v "/build/" 1> $EDITED_FILES_FILE
+  grep -v "/build/" 1> "$EDITED_FILES_FILE"
 
 echo "  Done."
 
 # Remove temp sed files.
 echo "  Removing temp sed files."
-cat $FOUND_FILES_FILE | \
+cat "$FOUND_FILES_FILE" | \
   xargs -I{} rm -f "{}$OLD_FILES_POSTFIX"
 
 # Remove temp files.
 echo "  Removing temp files."
-rm $FOUND_FILES_FILE
-rm $EDITED_FILES_FILE
-rm $SED_COMMANDS_FILE
+rm "$FOUND_FILES_FILE"
+rm "$EDITED_FILES_FILE"
+rm "$SED_COMMANDS_FILE"
