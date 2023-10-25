@@ -164,7 +164,7 @@ registerJobInPrototypeDir(
                     git add --update
 
                     git status
-                    git commit -m "Update Deft plugin version
+                    git commit -m "Update Amper plugin version
                     git push -u origin ${'$'}BRANCH_NAME
             """
         }
@@ -177,7 +177,7 @@ registerJobInPrototypeDir(
                 repository = "deft-prototype",
                 sourceBranch = "$branchName",
                 targetBranch = "main",
-                title = "Update Deft plugin version to $pluginVersion"
+                title = "Update Amper plugin version to $pluginVersion"
             )
         }
 
@@ -220,7 +220,7 @@ registerJobInPrototypeDir(
 
             val review = api.space().projects.codeReviews.getAllCodeReviews(
                 project = ProjectIdentifier.Key("deft"),
-                state = CodeReviewStateFilter.Opened, text = "Update Deft plugin version to $newPluginVersion"
+                state = CodeReviewStateFilter.Opened, text = "Update Amper plugin version to $newPluginVersion"
             ).data[0]
 
             api.space().projects.codeReviews.mergeMergeRequest(
