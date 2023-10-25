@@ -108,6 +108,16 @@ registerJobInPrototypeDir(
         kotlinScript("Update plugin version") {
             val channelAndVersion = ChannelAndVersion.from(it)
             newVersion = channelAndVersion.version
+
+            val path = "~/pluginVersion.txt"
+            val content = newVersion
+            val sharedFile = File(path).apply {
+                parentFile.mkdirs()
+                createNewFile()
+                writeText(content)
+            }
+            it.fileShare().put(sharedFile, "pluginVersion.txt")
+
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
             val currentVersion =
@@ -142,15 +152,33 @@ registerJobInPrototypeDir(
                     python3 -m pip install tqdm requests
 
                     export BRANCH_NAME=${'$'}(date +update-plugin-%Y-%m-%d-%H-%M-%S)
+                    
+                    echo ${'$'}BRANCH_NAME > ${'$'}JB_SPACE_FILE_SHARE_PATH/branch.txt
+                    
+                    export PLUGIN_VERSION 
+                    
+                    echo PLUGIN_VERSION < ${'$'}JB_SPACE_FILE_SHARE_PATH/pluginVersion.txt
 
                     git checkout -b ${'$'}BRANCH_NAME
 
                     git add --update
 
                     git status
-                    git commit -m "Update Deft plugin version"
+                    git commit -m "Update Deft plugin version
                     git push -u origin ${'$'}BRANCH_NAME
             """
+        }
+
+        kotlinScript("Create MR") { api ->
+            val branchName = api.fileShare().locate("branch.txt")?.readText()?.trim('\n')
+            val pluginVersion = api.fileShare().locate("pluginVersion.txt")?.readText()?.trim('\n')
+            api.space().projects.codeReviews.createMergeRequest(
+                project = ProjectIdentifier.Key("deft"),
+                repository = "deft-prototype",
+                sourceBranch = "$branchName",
+                targetBranch = "main",
+                title = "Update Deft plugin version to $pluginVersion"
+            )
         }
 
     }
@@ -181,43 +209,27 @@ registerJobInPrototypeDir(
         }
     }},
     hostJob = {
-        env["BRANCH"] = "{{ run:git-checkout.ref }}"
-        env["GIT_SSH_KEY"] = "{{ git_ssh_key }}"
-        env["COMMIT_TO_CHERRY_PICK"] = "{{ run:trigger.git-push.commit }}"
-
-        kotlinScript("Print branch name with changes") {
-            val branchName = it.gitBranch().substringAfterLast("/")
+        kotlinScript("Merge changes") { api ->
+            val branchName = api.gitBranch().substringAfterLast("/")
             println("BRANCH NAME $branchName")
+
+            val syncFile = File("syncVersions.sh")
+            val text = syncFile.readText()
+            val newPluginVersion =
+                Regex("DEFT_VERSION=\".*\"").find(text)!!.value.substringAfter("DEFT_VERSION=").replace("\"", "")
+
+            val review = api.space().projects.codeReviews.getAllCodeReviews(
+                project = ProjectIdentifier.Key("deft"),
+                state = CodeReviewStateFilter.Opened, text = "Update Deft plugin version to $newPluginVersion"
+            ).data[0]
+
+            api.space().projects.codeReviews.mergeMergeRequest(
+                project = ProjectIdentifier.Key(api.projectKey()),
+                reviewId = ReviewIdentifier.Id(review.review.id),
+                deleteSourceBranch = true,
+                mergeMode = GitMergeMode.NO_FF
+            )
         }
-
-        shellScript("Commit and push changes to new branch") {
-            content = """
-                mkdir -p ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh
-                    echo "${'$'}GIT_SSH_KEY" >> ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
-                    chmod 400 ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
-
-                    export GIT_SSH_COMMAND="ssh -i ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-
-                    git config user.name "Space Automation"
-                    git config user.email no-reply@automation.jetbrains.space
-                    
-                    python3 -m pip install tqdm requests
-                    
-                    export MAIN_BRANCH_NAME=main
-                    git fetch --all
-                    git checkout -f ${'$'}MAIN_BRANCH_NAME
-                    
-                    git clean -f
-                    
-                    git reset --hard HEAD
-                    
-                    git cherry-pick -Xtheirs ${'$'}JB_SPACE_GIT_REVISION
-                   
-                    git push -u origin ${'$'}MAIN_BRANCH_NAME
-            """
-        }
-
-
     }) {
     gradlew(
         "--info",
