@@ -61,13 +61,14 @@ _Note: after this step the build might fail. That's OK, please proceed to the ne
 
 Certain plugins come preconfigured and their versions can't be changed. Here are they:
 
-| Plugin                               | Version     |
-|--------------------------------------|-------------|
-| `org.jetbrains.kotlin.multiplatform` | 1.9.20-RC   |
-| `org.jetbrains.kotlin.android`       | 1.9.20-RC   |
-| `com.android.library`                | 8.1.0       |
-| `com.android.application`            | 8.1.0       |
-| `org.jetbrains.compose`              | 1.5.10-rc01 |
+| Plugin                                      | Version     |
+|---------------------------------------------|-------------|
+| `org.jetbrains.kotlin.multiplatform`        | 1.9.20-RC   |
+| `org.jetbrains.kotlin.android`              | 1.9.20-RC   |
+| `org.jetbrains.kotlin.plugin.serialization` | 1.9.20-RC   |
+| `com.android.library`                       | 8.1.0       |
+| `com.android.application`                   | 8.1.0       |
+| `org.jetbrains.compose`                     | 1.5.10-rc01 |
 
 Check the `settings.gradle.kts` file and update `pluginManagement { plugins {...} }` section:
 ```kotlin

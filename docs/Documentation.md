@@ -1447,13 +1447,14 @@ sqldelight {
 
 _Note: The following plugins are preconfigured and their versions can't be changed:_
 
-| Plugin                               | Version     |
-|--------------------------------------|-------------|
-| `org.jetbrains.kotlin.multiplatform` | 1.9.20-RC   |
-| `org.jetbrains.kotlin.android`       | 1.9.20-RC   |
-| `com.android.library`                | 8.1.0       |
-| `com.android.application`            | 8.1.0       |
-| `org.jetbrains.compose`              | 1.5.10-rc01 |
+| Plugin                                      | Version     |
+|---------------------------------------------|-------------|
+| `org.jetbrains.kotlin.multiplatform`        | 1.9.20-RC   |
+| `org.jetbrains.kotlin.android`              | 1.9.20-RC   |
+| `org.jetbrains.kotlin.plugin.serialization` | 1.9.20-RC   |
+| `com.android.library`                       | 8.1.0       |
+| `com.android.application`                   | 8.1.0       |
+| `org.jetbrains.compose`                     | 1.5.10-rc01 |
 
 Here is how to use in these plugins in a Gradle script:
 ```kotlin
