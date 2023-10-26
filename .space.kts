@@ -164,7 +164,7 @@ registerJobInPrototypeDir(
                     git add --update
 
                     git status
-                    git commit -m "Update Amper plugin version
+                    git commit -m "Update Amper plugin version"
                     git push -u origin ${'$'}BRANCH_NAME
             """
         }
