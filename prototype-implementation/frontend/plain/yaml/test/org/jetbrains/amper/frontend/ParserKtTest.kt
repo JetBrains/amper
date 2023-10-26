@@ -137,4 +137,11 @@ internal class ParserKtTest : AbstractTestWithBuildFile() {
             testParse("21-android-sdk-version")
         }
     }
+
+    @Test
+    fun `android namespace set`() {
+        withBuildFile {
+            testParse("android-namespace-setting")
+        }
+    }
 }

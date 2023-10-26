@@ -85,6 +85,12 @@ class FragmentBuilder(var name: String) {
         parts.add(builder.build())
     }
 
+    fun androidPart(init: AndroidPartBuilder.() -> Unit) {
+        val builder = AndroidPartBuilder()
+        builder.init()
+        parts.add(builder.build())
+    }
+
     fun build(): LeafFragment {
         return object : LeafFragment {
             override val platform: Platform
@@ -131,6 +137,25 @@ class KotlinFragmentPartBuilder {
             linkerOpts = emptyList(),
             serialization = null
         )
+}
+
+
+class AndroidPartBuilder {
+    var compileSdk: String? = null
+    var minSdk: String? = null
+    var targetSdk: String? = null
+    var maxSdk: Int? = null
+    var applicationId: String? = null
+    var namespace: String? = null
+
+    fun build(): AndroidPart = AndroidPart(
+            compileSdk = compileSdk,
+            minSdk = minSdk,
+            targetSdk = targetSdk,
+            maxSdk = maxSdk,
+            applicationId = applicationId,
+            namespace = namespace
+    )
 }
 
 class PotatoModuleBuilder(var name: String) {

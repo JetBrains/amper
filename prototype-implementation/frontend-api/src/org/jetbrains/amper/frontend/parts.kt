@@ -49,11 +49,22 @@ data class AndroidPart(
     val applicationId: String? = null,
     val namespace: String? = null,
 ) : FragmentPart<AndroidPart> {
+
+    override fun propagate(parent: AndroidPart): AndroidPart {
+            return AndroidPart(
+                compileSdk = parent.compileSdk ?: this.compileSdk,
+                minSdk = parent.minSdk ?: this.minSdk,
+                maxSdk = parent.maxSdk ?: this.maxSdk,
+                targetSdk = parent.targetSdk ?: this.targetSdk,
+                applicationId = parent.applicationId ?: this.applicationId,
+                namespace = parent.namespace ?: this.namespace,
+            )
+    }
     override fun default(module: PotatoModule): FragmentPart<AndroidPart> =
         AndroidPart(
             compileSdk = compileSdk ?: "android-34",
             minSdk = minSdk ?: "21",
-            namespace = "com.example.${module.userReadableName.prepareToNamespace()}"
+            namespace = namespace?: "com.example.${module.userReadableName.prepareToNamespace()}"
         )
 }
 

@@ -1,9 +1,6 @@
 package org.jetbrains.amper.frontend.propagate
 
-import org.jetbrains.amper.frontend.JvmPart
-import org.jetbrains.amper.frontend.KotlinPart
-import org.jetbrains.amper.frontend.ModelImpl
-import org.jetbrains.amper.frontend.findInstance
+import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.frontend.resolve.resolved
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -113,5 +110,35 @@ class PropagateTest {
             "17",
             parts?.find<JvmPart>()?.target
         )
+    }
+
+    @Test
+    fun `android namespace propagation`() {
+        val module = potatoModule("androidApp") {
+            fragment("common") {
+                dependant("android")
+                androidPart {
+                    namespace = "namespace"
+                }
+            }
+            fragment("android") {
+                dependsOn("common")
+                androidPart {}
+            }
+        }
+
+        val model = ModelImpl(module)
+        val resultModel = model.resolved
+
+        val actualNamespace = resultModel
+            .modules
+            .first()
+            .fragments
+            .find { it.name == "android" }
+            ?.parts
+            ?.find<AndroidPart>()
+            ?.namespace
+
+        assertEquals("namespace", actualNamespace)
     }
 }
