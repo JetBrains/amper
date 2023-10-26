@@ -3,11 +3,13 @@
 
 # Amper
 
-Amper is a tool to help configure projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. It is still very much experimental, and our main goal for opening it up is to validate the ideas and get your feedback.
+Amper goal is to improve the project configuration experience, the toolability, that is, the IDE support, and also provide a smooth out-of-the box experience. 
 
-Amper currently supports Kotlin and Java applications, targeting JVM, Android, iOS, macOS, and Linux platforms. In the future it could also support other languages directly. 
+We are looking at various aspects, such as configuring the projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. 
 
-Amper is currently using Gradle as the backend and YAML as the frontend, i.e. the project configuration. Custom tasks, publishing of libraries to Maven, CocoaPods, and packaging desktop apps are all provided via Gradle interop for now.
+While the current use case is Kotlin and Kotlin Multiplatform, it also supports Java and Swift (as a requirement for multiplatform). However, the same approach to configuration could work for other languages and technology stacks in the future. 
+
+Amper is implemented as a Gradle plugin and uses YAML for the project configuration format. The goal right now is to validate the user experience, which is why we have chosen to build on top of Gradle, as a well-tested build tool, and provide a configuration layer on top of it.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux and macOS applications.
