@@ -1388,7 +1388,7 @@ pluginManagement {
 
 plugins {
     // Add the plugin
-    id("org.jetbrains.amper.settings.plugin").version("218-NIGHTLY")
+    id("org.jetbrains.amper.settings.plugin").version("220-NIGHTLY")
 }
 ```
 
