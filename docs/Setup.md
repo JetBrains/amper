@@ -1,6 +1,6 @@
 ## Check your IDE
  
-The recommended IDE for Kotlin Multiplatform is [Fleet](https://www.jetbrains.com/fleet/) version 1.25.+. For JVM projects use [IntelliJ IDEA 2023.3 EAP](https://www.jetbrains.com/idea/nextversion/).
+The recommended IDE for Kotlin Multiplatform is [Fleet](https://www.jetbrains.com/fleet/) version 1.26.72. For JVM projects use [IntelliJ IDEA 2023.3 EAP](https://www.jetbrains.com/idea/nextversion/).
 The best way to get the most resent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
 If you use IntelliJ IDEA, install the Amper plugin: ![](images/plugin.png)
@@ -44,15 +44,13 @@ Otherwise, KDoctor will highlight which parts of your setup still need to be con
 them.
 
 
-- Try opening [an example project](../examples/jvm-kotlin+java). 
+- Try opening [an example project](../examples/jvm-kotlin+java) in IntelliJ IDEA or in Fleet. 
   You should get completion in the module.yaml files:
   ![](images/ij-idea.png)
   ![](images/fleet.png)
 
 ### What's next
-See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Try opening the examples projects:
+See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](../README.md#using-amper-in-intellij-idea) and [Fleet](../README.md#using-amper-in-fleet). Try opening the examples projects:
   - [JVM Hello World](../examples/jvm-kotlin+java)
   - [Compose Desktop](../examples/compose-desktop)
   - [Kotlin Multiplatform](../examples/multiplatform)
-
-Read how to use Amper in [IntelliJ IDEA](../README.md#using-amper-in-intellij-idea) and [Fleet](../README.md#using-amper-in-fleet).

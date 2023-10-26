@@ -36,8 +36,9 @@ fun main() {
 ```
 
 _NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
-_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
+_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:_
 ```
+|-gradle/...
 |-src/
 |  |-...
 |-module.yaml
@@ -208,9 +209,9 @@ File layout:
 In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give additional names to the libraries.
 
 _NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
-_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) from a template project:_
-
+_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:_
 ```
+|-gradle/...
 |-app/
 |  |-...
 |  |-module.yaml

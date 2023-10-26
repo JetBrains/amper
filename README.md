@@ -38,7 +38,7 @@ Check the [FAQ for more question](docs/FAQ.md) and the list of [known issues](do
 Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER).  
 
 For a quick start:
-* Check the [usage instructions](docs/Setup.md)
+* [Setup instructions](docs/Setup.md)
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
 * [Example projects](examples)

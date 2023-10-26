@@ -1351,9 +1351,9 @@ The Amper engine would be able to quickly discover the DSL schema for `setting:m
 
 ## Gradle-based projects
 
-The current Amper implementation is Gradle-based. You need a `settings.gradle.kts` file in the project root:
-plugin:
+The current Amper implementation is Gradle-based and is tested with Gradle 8.1. You need a `settings.gradle.kts` file and a `gradle/wrapper/` folders in the project root:
 ```
+|-gradle/...
 |-src/
 |  |-...
 |-module.yaml
