@@ -178,7 +178,7 @@ registerJobInPrototypeDir(
                 project = ProjectIdentifier.Key("deft"),
                 repository = "deft-prototype",
                 sourceBranch = "$branchName",
-                targetBranch = "main",
+                targetBranch = "0.1",
                 title = "Update Amper plugin version to $pluginVersion"
             )
         }
