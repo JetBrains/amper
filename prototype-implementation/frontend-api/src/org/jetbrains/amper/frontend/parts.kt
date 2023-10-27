@@ -62,7 +62,6 @@ data class AndroidPart(
     }
     override fun default(module: PotatoModule): FragmentPart<AndroidPart> =
         AndroidPart(
-            targetSdk = targetSdk ?: "34",
             compileSdk = compileSdk ?: "android-34",
             minSdk = minSdk ?: "21",
             namespace = namespace?: "com.example.${module.userReadableName.prepareToNamespace()}"
