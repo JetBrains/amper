@@ -35,7 +35,7 @@ Planned features:
 
 Check the [FAQ for more question](docs/FAQ.md) and the list of [known issues](docs/KnownIssues.md).
 
-Join the Slack channel<!LINK!> for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER).  
+Join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions and share you feedback and ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER).  
 
 For a quick start:
 * [Setup instructions](docs/Setup.md)
