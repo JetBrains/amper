@@ -17,10 +17,10 @@ We are working on the following functionality: version catalogs, Swift Package M
 
 ### A feature X is not yet supported, what can I do?
 We plan to expand the list of supported use cases based on the demand. Please submit your requests and suggestions to the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
-Meanwhile, you can use Gradle plugins and tasks as usual. See the [documentation on the Gradle interop](Documentation.md#gradle-interop).
+Meanwhile, you can use Gradle plugins and tasks as usual. See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
 ### Can I write a custom task or use a plugin?
-Extensibility is currently not implemented, but we are exploring it. Meanwhile, you can use the Gradle backend to write tasks and use the Gradle plugins. See the [documentation on the Gradle interop](Documentation.md#gradle-interop).
+Extensibility is currently not implemented, but we are exploring it. Meanwhile, you can use the Gradle backend to write tasks and use the Gradle plugins. See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
 ### Will it be open sourced?
 Yes. We'll be open sourcing the code at a later date.
