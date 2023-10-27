@@ -97,8 +97,8 @@ registerJobInPrototypeDir(
     "Build and publish",
     customTrigger = { schedule { cron("0 0 * * *") } },
     customParameters = {
-        text("channel", value = "Nightly") {
-            options("Stable", "Nightly")
+        text("channel", value = "dev") {
+            options("Stable", "dev")
         }
     },
     hostJob = {
@@ -200,7 +200,34 @@ registerJobInPrototypeDir(
     )
 }
 
-// Cherry-pick generated commit with new plugin version if tests passed
+// Build for publishing release plugin
+registerJobInPrototypeDir(
+    "Build and publish Release",
+    customTrigger = { gitPush { enabled = false } },
+    customParameters = {
+        text("channel", value = "release") {
+            options("Stable", "release")
+        }
+    }
+) {
+    val channelAndVersion = ChannelAndVersion.from(this)
+    println("Publishing with version: ${channelAndVersion.version}")
+
+    channelAndVersion.writeTo(
+        filePath = "common.module-template.yaml",
+        versionPrefix = "version: "
+    )
+
+    // Do the work.
+    gradlew(
+        "--info",
+        "--stacktrace",
+        "allTests",
+        "publishAllPublicationsToScratchRepository",
+    )
+}
+
+// Merge generated MR with new plugin version if tests passed
 registerJobInPrototypeDir(
     "Update gradle plugin version",
     customTrigger = { gitPush {
@@ -239,6 +266,11 @@ registerJobInPrototypeDir(
     )
 }
 
+/**
+ *     version pattern 0.<major>.<minor>-dev-<build-number>
+ *     dev build example: 0.1.0-dev-35
+ *     release build example: 0.1.0
+ */
 data class ChannelAndVersion(val channel: String, val version: String) {
     fun writeTo(
         filePath: String,
@@ -267,7 +299,7 @@ data class ChannelAndVersion(val channel: String, val version: String) {
         }
 
         if (channelPrefix != null) {
-            replace("${channelPrefix}Nightly", "${channelPrefix}${channel}")
+            replace("${channelPrefix}dev", "${channelPrefix}${channel}")
         }
         if (versionPrefix != null) {
             replace("${versionPrefix}1.0-SNAPSHOT", "${versionPrefix}${version}")
@@ -277,9 +309,10 @@ data class ChannelAndVersion(val channel: String, val version: String) {
     }
 
     companion object {
+        private const val CURRENT_VERSION = "0.1.0"
         fun from(api: ScriptApi): ChannelAndVersion {
-            val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "Nightly"
-            val version = "${api.executionNumber()}-${channel.uppercase(Locale.getDefault())}"
+            val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "dev"
+            val version = CURRENT_VERSION + if(channel == "dev") "-dev-${api.executionNumber()}" else ""
             return ChannelAndVersion(channel, version)
         }
     }
