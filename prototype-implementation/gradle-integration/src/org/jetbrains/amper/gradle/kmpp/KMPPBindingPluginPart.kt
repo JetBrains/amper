@@ -300,7 +300,7 @@ class KMPPBindingPluginPart(
         if (!module.type.isLibrary() || fragment.isTest) return
 
         target.binaries {
-            framework(part?.declaredFrameworkBasename ?: fragment.name) {
+            framework(part?.declaredFrameworkBasename ?: module.userReadableName) {
                 part?.frameworkParams?.get("isStatic")?.let { isStatic = it == "true" }
             }
         }
