@@ -16,7 +16,7 @@ Yes. You can configure Compose for Android, iOS, and Desktop.
 We are working on the following functionality: version catalogs, Swift Package Manager support, C-interop, packaging and publication, and extensibility.
 
 ### A feature X is not yet supported, what can I do?
-We plan to expand the list of supported use cases based on the demand. Please submit your requests and suggestions to the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join the Slack channel<!LINK!> for discussions.
+We plan to expand the list of supported use cases based on the demand. Please submit your requests and suggestions to the [tracker](https://youtrack.jetbrains.com/issues/AMPER) or join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions.
 Meanwhile, you can use Gradle plugins and tasks as usual. See the [documentation on the Gradle interop](Documentation.md#gradle-interop).
 
 ### Can I write a custom task or use a plugin?
@@ -36,7 +36,7 @@ Understanding real-world scenarios is crucial for us in order to provide a bette
 
 ### How do I report a bug?
 Please report problems to [our tracker](https://youtrack.jetbrains.com/issues/AMPER). Since this project is in the experimental phase, 
-we would also greatly appreciate feedback and suggestions regarding the configuration experience - join our Slack channel for discussion.
+we would also greatly appreciate feedback and suggestions regarding the configuration experience - join our [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussion.
 
 ### Is there an automated migration tool?
 Not currently, but it certainly is something we’re looking into. See the [Gradle migration tutorial](GradleMigration.md) and examples. 
