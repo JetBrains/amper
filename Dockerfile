@@ -9,3 +9,4 @@ FROM thyrlian/android-sdk
 
 RUN apt update
 RUN apt install -y binutils fakeroot
+RUN /opt/android-sdk/cmdline-tools/tools/bin/sdkmanager  "platform-tools" "platforms;android-34"
