@@ -228,8 +228,7 @@ Documentation:
 
 ### Step 7. Make project multi-platform
 
-One of the primary target use cases is the Kotlin Multiplatform (see the [Mercury project](https://jetbrains.team/blog/Introducing_Project_Mercury)). 
-So let’s add client Android and iOS apps our project. 
+Let’s add client Android and iOS apps our project. 
 
 module.yaml for Android:
 ```YAML
