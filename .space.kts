@@ -13,8 +13,8 @@ import kotlin.system.exitProcess
 fun ScriptApi.addCreds() {
     File("local.properties").writeText(
         """
-                scratch.username=${spaceClientId()}
-                scratch.password=${spaceClientSecret()}
+                scratch.username=${System.getenv("PUBLISH_TO_PUBLIC_USERNAME")}
+                scratch.password=${System.getenv("PUBLISH_TO_PUBLIC_SECRET")}
             """.trimIndent()
     )
 }
@@ -36,6 +36,8 @@ fun registerJobInPrototypeDir(
     container(displayName = name, image = "registry.jetbrains.team/p/deft/containers/android-sdk:latest") {
         workDir = "prototype-implementation"
         env["SLACK_TOKEN"] = "{{ slack_secret_space_alerts_app }}"
+        env["PUBLISH_TO_PUBLIC_USERNAME"] = "{{ project:publish_to_public_username }}"
+        env["PUBLISH_TO_PUBLIC_SECRET"] = "{{ project:publish_to_public_secret }}"
         customContainerBody()
 
         // Add test report.
