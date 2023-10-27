@@ -18,7 +18,7 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-AMPER_VERSION="0.1.0"
+AMPER_VERSION="221-NIGHTLY"
 KOTLIN_VERSION="1.9.20-RC"
 COMPOSE_VERSION="1.5.10-rc01"
 GRADLE_VERSION="8.1.1-bin.zip"
