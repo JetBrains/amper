@@ -1,0 +1,11 @@
+product: android/app
+
+dependencies:
+  - ../shared
+
+apply:
+  - ../common.module-template.yaml
+
+settings:
+  android: 
+    namespace: com.myapplication.MyApplication

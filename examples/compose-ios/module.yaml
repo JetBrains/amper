@@ -1,0 +1,12 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product: ios/app
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+
+settings:
+  compose: enabled
+  ios:
+    teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/

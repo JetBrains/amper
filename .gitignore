@@ -1,0 +1,5 @@
+build
+.fleet
+.gradle
+.idea
+.DS_Store
