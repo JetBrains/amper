@@ -1,5 +1,5 @@
 
-### Is it a brand-new build tool from JetBrains?
+### Is Amper a brand-new build tool from JetBrains?
 You can think of it as a tool for project configuration with the focus on the usability, onboarding experience and IDE support. It provides a configuration layer on top of Gradle and is implemented as a Gradle plugin. 
 
 ### Do you plan to support only Kotlin?
@@ -22,10 +22,10 @@ Meanwhile, you can use Gradle plugins and tasks as usual. See the documentation 
 ### Can I write a custom task or use a plugin?
 Extensibility is currently not implemented, but we are exploring it. Meanwhile, you can use the Gradle backend to write tasks and use the Gradle plugins. See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
-### Will it be open sourced?
+### Will Amper be open sourced?
 Yes. We'll be open sourcing the code at a later date.
 
-### When will it be released to stable?
+### When will Amper be released to stable?
 Right now we’re focusing on getting feedback and understanding your needs. . Based on that we’ll decide in which direction to move the projects and provide estimations.
 
 ### Shall I start my next project with it?
