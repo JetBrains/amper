@@ -3,7 +3,12 @@
 
 # Amper
 
-Amper goal is to improve the project configuration experience, the toolability, that is, the IDE support, and also provide a smooth out-of-the box experience. 
+Amper goal is to improve the project configuration experience, the toolability, that is, the IDE support, and also provide a smooth out-of-the box experience.
+We believe that it could be achieved by
+- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup, but also improve maintainability and let an IDE assist with automatic configuration reliably;
+- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;    
+- ad carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
+Basically, we would like to achieve the similar well-though and well-tested experience as with JetBrains IDEs.   
 
 We are looking at various aspects, such as configuring the projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. 
 
