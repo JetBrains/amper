@@ -57,7 +57,7 @@ fun registerJobInPrototypeDir(
                 val slack = Slack.getInstance()
                 val token = System.getenv("SLACK_TOKEN")
                 val branchName = System.getenv("JB_SPACE_GIT_BRANCH").substringAfterLast("/")
-                if (branchName == "main") {
+                if (branchName == "0.1") {
                     slack.methods(token).chatPostMessage { req ->
                         req.channel("#deft-build-alerts")
                             .text("<${it.executionUrl()}|${name} `#${it.executionNumber()}`> are failed in branch `${branchName}`")
