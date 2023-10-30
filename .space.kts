@@ -24,6 +24,7 @@ fun registerJobInPrototypeDir(
     customTrigger: (Triggers.() -> Unit)? = null,
     customParameters: Parameters.() -> Unit = { },
     customContainerBody: Container.() -> Unit = { },
+    isPluginBuild: Boolean = false,
     hostJob: Host.() -> Unit = {},
     scriptBody: ScriptApi.() -> Unit,
 ) = job(name) {
@@ -33,6 +34,23 @@ fun registerJobInPrototypeDir(
         secret("git_ssh_key", "{{ project:deft-automation-bot-ssh-key }}")
         customParameters()
     }
+    if (isPluginBuild) {
+        container(
+            displayName = "Calculate plugin version",
+            image = "registry.jetbrains.team/p/deft/containers/android-sdk:latest"
+        ) {
+            kotlinScript {
+                val channelAndVersion = ChannelAndVersion.from(it)
+                println("Publishing with version: ${channelAndVersion.version}")
+
+                channelAndVersion.writeTo(
+                    filePath = "prototype-implementation/common.module-template.yaml",
+                    versionPrefix = "version: "
+                )
+            }
+        }
+    }
+
     container(displayName = name, image = "registry.jetbrains.team/p/deft/containers/android-sdk:latest") {
         workDir = "prototype-implementation"
         env["SLACK_TOKEN"] = "{{ slack_secret_space_alerts_app }}"
@@ -53,6 +71,7 @@ fun registerJobInPrototypeDir(
             try {
                 it.scriptBody()
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 println("Sending notification to slack")
                 val slack = Slack.getInstance()
                 val token = System.getenv("SLACK_TOKEN")
@@ -103,6 +122,7 @@ registerJobInPrototypeDir(
             options("Stable", "dev")
         }
     },
+    isPluginBuild = true,
     hostJob = {
         env["GIT_SSH_KEY"] = "{{ git_ssh_key }}"
         var newVersion = ""
@@ -122,8 +142,7 @@ registerJobInPrototypeDir(
 
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
-            val currentVersion =
-                Regex("AMPER_VERSION=\".*\"").find(text)!!.value.substringAfter("AMPER_VERSION=").replace("\"", "")
+            val currentVersion = ChannelAndVersion.extractAmperVersion(text)
             println("OLD plugin version $currentVersion")
             val updatedText = text.replace(currentVersion, newVersion)
             syncFile.writeText(updatedText)
@@ -206,6 +225,7 @@ registerJobInPrototypeDir(
 registerJobInPrototypeDir(
     "Build and publish Release",
     customTrigger = { gitPush { enabled = false } },
+    isPluginBuild = true,
     customParameters = {
         text("channel", value = "release") {
             options("Stable", "release")
@@ -244,8 +264,7 @@ registerJobInPrototypeDir(
 
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
-            val newPluginVersion =
-                Regex("AMPER_VERSION=\".*\"").find(text)!!.value.substringAfter("AMPER_VERSION=").replace("\"", "")
+            val newPluginVersion = ChannelAndVersion.extractAmperVersion(text)
 
             val review = api.space().projects.codeReviews.getAllCodeReviews(
                 project = ProjectIdentifier.Key("deft"),
@@ -311,10 +330,23 @@ data class ChannelAndVersion(val channel: String, val version: String) {
     }
 
     companion object {
-        private const val CURRENT_VERSION = "0.1.0"
+
+        fun extractAmperVersion(text: String): String {
+            return Regex("AMPER_VERSION=\".*\"").find(text)!!.value.substringAfter("AMPER_VERSION=").replace("\"", "")
+        }
+
         fun from(api: ScriptApi): ChannelAndVersion {
             val channel = api.parameters["channel"]?.takeIf { it.isNotBlank() } ?: "dev"
-            val version = CURRENT_VERSION + if(channel == "dev") "-dev-${api.executionNumber()}" else ""
+            val syncFile = File("syncVersions.sh")
+            val text = syncFile.readText()
+            val previousPluginVersion = extractAmperVersion(text)
+            var version: String = if (previousPluginVersion.contains("-dev-")) {
+                previousPluginVersion.substringBefore("-")
+            } else {
+                previousPluginVersion.substringBeforeLast(".") + "." + (previousPluginVersion.substringAfterLast(".").toInt() + 1)
+            }
+
+            version += if (channel == "dev") "-dev-${api.executionNumber()}" else ""
             return ChannelAndVersion(channel, version)
         }
     }
