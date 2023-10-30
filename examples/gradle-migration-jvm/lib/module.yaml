@@ -1,4 +1,6 @@
-product: 
+# Have feedback? Share it here https://jebrains.com/amper-feedback
+
+product:
   type: lib
   platforms:
     - jvm
