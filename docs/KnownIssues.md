@@ -1,3 +1,4 @@
+- Currently only JDK 17 is supported.
 - First project opening in the IDE may take long to download dependencies.   
 - Android and iOS application require additional memory for Gradle and Fleet.
   See [new-project-template/gradle.properties](../examples/new-project-template/gradle.properties) and [new-project-template/.fleet/settings.json](../examples/new-project-template/.fleet/settings.json) files. 

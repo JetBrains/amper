@@ -8,7 +8,8 @@ If you use IntelliJ IDEA, install the Amper plugin: ![](images/plugin.png)
 Fleet + KMP comes with Amper plugin.
 
 ## Prepare the environment
-- Install and configure the latest JDK 17+. 
+- Install and configure the latest JDK 17+.
+- If you have Gradle installed, make sure you use Gradle 8.1 or later.
 - Install and configure the latest Android Studio for Android samples.
 - Install and configure the latest Xcode for iOS samples.
 

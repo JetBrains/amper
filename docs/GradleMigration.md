@@ -1,18 +1,17 @@
 This tutorial demonstrates how to add Amper Module files to existing Gradle JVM and Kotlin Multiplatform projects.
 
-If you want to follow the tutorial:
-* Check the [setup instructions](Setup.md).
-* Open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
-
-Also, see project examples:
+See also project examples:
 * [gradle-interop](../examples/gradle-interop) shows how to use Gradle with an exising module.yaml.  
 * [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper Module.   
 * [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper Module.
 
 If you are looking to more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
 
-### Step 0. Prepare
+### Before you start
 
+Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
+
+Note, that:
 * JDK 17+ is required. Make sure you have it installed and selected in the IDE. 
 * Gradle 8.1 is recommended. Make sure your project uses the corresponding Gradle version, 
   check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.

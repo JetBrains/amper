@@ -1,3 +1,7 @@
+## Before you start
+
+Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
+
 ## Basics
 
 **Module** is a directory with a `module.yaml` manifest file, sources and resources, which are used to build a certain product.  A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application.

@@ -1,13 +1,11 @@
 This tutorial gives a short introduction to Amper and how to use it a new project.
 
-If you want to follow the tutorial:
-* Check the [setup instructions](Setup.md)
-* Open [a new project template](../examples/new-project-template) in the IDE  
-
 If you are looking to more detailed info, check [the documentation](Documentation.md).
- 
-### Step 0. Prepare
 
+### Before you start
+Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
+
+Note, that:
 * JDK 17+ is required. Make sure you have it installed. 
 
 ### Step 1. Hello, World
