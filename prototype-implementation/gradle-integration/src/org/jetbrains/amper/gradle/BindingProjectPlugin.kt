@@ -92,12 +92,15 @@ class BindingProjectPlugin : Plugin<Project> {
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
             project.group = it.group ?: ""
             project.version = it.version ?: ""
-            extension.repositories.configure(module.parts.find<RepositoriesModulePart>())
+            extension.repositories.configure(module.parts.find<RepositoriesModulePart>(), all = false)
         }
     }
 
-    private fun RepositoryHandler.configure(part: RepositoriesModulePart?) {
-        val repositories = part?.mavenRepositories?.filter { it.publish } ?: return
+    /**
+     * [all] - if we need to configure all repositories, or only publishing ones.
+     */
+    private fun RepositoryHandler.configure(part: RepositoriesModulePart?, all: Boolean = true) {
+        val repositories = part?.mavenRepositories?.filter { all || it.publish } ?: return
         repositories.forEach { declared ->
             if (declared.id == "mavenLocal" && declared.url == "mavenLocal") {
                 mavenLocal()
@@ -105,9 +108,11 @@ class BindingProjectPlugin : Plugin<Project> {
                 maven {
                     it.name = declared.id
                     it.url = URI.create(declared.url)
-                    it.credentials { cred ->
-                        cred.username = declared.userName
-                        cred.password = declared.password
+                    if (declared.userName != null && declared.password != null) {
+                        it.credentials { cred ->
+                            cred.username = declared.userName
+                            cred.password = declared.password
+                        }
                     }
                 }
             }
