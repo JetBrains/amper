@@ -224,6 +224,76 @@ registerJobInPrototypeDir(
         text("channel", value = "release") {
             options("Stable", "release")
         }
+    },
+    hostJob = {
+        env["GIT_SSH_KEY"] = "{{ git_ssh_key }}"
+        var newVersion = ""
+
+        kotlinScript("Update plugin version") {
+            newVersion = it.fileShare().locate("pluginVersion.txt")?.readText()?.trim('\n')!!
+
+            val syncFile = File("syncVersions.sh")
+            val text = syncFile.readText()
+            val currentVersion = ChannelAndVersion.extractAmperVersion(text)
+            println("OLD plugin version $currentVersion")
+            val updatedText = text.replace(currentVersion, newVersion)
+            syncFile.writeText(updatedText)
+
+            Files.walk(Paths.get("")).use { stream ->
+                stream.filter {
+                    Files.isRegularFile(it) && (it.name == "settings.gradle.kts" || it.name.endsWith(".md"))
+                }.forEach {
+                    val file = File(it.toAbsolutePath().toString())
+                    val fileText = file.readText()
+                    val newText = fileText.replace(currentVersion, newVersion)
+                    file.writeText(newText)
+                }
+            }
+        }
+
+        shellScript("Commit and push changes") {
+            content = """
+                mkdir -p ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh
+                    echo "${'$'}GIT_SSH_KEY" >> ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+                    chmod 400 ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa
+
+                    export GIT_SSH_COMMAND="ssh -i ${'$'}JB_SPACE_WORK_DIR_PATH/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+
+                    git config user.name "Space Automation"
+                    git config user.email no-reply@automation.jetbrains.space
+                    
+                    python3 -m pip install tqdm requests
+
+                    export BRANCH_NAME=${'$'}(date +update-plugin-%Y-%m-%d-%H-%M-%S)
+                    
+                    echo ${'$'}BRANCH_NAME > ${'$'}JB_SPACE_FILE_SHARE_PATH/branch.txt
+                    
+                    export PLUGIN_VERSION 
+                    
+                    echo PLUGIN_VERSION < ${'$'}JB_SPACE_FILE_SHARE_PATH/pluginVersion.txt
+
+                    git checkout -b ${'$'}BRANCH_NAME
+
+                    git add --update
+
+                    git status
+                    git commit -m "Update Amper plugin version"
+                    git push -u origin ${'$'}BRANCH_NAME
+            """
+        }
+
+        kotlinScript("Create MR") { api ->
+            val branchName = api.fileShare().locate("branch.txt")?.readText()?.trim('\n')
+            val pluginVersion = api.fileShare().locate("pluginVersion.txt")?.readText()?.trim('\n')
+            api.space().projects.codeReviews.createMergeRequest(
+                project = ProjectIdentifier.Key("deft"),
+                repository = "deft-prototype",
+                sourceBranch = "$branchName",
+                targetBranch = "0.1",
+                title = "Update Amper plugin version to $pluginVersion"
+            )
+        }
+
     }
 ) {
     // Do the work.
