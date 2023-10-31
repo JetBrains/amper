@@ -204,14 +204,6 @@ registerJobInPrototypeDir(
 
     }
 ) {
-    val channelAndVersion = ChannelAndVersion.from(this)
-    println("Publishing with version: ${channelAndVersion.version}")
-
-    channelAndVersion.writeTo(
-        filePath = "common.module-template.yaml",
-        versionPrefix = "version: "
-    )
-
     // Do the work.
     gradlew(
         "--info",
@@ -232,14 +224,6 @@ registerJobInPrototypeDir(
         }
     }
 ) {
-    val channelAndVersion = ChannelAndVersion.from(this)
-    println("Publishing with version: ${channelAndVersion.version}")
-
-    channelAndVersion.writeTo(
-        filePath = "common.module-template.yaml",
-        versionPrefix = "version: "
-    )
-
     // Do the work.
     gradlew(
         "--info",
