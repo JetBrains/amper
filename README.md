@@ -43,7 +43,7 @@ Check the [FAQ for more question](docs/FAQ.md) and the list of [known issues](do
 Join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, submit your ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER) and share your feedback [here](https://jebrains.com/amper-feedback).     
 
 For a quick start:
-* [Setup instructions](docs/Setup.md)
+* [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
 * [Example projects](examples)
@@ -169,64 +169,3 @@ Check our more real world examples:
 * [Multiplatform](examples/multiplatform) project with shared code.
 * [Gradle interop](examples/gradle-interop)
 * And [others](examples)
-
-
-### Using Amper in IntelliJ IDEA
-
-See [the setup instructions](docs/Setup.md) to configure your IDE.
-
-Open an Amper project as usual by pointing at the folder with the main `settings.gradle.kts` file:
-
-To run an application:
-
-* use a 'run' (![](docs/images/ij-run-gutter-icon.png)) gutter icon next to the `product: ` section in a module.yaml file:\
- ![img.png](docs/images/ij-run-product.png)
-
-
-* use a 'run' (![](docs/images/ij-run-gutter-icon.png)) gutter icon next to the `main()` function:\
-  ![](docs/images/ij-run-main.png)
-
-
-* use [Run/Debug configurations](https://www.jetbrains.com/help/idea/run-debug-configuration.html):\
-  ![](docs/images/ij-run-config-jvm.png)\
-  ![](docs/images/ij-run-config-android.png)
-
-
-* launch a Gradle task directly:\
-  ![](docs/images/ij-run-gradle-task.png)
-  
-
-To run tests use the same 'run' (![](docs/images/ij-run-gutter-icon.png)) gutter icon or Gradle run configuration. Read more on [testing in IntelliJ IDEA](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#run_gradle_test).\
-![](docs/images/ij-run-tests.png)
-
-
-### Using Amper in Fleet
-
-See [the setup instructions](docs/Setup.md) to configure your IDE.
-
-Open an Amper project as usual by pointing at the folder with the main settings.gradle.kts file:
-
-To run an application:
-
-* use a 'run' (![](docs/images/fleet-run-gutter-icon.png)) gutter icon next to the `product: ` section in a module.yaml file:\
- ![](docs/images/fleet-run-product.png)
-
-
-* use a 'run' (![](docs/images/fleet-run-gutter-icon.png)) gutter icon next to the `main()` function:\
-  ![](docs/images/fleet-run-main.png)
-
-
-* use [Run configurations](https://www.jetbrains.com/help/fleet/getting-started-with-kotlin-in-fleet.html#create-rc):\
-  ![](docs/images/fleet-run-config.png)\
-  ![](docs/images/fleet-run-config-ios.png)
-
-
-* launch a Gradle task directly:\
-  ![](docs/images/fleet-run-gradle-task.png)
-   
-  
-  
-
-To run tests use the same 'run' (![](docs/images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.
-
-

@@ -51,7 +51,7 @@ them.
   ![](images/fleet.png)
 
 ### What's next
-See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](../README.md#using-amper-in-intellij-idea) and [Fleet](../README.md#using-amper-in-fleet). Try opening the examples projects:
+See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea) and [Fleet](Usage.md#using-amper-in-fleet). Try opening the examples projects:
   - [JVM Hello World](../examples/jvm-kotlin+java)
   - [Compose Desktop](../examples/compose-desktop)
   - [Kotlin Multiplatform](../examples/multiplatform)
