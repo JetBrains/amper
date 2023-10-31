@@ -43,10 +43,14 @@ fun registerJobInPrototypeDir(
                 val channelAndVersion = ChannelAndVersion.from(it)
                 println("Publishing with version: ${channelAndVersion.version}")
 
-                channelAndVersion.writeTo(
-                    filePath = "prototype-implementation/common.module-template.yaml",
-                    versionPrefix = "version: "
-                )
+                val path = "~/pluginVersion.txt"
+                val content = channelAndVersion.version
+                val sharedFile = File(path).apply {
+                    parentFile.mkdirs()
+                    createNewFile()
+                    writeText(content)
+                }
+                it.fileShare().put(sharedFile, "pluginVersion.txt")
             }
         }
     }
@@ -69,6 +73,14 @@ fun registerJobInPrototypeDir(
         kotlinScript {
             it.addCreds()
             try {
+                if (isPluginBuild) {
+                    val pluginVersion = it.fileShare().locate("pluginVersion.txt")?.readText()?.trim('\n')
+                    val channelAndVersion = ChannelAndVersion("", pluginVersion!!)
+                    channelAndVersion.writeTo(
+                        filePath = "common.module-template.yaml",
+                        versionPrefix = "version: "
+                    )
+                }
                 it.scriptBody()
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -128,17 +140,7 @@ registerJobInPrototypeDir(
         var newVersion = ""
 
         kotlinScript("Update plugin version") {
-            val channelAndVersion = ChannelAndVersion.from(it)
-            newVersion = channelAndVersion.version
-
-            val path = "~/pluginVersion.txt"
-            val content = newVersion
-            val sharedFile = File(path).apply {
-                parentFile.mkdirs()
-                createNewFile()
-                writeText(content)
-            }
-            it.fileShare().put(sharedFile, "pluginVersion.txt")
+            newVersion = it.fileShare().locate("pluginVersion.txt")?.readText()?.trim('\n')!!
 
             val syncFile = File("syncVersions.sh")
             val text = syncFile.readText()
