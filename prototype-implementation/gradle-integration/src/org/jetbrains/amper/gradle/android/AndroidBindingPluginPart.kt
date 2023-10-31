@@ -164,7 +164,7 @@ class AndroidBindingPluginPart(
             androidPE?.apply {
                 part.compileSdk?.let { compileSdkVersion(it) }
                 defaultConfig.apply {
-                    part.applicationId?.let { applicationId = it }
+                    if (!module.type.isLibrary()) part.applicationId?.let { applicationId = it }
                     part.namespace?.let { namespace = it }
                     part.minSdk?.let { minSdkVersion(it) }
                     part.maxSdk?.let { maxSdkVersion(it) }

@@ -69,7 +69,9 @@ data class AndroidPart(
             targetSdk = targetSdk ?: "34",
             compileSdk = compileSdk ?: "android-34",
             minSdk = minSdk ?: "21",
-            namespace = namespace?: "com.example.${module.userReadableName.prepareToNamespace()}"
+            maxSdk = maxSdk ?: 34,
+            namespace = namespace?: "com.example.${module.userReadableName.prepareToNamespace()}",
+            applicationId = applicationId ?: namespace
         )
 }
 

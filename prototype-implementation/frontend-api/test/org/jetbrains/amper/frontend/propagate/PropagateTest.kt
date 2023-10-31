@@ -145,4 +145,43 @@ class PropagateTest {
 
         assertEquals("namespace", actualNamespace)
     }
+
+    @Test
+    fun `android params propagation`() {
+        val module = potatoModule("androidApp") {
+            fragment("common") {
+                dependant("android")
+                androidPart {
+                    applicationId = "com.example.applicationid"
+                    namespace = "com.example.namespace"
+                    minSdk = "30"
+                    maxSdk = 33
+                    compileSdk = "33"
+                    targetSdk = "33"
+                }
+            }
+            fragment("android") {
+                dependsOn("common")
+                androidPart {}
+            }
+        }
+
+        val model = ModelImpl(module)
+        val resultModel = model.resolved
+
+        val androidPart = resultModel
+            .modules
+            .first()
+            .fragments
+            .find { it.name == "android" }
+            ?.parts
+            ?.find<AndroidPart>()!!
+
+        assertEquals("com.example.applicationid", androidPart.applicationId)
+        assertEquals("com.example.namespace", androidPart.namespace)
+        assertEquals("30", androidPart.minSdk)
+        assertEquals(33, androidPart.maxSdk)
+        assertEquals("33", androidPart.compileSdk)
+        assertEquals("33", androidPart.targetSdk)
+    }
 }
