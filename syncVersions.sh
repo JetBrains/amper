@@ -18,7 +18,7 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-AMPER_VERSION="0.1.0-dev-240"
+BOOTSTRAP_AMPER_VERSION="0.1.0-dev-240"
 KOTLIN_VERSION="1.9.20-RC"
 COMPOSE_VERSION="1.5.10-rc01"
 GRADLE_VERSION="8.1.1-bin.zip"
@@ -29,8 +29,8 @@ ANDROID_VERSION="8.1.0"
 # before the version (even quotes). Yet, you can add arbitrary sed rule, by using [append_to_sed_file].
 
 # Amper
-add_update_rule $AMPER_VERSION "org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
-add_update_rule $AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
+add_update_rule $BOOTSTRAP_AMPER_VERSION "org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
+add_update_rule $BOOTSTRAP_AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
 
 # Kotlin
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.multiplatform:org\.jetbrains\.kotlin\.multiplatform\.gradle\.plugin:"
