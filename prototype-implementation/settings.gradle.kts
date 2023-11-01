@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.1.0-dev-238")
+        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.1.0-dev-240")
     }
 }
 
