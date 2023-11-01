@@ -19,7 +19,7 @@ settings:
     compose: enabled
     android:
         namespace: "com.myapplication.common"
-        compileSdk: android-33
+        compileSdk: 33
         targetSdk: 33
         minSdk: 33
     jvm:
