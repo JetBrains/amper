@@ -60,9 +60,16 @@ To run an application:
 
 * launch a Gradle task directly:\
   ![](images/fleet-run-gradle-task.png)
-   
-  
-  
+
+To select target device for running an Android or iOS application:
+
+
+* Create run configuration of corresponding type (`kmp-app` or `android-app`) in .fleet/run.json:
+  ![](images/fleet-creat-run-conf.png)
+
+* Specify the device in "destination" parameter:  
+  ![](images/fleet-select-ios-device.png)\
+  ![](images/fleet-select-android-device.png)
 
 To run tests use the same 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.
 
