@@ -20,7 +20,7 @@ kotlin {
             implementation("org.jetbrains.kotlin:kotlin-serialization") {
                 version {
                     // Should be replaced by synchVersions.sh
-                    /*kotlin_magic_replacement*/ strictly("1.9.20-RC")
+                    /*kotlin_magic_replacement*/ strictly("1.9.20")
                 }
             }
         }
