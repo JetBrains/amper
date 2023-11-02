@@ -54,14 +54,9 @@ For a quick start:
 
 ### Basics
 Here is a very basics JVM "Hello, World!" project:
-```
-|-src
-|  |-main.kt
-|-test
-|  |-MyTest.kt
-|-module.yaml
-|-...
-```
+
+<img src="docs/images/ij-jvm-structure.png" width="50%" alt="">
+
 
 The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them. The interesting part is `module.yaml`, which is the Amper manifest file. For the above project structure, it would simply be: 
 
@@ -72,37 +67,13 @@ product: jvm/app
 
 That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples/jvm-with-tests).
 
+<img src="docs/images/ij-jvm-result.png" alt="">
+
 ### Multiplatform
 
 Now, let's look at a Compose Multiplatform project with Android, iOS, and desktop JVM apps, with the following project structure in Fleet:
 
-```
-|-ios-app                  # an iOS application
-|  |-src
-|  |  |-iosApp.swift       # native Swift code
-|  |  |-ViewController.kt
-|  |  |-...
-|  |-module.yaml
-|-android-app              # an Android application
-|  |-...
-|-jvm-app                  # a JVM application
-|  |-...
-|-shared                   # shared library
-|  |-src                   # common code for all platforms
-|  |  |-MainScreen.kt
-|  |-src@ios               # iOS-specific code
-|  |  |-...           
-|  |-src@android           # Android-specific code
-|  |  |-...
-|  |-test                  # common tests
-|  |  |-MainScreenTest.kt      
-|  |  |-...
-|  |-test@ios              # iOS-specicis tests
-|  |  |- ...               
-|  |-...
-|  |-module.yaml
-|-... 
-```
+<img src="docs/images/fleet-kmp-structure.png" width="50%" alt="">
 
 Notice how the `src/` folder contains Kotlin and Swift code together. It could, of course, also be Kotlin and Java.
 Another aspect to highlight is the shared module with the common code in the `src` folder and the platform-specific code folders `src@ios` and `src@android` (learn more about [project layout](docs/Documentation.md#project-layout)).
@@ -157,6 +128,8 @@ settings:
 
 A couple of things are worth mentioning. First, note the platform-specific dependencies: sections with the `@<platform>` qualifier. [The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies, and settings for a certain platform.
 Second, the dependencies: section allows not only Kotlin and Maven dependencies, but also [platform-specific package managers](docs/Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager, and others.
+
+<img src="docs/images/fleet-kmp-result.png" alt="">
 
 Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples) to get more insight into Amper’s design and functionality.     
 
