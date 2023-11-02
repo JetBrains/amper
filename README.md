@@ -3,7 +3,7 @@
 
 # Amper
 
-Amper’s goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the box experience.
+Amper is a tool to help configure projects for the purpose of building, packaging, publishing, and more. Its goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the box experience.
 We believe that it could be achieved by
 - providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup, but also improve maintainability and let an IDE assist with automatic configuration reliably;
 - bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;    
