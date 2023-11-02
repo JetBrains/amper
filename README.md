@@ -3,18 +3,18 @@
 
 # Amper
 
-Amper goal is to improve the project configuration experience, the toolability, that is, the IDE support, and also provide a smooth out-of-the box experience.
+Amper’s goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the box experience.
 We believe that it could be achieved by
 - providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup, but also improve maintainability and let an IDE assist with automatic configuration reliably;
 - bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;    
 - ad carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
 Basically, we would like to achieve the similar well-though and well-tested experience as with JetBrains IDEs.   
 
-We are looking at various aspects, such as configuring the projects for the purpose of building, packaging, publishing, and more. At its current stage however, the focus is primarily on configuring projects for the purpose of building. 
+We’re currently looking at various aspects, including the configuration of projects for the purpose of building, packaging, publishing, and more. At its current stage, however, the focus is primarily on configuring projects for the purpose of building.
 
-While the current use case is Kotlin and Kotlin Multiplatform, it also supports Java and Swift (as a requirement for multiplatform). However, the same approach to configuration could work for other languages and technology stacks in the future. 
+While the current use case is Kotlin and Kotlin Multiplatform, it also supports Java and Swift (as a requirement for multiplatform). However, there’s nothing preventing it from working with other languages and technology stacks in the future. 
 
-Amper is implemented as a Gradle plugin and uses YAML for the project configuration format. The goal right now is to validate the user experience, which is why we have chosen to build on top of Gradle, as a well-tested build tool, and provide a configuration layer on top of it.
+The current implementation of Amper uses Gradle as the backend and YAML as the frontend (i.e. the project configuration). The goal right now is to validate the user experience (frontend), which is why we are primarily relying on Gradle for the backend. If these are validated, we’ll consider supporting other backends, including one that we’re already working on internally.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux and macOS applications.
@@ -63,19 +63,19 @@ Here is a very basics JVM "Hello, World!" project:
 |-...
 ```
 
-Nothing unexpected in the `main.kt` and `MyTest.kt` files, the interesting part is the `module.yaml`, the Amper manifest file.
-In its simplest form it looks like this:
+The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them. The interesting part is `module.yaml`, which is the Amper manifest file. For the above project structure, it would simply be: 
+
 ```yaml
 # Produce a JVM application 
 product: jvm/app
 ```
 
-That's it. The Kotlin and Java toolchains, test framework and other necessary functionality is configured and available straight out of the box.
-You can build it, run it, write test etc.  Check out the [full example](examples/jvm-with-tests).
+That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples/jvm-with-tests).
 
 ### Multiplatform
 
-Let's look at a Compose Multiplatform project with Android, iOS and Desktop JVM apps. Here is the project layout:
+Now, let's look at a Compose Multiplatform project with Android, iOS, and desktop JVM apps, with the following project structure in Fleet:
+
 ```
 |-ios-app                  # an iOS application
 |  |-src
@@ -103,12 +103,11 @@ Let's look at a Compose Multiplatform project with Android, iOS and Desktop JVM 
 |  |-module.yaml
 |-... 
 ```
- 
-Notice how the `src/` folder contains Kotlin and Swift code together. It could also be Kotlin and Java, or course.   
-Another highlight is the shared module with the common code in the `src` folder and the platform-specific code `src@ios` and `src@android` folders.
-Read more about the project layout [here](docs/Documentation.md#project-layout).
 
-Here is how `ios-app/module.yaml` manifest file looks like:
+Notice how the `src/` folder contains Kotlin and Swift code together. It could, of course, also be Kotlin and Java.
+Another aspect to highlight is the shared module with the common code in the `src` folder and the platform-specific code folders `src@ios` and `src@android` (learn more about [project layout](docs/Documentation.md#project-layout)).
+
+Here is how `ios-app/module.yaml` manifest file looks:
 ```yaml
 # Produce an iOS application
 product: ios/app
@@ -122,8 +121,7 @@ settings:
   compose: enabled
 ```
 
-This is pretty straightforward: it defines an iOS application with a dependency on a shared more and enables the Compose Multiplatform framework.
-A more interesting example is `shared/module.yaml`:
+This is pretty straightforward: It defines an iOS application with a dependency on a shared module and enables the Compose Multiplatform framework. A more interesting example would be `shared/module.yaml`:
 
 ```yaml
 # Produce a shared library for JVM, Android and iOS platforms:
@@ -157,10 +155,10 @@ settings:
   compose: enabled
 ```
 
-A couple of things are worth mentioning. First, the platform-specific `dependencies:` sections with the `@<platform>`-qualifier. [The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies and settings for a certain platform.  
-Second, the `dependencies:` section support not only Kotlin and Maven dependencies, but also [platform-specific package managers](docs/Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager and others.
+A couple of things are worth mentioning. First, note the platform-specific dependencies: sections with the `@<platform>` qualifier. [The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies, and settings for a certain platform.
+Second, the dependencies: section allows not only Kotlin and Maven dependencies, but also [platform-specific package managers](docs/Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager, and others.
 
-These examples show only a limited set of Amper features, of course. Look at the [tutorial](docs/Tutorial.md), [documentation](docs/Documentation.md) and [example projects](examples) to get more insight on the Amper design and its functionality.     
+Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples) to get more insight into Amper’s design and functionality.     
 
 ### More examples
 Check our more real world examples:
