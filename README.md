@@ -67,7 +67,7 @@ product: jvm/app
 
 That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples/jvm-with-tests).
 
-<img src="docs/images/ij-jvm-result.png" alt="">
+![](docs/images/ij-jvm-result.png)
 
 ### Multiplatform
 
@@ -129,7 +129,7 @@ settings:
 A couple of things are worth mentioning. First, note the platform-specific dependencies: sections with the `@<platform>` qualifier. [The platform qualifier](docs/Documentation.md#platform-qualifier) can be used both in the manifest and also in the file layout. The qualifier organizes the code, dependencies, and settings for a certain platform.
 Second, the dependencies: section allows not only Kotlin and Maven dependencies, but also [platform-specific package managers](docs/Documentation.md#native-dependencies), such as CocoaPods, Swift Package Manager, and others.
 
-<img src="docs/images/fleet-kmp-result.png" alt="">
+![](docs/images/fleet-kmp-result.png)
 
 Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples) to get more insight into Amper’s design and functionality.     
 
