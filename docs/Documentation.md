@@ -288,16 +288,16 @@ There are three dependency scopes:
 In a full form you can declare scope as follows:
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0:
-     scope: compile-only 
- - ../ui/utils:
-     scope: runtime-only 
+  - io.ktor:ktor-client-core:2.2.0:
+      scope: compile-only 
+  - ../ui/utils:
+      scope: runtime-only 
 ```
 There is also an inline form: 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0: compile-only  
- - ../ui/utils: runtime-only
+  - io.ktor:ktor-client-core:2.2.0: compile-only  
+  - ../ui/utils: runtime-only
 ```
 
 All dependencies by default are not accessible from the dependent code.  
@@ -305,24 +305,24 @@ In order to make a dependency visible to a dependent Module, you need to explici
 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0:
-     exported: true 
- - ../ui/utils:
-     exported: true 
+  - io.ktor:ktor-client-core:2.2.0:
+      exported: true 
+  - ../ui/utils:
+      exported: true 
 ```
 There is also an inline form: 
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0: exported  
- - ../ui/utils: exported
+  - io.ktor:ktor-client-core:2.2.0: exported  
+  - ../ui/utils: exported
 ```
 
 Here is an example of a `compile-only` and `exported` dependency:
 ```yaml
 dependencies:
- - io.ktor:ktor-client-core:2.2.0:
-     scope: compile-only
-     exported: true
+  - io.ktor:ktor-client-core:2.2.0:
+      scope: compile-only
+      exported: true
 ```
 
 #### Native dependencies
