@@ -14,3 +14,9 @@ val aggregateTestReports by tasks.creating(Zip::class) {
     // Should run after tests, but do not depend on them.
     mustRunAfter(getTasksByName("allTests", true))
 }
+
+subprojects {
+    configurations.all {
+        artifacts.removeAll { it.classifier == "sources" }
+    }
+}
