@@ -3,9 +3,10 @@
 The recommended IDE for Kotlin Multiplatform is [Fleet](https://www.jetbrains.com/fleet/) version 1.26.72. For JVM projects use [IntelliJ IDEA 2023.3 EAP](https://www.jetbrains.com/idea/nextversion/).
 The best way to get the most resent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
+Fleet 1.26 comes with Amper plugin.
+
 If you use IntelliJ IDEA, install the Amper plugin: ![](images/ij-plugin.png)
 
-Fleet + KMP comes with Amper plugin.
 
 ## Prepare the environment
 - Install and configure the latest JDK 17+.

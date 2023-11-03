@@ -4,13 +4,11 @@ Check the [setup instructions](Setup.md), and open [a new project template](../e
 
 ## Basics
 
-**Module** is a directory with a `module.yaml` manifest file, sources and resources, which are used to build a certain product.  A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application.
-_How_ to produce the desired artifact is responsibility of the build engine and extensions (work in progress).
+A **module** is a directory with a `module.yaml` manifest file, sources, and resources that are used to build a certain product. A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application. _How_ to produce the desired artifact is the responsibility of the build engine and extensions (see more on [Gradle-based](Documentation.md#gradle-interop)).
 
-Sources and resources can't be shared by several Modules.
+Sources and resources can't be shared by several modules.
 
-Amper supports Kotlin Multiplatform as a core concept, and offers a special syntax to deal with multi-platform configuration:
-there is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings etc. You'll see it in the examples below. 
+Amper supports Kotlin Multiplatform as a core concept and offers a special syntax to deal with multi-platform configuration. There is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings, etc. You'll see it in the examples below.
 
 ## Project layout
 

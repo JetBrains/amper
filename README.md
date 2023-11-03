@@ -3,12 +3,13 @@
 
 # Amper
 
-Amper is a tool to help configure projects for the purpose of building, packaging, publishing, and more. Its goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the box experience.
-We believe that it could be achieved by
-- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup, but also improve maintainability and let an IDE assist with automatic configuration reliably;
-- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;    
-- ad carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
-Basically, we would like to achieve the similar well-though and well-tested experience as with JetBrains IDEs.   
+Amper is a tool to help configure projects for building, packaging, publishing, and more. Its goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the-box experience.
+We believe that this can be achieved by:
+- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but also improve maintainability and let an IDE assist with automatic configuration reliably;
+- bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;
+- carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
+
+In essence, we aim to achieve a similar well-thought-out and well-tested experience as with JetBrains IDEs.
 
 We’re currently looking at various aspects, including the configuration of projects for the purpose of building, packaging, publishing, and more. At its current stage, however, the focus is primarily on configuring projects for the purpose of building.
 
