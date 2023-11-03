@@ -1492,7 +1492,7 @@ For migration of an existing Gradle project there is a compatibility mode (see a
 To set the compatibility mode, add the following snippet to a module.yaml file:
 ```yaml
 module:
-   layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
+  layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
 ```
 
 Here are possible layout modes:
@@ -1506,7 +1506,7 @@ E.g. for the module.yaml:
 ```yaml
 product: jvm/app
 module:
-   layout: gradle-jvm
+  layout: gradle-jvm
 ```
 
 The file layout is:
@@ -1531,7 +1531,7 @@ While for the module.yaml:
 product: jvm/app
 
 module:
-   layout: gradle-kmp
+  layout: gradle-kmp
 ```
 
 The file layout is:
