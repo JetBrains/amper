@@ -3,7 +3,7 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven("https://maven.pkg.jetbrains.space/public/p/amper/amper")
+        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
     }
 }
 
