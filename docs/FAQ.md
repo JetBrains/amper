@@ -1,6 +1,6 @@
 
 ### Is Amper a brand-new build tool from JetBrains?
-You can think of Amper as a tool for project configuration whose main aim is to improve user experience – this is our primary focus for the time being. We’re currently using Gradle as a build engine, but we are also exploring other build tools as backends, including a completely new build engine that we’re working on. 
+You can think of Amper as a tool for project configuration whose main aim is to provide a great user experience – this is our primary focus for the time being. We’re currently using Gradle as a build engine, but we are also exploring other build tools as backends, including a completely new build engine that we’re working on. 
 
 ### Do you plan to support only Kotlin?
 For now, the primary target is Kotlin and Kotlin Multiplatform projects. Since Kotlin is multiplatform, Amper supports both Java on the JVM and Swift and Objective-C on iOS.
