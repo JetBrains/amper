@@ -50,6 +50,12 @@ For a quick start:
 * [Example projects](examples)
 * Gradle [migration guide](docs/GradleMigration.md)  
 
+## How to Try
+There are multiple ways to try Amper:
+
+* In [IntelliJ IDEA 2023.3](/docs/Usage.md#using-amper-in-intellij-idea), for JVM and Android projects.
+* In [JetBrains Fleet](/docs/Usage.md#using-amper-in-fleet), for the JVM, Android, and Kotlin Multiplatform projects.
+* Using Gradle to build Amper projects [from the CLI or CI/CD](/docs/Usage.md#using-amper-from-command-line).
 
 ## Examples
 
@@ -96,7 +102,7 @@ settings:
 This is pretty straightforward: It defines an iOS application with a dependency on a shared module and enables the Compose Multiplatform framework. A more interesting example would be `shared/module.yaml`:
 
 ```yaml
-# Produce a shared library for JVM, Android and iOS platforms:
+# Produce a shared library for the JVM, Android, and iOS platforms:
 product:
   type: lib
   platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
@@ -113,7 +119,7 @@ dependencies@android:
   - androidx.appcompat:appcompat:1.6.1: exported
 
 # iOS-only dependencies with a dependency on a CocoaPod
-#   note, that CocoaPods dependencies are not yet implemented in the prototype     
+#   note that CocoaPods dependencies are not yet implemented in the prototype     
 dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
