@@ -146,7 +146,7 @@ The product types is supposed to be [extensible](#extensibility), so the followi
 Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
 By default, packages are generated according to platform and build tool conventions. When custom configuration is needed, Amper offer a separate `packaging:` section.
 
-_NOTE: Packaging configuration is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for packaging._
+_NOTE: Packaging configuration is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for packaging._
 
 ```yaml
 product: jvm/app
@@ -159,7 +159,7 @@ packaging:
 
 ### Publishing
 
-_NOTE: Publishing configuration is not yet designed or implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for publishing._
+_NOTE: Publishing configuration is not yet designed or implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for publishing._
 
 Publishing means preparing the resulting [package](#packaging) for external use, and actually uploading or deploying it.
 Here are a few examples of publishing:
@@ -1313,7 +1313,7 @@ settings:  # objects merged
 
 ## Extensibility
 
-_NOTE: Extensibility is not yet implemented. Meanwhile, wou can use [Gradle interop](#gradle-interop) for plugins and custom tasks._
+_NOTE: Extensibility is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for plugins and custom tasks._
 
 The main design goal for Amper is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform. 
 We would like to provide great user experience of the box. That's why there are many aspects that are available in Amper as first-class citizens. 
