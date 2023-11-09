@@ -83,7 +83,7 @@ pluginManagement {
     }
 }
 ```
-And updated them to:
+And update them to:
 ```kotlin
 pluginManagement {
     ...
@@ -107,7 +107,7 @@ plugins {
 }
 ```
 
-And updated them to:
+And update them to:
 ```kotlin
 plugins {
     kotlin("multiplatform") 
@@ -121,7 +121,7 @@ If there are problems with the builds, check the previous steps and if they don'
 ### Step 3. Create a module.yaml file and migrate targets
 
 As the next step, chose a Gradle subproject that you want to start with.
-It could be a shared library or an application, such as JVM, Android, iOS, or native. Check the full lis
+It could be a shared library or an application, such as JVM, Android, iOS, or native. Check the full list
 of [the supported product types](Documentation.md#product-types)
 
 #### JVM projects
@@ -277,7 +277,7 @@ Note several things here:
 * Gradle's `api()` dependency is mapped to `exported` dependency attribute. See [details on scopes and visibility](Documentation.md#scopes-and-visibility).   
 * You don't need to add a `kotlin("test")` dependency as it is added automatically.
 
-In Kotlin Multiplatform projects is typical that certain target platform have their own dependencies. So the similar list of dependencies could look like this:  
+In Kotlin Multiplatform projects, it is typical that certain target platforms have their own dependencies. So the similar list of dependencies could look like this:  
 ```kotlin
 kotlin {
     //...
@@ -346,7 +346,7 @@ android {
 
 ```
 
-These settings would look like in a module.yaml file:
+These settings would look like this in a module.yaml file:
 ```yaml
 settings:
   jvm:
