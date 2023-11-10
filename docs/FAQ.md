@@ -50,9 +50,9 @@ Our final language choice will be made based on the overall UX it provides.
 For now, the main focus of Amper is improving the build configuration experience and toolability. As a well-tested build engine, Gradle allowed us to start experimenting with the UX of the configuration very quickly. What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if we want to get feedback from real-world use cases.
 
 ### Why not simply improve Gradle?
-We’re constantly working with the Gradle team to improve Gradle support in our IDEs and Gradle itself as a primary Kotlin build tool.
-Gradle has its strengths, and thanks to its flexibility, it can be used in a variety of projects and environments. A great example of this is how the Amper frontend is implemented as a Gradle plugin, with Gradle being used as the primary build tool.
-On the other hand, we believe there is room to improve the project configuration experience and IDE support. That’s why we want to show you our design and get your feedback, as this will help us to decide which direction to take the design.
+We believe there is room to improve the project configuration experience and IDE support.
+That’s why we are [working with the Gradle team](https://blog.gradle.org/declarative-gradle) to improve Gradle support in our IDEs and Gradle itself as a primary Kotlin build tool.
+At the same time we are running Amper as a separate experiment and want to show you our design and get your feedback, as this will help us to decide which direction to take the design.
 
 ### What about Gradle extensibility and plugins?
 Our current focus is improving the build tooling UX and IDE support for Kotlin and Kotlin Multiplatform. We aim to support most use cases out of the box.
