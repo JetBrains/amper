@@ -3,7 +3,7 @@
 * Use [IntelliJ IDEA 2023.3 EAP](https://www.jetbrains.com/idea/nextversion/) version 2023.3 Beta (233.11799) or higher with Amper plugin for JVM and Android projects.
 * Use [JetBrains Fleet](https://www.jetbrains.com/fleet/) version 1.26.104 or higher for JVM, Android, and Kotlin Multiplatform projects.
  
-The best way to get the most resent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
+The best way to get the most recent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
 
 Fleet 1.26 comes with Amper plugin.
 
