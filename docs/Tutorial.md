@@ -368,7 +368,7 @@ Documentation:
 
 ### Step 8. Deduplicate common parts
 
-You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract the into a template.
+You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract them into a template.
 
 Let's create a couple of `<name>.module-template.yaml` files:
 
