@@ -316,14 +316,14 @@ product:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
     
-dependenceis@ios:
+dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
 
-dependenceis@android:
+dependencies@android:
   - com.squareup.retrofit2:retrofit:2.9.0
 
-dependenceis@jvm:
+dependencies@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
 
 test-dependencies:
@@ -405,14 +405,14 @@ apply:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
     
-dependenceis@ios:
+dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
 
-dependenceis@android:
+dependencies@android:
   - com.squareup.retrofit2:retrofit:2.9.0
 
-dependenceis@jvm:
+dependencies@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
 ```
 
