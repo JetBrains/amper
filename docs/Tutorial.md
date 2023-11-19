@@ -316,14 +316,14 @@ product:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
     
-dependenceis@ios:
+dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
 
-dependenceis@android:
+dependencies@android:
   - com.squareup.retrofit2:retrofit:2.9.0
 
-dependenceis@jvm:
+dependencies@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
 
 test-dependencies:
@@ -368,7 +368,7 @@ Documentation:
 
 ### Step 8. Deduplicate common parts
 
-You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract the into a template.
+You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract them into a template.
 
 Let's create a couple of `<name>.module-template.yaml` files:
 
@@ -405,14 +405,14 @@ apply:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
     
-dependenceis@ios:
+dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
 
-dependenceis@android:
+dependencies@android:
   - com.squareup.retrofit2:retrofit:2.9.0
 
-dependenceis@jvm:
+dependencies@jvm:
   - com.squareup.okhttp3:mockwebserver:4.10.0
 ```
 
