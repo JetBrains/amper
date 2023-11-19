@@ -58,6 +58,12 @@ There are multiple ways to try Amper:
 * In [JetBrains Fleet](/docs/Usage.md#using-amper-in-fleet), for the JVM, Android, and Kotlin Multiplatform projects.
 * Using Gradle to build Amper projects [from the CLI or CI/CD](/docs/Usage.md#using-amper-from-command-line).
 
+### Simple way to start project
+Just type on terminal
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/amper/main/start.sh)"
+```
+
 ## Examples
 
 ### Basics
