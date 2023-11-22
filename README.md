@@ -24,7 +24,7 @@ Supported features:
 * Mixing Kotlin, Java and Swift code.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
 * [Multi-module](docs/Documentation.md#internal-dependencies) projects.
-* [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one projects.
+* [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
 * Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
 
