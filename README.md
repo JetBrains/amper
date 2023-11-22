@@ -29,7 +29,7 @@ Supported features:
 * Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Planned features:
-* More [product type](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
+* More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
 * [Platform-specific test types](docs/Documentation.md#special-types-of-tests), including android instrumented tests.
 * [Native dependencies](docs/Documentation.md#native-dependencies) support, such as CocoaPods, Swift Package Manager.
 * Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
