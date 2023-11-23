@@ -1,0 +1,97 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "org.jetbrains.kotlinx",
+    "module": "kotlinx-coroutines-android",
+    "version": "1.5.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "6.8.3",
+      "buildId": "dhafiarkonhbfll4adozkt6cc4"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 6,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.localToProject": "public",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.5.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.5.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kotlinx-coroutines-android-1.5.0.jar",
+          "url": "kotlinx-coroutines-android-1.5.0.jar",
+          "size": 19502,
+          "sha512": "73f68cc6fa55c436f4c449ea83bf9b9b25a0daf1dabe1bf684645b2994b44c1fea20fb4b0aef1ebd8faa20a676f56ac28807050b3539cc9a5dd17e270dcddb48",
+          "sha256": "7099198391d673c199fea084423d9f3fdc79470acba19111330c7f88504279c7",
+          "sha1": "c1df91b076cf9a1af564bb7edd41c49683169e25",
+          "md5": "111a33c5f32964013d38e0d78bbdf9f3"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 6,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.localToProject": "public",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.5.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.5.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kotlinx-coroutines-android-1.5.0.jar",
+          "url": "kotlinx-coroutines-android-1.5.0.jar",
+          "size": 19502,
+          "sha512": "73f68cc6fa55c436f4c449ea83bf9b9b25a0daf1dabe1bf684645b2994b44c1fea20fb4b0aef1ebd8faa20a676f56ac28807050b3539cc9a5dd17e270dcddb48",
+          "sha256": "7099198391d673c199fea084423d9f3fdc79470acba19111330c7f88504279c7",
+          "sha1": "c1df91b076cf9a1af564bb7edd41c49683169e25",
+          "md5": "111a33c5f32964013d38e0d78bbdf9f3"
+        }
+      ]
+    }
+  ]
+}

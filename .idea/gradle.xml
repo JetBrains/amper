@@ -28,6 +28,7 @@
             <option value="$PROJECT_DIR$/prototype-implementation/buildSrc" />
             <option value="$PROJECT_DIR$/prototype-implementation/cli" />
             <option value="$PROJECT_DIR$/prototype-implementation/core" />
+            <option value="$PROJECT_DIR$/prototype-implementation/dependency-resolution" />
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend-api" />

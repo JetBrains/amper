@@ -1,0 +1,14 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
+  - org.apache.maven:maven-artifact:3.9.6
+
+settings:
+  kotlin:
+    serialization: json

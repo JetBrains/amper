@@ -1,0 +1,108 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "org.jetbrains.kotlin",
+    "module": "kotlin-test-junit",
+    "version": "1.9.20",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.2.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "junitApi",
+      "attributes": {
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-test",
+          "version": {
+            "requires": "1.9.20"
+          }
+        },
+        {
+          "group": "junit",
+          "module": "junit",
+          "version": {
+            "requires": "4.13.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kotlin-test-junit-1.9.20.jar",
+          "url": "kotlin-test-junit-1.9.20.jar",
+          "size": 5143,
+          "sha512": "21b79018f6eddc865a0691fad7b2ff73c18c9e7631645f2b5def863acb5e18518eca8636c9a6304ea6f40db4ddcf91d0541d844e6be55914220bd39f1625bc36",
+          "sha256": "2b8c2e4dccdc2c89a4b7ef20ba6e31fedf5ecfc3290293f615111caf030ccb86",
+          "sha1": "d6868b12c8c41a08f52f76eed2bc0406e89c73bd",
+          "md5": "b33485db8af52b5a49a0687cb6e59249"
+        }
+      ],
+      "capabilities": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "name": "kotlin-test-framework-impl",
+          "version": "1.9.20"
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "name": "kotlin-test-junit",
+          "version": "1.9.20"
+        }
+      ]
+    },
+    {
+      "name": "junitRuntime",
+      "attributes": {
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-test",
+          "version": {
+            "requires": "1.9.20"
+          }
+        },
+        {
+          "group": "junit",
+          "module": "junit",
+          "version": {
+            "requires": "4.13.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kotlin-test-junit-1.9.20.jar",
+          "url": "kotlin-test-junit-1.9.20.jar",
+          "size": 5143,
+          "sha512": "21b79018f6eddc865a0691fad7b2ff73c18c9e7631645f2b5def863acb5e18518eca8636c9a6304ea6f40db4ddcf91d0541d844e6be55914220bd39f1625bc36",
+          "sha256": "2b8c2e4dccdc2c89a4b7ef20ba6e31fedf5ecfc3290293f615111caf030ccb86",
+          "sha1": "d6868b12c8c41a08f52f76eed2bc0406e89c73bd",
+          "md5": "b33485db8af52b5a49a0687cb6e59249"
+        }
+      ],
+      "capabilities": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "name": "kotlin-test-framework-impl",
+          "version": "1.9.20"
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "name": "kotlin-test-junit",
+          "version": "1.9.20"
+        }
+      ]
+    }
+  ]
+}
