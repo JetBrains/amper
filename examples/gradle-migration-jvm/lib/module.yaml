@@ -1,0 +1,12 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product:
+  type: lib
+  platforms:
+    - jvm
+
+# Enable Gradle-compatible file layout
+module:
+  layout: gradle-jvm
+
+

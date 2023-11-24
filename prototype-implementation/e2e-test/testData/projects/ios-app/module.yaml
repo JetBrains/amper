@@ -1,0 +1,8 @@
+product: ios/app
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+
+settings:
+  compose: enabled

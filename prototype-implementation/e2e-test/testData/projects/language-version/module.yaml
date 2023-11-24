@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  kotlin:
+    languageVersion: 1.5

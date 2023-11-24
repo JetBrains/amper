@@ -1,0 +1,7 @@
+product: jvm/app
+
+module:
+  layout: gradle-kmp
+
+# entry point should be auto-discovered
+

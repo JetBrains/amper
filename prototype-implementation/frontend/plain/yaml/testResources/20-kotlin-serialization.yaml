@@ -1,0 +1,15 @@
+dependencies:
+  - org.apache.commons:commons-math3:3.6.1
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.20
+
+product:
+  type: app
+  platforms:
+    - jvm
+
+settings:
+  kotlin:
+    version: 1.9
+    serialization: json

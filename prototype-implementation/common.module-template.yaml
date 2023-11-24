@@ -1,0 +1,37 @@
+repositories:
+  - id: scratch
+    url: https://maven.pkg.jetbrains.space/public/p/amper/amper
+    publish: true
+    credentials:
+      file: ./local.properties
+      usernameKey: scratch.username
+      passwordKey: scratch.password
+  - id: mavenCentral
+    url: https://repo.maven.apache.org/maven2/
+  - id: jitpack
+    url: https://jitpack.io
+  - id: googleRepo
+    url: https://dl.google.com/dl/android/maven2/
+  - id: mavenLocal
+    url: mavenLocal
+    publish: true
+  - id: gradle
+    url: https://plugins.gradle.org/m2/
+
+settings:
+  publishing:
+    version: 1.0-SNAPSHOT
+
+  kotlin:
+    sdk:
+      version: 1.9.0
+    languageVersion: 1.9
+    languageFeatures:
+      - contextReceivers
+    freeCompilerArgs:
+      - -Xcontext-receivers
+  junit:
+    platformEnabled: true
+
+test-settings:
+  junit: junit-5

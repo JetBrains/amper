@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - iosArm64
+
+settings:
+  kotlin:
+    languageVersion: 1.9

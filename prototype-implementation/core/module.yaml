@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+apply:
+  - ../common.module-template.yaml
+
+settings:
+  publishing:
+    group: org.jetbrains.amper.core

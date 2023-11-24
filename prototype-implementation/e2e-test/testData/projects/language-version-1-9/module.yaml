@@ -1,0 +1,8 @@
+product:
+  type: jvm/app
+
+settings:
+  kotlin:
+    languageVersion: 1.9
+    optIns:
+      - kotlinx.Experimental

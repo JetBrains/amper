@@ -1,0 +1,24 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product:
+  type: lib
+  platforms: [jvm, android]
+
+module:
+  layout: gradle-kmp
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+dependencies@android:
+  - com.squareup.retrofit2:retrofit:2.9.0
+
+dependencies@jvm:
+  - com.squareup.okhttp3:mockwebserver:4.10.0
+
+settings:
+  jvm:
+    target: 17
+  android:
+    compileSdk: 34
+    targetSdk: 34
