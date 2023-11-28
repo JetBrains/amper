@@ -96,8 +96,7 @@ data class KotlinPartBuilder(
     var progressiveMode: Boolean? = null,
     val languageFeatures: MutableList<String> = mutableListOf(),
     var optIns: MutableList<String> = mutableListOf(),
-    var serialization: KotlinSerialization? = null,
-    var coverage: Boolean? = false
+    var serialization: KotlinSerialization? = null
 ) {
     companion object : BuilderCompanion<KotlinPartBuilder>(::KotlinPartBuilder)
 }
@@ -152,4 +151,8 @@ data class JunitPartBuilder(
 
 data class ComposePartBuilder(var enabled: Boolean? = null) {
     companion object: BuilderCompanion<ComposePartBuilder>(::ComposePartBuilder)
+}
+
+data class KoverPartBuilder(var enabled: Boolean? = null) {
+    companion object: BuilderCompanion<KoverPartBuilder>(::KoverPartBuilder)
 }

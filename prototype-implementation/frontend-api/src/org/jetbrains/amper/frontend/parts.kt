@@ -17,7 +17,6 @@ data class KotlinPart(
     val languageFeatures: List<String>,
     val optIns: List<String>,
     val serialization: String?,
-    val coverage: Boolean?,
 ) : FragmentPart<KotlinPart> {
     override fun propagate(parent: KotlinPart): FragmentPart<KotlinPart> =
         KotlinPart(
@@ -34,8 +33,7 @@ data class KotlinPart(
             parent.progressiveMode ?: progressiveMode,
             languageFeatures.ifEmpty { parent.languageFeatures },
             optIns.ifEmpty { parent.optIns },
-            serialization ?: parent.serialization,
-            coverage ?: parent.coverage
+            serialization ?: parent.serialization
         )
 
     override fun default(module: PotatoModule): FragmentPart<*> {
@@ -154,6 +152,12 @@ data class PublicationPart(
 
     override fun default(module: PotatoModule): FragmentPart<PublicationPart> =
         PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
+}
+
+data class KoverPart(val enabled: Boolean?): FragmentPart<KoverPart> {
+    override fun propagate(parent: KoverPart): FragmentPart<*> {
+        return KoverPart(enabled ?: parent.enabled)
+    }
 }
 
 data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {

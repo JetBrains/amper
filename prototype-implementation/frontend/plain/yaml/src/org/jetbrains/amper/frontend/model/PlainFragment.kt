@@ -38,8 +38,7 @@ internal open class PlainFragment(
                 progressiveMode = progressiveMode,
                 languageFeatures = languageFeatures,
                 optIns = optIns,
-                serialization = serialization?.format,
-                coverage = coverage
+                serialization = serialization?.format
             )
         }
 
@@ -94,6 +93,10 @@ internal open class PlainFragment(
 
         addPartFrom(fragmentBuilder.compose) {
             ComposePart(enabled)
+        }
+
+        addPartFrom(fragmentBuilder.kover) {
+            KoverPart(enabled)
         }
     }
 
