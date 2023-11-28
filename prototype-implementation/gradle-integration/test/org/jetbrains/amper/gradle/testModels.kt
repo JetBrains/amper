@@ -123,8 +123,7 @@ object Models : ModelInit {
                             progressiveMode = true,
                             languageFeatures = listOf("InlineClasses"),
                             optIns = listOf("org.mylibrary.OptInAnnotation"),
-                            serialization = null,
-                            coverage = false
+                            serialization = null
                         ),
                     )
                     addPart(JvmPart(mainClass = "MainKt"))
