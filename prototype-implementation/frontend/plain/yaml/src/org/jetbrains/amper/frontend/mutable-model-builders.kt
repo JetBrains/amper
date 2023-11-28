@@ -96,7 +96,8 @@ data class KotlinPartBuilder(
     var progressiveMode: Boolean? = null,
     val languageFeatures: MutableList<String> = mutableListOf(),
     var optIns: MutableList<String> = mutableListOf(),
-    var serialization: KotlinSerialization? = null
+    var serialization: KotlinSerialization? = null,
+    var coverage: Boolean? = false
 ) {
     companion object : BuilderCompanion<KotlinPartBuilder>(::KotlinPartBuilder)
 }

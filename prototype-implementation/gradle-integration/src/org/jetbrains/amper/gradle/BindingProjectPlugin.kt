@@ -20,6 +20,7 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.compose.ComposePluginPart
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
 import org.jetbrains.amper.gradle.kmpp.KMPPBindingPluginPart
+import org.jetbrains.amper.gradle.kover.KoverPluginPart
 import org.jetbrains.amper.gradle.serialization.SerializationPluginPart
 import java.net.URI
 
@@ -48,7 +49,8 @@ class BindingProjectPlugin : Plugin<Project> {
             JavaBindingPluginPart(pluginCtx),
             ComposePluginPart(pluginCtx),
             org.jetbrains.amper.gradle.apple.AppleBindingPluginPart(pluginCtx),
-            SerializationPluginPart(pluginCtx)
+            SerializationPluginPart(pluginCtx),
+            KoverPluginPart(pluginCtx)
         )
         appliedParts = registeredParts.filter { it.needToApply }
 
