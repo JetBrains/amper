@@ -389,6 +389,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 kotlinSettings.getBooleanValue("verbose") { verbose = it }
                 kotlinSettings.getBooleanValue("debug") { debug = it }
                 kotlinSettings.getBooleanValue("progressiveMode") { progressiveMode = it }
+                kotlinSettings.getBooleanValue("coverage") { coverage = it }
 
                 // Lists
                 kotlinSettings.getSequenceValue("languageFeatures") {
