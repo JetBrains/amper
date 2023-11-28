@@ -55,6 +55,7 @@ internal data class FragmentBuilder(
     var jvm: JvmPartBuilder? = JvmPartBuilder {},
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {},
+    var kover: KoverPartBuilder? = KoverPartBuilder {},
 ) {
 
     lateinit var src: Path
@@ -116,6 +117,7 @@ internal data class FragmentBuilder(
         if (variants != other.variants) return false
         if (alias != other.alias) return false
         if (kotlin != other.kotlin) return false
+        if (kover != other.kover) return false
         return junit == other.junit
     }
 
@@ -127,6 +129,7 @@ internal data class FragmentBuilder(
         result = 31 * result + (alias?.hashCode() ?: 0)
         result = 31 * result + (kotlin?.hashCode() ?: 0)
         result = 31 * result + (junit?.hashCode() ?: 0)
+        result = 31 * result + (kover?.hashCode() ?: 0)
         return result
     }
 
@@ -389,7 +392,6 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 kotlinSettings.getBooleanValue("verbose") { verbose = it }
                 kotlinSettings.getBooleanValue("debug") { debug = it }
                 kotlinSettings.getBooleanValue("progressiveMode") { progressiveMode = it }
-                kotlinSettings.getBooleanValue("coverage") { coverage = it }
 
                 // Lists
                 kotlinSettings.getSequenceValue("languageFeatures") {
@@ -448,6 +450,12 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 )
                 hasErrors = true
                 null
+            }
+        }
+
+        kover = KoverPartBuilder {
+            it.getMappingValue("kover")?.let { koverSettings ->
+                enabled = koverSettings.getBooleanValue("enabled")
             }
         }
 

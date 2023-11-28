@@ -3,8 +3,8 @@
 product: jvm/app
 
 settings:
-  kotlin:
-    coverage: true
+  kover:
+    enabled: true
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
