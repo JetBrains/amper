@@ -1,0 +1,12 @@
+{
+    "version": "1.0",
+    "builds": [
+        {
+            "teamcity": {
+                "configuration": "Build",
+                "url": "https://amper.teamcity.com/",
+                "token": "${teamcity-token}"
+            }
+        }
+    ]
+}
