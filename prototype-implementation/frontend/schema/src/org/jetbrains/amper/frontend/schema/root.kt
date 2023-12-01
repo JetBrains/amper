@@ -12,7 +12,6 @@ import java.nio.file.Path
 typealias Modifiers = Set<TraceableString>
 
 sealed class Base : SchemaBase() {
-    @Embedded
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
     val repositories = value<Repositories>()
 
@@ -45,6 +44,7 @@ class Module : Base() {
     val apply = nullableValue<Collection<Path>>()
 }
 
+@Embedded
 class Repositories : SchemaBase() {
     val repositories = value<Collection<Repository>>()
 }

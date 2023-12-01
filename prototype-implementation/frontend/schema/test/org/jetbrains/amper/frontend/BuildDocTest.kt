@@ -6,13 +6,16 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.builders.TestDocBuilder.Companion.buildDoc
 import org.jetbrains.amper.frontend.schema.Module
+import java.io.StringWriter
 import kotlin.test.Test
 
-class SchemaVisitorTest {
+class BuildDocTest {
 
     @Test
     fun `broken module settings`() {
-        println(buildDoc(Module::class))
+        val strw = StringWriter()
+        println(buildDoc(Module::class, strw))
+        println(strw)
     }
 
 }
