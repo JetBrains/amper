@@ -82,14 +82,16 @@ private fun Node.parseRepository() = when (this) {
         // TODO Report wrong type. Introduce helper for boolean maybe?
         publish(tryGetScalarNode("publish")?.value?.toBoolean())
 
-        credentials.value = tryGetMappingNode("credentials")?.let {
-            Repository.Credentials().apply {
-                // TODO Report non existent path.
-                file(tryGetScalarNode("file")?.value?.let { Path(it) }) { /* TODO report */ }
-                usernameKey(tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
-                passwordKey(tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
+        credentials(
+            tryGetMappingNode("credentials")?.let {
+                Repository.Credentials().apply {
+                    // TODO Report non existent path.
+                    file(tryGetScalarNode("file")?.value?.let { Path(it) }) { /* TODO report */ }
+                    usernameKey(tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
+                    passwordKey(tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
+                }
             }
-        }
+        )
     }
 
     else -> null

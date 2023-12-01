@@ -10,9 +10,23 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.hasAnnotation
 
+/**
+ * Marker for special treated fields.
+ */
 sealed interface DocBuilderCustom
 
-data object EmbeddedCustom : DocBuilderCustom
+/**
+ * Mark, that current property is "embedded" and should not be treated like self-sufficient
+ * in terms of doc generating.
+ */
+data object EmbeddedDoc : DocBuilderCustom
+
+/**
+ * A way to specify custom documentation.
+ */
+data class CustomDoc(
+    val customDocumentation: String
+) : DocBuilderCustom
 
 class TestDocBuilder private constructor(
     private val currentRoot: KClass<*>
@@ -20,7 +34,7 @@ class TestDocBuilder private constructor(
 
     companion object {
         val detectDocCustom: (KProperty<*>) -> DocBuilderCustom? = { prop ->
-            if(prop.hasAnnotation<Embedded>()) EmbeddedCustom else null
+            if(prop.hasAnnotation<Embedded>()) EmbeddedDoc else null
         }
 
         fun buildDoc(root: KClass<*>): String {
@@ -87,7 +101,8 @@ class TestDocBuilder private constructor(
     ) {
         val schemaKClass = prop.unwrapSchemaTypeOrNull ?: return
         when (custom) {
-            is EmbeddedCustom -> visitSchema(schemaKClass, this, detectDocCustom)
+            is EmbeddedDoc -> visitSchema(schemaKClass, this, detectDocCustom)
+            is CustomDoc -> TODO()
         }
     }
 

@@ -40,11 +40,13 @@ sealed class ValueBase<T> : Traceable() {
 class SchemaValue<T : Any> : ValueBase<T>() {
     private var myValue: T? = null
 
-    var value: T
+    val value: T
         get() = myValue ?: default ?: error("No value")
-        set(value) { myValue = value }
 
-    operator fun invoke(newValue: T?) { myValue = newValue }
+    operator fun invoke(newValue: T?) {
+        myValue = newValue
+    }
+
     operator fun invoke(newValue: T?, onNull: () -> Unit) {
         if (newValue == null) onNull() else myValue = newValue
     }
@@ -54,8 +56,10 @@ class SchemaValue<T : Any> : ValueBase<T>() {
  * Optional (nullable) schema value.
  */
 class NullableSchemaValue<T : Any> : ValueBase<T>() {
-    var value: T? = null
+    private var myValue: T? = null
         get() = field ?: default
 
-    operator fun invoke(newValue: T?) { value = newValue }
+    val value: T? get() = myValue
+
+    operator fun invoke(newValue: T?) { myValue = newValue }
 }
