@@ -156,7 +156,34 @@ data class PublicationPart(
 
 data class KoverPart(val enabled: Boolean?): FragmentPart<KoverPart> {
     override fun propagate(parent: KoverPart): FragmentPart<*> {
-        return KoverPart(enabled ?: parent.enabled)
+        return KoverPart(enabled = enabled ?: parent.enabled)
+    }
+
+    override fun default(module: PotatoModule): FragmentPart<*> {
+        return KoverPart(enabled = enabled)
+    }
+}
+
+data class KoverHtmlPart(
+    val title: String?, val charset: String?,
+    val onCheck: Boolean?, val reportDir: String?
+): FragmentPart<KoverHtmlPart> {
+    override fun propagate(parent: KoverHtmlPart): FragmentPart<*> {
+        return KoverHtmlPart(
+            title = title ?: parent.title,
+            charset = charset ?: parent.charset,
+            onCheck = onCheck ?: parent.onCheck,
+            reportDir = reportDir ?: parent.reportDir
+        )
+    }
+
+    override fun default(module: PotatoModule): FragmentPart<*> {
+        return KoverHtmlPart(
+            title = title ?: module.userReadableName,
+            charset = charset,
+            onCheck = onCheck,
+            reportDir = reportDir
+        )
     }
 }
 
