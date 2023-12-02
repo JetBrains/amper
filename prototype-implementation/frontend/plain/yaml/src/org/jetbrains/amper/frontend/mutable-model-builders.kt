@@ -156,3 +156,10 @@ data class ComposePartBuilder(var enabled: Boolean? = null) {
 data class KoverPartBuilder(var enabled: Boolean? = null) {
     companion object: BuilderCompanion<KoverPartBuilder>(::KoverPartBuilder)
 }
+
+data class KoverHtmlPartBuilder(
+    var title: String? = null, var charset: String? = null,
+    var onCheck: Boolean? = null, var reportDir: String? = null
+) {
+    companion object: BuilderCompanion<KoverHtmlPartBuilder>(::KoverHtmlPartBuilder)
+}

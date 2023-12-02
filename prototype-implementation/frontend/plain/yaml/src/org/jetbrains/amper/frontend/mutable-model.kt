@@ -56,6 +56,7 @@ internal data class FragmentBuilder(
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {},
     var kover: KoverPartBuilder? = KoverPartBuilder {},
+    var koverHtml: KoverHtmlPartBuilder? = KoverHtmlPartBuilder {}
 ) {
 
     lateinit var src: Path
@@ -118,6 +119,7 @@ internal data class FragmentBuilder(
         if (alias != other.alias) return false
         if (kotlin != other.kotlin) return false
         if (kover != other.kover) return false
+        if(koverHtml != other.koverHtml) return false
         return junit == other.junit
     }
 
@@ -130,6 +132,7 @@ internal data class FragmentBuilder(
         result = 31 * result + (kotlin?.hashCode() ?: 0)
         result = 31 * result + (junit?.hashCode() ?: 0)
         result = 31 * result + (kover?.hashCode() ?: 0)
+        result = 31 * result + (koverHtml?.hashCode() ?: 0)
         return result
     }
 
@@ -456,6 +459,15 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
         kover = KoverPartBuilder {
             it.getMappingValue("kover")?.let { koverSettings ->
                 enabled = koverSettings.getBooleanValue("enabled")
+            }
+        }
+
+        koverHtml = KoverHtmlPartBuilder {
+            it.getMappingValue("kover")?.getMappingValue("html")?.let { koverHtmlSettings ->
+                title = koverHtmlSettings.getStringValue("title")
+                charset = koverHtmlSettings.getStringValue("charset")
+                onCheck = koverHtmlSettings.getBooleanValue("onCheck")
+                reportDir = koverHtmlSettings.getStringValue("reportDir")
             }
         }
 
