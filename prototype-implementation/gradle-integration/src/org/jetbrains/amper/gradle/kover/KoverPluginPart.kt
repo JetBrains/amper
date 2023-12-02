@@ -13,7 +13,6 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 import java.io.File
 
 class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
-    private val koverPE get() = project.extensions.findByName("kover") as KoverProjectExtension
     private val koverRE get() = project.extensions.findByName("koverReport") as KoverReportExtension
 
     override val needToApply: Boolean by lazy {
