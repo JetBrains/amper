@@ -98,6 +98,15 @@ internal open class PlainFragment(
         addPartFrom(fragmentBuilder.kover) {
             KoverPart(enabled)
         }
+
+        addPartFrom(fragmentBuilder.koverHtml) {
+            KoverHtmlPart(
+                title = title,
+                charset = charset,
+                onCheck = onCheck,
+                reportDir = reportDir
+            )
+        }
     }
 
     override val platforms: Set<Platform>
