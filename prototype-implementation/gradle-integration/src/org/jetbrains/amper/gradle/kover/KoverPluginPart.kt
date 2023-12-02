@@ -4,10 +4,11 @@
 
 package org.jetbrains.amper.gradle.kover
 
-import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverReportExtension
 import org.jetbrains.amper.frontend.KoverHtmlPart
 import org.jetbrains.amper.frontend.KoverPart
+import org.jetbrains.amper.frontend.KoverXmlPart
+import org.jetbrains.amper.gradle.adjustXmlFactories
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import java.io.File
@@ -27,6 +28,7 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
 
     fun applySettings() {
         val htmlPart = module.leafFragments.map { it.parts.find<KoverHtmlPart>() }.firstOrNull()
+        val xmlPart = module.leafFragments.map { it.parts.find<KoverXmlPart>() }.firstOrNull()
 
         koverRE.defaults {
             if(htmlPart != null) {
@@ -41,6 +43,17 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
                         html.setReportDir(File(htmlPart.reportDir!!))
                     }
                 }
+            }
+
+            if(xmlPart != null) {
+                it.xml { xml ->
+                    xml.onCheck = xmlPart.onCheck ?: false
+                    if(xmlPart.reportFile != null) {
+                        xml.setReportFile(File(xmlPart.reportFile!!))
+                    }
+                }
+
+                adjustXmlFactories()
             }
         }
     }

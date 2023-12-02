@@ -163,3 +163,9 @@ data class KoverHtmlPartBuilder(
 ) {
     companion object: BuilderCompanion<KoverHtmlPartBuilder>(::KoverHtmlPartBuilder)
 }
+
+data class KoverXmlPartBuilder(
+    var onCheck: Boolean? = null, var reportFile: String? = null
+) {
+    companion object: BuilderCompanion<KoverXmlPartBuilder>(::KoverXmlPartBuilder)
+}
