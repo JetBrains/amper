@@ -7,6 +7,8 @@ settings:
     enabled: true
     html:
       title: "Tests using Kover with Amper"
+      reportDir: "report/coverage-report"
+      onCheck: true
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
