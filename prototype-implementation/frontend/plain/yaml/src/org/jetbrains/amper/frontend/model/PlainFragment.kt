@@ -107,6 +107,13 @@ internal open class PlainFragment(
                 reportDir = reportDir
             )
         }
+
+        addPartFrom(fragmentBuilder.koverXml) {
+            KoverXmlPart(
+                onCheck = onCheck,
+                reportFile = reportFile
+            )
+        }
     }
 
     override val platforms: Set<Platform>
