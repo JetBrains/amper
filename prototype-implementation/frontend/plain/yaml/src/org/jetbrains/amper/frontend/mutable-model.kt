@@ -56,7 +56,8 @@ internal data class FragmentBuilder(
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {},
     var kover: KoverPartBuilder? = KoverPartBuilder {},
-    var koverHtml: KoverHtmlPartBuilder? = KoverHtmlPartBuilder {}
+    var koverHtml: KoverHtmlPartBuilder? = KoverHtmlPartBuilder {},
+    var koverXml: KoverXmlPartBuilder? = KoverXmlPartBuilder {}
 ) {
 
     lateinit var src: Path
@@ -468,6 +469,13 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                 charset = koverHtmlSettings.getStringValue("charset")
                 onCheck = koverHtmlSettings.getBooleanValue("onCheck")
                 reportDir = koverHtmlSettings.getStringValue("reportDir")
+            }
+        }
+
+        koverXml = KoverXmlPartBuilder {
+            it.getMappingValue("kover")?.getMappingValue("xml")?.let { koverXmlSettings ->
+                onCheck = koverXmlSettings.getBooleanValue("onCheck")
+                reportFile = koverXmlSettings.getStringValue("reportFile")
             }
         }
 
