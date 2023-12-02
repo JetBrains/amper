@@ -402,6 +402,13 @@ By default, JUnit 4 is used.
 | `onCheck`       | Run html report on check task                                         | `false`     |
 | `charset`       | Charset to pass to kover                                              | `null`      |
 
+`settings:kover:xml` configures XML reports
+
+| Attribute       | Description                                                      | Default     |
+|-----------------|------------------------------------------------------------------|-------------|
+| `reportFile`    | The file (relative to project root) to store coverage reports in | `null`      |
+| `onCheck`       | Run html report on check task                                    | `false`     |
+
 Examples:
 
 ```yaml
@@ -412,4 +419,7 @@ settings:
       title: "A title"
       reportDir: build/report
       onCheck: true
+    xml:
+      onCheck: true
+      reportFile: build/report.xml
 ```
