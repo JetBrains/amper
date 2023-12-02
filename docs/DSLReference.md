@@ -384,3 +384,32 @@ By default, JUnit 4 is used.
 | `junit-5` | JUnit 5 dependencies and the test runner are configured. |
 | `junit-4` | JUnit 4 dependencies and the test runner are configured. |
 | `none`    | JUnit is not automatically configured.                   |
+
+#### Kover
+
+`settings:kover:` configures kover for code coverage. Read more about [kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+
+| Attribute          | Description  | Default |
+|--------------------|--------------|---------|
+| `enabled: boolean` | Enable Kover | `false` |
+
+`settings:kover:html` configures HTML reports
+
+| Attribute       | Description                                                           | Default     |
+|-----------------|-----------------------------------------------------------------------|-------------|
+| `title: string` | The title for the coverage report                                     | module name |
+| `reportDir`     | The directory (relative to project root) to store coverage reports in | `null`      |
+| `onCheck`       | Run html report on check task                                         | `false`     |
+| `charset`       | Charset to pass to kover                                              | `null`      |
+
+Examples:
+
+```yaml
+settings:
+  kover:
+    enabled: true
+    html:
+      title: "A title"
+      reportDir: build/report
+      onCheck: true
+```
