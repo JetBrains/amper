@@ -11,7 +11,7 @@ import java.nio.file.Path
 
 typealias Modifiers = Set<TraceableString>
 
-sealed class Base : SchemaBase() {
+sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
     val repositories = value<Repositories>()
 
@@ -45,17 +45,17 @@ class Module : Base() {
 }
 
 @Embedded
-class Repositories : SchemaBase() {
+class Repositories : SchemaNode() {
     val repositories = value<Collection<Repository>>()
 }
 
-class Repository : SchemaBase() {
+class Repository : SchemaNode() {
     val url = value<String>()
     val id = nullableValue<String>()
     val credentials = nullableValue<Credentials>()
     val publish = nullableValue(default = false)
 
-    class Credentials : SchemaBase() {
+    class Credentials : SchemaNode() {
         val file = value<Path>()
         val usernameKey = value<String>()
         val passwordKey = value<String>()

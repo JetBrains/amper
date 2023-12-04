@@ -13,7 +13,7 @@ enum class ProductType(
     LIB(Platform.COMMON);
 }
 
-class ModuleProduct  : SchemaBase() {
+class ModuleProduct  : SchemaNode() {
     val type = value<ProductType>()
     val platforms = nullableValue<Collection<Platform>>()
 }

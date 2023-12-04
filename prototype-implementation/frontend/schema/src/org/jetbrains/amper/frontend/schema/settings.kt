@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.api.*
 
-class Settings : SchemaBase() {
+class Settings : SchemaNode() {
     val java = value(default = JavaSettings())
     val jvm = value(default = JvmSettings())
     val android = value(default = AndroidSettings())
@@ -14,18 +14,18 @@ class Settings : SchemaBase() {
     val compose = value(default = ComposeSettings())
 }
 
-class JavaSettings : SchemaBase() {
+class JavaSettings : SchemaNode() {
     // TODO Replace with enum
     val source = nullableValue<String>()
 }
 
-class JvmSettings : SchemaBase() {
+class JvmSettings : SchemaNode() {
     // TODO Replace with enum
     val target = value<String>()
     val mainClass = value<String>()
 }
 
-class AndroidSettings : SchemaBase() {
+class AndroidSettings : SchemaNode() {
     val compileSdk = value<String>()
     val minSdk = value<String>()
     val maxSdk = value<String>()
@@ -34,7 +34,7 @@ class AndroidSettings : SchemaBase() {
     val namespace = value<String>()
 }
 
-class KotlinSettings : SchemaBase() {
+class KotlinSettings : SchemaNode() {
     val serialization = value<SerializationSettings>()
     // TODO Replace with enum
     val languageVersion = value<String>()
@@ -53,10 +53,10 @@ class KotlinSettings : SchemaBase() {
     val optIns = value<List<String>>()
 }
 
-class ComposeSettings : SchemaBase() {
+class ComposeSettings : SchemaNode() {
     val enabled = value<Boolean>()
 }
 
-class SerializationSettings : SchemaBase() {
+class SerializationSettings : SchemaNode() {
     val engine = value<String>()
 }

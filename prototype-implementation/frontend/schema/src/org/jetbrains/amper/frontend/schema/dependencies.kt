@@ -4,15 +4,15 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.api.SchemaBase
+import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
-class Dependencies : SchemaBase() {
+class Dependencies : SchemaNode() {
     val deps = value<Collection<Dependency>>()
 }
 
 // TODO Add scopes.
-sealed class Dependency : SchemaBase()
+sealed class Dependency : SchemaNode()
 
 class ExternalMavenDependency : Dependency() {
     val coordinates = value<String>()

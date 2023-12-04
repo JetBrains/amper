@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.frontend.api.ModifierAware
-import org.jetbrains.amper.frontend.api.SchemaBase
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.ValueBase
 import java.nio.file.Path
 import kotlin.reflect.KClass
@@ -27,8 +27,8 @@ interface SchemaVisitor<CustomT : Any> {
     fun visitClas(klass: KClass<*>)
 
     /**
-     * Visit property with type of [SchemaBase], possibly with
-     * modifiers ([Map] typed with values of [SchemaBase] type)
+     * Visit property with type of [SchemaNode], possibly with
+     * modifiers ([Map] typed with values of [SchemaNode] type)
      *
      * [types] - collection of types, that can be assigned to this field
      */
@@ -39,7 +39,7 @@ interface SchemaVisitor<CustomT : Any> {
     )
 
     /**
-     * Visit collection property with type of [SchemaBase].
+     * Visit collection property with type of [SchemaNode].
      *
      * [types] - collection of types, that can be assigned as this collection elements
      */
@@ -50,7 +50,7 @@ interface SchemaVisitor<CustomT : Any> {
     )
 
     /**
-     * Visit map property with value type of [SchemaBase].
+     * Visit map property with value type of [SchemaNode].
      * Assert that key type is string.
      *
      * [types] - collection of types, that can be assigned as this map value elements
@@ -174,14 +174,14 @@ internal fun <CustomT : Any> visitSchema(
 }
 
 /**
- * Get all declared member properties in class hierarchy, limiting by [SchemaBase].
+ * Get all declared member properties in class hierarchy, limiting by [SchemaNode].
  */
 fun KClass<*>.schemaDeclaredMemberProperties(): Sequence<KProperty1<Any, ValueBase<*>>> {
     val schemaClasses = generateSequence(listOf(this)) { roots ->
         roots.flatMap { root ->
             root.superclasses
-                .filter { it.isSubclassOf(SchemaBase::class) }
-                .filter { it != SchemaBase::class }
+                .filter { it.isSubclassOf(SchemaNode::class) }
+                .filter { it != SchemaNode::class }
         }.takeIf { it.isNotEmpty() }
     }
     return schemaClasses
@@ -212,7 +212,7 @@ val KType.possibleTypes
 inline val KType.unwrapKClassOrNull get() = classifier as? KClass<*>
 inline val KType.unwrapKClass get() = classifier as KClass<*>
 
-val KType.isSchemaElement get() = unwrapKClassOrNull?.isSubclassOf(SchemaBase::class) == true
+val KType.isSchemaElement get() = unwrapKClassOrNull?.isSubclassOf(SchemaNode::class) == true
 
 val KType.isEnum get() = unwrapKClassOrNull?.isSubclassOf(Enum::class) == true
 val KType.isString get() = unwrapKClassOrNull?.isSubclassOf(String::class) == true

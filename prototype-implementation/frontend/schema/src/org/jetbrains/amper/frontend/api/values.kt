@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.api
 /**
  * Class to collect all values registered within it.
  */
-abstract class SchemaBase : Traceable() {
+abstract class SchemaNode : Traceable() {
     private val allValues = mutableListOf<ValueBase<*>>()
 
     /**
