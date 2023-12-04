@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.builders
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaBase
 import org.jetbrains.amper.frontend.api.ValueBase
+import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -212,6 +213,13 @@ inline val KType.unwrapKClassOrNull get() = classifier as? KClass<*>
 inline val KType.unwrapKClass get() = classifier as KClass<*>
 
 val KType.isSchemaElement get() = unwrapKClassOrNull?.isSubclassOf(SchemaBase::class) == true
+
+val KType.isEnum get() = unwrapKClassOrNull?.isSubclassOf(Enum::class) == true
+val KType.isString get() = unwrapKClassOrNull?.isSubclassOf(String::class) == true
+val KType.isBoolean get() = unwrapKClassOrNull?.isSubclassOf(Boolean::class) == true
+val KType.isInt get() = unwrapKClassOrNull?.isSubclassOf(Int::class) == true
+val KType.isPath get() = unwrapKClassOrNull?.isSubclassOf(Path::class) == true
+val KType.isScalar get() = isEnum || isString || isBoolean || isInt || isPath
 
 // FiXME Here we assume that collection type will have only one type argument, that
 // generally is not true. Maybe need to add constraints of value<Type> methods.

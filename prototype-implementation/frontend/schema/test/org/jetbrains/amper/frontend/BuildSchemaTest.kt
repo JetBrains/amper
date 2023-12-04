@@ -5,17 +5,18 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.builders.DocBuilder.Companion.buildDoc
+import org.jetbrains.amper.frontend.builders.SchemaBuilder
 import org.jetbrains.amper.frontend.schema.Module
 import java.io.StringWriter
 import kotlin.test.Test
 
-class BuildDocTest {
+class BuildSchemaTest {
 
     @Test
-    fun `build doc test`() {
-        val strw = StringWriter()
-        println(buildDoc(Module::class, strw))
-        println(strw)
+    fun `build schema test`() {
+        // Check whenever schema build does not fail.
+        val x = SchemaBuilder.writeSchema(Module::class)
+        println(x)
     }
 
 }

@@ -27,16 +27,16 @@ data object EmbeddedDoc : DocBuilderCustom
 /**
  * Builder that traverses schema to build a reference documentation.
  */
-class TestDocBuilder private constructor(
+class DocBuilder private constructor(
     private val currentRoot: KClass<*>
 ) : RecurringVisitor<DocBuilderCustom>(detectCustom) {
 
     companion object {
-        val detectCustom: (KProperty<*>) -> DocBuilderCustom? = { prop ->
+        private val detectCustom: (KProperty<*>) -> DocBuilderCustom? = { prop ->
             if (prop.unwrapSchemaTypeOrNull?.hasAnnotation<Embedded>() == true) EmbeddedDoc else null
         }
 
-        fun buildDoc(root: KClass<*>, w: Writer) = TestDocBuilder(root)
+        fun buildDoc(root: KClass<*>, w: Writer) = DocBuilder(root)
             .apply { visitClas(root) }
             .buildDoc(w)
     }
@@ -60,8 +60,8 @@ class TestDocBuilder private constructor(
      * Create new builder with a new root and perform operation,
      * then merge docs.
      */
-    private fun withNewRoot(newRoot: KClass<*>, block: (TestDocBuilder) -> Unit) {
-        val builder = TestDocBuilder(newRoot)
+    private fun withNewRoot(newRoot: KClass<*>, block: (DocBuilder) -> Unit) {
+        val builder = DocBuilder(newRoot)
         block(builder)
         builder.propertyDesc.forEach { (k, v) ->
             propertyDesc.compute(k) { _, old -> (old ?: mutableListOf()).apply { addAll(v) } }
@@ -115,10 +115,7 @@ class TestDocBuilder private constructor(
         super.visitMapTyped(prop, type, types, modifierAware)
     }
 
-    override fun visitCustom(
-        prop: KProperty<*>,
-        custom: DocBuilderCustom
-    ) {
+    override fun visitCustom(prop: KProperty<*>, custom: DocBuilderCustom) {
         val schemaKClass = prop.unwrapSchemaTypeOrNull ?: return
         when (custom) {
             // Skip root switching, so entries will be added to current root.
