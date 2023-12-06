@@ -12,6 +12,3 @@ settings:
     xml:
       onCheck: true
       reportFile: "report/coverage-report.xml"
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.9.0
