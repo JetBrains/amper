@@ -8,8 +8,11 @@ import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
-// TODO Add scopes.
-sealed class Dependency : SchemaNode()
+sealed class Dependency : SchemaNode() {
+    val exported = value<Boolean>()
+    val `compile-only` = value<Boolean>()
+    val `runtime-only` = value<Boolean>()
+}
 
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
@@ -20,10 +23,6 @@ class ExternalMavenDependency : Dependency() {
 class InternalDependency  : Dependency() {
     val path = value<Path>()
 }
-
-// A way to handle $ escaping.
-const val ref = "\$ref"
-const val defs = "\$defs"
 
 const val dependencySchema = """
   "anyOf": [

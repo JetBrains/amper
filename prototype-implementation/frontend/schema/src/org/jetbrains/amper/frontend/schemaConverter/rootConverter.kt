@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.schema.*
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
+import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.nio.file.Path
@@ -110,6 +111,38 @@ private fun Node.convertDependency(): Dependency? = when {
 
     this is ScalarNode ->
         value?.let { ExternalMavenDependency().apply { coordinates(it) } }
-
+    this is MappingNode && value.size > 1 -> TODO("report")
+    this is MappingNode && value.isEmpty() -> TODO("report")
+    this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith(".") == true ->
+        value.first().convertInternalDep()
+    this is MappingNode && value.first().keyNode.asScalarNode()?.value != null ->
+        value.first().convertExternalMavenDep()
     else -> null // Report wrong type
+}
+
+context(ProblemReporterContext)
+private fun NodeTuple.convertExternalMavenDep() = ExternalMavenDependency().apply {
+    coordinates(keyNode.asScalarNode(true)!!.value)
+    adjustScopes(this)
+}
+
+context(ProblemReporterContext)
+private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDependency().apply {
+    path(Path(keyNode.asScalarNode(true)!!.value))
+    adjustScopes(this)
+}
+
+context(ProblemReporterContext)
+private fun NodeTuple.adjustScopes(dep: Dependency) = with(dep) {
+    val valueNode = valueNode
+    when {
+        valueNode is ScalarNode && valueNode.value == "compile-only" -> `compile-only`(true)
+        valueNode is ScalarNode && valueNode.value == "runtime-only" -> `runtime-only`(true)
+        valueNode is ScalarNode && valueNode.value == "exported" -> exported(true)
+        valueNode is MappingNode -> {
+            `compile-only`(valueNode.tryGetScalarNode("compile-only")?.value?.toBoolean())
+            `runtime-only`(valueNode.tryGetScalarNode("runtime-only")?.value?.toBoolean())
+            exported(valueNode.tryGetScalarNode("exported")?.value?.toBoolean())
+        }
+    }
 }

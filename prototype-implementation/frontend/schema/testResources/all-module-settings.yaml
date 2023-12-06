@@ -22,6 +22,10 @@ dependencies@jvmAndAndroid:
 dependencies@jvm:
   - io.ktor:ktor-server-core:2.3.2
   - org.jetbrains.compose.material3:material3:1.4.1
+  - some.dep: compile-only
+  - other.dep:
+      compile-only: true
+      exported: true
 
 dependencies@android:
   - androidx.compose.animation:animation-graphics:1.4.3
