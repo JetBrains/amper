@@ -4,10 +4,13 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
 
 /**
@@ -15,6 +18,7 @@ import kotlin.reflect.KType
  */
 class JsonSchemaBuilderCtx {
     val visited = mutableSetOf<KClass<*>>()
+    val customSchemaDef = mutableMapOf<String, String>()
     val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
     val declaredProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
 }
@@ -56,27 +60,33 @@ class JsonSchemaBuilder(
                         val propertyValues = declaredProperties[key]
                         val patternProperties = declaredPatternProperties[key]
                         appendLine("    \"$key\": {")
-                        appendLine("      \"type\": \"object\",")
 
-                        // pattern properties section.
-                        if (patternProperties != null) {
-                            appendLine("      \"patternProperties\": {")
-                            patternProperties.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("        "))
-                                if (!isEnd2) appendLine(",") else appendLine()
-                            }
-                            if (propertyValues != null) appendLine("      },")
-                            else appendLine("      }")
-                        }
+                        val customSchema = customSchemaDef[key]
+                        if (customSchema != null) {
+                            appendLine(customSchema.prependIndent("      "))
+                        } else {
+                            appendLine("      \"type\": \"object\",")
 
-                        // properties section.
-                        if (propertyValues != null) {
-                            appendLine("      \"properties\": {")
-                            propertyValues.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("        "))
-                                if (!isEnd2) appendLine(",") else appendLine()
+                            // pattern properties section.
+                            if (patternProperties != null) {
+                                appendLine("      \"patternProperties\": {")
+                                patternProperties.forEachEndAware { isEnd2, it ->
+                                    append(it.replaceIndent("        "))
+                                    if (!isEnd2) appendLine(",") else appendLine()
+                                }
+                                if (propertyValues != null) appendLine("      },")
+                                else appendLine("      }")
                             }
-                            appendLine("      }")
+
+                            // properties section.
+                            if (propertyValues != null) {
+                                appendLine("      \"properties\": {")
+                                propertyValues.forEachEndAware { isEnd2, it ->
+                                    append(it.replaceIndent("        "))
+                                    if (!isEnd2) appendLine(",") else appendLine()
+                                }
+                                appendLine("      }")
+                            }
                         }
 
                         if (!isEnd) appendLine("    },")
@@ -101,7 +111,12 @@ class JsonSchemaBuilder(
     }
 
     override fun visitClas(klass: KClass<*>) = if (ctx.visited.add(klass)) {
-        visitSchema(klass, JsonSchemaBuilder(klass, ctx))
+        when {
+            klass.hasAnnotation<CustomSchemaDef>() ->
+                ctx.customSchemaDef[klass.jsonDef] = klass.findAnnotation<CustomSchemaDef>()!!.json.trimIndent()
+            else ->
+                visitSchema(klass, JsonSchemaBuilder(klass, ctx))
+        }
     } else Unit
 
     override fun visitTyped(

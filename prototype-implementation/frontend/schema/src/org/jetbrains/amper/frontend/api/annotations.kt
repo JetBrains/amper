@@ -23,3 +23,12 @@ annotation class SchemaDoc(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ModifierAware
+
+/**
+ * A way of rude tuning resulting json schema.
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CustomSchemaDef(
+    val json: String
+)
