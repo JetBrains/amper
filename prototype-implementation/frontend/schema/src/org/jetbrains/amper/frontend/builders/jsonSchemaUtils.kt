@@ -66,7 +66,7 @@ val booleanSchema
 """.trim()
 
 val KClass<*>.jsonDef: String get() = simpleName!!
-val KClass<*>.asReferenceTo get() = "\"ref\": \"#/\$defs/${this.jsonDef}\""
+val KClass<*>.asReferenceTo get() = "\"\$ref\": \"#/\$defs/${this.jsonDef}\""
 
 fun <T> Collection<T>.wrapInAnyOf(block: (T) -> String) = buildString {
     if (size == 1) {

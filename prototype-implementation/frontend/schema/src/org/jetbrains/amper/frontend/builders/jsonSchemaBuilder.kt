@@ -27,42 +27,62 @@ class JsonSchemaBuilder(
     private val ctx: JsonSchemaBuilderCtx,
 ) : RecurringVisitor() {
     companion object {
-        fun writeSchema(root: KClass<*>, w: Writer) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
+        fun writeSchema(
+            root: KClass<*>,
+            w: Writer,
+            schemaId: String = "${root.simpleName}.json",
+            title: String = "${root.simpleName} schema",
+        ) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
             .apply { visitClas(root) }
             .ctx.run {
                 w.apply {
                     appendLine("{")
+                    appendLine("  \"\$schema\": \"https://json-schema.org/draft/2020-12/schema\",")
+                    appendLine("  \"\$id\": \"$schemaId\",")
+                    appendLine("  \"title\": \"$title\",")
+                    appendLine("  \"type\": \"object\",")
+
+                    appendLine("  \"allOf\": [")
+                    appendLine("    {")
+                    appendLine("      ${root.asReferenceTo}")
+                    appendLine("    }")
+                    appendLine("  ],")
+
+                    appendLine("  \"\$defs\": {")
+
+
                     visited.forEachEndAware { isEnd, it ->
                         val key = it.jsonDef
                         val propertyValues = declaredProperties[key]
                         val patternProperties = declaredPatternProperties[key]
-                        appendLine("  \"$key\": {")
-                        appendLine("    \"type\": \"object\",")
+                        appendLine("    \"$key\": {")
+                        appendLine("      \"type\": \"object\",")
 
                         // pattern properties section.
                         if (patternProperties != null) {
-                            appendLine("    \"patternProperties\": {")
+                            appendLine("      \"patternProperties\": {")
                             patternProperties.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("      "))
+                                append(it.replaceIndent("        "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
-                            if (propertyValues != null) appendLine("    },")
-                            else appendLine("    }")
+                            if (propertyValues != null) appendLine("      },")
+                            else appendLine("      }")
                         }
 
                         // properties section.
                         if (propertyValues != null) {
-                            appendLine("    \"properties\": {")
+                            appendLine("      \"properties\": {")
                             propertyValues.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("      "))
+                                append(it.replaceIndent("        "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
-                            appendLine("    }")
+                            appendLine("      }")
                         }
 
-                        append("  }")
-                        if (!isEnd) appendLine(",")
+                        if (!isEnd) appendLine("    },")
+                        else appendLine("    }")
                     }
+                    appendLine("  }")
                     appendLine("}")
                 }
             }
