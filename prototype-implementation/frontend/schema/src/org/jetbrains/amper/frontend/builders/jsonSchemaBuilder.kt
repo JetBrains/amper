@@ -36,31 +36,31 @@ class JsonSchemaBuilder(
                         val key = it.jsonDef
                         val propertyValues = declaredProperties[key]
                         val patternProperties = declaredPatternProperties[key]
-                        appendLine("    \"$key\": {")
-                        appendLine("        \"type\": \"object\",")
+                        appendLine("  \"$key\": {")
+                        appendLine("    \"type\": \"object\",")
 
                         // pattern properties section.
                         if (patternProperties != null) {
-                            appendLine("        \"patternProperties\": {")
+                            appendLine("    \"patternProperties\": {")
                             patternProperties.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("            "))
+                                append(it.replaceIndent("      "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
-                            if (propertyValues != null) appendLine("        },")
-                            else appendLine("        }")
+                            if (propertyValues != null) appendLine("    },")
+                            else appendLine("    }")
                         }
 
                         // properties section.
                         if (propertyValues != null) {
-                            appendLine("        \"properties\": {")
+                            appendLine("    \"properties\": {")
                             propertyValues.forEachEndAware { isEnd2, it ->
-                                append(it.replaceIndent("            "))
+                                append(it.replaceIndent("      "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
-                            appendLine("        }")
+                            appendLine("    }")
                         }
 
-                        append("    }")
+                        append("  }")
                         if (!isEnd) appendLine(",")
                     }
                     appendLine("}")

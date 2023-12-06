@@ -10,7 +10,7 @@ import kotlin.reflect.KType
 // W/A around ${} escaping.
 const val patternProperties = "^[^@+:]+" + "$" + "{'$'}"
 
-fun String.addIdentButFirst(ident: String = "    ") =
+fun String.addIdentButFirst(ident: String) =
     lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
 
 fun buildSchemaKeyBasedCollection(
@@ -18,11 +18,11 @@ fun buildSchemaKeyBasedCollection(
 ) = """
 "type": "array",
 "items": {
-    "patternProperties": {
-        "$patternProperties": {
-            ${block().addIdentButFirst("            ")}
-        }
+  "patternProperties": {
+    "$patternProperties": {
+      ${block().addIdentButFirst("      ")}
     }
+  }
 }
 """.trim()
 
@@ -31,7 +31,7 @@ fun buildModifierBasedCollection(
     block: () -> String,
 ) = """
 "^$name(@.+)?${'$'}": {
-    ${block().addIdentButFirst("        ")}
+  ${block().addIdentButFirst("  ")}
 }
 """.trim()
 
@@ -40,7 +40,7 @@ fun buildProperty(
     block: () -> String,
 ) = """
 "$name": {
-    ${block().addIdentButFirst("    ")}
+  ${block().addIdentButFirst("  ")}
 }
 """.trim()
 
@@ -51,7 +51,7 @@ fun buildSchemaCollection(
 ) = """
 "type": "array",
 "items": {
-    ${block().addIdentButFirst()}
+  ${block().addIdentButFirst("  ")}
 }
 """.trim()
 
@@ -74,9 +74,9 @@ fun <T> Collection<T>.wrapInAnyOf(block: (T) -> String) = buildString {
     } else {
         appendLine("\"anyOf\": [")
         forEachEndAware { isEnd, it ->
-            appendLine("    {")
-            appendLine(block(it).prependIndent("         "))
-            append("    }")
+            appendLine("  {")
+            appendLine(block(it).prependIndent("    "))
+            append("  }")
             if (!isEnd) appendLine(",") else appendLine()
         }
         append("]")

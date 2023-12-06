@@ -1,260 +1,260 @@
 {
-    "Module": {
-        "type": "object",
-        "patternProperties": {
-            "^dependencies(@.+)?$": {
-                "type": "array",
-                    "items": {
-                        "anyOf": [
-                            {
-                                 "ref": "#/$defs/ExternalMavenDependency"
-                            },
-                            {
-                                 "ref": "#/$defs/InternalDependency"
-                            }
-                        ]
-                    }
+  "Module": {
+    "type": "object",
+    "patternProperties": {
+      "^dependencies(@.+)?$": {
+        "type": "array",
+        "items": {
+          "anyOf": [
+            {
+              "ref": "#/$defs/ExternalMavenDependency"
             },
-            "^settings(@.+)?$": {
-                "ref": "#/$defs/Settings"
-            },
-            "^test-dependencies(@.+)?$": {
-                "type": "array",
-                    "items": {
-                        "anyOf": [
-                            {
-                                 "ref": "#/$defs/ExternalMavenDependency"
-                            },
-                            {
-                                 "ref": "#/$defs/InternalDependency"
-                            }
-                        ]
-                    }
-            },
-            "^test-settings(@.+)?$": {
-                "ref": "#/$defs/Settings"
+            {
+              "ref": "#/$defs/InternalDependency"
             }
-        },
-        "properties": {
-            "alias": {
-                "type": "array",
-                "items": {
-                    "patternProperties": {
-                        "^[^@+:]+${'$'}": {
-                            "type": "array",
-                            "items": {
-                                "enum": ["COMMON","JS","JVM","WASM","ANDROID","NATIVE","LINUX","LINUX_X64","LINUX_ARM64","APPLE","TVOS","TVOS_ARM64","TVOS_X64","TVOS_SIMULATOR_ARM64","MACOS","MACOS_X64","MACOS_ARM64","IOS","IOS_ARM64","IOS_SIMULATOR_ARM64","IOS_X64","WATCHOS","WATCHOS_ARM64","WATCHOS_ARM32","WATCHOS_DEVICE_ARM64","WATCHOS_SIMULATOR_ARM64","MINGW","MINGW_X64","ANDROID_NATIVE","ANDROID_NATIVE_ARM32","ANDROID_NATIVE_ARM64","ANDROID_NATIVE_X64","ANDROID_NATIVE_X86"]
-                            }
-                        }
-                    }
-                }
-            },
-            "apply": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "product": {
-                "ref": "#/$defs/ModuleProduct"
-            },
-            "repositories": {
-                "type": "array",
-                "items": {
-                    "ref": "#/$defs/Repository"
-                }
-            }
+          ]
         }
+      },
+      "^settings(@.+)?$": {
+        "ref": "#/$defs/Settings"
+      },
+      "^test-dependencies(@.+)?$": {
+        "type": "array",
+        "items": {
+          "anyOf": [
+            {
+              "ref": "#/$defs/ExternalMavenDependency"
+            },
+            {
+              "ref": "#/$defs/InternalDependency"
+            }
+          ]
+        }
+      },
+      "^test-settings(@.+)?$": {
+        "ref": "#/$defs/Settings"
+      }
     },
-    "ModuleProduct": {
-        "type": "object",
-        "properties": {
-            "platforms": {
-                "type": "array",
-                "items": {
-                    "enum": ["COMMON","JS","JVM","WASM","ANDROID","NATIVE","LINUX","LINUX_X64","LINUX_ARM64","APPLE","TVOS","TVOS_ARM64","TVOS_X64","TVOS_SIMULATOR_ARM64","MACOS","MACOS_X64","MACOS_ARM64","IOS","IOS_ARM64","IOS_SIMULATOR_ARM64","IOS_X64","WATCHOS","WATCHOS_ARM64","WATCHOS_ARM32","WATCHOS_DEVICE_ARM64","WATCHOS_SIMULATOR_ARM64","MINGW","MINGW_X64","ANDROID_NATIVE","ANDROID_NATIVE_ARM32","ANDROID_NATIVE_ARM64","ANDROID_NATIVE_X64","ANDROID_NATIVE_X86"]
-                }
-            },
-            "type": {
-                "enum": ["LIB"]
+    "properties": {
+      "alias": {
+        "type": "array",
+        "items": {
+          "patternProperties": {
+            "^[^@+:]+${'$'}": {
+              "type": "array",
+              "items": {
+                "enum": ["COMMON","JS","JVM","WASM","ANDROID","NATIVE","LINUX","LINUX_X64","LINUX_ARM64","APPLE","TVOS","TVOS_ARM64","TVOS_X64","TVOS_SIMULATOR_ARM64","MACOS","MACOS_X64","MACOS_ARM64","IOS","IOS_ARM64","IOS_SIMULATOR_ARM64","IOS_X64","WATCHOS","WATCHOS_ARM64","WATCHOS_ARM32","WATCHOS_DEVICE_ARM64","WATCHOS_SIMULATOR_ARM64","MINGW","MINGW_X64","ANDROID_NATIVE","ANDROID_NATIVE_ARM32","ANDROID_NATIVE_ARM64","ANDROID_NATIVE_X64","ANDROID_NATIVE_X86"]
+              }
             }
+          }
         }
-    },
-    "ExternalMavenDependency": {
-        "type": "object",
-        "properties": {
-            "coordinates": {
-                "type": "string"
-            }
+      },
+      "apply": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
-    },
-    "InternalDependency": {
-        "type": "object",
-        "properties": {
-            "path": {
-                "type": "string"
-            }
+      },
+      "product": {
+        "ref": "#/$defs/ModuleProduct"
+      },
+      "repositories": {
+        "type": "array",
+        "items": {
+          "ref": "#/$defs/Repository"
         }
-    },
-    "Repository": {
-        "type": "object",
-        "properties": {
-            "credentials": {
-                "ref": "#/$defs/Credentials"
-            },
-            "id": {
-                "type": "string"
-            },
-            "publish": {
-                "type": "boolean"
-            },
-            "url": {
-                "type": "string"
-            }
+      }
+    }
+  },
+  "ModuleProduct": {
+    "type": "object",
+    "properties": {
+      "platforms": {
+        "type": "array",
+        "items": {
+          "enum": ["COMMON","JS","JVM","WASM","ANDROID","NATIVE","LINUX","LINUX_X64","LINUX_ARM64","APPLE","TVOS","TVOS_ARM64","TVOS_X64","TVOS_SIMULATOR_ARM64","MACOS","MACOS_X64","MACOS_ARM64","IOS","IOS_ARM64","IOS_SIMULATOR_ARM64","IOS_X64","WATCHOS","WATCHOS_ARM64","WATCHOS_ARM32","WATCHOS_DEVICE_ARM64","WATCHOS_SIMULATOR_ARM64","MINGW","MINGW_X64","ANDROID_NATIVE","ANDROID_NATIVE_ARM32","ANDROID_NATIVE_ARM64","ANDROID_NATIVE_X64","ANDROID_NATIVE_X86"]
         }
-    },
-    "Credentials": {
-        "type": "object",
-        "properties": {
-            "file": {
-                "type": "string"
-            },
-            "passwordKey": {
-                "type": "string"
-            },
-            "usernameKey": {
-                "type": "string"
-            }
+      },
+      "type": {
+        "enum": ["LIB"]
+      }
+    }
+  },
+  "ExternalMavenDependency": {
+    "type": "object",
+    "properties": {
+      "coordinates": {
+        "type": "string"
+      }
+    }
+  },
+  "InternalDependency": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string"
+      }
+    }
+  },
+  "Repository": {
+    "type": "object",
+    "properties": {
+      "credentials": {
+        "ref": "#/$defs/Credentials"
+      },
+      "id": {
+        "type": "string"
+      },
+      "publish": {
+        "type": "boolean"
+      },
+      "url": {
+        "type": "string"
+      }
+    }
+  },
+  "Credentials": {
+    "type": "object",
+    "properties": {
+      "file": {
+        "type": "string"
+      },
+      "passwordKey": {
+        "type": "string"
+      },
+      "usernameKey": {
+        "type": "string"
+      }
+    }
+  },
+  "Settings": {
+    "type": "object",
+    "properties": {
+      "android": {
+        "ref": "#/$defs/AndroidSettings"
+      },
+      "compose": {
+        "ref": "#/$defs/ComposeSettings"
+      },
+      "java": {
+        "ref": "#/$defs/JavaSettings"
+      },
+      "jvm": {
+        "ref": "#/$defs/JvmSettings"
+      },
+      "kotlin": {
+        "ref": "#/$defs/KotlinSettings"
+      }
+    }
+  },
+  "AndroidSettings": {
+    "type": "object",
+    "properties": {
+      "applicationId": {
+        "type": "string"
+      },
+      "compileSdk": {
+        "type": "string"
+      },
+      "maxSdk": {
+        "type": "string"
+      },
+      "minSdk": {
+        "type": "string"
+      },
+      "namespace": {
+        "type": "string"
+      },
+      "targetSdk": {
+        "type": "string"
+      }
+    }
+  },
+  "ComposeSettings": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean"
+      }
+    }
+  },
+  "JavaSettings": {
+    "type": "object",
+    "properties": {
+      "source": {
+        "type": "string"
+      }
+    }
+  },
+  "JvmSettings": {
+    "type": "object",
+    "properties": {
+      "mainClass": {
+        "type": "string"
+      },
+      "target": {
+        "type": "string"
+      }
+    }
+  },
+  "KotlinSettings": {
+    "type": "object",
+    "properties": {
+      "allWarningsAsErrors": {
+        "type": "boolean"
+      },
+      "apiVersion": {
+        "type": "string"
+      },
+      "debug": {
+        "type": "boolean"
+      },
+      "freeCompilerArgs": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
-    },
-    "Settings": {
-        "type": "object",
-        "properties": {
-            "android": {
-                "ref": "#/$defs/AndroidSettings"
-            },
-            "compose": {
-                "ref": "#/$defs/ComposeSettings"
-            },
-            "java": {
-                "ref": "#/$defs/JavaSettings"
-            },
-            "jvm": {
-                "ref": "#/$defs/JvmSettings"
-            },
-            "kotlin": {
-                "ref": "#/$defs/KotlinSettings"
-            }
+      },
+      "languageFeatures": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
-    },
-    "AndroidSettings": {
-        "type": "object",
-        "properties": {
-            "applicationId": {
-                "type": "string"
-            },
-            "compileSdk": {
-                "type": "string"
-            },
-            "maxSdk": {
-                "type": "string"
-            },
-            "minSdk": {
-                "type": "string"
-            },
-            "namespace": {
-                "type": "string"
-            },
-            "targetSdk": {
-                "type": "string"
-            }
+      },
+      "languageVersion": {
+        "type": "string"
+      },
+      "linkerOpts": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
-    },
-    "ComposeSettings": {
-        "type": "object",
-        "properties": {
-            "enabled": {
-                "type": "boolean"
-            }
+      },
+      "optIns": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
-    },
-    "JavaSettings": {
-        "type": "object",
-        "properties": {
-            "source": {
-                "type": "string"
-            }
-        }
-    },
-    "JvmSettings": {
-        "type": "object",
-        "properties": {
-            "mainClass": {
-                "type": "string"
-            },
-            "target": {
-                "type": "string"
-            }
-        }
-    },
-    "KotlinSettings": {
-        "type": "object",
-        "properties": {
-            "allWarningsAsErrors": {
-                "type": "boolean"
-            },
-            "apiVersion": {
-                "type": "string"
-            },
-            "debug": {
-                "type": "boolean"
-            },
-            "freeCompilerArgs": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "languageFeatures": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "languageVersion": {
-                "type": "string"
-            },
-            "linkerOpts": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "optIns": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "progressiveMode": {
-                "type": "boolean"
-            },
-            "serialization": {
-                "ref": "#/$defs/SerializationSettings"
-            },
-            "suppressWarnings": {
-                "type": "boolean"
-            },
-            "verbose": {
-                "type": "boolean"
-            }
-        }
-    },
-    "SerializationSettings": {
-        "type": "object",
-        "properties": {
-            "engine": {
-                "type": "string"
-            }
-        }
-    }}
+      },
+      "progressiveMode": {
+        "type": "boolean"
+      },
+      "serialization": {
+        "ref": "#/$defs/SerializationSettings"
+      },
+      "suppressWarnings": {
+        "type": "boolean"
+      },
+      "verbose": {
+        "type": "boolean"
+      }
+    }
+  },
+  "SerializationSettings": {
+    "type": "object",
+    "properties": {
+      "engine": {
+        "type": "string"
+      }
+    }
+  }}
