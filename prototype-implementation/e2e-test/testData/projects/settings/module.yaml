@@ -54,3 +54,9 @@ settings:
       - -Xinline-classes
     optIns:
       - kotlinx.Experimental
+  kover:
+    enabled: true
+    html:
+      onCheck: true
+    xml:
+      onCheck: true
