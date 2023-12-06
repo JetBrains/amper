@@ -138,7 +138,7 @@ class JsonSchemaBuilder(
 
     private fun buildScalar(type: KType) = when {
         type.isEnum -> type.enumSchema
-        type.isString -> stringSchema
+        type.isString || type.isTraceableString -> stringSchema
         type.isBoolean -> booleanSchema
         type.isPath -> stringSchema
         type.isInt -> TODO()

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="schema-test.expected">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="schema-test.expected" />
+              <option name="relativePathToSchema" value="prototype-implementation/frontend/schema/testResources/schema-test.expected.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="prototype-implementation/frontend/schema/testResources/hello.yaml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
@@ -37,9 +38,9 @@ context(ProblemReporterContext)
 private fun MappingNode.convertModule() = Module().apply {
     product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
     apply(tryGetScalarSequenceNode("apply")?.map { Path(it.value) /* TODO check path */ })
-    alias(tryGetMappingNode("alias")?.convertScalarKeyedMap {
+    aliases(tryGetMappingNode("alias")?.convertScalarKeyedMap {
         // TODO Report non enum value.
-        asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform.entries) }?.toSet()
+        asScalarSequenceNode()?.map { TraceableString(it.value) }?.toSet()
     })
     convertBase(this)
 }

@@ -7,9 +7,6 @@ package org.jetbrains.amper.frontend.builders
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-// W/A around ${} escaping.
-const val patternProperties = "^[^@+:]+" + "$" + "{'$'}"
-
 fun String.addIdentButFirst(ident: String) =
     lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
 
@@ -19,7 +16,7 @@ fun buildSchemaKeyBasedCollection(
 "type": "array",
 "items": {
   "patternProperties": {
-    "$patternProperties": {
+    "^[^@+:]+$": {
       ${block().addIdentButFirst("      ")}
     }
   }

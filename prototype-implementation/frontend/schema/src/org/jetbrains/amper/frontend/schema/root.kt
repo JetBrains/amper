@@ -39,7 +39,7 @@ class Module : Base() {
     val product = value<ModuleProduct>()
 
     @SchemaDoc("Defines the names for the custom code sharing groups")
-    val alias = nullableValue<Map<String, Set<Platform>>>()
+    val aliases = nullableValue<Map<String, Set<TraceableString>>>()
 
     val apply = nullableValue<Collection<Path>>()
 }
