@@ -4,18 +4,18 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.frontend.builders.DocBuilder.Companion.buildDoc
+import org.jetbrains.amper.frontend.builders.JsonSchemaBuilder
 import org.jetbrains.amper.frontend.schema.Module
 import java.io.StringWriter
 import java.nio.file.Path
 import kotlin.test.Test
 
-class BuildDocTest : FileExpectTest(".expected", forceInput = false) {
+class BuildJsonSchemaTest : FileExpectTest(".expected.json", forceInput = false) {
 
     override fun getActualContent(input: Path): String =
-        StringWriter().apply { buildDoc(Module::class, this) }.toString()
+        StringWriter().apply { JsonSchemaBuilder.writeSchema(Module::class, this) }.toString()
 
     @Test
-    fun `build doc test`() = test("doc-test")
+    fun `build schema test`() = test("schema-test")
 
 }

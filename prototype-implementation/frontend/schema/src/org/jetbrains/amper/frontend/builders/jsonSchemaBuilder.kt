@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -26,10 +27,10 @@ class JsonSchemaBuilder(
     private val ctx: JsonSchemaBuilderCtx,
 ) : RecurringVisitor() {
     companion object {
-        fun writeSchema(root: KClass<*>) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
+        fun writeSchema(root: KClass<*>, w: Writer) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
             .apply { visitClas(root) }
             .ctx.run {
-                buildString {
+                w.apply {
                     appendLine("{")
                     visited.forEachEndAware { isEnd, it ->
                         val key = it.jsonDef
@@ -45,7 +46,8 @@ class JsonSchemaBuilder(
                                 append(it.replaceIndent("            "))
                                 if (!isEnd2) appendLine(",") else appendLine()
                             }
-                            appendLine("        }")
+                            if (propertyValues != null) appendLine("        },")
+                            else appendLine("        }")
                         }
 
                         // properties section.

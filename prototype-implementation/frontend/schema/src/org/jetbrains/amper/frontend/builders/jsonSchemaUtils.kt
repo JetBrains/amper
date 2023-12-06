@@ -13,8 +13,6 @@ const val patternProperties = "^[^@+:]+" + "$" + "{'$'}"
 fun String.addIdentButFirst(ident: String = "    ") =
     lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
 
-fun String.trimNLEnds() = removePrefix(System.lineSeparator()).removeSuffix(System.lineSeparator())
-
 fun buildSchemaKeyBasedCollection(
     block: () -> String,
 ) = """
@@ -26,7 +24,7 @@ fun buildSchemaKeyBasedCollection(
         }
     }
 }
-""".trimNLEnds()
+""".trim()
 
 fun buildModifierBasedCollection(
     name: String,
@@ -35,16 +33,16 @@ fun buildModifierBasedCollection(
 "^$name(@.+)?${'$'}": {
     ${block().addIdentButFirst("        ")}
 }
-""".trimNLEnds()
+""".trim()
 
 fun buildProperty(
     name: String,
     block: () -> String,
 ) = """
 "$name": {
-    ${block().addIdentButFirst("    ")}   
+    ${block().addIdentButFirst("    ")}
 }
-""".trimNLEnds()
+""".trim()
 
 fun buildSchemaCollection(
     uniqueElements: Boolean = true, // TODO handle
@@ -55,17 +53,17 @@ fun buildSchemaCollection(
 "items": {
     ${block().addIdentButFirst()}
 }
-""".trimNLEnds()
+""".trim()
 
 val stringSchema
     get() = """
 "type": "string"
-""".trimNLEnds()
+""".trim()
 
 val booleanSchema
     get() = """
 "type": "boolean"
-""".trimNLEnds()
+""".trim()
 
 val KClass<*>.jsonDef: String get() = simpleName!!
 val KClass<*>.asReferenceTo get() = "\"ref\": \"#/\$defs/${this.jsonDef}\""

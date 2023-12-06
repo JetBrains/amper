@@ -1,0 +1,86 @@
+Module
+------
+	alias: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
+	apply: Collection<Path>
+	product: ModuleProduct - Defines what should be produced out of the Module
+	dependencies[@modifier]: Collection<Dependency> - The list of modules and libraries necessary to build the Module
+	repositories: Collection<Repository> - The list of repositories used to look up and download the Module dependencies
+	settings[@modifier]: Settings - Configures the toolchains used in the build process
+	test-dependencies[@modifier]: Collection<Dependency> - The dependencies necessary to build and run tests of the Module
+	test-settings[@modifier]: Settings - Controls building and running the Module tests
+
+ModuleProduct
+-------------
+	platforms: Collection<Platform>
+	type: ProductType
+
+ExternalMavenDependency
+-----------------------
+	coordinates: String
+
+InternalDependency
+------------------
+	path: Path
+
+Repository
+----------
+	credentials: Credentials
+	id: String
+	publish: Boolean, default: false
+	url: String
+
+Credentials
+-----------
+	file: Path
+	passwordKey: String
+	usernameKey: String
+
+Settings
+--------
+	android: AndroidSettings
+	compose: ComposeSettings
+	java: JavaSettings
+	jvm: JvmSettings
+	kotlin: KotlinSettings
+
+AndroidSettings
+---------------
+	applicationId: String
+	compileSdk: String
+	maxSdk: String
+	minSdk: String
+	namespace: String
+	targetSdk: String
+
+ComposeSettings
+---------------
+	enabled: Boolean
+
+JavaSettings
+------------
+	source: String
+
+JvmSettings
+-----------
+	mainClass: String
+	target: String
+
+KotlinSettings
+--------------
+	allWarningsAsErrors: Boolean
+	apiVersion: String
+	debug: Boolean
+	freeCompilerArgs: List<String>
+	languageFeatures: List<String>
+	languageVersion: String
+	linkerOpts: List<String>
+	optIns: List<String>
+	progressiveMode: Boolean
+	serialization: SerializationSettings
+	suppressWarnings: Boolean
+	verbose: Boolean
+
+SerializationSettings
+---------------------
+	engine: String
+
