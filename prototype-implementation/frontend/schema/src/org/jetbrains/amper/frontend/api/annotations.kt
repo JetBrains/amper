@@ -23,11 +23,3 @@ annotation class SchemaDoc(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ModifierAware
-
-/**
- * Mark, that this class should not be visible within schema and documentation
- * and its field should be embedded in its parent.
- */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Embedded

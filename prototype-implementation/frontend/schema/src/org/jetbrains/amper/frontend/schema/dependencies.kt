@@ -7,10 +7,6 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
-class Dependencies : SchemaNode() {
-    val deps = value<Collection<Dependency>>()
-}
-
 // TODO Add scopes.
 sealed class Dependency : SchemaNode()
 

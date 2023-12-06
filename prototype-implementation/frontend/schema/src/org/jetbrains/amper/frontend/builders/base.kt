@@ -19,49 +19,12 @@ import kotlin.reflect.full.superclasses
 /**
  * A class to traverse schema.
  */
-interface SchemaVisitor<CustomT : Any> {
+interface SchemaVisitor {
 
     /**
      * Visit schema class.
      */
     fun visitClas(klass: KClass<*>)
-
-    /**
-     * Visit property with type of [SchemaNode], possibly with
-     * modifiers ([Map] typed with values of [SchemaNode] type)
-     *
-     * [types] - collection of types, that can be assigned to this field
-     */
-    fun visitTyped(
-        prop: KProperty<*>,
-        type: KType,
-        types: Collection<KClass<*>>,
-    )
-
-    /**
-     * Visit collection property with type of [SchemaNode].
-     *
-     * [types] - collection of types, that can be assigned as this collection elements
-     */
-    fun visitCollectionTyped(
-        prop: KProperty<*>,
-        type: KType,
-        types: Collection<KClass<*>>,
-    )
-
-    /**
-     * Visit map property with value type of [SchemaNode].
-     * Assert that key type is string.
-     *
-     * [types] - collection of types, that can be assigned as this map value elements
-     * [modifierAware] - if this element can have "@" modifiers
-     */
-    fun visitMapTyped(
-        prop: KProperty<*>,
-        type: KType,
-        types: Collection<KClass<*>>,
-        modifierAware: Boolean,
-    )
 
     /**
      * Visit non typed property.
@@ -75,53 +38,42 @@ interface SchemaVisitor<CustomT : Any> {
     )
 
     /**
-     * Visit custom marked property.
+     * Visit property with type of [SchemaNode], possibly with
+     * modifiers ([Map] typed with values of [SchemaNode] type)
      *
-     * [custom] - custom info, specific to visitor
+     * [types] - collection of types, that can be assigned to this field
      */
-    fun visitCustom(
+    fun visitTyped(
         prop: KProperty<*>,
-        custom: CustomT,
+        type: KType,
+        schemaNodeType: KType,
+        types: Collection<KClass<*>>,
+        modifierAware: Boolean,
     )
 }
 
 /**
  * Visitor, that visits all schema tree elements depth first (except custom).
  */
-abstract class RecurringVisitor<T : Any>(
-    private val detectCustom: ((KProperty<*>) -> T?)? = null
-) : SchemaVisitor<T> {
+abstract class RecurringVisitor : SchemaVisitor {
     override fun visitClas(klass: KClass<*>) =
-        visitSchema(klass, this, detectCustom)
+        visitSchema(klass, this)
 
-    override fun visitTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) =
-        types.forEach { visitClas(it) }
-
-    override fun visitCollectionTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) =
-        types.forEach { visitClas(it) }
-
-    override fun visitMapTyped(
+    override fun visitTyped(
         prop: KProperty<*>,
         type: KType,
+        schemaNodeType: KType,
         types: Collection<KClass<*>>,
         modifierAware: Boolean
     ) = types.forEach { visitClas(it) }
-
-    override fun visitCustom(prop: KProperty<*>, custom: T) {
-        // no-op
-    }
 }
 
 /**
  * Perform schema visiting using specified visitor.
- *
- * [detectCustom] - a way to treat some properties differently, based
- * on visitor specific info (say, annotations, or other markers)
  */
-internal fun <CustomT : Any> visitSchema(
+internal fun visitSchema(
     root: KClass<*>,
-    visitor: SchemaVisitor<CustomT>,
-    detectCustom: ((KProperty<*>) -> CustomT?)? = null
+    visitor: SchemaVisitor,
 ) {
     val noArgCtor = root.constructors.firstOrNull { it.parameters.isEmpty() }
         ?: error("Non compatible schema type declaration: ${root.simpleName}") // TODO Add reporting
@@ -133,34 +85,18 @@ internal fun <CustomT : Any> visitSchema(
         .forEach {
             with(visitor) {
                 val unwrappedType = it.unwrapValueTypeArg ?: return@forEach // TODO Handle non KClass return type.
-                val customData = detectCustom?.invoke(it)
+                val schemaNodeType = unwrappedType.unwrapSchemaTypeOrNull()
                 val propertyValue = it.get(rootInstance)
                 val defaultValue = propertyValue.default
                 val modifiersAware = it.annotations.any { ModifierAware::class.isInstance(it) }
 
                 when {
-                    customData != null -> visitCustom(
-                        it,
-                        customData
-                    )
-
-                    unwrappedType.isCollection && unwrappedType.collectionType.isSchemaElement -> visitCollectionTyped(
+                    schemaNodeType != null -> visitTyped(
                         it,
                         unwrappedType,
-                        unwrappedType.collectionType.possibleTypes,
-                    )
-
-                    unwrappedType.isMap && unwrappedType.mapValueType.isSchemaElement -> visitMapTyped(
-                        it,
-                        unwrappedType,
-                        unwrappedType.mapValueType.possibleTypes,
+                        schemaNodeType,
+                        schemaNodeType.possibleTypes,
                         modifiersAware,
-                    )
-
-                    unwrappedType.isSchemaElement -> visitTyped(
-                        it,
-                        unwrappedType,
-                        unwrappedType.possibleTypes
                     )
 
                     else -> visitCommon(
@@ -212,7 +148,7 @@ val KType.possibleTypes
 inline val KType.unwrapKClassOrNull get() = classifier as? KClass<*>
 inline val KType.unwrapKClass get() = classifier as KClass<*>
 
-val KType.isSchemaElement get() = unwrapKClassOrNull?.isSubclassOf(SchemaNode::class) == true
+val KType.isSchemaNode get() = unwrapKClassOrNull?.isSubclassOf(SchemaNode::class) == true
 
 val KType.isEnum get() = unwrapKClassOrNull?.isSubclassOf(Enum::class) == true
 val KType.isString get() = unwrapKClassOrNull?.isSubclassOf(String::class) == true
@@ -236,13 +172,9 @@ val KType.mapValueTypeOrNull get() = arguments.getOrNull(1)?.type
 /**
  * Tries to extract schema type from collection, map or just property.
  */
-val KProperty<*>.unwrapSchemaTypeOrNull: KClass<out Any>?
-    get() {
-        val type = unwrapValueTypeArg ?: return null
-        return when {
-            type.isMap && type.mapValueType.isSchemaElement -> type.mapValueType.unwrapKClassOrNull
-            type.isCollection && type.collectionType.isSchemaElement -> type.collectionType.unwrapKClassOrNull
-            type.isSchemaElement -> type.unwrapKClass
-            else -> null
-        }
-    }
+fun KType.unwrapSchemaTypeOrNull(): KType? = when {
+    isSchemaNode -> this
+    isMap -> mapValueType.unwrapSchemaTypeOrNull()
+    isCollection -> collectionType.unwrapSchemaTypeOrNull()
+    else -> null
+}

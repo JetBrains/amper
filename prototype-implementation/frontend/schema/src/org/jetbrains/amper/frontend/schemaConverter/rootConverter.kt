@@ -62,11 +62,10 @@ private fun MappingNode.convertProduct() = ModuleProduct().apply {
 }
 
 context(ProblemReporterContext)
-private fun Node.convertRepositories(): Repositories? {
+private fun Node.convertRepositories(): Collection<Repository>? {
     if (this@convertRepositories !is SequenceNode) return null
     // TODO Report wrong type.
-    val repos = value.mapNotNull { it.convertRepository() }
-    return Repositories().apply { repositories(repos) }
+    return value.mapNotNull { it.convertRepository() }
 }
 
 context(ProblemReporterContext)
@@ -98,9 +97,8 @@ private fun Node.convertRepository() = when (this) {
 }
 
 context(ProblemReporterContext)
-private fun Node.convertDependencies() = assertNodeType<SequenceNode, Dependencies>("dependencies") {
-    val dependencies = value.mapNotNull { it.convertDependency() }
-    return Dependencies().apply { deps(dependencies) }
+private fun Node.convertDependencies() = assertNodeType<SequenceNode, Collection<Dependency>>("dependencies") {
+    value.mapNotNull { it.convertDependency() }
 }
 
 context(ProblemReporterContext)
@@ -108,7 +106,9 @@ private fun Node.convertDependency(): Dependency? = when {
     this is ScalarNode && value.startsWith(".") ->
         // TODO Report non existent path.
         value?.let { InternalDependency().apply { path(Path(it)) } }
+
     this is ScalarNode ->
         value?.let { ExternalMavenDependency().apply { coordinates(it) } }
+
     else -> null // Report wrong type
 }

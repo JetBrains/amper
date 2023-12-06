@@ -4,29 +4,18 @@
 
 package org.jetbrains.amper.frontend.builders
 
-import org.jetbrains.amper.frontend.api.Embedded
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
-import kotlin.reflect.full.hasAnnotation
 
-
-/**
- * Marker for special treated fields.
- */
-sealed interface JsonSchemaBuilderCustom
-
-/**
- * Mark, that current property is "embedded" and should not be treated like self-sufficient
- * in terms of doc generating.
- */
-data object EmbeddedJsonSchema : JsonSchemaBuilderCustom
 
 /**
  * The place where schema is actually built.
  */
 class JsonSchemaBuilderCtx {
-    val declaredDefs: MutableMap<String, MutableList<String>> = mutableMapOf()
+    val visited = mutableSetOf<KClass<*>>()
+    val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
+    val declaredProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
 }
 
 /**
@@ -35,80 +24,88 @@ class JsonSchemaBuilderCtx {
 class JsonSchemaBuilder(
     private val currentRoot: KClass<*>,
     private val ctx: JsonSchemaBuilderCtx,
-) : RecurringVisitor<JsonSchemaBuilderCustom>(detectCustom) {
+) : RecurringVisitor() {
     companion object {
-        private val detectCustom: (KProperty<*>) -> JsonSchemaBuilderCustom? = { prop ->
-            if (prop.unwrapSchemaTypeOrNull?.hasAnnotation<Embedded>() == true) EmbeddedJsonSchema else null
-        }
-
         fun writeSchema(root: KClass<*>) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
             .apply { visitClas(root) }
             .ctx.run {
                 buildString {
                     appendLine("{")
-                    declaredDefs.forEach { (key, values) ->
-                        appendLine("\"$key\": {")
-                        append("\"type\": \"object\",")
-                        values.forEachEndAware { isEnd, it ->
-                            appendLine(it)
-                            if (!isEnd) append(",")
+                    visited.forEachEndAware { isEnd, it ->
+                        val key = it.jsonDef
+                        val propertyValues = declaredProperties[key]
+                        val patternProperties = declaredPatternProperties[key]
+                        appendLine("    \"$key\": {")
+                        appendLine("        \"type\": \"object\",")
+
+                        // pattern properties section.
+                        if (patternProperties != null) {
+                            appendLine("        \"patternProperties\": {")
+                            patternProperties.forEachEndAware { isEnd2, it ->
+                                append(it.replaceIndent("            "))
+                                if (!isEnd2) appendLine(",") else appendLine()
+                            }
+                            appendLine("        }")
                         }
-                        appendLine("},")
+
+                        // properties section.
+                        if (propertyValues != null) {
+                            appendLine("        \"properties\": {")
+                            propertyValues.forEachEndAware { isEnd2, it ->
+                                append(it.replaceIndent("            "))
+                                if (!isEnd2) appendLine(",") else appendLine()
+                            }
+                            appendLine("        }")
+                        }
+
+                        append("    }")
+                        if (!isEnd) appendLine(",")
                     }
                     appendLine("}")
                 }
             }
     }
 
-    /**
-     * Create new builder with a new root and perform operation.
-     */
-    private fun withNewRoot(newRoot: KClass<*>, block: (JsonSchemaBuilder) -> Unit) {
-        val builder = JsonSchemaBuilder(newRoot, ctx)
-        block(builder)
-    }
-
-    private fun addProperty(prop: KProperty<*>, block: () -> String) {
-        ctx.declaredDefs.compute(currentRoot.jsonDef) { _, old ->
-            old.orNew.apply {
-                add("""
-    "${prop.name}": {
-        ${block()}
-    }
-""".trimIndent())
-            }
+    private fun addPatternProperty(prop: KProperty<*>, block: () -> String) {
+        ctx.declaredPatternProperties.compute(currentRoot.jsonDef) { _, old ->
+            old.orNew.apply { add(block()) }
         }
     }
 
-    override fun visitClas(klass: KClass<*>) = withNewRoot(klass) {
-        visitSchema(klass, it, detectCustom)
+    private fun addProperty(prop: KProperty<*>, block: () -> String) {
+        ctx.declaredProperties.compute(currentRoot.jsonDef) { _, old ->
+            old.orNew.apply { add(buildProperty(prop.name, block)) }
+        }
     }
 
-    override fun visitTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) {
-        addProperty(prop) { types.wrapInAnyOf { it.asReferenceTo } }
-        super.visitTyped(prop, type, types)
-    }
+    override fun visitClas(klass: KClass<*>) = if (ctx.visited.add(klass)) {
+        visitSchema(klass, JsonSchemaBuilder(klass, ctx))
+    } else Unit
 
-    override fun visitCollectionTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) {
-        addProperty(prop) { buildSchemaCollection { types.wrapInAnyOf { it.asReferenceTo } } }
-        super.visitCollectionTyped(prop, type, types)
-    }
+    override fun visitTyped(
+        prop: KProperty<*>,
+        type: KType,
+        schemaNodeType: KType,
+        types: Collection<KClass<*>>,
+        modifierAware: Boolean
+    ) {
+        fun buildForTyped(type: KType, firstInvoke: Boolean = false): String = when {
+            type.isSchemaNode -> types.wrapInAnyOf { it.asReferenceTo }
+            type.isCollection -> buildSchemaCollection { buildForTyped(type.collectionType) }
+            // TODO Support modifiers.
+            type.isMap && firstInvoke && modifierAware -> buildModifierBasedCollection(prop.name) { buildForTyped(type.mapValueType) }
+            type.isMap -> buildSchemaKeyBasedCollection { buildForTyped(type.mapValueType) }
+            else -> error("Unsupported type $type") // TODO Report
+        }
 
-    override fun visitMapTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>, modifierAware: Boolean) {
-        addProperty(prop) { buildSchemaCollection { types.wrapInAnyOf { it.asReferenceTo } } }
-        super.visitMapTyped(prop, type, types, modifierAware)
+        // Modifier aware properties are always pattern properties.
+        if (modifierAware) addPatternProperty(prop) { buildForTyped(type, true) }
+        else addProperty(prop) { buildForTyped(type, true) }
+        super.visitTyped(prop, type, schemaNodeType, types, modifierAware)
     }
 
     override fun visitCommon(prop: KProperty<*>, type: KType, default: Any?) =
         addProperty(prop) { buildForScalarBased(type) }
-
-    override fun visitCustom(prop: KProperty<*>, custom: JsonSchemaBuilderCustom) {
-        val schemaKClass = prop.unwrapSchemaTypeOrNull ?: return
-        when (custom) {
-            // Skip root switching, so entries will be added to current root.
-            is EmbeddedJsonSchema -> visitSchema(schemaKClass, this, detectCustom)
-        }
-    }
 
     private fun buildForScalarBased(type: KType): String = when {
         type.isScalar -> buildScalar(type)

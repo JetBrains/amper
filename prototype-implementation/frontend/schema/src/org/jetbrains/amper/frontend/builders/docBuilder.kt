@@ -4,38 +4,22 @@
 
 package org.jetbrains.amper.frontend.builders
 
-import org.jetbrains.amper.frontend.api.Embedded
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
-/**
- * Marker for special treated fields.
- */
-sealed interface DocBuilderCustom
-
-/**
- * Mark, that current property is "embedded" and should not be treated like self-sufficient
- * in terms of doc generating.
- */
-data object EmbeddedDoc : DocBuilderCustom
 
 /**
  * Builder that traverses schema to build a reference documentation.
  */
 class DocBuilder private constructor(
     private val currentRoot: KClass<*>
-) : RecurringVisitor<DocBuilderCustom>(detectCustom) {
+) : RecurringVisitor() {
 
     companion object {
-        private val detectCustom: (KProperty<*>) -> DocBuilderCustom? = { prop ->
-            if (prop.unwrapSchemaTypeOrNull?.hasAnnotation<Embedded>() == true) EmbeddedDoc else null
-        }
-
         fun buildDoc(root: KClass<*>, w: Writer) = DocBuilder(root)
             .apply { visitClas(root) }
             .buildDoc(w)
@@ -87,7 +71,7 @@ class DocBuilder private constructor(
     override fun visitClas(klass: KClass<*>) = if (visited.add(klass)) {
         withNewRoot(klass) {
             addNodeDesc(klass)
-            visitSchema(klass, it, detectCustom)
+            visitSchema(klass, it)
         }
     } else Unit
 
@@ -95,32 +79,15 @@ class DocBuilder private constructor(
         addPropDesc(prop, type, default = default)
     }
 
-    override fun visitTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) {
-        addPropDesc(prop, type, types)
-        super.visitTyped(prop, type, types)
-    }
-
-    override fun visitCollectionTyped(prop: KProperty<*>, type: KType, types: Collection<KClass<*>>) {
-        addPropDesc(prop, type, types)
-        super.visitCollectionTyped(prop, type, types)
-    }
-
-    override fun visitMapTyped(
+    override fun visitTyped(
         prop: KProperty<*>,
         type: KType,
+        schemaNodeType: KType,
         types: Collection<KClass<*>>,
         modifierAware: Boolean
     ) {
         addPropDesc(prop, type, types, isModifierAware = modifierAware)
-        super.visitMapTyped(prop, type, types, modifierAware)
-    }
-
-    override fun visitCustom(prop: KProperty<*>, custom: DocBuilderCustom) {
-        val schemaKClass = prop.unwrapSchemaTypeOrNull ?: return
-        when (custom) {
-            // Skip root switching, so entries will be added to current root.
-            is EmbeddedDoc -> visitSchema(schemaKClass, this, detectCustom)
-        }
+        super.visitTyped(prop, type, schemaNodeType, types, modifierAware)
     }
 
     private fun addNodeDesc(

@@ -10,18 +10,41 @@ import kotlin.reflect.KType
 // W/A around ${} escaping.
 const val patternProperties = "^[^@+:]+" + "$" + "{'$'}"
 
+fun String.addIdentButFirst(ident: String = "    ") =
+    lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
+
+fun String.trimNLEnds() = removePrefix(System.lineSeparator()).removeSuffix(System.lineSeparator())
+
 fun buildSchemaKeyBasedCollection(
     block: () -> String,
 ) = """
 "type": "array",
 "items": {
-  "patternProperties": {
-    "$patternProperties": {
-      ${block()}
+    "patternProperties": {
+        "$patternProperties": {
+            ${block().addIdentButFirst("            ")}
+        }
     }
-  }
 }
-"""
+""".trimNLEnds()
+
+fun buildModifierBasedCollection(
+    name: String,
+    block: () -> String,
+) = """
+"^$name(@.+)?${'$'}": {
+    ${block().addIdentButFirst("        ")}
+}
+""".trimNLEnds()
+
+fun buildProperty(
+    name: String,
+    block: () -> String,
+) = """
+"$name": {
+    ${block().addIdentButFirst("    ")}   
+}
+""".trimNLEnds()
 
 fun buildSchemaCollection(
     uniqueElements: Boolean = true, // TODO handle
@@ -30,17 +53,19 @@ fun buildSchemaCollection(
 ) = """
 "type": "array",
 "items": {
-    ${block()}
+    ${block().addIdentButFirst()}
 }
-"""
+""".trimNLEnds()
 
-val stringSchema get() = """
-"type": "string"    
-"""
+val stringSchema
+    get() = """
+"type": "string"
+""".trimNLEnds()
 
-val booleanSchema get() = """
-"type": "boolean"    
-"""
+val booleanSchema
+    get() = """
+"type": "boolean"
+""".trimNLEnds()
 
 val KClass<*>.jsonDef: String get() = simpleName!!
 val KClass<*>.asReferenceTo get() = "\"ref\": \"#/\$defs/${this.jsonDef}\""
@@ -49,24 +74,27 @@ fun <T> Collection<T>.wrapInAnyOf(block: (T) -> String) = buildString {
     if (size == 1) {
         append(block(this@wrapInAnyOf.first()))
     } else {
-        append("\"anyOf\": [")
+        appendLine("\"anyOf\": [")
         forEachEndAware { isEnd, it ->
-            append("{${block(it)}}")
-            if (!isEnd) append(",")
+            appendLine("    {")
+            appendLine(block(it).prependIndent("         "))
+            append("    }")
+            if (!isEnd) appendLine(",") else appendLine()
         }
         append("]")
     }
 }
 
-val KType.enumSchema get() = buildString {
-    append("\"enum\": [")
-    val enumValues = unwrapKClassOrNull!!.java.enumConstants
-    enumValues.toList().forEachEndAware<Any> { isEnd, it ->
-        append("\"$it\"")
-        if (!isEnd) append(",")
+val KType.enumSchema
+    get() = buildString {
+        append("\"enum\": [")
+        val enumValues = unwrapKClassOrNull!!.java.enumConstants
+        enumValues.toList().forEachEndAware<Any> { isEnd, it ->
+            append("\"$it\"")
+            if (!isEnd) append(",")
+        }
+        append("]")
     }
-    append("]")
-}
 
 fun <T> Collection<T>.forEachEndAware(block: (Boolean, T) -> Unit) =
     forEachIndexed { index, it -> if (index == size - 1) block(true, it) else block(false, it) }

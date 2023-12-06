@@ -13,11 +13,11 @@ typealias Modifiers = Set<TraceableString>
 
 sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
-    val repositories = value<Repositories>()
+    val repositories = value<Collection<Repository>>()
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module")
-    val dependencies = value<Map<Modifiers, Dependencies>>()
+    val dependencies = value<Map<Modifiers, Collection<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process")
@@ -25,7 +25,7 @@ sealed class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("The dependencies necessary to build and run tests of the Module")
-    val `test-dependencies` = value<Map<Modifiers, Dependencies>>()
+    val `test-dependencies` = value<Map<Modifiers, Collection<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests")
@@ -42,11 +42,6 @@ class Module : Base() {
     val alias = nullableValue<Map<String, Set<Platform>>>()
 
     val apply = nullableValue<Collection<Path>>()
-}
-
-@Embedded
-class Repositories : SchemaNode() {
-    val repositories = value<Collection<Repository>>()
 }
 
 class Repository : SchemaNode() {
