@@ -12,6 +12,6 @@ class GracefulDegradationTest {
     @Test
     @Ignore
     // TODO Fill up more reporting before running this test.
-    fun `broken module settings`() = moduleParseTest("broken-module-settings")
+    fun `broken module settings`() = moduleConvertTest("broken-module-settings")
 
 }

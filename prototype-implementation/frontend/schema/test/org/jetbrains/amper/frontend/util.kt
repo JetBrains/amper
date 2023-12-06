@@ -8,19 +8,19 @@ import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.parser.parseModule
+import org.jetbrains.amper.frontend.schemaConverter.convertModule
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-fun moduleParseTest(
+fun moduleConvertTest(
     caseName: String,
     expectedErrors: List<String> = emptyList(),
 ) {
     val file = getTestDataResource("$caseName.yaml")
     val ctx = TestProblemReporterContext()
     with(ctx) {
-        val module = parseModule(file.toPath())
+        val module = convertModule(file.toPath())
         module
     }
     assertEquals(ctx.problemReporter.getErrors().map { it.message }, expectedErrors)

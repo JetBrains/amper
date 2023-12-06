@@ -7,28 +7,28 @@ package org.jetbrains.amper.frontend
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-class ParserTest {
+class ConverterTest {
 
     // TODO Check that there are all of settings withing that file.
     @Test
-    fun `all module settings are parsed without errors`() =
-        moduleParseTest("all-module-settings")
+    fun `all module settings are converted without errors`() =
+        moduleConvertTest("all-module-settings")
 
     @Test
     @Ignore
-    fun `all template settings are parsed without errors`() {
+    fun `all template settings are converted without errors`() {
         TODO()
     }
 
     @Test
     @Ignore
-    fun `all module settings are parsed correctly`() {
+    fun `all module settings are converted correctly`() {
         TODO()
     }
 
     @Test
     @Ignore
-    fun `all template settings are parsed correctly`() {
+    fun `all template settings are converted correctly`() {
         TODO()
     }
 

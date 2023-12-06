@@ -14,34 +14,34 @@ import kotlin.reflect.full.hasAnnotation
 /**
  * Marker for special treated fields.
  */
-sealed interface SchemaBuilderCustom
+sealed interface JsonSchemaBuilderCustom
 
 /**
  * Mark, that current property is "embedded" and should not be treated like self-sufficient
  * in terms of doc generating.
  */
-data object EmbeddedSchema : SchemaBuilderCustom
+data object EmbeddedJsonSchema : JsonSchemaBuilderCustom
 
 /**
  * The place where schema is actually built.
  */
-class SchemaBuilderCtx {
+class JsonSchemaBuilderCtx {
     val declaredDefs: MutableMap<String, MutableList<String>> = mutableMapOf()
 }
 
 /**
- * A visitor, that traverses the tree and put all schema info into [SchemaBuilderCtx].
+ * A visitor, that traverses the tree and put all schema info into [JsonSchemaBuilderCtx].
  */
-class SchemaBuilder(
+class JsonSchemaBuilder(
     private val currentRoot: KClass<*>,
-    private val ctx: SchemaBuilderCtx,
-) : RecurringVisitor<SchemaBuilderCustom>(detectCustom) {
+    private val ctx: JsonSchemaBuilderCtx,
+) : RecurringVisitor<JsonSchemaBuilderCustom>(detectCustom) {
     companion object {
-        private val detectCustom: (KProperty<*>) -> SchemaBuilderCustom? = { prop ->
-            if (prop.unwrapSchemaTypeOrNull?.hasAnnotation<Embedded>() == true) EmbeddedSchema else null
+        private val detectCustom: (KProperty<*>) -> JsonSchemaBuilderCustom? = { prop ->
+            if (prop.unwrapSchemaTypeOrNull?.hasAnnotation<Embedded>() == true) EmbeddedJsonSchema else null
         }
 
-        fun writeSchema(root: KClass<*>) = SchemaBuilder(root, SchemaBuilderCtx())
+        fun writeSchema(root: KClass<*>) = JsonSchemaBuilder(root, JsonSchemaBuilderCtx())
             .apply { visitClas(root) }
             .ctx.run {
                 buildString {
@@ -63,8 +63,8 @@ class SchemaBuilder(
     /**
      * Create new builder with a new root and perform operation.
      */
-    private fun withNewRoot(newRoot: KClass<*>, block: (SchemaBuilder) -> Unit) {
-        val builder = SchemaBuilder(newRoot, ctx)
+    private fun withNewRoot(newRoot: KClass<*>, block: (JsonSchemaBuilder) -> Unit) {
+        val builder = JsonSchemaBuilder(newRoot, ctx)
         block(builder)
     }
 
@@ -102,11 +102,11 @@ class SchemaBuilder(
     override fun visitCommon(prop: KProperty<*>, type: KType, default: Any?) =
         addProperty(prop) { buildForScalarBased(type) }
 
-    override fun visitCustom(prop: KProperty<*>, custom: SchemaBuilderCustom) {
+    override fun visitCustom(prop: KProperty<*>, custom: JsonSchemaBuilderCustom) {
         val schemaKClass = prop.unwrapSchemaTypeOrNull ?: return
         when (custom) {
             // Skip root switching, so entries will be added to current root.
-            is EmbeddedSchema -> visitSchema(schemaKClass, this, detectCustom)
+            is EmbeddedJsonSchema -> visitSchema(schemaKClass, this, detectCustom)
         }
     }
 

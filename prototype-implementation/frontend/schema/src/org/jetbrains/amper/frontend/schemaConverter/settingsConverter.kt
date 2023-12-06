@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.parser
+package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.*
@@ -11,28 +11,28 @@ import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
 
 context(ProblemReporterContext)
-internal fun MappingNode.parseSettings() = Settings().apply {
+internal fun MappingNode.convertSettings() = Settings().apply {
     // TODO Report wrong node types.
-    java(tryGetChildNode("java")?.asMappingNode()?.parseJavaSettings())
-    jvm(tryGetChildNode("jvm")?.asMappingNode()?.parseJvmSettings())
-    android(tryGetChildNode("android")?.asMappingNode()?.parseAndroidSettings())
-    kotlin(tryGetChildNode("kotlin")?.asMappingNode()?.parseKotlinSettings())
-    compose(tryGetChildNode("compose")?.parseComposeSettings())
+    java(tryGetChildNode("java")?.asMappingNode()?.convertJavaSettings())
+    jvm(tryGetChildNode("jvm")?.asMappingNode()?.convertJvmSettings())
+    android(tryGetChildNode("android")?.asMappingNode()?.convertAndroidSettings())
+    kotlin(tryGetChildNode("kotlin")?.asMappingNode()?.convertKotlinSettings())
+    compose(tryGetChildNode("compose")?.convertComposeSettings())
 }
 
 context(ProblemReporterContext)
-internal fun MappingNode.parseJavaSettings() = JavaSettings().apply {
+internal fun MappingNode.convertJavaSettings() = JavaSettings().apply {
     source(tryGetScalarNode("source"))
 }
 
 context(ProblemReporterContext)
-internal fun MappingNode.parseJvmSettings() = JvmSettings().apply {
+internal fun MappingNode.convertJvmSettings() = JvmSettings().apply {
     target(tryGetScalarNode("target"))
     mainClass(tryGetScalarNode("mainClass"))
 }
 
 context(ProblemReporterContext)
-internal fun MappingNode.parseAndroidSettings() = AndroidSettings().apply {
+internal fun MappingNode.convertAndroidSettings() = AndroidSettings().apply {
     compileSdk(tryGetScalarNode("compileSdk"))
     minSdk(tryGetScalarNode("minSdk"))
     maxSdk(tryGetScalarNode("maxSdk"))
@@ -42,7 +42,7 @@ internal fun MappingNode.parseAndroidSettings() = AndroidSettings().apply {
 }
 
 context(ProblemReporterContext)
-internal fun MappingNode.parseKotlinSettings() = KotlinSettings().apply {
+internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
     // TODO Report wrong types.
     languageVersion(tryGetScalarNode("languageVersion"))
     apiVersion(tryGetScalarNode("apiVersion"))
@@ -58,18 +58,18 @@ internal fun MappingNode.parseKotlinSettings() = KotlinSettings().apply {
     languageFeatures(tryGetScalarSequenceNode("languageFeatures")?.values())
     optIns(tryGetScalarSequenceNode("optIns")?.values())
 
-    serialization(tryGetChildNode("serialization")?.parseSerializationSettings())
+    serialization(tryGetChildNode("serialization")?.convertSerializationSettings())
 }
 
 context(ProblemReporterContext)
-internal fun Node.parseSerializationSettings() = when (this) {
+internal fun Node.convertSerializationSettings() = when (this) {
     is ScalarNode -> SerializationSettings().apply { engine(value) }
     is MappingNode -> SerializationSettings().apply { engine(tryGetScalarNode("engine")) }
     else -> null
 }
 
 context(ProblemReporterContext)
-internal fun Node.parseComposeSettings() = when (this) {
+internal fun Node.convertComposeSettings() = when (this) {
     // TODO Report wrong value.
     is ScalarNode -> ComposeSettings().apply { enabled(value == "enabled") }
     is MappingNode -> ComposeSettings().apply { enabled(tryGetScalarNode("enabled")?.value?.toBoolean()) }

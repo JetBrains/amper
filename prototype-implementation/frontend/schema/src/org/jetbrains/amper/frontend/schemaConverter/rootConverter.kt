@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.parser
+package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
@@ -17,60 +17,60 @@ import kotlin.io.path.Path
 import kotlin.io.path.reader
 
 context(ProblemReporterContext)
-fun parseModule(file: Path): Module {
+fun convertModule(file: Path): Module {
     val yaml = Yaml()
     val rootNode = yaml.compose(file.reader())
     // TODO Add reporting.
     if (rootNode !is MappingNode) return Module()
-    return rootNode.parseModule()
+    return rootNode.convertModule()
 }
 
 context(ProblemReporterContext)
-fun parseTemplate(file: Path): Template {
+fun convertTemplate(file: Path): Template {
     val yaml = Yaml()
     val rootNode = yaml.compose(file.reader())
     if (rootNode !is MappingNode) return Template()
-    return rootNode.parseBase(Template())
+    return rootNode.convertBase(Template())
 }
 
 context(ProblemReporterContext)
-private fun MappingNode.parseModule() = Module().apply {
-    product(tryGetMappingNode("product")?.parseProduct()) { /* TODO report */ }
+private fun MappingNode.convertModule() = Module().apply {
+    product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
     apply(tryGetScalarSequenceNode("apply")?.map { Path(it.value) /* TODO check path */ })
-    alias(tryGetMappingNode("alias")?.parseScalarKeyedMap {
+    alias(tryGetMappingNode("alias")?.convertScalarKeyedMap {
         // TODO Report non enum value.
-        asScalarSequenceNode()?.mapNotNull { it.parseEnum(Platform.entries) }?.toSet()
+        asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform.entries) }?.toSet()
     })
-    parseBase(this)
+    convertBase(this)
 }
 
 context(ProblemReporterContext)
-private fun <T : Base> MappingNode.parseBase(base: T) = base.apply {
-    repositories(tryGetMappingNode("repositories")?.parseRepositories())
-    dependencies(parseWithModifiers("dependencies") { parseDependencies() })
-    settings(parseWithModifiers("settings") { parseSettings() })
-    `test-dependencies`(parseWithModifiers("test-dependencies") { parseDependencies() })
-    `test-settings`(parseWithModifiers("test-settings") { parseSettings() })
+private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
+    repositories(tryGetMappingNode("repositories")?.convertRepositories())
+    dependencies(convertWithModifiers("dependencies") { convertDependencies() })
+    settings(convertWithModifiers("settings") { convertSettings() })
+    `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
+    `test-settings`(convertWithModifiers("test-settings") { convertSettings() })
 }
 
 context(ProblemReporterContext)
-private fun MappingNode.parseProduct() = ModuleProduct().apply {
-    type(tryGetScalarNode("type")?.parseEnum(ProductType.entries)) { /* TODO report */ }
+private fun MappingNode.convertProduct() = ModuleProduct().apply {
+    type(tryGetScalarNode("type")?.convertEnum(ProductType.entries)) { /* TODO report */ }
     platforms(tryGetScalarSequenceNode("platforms")
-        ?.mapNotNull { it.parseEnum(Platform.entries) /* TODO report */ }
+        ?.mapNotNull { it.convertEnum(Platform.entries) /* TODO report */ }
     )
 }
 
 context(ProblemReporterContext)
-private fun Node.parseRepositories(): Repositories? {
-    if (this@parseRepositories !is SequenceNode) return null
+private fun Node.convertRepositories(): Repositories? {
+    if (this@convertRepositories !is SequenceNode) return null
     // TODO Report wrong type.
-    val repos = value.mapNotNull { it.parseRepository() }
+    val repos = value.mapNotNull { it.convertRepository() }
     return Repositories().apply { repositories(repos) }
 }
 
 context(ProblemReporterContext)
-private fun Node.parseRepository() = when (this) {
+private fun Node.convertRepository() = when (this) {
     is ScalarNode -> Repository().apply {
         url(value)
         id(value)
@@ -98,13 +98,13 @@ private fun Node.parseRepository() = when (this) {
 }
 
 context(ProblemReporterContext)
-private fun Node.parseDependencies() = assertNodeType<SequenceNode, Dependencies>("dependencies") {
-    val dependencies = value.mapNotNull { it.parseDependency() }
+private fun Node.convertDependencies() = assertNodeType<SequenceNode, Dependencies>("dependencies") {
+    val dependencies = value.mapNotNull { it.convertDependency() }
     return Dependencies().apply { deps(dependencies) }
 }
 
 context(ProblemReporterContext)
-private fun Node.parseDependency(): Dependency? = when {
+private fun Node.convertDependency(): Dependency? = when {
     this is ScalarNode && value.startsWith(".") ->
         // TODO Report non existent path.
         value?.let { InternalDependency().apply { path(Path(it)) } }

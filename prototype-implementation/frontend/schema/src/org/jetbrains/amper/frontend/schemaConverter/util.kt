@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.parser
+package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.NullableSchemaValue
@@ -95,38 +95,38 @@ fun MappingNode.tryGetScalarSequenceNode(name: String, report: Boolean = true) =
 
 /**
  * Find all children of this node that are scalar and start with [prefix].
- * Then parse them, skipping null results.
+ * Then convert them, skipping null results.
  */
 context(ProblemReporterContext)
-fun <T> MappingNode.parseWithModifiers(
+fun <T> MappingNode.convertWithModifiers(
     prefix: String,
     report: Boolean = true,
-    parse: Node.() -> T?
+    convert: Node.() -> T?
 ) = value
     .filter { it.keyNode.asScalarNode()?.value?.startsWith(prefix) == true }
     .mapNotNull {
         val modifiers = it.keyNode.asScalarNode()!!.extractModifiers()
-        // Skip those, that we failed to parse.
-        val parsed = it.valueNode.parse() ?: return@mapNotNull null
-        modifiers to parsed
+        // Skip those, that we failed to convert.
+        val convertd = it.valueNode.convert() ?: return@mapNotNull null
+        modifiers to convertd
     }
     .toMap()
 
 /**
- * Parse content of this node, treating its keys as [ScalarNode]s,
+ * convert content of this node, treating its keys as [ScalarNode]s,
  * skipping resulting null values.
  */
 context(ProblemReporterContext)
-fun <T> MappingNode.parseScalarKeyedMap(
+fun <T> MappingNode.convertScalarKeyedMap(
     report: Boolean = true,
-    parse: Node.() -> T?
+    convert: Node.() -> T?
 ) = value.mapNotNull {
         // TODO Report non scalars.
         // Skip non scalar keys.
         val scalarKey = it.keyNode.asScalarNode()?.value ?: return@mapNotNull null
-        // Skip those, that we failed to parse.
-        val parsed = it.valueNode.parse() ?: return@mapNotNull null
-        scalarKey to parsed
+        // Skip those, that we failed to convert.
+        val convertd = it.valueNode.convert() ?: return@mapNotNull null
+        scalarKey to convertd
     }
     .toMap()
 
@@ -143,9 +143,9 @@ fun ScalarNode.extractModifiers(): Modifiers = value
 // TODO Add traces
 // TODO Handle non existent
 /**
- * Parse this scalar node as enum, reporting non-existent values.
+ * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>> ScalarNode.parseEnum(values: Collection<T>, report: Boolean = true) =
+fun <T : Enum<T>> ScalarNode.convertEnum(values: Collection<T>, report: Boolean = true) =
     values.firstOrNull { it.name.lowercase() == value }
 
 /**
