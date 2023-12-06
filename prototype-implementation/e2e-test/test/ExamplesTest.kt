@@ -128,4 +128,17 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun `coverage check task`() = test(
+        projectName = "coverage",
+        "build", "check",
+        expectOutputToHave = listOf(
+            "BUILD SUCCESSFUL",
+            "> Task :koverXmlReport",
+            "> Task :koverVerify",
+            "> Task :koverHtmlReport",
+            "/report/coverage-report/index.html\n"
+        )
+    )
 }
