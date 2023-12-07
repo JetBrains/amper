@@ -55,7 +55,7 @@ private fun inlineDependencyFormat(): Catalog.(YamlNode) -> Result<NotationWithF
                 else -> Triple(true, true, false)
             }
             notation.map {
-                NotationWithFlags(it, compile, runtime, exported, entry.first)
+                NotationWithFlags(notation = it, runtime = runtime, compile = compile, exported = exported, node = entry.first)
             }
         }
     }
@@ -80,7 +80,7 @@ private fun fullDependencyFormat(): Catalog.(YamlNode) -> Result<NotationWithFla
             }
             val exported = dependencySettings.getBooleanValue("exported") ?: false
             notation.map {
-                NotationWithFlags(it, compile, runtime, exported, entry.first)
+                NotationWithFlags(notation = it, runtime = runtime, compile = compile, exported = exported, node = entry.first)
             }
         }
     }
