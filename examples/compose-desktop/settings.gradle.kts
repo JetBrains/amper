@@ -3,10 +3,10 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
+        maven("https://packages.jetbrains.team/maven/p/amper/amper")
     }
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.2.0-dev-329")
+    id("org.jetbrains.amper.settings.plugin").version("0.2.0-dev-341")
 }

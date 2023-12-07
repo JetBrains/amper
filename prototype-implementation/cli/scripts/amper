@@ -134,7 +134,7 @@ fi
 
 ### AMPER
 amper_version=0.2.0-dev-294
-amper_url="https://packages.jetbrains.team/maven/p/deft/deft-prototype/org/jetbrains/amper/cli/cli/$amper_version/cli-$amper_version-dist.zip"
+amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$amper_version/cli-$amper_version-dist.zip"
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 
 from_sources=false

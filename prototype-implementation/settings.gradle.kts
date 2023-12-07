@@ -11,7 +11,7 @@ buildscript {
         mavenLocal()
 
         // For published version
-        maven("https://packages.jetbrains.team/maven/p/deft/deft-prototype")
+        maven("https://packages.jetbrains.team/maven/p/amper/amper")
 
         // Create local.properties.
         rootDir.resolve("local.properties").also {
@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.2.0-dev-329")
+        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.2.0-dev-341")
     }
 }
 
