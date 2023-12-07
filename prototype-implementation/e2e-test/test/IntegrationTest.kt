@@ -251,4 +251,11 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @Test
+    fun `library with all platforms`() = test(
+        projectName = "lib-with-all-platforms",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }

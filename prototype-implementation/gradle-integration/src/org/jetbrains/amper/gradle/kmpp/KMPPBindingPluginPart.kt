@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
+import org.jetbrains.kotlin.konan.target.Family
 import java.io.File
 import java.nio.file.Path
 
@@ -303,9 +304,11 @@ class KMPPBindingPluginPart(
     ) {
         if (!module.type.isLibrary() || fragment.isTest) return
 
-        target.binaries {
-            framework(part?.declaredFrameworkBasename ?: module.userReadableName) {
-                part?.frameworkParams?.get("isStatic")?.let { isStatic = it == "true" }
+        if (target.konanTarget.family == Family.IOS) {
+            target.binaries {
+                framework(part?.declaredFrameworkBasename ?: module.userReadableName) {
+                    part?.frameworkParams?.get("isStatic")?.let { isStatic = it == "true" }
+                }
             }
         }
     }
