@@ -9,9 +9,9 @@ import org.jetbrains.amper.frontend.api.*
 class Settings : SchemaNode() {
     val java = value(default = JavaSettings())
     val jvm = value(default = JvmSettings())
-    val android = value(default = AndroidSettings())
     val kotlin = value(default = KotlinSettings())
-    val compose = value(default = ComposeSettings())
+    val android = value(default = AndroidSettings())
+    val compose = nullableValue<ComposeSettings>()
 }
 
 class JavaSettings : SchemaNode() {
@@ -35,7 +35,8 @@ class AndroidSettings : SchemaNode() {
 }
 
 class KotlinSettings : SchemaNode() {
-    val serialization = value<SerializationSettings>()
+    val serialization = nullableValue<SerializationSettings>()
+
     // TODO Replace with enum
     val languageVersion = value<String>()
     // TODO Replace with enum

@@ -42,7 +42,8 @@ sealed class ValueBase<T> : Traceable() {
     var default: T? = null
 
     internal var myValue: T? = null
-    val orNull: T? get() = myValue
+
+    val withoutDefault: T? get() = myValue
 
     /**
      * Overwrite current value, if provided value is not null.

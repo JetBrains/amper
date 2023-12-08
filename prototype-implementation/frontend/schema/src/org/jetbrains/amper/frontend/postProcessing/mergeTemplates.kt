@@ -122,8 +122,8 @@ fun <MergeT, TargetT : MergeT> MergeT.mergeNode(
 fun <T, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
     // TODO Handle collection merge tuning here.
     val targetProp = target.prop()
-    val baseValue = base.prop().orNull
-    val overwriteValue = overwrite.prop().orNull
+    val baseValue = base.prop().withoutDefault
+    val overwriteValue = overwrite.prop().withoutDefault
     val result = baseValue?.toMutableList() ?: mutableListOf()
     result.addAll(overwriteValue ?: emptyList())
     targetProp(result)
@@ -134,8 +134,8 @@ fun <T, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
  */
 fun <T, V> MergeCtx<T>.mergeScalar(prop: T.() -> ValueBase<V>) {
     val targetProp = target.prop()
-    val baseValue = base.prop().orNull
-    val overwriteValue = overwrite.prop().orNull
+    val baseValue = base.prop().withoutDefault
+    val overwriteValue = overwrite.prop().withoutDefault
     targetProp(overwriteValue ?: baseValue)
 }
 
@@ -147,8 +147,8 @@ fun <T, V> MergeCtx<T>.mergeNodeProperty(
     doMerge: V.(V) -> V,
 ) = apply {
     val targetProp = target.prop()
-    val baseValue = base.prop().orNull
-    val overwriteValue = overwrite.prop().orNull
+    val baseValue = base.prop().withoutDefault
+    val overwriteValue = overwrite.prop().withoutDefault
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
         baseValue != null && overwriteValue == null -> targetProp(baseValue)
