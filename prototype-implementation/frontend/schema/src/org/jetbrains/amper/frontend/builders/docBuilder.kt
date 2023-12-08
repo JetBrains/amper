@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import java.io.Writer
 import kotlin.reflect.KClass
@@ -75,7 +76,7 @@ class DocBuilder private constructor(
         }
     } else Unit
 
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Any?) {
+    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) {
         addPropDesc(prop, type, default = default)
     }
 
@@ -107,7 +108,7 @@ class DocBuilder private constructor(
         prop: KProperty<*>,
         type: KType,
         subtypes: Collection<KClass<*>>? = null,
-        default: Any? = null,
+        default: Default<Any>? = null,
         isModifierAware: Boolean = false,
     ) {
         val desc = buildString {
@@ -127,7 +128,7 @@ class DocBuilder private constructor(
             else append(type.simpleView)
 
             // property[@<modifier>]: Type, default: value
-            if (default != null) append(", default: $default")
+            if (default != null) append(", default: ${default.asString}")
 
             // property[@<modifier>]: Type, default: value - some desc
             if (doc != null) append(" - ${doc.doc}")
@@ -146,4 +147,9 @@ class DocBuilder private constructor(
             if (arguments.isNotEmpty())
                 append("<${arguments.joinToString { it.type?.simpleView ?: "" }}>")
         }
+
+    private val Default<*>.asString get() = when(this) {
+        is Default.Static -> value?.toString()
+        is Default.Lambda -> desc
+    }
 }

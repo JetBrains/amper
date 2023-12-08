@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.*
 import java.nio.file.Path
 
@@ -38,7 +39,7 @@ class Module : Base() {
     val product = value<ModuleProduct>()
 
     @SchemaDoc("Defines the names for the custom code sharing groups")
-    val aliases = nullableValue<Map<String, Set<TraceableString>>>()
+    val aliases = nullableValue<Map<String, Set<Platform>>>()
 
     val apply = nullableValue<Collection<Path>>()
 }
@@ -47,7 +48,7 @@ class Repository : SchemaNode() {
     val url = value<String>()
     val id = nullableValue<String>()
     val credentials = nullableValue<Credentials>()
-    val publish = nullableValue(default = false)
+    val publish = nullableValue<Boolean>().default(false)
 
     class Credentials : SchemaNode() {
         val file = value<Path>()

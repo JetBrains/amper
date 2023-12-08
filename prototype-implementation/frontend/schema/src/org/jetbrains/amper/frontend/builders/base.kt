@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -35,7 +36,7 @@ interface SchemaVisitor {
     fun visitCommon(
         prop: KProperty<*>,
         type: KType,
-        default: Any?,
+        default: Default<Any>?,
     )
 
     /**
@@ -103,7 +104,7 @@ internal fun visitSchema(
                     else -> visitCommon(
                         it,
                         unwrappedType,
-                        defaultValue
+                        defaultValue as? Default<Any>,
                     )
                 }
             }

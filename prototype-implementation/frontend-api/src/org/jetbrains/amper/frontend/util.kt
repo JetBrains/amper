@@ -4,13 +4,11 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.core.AmperException
-import org.jetbrains.amper.core.Result
 import java.nio.file.Path
 import java.util.*
+import kotlin.collections.AbstractMap
 import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty0
 
 
@@ -81,30 +79,11 @@ fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: Str
 /**
  * Simple class to associate enum values by some string key.
  */
-abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
+class EnumMap<EnumT : Enum<EnumT>, KeyT>(
     values: () -> Array<EnumT>,
     private val key: EnumT.() -> KeyT,
-    private val klass: KClass<EnumT>,
-) {
-    private val enumMap: Map<KeyT, EnumT> = buildMap {
-        values().forEach { put(key(it), it) }
-    }
-
-    val keys by lazy { enumMap.keys }
-
-    // TODO REFACTOR Rename to "fromKey"
-    fun fromString(value: KeyT): EnumT? = enumMap[value]
-
-    // TODO REFACTOR Rename to "requireFromKey"
-    fun requireFromString(value: KeyT): EnumT = enumMap[value]
-        ?: error("No valid value of ${klass.simpleName} for key $value")
-
-    fun resultFromString(value: KeyT?): Result<EnumT?> =
-        if (value == null) Result.success(null)
-        else enumMap[value]?.let { Result.success(it) }
-                ?: Result.failure(AmperException("No valid value of ${klass.simpleName} for key $value"))
-
-    operator fun get(key: KeyT) = requireFromString(key)
+) : AbstractMap<KeyT, EnumT>() {
+    override val entries = values().associateBy { it.key() }.entries
 }
 
 fun Path.isModuleYaml() = name == "module.yaml"

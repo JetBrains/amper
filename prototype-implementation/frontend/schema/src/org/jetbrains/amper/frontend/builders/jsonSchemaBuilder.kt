@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
+import org.jetbrains.amper.frontend.api.Default
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -141,7 +142,7 @@ class JsonSchemaBuilder(
         super.visitTyped(prop, type, schemaNodeType, types, modifierAware)
     }
 
-    override fun visitCommon(prop: KProperty<*>, type: KType, default: Any?) =
+    override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) =
         addProperty(prop) { buildForScalarBased(type) }
 
     private fun buildForScalarBased(type: KType): String = when {

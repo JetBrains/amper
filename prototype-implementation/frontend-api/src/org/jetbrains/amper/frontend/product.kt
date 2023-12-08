@@ -11,12 +11,12 @@ enum class ProductType(
 ) {
     LIB(
         "lib",
-        supportedPlatforms = Platform.leafPlatforms(),
+        supportedPlatforms = Platform.leafPlatforms,
         defaultPlatforms = null
     ),
     LEGACY_APP(
         "app",
-        supportedPlatforms = Platform.leafPlatforms(),
+        supportedPlatforms = Platform.leafPlatforms,
         defaultPlatforms = setOf(Platform.JVM)
     ),
     JVM_APP(

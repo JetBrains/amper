@@ -7,10 +7,10 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.api.*
 
 class Settings : SchemaNode() {
-    val java = value(default = JavaSettings())
-    val jvm = value(default = JvmSettings())
-    val kotlin = value(default = KotlinSettings())
-    val android = value(default = AndroidSettings())
+    val java = value<JavaSettings>().default(JavaSettings())
+    val jvm = value<JvmSettings>().default(JvmSettings())
+    val kotlin = value<KotlinSettings>().default(KotlinSettings())
+    val android = value<AndroidSettings>().default(AndroidSettings())
     val compose = nullableValue<ComposeSettings>()
 }
 

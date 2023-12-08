@@ -14,12 +14,12 @@ enum class ProductType(
 ) : SchemaEnum {
     LIB(
         "lib",
-        supportedPlatforms = Platform.leafPlatforms(),
+        supportedPlatforms = Platform.leafPlatforms,
         defaultPlatforms = null
     ),
     LEGACY_APP(
         "app",
-        supportedPlatforms = Platform.leafPlatforms(),
+        supportedPlatforms = Platform.leafPlatforms,
         defaultPlatforms = setOf(Platform.JVM)
     ),
     JVM_APP(
@@ -53,5 +53,8 @@ enum class ProductType(
 
 class ModuleProduct  : SchemaNode() {
     val type = value<ProductType>()
-    val platforms = nullableValue<Collection<Platform>>()
+
+    // TODO Switch to bundle.
+    val platforms = value<Collection<Platform>>()
+        .default("Defaults to product type platforms") { type.value.defaultPlatforms }
 }

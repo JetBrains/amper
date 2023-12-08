@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.postProcessing
+package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.ValueBase
@@ -31,20 +31,7 @@ import java.nio.file.Path
  *    ```
  */
 
-context(ProblemReporterContext)
-fun Module.readTemplatesAndMerge(
-    reader: (Path) -> Template = { convertTemplate(it) }
-): Module {
-    val readTemplates = apply.value?.map(reader) ?: emptyList()
-    val toMerge = readTemplates + this
-    // We are sure that last instance is a Module, so we can cast.
-    return toMerge.reduce { first, second -> /* TODO: Maybe create new for each merge */first.merge(second, second) } as Module
-}
-
-fun <T : Base> Base.merge(
-    overwrite: Base,
-    target: T,
-): T = mergeNode(overwrite, target) {
+fun Base.merge(overwrite: Base, target: () -> Base): Base = mergeNode(overwrite, target) {
     mergeCollection(Base::repositories)
     mergeNodeProperty(Base::dependencies) { this + it }
     mergeNodeProperty(Base::`test-dependencies`) { this + it }
@@ -53,7 +40,7 @@ fun <T : Base> Base.merge(
     mergeNodeProperty(Base::`test-settings`) { mergeMap(it) { overwriteSettings -> merge(overwriteSettings) } }
 }
 
-fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, Settings()) {
+fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeNodeProperty(Settings::java, JavaSettings::merge)
     mergeNodeProperty(Settings::jvm, JvmSettings::merge)
     mergeNodeProperty(Settings::android, AndroidSettings::merge)
@@ -61,16 +48,16 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, Settings()) {
     mergeNodeProperty(Settings::compose, ComposeSettings::merge)
 }
 
-fun JavaSettings.merge(overwrite: JavaSettings) = mergeNode(overwrite, JavaSettings()) {
+fun JavaSettings.merge(overwrite: JavaSettings) = mergeNode(overwrite, ::JavaSettings) {
     mergeScalar(JavaSettings::source)
 }
 
-fun JvmSettings.merge(overwrite: JvmSettings) = mergeNode(overwrite, JvmSettings()) {
+fun JvmSettings.merge(overwrite: JvmSettings) = mergeNode(overwrite, ::JvmSettings) {
     mergeScalar(JvmSettings::target)
     mergeScalar(JvmSettings::mainClass)
 }
 
-fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, AndroidSettings()) {
+fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, ::AndroidSettings) {
     mergeScalar(AndroidSettings::compileSdk)
     mergeScalar(AndroidSettings::minSdk)
     mergeScalar(AndroidSettings::maxSdk)
@@ -79,7 +66,7 @@ fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, And
     mergeScalar(AndroidSettings::namespace)
 }
 
-fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, KotlinSettings()) {
+fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::KotlinSettings) {
     mergeScalar(KotlinSettings::languageVersion)
     mergeScalar(KotlinSettings::apiVersion)
     mergeScalar(KotlinSettings::allWarningsAsErrors)
@@ -96,30 +83,39 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, Kotli
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
 }
 
-fun ComposeSettings.merge(overwrite: ComposeSettings) = mergeNode(overwrite, ComposeSettings()) {
+fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {
     mergeScalar(ComposeSettings::enabled)
 }
 
-fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, SerializationSettings()) {
+fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {
     mergeScalar(SerializationSettings::engine)
 }
 
-data class MergeCtx<T>(
+data class MergeCtx<T : Any>(
     val target: T,
     val overwrite: T,
     val base: T,
 )
 
-fun <MergeT, TargetT : MergeT> MergeT.mergeNode(
-    overwrite: MergeT,
-    target: TargetT,
-    block: MergeCtx<MergeT>.() -> Unit
-): TargetT = MergeCtx(target, overwrite, this).apply(block).let { target }
+/**
+ * [target] - accepted as lambda to evade non-necessary invocation.
+ */
+fun <T> T.mergeNode(
+    overwrite: T,
+    target: () -> T & Any,
+    block: MergeCtx<T & Any>.() -> Unit
+): T  {
+    return if (overwrite != null && this != null) {
+        val builtTarget = target()
+        MergeCtx(builtTarget, overwrite, this).apply(block).let { builtTarget }
+    }
+    else overwrite ?: this
+}
 
 /**
  * Shortcut for merging collection property.
  */
-fun <T, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
+fun <T : Any, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
     // TODO Handle collection merge tuning here.
     val targetProp = target.prop()
     val baseValue = base.prop().withoutDefault
@@ -132,7 +128,7 @@ fun <T, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
 /**
  * Shortcut for merging scalar property.
  */
-fun <T, V> MergeCtx<T>.mergeScalar(prop: T.() -> ValueBase<V>) {
+fun <T : Any, V> MergeCtx<T>.mergeScalar(prop: T.() -> ValueBase<V>) {
     val targetProp = target.prop()
     val baseValue = base.prop().withoutDefault
     val overwriteValue = overwrite.prop().withoutDefault
@@ -142,9 +138,9 @@ fun <T, V> MergeCtx<T>.mergeScalar(prop: T.() -> ValueBase<V>) {
 /**
  * Shortcut for merging [ValueBase] property.
  */
-fun <T, V> MergeCtx<T>.mergeNodeProperty(
+fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
     prop: T.() -> ValueBase<V>,
-    doMerge: V.(V) -> V,
+    doMerge: (V & Any).(V & Any) -> V,
 ) = apply {
     val targetProp = target.prop()
     val baseValue = base.prop().withoutDefault

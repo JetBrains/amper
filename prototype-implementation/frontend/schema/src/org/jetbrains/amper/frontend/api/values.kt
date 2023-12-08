@@ -21,29 +21,38 @@ abstract class SchemaNode : Traceable() {
     /**
      * Register a value.
      */
-    fun <T : Any> value(
-        default: T? = null,
-        doc: String? = null
-    ) = SchemaValue<T>().apply { this.default = default }.also { allValues.add(it) }
+    fun <T : Any> value() = SchemaValue<T>().also { allValues.add(it) }
 
     /**
      * Register a nullable value.
      */
-    fun <T : Any> nullableValue(
-        default: T? = null,
-        doc: String? = null
-    ) = NullableSchemaValue<T>().apply { this.default = default }.also { allValues.add(it) }
+    fun <T : Any> nullableValue() = NullableSchemaValue<T>().also { allValues.add(it) }
+}
+
+sealed class Default<T> {
+    abstract val value: T?
+
+    data class Static<T>(override val value: T) : Default<T>()
+    data class Lambda<T>(val desc: String, private val getter: () -> T?) : Default<T>() {
+        override val value by lazy { getter() }
+    }
 }
 
 /**
  * Abstract value that can have a default value.
  */
 sealed class ValueBase<T> : Traceable() {
-    var default: T? = null
+    var default: Default<T>? = null
 
-    internal var myValue: T? = null
+    protected var myValue: T? = null
+
+    abstract val value: T
 
     val withoutDefault: T? get() = myValue
+
+    open fun default(value: T) = apply { default = Default.Static(value) }
+
+    open fun default(desc: String, getter: () -> T?) = apply { default = Default.Lambda(desc, getter) }
 
     /**
      * Overwrite current value, if provided value is not null.
@@ -57,8 +66,11 @@ sealed class ValueBase<T> : Traceable() {
  * Required (non-null) schema value.
  */
 class SchemaValue<T : Any> : ValueBase<T>() {
-    val value: T
-        get() = myValue ?: default ?: error("No value")
+    override val value: T
+        get() = myValue ?: default?.value ?: error("No value")
+
+    override fun default(value: T) = super.default(value) as SchemaValue<T>
+    override fun default(desc: String, getter: () -> T?) = super.default(desc, getter) as SchemaValue<T>
 
     /**
      * Overwrite current value, if provided value is not null.
@@ -72,6 +84,6 @@ class SchemaValue<T : Any> : ValueBase<T>() {
 /**
  * Optional (nullable) schema value.
  */
-class NullableSchemaValue<T : Any> : ValueBase<T>() {
-    val value: T? get() = myValue ?: default
+class NullableSchemaValue<T : Any> : ValueBase<T?>() {
+    override val value: T? get() = myValue ?: default?.value
 }

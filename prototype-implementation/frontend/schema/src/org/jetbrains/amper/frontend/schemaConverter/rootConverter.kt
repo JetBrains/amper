@@ -40,7 +40,7 @@ private fun MappingNode.convertModule() = Module().apply {
     apply(tryGetScalarSequenceNode("apply")?.mapNotNull { it.asAbsolutePath() /* TODO check path */ })
     aliases(tryGetMappingNode("alias")?.convertScalarKeyedMap {
         // TODO Report non enum value.
-        asScalarSequenceNode()?.map { TraceableString(it.value) }?.toSet()
+        asScalarSequenceNode()?.map { it.convertEnum(Platform.entries) }?.toSet()
     })
     convertBase(this)
 }

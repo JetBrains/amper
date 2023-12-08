@@ -149,8 +149,8 @@ fun ScalarNode.extractModifiers(): Modifiers = value
 /**
  * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>> ScalarNode.convertEnum(values: Collection<T>, report: Boolean = true) =
-    values.firstOrNull { it.name.lowercase() == value }
+fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(values: Collection<T>, report: Boolean = true) =
+    values.firstOrNull { it.name.lowercase() == this?.value } ?: error("No such enum value")
 
 /**
  * Try to set a value by scalar node, also providing trace.

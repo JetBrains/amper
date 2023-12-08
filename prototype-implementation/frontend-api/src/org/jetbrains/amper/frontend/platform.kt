@@ -52,12 +52,31 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     ANDROID_NATIVE_ARM32(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_ARM64(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_X64(ANDROID_NATIVE, isLeaf = true),
-    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),;
+    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true), ;
 
-    companion object {
-        fun leafPlatforms(): Set<Platform> {
-            return entries.filterTo(mutableSetOf()) { it.isLeaf }
+    companion object : EnumMap<Platform, String>(Platform::values, Platform::pretty, Platform::class) {
+        val leafPlatforms: Set<Platform> = entries.filterTo(mutableSetOf()) { it.isLeaf }
+
+        /**
+         * Parent-child relations throughout parent hierarchy for every leaf child.
+         * For example, MACOS/MACOS_X64 and APPLE/MACOS_X64 are both present.
+         * Excluding COMMON platform.
+         */
+        val naturalHierarchy: Map<Platform, Set<Platform>> = buildMap<Platform, MutableSet<Platform>> {
+            // Add parent-child relation for every parent in hierarchy.
+            fun add(parent: Platform?, child: Platform): Unit = if (parent != null && parent != COMMON) {
+                this[parent] = (this[parent] ?: mutableSetOf()).apply { add(child) }
+                add(parent.parent, child)
+            } else Unit
+            Platform.leafPlatforms.forEach { add(it.parent, it) }
         }
+
+        /**
+         * Get leaf children of this parent if it is not a parent, and list of self if it is.
+         */
+        val Platform.leafChildren get(): Set<Platform> =
+            if (isLeaf) setOf(this)
+            else naturalHierarchy[this]!! // here we must have some.
     }
 }
 
