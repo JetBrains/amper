@@ -9,9 +9,9 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
 sealed class Dependency : SchemaNode() {
-    val exported = value<Boolean>()
-    val `compile-only` = value<Boolean>()
-    val `runtime-only` = value<Boolean>()
+    val exported = value<Boolean>().default(false)
+    val `compile-only` = value<Boolean>().default(true)
+    val `runtime-only` = value<Boolean>().default(false)
 }
 
 @CustomSchemaDef(dependencySchema)

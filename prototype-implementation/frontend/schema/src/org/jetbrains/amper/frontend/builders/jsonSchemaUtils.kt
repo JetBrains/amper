@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.forEachEndAware
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -90,6 +91,3 @@ val KType.enumSchema
         }
         append("]")
     }
-
-fun <T> Collection<T>.forEachEndAware(block: (Boolean, T) -> Unit) =
-    forEachIndexed { index, it -> if (index == size - 1) block(true, it) else block(false, it) }

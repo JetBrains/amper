@@ -12,10 +12,5 @@ interface Artifact {
     val name: String
     val fragments: List<LeafFragment>
     val platforms: Set<Platform>
-    val isTest get() = this is TestArtifact
+    val isTest: Boolean
 }
-
-/**
- * Dependant test artifact.
- */
-interface TestArtifact : Artifact

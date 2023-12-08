@@ -79,7 +79,7 @@ fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: Str
 /**
  * Simple class to associate enum values by some string key.
  */
-class EnumMap<EnumT : Enum<EnumT>, KeyT>(
+abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
     values: () -> Array<EnumT>,
     private val key: EnumT.() -> KeyT,
 ) : AbstractMap<KeyT, EnumT>() {

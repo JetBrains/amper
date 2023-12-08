@@ -53,11 +53,5 @@ enum class ProductType(
         return value
     }
 
-    companion object {
-        fun findForValue(value: String): ProductType? {
-            return entries.find {
-                it.value == value
-            }
-        }
-    }
+    companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::name)
 }
