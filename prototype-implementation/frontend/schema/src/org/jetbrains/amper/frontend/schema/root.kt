@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.*
 import java.nio.file.Path
 
@@ -13,7 +12,7 @@ typealias Modifiers = Set<TraceableString>
 
 sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
-    val repositories = value<Collection<Repository>>()
+    val repositories = value<List<Repository>>()
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module")

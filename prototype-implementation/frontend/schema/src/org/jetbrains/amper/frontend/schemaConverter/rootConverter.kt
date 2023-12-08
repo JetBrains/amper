@@ -15,7 +15,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.reader
 
 context(ProblemReporterContext)
@@ -38,7 +37,7 @@ fun convertTemplate(file: Path): Template {
 context(ProblemReporterContext)
 private fun MappingNode.convertModule() = Module().apply {
     product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
-    apply(tryGetScalarSequenceNode("apply")?.map { Path(it.value) /* TODO check path */ })
+    apply(tryGetScalarSequenceNode("apply")?.mapNotNull { it.asAbsolutePath() /* TODO check path */ })
     aliases(tryGetMappingNode("alias")?.convertScalarKeyedMap {
         // TODO Report non enum value.
         asScalarSequenceNode()?.map { TraceableString(it.value) }?.toSet()
@@ -64,7 +63,7 @@ private fun MappingNode.convertProduct() = ModuleProduct().apply {
 }
 
 context(ProblemReporterContext)
-private fun Node.convertRepositories(): Collection<Repository>? {
+private fun Node.convertRepositories(): List<Repository>? {
     if (this@convertRepositories !is SequenceNode) return null
     // TODO Report wrong type.
     return value.mapNotNull { it.convertRepository() }
@@ -87,7 +86,7 @@ private fun Node.convertRepository() = when (this) {
             tryGetMappingNode("credentials")?.let {
                 Repository.Credentials().apply {
                     // TODO Report non existent path.
-                    file(tryGetScalarNode("file")?.value?.let { Path(it) }) { /* TODO report */ }
+                    file(tryGetScalarNode("file")?.asAbsolutePath()) { /* TODO report */ }
                     usernameKey(tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
                     passwordKey(tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
                 }
@@ -107,7 +106,7 @@ context(ProblemReporterContext)
 private fun Node.convertDependency(): Dependency? = when {
     this is ScalarNode && value.startsWith(".") ->
         // TODO Report non existent path.
-        value?.let { InternalDependency().apply { path(Path(it)) } }
+        value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
 
     this is ScalarNode ->
         value?.let { ExternalMavenDependency().apply { coordinates(it) } }
@@ -128,7 +127,7 @@ private fun NodeTuple.convertExternalMavenDep() = ExternalMavenDependency().appl
 
 context(ProblemReporterContext)
 private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDependency().apply {
-    path(Path(keyNode.asScalarNode(true)!!.value))
+    path(keyNode.asScalarNode(true)!!.asAbsolutePath())
     adjustScopes(this)
 }
 

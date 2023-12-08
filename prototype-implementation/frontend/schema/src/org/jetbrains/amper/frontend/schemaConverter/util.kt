@@ -10,6 +10,10 @@ import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.yaml.snakeyaml.nodes.*
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolute
+import kotlin.io.path.exists
 
 /**
  * Try to cast current node to [ScalarNode].
@@ -162,3 +166,16 @@ operator fun NullableSchemaValue<String>.invoke(node: ScalarNode?) = this(node?.
  * Map collection of scalar nodes to their string values.
  */
 fun Collection<ScalarNode>.values() = map { it.value }
+
+/**
+ * Try to convert string to absolute path, reporting if
+ * file is not-existing.
+ */
+// TODO Change from error to reporting.
+fun String.asAbsolutePath(): Path? =
+    Path(this).let { it.takeIf { it.exists() } ?: error("Non existing") }.absolute()
+
+/**
+ * Same as [String.asAbsolutePath], but accepts [ScalarNode].
+ */
+fun ScalarNode.asAbsolutePath(): Path? = value.asAbsolutePath()

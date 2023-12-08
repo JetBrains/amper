@@ -8,9 +8,47 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.*
 
 enum class ProductType(
-    vararg val defaultPlatforms: Platform
-) {
-    LIB(Platform.COMMON);
+    override val schemaValue: String,
+    val supportedPlatforms: Set<Platform>,
+    val defaultPlatforms: Set<Platform>?
+) : SchemaEnum {
+    LIB(
+        "lib",
+        supportedPlatforms = Platform.leafPlatforms(),
+        defaultPlatforms = null
+    ),
+    LEGACY_APP(
+        "app",
+        supportedPlatforms = Platform.leafPlatforms(),
+        defaultPlatforms = setOf(Platform.JVM)
+    ),
+    JVM_APP(
+        "jvm/app",
+        supportedPlatforms = setOf(Platform.JVM),
+        defaultPlatforms = setOf(Platform.JVM)
+    ),
+    ANDROID_APP(
+        "android/app",
+        supportedPlatforms = setOf(Platform.ANDROID),
+        defaultPlatforms = setOf(Platform.ANDROID)
+    ),
+    IOS_APP(
+        "ios/app",
+        supportedPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64),
+        defaultPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64)
+    ),
+    MACOS_APP(
+        "macos/app",
+        supportedPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64),
+        defaultPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64)
+    ),
+    LINUX_APP(
+        "linux/app",
+        supportedPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64),
+        defaultPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64)
+    );
+
+    override fun toString() = schemaValue
 }
 
 class ModuleProduct  : SchemaNode() {

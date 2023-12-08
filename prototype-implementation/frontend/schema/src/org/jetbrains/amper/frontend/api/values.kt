@@ -5,6 +5,14 @@
 package org.jetbrains.amper.frontend.api
 
 /**
+ * A class, that every enum, participating in
+ * schema building should inherit.
+ */
+interface SchemaEnum {
+    val schemaValue: String
+}
+
+/**
  * Class to collect all values registered within it.
  */
 abstract class SchemaNode : Traceable() {
@@ -32,21 +40,29 @@ abstract class SchemaNode : Traceable() {
  */
 sealed class ValueBase<T> : Traceable() {
     var default: T? = null
+
+    internal var myValue: T? = null
+    val orNull: T? get() = myValue
+
+    /**
+     * Overwrite current value, if provided value is not null.
+     */
+    operator fun invoke(newValue: T?) {
+        if (newValue != null) myValue = newValue
+    }
 }
 
 /**
  * Required (non-null) schema value.
  */
 class SchemaValue<T : Any> : ValueBase<T>() {
-    private var myValue: T? = null
-
     val value: T
         get() = myValue ?: default ?: error("No value")
 
-    operator fun invoke(newValue: T?) {
-        myValue = newValue
-    }
-
+    /**
+     * Overwrite current value, if provided value is not null.
+     * Invoke [onNull] if it is.
+     */
     operator fun invoke(newValue: T?, onNull: () -> Unit) {
         if (newValue == null) onNull() else myValue = newValue
     }
@@ -56,10 +72,5 @@ class SchemaValue<T : Any> : ValueBase<T>() {
  * Optional (nullable) schema value.
  */
 class NullableSchemaValue<T : Any> : ValueBase<T>() {
-    private var myValue: T? = null
-        get() = field ?: default
-
-    val value: T? get() = myValue
-
-    operator fun invoke(newValue: T?) { myValue = newValue }
+    val value: T? get() = myValue ?: default
 }
