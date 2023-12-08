@@ -2,10 +2,9 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.templates
+package org.jetbrains.amper.frontend.postProcessing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.Base
@@ -22,7 +21,7 @@ import java.nio.file.Path
 
 
 /**
- * 1. Overall convention is: Receiver is a base and parameter is an overwrite:
+ * 1. Overall convention for function signatures is: Receiver is a base and parameter is an overwrite:
  *    ```kotlin
  *      fun T.merge(overwrite: T): T
  *    ```
@@ -44,8 +43,8 @@ fun Module.readTemplatesAndMerge(
 }
 
 fun <T : Base> Base.merge(
-    target: T,
     overwrite: Base,
+    target: T,
 ): T = mergeNode(overwrite, target) {
     mergeCollection(Base::repositories)
     mergeNodeProperty(Base::dependencies) { this + it }
@@ -122,7 +121,7 @@ fun <MergeT, TargetT : MergeT> MergeT.mergeNode(
  * Shortcut for merging collection property.
  */
 fun <T, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
-    // TODO Handle merge tuning here.
+    // TODO Handle collection merge tuning here.
     val targetProp = target.prop()
     val baseValue = base.prop().orNull
     val overwriteValue = overwrite.prop().orNull
@@ -153,8 +152,9 @@ fun <T, V> MergeCtx<T>.mergeNodeProperty(
     val overwriteValue = overwrite.prop().orNull
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
-        baseValue != null && overwriteValue == null -> Unit
+        baseValue != null && overwriteValue == null -> targetProp(baseValue)
         baseValue == null && overwriteValue != null -> targetProp(overwriteValue)
+        else -> Unit
     }
 }
 
