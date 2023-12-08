@@ -30,7 +30,6 @@ import java.nio.file.Path
  *      T /* base */.(T /* overwrite */) -> T
  *    ```
  */
-val file_doc = Unit
 
 context(ProblemReporterContext)
 fun Module.readTemplatesAndMerge(
