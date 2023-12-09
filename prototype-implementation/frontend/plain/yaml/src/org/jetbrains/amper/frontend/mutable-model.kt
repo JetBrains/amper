@@ -454,6 +454,12 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
         }
 
         kover = KoverPartBuilder {
+            it.getStringValue("kover")?.let {
+                enabled = when(it) {
+                    "true" -> true
+                    else -> false
+                }
+            }
             it.getMappingValue("kover")?.let { koverSettings ->
                 enabled = koverSettings.getBooleanValue("enabled")
 
