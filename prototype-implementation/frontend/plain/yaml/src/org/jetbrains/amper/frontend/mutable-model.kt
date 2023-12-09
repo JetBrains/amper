@@ -55,9 +55,7 @@ internal data class FragmentBuilder(
     var jvm: JvmPartBuilder? = JvmPartBuilder {},
     var publishing: PublishingPartBuilder? = PublishingPartBuilder {},
     var compose: ComposePartBuilder? = ComposePartBuilder {},
-    var kover: KoverPartBuilder? = KoverPartBuilder {},
-    var koverHtml: KoverHtmlPartBuilder? = KoverHtmlPartBuilder {},
-    var koverXml: KoverXmlPartBuilder? = KoverXmlPartBuilder {}
+    var kover: KoverPartBuilder? = KoverPartBuilder {}
 ) {
 
     lateinit var src: Path
@@ -120,7 +118,6 @@ internal data class FragmentBuilder(
         if (alias != other.alias) return false
         if (kotlin != other.kotlin) return false
         if (kover != other.kover) return false
-        if(koverHtml != other.koverHtml) return false
         return junit == other.junit
     }
 
@@ -133,7 +130,6 @@ internal data class FragmentBuilder(
         result = 31 * result + (kotlin?.hashCode() ?: 0)
         result = 31 * result + (junit?.hashCode() ?: 0)
         result = 31 * result + (kover?.hashCode() ?: 0)
-        result = 31 * result + (koverHtml?.hashCode() ?: 0)
         return result
     }
 
@@ -460,22 +456,22 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
         kover = KoverPartBuilder {
             it.getMappingValue("kover")?.let { koverSettings ->
                 enabled = koverSettings.getBooleanValue("enabled")
-            }
-        }
 
-        koverHtml = KoverHtmlPartBuilder {
-            it.getMappingValue("kover")?.getMappingValue("html")?.let { koverHtmlSettings ->
-                title = koverHtmlSettings.getStringValue("title")
-                charset = koverHtmlSettings.getStringValue("charset")
-                onCheck = koverHtmlSettings.getBooleanValue("onCheck")
-                reportDir = koverHtmlSettings.getStringValue("reportDir")
-            }
-        }
+                koverSettings.getMappingValue("xml")?.let { koverXmlSettings ->
+                    val onCheck = koverXmlSettings.getBooleanValue("onCheck")
+                    val reportFile = koverXmlSettings.getStringValue("reportFile")
 
-        koverXml = KoverXmlPartBuilder {
-            it.getMappingValue("kover")?.getMappingValue("xml")?.let { koverXmlSettings ->
-                onCheck = koverXmlSettings.getBooleanValue("onCheck")
-                reportFile = koverXmlSettings.getStringValue("reportFile")
+                    xml = KoverXmlPart(onCheck, reportFile)
+                }
+
+                koverSettings.getMappingValue("html")?.let { koverHtmlSettings ->
+                    val title = koverHtmlSettings.getStringValue("title")
+                    val charset = koverHtmlSettings.getStringValue("charset")
+                    val onCheck = koverHtmlSettings.getBooleanValue("onCheck")
+                    val reportDir = koverHtmlSettings.getStringValue("reportDir")
+
+                    html = KoverHtmlPart(title, charset, onCheck, reportDir)
+                }
             }
         }
 

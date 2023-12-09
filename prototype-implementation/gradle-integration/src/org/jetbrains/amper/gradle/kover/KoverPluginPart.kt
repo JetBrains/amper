@@ -27,8 +27,9 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
     }
 
     fun applySettings() {
-        val htmlPart = module.leafFragments.map { it.parts.find<KoverHtmlPart>() }.firstOrNull()
-        val xmlPart = module.leafFragments.map { it.parts.find<KoverXmlPart>() }.firstOrNull()
+        val koverPart = module.leafFragments.map { it.parts.find<KoverPart>() }.firstOrNull()
+        val htmlPart = koverPart?.html
+        val xmlPart = koverPart?.xml
 
         koverRE.defaults {
             if(htmlPart != null) {
