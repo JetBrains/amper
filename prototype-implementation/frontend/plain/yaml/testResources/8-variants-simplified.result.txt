@@ -14,6 +14,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebug
     External dependencies:
     Src folder: src@debug
@@ -29,6 +30,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugTest
     External dependencies:
     Src folder: test@debug
@@ -45,6 +47,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosRelease
     External dependencies:
     Src folder: src@release
@@ -60,6 +63,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleaseTest
     External dependencies:
     Src folder: test@release
@@ -76,6 +80,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosTest
     External dependencies:
     Src folder: test
@@ -91,6 +96,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
   [IOS_ARM64]
