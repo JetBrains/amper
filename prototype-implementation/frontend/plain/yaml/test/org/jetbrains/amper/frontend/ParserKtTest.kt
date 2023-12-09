@@ -148,4 +148,18 @@ internal class ParserKtTest : AbstractTestWithBuildFile() {
             testParse("android-namespace-setting")
         }
     }
+
+    @Test
+    fun `coverage`() {
+        withBuildFile {
+            testParse("22-coverage")
+        }
+    }
+
+    @Test
+    fun `coverage short form`() {
+        withBuildFile {
+            testParse("23-coverage-short-form")
+        }
+    }
 }
