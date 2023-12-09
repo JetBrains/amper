@@ -15,6 +15,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
@@ -31,6 +32,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   ios
     External dependencies:
     Src folder: src@ios
@@ -46,6 +48,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosTest
     External dependencies:
     Src folder: test@ios
@@ -62,6 +65,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvm
     External dependencies:
     Src folder: src@jvm
@@ -77,6 +81,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmTest
     External dependencies:
     Src folder: test@jvm
@@ -93,6 +98,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
   [IOS_SIMULATOR_ARM64]

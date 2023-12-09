@@ -14,6 +14,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.10, compile=true, runtime=true, exported=false)
@@ -30,6 +31,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
   [JVM]

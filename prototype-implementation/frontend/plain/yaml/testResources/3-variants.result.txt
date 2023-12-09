@@ -15,6 +15,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebug
     External dependencies:
     Src folder: src@debug
@@ -30,6 +31,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebugFree
     External dependencies:
     Src folder: src@debug+free
@@ -46,6 +48,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebugFreeTest
     External dependencies:
     Src folder: test@debug+free
@@ -63,6 +66,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebugPaid
     External dependencies:
     Src folder: src@debug+paid
@@ -79,6 +83,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebugPaidTest
     External dependencies:
     Src folder: test@debug+paid
@@ -96,6 +101,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonDebugTest
     External dependencies:
     Src folder: test@debug
@@ -112,6 +118,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonFree
     External dependencies:
     Src folder: src@free
@@ -127,6 +134,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonFreeTest
     External dependencies:
     Src folder: test@free
@@ -143,6 +151,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonPaid
     External dependencies:
     Src folder: src@paid
@@ -158,6 +167,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonPaidTest
     External dependencies:
     Src folder: test@paid
@@ -174,6 +184,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonRelease
     External dependencies:
     Src folder: src@release
@@ -189,6 +200,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonReleaseFree
     External dependencies:
     Src folder: src@release+free
@@ -205,6 +217,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonReleaseFreeTest
     External dependencies:
     Src folder: test@release+free
@@ -222,6 +235,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonReleasePaid
     External dependencies:
     Src folder: src@release+paid
@@ -238,6 +252,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonReleasePaidTest
     External dependencies:
     Src folder: test@release+paid
@@ -255,6 +270,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonReleaseTest
     External dependencies:
     Src folder: test@release
@@ -271,6 +287,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   commonTest
     External dependencies:
     Src folder: test
@@ -286,6 +303,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   ios
     External dependencies:
     Src folder: src@ios
@@ -301,6 +319,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64
     External dependencies:
     Src folder: src@iosArm64
@@ -316,6 +335,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64Debug
     External dependencies:
     Src folder: src@iosArm64+debug
@@ -332,6 +352,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64DebugFree
     External dependencies:
     Src folder: src@iosArm64+debug+free
@@ -349,6 +370,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64DebugFreeTest
     External dependencies:
     Src folder: test@iosArm64+debug+free
@@ -367,6 +389,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64DebugPaid
     External dependencies:
     Src folder: src@iosArm64+debug+paid
@@ -384,6 +407,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64DebugPaidTest
     External dependencies:
     Src folder: test@iosArm64+debug+paid
@@ -402,6 +426,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64DebugTest
     External dependencies:
     Src folder: test@iosArm64+debug
@@ -419,6 +444,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64Free
     External dependencies:
     Src folder: src@iosArm64+free
@@ -435,6 +461,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64FreeTest
     External dependencies:
     Src folder: test@iosArm64+free
@@ -452,6 +479,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64Paid
     External dependencies:
     Src folder: src@iosArm64+paid
@@ -468,6 +496,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64PaidTest
     External dependencies:
     Src folder: test@iosArm64+paid
@@ -485,6 +514,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64Release
     External dependencies:
     Src folder: src@iosArm64+release
@@ -501,6 +531,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64ReleaseFree
     External dependencies:
     Src folder: src@iosArm64+release+free
@@ -518,6 +549,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64ReleaseFreeTest
     External dependencies:
     Src folder: test@iosArm64+release+free
@@ -536,6 +568,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64ReleasePaid
     External dependencies:
     Src folder: src@iosArm64+release+paid
@@ -553,6 +586,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64ReleasePaidTest
     External dependencies:
     Src folder: test@iosArm64+release+paid
@@ -571,6 +605,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64ReleaseTest
     External dependencies:
     Src folder: test@iosArm64+release
@@ -588,6 +623,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosArm64Test
     External dependencies:
     Src folder: test@iosArm64
@@ -604,6 +640,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebug
     External dependencies:
     Src folder: src@ios+debug
@@ -620,6 +657,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugFree
     External dependencies:
     Src folder: src@ios+debug+free
@@ -637,6 +675,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugFreeTest
     External dependencies:
     Src folder: test@ios+debug+free
@@ -655,6 +694,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugPaid
     External dependencies:
     Src folder: src@ios+debug+paid
@@ -672,6 +712,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugPaidTest
     External dependencies:
     Src folder: test@ios+debug+paid
@@ -690,6 +731,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosDebugTest
     External dependencies:
     Src folder: test@ios+debug
@@ -707,6 +749,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosFree
     External dependencies:
     Src folder: src@ios+free
@@ -723,6 +766,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosFreeTest
     External dependencies:
     Src folder: test@ios+free
@@ -740,6 +784,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosPaid
     External dependencies:
     Src folder: src@ios+paid
@@ -756,6 +801,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosPaidTest
     External dependencies:
     Src folder: test@ios+paid
@@ -773,6 +819,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosRelease
     External dependencies:
     Src folder: src@ios+release
@@ -789,6 +836,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleaseFree
     External dependencies:
     Src folder: src@ios+release+free
@@ -806,6 +854,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleaseFreeTest
     External dependencies:
     Src folder: test@ios+release+free
@@ -824,6 +873,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleasePaid
     External dependencies:
     Src folder: src@ios+release+paid
@@ -841,6 +891,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleasePaidTest
     External dependencies:
     Src folder: test@ios+release+paid
@@ -859,6 +910,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosReleaseTest
     External dependencies:
     Src folder: test@ios+release
@@ -876,6 +928,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64
     External dependencies:
     Src folder: src@iosSimulatorArm64
@@ -891,6 +944,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64Debug
     External dependencies:
     Src folder: src@iosSimulatorArm64+debug
@@ -907,6 +961,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64DebugFree
     External dependencies:
     Src folder: src@iosSimulatorArm64+debug+free
@@ -924,6 +979,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64DebugFreeTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+debug+free
@@ -942,6 +998,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64DebugPaid
     External dependencies:
     Src folder: src@iosSimulatorArm64+debug+paid
@@ -959,6 +1016,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64DebugPaidTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+debug+paid
@@ -977,6 +1035,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64DebugTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+debug
@@ -994,6 +1053,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64Free
     External dependencies:
     Src folder: src@iosSimulatorArm64+free
@@ -1010,6 +1070,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64FreeTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+free
@@ -1027,6 +1088,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64Paid
     External dependencies:
     Src folder: src@iosSimulatorArm64+paid
@@ -1043,6 +1105,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64PaidTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+paid
@@ -1060,6 +1123,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64Release
     External dependencies:
     Src folder: src@iosSimulatorArm64+release
@@ -1076,6 +1140,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64ReleaseFree
     External dependencies:
     Src folder: src@iosSimulatorArm64+release+free
@@ -1093,6 +1158,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64ReleaseFreeTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+release+free
@@ -1111,6 +1177,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64ReleasePaid
     External dependencies:
     Src folder: src@iosSimulatorArm64+release+paid
@@ -1128,6 +1195,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64ReleasePaidTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+release+paid
@@ -1146,6 +1214,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64ReleaseTest
     External dependencies:
     Src folder: test@iosSimulatorArm64+release
@@ -1163,6 +1232,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosSimulatorArm64Test
     External dependencies:
     Src folder: test@iosSimulatorArm64
@@ -1179,6 +1249,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosTest
     External dependencies:
     Src folder: test@ios
@@ -1195,6 +1266,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64
     External dependencies:
     Src folder: src@iosX64
@@ -1210,6 +1282,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64Debug
     External dependencies:
     Src folder: src@iosX64+debug
@@ -1226,6 +1299,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64DebugFree
     External dependencies:
     Src folder: src@iosX64+debug+free
@@ -1243,6 +1317,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64DebugFreeTest
     External dependencies:
     Src folder: test@iosX64+debug+free
@@ -1261,6 +1336,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64DebugPaid
     External dependencies:
     Src folder: src@iosX64+debug+paid
@@ -1278,6 +1354,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64DebugPaidTest
     External dependencies:
     Src folder: test@iosX64+debug+paid
@@ -1296,6 +1373,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64DebugTest
     External dependencies:
     Src folder: test@iosX64+debug
@@ -1313,6 +1391,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64Free
     External dependencies:
     Src folder: src@iosX64+free
@@ -1329,6 +1408,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64FreeTest
     External dependencies:
     Src folder: test@iosX64+free
@@ -1346,6 +1426,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64Paid
     External dependencies:
     Src folder: src@iosX64+paid
@@ -1362,6 +1443,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64PaidTest
     External dependencies:
     Src folder: test@iosX64+paid
@@ -1379,6 +1461,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64Release
     External dependencies:
     Src folder: src@iosX64+release
@@ -1395,6 +1478,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64ReleaseFree
     External dependencies:
     Src folder: src@iosX64+release+free
@@ -1412,6 +1496,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64ReleaseFreeTest
     External dependencies:
     Src folder: test@iosX64+release+free
@@ -1430,6 +1515,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64ReleasePaid
     External dependencies:
     Src folder: src@iosX64+release+paid
@@ -1447,6 +1533,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64ReleasePaidTest
     External dependencies:
     Src folder: test@iosX64+release+paid
@@ -1465,6 +1552,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64ReleaseTest
     External dependencies:
     Src folder: test@iosX64+release
@@ -1482,6 +1570,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   iosX64Test
     External dependencies:
     Src folder: test@iosX64
@@ -1498,6 +1587,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvm
     External dependencies:
     Src folder: src@jvm
@@ -1513,6 +1603,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebug
     External dependencies:
     Src folder: src@jvm+debug
@@ -1529,6 +1620,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebugFree
     External dependencies:
     Src folder: src@jvm+debug+free
@@ -1546,6 +1638,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebugFreeTest
     External dependencies:
     Src folder: test@jvm+debug+free
@@ -1564,6 +1657,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebugPaid
     External dependencies:
     Src folder: src@jvm+debug+paid
@@ -1581,6 +1675,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebugPaidTest
     External dependencies:
     Src folder: test@jvm+debug+paid
@@ -1599,6 +1694,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmDebugTest
     External dependencies:
     Src folder: test@jvm+debug
@@ -1616,6 +1712,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmFree
     External dependencies:
     Src folder: src@jvm+free
@@ -1632,6 +1729,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmFreeTest
     External dependencies:
     Src folder: test@jvm+free
@@ -1649,6 +1747,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmPaid
     External dependencies:
     Src folder: src@jvm+paid
@@ -1665,6 +1764,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmPaidTest
     External dependencies:
     Src folder: test@jvm+paid
@@ -1682,6 +1782,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmRelease
     External dependencies:
     Src folder: src@jvm+release
@@ -1698,6 +1799,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmReleaseFree
     External dependencies:
     Src folder: src@jvm+release+free
@@ -1715,6 +1817,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmReleaseFreeTest
     External dependencies:
     Src folder: test@jvm+release+free
@@ -1733,6 +1836,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmReleasePaid
     External dependencies:
     Src folder: src@jvm+release+paid
@@ -1750,6 +1854,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmReleasePaidTest
     External dependencies:
     Src folder: test@jvm+release+paid
@@ -1768,6 +1873,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmReleaseTest
     External dependencies:
     Src folder: test@jvm+release
@@ -1785,6 +1891,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
   jvmTest
     External dependencies:
     Src folder: test@jvm
@@ -1801,6 +1908,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
   [IOS_ARM64]
