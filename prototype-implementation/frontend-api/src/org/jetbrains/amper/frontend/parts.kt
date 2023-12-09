@@ -154,57 +154,30 @@ data class PublicationPart(
         PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
 }
 
-data class KoverPart(val enabled: Boolean?): FragmentPart<KoverPart> {
+data class KoverPart(val enabled: Boolean?,
+                     val html: KoverHtmlPart? = null,
+                     val xml: KoverXmlPart? = null
+): FragmentPart<KoverPart> {
     override fun propagate(parent: KoverPart): FragmentPart<*> {
-        return KoverPart(enabled = enabled ?: parent.enabled)
+        return KoverPart(
+            enabled = enabled ?: parent.enabled,
+            html = html ?: parent.html,
+            xml = xml ?: parent.xml
+        )
     }
 
     override fun default(module: PotatoModule): FragmentPart<*> {
-        return KoverPart(enabled = enabled)
+        return KoverPart(enabled = enabled, html = html, xml = xml)
     }
 }
 
 data class KoverHtmlPart(
     val title: String?, val charset: String?,
     val onCheck: Boolean?, val reportDir: String?
-): FragmentPart<KoverHtmlPart> {
-    override fun propagate(parent: KoverHtmlPart): FragmentPart<*> {
-        return KoverHtmlPart(
-            title = title ?: parent.title,
-            charset = charset ?: parent.charset,
-            onCheck = onCheck ?: parent.onCheck,
-            reportDir = reportDir ?: parent.reportDir
-        )
-    }
-
-    override fun default(module: PotatoModule): FragmentPart<*> {
-        return KoverHtmlPart(
-            title = title ?: module.userReadableName,
-            charset = charset,
-            onCheck = onCheck,
-            reportDir = reportDir
-        )
-    }
-}
+)
 
 
-data class KoverXmlPart(
-    val onCheck: Boolean?, val reportFile: String?
-): FragmentPart<KoverXmlPart> {
-    override fun propagate(parent: KoverXmlPart): FragmentPart<*> {
-        return KoverXmlPart(
-            onCheck = onCheck ?: parent.onCheck,
-            reportFile = reportFile ?: parent.reportFile
-        )
-    }
-
-    override fun default(module: PotatoModule): FragmentPart<*> {
-        return KoverXmlPart(
-            onCheck = onCheck,
-            reportFile = reportFile
-        )
-    }
-}
+data class KoverXmlPart(val onCheck: Boolean?, val reportFile: String?)
 
 data class ComposePart(val enabled: Boolean?) : FragmentPart<ComposePart> {
     override fun propagate(parent: ComposePart): FragmentPart<*> {
