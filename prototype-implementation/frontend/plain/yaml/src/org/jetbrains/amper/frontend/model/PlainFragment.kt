@@ -96,23 +96,7 @@ internal open class PlainFragment(
         }
 
         addPartFrom(fragmentBuilder.kover) {
-            KoverPart(enabled)
-        }
-
-        addPartFrom(fragmentBuilder.koverHtml) {
-            KoverHtmlPart(
-                title = title,
-                charset = charset,
-                onCheck = onCheck,
-                reportDir = reportDir
-            )
-        }
-
-        addPartFrom(fragmentBuilder.koverXml) {
-            KoverXmlPart(
-                onCheck = onCheck,
-                reportFile = reportFile
-            )
+            KoverPart(enabled, html, xml)
         }
     }
 
