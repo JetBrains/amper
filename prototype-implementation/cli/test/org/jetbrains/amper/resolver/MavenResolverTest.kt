@@ -24,7 +24,7 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(root))
 
         val result = resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"))
-        val relative = result.map { it.relativeTo(root).toString() }.sorted()
+        val relative = result.map { it.relativeTo(root).toString().replace('\\', '/') }.sorted()
         assertEquals(
             listOf(
                 ".m2.cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar",
@@ -44,7 +44,7 @@ class MavenResolverTest {
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
         val result = resolver.resolve(coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"))
-        val relative = result.map { it.relativeTo(tempDir.toPath()).toString() }.sorted()
+        val relative = result.map { it.relativeTo(tempDir.toPath()).toString().replace('\\', '/') }.sorted()
         assertEquals(
             listOf(".m2.cache/org/tinylog/tinylog-api/2.7.0-M1/tinylog-api-2.7.0-M1.jar"),
             relative,
