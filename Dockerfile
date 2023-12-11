@@ -1,9 +1,9 @@
 # Required to build deb package in e2e tests
 # To build:
-# $ docker build -t registry.jetbrains.team/p/deft/containers/android-sdk:latest .
+# $ docker build -t registry.jetbrains.team/p/amper/containers/android-sdk:latest .
 # To push to docker registry:
 # $ docker login registry.jetbrains.team -u <FirstName.LastName>
-# $ docker push registry.jetbrains.team/p/deft/containers/android-sdk:latest
+# $ docker push registry.jetbrains.team/p/amper/containers/android-sdk:latest
 
 FROM thyrlian/android-sdk
 
