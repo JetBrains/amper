@@ -20,6 +20,8 @@ object TestUtil {
         error("Unable to find Amper checkout root upwards from '$start'")
     }
 
+    val prototypeImplementationRoot = amperCheckoutRoot / "prototype-implementation"
+
     // Shared between different runs of testing
     // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
     // on TeamCity: shared place on build agent which will be fully deleted if TeamCity lacks space on that agent
