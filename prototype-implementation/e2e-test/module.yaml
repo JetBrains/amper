@@ -2,5 +2,9 @@ product:
   type: lib
   platforms: [ jvm ]
 
+dependencies:
+  - ../cli
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
+
 apply:
   - ../common.module-template.yaml
