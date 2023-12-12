@@ -53,12 +53,12 @@ class SchemaBasedModelImport : ModelInit {
 fun Map<Path, Module>.buildAom(): List<PotatoModule> {
     val modules = map { (mPath, module) ->
         val convertedType = ProductType[module.product.value.type.value.name]!!
-        Triple(mPath, module, DefaultModule(mPath.name, convertedType, PotatoModuleFileSource(mPath)))
+        Triple(mPath, module, DefaultModule(mPath.name, convertedType, PotatoModuleFileSource(mPath), module))
     }
 
     val module2Path = modules.associate { (path, _, module) -> path to module }
 
-    modules.forEach { (path, schemaModule, module) ->
+    modules.forEach { (_, schemaModule, module) ->
         val dependencies = schemaModule.dependencies.simplifyModifiers().entries
             .associate { (modifiers, unresolved) -> modifiers to unresolved.resolveInternalDependencies(module2Path) }
         val testDependencies = schemaModule.`test-dependencies`.simplifyModifiers().entries

@@ -10,14 +10,17 @@ import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mapStartAware
+import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.io.path.Path
 
 
 class DefaultLeafFragment(
-    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>
-) : DefaultFragment(seed, isTest, externalDependencies), LeafFragment {
+    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?,
+) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings), LeafFragment {
     init {
         assert(seed.rootPlatforms?.firstOrNull()?.isLeaf == true) { "Should be created only for leaf platforms!" }
     }
@@ -29,6 +32,7 @@ open class DefaultFragment(
     seed: FragmentSeed,
     override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
+    relevantSettings: Settings?,
 ) : Fragment {
 
     /**
@@ -61,7 +65,7 @@ open class DefaultFragment(
 
     override val variants = emptyList<String>()
 
-    override val parts = TODO()
+    override val parts = relevantSettings?.convertFragmentParts() ?: classBasedSet()
 
     override val isDefault = true
 
@@ -81,8 +85,19 @@ fun createFragments(
     )
 
     fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>) = when {
-        rootPlatforms?.singleOrNull()?.isLeaf == true -> DefaultLeafFragment(this, isTest, externalDependencies)
-        else -> DefaultFragment(this, isTest, externalDependencies)
+        rootPlatforms?.singleOrNull()?.isLeaf == true -> DefaultLeafFragment(
+            this,
+            isTest,
+            externalDependencies,
+            if (isTest) relevantTestSettings else relevantSettings
+        )
+
+        else -> DefaultFragment(
+            this,
+            isTest,
+            externalDependencies,
+            if (isTest) relevantTestSettings else relevantSettings
+        )
     }
 
     // Create fragments.

@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.classBasedSet
+import org.jetbrains.amper.frontend.schema.Module
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
@@ -19,10 +20,11 @@ class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: PotatoModuleSource,
+    schemaModule: Module,
 ) : PotatoModule {
     override var fragments = emptyList<DefaultFragment>()
     override var artifacts = emptyList<DefaultArtifact>()
-    override var parts = classBasedSet<ModulePart<*>>()
+    override var parts = schemaModule.convertModuleParts()
 }
 
 class DefaultArtifact(

@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.KoverPart
 import org.jetbrains.amper.frontend.KoverXmlPart
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MetaModulePart
-import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart

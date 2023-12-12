@@ -116,6 +116,7 @@ fun <T> MappingNode.convertWithModifiers(
         modifiers to converted
     }
     .toMap()
+    .toMutableMap()
 
 /**
  * convert content of this node, treating its keys as [ScalarNode]s,
@@ -137,11 +138,13 @@ fun <T> MappingNode.convertScalarKeyedMap(
 
 /**
  * Extract all modifiers that are present within this scalar node.
+ * Return empty set if no modifiers present.
  */
 // TODO Add traces
 fun ScalarNode.extractModifiers(): Modifiers = value
     .substringAfter("@", "")
     .split("+")
+    .filter { it.isNotBlank() }
     .map { TraceableString(it) }
     .toSet()
 

@@ -11,6 +11,7 @@ import java.nio.file.Path
 
 
 typealias Modifiers = Set<TraceableString>
+val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")

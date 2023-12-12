@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
@@ -48,10 +49,19 @@ private fun MappingNode.convertModuleViaSnake() = Module().apply {
 context(ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     repositories(tryGetMappingNode("repositories")?.convertRepositories())
+
     dependencies(convertWithModifiers("dependencies") { convertDependencies() })
     settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() })
     `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
-    `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() })
+
+    settings(convertWithModifiers("settings") { convertSettings() }.apply {
+        // Here we must add root settings to take defaults from them.
+        computeIfAbsent(noModifiers) { Settings() }
+    })
+    `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() }.apply {
+        // Here we must add root settings to take defaults from them.
+        computeIfAbsent(noModifiers) { Settings() }
+    })
 }
 
 context(ProblemReporterContext)

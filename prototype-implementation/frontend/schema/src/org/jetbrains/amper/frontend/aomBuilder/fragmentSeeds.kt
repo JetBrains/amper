@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.pretty
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Settings
 
 
 /**
@@ -17,6 +18,8 @@ import org.jetbrains.amper.frontend.schema.Module
  */
 data class FragmentSeed(
     val platforms: Set<Platform>,
+    val relevantSettings: Settings?,
+    val relevantTestSettings: Settings?,
     val aliases: Set<String>? = null,
     val rootPlatforms: Set<Platform>? = null,
     var dependency: FragmentSeed? = null,
@@ -43,6 +46,9 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         .flatMap { it.leafChildren }
         .toSet()
 
+    val simplifiedSettings = settings.simplifyModifiers()
+    val simplifiedTestSettings = `test-settings`.simplifyModifiers()
+
     // Collect all nodes from natural hierarchy that match collected platforms.
     val applicableNaturalHierarchy = Platform.naturalHierarchy.entries
         .filter { (_, v) -> combinedLeafPlatforms.containsAll(v) }
@@ -57,9 +63,11 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
                 areAliases.flatMap { usedAliases[it.value] ?: emptyList() }
         // TODO Report nonPlatforms
         return FragmentSeed(
+            usedPlatforms,
+            simplifiedSettings[asStringSet()],
+            simplifiedTestSettings[asStringSet()],
             aliases = areAliases.map { it.value }.toSet(),
             rootPlatforms = declaredPlatforms,
-            platforms = usedPlatforms,
         )
     }
 
@@ -71,13 +79,45 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
     // We will certainly create fragments for these.
     val modifiersSeeds = allUsedModifiers.map { it.convertToSeed() }
-    val productPlatformSeeds = productPlatforms.map { FragmentSeed(it.leafChildren, rootPlatforms = setOf(it)) }
+
+    val productPlatformSeeds = productPlatforms.map {
+        FragmentSeed(
+            it.leafChildren,
+            simplifiedSettings[setOf(it.pretty)],
+            simplifiedTestSettings[setOf(it.pretty)],
+            rootPlatforms = setOf(it),
+        )
+    }
+
     val aliasesSeeds = usedAliases.entries
-        .map { (key, value) -> FragmentSeed(value.flatMap { it.leafChildren }.toSet(), aliases = setOf(key)) }
+        .map { (key, value) ->
+            FragmentSeed(
+                value.flatMap { it.leafChildren }.toSet(),
+                simplifiedSettings[setOf(key)],
+                simplifiedTestSettings[setOf(key)],
+                aliases = setOf(key),
+            )
+        }
+
     val naturalHierarchySeeds = applicableNaturalHierarchy
-        .map { (parent, children) -> FragmentSeed(children, rootPlatforms = setOf(parent)) }
+        .map { (parent, children) ->
+            FragmentSeed(
+                children,
+                simplifiedSettings[setOf(parent.pretty)],
+                simplifiedTestSettings[setOf(parent.pretty)],
+                rootPlatforms = setOf(parent),
+            )
+        }
+
     val leafSeeds = combinedLeafPlatforms
-        .map { FragmentSeed(setOf(it), rootPlatforms = setOf(it)) }
+        .map {
+            FragmentSeed(
+                setOf(it),
+                simplifiedSettings[setOf(it.pretty)],
+                simplifiedTestSettings[setOf(it.pretty)],
+                rootPlatforms = setOf(it)
+            )
+        }
 
     val requiredSeeds = buildSet {
         addAll(modifiersSeeds)
@@ -86,7 +126,15 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         addAll(naturalHierarchySeeds)
         addAll(leafSeeds)
         // And add common fragment always. // TODO Check if we need common fragment always.
-        add(FragmentSeed(combinedLeafPlatforms, rootPlatforms = setOf(Platform.COMMON)))
+        add(
+            FragmentSeed(
+                combinedLeafPlatforms,
+                // TODO Replace from magic "" constant to convention constant in parser.
+                simplifiedSettings[setOf("")],
+                simplifiedTestSettings[setOf("")],
+                rootPlatforms = setOf(Platform.COMMON)
+            )
+        )
     }
 
     // Set up dependencies following platform hierarchy.
@@ -99,6 +147,3 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
     return requiredSeeds
 }
-
-// Convenient function to extract modifiers.
-private val ValueBase<out Map<Modifiers, *>>.modifiers get() = value.keys
