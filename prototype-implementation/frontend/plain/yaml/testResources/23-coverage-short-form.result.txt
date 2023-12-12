@@ -14,7 +14,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
-      KoverPart(enabled=false, html=null, xml=null)
+      KoverPart(enabled=true, html=null, xml=null)
   jvmTest
     External dependencies:
     Src folder: test
