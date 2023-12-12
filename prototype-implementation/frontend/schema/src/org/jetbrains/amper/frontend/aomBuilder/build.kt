@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
+import org.jetbrains.amper.frontend.resolve.resolved
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
@@ -43,7 +44,10 @@ class SchemaBasedModelImport : ModelInit {
         // Build AOM from ISM.
         val resultModules = path2SchemaModule.buildAom()
 
-        return DefaultModel(resultModules).asAmperSuccess()
+        // Propagate parts from fragment to fragment.
+        val resolvedParts = DefaultModel(resultModules).resolved
+
+        return resolvedParts.asAmperSuccess()
     }
 }
 
