@@ -172,8 +172,10 @@ data class KoverPart(val enabled: Boolean?,
 }
 
 data class KoverHtmlPart(
-    val title: String?, val charset: String?,
-    val onCheck: Boolean?, val reportDir: String?
+    val title: String?,
+    val charset: String?,
+    val onCheck: Boolean?,
+    val reportDir: String?
 )
 
 

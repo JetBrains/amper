@@ -7,11 +7,15 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.api.*
 
 class Settings : SchemaNode() {
-    val java = value<JavaSettings>().default(JavaSettings())
+    val java = nullableValue<JavaSettings>().default(JavaSettings())
     val jvm = value<JvmSettings>().default(JvmSettings())
     val kotlin = value<KotlinSettings>().default(KotlinSettings())
-    val android = value<AndroidSettings>().default(AndroidSettings())
+    val android = nullableValue<AndroidSettings>().default(AndroidSettings())
     val compose = nullableValue<ComposeSettings>()
+    val junit = nullableValue<String>() // TODO Replace with enum.
+    val ios = nullableValue<IosSettings>().default(IosSettings())
+    val publishing = nullableValue<PublishingSettings>()
+    val kover = nullableValue<KoverSettings>()
 }
 
 class JavaSettings : SchemaNode() {
@@ -60,4 +64,37 @@ class ComposeSettings : SchemaNode() {
 
 class SerializationSettings : SchemaNode() {
     val engine = value<String>()
+}
+
+class IosSettings : SchemaNode() {
+    val teamId = nullableValue<String>()
+    val framework = nullableValue<IosFrameworkSettings>().default(IosFrameworkSettings())
+}
+
+class IosFrameworkSettings : SchemaNode() {
+    val basename = nullableValue<String>()
+    val mappings = value<Map<String, String>>()
+}
+
+class PublishingSettings : SchemaNode() {
+    val group = nullableValue<String>()
+    val version = nullableValue<String>()
+}
+
+class KoverSettings : SchemaNode() {
+    val enabled = nullableValue<Boolean>().default(false)
+    val xml = nullableValue<KoverXmlSettings>()
+    val html = nullableValue<KoverHtmlSettings>()
+}
+
+class KoverXmlSettings : SchemaNode() {
+    val onCheck = nullableValue<Boolean>()
+    val reportFile = nullableValue<String>()
+}
+
+class KoverHtmlSettings : SchemaNode() {
+    val title = nullableValue<String>()
+    val charset = nullableValue<String>()
+    val onCheck = nullableValue<Boolean>()
+    val reportDir = nullableValue<String>()
 }

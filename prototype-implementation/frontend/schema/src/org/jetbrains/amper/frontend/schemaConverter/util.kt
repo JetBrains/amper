@@ -124,14 +124,14 @@ fun <T> MappingNode.convertWithModifiers(
 context(ProblemReporterContext)
 fun <T> MappingNode.convertScalarKeyedMap(
     report: Boolean = true,
-    convert: Node.() -> T?
+    convert: Node.(String) -> T?
 ) = value.mapNotNull {
         // TODO Report non scalars.
         // Skip non scalar keys.
         val scalarKey = it.keyNode.asScalarNode()?.value ?: return@mapNotNull null
         // Skip those, that we failed to convert.
-        val convertd = it.valueNode.convert() ?: return@mapNotNull null
-        scalarKey to convertd
+        val converted = it.valueNode?.convert(scalarKey) ?: return@mapNotNull null
+        scalarKey to converted
     }
     .toMap()
 

@@ -4,22 +4,48 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.asAmperSuccess
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schemaConverter.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
+
+class SchemaBasedModelImport : ModelInit {
+    override val name = "yaml-schema-based"
+
+    context(ProblemReporterContext)
+    override fun getModel(root: Path): Result<Model> {
+
+        // TODO Replace default reader by something other.
+        fun readAndPreprocess(moduleFile: Path): Module = convertModule(moduleFile)
+            .readTemplatesAndMerge()
+
+        // Find all module files, parse them and perform preprocessing (templates, TODO catalogs)
+        val path2SchemaModule = root.findAmperModuleFiles()
+            .associateWith { readAndPreprocess(it) }
+
+        // Build AOM from ISM.
+        val resultModules = path2SchemaModule.buildAom()
+
+        return DefaultModel(resultModules).asAmperSuccess()
+    }
+}
 
 /**
  * Build and resolve internal module dependencies.
@@ -58,7 +84,7 @@ private fun createArtifacts(
     isTest: Boolean,
     productType: ProductType,
     fragments: List<DefaultLeafFragment>
-): List<DefaultArtifact> = when(productType) {
+): List<DefaultArtifact> = when (productType) {
     ProductType.LIB -> listOf(DefaultArtifact(if (!isTest) "lib" else "testLib", fragments, isTest))
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
 }

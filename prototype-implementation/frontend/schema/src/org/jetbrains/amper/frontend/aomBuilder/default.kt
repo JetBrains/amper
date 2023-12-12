@@ -6,11 +6,14 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.classBasedSet
+
+data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
 class DefaultModule(
     override val userReadableName: String,

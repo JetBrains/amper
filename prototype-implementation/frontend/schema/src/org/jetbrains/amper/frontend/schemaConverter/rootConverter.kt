@@ -37,7 +37,7 @@ context(ProblemReporterContext)
 private fun MappingNode.convertModuleViaSnake() = Module().apply {
     product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
     apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
-    aliases(tryGetMappingNode("aliases")?.convertScalarKeyedMap {
+    aliases(tryGetMappingNode("aliases")?.convertScalarKeyedMap { _ ->
         // TODO Report non enum value.
         asScalarSequenceNode()?.map { it.convertEnum(Platform) }?.toSet()
     })

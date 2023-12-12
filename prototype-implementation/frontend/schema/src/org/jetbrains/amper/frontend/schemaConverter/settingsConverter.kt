@@ -18,6 +18,8 @@ internal fun MappingNode.convertSettings() = Settings().apply {
     android(tryGetChildNode("android")?.asMappingNode()?.convertAndroidSettings())
     kotlin(tryGetChildNode("kotlin")?.asMappingNode()?.convertKotlinSettings())
     compose(tryGetChildNode("compose")?.convertComposeSettings())
+    ios(tryGetMappingNode("ios")?.convertIosSettings())
+    publishing(tryGetMappingNode("publishing")?.convertPublishingSettings())
 }
 
 context(ProblemReporterContext)
@@ -74,4 +76,44 @@ internal fun Node.convertComposeSettings() = when (this) {
     is ScalarNode -> ComposeSettings().apply { enabled(value == "enabled") }
     is MappingNode -> ComposeSettings().apply { enabled(tryGetScalarNode("enabled")?.value?.toBoolean()) }
     else -> null
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertIosSettings() = IosSettings().apply {
+    teamId(tryGetScalarNode("teamId"))
+    framework(tryGetMappingNode("framework")?.convertIosFrameworkSettings())
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
+    basename(tryGetScalarNode("basename"))
+    // TODO Report wrong types/values.
+    mappings(convertScalarKeyedMap { key -> asScalarNode()?.value?.takeIf { key != "basename" } })
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertPublishingSettings() = PublishingSettings().apply {
+    group(tryGetScalarNode("group"))
+    version(tryGetScalarNode("version"))
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertKoverSettings() = KoverSettings().apply {
+    enabled(tryGetScalarNode("group")?.value?.toBoolean()) // TODO Check type
+    xml(tryGetMappingNode("xml")?.convertKoverXmlSettings())
+    html(tryGetMappingNode("html")?.convertKoverHtmlSettings())
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertKoverXmlSettings() = KoverXmlSettings().apply {
+    onCheck(tryGetScalarNode("onCheck")?.value?.toBoolean()) // TODO Check type
+    reportFile(tryGetScalarNode("reportFile"))
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.convertKoverHtmlSettings() = KoverHtmlSettings().apply {
+    onCheck(tryGetScalarNode("onCheck")?.value?.toBoolean()) // TODO Check type
+    title(tryGetScalarNode("title"))
+    charset(tryGetScalarNode("charset"))
+    reportDir(tryGetScalarNode("reportDir"))
 }
