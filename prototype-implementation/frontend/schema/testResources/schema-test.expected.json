@@ -65,6 +65,9 @@
             "type": "string"
           }
         },
+        "module": {
+          "$ref": "#/$defs/Meta"
+        },
         "product": {
           "$ref": "#/$defs/ModuleProduct"
         },
@@ -73,6 +76,14 @@
           "items": {
             "$ref": "#/$defs/Repository"
           }
+        }
+      }
+    },
+    "Meta": {
+      "type": "object",
+      "properties": {
+        "layout": {
+          "enum": ["GRADLE","GRADLE_JVM","AMPER"]
         }
       }
     },
@@ -208,14 +219,26 @@
         "compose": {
           "$ref": "#/$defs/ComposeSettings"
         },
+        "ios": {
+          "$ref": "#/$defs/IosSettings"
+        },
         "java": {
           "$ref": "#/$defs/JavaSettings"
+        },
+        "junit": {
+          "type": "string"
         },
         "jvm": {
           "$ref": "#/$defs/JvmSettings"
         },
         "kotlin": {
           "$ref": "#/$defs/KotlinSettings"
+        },
+        "kover": {
+          "$ref": "#/$defs/KoverSettings"
+        },
+        "publishing": {
+          "$ref": "#/$defs/PublishingSettings"
         }
       }
     },
@@ -247,6 +270,35 @@
       "properties": {
         "enabled": {
           "type": "boolean"
+        }
+      }
+    },
+    "IosSettings": {
+      "type": "object",
+      "properties": {
+        "framework": {
+          "$ref": "#/$defs/IosFrameworkSettings"
+        },
+        "teamId": {
+          "type": "string"
+        }
+      }
+    },
+    "IosFrameworkSettings": {
+      "type": "object",
+      "properties": {
+        "basename": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
@@ -326,6 +378,59 @@
       "type": "object",
       "properties": {
         "engine": {
+          "type": "string"
+        }
+      }
+    },
+    "KoverSettings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "html": {
+          "$ref": "#/$defs/KoverHtmlSettings"
+        },
+        "xml": {
+          "$ref": "#/$defs/KoverXmlSettings"
+        }
+      }
+    },
+    "KoverHtmlSettings": {
+      "type": "object",
+      "properties": {
+        "charset": {
+          "type": "string"
+        },
+        "onCheck": {
+          "type": "boolean"
+        },
+        "reportDir": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "KoverXmlSettings": {
+      "type": "object",
+      "properties": {
+        "onCheck": {
+          "type": "boolean"
+        },
+        "reportFile": {
+          "type": "string"
+        }
+      }
+    },
+    "PublishingSettings": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "version": {
           "type": "string"
         }
       }

@@ -2,12 +2,17 @@ Module
 ------
 	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
 	apply: Collection<Path>
+	module: Meta
 	product: ModuleProduct - Defines what should be produced out of the Module
 	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module
 	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies
 	settings[@modifier]: Settings - Configures the toolchains used in the build process
 	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module
 	test-settings[@modifier]: Settings - Controls building and running the Module tests
+
+Meta: Meta settings for current module
+--------------------------------------
+	layout: AmperLayout, default: AMPER
 
 ModuleProduct
 -------------
@@ -31,7 +36,7 @@ InternalDependency
 Repository
 ----------
 	credentials: Credentials
-	id: String
+	id: String, default: Defaults to url
 	publish: Boolean, default: false
 	url: String
 
@@ -45,9 +50,13 @@ Settings
 --------
 	android: AndroidSettings
 	compose: ComposeSettings
+	ios: IosSettings
 	java: JavaSettings
+	junit: String
 	jvm: JvmSettings
 	kotlin: KotlinSettings
+	kover: KoverSettings
+	publishing: PublishingSettings
 
 AndroidSettings
 ---------------
@@ -61,6 +70,16 @@ AndroidSettings
 ComposeSettings
 ---------------
 	enabled: Boolean
+
+IosSettings
+-----------
+	framework: IosFrameworkSettings
+	teamId: String
+
+IosFrameworkSettings
+--------------------
+	basename: String
+	mappings: Map<String, String>
 
 JavaSettings
 ------------
@@ -89,4 +108,27 @@ KotlinSettings
 SerializationSettings
 ---------------------
 	engine: String
+
+KoverSettings
+-------------
+	enabled: Boolean, default: false
+	html: KoverHtmlSettings
+	xml: KoverXmlSettings
+
+KoverHtmlSettings
+-----------------
+	charset: String
+	onCheck: Boolean
+	reportDir: String
+	title: String
+
+KoverXmlSettings
+----------------
+	onCheck: Boolean
+	reportFile: String
+
+PublishingSettings
+------------------
+	group: String
+	version: String
 
