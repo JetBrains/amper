@@ -46,7 +46,7 @@ class MockPotatoModule(
         builder: MockArtifact.() -> Unit = {}
     ): MockArtifact {
         check(platforms.all { it.isLeaf }) { "Cannot create an artifact with non leaf platform!" }
-        return MockArtifact(name, platforms, fragments.asList())
+        return MockArtifact(name, platforms, fragments.asList(), isTest = false)
             .apply(builder)
             .apply { artifacts.add(this) }
     }
@@ -100,4 +100,5 @@ class MockArtifact(
     override val name: String,
     override val platforms: Set<Platform>,
     override val fragments: List<LeafMockFragment>,
+    override val isTest: Boolean,
 ) : Artifact

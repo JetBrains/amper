@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -149,8 +150,8 @@ fun ScalarNode.extractModifiers(): Modifiers = value
 /**
  * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(values: Collection<T>, report: Boolean = true) =
-    values.firstOrNull { it.name.lowercase() == this?.value } ?: error("No such enum value")
+fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(enumIndex: EnumMap<T, String>, report: Boolean = true) =
+    this?.value?.let { enumIndex.getOrElse(it) { error("No such enum value: $it") } } ?: error("No node value")
 
 /**
  * Try to set a value by scalar node, also providing trace.
@@ -172,10 +173,10 @@ fun Collection<ScalarNode>.values() = map { it.value }
  * file is not-existing.
  */
 // TODO Change from error to reporting.
-fun String.asAbsolutePath(): Path? =
-    Path(this).let { it.takeIf { it.exists() } ?: error("Non existing") }.absolute()
+fun String.asAbsolutePath(): Path =
+    Path(this).let { it.takeIf { it.exists() } ?: error("Non existing path: $this") }.absolute()
 
 /**
  * Same as [String.asAbsolutePath], but accepts [ScalarNode].
  */
-fun ScalarNode.asAbsolutePath(): Path? = value.asAbsolutePath()
+fun ScalarNode.asAbsolutePath(): Path = value.asAbsolutePath()

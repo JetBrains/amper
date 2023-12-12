@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.*
 
@@ -49,6 +50,8 @@ enum class ProductType(
     );
 
     override fun toString() = schemaValue
+
+    companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::schemaValue)
 }
 
 class ModuleProduct  : SchemaNode() {

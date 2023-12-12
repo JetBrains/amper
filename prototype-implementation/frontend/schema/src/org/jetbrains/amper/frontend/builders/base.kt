@@ -132,7 +132,7 @@ val KProperty<*>.unwrapValueTypeArg: KType?
     get() {
         // TODO Handle non KClass classifier.
         val kClassClassifier = returnType.classifier as? KClass<*> ?: return null
-        return if (kClassClassifier.supertypes.map { it.classifier }.contains(ValueBase::class)) {
+        return if (kClassClassifier.isSubclassOf(ValueBase::class)) {
             // We have either [SchemaValue] or [NullableSchemaValue] wrapper.
             returnType.arguments.first().type
         } else {

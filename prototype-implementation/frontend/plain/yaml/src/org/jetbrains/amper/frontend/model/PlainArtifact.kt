@@ -8,7 +8,8 @@ import org.jetbrains.amper.frontend.*
 
 context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
 internal open class PlainArtifact(
-    private val artifactBuilder: ArtifactBuilder
+    private val artifactBuilder: ArtifactBuilder,
+    override val isTest: Boolean,
 ) : Artifact {
     override val name: String
         get() = artifactBuilder.name
@@ -17,8 +18,3 @@ internal open class PlainArtifact(
     override val platforms: Set<Platform>
         get() = artifactBuilder.platforms
 }
-
-
-context (Stateful<FragmentBuilder, org.jetbrains.amper.frontend.Fragment>, TypesafeVariants)
-internal class TestPlainArtifact(artifactBuilder: ArtifactBuilder) : PlainArtifact(artifactBuilder),
-    TestArtifact

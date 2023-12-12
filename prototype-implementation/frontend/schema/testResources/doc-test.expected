@@ -1,26 +1,32 @@
 Module
 ------
-	alias: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
+	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
 	apply: Collection<Path>
 	product: ModuleProduct - Defines what should be produced out of the Module
 	dependencies[@modifier]: Collection<Dependency> - The list of modules and libraries necessary to build the Module
-	repositories: Collection<Repository> - The list of repositories used to look up and download the Module dependencies
+	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies
 	settings[@modifier]: Settings - Configures the toolchains used in the build process
 	test-dependencies[@modifier]: Collection<Dependency> - The dependencies necessary to build and run tests of the Module
 	test-settings[@modifier]: Settings - Controls building and running the Module tests
 
 ModuleProduct
 -------------
-	platforms: Collection<Platform>
+	platforms: Collection<Platform>, default: Defaults to product type platforms
 	type: ProductType
 
 ExternalMavenDependency
 -----------------------
 	coordinates: String
+	compile-only: Boolean, default: true
+	exported: Boolean, default: false
+	runtime-only: Boolean, default: false
 
 InternalDependency
 ------------------
 	path: Path
+	compile-only: Boolean, default: true
+	exported: Boolean, default: false
+	runtime-only: Boolean, default: false
 
 Repository
 ----------

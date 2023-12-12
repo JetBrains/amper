@@ -21,9 +21,6 @@ data class FragmentSeed(
     val rootPlatforms: Set<Platform>? = null,
     var dependency: FragmentSeed? = null,
 ) {
-    constructor(platforms: Set<Platform>, rootPlatforms: Set<Platform>) : this(platforms, null, rootPlatforms)
-    constructor(platforms: Set<Platform>, aliases: Set<String>) : this(platforms, aliases, null)
-
     internal val modifiersAsStrings: Set<String> = buildList {
         addAll(aliases.orEmpty())
         addAll(rootPlatforms.orEmpty().map { it.pretty })
@@ -74,13 +71,13 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
     // We will certainly create fragments for these.
     val modifiersSeeds = allUsedModifiers.map { it.convertToSeed() }
-    val productPlatformSeeds = productPlatforms.map { FragmentSeed(it.leafChildren, setOf(it)) }
+    val productPlatformSeeds = productPlatforms.map { FragmentSeed(it.leafChildren, rootPlatforms = setOf(it)) }
     val aliasesSeeds = usedAliases.entries
-        .map { (key, value) -> FragmentSeed(value.flatMap { it.leafChildren }.toSet(), setOf(key)) }
+        .map { (key, value) -> FragmentSeed(value.flatMap { it.leafChildren }.toSet(), aliases = setOf(key)) }
     val naturalHierarchySeeds = applicableNaturalHierarchy
-        .map { (parent, children) -> FragmentSeed(children, setOf(parent)) }
+        .map { (parent, children) -> FragmentSeed(children, rootPlatforms = setOf(parent)) }
     val leafSeeds = combinedLeafPlatforms
-        .map { FragmentSeed(setOf(it), setOf(it)) }
+        .map { FragmentSeed(setOf(it), rootPlatforms = setOf(it)) }
 
     val requiredSeeds = buildSet {
         addAll(modifiersSeeds)
@@ -89,7 +86,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         addAll(naturalHierarchySeeds)
         addAll(leafSeeds)
         // And add common fragment always. // TODO Check if we need common fragment always.
-        add(FragmentSeed(combinedLeafPlatforms, setOf(Platform.COMMON)))
+        add(FragmentSeed(combinedLeafPlatforms, rootPlatforms = setOf(Platform.COMMON)))
     }
 
     // Set up dependencies following platform hierarchy.

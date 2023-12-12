@@ -23,7 +23,6 @@ enum class KotlinVersion(internal val version: String) {
     companion object Index : EnumMap<KotlinVersion, String>(
         KotlinVersion::values,
         KotlinVersion::version,
-        KotlinVersion::class
     )
 }
 
@@ -54,7 +53,6 @@ enum class KotlinSerialization(val format: String) {
     companion object Index : EnumMap<KotlinSerialization, String>(
         KotlinSerialization::values,
         KotlinSerialization::format,
-        KotlinSerialization::class
     )
 }
 

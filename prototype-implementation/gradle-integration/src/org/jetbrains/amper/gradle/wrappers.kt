@@ -64,8 +64,7 @@ class PotatoModuleWrapper(
 }
 
 fun Artifact.wrap(module: PotatoModuleWrapper) =
-    if (this is TestArtifact) TestArtifactWrapper(this, module)
-    else ArtifactWrapper(this, module)
+    ArtifactWrapper(this, module)
 
 interface PlatformAware {
     val platforms: Set<Platform>
@@ -77,11 +76,6 @@ open class ArtifactWrapper(
 ) : Artifact by artifact, PlatformAware {
     override val fragments = artifact.fragments.map { with(module) { it.wrappedLeaf } }
 }
-
-class TestArtifactWrapper(
-    artifact: TestArtifact,
-    module: PotatoModuleWrapper
-) : ArtifactWrapper(artifact, module), TestArtifact
 
 open class FragmentWrapper(
     private val module: PotatoModuleWrapper,

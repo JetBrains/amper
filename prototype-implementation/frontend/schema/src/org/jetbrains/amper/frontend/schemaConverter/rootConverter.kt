@@ -40,7 +40,7 @@ private fun MappingNode.convertModule() = Module().apply {
     apply(tryGetScalarSequenceNode("apply")?.mapNotNull { it.asAbsolutePath() /* TODO check path */ })
     aliases(tryGetMappingNode("alias")?.convertScalarKeyedMap {
         // TODO Report non enum value.
-        asScalarSequenceNode()?.map { it.convertEnum(Platform.entries) }?.toSet()
+        asScalarSequenceNode()?.map { it.convertEnum(Platform) }?.toSet()
     })
     convertBase(this)
 }
@@ -56,9 +56,9 @@ private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
 
 context(ProblemReporterContext)
 private fun MappingNode.convertProduct() = ModuleProduct().apply {
-    type(tryGetScalarNode("type")?.convertEnum(ProductType.entries)) { /* TODO report */ }
+    type(tryGetScalarNode("type")?.convertEnum(ProductType)) { /* TODO report */ }
     platforms(tryGetScalarSequenceNode("platforms")
-        ?.mapNotNull { it.convertEnum(Platform.entries) /* TODO report */ }
+        ?.mapNotNull { it.convertEnum(Platform) /* TODO report */ }
     )
 }
 

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
+import org.jetbrains.amper.frontend.forEachEndAware
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty

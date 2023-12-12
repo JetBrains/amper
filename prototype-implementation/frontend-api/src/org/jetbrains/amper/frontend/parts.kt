@@ -94,7 +94,7 @@ data class JvmPart(
 enum class JUnitVersion(val key: String) {
     JUNIT4("junit-4"), JUNIT5("junit-5"), NONE("none");
 
-    companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::key, JUnitVersion::class)
+    companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::key)
 }
 
 data class JUnitPart(

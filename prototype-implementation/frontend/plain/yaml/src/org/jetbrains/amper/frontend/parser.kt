@@ -47,7 +47,7 @@ fun parseModule(
         .toSet()
 
     aliasMap = emptyMap()
-    val naturalHierarchy = Platform.entries
+    val naturalHierarchy = Platform.values
         .filter { !it.isLeaf }
         .filter { it != Platform.COMMON }
         .associate { setOf(it).toCamelCaseString().first to it.leafChildren.toSet() }
@@ -208,7 +208,7 @@ internal fun parseProductAndPlatforms(config: YamlNode.Mapping): Result<Pair<Pro
                 FrontendYamlBundle.message(
                     "wrong.product.field.format",
                     productValue.nodeType,
-                    ProductType.entries,
+                    ProductType.values,
                 ),
                 node = productValue,
                 file = buildFile,
@@ -217,13 +217,13 @@ internal fun parseProductAndPlatforms(config: YamlNode.Mapping): Result<Pair<Pro
         }
     }
 
-    val actualType = ProductType.findForValue(productTypeNode.value)
+    val actualType = ProductType[productTypeNode.value]
     if (actualType == null) {
         problemReporter.reportNodeError(
             FrontendYamlBundle.message(
                 "wrong.product.type",
                 productTypeNode.value,
-                ProductType.entries,
+                ProductType.values,
             ),
             node = productTypeNode,
             file = buildFile,

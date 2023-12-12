@@ -53,7 +53,7 @@
               "^[^@+:]+$": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "enum": ["COMMON","JS","JVM","WASM","ANDROID","NATIVE","LINUX","LINUX_X64","LINUX_ARM64","APPLE","TVOS","TVOS_ARM64","TVOS_X64","TVOS_SIMULATOR_ARM64","MACOS","MACOS_X64","MACOS_ARM64","IOS","IOS_ARM64","IOS_SIMULATOR_ARM64","IOS_X64","WATCHOS","WATCHOS_ARM64","WATCHOS_ARM32","WATCHOS_DEVICE_ARM64","WATCHOS_SIMULATOR_ARM64","MINGW","MINGW_X64","ANDROID_NATIVE","ANDROID_NATIVE_ARM32","ANDROID_NATIVE_ARM64","ANDROID_NATIVE_X64","ANDROID_NATIVE_X86"]
                 }
               }
             }
@@ -86,7 +86,7 @@
           }
         },
         "type": {
-          "enum": ["LIB"]
+          "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
         }
       }
     },

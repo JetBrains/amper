@@ -53,5 +53,5 @@ enum class ProductType(
         return value
     }
 
-    companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::name)
+    companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }

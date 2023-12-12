@@ -52,10 +52,16 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     ANDROID_NATIVE_ARM32(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_ARM64(ANDROID_NATIVE, isLeaf = true),
     ANDROID_NATIVE_X64(ANDROID_NATIVE, isLeaf = true),
-    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true), ;
+    ANDROID_NATIVE_X86(ANDROID_NATIVE, isLeaf = true),;
 
-    companion object : EnumMap<Platform, String>(Platform::values, Platform::pretty, Platform::class) {
-        val leafPlatforms: Set<Platform> = entries.filterTo(mutableSetOf()) { it.isLeaf }
+    // TODO Copy pasted. Check why NoSuchMethodError arises when using outer method.
+    private val prettyRegex = "_.".toRegex()
+    private fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
+    private val Platform.pretty get() = name.doCamelCase()
+
+    companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {
+
+        val leafPlatforms: Set<Platform> = Platform.values.filterTo(mutableSetOf()) { it.isLeaf }
 
         /**
          * Parent-child relations throughout parent hierarchy for every leaf child.

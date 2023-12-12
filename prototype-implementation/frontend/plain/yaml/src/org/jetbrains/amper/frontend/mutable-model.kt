@@ -11,7 +11,6 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.model.PlainArtifact
 import org.jetbrains.amper.frontend.model.PlainFragment
 import org.jetbrains.amper.frontend.model.PlainLeafFragment
-import org.jetbrains.amper.frontend.model.TestPlainArtifact
 import org.jetbrains.amper.frontend.nodes.*
 import java.nio.file.Path
 import java.util.*
@@ -146,10 +145,8 @@ internal data class ArtifactBuilder(
 ) {
     context (Stateful<FragmentBuilder, Fragment>, TypesafeVariants)
     fun build(): Artifact {
-        if (variants.contains("test")) {
-            return TestPlainArtifact(this)
-        }
-        return PlainArtifact(this)
+        return if (variants.contains("test")) PlainArtifact(this, isTest = true)
+        else PlainArtifact(this, isTest = false)
     }
 }
 
@@ -380,10 +377,10 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
             it.getMappingValue("kotlin")?.let { kotlinSettings ->
                 // Special
                 kotlinSettings.getStringValue("languageVersion") {
-                    languageVersion = KotlinVersion.requireFromString(it)
+                    languageVersion = KotlinVersion[it]!!
                 }
                 kotlinSettings.getStringValue("apiVersion") {
-                    apiVersion = KotlinVersion.requireFromString(it)
+                    apiVersion = KotlinVersion[it]!!
                 }
 
                 // Boolean
@@ -416,7 +413,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                     when (kSerialization) {
                         is YamlNode.Mapping -> {
                             (kSerialization.getMapping("format")?.second as? YamlNode.Scalar)?.value?.let { v ->
-                                KotlinSerialization.fromString(v)?.let {
+                                KotlinSerialization[v]?.let {
                                     serialization = it
                                     it.changeDependencies(externalDependencies)
                                 }
@@ -426,7 +423,7 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
                         }
 
                         is YamlNode.Scalar -> {
-                            KotlinSerialization.fromString(kSerialization.value)?.let {
+                            KotlinSerialization[kSerialization.value]?.let {
                                 serialization = it
                                 it.changeDependencies(externalDependencies)
                             } ?: reportFormatError(FrontendYamlBundle.message("wrong.kotlin.serialization.format"))
@@ -439,8 +436,8 @@ internal fun List<FragmentBuilder>.handleSettings(config: YamlNode.Mapping): Res
         }
 
         junit = JunitPartBuilder {
-            val junitStringValue = it.getStringValue("junit")
-            jUnitVersion = JUnitVersion.Index.resultFromString(junitStringValue).getOrElse { _ ->
+            val junitStringValue = it.getStringValue("junit") ?: return@JunitPartBuilder
+            jUnitVersion = JUnitVersion.Index.getOrElse(junitStringValue) {
                 problemReporter.reportNodeError(
                     FrontendYamlBundle.message(
                         "wrong.enum.type",
