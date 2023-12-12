@@ -41,6 +41,7 @@ private fun MappingNode.convertModuleViaSnake() = Module().apply {
         // TODO Report non enum value.
         asScalarSequenceNode()?.map { it.convertEnum(Platform) }?.toSet()
     })
+    module(tryGetMappingNode("module")?.convertMeta())
     convertBase(this)
 }
 
@@ -59,6 +60,11 @@ private fun MappingNode.convertProduct() = ModuleProduct().apply {
     platforms(tryGetScalarSequenceNode("platforms")
         ?.mapNotNull { it.convertEnum(Platform) /* TODO report */ }
     )
+}
+
+context(ProblemReporterContext)
+private fun MappingNode.convertMeta() = Meta().apply {
+    layout(tryGetScalarNode("layout")?.convertEnum(AmperLayout))
 }
 
 context(ProblemReporterContext)

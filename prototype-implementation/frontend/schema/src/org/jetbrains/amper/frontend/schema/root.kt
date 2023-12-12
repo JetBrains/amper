@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.*
 import java.nio.file.Path
@@ -42,17 +43,34 @@ class Module : Base() {
     val aliases = nullableValue<Map<String, Set<Platform>>>()
 
     val apply = nullableValue<Collection<Path>>()
+
+    val module = value<Meta>().default(Meta())
 }
 
 class Repository : SchemaNode() {
     val url = value<String>()
-    val id = nullableValue<String>()
+    val id = value<String>().default("Defaults to url") { url.value }
     val credentials = nullableValue<Credentials>()
-    val publish = nullableValue<Boolean>().default(false)
+    val publish = value<Boolean>().default(false)
 
     class Credentials : SchemaNode() {
         val file = value<Path>()
         val usernameKey = value<String>()
         val passwordKey = value<String>()
     }
+}
+
+enum class AmperLayout(
+    override val schemaValue: String
+) : SchemaEnum {
+    GRADLE("gradle-kmp"),
+    GRADLE_JVM("gradle-jvm"),
+    AMPER("default"),;
+
+    companion object : EnumMap<AmperLayout, String>(AmperLayout::values, AmperLayout::schemaValue)
+}
+
+@SchemaDoc("Meta settings for current module")
+class Meta : SchemaNode() {
+    val layout = value<AmperLayout>().default(AmperLayout.AMPER)
 }
