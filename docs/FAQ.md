@@ -22,7 +22,7 @@ We plan to expand the list of supported use cases based on demand. Please submit
 Extensibility is not currently implemented, but we are exploring it. Meanwhile, you can use the Gradle backend to write tasks and use any available Gradle plugin. See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
 ### Will Amper be open source?
-Yes, we'll be open-sourcing the code at a later date.
+Yes, Amper is already open source.
 
 ### When will Amper be released as stable?
 Right now, we’re focusing on getting feedback and understanding your needs. Based on that, we’ll be able to provide a more accurate estimate of a release date sometime in the future.
