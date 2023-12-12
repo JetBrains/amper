@@ -145,17 +145,17 @@ private fun Node.convertDependency(): Dependency? {
 context(ProblemReporterContext)
 private fun NodeTuple.convertExternalMavenDep() = ExternalMavenDependency().apply {
     coordinates(keyNode.asScalarNode(true)!!.value)
-    adjustScopes(this)
+    convertScopes(this)
 }
 
 context(ProblemReporterContext)
 private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDependency().apply {
     path(keyNode.asScalarNode(true)!!.asAbsolutePath())
-    adjustScopes(this)
+    convertScopes(this)
 }
 
 context(ProblemReporterContext)
-private fun NodeTuple.adjustScopes(dep: Dependency) = with(dep) {
+private fun NodeTuple.convertScopes(dep: Dependency) = with(dep) {
     val valueNode = valueNode
     when {
         valueNode is ScalarNode && valueNode.value == "compile-only" -> `compile-only`(true)
