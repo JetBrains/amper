@@ -39,17 +39,20 @@ Planned features:
 * Workspaces (organizing multiple modules together).
 * Support more Kotlin and Kotlin Multiplatform scenarios and configurations out-of-the-box.
 
-
-Check the [FAQ for more question](docs/FAQ.md) and the list of [known issues](docs/KnownIssues.md).
-
-Join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, submit your ideas in the [tracker](https://youtrack.jetbrains.com/issues/AMPER) and share your feedback [here](https://surveys.jetbrains.com/s3/Amper-feedback-form).     
-
 For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
 * [Example projects](examples)
 * Gradle [migration guide](docs/GradleMigration.md)  
+
+## Issues and feedback
+
+Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking, [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
+
+Before reporting an issue, please check the [FAQ](docs/FAQ.md) and the [list of known issues](docs/KnownIssues.md).
+
+You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).     
 
 ## How to Try
 There are multiple ways to try Amper:
