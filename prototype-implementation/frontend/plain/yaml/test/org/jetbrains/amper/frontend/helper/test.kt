@@ -29,12 +29,6 @@ import kotlin.test.asserter
 import kotlin.test.fail
 
 
-/**
- * Use this flag to replace expected result fast and compare them using VCS.
- */
-@Deprecated("This deprecation is set just to be sure this flag will be used carefully")
-private const val fastReplaceExpected_USE_CAREFULLY = false
-
 context (BuildFileAware)
 internal fun testParse(
     resourceName: String,
@@ -107,26 +101,14 @@ internal fun doTestParse(
     val potDir = resourceFile.absoluteFile.normalize().parent.toString()
     val testProcessDir = File(".").absoluteFile.normalize().toString()
 
-    if (!fastReplaceExpected_USE_CAREFULLY) {
-        // This is actual check.
-        val resourceFileText = resourceFile.readText()
-        val expected = resourceFileText
-            .replace("{{ userReadableName }}", userReadableName)
-            .replace("{{ buildDir }}", buildDir)
-            .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
-            .replace("{{ testProcessDir }}", testProcessDir)
-            .replace("{{ fileSeparator }}", File.separator)
-        assertEqualsIgnoreLineSeparator(expected, actual)
-    } else {
-        // This is fast replace mode.
-        val toReplace = actual
-            .replace(userReadableName, "{{ userReadableName }}")
-            .replace(buildDir, "{{ buildDir }}")
-            .replace(potDir, "{{ potDir }}")
-            .replace(testProcessDir, "{{ testProcessDir }}")
-            .replace("{{ fileSeparator }}", File.separator)
-        resourceFile.writeText(toReplace)
-    }
+    val resourceFileText = resourceFile.readText()
+    val expected = resourceFileText
+        .replace("{{ userReadableName }}", userReadableName)
+        .replace("{{ buildDir }}", buildDir)
+        .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
+        .replace("{{ testProcessDir }}", testProcessDir)
+        .replace("{{ fileSeparator }}", File.separator)
+    assertEqualsIgnoreLineSeparator(expected, actual)
 }
 
 private class TestProblemReporter : CollectingProblemReporter() {
