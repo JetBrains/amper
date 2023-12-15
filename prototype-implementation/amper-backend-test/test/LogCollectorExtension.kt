@@ -9,6 +9,12 @@ class LogCollectorExtension : BeforeEachCallback, AfterEachCallback {
     val entries: List<LogEntry>
         get() = synchronized(collected) { collected.toList() }
 
+    fun reset() {
+        synchronized(collected) {
+            collected.clear()
+        }
+    }
+
     private val logListener = object : TestInterceptorWriter.Listener {
         override fun onLogEntry(logEntry: LogEntry): Unit = synchronized(collected) {
             collected.add(logEntry)

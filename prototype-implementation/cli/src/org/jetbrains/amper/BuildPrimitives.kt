@@ -18,7 +18,7 @@ import java.util.concurrent.Callable
  * a comprehensive support in a build system to make it observable
  */
 object BuildPrimitives {
-    class ProcessResult(val exitCode: Int, val stdout: StringBuilder, val stderr: StringBuilder)
+    class ProcessResult(val exitCode: Int, val stdout: String, val stderr: String)
     suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult {
         // make it all cancellable and running in a different context
         @Suppress("BlockingMethodInNonBlockingContext")
@@ -27,7 +27,9 @@ object BuildPrimitives {
             .directory(workingDir.toFile())
             .start()
 
+        // we are not interested whether this operation fails or timeouts
         Futures.submit({ try {
+            @Suppress("BlockingMethodInNonBlockingContext")
             process.outputStream.close()
         } catch (t: Throwable) {
             logger.warn("Unable to close process stdin: ${t.message}", t)
@@ -42,8 +44,8 @@ object BuildPrimitives {
         //  cancellation should be covered by tests, it's almost impossible to get it right from the first time
         val rc = runInterruptible { process.waitFor() }
 
-        val stdout = runInterruptible { stdoutJob.get() }
-        val stderr = runInterruptible { stderrJob.get() }
+        val stdout = runInterruptible { stdoutJob.get() }.toString()
+        val stderr = runInterruptible { stderrJob.get() }.toString()
 
         val result = ProcessResult(exitCode = rc, stdout = stdout, stderr = stderr)
         return result

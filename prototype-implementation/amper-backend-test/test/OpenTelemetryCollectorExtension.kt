@@ -17,6 +17,12 @@ class OpenTelemetryCollectorExtension: BeforeEachCallback, AfterEachCallback {
     val spans: List<SpanData>
         get() = synchronized(collected) { collected.toList() }
 
+    fun reset() {
+        synchronized(collected) {
+            collected.clear()
+        }
+    }
+
     override fun beforeEach(context: ExtensionContext?) {
         val tracerProvider = SdkTracerProvider.builder()
             .addSpanProcessor(object : SpanProcessor {

@@ -31,4 +31,18 @@ class OpenTelemetryCollectorExtensionTest {
 
         assertEquals(span1.spanId, span2.parentSpanId)
     }
+
+    @Test
+    fun reset() {
+        runBlocking {
+            spanBuilder("span1").setAttribute("key1", "value1").useWithScope {
+                spanBuilder("span2").setAttribute("key2", "value2").useWithScope {
+                    it.addEvent("x")
+                }
+            }
+        }
+        assertEquals(2, openTelemetryCollector.spans.size)
+        openTelemetryCollector.reset()
+        assertEquals(0, openTelemetryCollector.spans.size)
+    }
 }

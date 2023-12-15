@@ -34,6 +34,17 @@ class LogCollectorExtensionTest {
         assertEntry(Level.ERROR, "jul entry")
     }
 
+    @Test
+    fun reset() {
+        Logger.warn("tinylog entry1" as Any)
+        Logger.warn("tinylog entry2" as Any)
+        assertEquals(2, log.entries.size)
+        log.reset()
+
+        Logger.warn("tinylog entry3" as Any)
+        assertEntry(Level.WARN, "tinylog entry3")
+    }
+
     private fun assertEntry(level: Level, message: String) {
         val entry = log.entries.single()
         assertEquals(level, entry.level)
