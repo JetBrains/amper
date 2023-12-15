@@ -1,8 +1,6 @@
 @file:OptIn(ExperimentalPathApi::class)
 
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -15,17 +13,16 @@ import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalPathApi::class)
 class CliIntegrationTest {
     @Test
     @Ignore("not ready yet")
+    @UnixOnly
     fun compileHelloWorldProject(@TempDir tempDir: Path) {
-        Assumptions.assumeTrue(OS.current() != OS.WINDOWS, "Not ready for Windows yet, TODO")
-        val moduleRoot = Path.of(System.getProperty("user.dir"))
-
-        val cli = moduleRoot.resolve("../cli/scripts/amper")
+        val cli = TestUtil.prototypeImplementationRoot.resolve("cli/scripts/amper")
         assertTrue { cli.isExecutable() }
 
-        val projectPath = moduleRoot.resolve("testData/projects/cli-jvm-hello-world")
+        val projectPath = TestUtil.prototypeImplementationRoot.resolve("amper-backend-test/testData/projects/language-version")
         assertTrue { projectPath.isDirectory() }
 
         projectPath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
