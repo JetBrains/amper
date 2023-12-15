@@ -2,8 +2,10 @@
 <project version="4">
   <component name="JavaProjectCodeInsightSettings">
     <excluded-names>
+      <name>com.sun</name>
       <name>jdk</name>
       <name>org.gradle.internal</name>
+      <name>org.junit.platform.commons.logging</name>
       <name>sun</name>
     </excluded-names>
   </component>
