@@ -134,6 +134,7 @@ class KotlinCompileTask(
             cleanDirectory(taskOutputRoot.path)
 
             spanBuilder("kotlinc")
+                .setAttribute("amper-module", module.userReadableName)
                 .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmArgs)
                 .setAttribute(AttributeKey.stringArrayKey("args"), args)
                 .setAttribute("version", kotlinVersion)

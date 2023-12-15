@@ -60,6 +60,9 @@ class AmperBackendTest {
 
         val kotlincStdOut = kotlinc.attributes[AttributeKey.stringKey("stdout")]!!
         assertEquals("", kotlincStdOut)
+
+        val kotlincAmperModule = kotlinc.attributes[AttributeKey.stringKey("amper-module")]!!
+        assertEquals("language-version", kotlincAmperModule)
     }
 
     private fun SpanData.assertKotlincArguments(argumentName: String, argumentValue: String) {
