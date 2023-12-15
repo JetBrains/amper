@@ -11,7 +11,12 @@ import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
 
 context(ProblemReporterContext)
-internal fun MappingNode.convertSettings() = Settings().apply {
+internal fun Node.convertSettings() = assertNodeType<MappingNode, Settings>("settings") {
+    doConvertSettings()
+}
+
+context(ProblemReporterContext)
+internal fun MappingNode.doConvertSettings() = Settings().apply {
     // TODO Report wrong node types.
     java(tryGetChildNode("java")?.asMappingNode()?.convertJavaSettings())
     jvm(tryGetChildNode("jvm")?.asMappingNode()?.convertJvmSettings())

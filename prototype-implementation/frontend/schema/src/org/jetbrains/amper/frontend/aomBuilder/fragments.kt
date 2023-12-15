@@ -13,7 +13,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mapStartAware
-import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.io.path.Path
 
@@ -30,54 +30,60 @@ class DefaultLeafFragment(
 
 open class DefaultFragment(
     seed: FragmentSeed,
-    override val isTest: Boolean,
+    final override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
     relevantSettings: Settings?,
 ) : Fragment {
 
+    private val isCommon = seed.rootPlatforms == setOf(Platform.COMMON)
+
     /**
      * Modifier that is used to reference this fragment in the module file or within source directory.
      */
-    private val modifier =
-        if (seed.rootPlatforms == setOf(Platform.COMMON)) ""
-        else "@" + seed.modifiersAsStrings.joinToString(separator = "+")
+    private val modifier = if (isCommon) "" else "@" + seed.modifiersAsStrings.joinToString(separator = "+")
 
-    // TODO Add check for circular dependencies.
-    internal val transitiveRefine = buildList<Fragment> {
-        fun Fragment.refines() = fragmentDependants.filter { it.type == FragmentDependencyType.REFINE }
-        val queue = ArrayDeque<FragmentLink>().apply { addAll(refines()) }
-        while (queue.isNotEmpty()) {
-            val dep = queue.removeLast().target
-            add(dep)
-            queue.addAll(dep.refines())
-        }
-    }
-
-    override val name = seed.modifiersAsStrings
-        .mapStartAware { isStart, it -> if (isStart) it else it.doCapitalize() }
-        .joinToString()
-
-    override val fragmentDependencies = mutableListOf<FragmentLink>()
+    final override val fragmentDependencies = mutableListOf<FragmentLink>()
 
     override val fragmentDependants = mutableListOf<FragmentLink>()
 
-    override val platforms = seed.platforms
+    override val name = seed.modifiersAsStrings
+        .mapStartAware { isStart, it -> if (isStart) it else it.doCapitalize() }
+        .joinToString() +
+            if (isTest) "Test" else ""
+
+    final override val platforms = seed.platforms
 
     override val variants = emptyList<String>()
 
-    override val parts = relevantSettings?.convertFragmentParts() ?: classBasedSet()
+    override val parts = relevantSettings.convertFragmentParts()
 
     override val isDefault = true
 
-    override val src = Path("${if (isTest) "test" else "src"}$modifier")
+    private val srcOnlyOwner by lazy {
+        platforms.singleOrNull() != Platform.COMMON &&
+                fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
+    }
 
-    override val resourcesPath = Path("${if (isTest) "testResources" else "resources"}$modifier")
+    override val src by lazy {
+        val srcStringPrefix = if (isTest) "test" else "src"
+        val srcPathString =
+            if (srcOnlyOwner) srcStringPrefix
+            else "$srcStringPrefix$modifier"
+        Path(srcPathString)
+    }
+
+    override val resourcesPath by lazy {
+        val resourcesStringPrefix = if (isTest) "testResources" else "resources"
+        val resourcesPathString =
+            if (srcOnlyOwner) resourcesStringPrefix
+            else "$resourcesStringPrefix$modifier"
+        Path(resourcesPathString)
+    }
 }
 
 fun createFragments(
     seeds: Collection<FragmentSeed>,
-    externalDependencies: Map<Set<String>, List<Notation>>,
-    externalTestDependencies: Map<Set<String>, List<Notation>>,
+    resolveDependency: (Dependency) -> Notation?,
 ): List<DefaultFragment> {
     data class FragmentBundle(
         val mainFragment: DefaultFragment,
@@ -103,19 +109,29 @@ fun createFragments(
     // Create fragments.
     val initial = seeds.associateWith {
         FragmentBundle(
-            it.toFragment(false, externalDependencies[it.modifiersAsStrings].orEmpty()),
-            it.toFragment(true, externalTestDependencies[it.modifiersAsStrings].orEmpty()),
+            // TODO Report unresolved dependencies
+            it.toFragment(false, it.relevantDependencies?.mapNotNull { resolveDependency(it) }.orEmpty()),
+            it.toFragment(true, it.relevantTestDependencies?.mapNotNull { resolveDependency(it) }.orEmpty()),
         )
     }
 
     // Set fragment dependencies.
     initial.entries.forEach { (seed, bundle) ->
-        // Main fragment dependency.
-        bundle.mainFragment.fragmentDependencies +=
-            initial[seed.dependency]!!.mainFragment.asRefine()
+        if (seed.dependency != null) {
+            // Main fragment dependency.
+            bundle.mainFragment.fragmentDependencies +=
+                initial[seed.dependency]!!.mainFragment.asRefine()
 
-        initial[seed.dependency]!!.mainFragment.fragmentDependants +=
-            bundle.mainFragment.asRefine()
+            initial[seed.dependency]!!.mainFragment.fragmentDependants +=
+                bundle.mainFragment.asRefine()
+
+            // Test fragment dependency.
+            bundle.testFragment.fragmentDependencies +=
+                initial[seed.dependency]!!.testFragment.asRefine()
+
+            initial[seed.dependency]!!.testFragment.fragmentDependants +=
+                bundle.testFragment.asRefine()
+        }
 
         // Main - test dependency.
         bundle.testFragment.fragmentDependencies +=
@@ -123,13 +139,6 @@ fun createFragments(
 
         bundle.mainFragment.fragmentDependants +=
             bundle.testFragment.asFriend()
-
-        // Test fragment dependency.
-        bundle.testFragment.fragmentDependencies +=
-            initial[seed.dependency]!!.testFragment.asRefine()
-
-        initial[seed.dependency]!!.testFragment.fragmentDependants +=
-            bundle.testFragment.asRefine()
     }
 
     // Unfold fragments bundles.

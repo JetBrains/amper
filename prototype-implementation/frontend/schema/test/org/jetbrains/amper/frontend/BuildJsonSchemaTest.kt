@@ -5,17 +5,17 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.builders.JsonSchemaBuilder
+import org.jetbrains.amper.frontend.helper.doTestWithInput
+import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import org.jetbrains.amper.frontend.schema.Module
 import java.io.StringWriter
-import java.nio.file.Path
 import kotlin.test.Test
 
-class BuildJsonSchemaTest : FileExpectTest(".expected.json", forceInput = false) {
 
-    override fun getActualContent(input: Path): String =
-        StringWriter().apply { JsonSchemaBuilder.writeSchema(Module::class, this) }.toString()
+class BuildJsonSchemaTest : TestWithBuildFile() {
 
     @Test
-    fun `build schema test`() = test("schema-test")
-
+    fun `build doc test`(): Unit = doTestWithInput("schema-test", ".expected.json") {
+        StringWriter().apply { JsonSchemaBuilder.writeSchema(Module::class, this) }.toString()
+    }
 }

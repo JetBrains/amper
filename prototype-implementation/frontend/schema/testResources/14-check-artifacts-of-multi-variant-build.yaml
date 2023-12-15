@@ -1,0 +1,15 @@
+product:
+  type: app
+  platforms: [ iosArm64 ]
+
+variants: [ debug, release ]
+
+dependencies@debug:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+test-dependencies:
+  - org.jetbrains.kotlin:kotlin-test:1.8.10
+
+settings:
+  kotlin:
+    languageVersion: 1.8

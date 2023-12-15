@@ -1,0 +1,3 @@
+product:
+  # <![Error] Product type lib should have its platforms declared explicitly like that: product:   type: lib   platforms: [jvm, iosArm64]!>
+  type: lib

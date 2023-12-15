@@ -1,0 +1,237 @@
+Fragments:
+  android
+    External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:android-driver:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.google.dagger:dagger:2.28.3, compile=true, runtime=true, exported=false)
+    Src folder: src@android
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  androidTest
+    External dependencies:
+    Src folder: test@android
+    Fragment dependencies:
+      commonTest (REFINE)
+      android (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  common
+    External dependencies:
+      MavenDependency(coordinates=app.cash.sqldelight:sqldelight:2.0.0-alpha05, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=com.squareup.okio:okio:3.3.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+      KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  commonTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
+    Src folder: test
+    Fragment dependencies:
+      common (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  ios
+    External dependencies:
+      MavenDependency(coordinates=com.squareup.sqldelight:native-driver:1.5.5, compile=true, runtime=true, exported=false)
+    Src folder: src@ios
+    Fragment dependencies:
+      common (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosArm64
+    External dependencies:
+    Src folder: src@iosArm64
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosArm64Test
+    External dependencies:
+    Src folder: test@iosArm64
+    Fragment dependencies:
+      iosTest (REFINE)
+      iosArm64 (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosSimulatorArm64
+    External dependencies:
+    Src folder: src@iosSimulatorArm64
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosSimulatorArm64Test
+    External dependencies:
+    Src folder: test@iosSimulatorArm64
+    Fragment dependencies:
+      iosTest (REFINE)
+      iosSimulatorArm64 (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosTest
+    External dependencies:
+    Src folder: test@ios
+    Fragment dependencies:
+      commonTest (REFINE)
+      ios (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosX64
+    External dependencies:
+    Src folder: src@iosX64
+    Fragment dependencies:
+      ios (REFINE)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  iosX64Test
+    External dependencies:
+    Src folder: test@iosX64
+    Fragment dependencies:
+      iosTest (REFINE)
+      iosX64 (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+Artifacts:
+  isTest: false
+  [ANDROID]
+    Fragments:
+      android
+  isTest: true
+  [ANDROID]
+    Fragments:
+      androidTest
+  isTest: false
+  [IOS_ARM64]
+    Fragments:
+      iosArm64
+  isTest: true
+  [IOS_ARM64]
+    Fragments:
+      iosArm64Test
+  isTest: false
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64
+  isTest: true
+  [IOS_SIMULATOR_ARM64]
+    Fragments:
+      iosSimulatorArm64Test
+  isTest: false
+  [IOS_X64]
+    Fragments:
+      iosX64
+  isTest: true
+  [IOS_X64]
+    Fragments:
+      iosX64Test

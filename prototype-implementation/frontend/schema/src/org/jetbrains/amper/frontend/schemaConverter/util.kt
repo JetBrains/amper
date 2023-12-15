@@ -106,13 +106,13 @@ context(ProblemReporterContext)
 fun <T> MappingNode.convertWithModifiers(
     prefix: String,
     report: Boolean = true,
-    convert: Node.() -> T?
+    convert: (Node) -> T?
 ) = value
     .filter { it.keyNode.asScalarNode()?.value?.startsWith(prefix) == true }
     .mapNotNull {
         val modifiers = it.keyNode.asScalarNode()!!.extractModifiers()
         // Skip those, that we failed to convert.
-        val converted = it.valueNode.convert() ?: return@mapNotNull null
+        val converted = convert(it.valueNode) ?: return@mapNotNull null
         modifiers to converted
     }
     .toMap()
@@ -153,8 +153,8 @@ fun ScalarNode.extractModifiers(): Modifiers = value
 /**
  * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(enumIndex: EnumMap<T, String>, report: Boolean = true) =
-    this?.value?.let { enumIndex.getOrElse(it) { error("No such enum value: $it") } } ?: error("No node value")
+fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(enumIndex: EnumMap<T, String>, report: Boolean = true): T? =
+    this?.value?.let { enumIndex.get(it) /* TODO Report wrong type. */ }
 
 /**
  * Try to set a value by scalar node, also providing trace.
@@ -176,10 +176,11 @@ fun Collection<ScalarNode>.values() = map { it.value }
  * file is not-existing.
  */
 // TODO Change from error to reporting.
-fun String.asAbsolutePath(): Path =
-    Path(this).let { it.takeIf { it.exists() } ?: error("Non existing path: $this") }.absolute()
+fun String.asAbsolutePath(): Path? =
+    Path(this).takeIf { it.exists() }?.absolute()
 
 /**
  * Same as [String.asAbsolutePath], but accepts [ScalarNode].
  */
-fun ScalarNode.asAbsolutePath(): Path = value.asAbsolutePath()
+fun ScalarNode.asAbsolutePath(): Path? =
+    value.asAbsolutePath()

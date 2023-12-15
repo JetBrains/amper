@@ -19,19 +19,23 @@ ModuleProduct
 	platforms: Collection<Platform>, default: Defaults to product type platforms
 	type: ProductType
 
+CatalogDependency
+-----------------
+	catalogKey: String
+	exported: Boolean, default: false
+	scope: DependencyScope, default: ALL
+
 ExternalMavenDependency
 -----------------------
 	coordinates: String
-	compile-only: Boolean, default: true
 	exported: Boolean, default: false
-	runtime-only: Boolean, default: false
+	scope: DependencyScope, default: ALL
 
 InternalDependency
 ------------------
 	path: Path
-	compile-only: Boolean, default: true
 	exported: Boolean, default: false
-	runtime-only: Boolean, default: false
+	scope: DependencyScope, default: ALL
 
 Repository
 ----------
@@ -88,22 +92,22 @@ JavaSettings
 JvmSettings
 -----------
 	mainClass: String
-	target: String
+	target: String, default: 17
 
 KotlinSettings
 --------------
-	allWarningsAsErrors: Boolean
+	allWarningsAsErrors: Boolean, default: false
 	apiVersion: String
-	debug: Boolean
+	debug: Boolean, default: false
 	freeCompilerArgs: List<String>
 	languageFeatures: List<String>
-	languageVersion: String
+	languageVersion: String, default: 1.9
 	linkerOpts: List<String>
 	optIns: List<String>
-	progressiveMode: Boolean
+	progressiveMode: Boolean, default: false
 	serialization: SerializationSettings
-	suppressWarnings: Boolean
-	verbose: Boolean
+	suppressWarnings: Boolean, default: false
+	verbose: Boolean, default: false
 
 SerializationSettings
 ---------------------

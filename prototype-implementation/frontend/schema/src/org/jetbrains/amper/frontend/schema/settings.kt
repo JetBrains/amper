@@ -7,13 +7,13 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.api.*
 
 class Settings : SchemaNode() {
-    val java = nullableValue<JavaSettings>().default(JavaSettings())
-    val jvm = value<JvmSettings>().default(JvmSettings())
+    val java = nullableValue<JavaSettings>()
+    val jvm = nullableValue<JvmSettings>()
     val kotlin = value<KotlinSettings>().default(KotlinSettings())
-    val android = nullableValue<AndroidSettings>().default(AndroidSettings())
+    val android = nullableValue<AndroidSettings>()
     val compose = nullableValue<ComposeSettings>()
     val junit = nullableValue<String>() // TODO Replace with enum.
-    val ios = nullableValue<IosSettings>().default(IosSettings())
+    val ios = nullableValue<IosSettings>()
     val publishing = nullableValue<PublishingSettings>()
     val kover = nullableValue<KoverSettings>()
 }
@@ -25,37 +25,37 @@ class JavaSettings : SchemaNode() {
 
 class JvmSettings : SchemaNode() {
     // TODO Replace with enum
-    val target = value<String>()
-    val mainClass = value<String>()
+    val target = value<String>().default("17")
+    val mainClass = nullableValue<String>()
 }
 
 class AndroidSettings : SchemaNode() {
-    val compileSdk = value<String>()
-    val minSdk = value<String>()
-    val maxSdk = value<String>()
-    val targetSdk = value<String>()
-    val applicationId = value<String>()
-    val namespace = value<String>()
+    val compileSdk = nullableValue<String>()
+    val minSdk = nullableValue<String>()
+    val maxSdk = nullableValue<String>()
+    val targetSdk = nullableValue<String>()
+    val applicationId = nullableValue<String>()
+    val namespace = nullableValue<String>()
 }
 
 class KotlinSettings : SchemaNode() {
     val serialization = nullableValue<SerializationSettings>()
 
     // TODO Replace with enum
-    val languageVersion = value<String>()
+    val languageVersion = value<String>().default("1.9")
     // TODO Replace with enum
-    val apiVersion = value<String>()
-    val allWarningsAsErrors = value<Boolean>()
-    val freeCompilerArgs = value<List<String>>()
-    val suppressWarnings = value<Boolean>()
-    val verbose = value<Boolean>()
-    val linkerOpts = value<List<String>>()
-    val debug = value<Boolean>()
-    val progressiveMode = value<Boolean>()
+    val apiVersion = nullableValue<String>()
+    val allWarningsAsErrors = value<Boolean>().default(false)
+    val freeCompilerArgs = nullableValue<List<String>>()
+    val suppressWarnings = value<Boolean>().default(false)
+    val verbose = value<Boolean>().default(false)
+    val linkerOpts = nullableValue<List<String>>()
+    val debug = value<Boolean>().default(false)
+    val progressiveMode = value<Boolean>().default(false)
     // TODO Replace with enum
-    val languageFeatures = value<List<String>>()
+    val languageFeatures = nullableValue<List<String>>()
     // TODO Replace with enum
-    val optIns = value<List<String>>()
+    val optIns = nullableValue<List<String>>()
 }
 
 class ComposeSettings : SchemaNode() {

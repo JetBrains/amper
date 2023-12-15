@@ -4,14 +4,16 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.helper.convertTest
+import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-class GracefulDegradationTest {
+class GracefulDegradationTest : TestWithBuildFile() {
 
     @Test
     @Ignore
     // TODO Fill up more reporting before running this test.
-    fun `broken module settings`() = moduleConvertTest("broken-module-settings")
+    fun `broken module settings`() = convertTest("broken-module-settings", "")
 
 }

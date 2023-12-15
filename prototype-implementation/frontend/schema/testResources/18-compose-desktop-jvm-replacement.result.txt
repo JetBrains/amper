@@ -1,0 +1,43 @@
+Module {{ userReadableName }}
+Fragments:
+  jvm
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:1.4.1, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+  jvmTest
+    External dependencies:
+    Src folder: test
+    Fragment dependencies:
+      jvm (FRIEND)
+    Parts:
+      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      IosPart(teamId=null)
+      JavaPart(source=null)
+      JvmPart(mainClass=null, target=null)
+      JUnitPart(version=null)
+      PublicationPart(group=null, version=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
+      ComposePart(enabled=null)
+      KoverPart(enabled=null, html=null, xml=null)
+Artifacts:
+  isTest: false
+  [JVM]
+    Fragments:
+      jvm
+  isTest: true
+  [JVM]
+    Fragments:
+      jvmTest

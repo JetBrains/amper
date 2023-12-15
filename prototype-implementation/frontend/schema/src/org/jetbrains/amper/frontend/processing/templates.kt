@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.convertTemplateViaSnake
 import java.nio.file.Path
+import kotlin.io.path.reader
 
 context(ProblemReporterContext)
 fun Module.readTemplatesAndMerge(

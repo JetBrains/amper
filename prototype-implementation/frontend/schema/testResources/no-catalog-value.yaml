@@ -1,0 +1,5 @@
+product: android/app
+
+dependencies:
+  # <![Error] No catalog value for key: absent.catalog.key!>
+  - $absent.catalog.key

@@ -4,14 +4,26 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
+import org.jetbrains.amper.frontend.api.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
+enum class DependencyScope(
+    override val schemaValue: String,
+    val runtime: Boolean,
+    val compile: Boolean,
+) : SchemaEnum {
+    COMPILE_ONLY("compile-only", false, true),
+    RUNTIME_ONLY("runtime-only", true, false),
+    ALL("all", true, true),;
+    companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
+}
+
 sealed class Dependency : SchemaNode() {
     val exported = value<Boolean>().default(false)
-    val `compile-only` = value<Boolean>().default(true)
-    val `runtime-only` = value<Boolean>().default(false)
+    val scope = value<DependencyScope>().default(DependencyScope.ALL)
 }
 
 @CustomSchemaDef(dependencySchema)
@@ -22,6 +34,11 @@ class ExternalMavenDependency : Dependency() {
 @CustomSchemaDef(dependencySchema)
 class InternalDependency  : Dependency() {
     val path = value<Path>()
+}
+
+@CustomSchemaDef(dependencySchema)
+class CatalogDependency  : Dependency() {
+    val catalogKey = value<String>()
 }
 
 const val dependencySchema = """

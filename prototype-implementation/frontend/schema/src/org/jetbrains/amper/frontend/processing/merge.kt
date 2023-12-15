@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import java.nio.file.Path
 
 
 /**
@@ -27,7 +28,7 @@ import org.jetbrains.amper.frontend.schema.Settings
  */
 
 fun Base.merge(overwrite: Base, target: () -> Base): Base = mergeNode(overwrite, target) {
-    mergeCollection(Base::repositories)
+    mergeNullableCollection(Base::repositories)
     mergeNodeProperty(Base::dependencies) { this + it }
     mergeNodeProperty(Base::`test-dependencies`) { this + it }
 
@@ -70,10 +71,10 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
     mergeScalar(KotlinSettings::debug)
     mergeScalar(KotlinSettings::progressiveMode)
 
-    mergeCollection(KotlinSettings::freeCompilerArgs)
-    mergeCollection(KotlinSettings::linkerOpts)
-    mergeCollection(KotlinSettings::languageFeatures)
-    mergeCollection(KotlinSettings::optIns)
+    mergeNullableCollection(KotlinSettings::freeCompilerArgs)
+    mergeNullableCollection(KotlinSettings::linkerOpts)
+    mergeNullableCollection(KotlinSettings::languageFeatures)
+    mergeNullableCollection(KotlinSettings::optIns)
 
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
 }
@@ -108,16 +109,28 @@ fun <T> T.mergeNode(
 }
 
 /**
+ * Shortcut for merging nullable collection property.
+ */
+fun <T : Any, V> MergeCtx<T>.mergeNullableCollection(prop: T.() -> ValueBase<List<V>?>) =
+    doMergeCollection(prop) { this }
+
+/**
  * Shortcut for merging collection property.
  */
-fun <T : Any, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) {
+fun <T : Any, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) =
+    doMergeCollection(prop) { this }
+
+private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
+    prop: T.() -> ValueBase<CV>,
+    toCV: List<V>.() -> CV,
+) {
     // TODO Handle collection merge tuning here.
     val targetProp = target.prop()
     val baseValue = base.prop().withoutDefault
     val overwriteValue = overwrite.prop().withoutDefault
     val result = baseValue?.toMutableList() ?: mutableListOf()
     result.addAll(overwriteValue ?: emptyList())
-    targetProp(result)
+    targetProp(result.toCV())
 }
 
 /**

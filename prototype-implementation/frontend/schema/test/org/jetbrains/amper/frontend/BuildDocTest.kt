@@ -5,17 +5,16 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.builders.DocBuilder.Companion.buildDoc
+import org.jetbrains.amper.frontend.helper.doTestWithInput
+import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import org.jetbrains.amper.frontend.schema.Module
 import java.io.StringWriter
-import java.nio.file.Path
 import kotlin.test.Test
 
-class BuildDocTest : FileExpectTest(".expected", forceInput = false) {
-
-    override fun getActualContent(input: Path): String =
-        StringWriter().apply { buildDoc(Module::class, this) }.toString()
+class BuildDocTest : TestWithBuildFile() {
 
     @Test
-    fun `build doc test`() = test("doc-test")
-
+    fun `build doc test`(): Unit = doTestWithInput("doc-test", ".expected") {
+        StringWriter().apply { buildDoc(Module::class, this) }.toString()
+    }
 }

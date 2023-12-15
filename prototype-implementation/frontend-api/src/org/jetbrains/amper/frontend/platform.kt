@@ -57,7 +57,7 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     // TODO Copy pasted. Check why NoSuchMethodError arises when using outer method.
     private val prettyRegex = "_.".toRegex()
     private fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
-    private val Platform.pretty get() = name.doCamelCase()
+    val pretty get() = name.doCamelCase()
 
     companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {
 
@@ -88,6 +88,3 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
 
 fun Platform.isParent(possibleParent: Platform): Boolean =
     parent == possibleParent || parent?.isParent(possibleParent) ?: false
-
-val Platform.pretty get() = name.doCamelCase()
-val Platform.prettySuffix get() = pretty.doCapitalize()

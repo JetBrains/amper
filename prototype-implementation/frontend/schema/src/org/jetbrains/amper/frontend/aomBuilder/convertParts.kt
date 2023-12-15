@@ -5,7 +5,9 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.ComposePart
+import org.jetbrains.amper.frontend.FragmentPart
 import org.jetbrains.amper.frontend.IosPart
 import org.jetbrains.amper.frontend.JUnitPart
 import org.jetbrains.amper.frontend.JUnitVersion
@@ -17,10 +19,12 @@ import org.jetbrains.amper.frontend.KoverPart
 import org.jetbrains.amper.frontend.KoverXmlPart
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MetaModulePart
+import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.buildClassBasedSet
+import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import java.util.*
@@ -30,88 +34,79 @@ import kotlin.io.path.reader
 // These converters are needed only to prevent major code changes in the [gradle-integration].
 // Parts should be replaced with schema model nodes in the future.
 
-fun Settings.convertFragmentParts() = buildClassBasedSet parts@{
-    this += KotlinPart(
-        languageVersion = kotlin.value.languageVersion.value,
-        apiVersion = kotlin.value.apiVersion.value,
-        allWarningsAsErrors = kotlin.value.allWarningsAsErrors.value,
-        freeCompilerArgs = kotlin.value.freeCompilerArgs.value,
-        suppressWarnings = kotlin.value.suppressWarnings.value,
-        verbose = kotlin.value.verbose.value,
-        linkerOpts = kotlin.value.linkerOpts.value,
-        debug = kotlin.value.debug.value,
-        progressiveMode = kotlin.value.progressiveMode.value,
-        languageFeatures = kotlin.value.languageFeatures.value,
-        optIns = kotlin.value.optIns.value,
-        serialization = kotlin.value.serialization.value?.engine?.value,
+fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
+    val parts = classBasedSet<FragmentPart<*>>()
+
+    parts += KotlinPart(
+        languageVersion = this?.kotlin?.value?.languageVersion?.value,
+        apiVersion = this?.kotlin?.value?.apiVersion?.value,
+        allWarningsAsErrors = this?.kotlin?.value?.allWarningsAsErrors?.value,
+        freeCompilerArgs = this?.kotlin?.value?.freeCompilerArgs?.value ?: emptyList(),
+        suppressWarnings = this?.kotlin?.value?.suppressWarnings?.value,
+        verbose = this?.kotlin?.value?.verbose?.value,
+        linkerOpts = this?.kotlin?.value?.linkerOpts?.value ?: emptyList(),
+        debug = this?.kotlin?.value?.debug?.value,
+        progressiveMode = this?.kotlin?.value?.progressiveMode?.value,
+        languageFeatures = this?.kotlin?.value?.languageFeatures?.value ?: emptyList(),
+        optIns = this?.kotlin?.value?.optIns?.value ?: emptyList(),
+        serialization = this?.kotlin?.value?.serialization?.value?.engine?.value,
     )
 
-    android.value?.let {
-        this@parts += AndroidPart(
-            compileSdk = it.compileSdk.value,
-            minSdk = it.minSdk.value,
-            maxSdk = it.maxSdk.value.toIntOrNull(), // TODO Verify
-            targetSdk = it.targetSdk.value,
-            applicationId = it.applicationId.value,
-            namespace = it.namespace.value,
-        )
-    }
-
-    this += JvmPart(
-        jvm.value.mainClass.value,
-        jvm.value.target.value,
+    parts += AndroidPart(
+        compileSdk = this?.android?.value?.compileSdk?.value,
+        minSdk = this?.android?.value?.minSdk?.value,
+        maxSdk = this?.android?.value?.maxSdk?.value?.toIntOrNull(), // TODO Verify
+        targetSdk = this?.android?.value?.targetSdk?.value,
+        applicationId = this?.android?.value?.applicationId?.value,
+        namespace = this?.android?.value?.namespace?.value,
     )
 
-    junit.value?.let {
-        this@parts += JUnitPart(JUnitVersion[it]) // TODO Replace by enum.
-    }
+    parts += IosPart(this?.ios?.value?.teamId?.value)
 
-    java.value?.let {
-        this@parts += JavaPart(it.source.value)
-    }
+    parts += JavaPart(this?.java?.value?.source?.value)
 
-    ios.value?.let {
-        this@parts += NativeApplicationPart(
-            // TODO Fill all other options.
-            entryPoint = null, // TODO Pass entry point.
-            declaredFrameworkBasename = it.framework.value?.basename?.value,
-            frameworkParams = it.framework.value?.mappings?.value
-        )
+    parts += JvmPart(
+        this?.jvm?.value?.mainClass?.value,
+        this?.jvm?.value?.target?.value,
+    )
 
-        this@parts += IosPart(it.teamId.value)
-    }
+    parts += JUnitPart(this?.junit?.value?.let { JUnitVersion[it] }) // TODO Replace by enum.
 
-    publishing.value?.let {
-        this@parts += PublicationPart(
-            group = it.group.value,
-            version = it.version.value
-        )
-    }
+    parts += PublicationPart(
+        group = this?.publishing?.value?.group?.value,
+        version = this?.publishing?.value?.version?.value
+    )
 
-    compose.value?.let {
-        this@parts += ComposePart(it.enabled.value)
-    }
+    parts += NativeApplicationPart(
+        // TODO Fill all other options.
+        entryPoint = null, // TODO Pass entry point.
+        declaredFrameworkBasename = this?.ios?.value?.framework?.value?.basename?.value,
+        frameworkParams = this?.ios?.value?.framework?.value?.mappings?.value
+    )
 
-    kover.value?.let {
-        this@parts += KoverPart(
-            enabled = it.enabled.value,
-            xml = it.xml.value?.let {
-                KoverXmlPart(it.onCheck.value, it.reportFile.value)
-            },
-            html = it.html.value?.let {
-                KoverHtmlPart(it.title.value, it.charset.value, it.onCheck.value, it.reportDir.value)
-            }
-        )
-    }
+    parts += ComposePart(this?.compose?.value?.enabled?.value)
+
+    parts += KoverPart(
+        enabled = this?.kover?.value?.enabled?.value,
+        xml = this?.kover?.value?.xml?.value?.let {
+            KoverXmlPart(it.onCheck.value, it.reportFile.value)
+        },
+        html = this?.kover?.value?.html?.value?.let {
+            KoverHtmlPart(it.title.value, it.charset.value, it.onCheck.value, it.reportDir.value)
+        }
+    )
+    return parts
 }
 
-fun Module.convertModuleParts() = buildClassBasedSet parts@{
-    this@parts += MetaModulePart(
+fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
+    val parts = classBasedSet<ModulePart<*>>()
+
+    parts += MetaModulePart(
         layout = Layout.valueOf(module.value.layout.value.name)
     )
 
-    this@parts += RepositoriesModulePart(
-        mavenRepositories = repositories.value.map {
+    parts += RepositoriesModulePart(
+        mavenRepositories = repositories.value?.map {
             // FIXME Access to the file in a more safe way.
             val credPair = it.credentials.value?.let {
                 // TODO Report missing property and file.
@@ -127,6 +122,8 @@ fun Module.convertModuleParts() = buildClassBasedSet parts@{
                 userName = credPair?.first,
                 password = credPair?.second,
             )
-        }
+        } ?: emptyList()
     )
+
+    return parts
 }

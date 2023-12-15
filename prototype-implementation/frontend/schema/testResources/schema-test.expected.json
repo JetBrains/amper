@@ -17,6 +17,9 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/$defs/CatalogDependency"
+              },
+              {
                 "$ref": "#/$defs/ExternalMavenDependency"
               },
               {
@@ -32,6 +35,9 @@
           "type": "array",
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogDependency"
+              },
               {
                 "$ref": "#/$defs/ExternalMavenDependency"
               },
@@ -100,6 +106,45 @@
           "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
         }
       }
+    },
+    "CatalogDependency": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "exported",
+                    "compile-only",
+                    "runtime-only"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "all",
+                        "compile-only",
+                        "runtime-only"
+                      ]
+                    },
+                    "exported": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "ExternalMavenDependency": {
       "anyOf": [

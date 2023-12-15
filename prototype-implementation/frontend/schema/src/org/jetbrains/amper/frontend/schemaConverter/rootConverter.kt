@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
@@ -14,33 +13,32 @@ import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
-import java.nio.file.Path
-import kotlin.io.path.reader
+import java.io.Reader
 
 context(ProblemReporterContext)
-fun convertModuleViaSnake(file: Path): Module {
+fun convertModuleViaSnake(reader: () -> Reader): Module {
     val yaml = Yaml()
-    val rootNode = yaml.compose(file.reader())
+    val rootNode = yaml.compose(reader())
     // TODO Add reporting.
     if (rootNode !is MappingNode) return Module()
     return rootNode.convertModuleViaSnake()
 }
 
 context(ProblemReporterContext)
-fun convertTemplateViaSnake(file: Path): Template {
+fun convertTemplateViaSnake(reader: () -> Reader): Template {
     val yaml = Yaml()
-    val rootNode = yaml.compose(file.reader())
+    val rootNode = yaml.compose(reader())
     if (rootNode !is MappingNode) return Template()
     return rootNode.convertBase(Template())
 }
 
 context(ProblemReporterContext)
 private fun MappingNode.convertModuleViaSnake() = Module().apply {
-    product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
+    product(tryGetChildNode("product")?.convertProduct()) { /* TODO report */ }
     apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
     aliases(tryGetMappingNode("aliases")?.convertScalarKeyedMap { _ ->
         // TODO Report non enum value.
-        asScalarSequenceNode()?.map { it.convertEnum(Platform) }?.toSet()
+        asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform) }?.toSet()
     })
     module(tryGetMappingNode("module")?.convertMeta())
     convertBase(this)
@@ -50,26 +48,33 @@ context(ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     repositories(tryGetMappingNode("repositories")?.convertRepositories())
 
-    dependencies(convertWithModifiers("dependencies") { convertDependencies() })
+    dependencies(convertWithModifiers("dependencies") { it.convertDependencies() })
     settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() })
-    `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
+    `test-dependencies`(convertWithModifiers("test-dependencies") { it.convertDependencies() })
 
-    settings(convertWithModifiers("settings") { convertSettings() }.apply {
+    settings(convertWithModifiers("settings") { it.convertSettings() }.apply {
         // Here we must add root settings to take defaults from them.
         computeIfAbsent(noModifiers) { Settings() }
     })
-    `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() }.apply {
+    `test-settings`(convertWithModifiers("test-settings") { it.asMappingNode()?.convertSettings() }.apply {
         // Here we must add root settings to take defaults from them.
         computeIfAbsent(noModifiers) { Settings() }
     })
 }
 
 context(ProblemReporterContext)
-private fun MappingNode.convertProduct() = ModuleProduct().apply {
-    type(tryGetScalarNode("type")?.convertEnum(ProductType)) { /* TODO report */ }
-    platforms(tryGetScalarSequenceNode("platforms")
-        ?.mapNotNull { it.convertEnum(Platform) /* TODO report */ }
-    )
+private fun Node.convertProduct() = ModuleProduct().apply {
+    when (this@convertProduct) {
+        is MappingNode -> {
+            type(tryGetScalarNode("type")?.convertEnum(ProductType)) { /* TODO report */ }
+            platforms(tryGetScalarSequenceNode("platforms")
+                ?.mapNotNull { it.convertEnum(Platform) /* TODO report */ }
+            )
+        }
+        is ScalarNode -> type(this@convertProduct.convertEnum(ProductType)) { /* TODO report */ }
+        else -> TODO("report")
+    }
+
 }
 
 context(ProblemReporterContext)
@@ -125,19 +130,22 @@ private fun Node.convertDependency(): Dependency? {
     return if (this is ScalarNode) {
         when {
             // TODO Report non existent path.
-            value.startsWith(".") -> value
-                ?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
-
+            value.startsWith(".") -> value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
+    this is ScalarNode && value.startsWith("$") ->
+        // TODO Report non existent path.
+        value?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")) } }
             // TODO Report non existent path.
 //            value.startsWith("$") -> value
 //                ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
 
-            else -> value?.let { ExternalMavenDependency().apply { coordinates(it) } }
-        }
+            else ->value?.let { ExternalMavenDependency().apply { coordinates(it) } }
+
+}
     } else {
-        when {
-            this is MappingNode && value.size > 1 -> TODO("report")
-            this is MappingNode && value.isEmpty() -> TODO("report")
+        when {    this is MappingNode && value.size > 1 -> TODO("report")
+    this is MappingNode && value.isEmpty() -> TODO("report")
+    this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
+        value.first().convertCatalogDep()
 //            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
 //                value.first().convertCatalogDep()
 
@@ -165,15 +173,19 @@ private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDepende
 }
 
 context(ProblemReporterContext)
+private fun NodeTuple.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
+    catalogKey(keyNode.asScalarNode(true)?.value?.removePrefix("$"))
+    convertScopes(this)
+}
+
+context(ProblemReporterContext)
 private fun NodeTuple.convertScopes(dep: Dependency) = with(dep) {
     val valueNode = valueNode
     when {
-        valueNode is ScalarNode && valueNode.value == "compile-only" -> `compile-only`(true)
-        valueNode is ScalarNode && valueNode.value == "runtime-only" -> `runtime-only`(true)
         valueNode is ScalarNode && valueNode.value == "exported" -> exported(true)
+        valueNode is ScalarNode -> scope(valueNode.convertEnum(DependencyScope))
         valueNode is MappingNode -> {
-            `compile-only`(valueNode.tryGetScalarNode("compile-only")?.value?.toBoolean())
-            `runtime-only`(valueNode.tryGetScalarNode("runtime-only")?.value?.toBoolean())
+            scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
             exported(valueNode.tryGetScalarNode("exported")?.value?.toBoolean())
         }
     }

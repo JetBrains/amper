@@ -15,17 +15,17 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
-import org.jetbrains.amper.frontend.resolve.resolved
+import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
+import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
+import kotlin.io.path.reader
 
 class SchemaBasedModelImport : ModelInit {
     override val name = "yaml-schema-based"
@@ -34,8 +34,9 @@ class SchemaBasedModelImport : ModelInit {
     override fun getModel(root: Path): Result<Model> {
 
         // TODO Replace default reader by something other.
-        fun readAndPreprocess(moduleFile: Path): Module = convertModule(moduleFile)
+        fun readAndPreprocess(moduleFile: Path): Module = convertModule { moduleFile.reader() }
             .readTemplatesAndMerge()
+            .replaceCatalogDependencies()
 
         // Find all module files, parse them and perform preprocessing (templates, TODO catalogs)
         val path2SchemaModule = root.findAmperModuleFiles()
@@ -54,30 +55,24 @@ class SchemaBasedModelImport : ModelInit {
 /**
  * Build and resolve internal module dependencies.
  */
-fun Map<Path, Module>.buildAom(): List<PotatoModule> {
+internal fun Map<Path, Module>.buildAom(): List<PotatoModule> {
     val modules = map { (mPath, module) ->
-        val convertedType = ProductType[module.product.value.type.value.name]!!
+        // TODO Remove duplicating enums.
+        val convertedType = ProductType.getValue(module.product.value.type.value.schemaValue)
         Triple(mPath, module, DefaultModule(mPath.name, convertedType, PotatoModuleFileSource(mPath), module))
     }
 
     val module2Path = modules.associate { (path, _, module) -> path to module }
 
     modules.forEach { (_, schemaModule, module) ->
-        val dependencies = schemaModule.dependencies.simplifyModifiers().entries
-            .associate { (modifiers, unresolved) -> modifiers to unresolved.resolveInternalDependencies(module2Path) }
-        val testDependencies = schemaModule.`test-dependencies`.simplifyModifiers().entries
-            .associate { (modifiers, unresolved) -> modifiers to unresolved.resolveInternalDependencies(module2Path) }
-
         val seeds = schemaModule.buildFragmentSeeds()
-
-        val moduleFragments = createFragments(seeds, dependencies, testDependencies)
+        val moduleFragments = createFragments(seeds) { it.resolveInternalDependency(module2Path) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {
             fragments = moduleFragments
             artifacts = createArtifacts(false, module.type, leaves) +
                     createArtifacts(true, module.type, testLeaves)
-            parts = TODO()
         }
     }
 
@@ -108,21 +103,23 @@ class DefaultPotatoModuleDependency(
 /**
  * Resolve internal modules against known ones by path.
  */
-private fun Collection<Dependency>.resolveInternalDependencies(modules: Map<Path, DefaultModule>) = mapNotNull {
+private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModule>) = let {
     when (it) {
         is ExternalMavenDependency -> MavenDependency(
             it.coordinates.value,
-            it.`compile-only`.value && !it.`runtime-only`.value,
-            !it.`compile-only`.value && it.`runtime-only`.value,
+            scope.value.compile,
+            scope.value.runtime,
             it.exported.value,
         )
 
         is InternalDependency -> DefaultPotatoModuleDependency(
             // TODO Report on unresolved module.
-            modules[it.path.value] ?: return@mapNotNull null,
-            it.`compile-only`.value && !it.`runtime-only`.value,
-            !it.`compile-only`.value && it.`runtime-only`.value,
+            modules[it.path.value] ?: return@let null,
+            scope.value.compile,
+            scope.value.runtime,
             it.exported.value,
         )
+
+        is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     }
 }

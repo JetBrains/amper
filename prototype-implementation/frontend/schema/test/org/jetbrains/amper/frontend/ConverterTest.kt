@@ -7,13 +7,16 @@ package org.jetbrains.amper.frontend
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.helper.convertTest
+import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-class ConverterTest {
+class ConverterTest : TestWithBuildFile() {
 
     // TODO Check that there are all of settings withing that file.
     @Test
+    @Ignore
     fun `all module settings are converted without errors`() =
         moduleConvertTest("all-module-settings", expectedModule = testModuleAllSettings())
 

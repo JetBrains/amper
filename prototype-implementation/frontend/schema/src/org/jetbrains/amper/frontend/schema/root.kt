@@ -15,7 +15,7 @@ val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
-    val repositories = value<List<Repository>>()
+    val repositories = nullableValue<List<Repository>>()
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module")
