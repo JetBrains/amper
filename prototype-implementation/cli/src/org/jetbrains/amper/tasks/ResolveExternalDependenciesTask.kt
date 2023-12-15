@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
@@ -32,7 +33,7 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
                     "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
                 )
 
-        println("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")}")
+        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")}")
 
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent)
 
@@ -44,13 +45,14 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
             return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies))
         }.outputs
 
-        println("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
-        return TaskResult(task = this, classpath = paths, dependencies = dependenciesResult)
+        return TaskResult(classpath = paths, dependencies = dependenciesResult)
     }
 
-    class TaskResult(override val task: Task,
-                     override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
                      val classpath: List<Path>,
     ) : org.jetbrains.amper.tasks.TaskResult
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }

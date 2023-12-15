@@ -8,6 +8,7 @@ package org.jetbrains.amper.util
 
 import com.google.common.hash.Hashing
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -20,6 +21,7 @@ import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.outputStream
 import kotlin.io.path.walk
+import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     private val stateRoot = buildOutputRoot.path.resolve("incremental.state")
@@ -36,9 +38,12 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             id.replace(Regex("[^a-zA-Z0-9]"), "_") +
                     "-" + Hashing.sha256().hashString(id, Charsets.UTF_8).toString().take(10))
 
-        val existingResult = isUpToDate(stateFile, configuration, inputs)
+        val timedExistingResult = measureTimedValue {
+            isUpToDate(stateFile, configuration, inputs)
+        }
+        val existingResult = timedExistingResult.value
         if (existingResult != null) {
-            println("INC: up-to-date according to state file at '$stateFile'")
+            logger.info("INC: up-to-date according to state file at '$stateFile' in ${timedExistingResult.duration}")
             return existingResult
         }
 
@@ -54,9 +59,9 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
                     ?: error("Not up-to-date after successfully writing a state file: $stateFile")
 
                 if (r.outputs != result.outputs) {
-                    println("1: ${r.outputs}")
-                    println("2: ${result.outputs}")
-                    error("Outputs list mismatch: $stateFile")
+                    error("Outputs list mismatch: $stateFile:\n" +
+                            "1: ${r.outputs}\n" +
+                            "2: ${result.outputs}")
                 }
             } catch (t: Throwable) {
                 Files.deleteIfExists(stateFile)
@@ -83,21 +88,21 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     // TODO Probably rewrite to JSON?
     private fun isUpToDate(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
         if (!stateFile.isRegularFile()) {
-            println("INC: state file is missing at '$stateFile' -> rebuilding")
+            logger.info("INC: state file is missing at '$stateFile' -> rebuilding")
             return null
         }
 
         val properties = Properties()
         stateFile.bufferedReader().use { properties.load(it) }
         if (properties.getProperty("version") != stateFileFormatVersion.toString()) {
-            println("INC: state file has a wrong version at '$stateFile' -> rebuilding")
+            logger.info("INC: state file has a wrong version at '$stateFile' -> rebuilding")
             return null
         }
 
         val oldConfiguration = properties.getProperty("configuration")
         val newConfiguration = configuration.entries.sortedBy { it.key }.joinToString("\n") { "${it.key}=${it.value}" }
         if (oldConfiguration != newConfiguration) {
-            println(
+            logger.info(
                 "INC: state file has a wrong configuration at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldConfiguration}\n" +
                         "  new: $newConfiguration"
@@ -108,7 +113,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldInputsList = properties.getProperty("inputs.list")
         val newInputsList = inputs.sorted().joinToString("\n")
         if (oldInputsList != newInputsList) {
-            println(
+            logger.info(
                 "INC: state file has a wrong inputs list at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldInputsList}\n" +
                         "  new: $newInputsList"
@@ -119,7 +124,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldInputs = properties.getProperty("inputs")
         val newInputs = getPathListState(inputs)
         if (oldInputs != newInputs) {
-            println(
+            logger.info(
                 "INC: state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldInputs}\n" +
                         "  new: $newInputs"
@@ -131,7 +136,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldOutputs = properties.getProperty("outputs")
         val newOutputs = getPathListState(outputsList)
         if (oldOutputs != newOutputs) {
-            println(
+            logger.info(
                 "INC: state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldOutputs}\n" +
                         "  new: $newOutputs"
@@ -156,6 +161,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
 
         for (path in paths) {
             if (path.isDirectory()) {
+                // TODO this walk could be multi-threaded, it's trivial to implement with coroutines
                 for (sub in path.walk()) {
                     addFile(sub)
                 }
@@ -174,4 +180,6 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             }
         }
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }

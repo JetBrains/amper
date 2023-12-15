@@ -40,7 +40,7 @@ suspend fun extractFileToCacheLocation(archiveFile: Path,
                                amperUserCacheRoot: AmperUserCacheRoot,
                                vararg options: ExtractOptions): Path {
     val cachePath = amperUserCacheRoot.path.resolve("extract.cache")
-    val hash = hashString(archiveFile.toString() + getExtractOptionsShortString(options)).substring(0, 6)
+    val hash = Downloader.hashString(archiveFile.toString() + getExtractOptionsShortString(options)).substring(0, 6)
     val directoryName = "${archiveFile.fileName}.${hash}.d"
     val targetDirectory = cachePath.resolve(directoryName)
     val flagFile = cachePath.resolve("${directoryName}.flag")

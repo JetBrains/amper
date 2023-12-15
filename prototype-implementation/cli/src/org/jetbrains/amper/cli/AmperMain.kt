@@ -1,5 +1,6 @@
 package org.jetbrains.amper.cli
 
+import org.slf4j.LoggerFactory
 import org.tinylog.jul.JulTinylogBridge
 import picocli.CommandLine.Command
 import picocli.CommandLine.Help
@@ -40,10 +41,12 @@ class AmperMain : Callable<Int> {
         JulTinylogBridge.activate()
 
         val root = projectRoot ?: Paths.get(System.getProperty("user.dir"))
-        println("Project Root: $root")
+        logger.info("Project Root: $root")
 
         val projectContext = ProjectContext.create(root)
 
         return AmperBackend.run(context = projectContext, tasksToRun = tasksToRun)
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }

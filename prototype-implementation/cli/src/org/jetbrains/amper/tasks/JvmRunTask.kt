@@ -7,9 +7,13 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.diagnostics.spanBuilder
+import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.util.ShellQuoting
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -47,32 +51,46 @@ class JvmRunTask(private val taskName: TaskName, private val module: PotatoModul
         buildClasspath(compileTaskResult, classpathList)
         val classpath = classpathList.joinToString(File.pathSeparator)
 
-        val args = listOf(
-            javaExecutable.pathString,
-            "-cp",
-            classpath,
-            mainClassReal,
-        )
-        println("jvm args: $args")
+        // TODO how to customize properties? -ea? -Xmx?
+        val jvmArgs = listOf("-ea")
 
-        // make it all cancellable and running in a different context
-        // runBlockingCancellable?
-        @Suppress("BlockingMethodInNonBlockingContext")
+        val args = listOf(javaExecutable.pathString) +
+                jvmArgs +
+                listOf(
+                    "-cp",
+                    classpath,
+                    mainClassReal,
+                )
 
-        val process = ProcessBuilder()
-            .command(*args.toTypedArray())
-            .inheritIO()
-            .start()
+        return spanBuilder("jvm-run")
+            .setAttribute("java", javaExecutable.pathString)
+            .setAttribute("jvm-args", ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
+            .setAttribute("classpath", classpath)
+            .setAttribute("main-class", mainClassReal).useWithScope {
+                // make it all cancellable and running in a different context
+                // runBlockingCancellable?
+                @Suppress("BlockingMethodInNonBlockingContext")
+                val process = ProcessBuilder()
+                    .command(*args.toTypedArray())
+                    .inheritIO()
+                    .start()
 
-        @Suppress("BlockingMethodInNonBlockingContext")
-        val rc = process.waitFor()
+                @Suppress("BlockingMethodInNonBlockingContext")
+                val rc = process.waitFor()
 
-        println("Process exited with exit code $rc")
+                val message = "Process exited with exit code $rc"
+                if (rc != 0) {
+                    logger.error(message)
+                } else {
+                    logger.info(message)
+                }
 
-        return object : TaskResult {
-            override val task: Task = this@JvmRunTask
-            override val dependencies: List<TaskResult> = dependenciesResult
-        }
+                // TODO Should non-zero exit code fail the task somehow?
+
+                object : TaskResult {
+                    override val dependencies: List<TaskResult> = dependenciesResult
+                }
+            }
     }
 
     // TODO this not how an entry point should be discovered, but whatever for now
@@ -120,4 +138,6 @@ class JvmRunTask(private val taskName: TaskName, private val module: PotatoModul
         compileTaskResult.resourcesRoot?.let { result.add(it) }
         compileTaskResult.classesRoot?.let { result.add(it) }
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }

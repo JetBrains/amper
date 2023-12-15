@@ -5,8 +5,8 @@ import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.cleanDirectory
-import org.jetbrains.amper.downloader.downloadFileToCacheLocation
 import org.jetbrains.amper.downloader.extractZip
 import org.jetbrains.amper.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -220,7 +220,7 @@ open class E2ETestFixture(val pathToProjects: String) {
                 val fakeBuildOutputRoot = AmperBuildOutputRoot(TestUtil.sharedTestCaches)
 
                 val commandLineTools = suspendingRetryWithExponentialBackOff {
-                    downloadFileToCacheLocation(
+                    Downloader.downloadFileToCacheLocation(
                         "https://dl.google.com/android/repository/commandlinetools-win-10406996_latest.zip",
                         fakeUserCacheRoot,
                     )

@@ -54,10 +54,6 @@ object AmperBackend {
 
         fun getTaskName(fragment: Fragment, type: JvmTaskType): TaskName {
             val module: PotatoModule = fragment2module[fragment] ?: run {
-                println("To find: ${System.identityHashCode(fragment)} ${fragment.src}")
-                for (key in fragment2module.keys) {
-                    println("${System.identityHashCode(key)} ${key.src}")
-                }
                 error("No module found for fragment: ${fragment.name}")
             }
 

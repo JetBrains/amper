@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.cli
 
+import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.ExtractOptions
-import org.jetbrains.amper.downloader.downloadFileToCacheLocation
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -28,7 +28,7 @@ object JdkDownloader {
 
     private suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot, os: OS, arch: Arch, infoLog: (String) -> Unit): Path {
         val jdkUrl = getUrl(os, arch).toString()
-        val jdkArchive = downloadFileToCacheLocation(jdkUrl, userCacheRoot)
+        val jdkArchive = Downloader.downloadFileToCacheLocation(jdkUrl, userCacheRoot)
         val jdkExtracted = extractFileToCacheLocation(
             jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
         infoLog("jps-bootstrap JDK is at $jdkExtracted")

@@ -5,6 +5,5 @@
 package org.jetbrains.amper.tasks
 
 interface TaskResult {
-    val task: Task
     val dependencies: List<TaskResult>
 }
