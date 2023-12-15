@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.tasks
 
+import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
@@ -12,6 +14,7 @@ import org.jetbrains.amper.cli.downloadAndExtractKotlinCompiler
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.frontend.KotlinPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -20,11 +23,14 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
+import kotlin.io.path.walk
 import kotlin.io.path.writeText
 
 class KotlinCompileTask(
@@ -36,6 +42,7 @@ class KotlinCompileTask(
     private val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ): Task {
+    @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         logger.info("compile ${module.userReadableName} -- ${fragment.name}")
 
@@ -58,13 +65,16 @@ class KotlinCompileTask(
             )
         }
 
+        val kotlinPart = fragment.parts.filterIsInstance<KotlinPart>().firstOrNull()
+        val languageVersion = kotlinPart?.languageVersion
         val kotlinVersion = "1.9.20"
 
         val classpath = immediateDependencies.mapNotNull { it.classesRoot } + mavenDependencies.classpath
 
-        val configuration = mapOf(
+        val configuration: Map<String, String> = mapOf(
             "jdk.version" to JdkDownloader.JBR_SDK_VERSION,
             "kotlin.version" to kotlinVersion,
+            "language.version" to (languageVersion ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
@@ -76,18 +86,33 @@ class KotlinCompileTask(
             // TODO settings!
             val kotlinHome = downloadAndExtractKotlinCompiler(kotlinVersion, userCacheRoot)
 
-            val args = listOf(
-                "-verbose",
+            val filesToCompile = fragment.src.walk().filter { it.extension == "kt" }.map { it.pathString }.toList()
+
+            val kotlincOptions = mutableListOf<String>()
+
+            if (languageVersion != null) {
+                kotlincOptions.add("-language-version")
+                kotlincOptions.add(languageVersion)
+            }
+
+            kotlincOptions.add("-jvm-target")
+            kotlincOptions.add("17")
+
+            val args = kotlincOptions + listOf(
                 "-classpath", classpath.joinToString(File.pathSeparator),
                 "-jdk-home", jdkHome.pathString,
                 "-no-stdlib",
-                "-jvm-target", "17",
                 "-d", taskOutputRoot.path.pathString,
-                fragment.src.pathString,
-            )
+            ) + filesToCompile
 
-            // TODO proper escaping, what kotlinc compiler expects here?
-            val argString = args.joinToString(" ") { "\"${it.replace("\"", "\\\"")}\"" }
+            // escaping rules from https://github.com/JetBrains/kotlin/blob/6161f44d91e235750077e1aaa5faff7047316190/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/preprocessCommandLineArguments.kt#L83
+            val argString = args.joinToString(" ") { arg ->
+                if (arg.contains(" ") || arg.contains("'")) {
+                    "'${arg.replace("\\", "\\\\").replace("'", "\\'")}'"
+                } else {
+                    arg
+                }
+            }
 
             tempRoot.path.createDirectories()
             val argFile = Files.createTempFile(tempRoot.path, "kotlin-args-", ".txt")
@@ -109,21 +134,25 @@ class KotlinCompileTask(
             cleanDirectory(taskOutputRoot.path)
 
             spanBuilder("kotlinc")
-                .setAttribute("jvm", javaExecutable.pathString)
-                .setAttribute("jvm-args", ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
-                .setAttribute("args", argString)
+                .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmArgs)
+                .setAttribute(AttributeKey.stringArrayKey("args"), args)
                 .setAttribute("version", kotlinVersion)
-                .useWithScope {
-                    val process = ProcessBuilder()
-                        .command(*jvmArgs.toTypedArray())
-                        .inheritIO()
-                        .directory(jdkHome.toFile())
-                        .start()
+                .useWithScope { span ->
+                    logger.info("Calling kotlinc $argString")
+                    logger.info(ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
 
-                    // wrap with cancellation!
-                    val rc = process.waitFor()
-                    if (rc != 0) {
-                        error("kotlinc exited with error code $rc")
+                    val result = BuildPrimitives.runProcessAndGetOutput(jvmArgs, jdkHome)
+                    val stdout = result.stdout.toString()
+                    val stderr = result.stderr.toString()
+
+                    span.setAttribute("exit-code", result.exitCode.toLong())
+                    span.setAttribute("stdout", stdout)
+                    span.setAttribute("stderr", stderr)
+
+                    if (result.exitCode != 0) {
+                        error("kotlinc exited with exit code ${result.exitCode}" +
+                                (if (stderr.isNotEmpty()) "\nSTDERR:\n${stderr}\n" else "") +
+                                (if (stdout.isNotEmpty()) "\nSTDOUT:\n${stdout}\n" else ""))
                     }
 
                     ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path))

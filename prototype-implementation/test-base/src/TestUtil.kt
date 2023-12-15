@@ -25,15 +25,16 @@ object TestUtil {
     // Shared between different runs of testing
     // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
     // on TeamCity: shared place on build agent which will be fully deleted if TeamCity lacks space on that agent
+    // Always run tests in a directory with a space in the name, tests quoting in a lot of places
     val sharedTestCaches: Path by lazy {
         val dir = if (TeamCityHelper.isUnderTeamCity) {
             val persistentCachePath = TeamCityHelper.systemProperties["agent.persistent.cache"]
             check(!persistentCachePath.isNullOrBlank()) {
                 "'agent.persistent.cache' system property is required under TeamCity"
             }
-            Paths.get(persistentCachePath) / "amper-build"
+            Paths.get(persistentCachePath) / "amper build"
         } else {
-            amperCheckoutRoot / "build" / "shared-caches"
+            amperCheckoutRoot / "build" / "shared caches"
         }
 
         Files.createDirectories(dir)

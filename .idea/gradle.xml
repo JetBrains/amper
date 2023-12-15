@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
+            <option value="$PROJECT_DIR$/prototype-implementation/amper-backend-test" />
             <option value="$PROJECT_DIR$/prototype-implementation/cli" />
             <option value="$PROJECT_DIR$/prototype-implementation/core" />
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />
@@ -19,6 +20,7 @@
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/schema" />
             <option value="$PROJECT_DIR$/prototype-implementation/frontend/util" />
             <option value="$PROJECT_DIR$/prototype-implementation/gradle-integration" />
+            <option value="$PROJECT_DIR$/prototype-implementation/test-base" />
           </set>
         </option>
       </GradleProjectSettings>

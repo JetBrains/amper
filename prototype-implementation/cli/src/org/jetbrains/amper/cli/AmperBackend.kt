@@ -33,8 +33,8 @@ import kotlin.io.path.pathString
 
 object AmperBackend {
     fun run(context: ProjectContext, tasksToRun: List<String>): Int = with(CliProblemReporterContext) {
-        val model = spanBuilder("loading model").setAttribute("root", context.root.pathString).startSpan().use {
-            when (val result = ModelInit.getModel(context.root)) {
+        val model = spanBuilder("loading model").setAttribute("root", context.projectRoot.path.pathString).startSpan().use {
+            when (val result = ModelInit.getModel(context.projectRoot.path)) {
                 is Result.Failure -> throw result.exception
                 is Result.Success -> result.value
             }
@@ -101,7 +101,7 @@ object AmperBackend {
                     // TODO this does not support runtime dependencies
                     //  and dependency graph for it will be different
                     val jvmRunTaskName = getTaskName(fragment, JvmTaskType.RUN)
-                    val jvmRunTask = JvmRunTask(jvmRunTaskName, module, fragment, context.userCacheRoot)
+                    val jvmRunTask = JvmRunTask(jvmRunTaskName, module, fragment, context.userCacheRoot, context.projectRoot)
                     tasks.registerTask(jvmRunTaskName, jvmRunTask)
                     tasks.registerDependency(jvmRunTaskName, compileTaskName)
                 }

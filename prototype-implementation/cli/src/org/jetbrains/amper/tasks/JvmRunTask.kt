@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.tasks
 
+import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.TaskName
@@ -12,6 +14,8 @@ import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -24,7 +28,13 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 
-class JvmRunTask(private val taskName: TaskName, private val module: PotatoModule, private val fragment: LeafFragment, private val userCacheRoot: AmperUserCacheRoot): Task {
+class JvmRunTask(
+    private val taskName: TaskName,
+    private val module: PotatoModule,
+    private val fragment: LeafFragment,
+    private val userCacheRoot: AmperUserCacheRoot,
+    private val projectRoot: AmperProjectRoot,
+) : Task {
     private val mainClassName = fragment.parts.filterIsInstance<JvmPart>().singleOrNull()?.mainClass
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -67,19 +77,17 @@ class JvmRunTask(private val taskName: TaskName, private val module: PotatoModul
             .setAttribute("jvm-args", ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
             .setAttribute("classpath", classpath)
             .setAttribute("main-class", mainClassReal).useWithScope {
-                // make it all cancellable and running in a different context
-                // runBlockingCancellable?
-                @Suppress("BlockingMethodInNonBlockingContext")
-                val process = ProcessBuilder()
-                    .command(*args.toTypedArray())
-                    .inheritIO()
-                    .start()
+                val workingDir = when (val source = module.source) {
+                    is PotatoModuleFileSource -> source.buildDir
+                    PotatoModuleProgrammaticSource -> projectRoot.path
+                }
 
-                @Suppress("BlockingMethodInNonBlockingContext")
-                val rc = process.waitFor()
+                val result = BuildPrimitives.runProcessAndGetOutput(args, workingDir)
 
-                val message = "Process exited with exit code $rc"
-                if (rc != 0) {
+                val message = "Process exited with exit code ${result.exitCode}" +
+                        (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
+                        (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
+                if (result.exitCode != 0) {
                     logger.error(message)
                 } else {
                     logger.info(message)
@@ -101,9 +109,9 @@ class JvmRunTask(private val taskName: TaskName, private val module: PotatoModul
         }
 
         val implicitMainFile = fragment.src.walk(PathWalkOption.BREADTH_FIRST)
-                .find { it.name.equals("main.kt", ignoreCase = true) }
-                ?.normalize()
-                ?.toAbsolutePath()
+            .find { it.name.equals("main.kt", ignoreCase = true) }
+            ?.normalize()
+            ?.toAbsolutePath()
 
         if (implicitMainFile == null) {
             return null
@@ -123,8 +131,9 @@ class JvmRunTask(private val taskName: TaskName, private val module: PotatoModul
     //  also it depends on task hierarchy, which could be different from classpath
     //  but for demo it's fine
     private fun buildClasspath(compileTaskResult: KotlinCompileTask.TaskResult, result: MutableList<Path>) {
-        val externalClasspath = compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
-            .flatMap { it.classpath }
+        val externalClasspath =
+            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+                .flatMap { it.classpath }
         for (path in externalClasspath) {
             if (!result.contains(path)) {
                 result.add(path)

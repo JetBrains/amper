@@ -6,11 +6,15 @@ import java.util.*
 object TeamCityHelper {
     val isUnderTeamCity: Boolean = System.getenv("TEAMCITY_VERSION") != null
 
-    val checkoutDirectory: Path?
+    private fun requireRunUnderTeamcity() {
+        require(isUnderTeamCity) {
+            "This method must be run under TeamCity. Use 'isUnderTeamCity'."
+        }
+    }
+
+    val checkoutDirectory: Path
         get() {
-            if (!isUnderTeamCity) {
-                return null
-            }
+            requireRunUnderTeamcity()
 
             val name = "teamcity.build.checkoutDir"
             val value = systemProperties[name]
@@ -26,12 +30,9 @@ object TeamCityHelper {
             return file
         }
 
-    val tempDirectory: Path?
+    val tempDirectory: Path
         get() {
-            if (!isUnderTeamCity) {
-                return null
-            }
-
+            requireRunUnderTeamcity()
             val propertyName = "teamcity.build.tempDir"
             val tempPath = systemProperties[propertyName]
                 ?: throw IllegalStateException("TeamCity must provide system property $propertyName")
@@ -39,9 +40,8 @@ object TeamCityHelper {
         }
 
     val systemProperties: Map<String, String> by lazy {
-        if (!isUnderTeamCity) {
-            return@lazy emptyMap()
-        }
+        requireRunUnderTeamcity()
+
         val systemPropertiesEnvName = "TEAMCITY_BUILD_PROPERTIES_FILE"
         val systemPropertiesFile = System.getenv(systemPropertiesEnvName)
         if (systemPropertiesFile == null || systemPropertiesFile.isEmpty()) {
@@ -55,9 +55,8 @@ object TeamCityHelper {
     }
 
     val allProperties: Map<String, String> by lazy {
-        if (!isUnderTeamCity) {
-            return@lazy emptyMap()
-        }
+        requireRunUnderTeamcity()
+
         val propertyName = "teamcity.configuration.properties.file"
         val value = systemProperties[propertyName]
         if (value.isNullOrEmpty()) {

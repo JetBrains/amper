@@ -14,7 +14,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 data class ProjectContext(
-    val root: Path,
+    val projectRoot: AmperProjectRoot,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
     // in the future it'll be customizable to support out-of-tree builds, e.g. on CI
@@ -22,6 +22,19 @@ data class ProjectContext(
 ) {
     companion object {
         fun create(projectRoot: Path): ProjectContext {
+            return ProjectContext(
+                projectRoot = AmperProjectRoot(projectRoot),
+                buildOutputRoot = AmperBuildOutputRoot(projectRoot.resolve("build")),
+                projectTempRoot = AmperProjectTempRoot(projectRoot.resolve("build/temp-temp")),
+                userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
+            )
+        }
+    }
+}
+
+data class AmperUserCacheRoot(val path: Path) {
+    companion object {
+        fun fromCurrentUser(): AmperUserCacheRoot {
             val userHome = Path.of(System.getProperty("user.home"))
 
             val localAppData = when (OS.type) {
@@ -35,16 +48,11 @@ data class ProjectContext(
 
             val localAppDataAmper = localAppData.resolve("Amper").resolve("caches")
 
-            return ProjectContext(
-                root = projectRoot,
-                buildOutputRoot = AmperBuildOutputRoot(projectRoot.resolve("build")),
-                projectTempRoot = AmperProjectTempRoot(projectRoot.resolve("build/temp-temp")),
-                userCacheRoot = AmperUserCacheRoot(localAppDataAmper),
-            )
+            return AmperUserCacheRoot(localAppDataAmper)
         }
     }
 }
 
-data class AmperUserCacheRoot(val path: Path)
 data class AmperBuildOutputRoot(val path: Path)
 data class AmperProjectTempRoot(val path: Path)
+data class AmperProjectRoot(val path: Path)
