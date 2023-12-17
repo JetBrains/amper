@@ -12,7 +12,6 @@ import org.jetbrains.amper.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Properties
@@ -21,7 +20,7 @@ import java.util.zip.ZipFile
 import kotlin.io.path.CopyActionResult
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
-import kotlin.io.path.deleteRecursively
+import kotlin.io.path.deleteExisting
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -63,8 +62,6 @@ open class E2ETestFixture(val pathToProjects: String) {
         )
     }
 
-
-    @OptIn(ExperimentalPathApi::class)
     internal fun test(
         projectName: String,
         vararg buildArguments: String,
@@ -79,28 +76,24 @@ open class E2ETestFixture(val pathToProjects: String) {
 
         newEnv["ANDROID_HOME"] = androidHome.pathString
 
-        try {
-            val runner = gradleRunner
-                .withPluginClasspath()
-                .withProjectDir(tempDir.toFile())
-                .withEnvironment(newEnv)
+        val runner = gradleRunner
+            .withPluginClasspath()
+            .withProjectDir(tempDir.toFile())
+            .withEnvironment(newEnv)
 //                .withDebug(true)
-                .withArguments(*buildArguments, "--stacktrace")
-            val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
-            val output = buildResult.output
+            .withArguments(*buildArguments, "--stacktrace")
+        val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
+        val output = buildResult.output.replace("\r", "")
 
-            val missingStrings = expectOutputToHave.filter { !output.contains(it) }
-            assertTrue(missingStrings.isEmpty(),
-                "The following strings are not found in the build output:\n" +
-                        missingStrings.joinToString("\n") { "\t" + it } +
-                        "\nOutput:\n$output")
+        val missingStrings = expectOutputToHave.filter { !output.contains(it) }
+        assertTrue(missingStrings.isEmpty(),
+            "The following strings are not found in the build output:\n" +
+                    missingStrings.joinToString("\n") { "\t" + it } +
+                    "\nOutput:\n$output")
 
-            if (checkForWarnings) output.checkForWarnings()
+        if (checkForWarnings) output.checkForWarnings()
 
-            additionalCheck(tempDir)
-        } finally {
-            tempDir.deleteRecursively()
-        }
+        additionalCheck(tempDir)
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -112,8 +105,9 @@ open class E2ETestFixture(val pathToProjects: String) {
         assertTrue(originalDir.exists(), "Test project not found at $originalDir")
 
         // prepare data
-        val tempDir = File.createTempFile("test-", "-$projectName").toPath()
-        tempDir.deleteRecursively()
+        val tempDir = Files.createTempFile(TestUtil.tempDir, "test-", "-$projectName")
+        tempDir.deleteExisting()
+        GradleDaemonManager.deleteFileOrDirectoryOnExit(tempDir)
 
         val followLinks = false
         val ignore = setOf(".gradle", "build", "local.properties")

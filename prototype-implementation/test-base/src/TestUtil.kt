@@ -39,4 +39,16 @@ object TestUtil {
 
         Files.createDirectories(dir)
     }
+
+    // Always run tests in a directory with a space in the name, tests quoting in a lot of places
+    val tempDir: Path by lazy {
+        val dir = if (TeamCityHelper.isUnderTeamCity) {
+            TeamCityHelper.tempDirectory / "amper tests"
+        } else {
+            amperCheckoutRoot / "build" / "tests temp"
+        }
+        Files.createDirectories(dir)
+        println("Temp dir for tests: $dir")
+        dir
+    }
 }
