@@ -32,7 +32,9 @@ abstract class FileExpectTest(
 
         val actualContent = getActualContent(input)
 
-        assertEquals(expectContent, actualContent)
+        // expected data on disk may have a different line endings, you may never know
+        // for comparing text data '\r' never matters anyway
+        assertEquals(expectContent.replace("\r", ""), actualContent.replace("\r", ""))
     }
 
     abstract fun getActualContent(input: Path): String
