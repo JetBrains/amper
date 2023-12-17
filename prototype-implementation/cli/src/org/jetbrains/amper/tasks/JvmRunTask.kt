@@ -47,7 +47,7 @@ class JvmRunTask(
             discoveredMainClass
         }
 
-        val compileTaskResult = dependenciesResult.filterIsInstance<KotlinCompileTask.TaskResult>().singleOrNull()
+        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
@@ -130,7 +130,7 @@ class JvmRunTask(
     //  also will fail on conflicting dependencies
     //  also it depends on task hierarchy, which could be different from classpath
     //  but for demo it's fine
-    private fun buildClasspath(compileTaskResult: KotlinCompileTask.TaskResult, result: MutableList<Path>) {
+    private fun buildClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
         val externalClasspath =
             compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
                 .flatMap { it.classpath }
@@ -140,7 +140,7 @@ class JvmRunTask(
             }
         }
 
-        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<KotlinCompileTask.TaskResult>()) {
+        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
             buildClasspath(depCompileResult, result)
         }
 

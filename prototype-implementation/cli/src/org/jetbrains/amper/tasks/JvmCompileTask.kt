@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.KotlinPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
@@ -33,7 +32,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.io.path.writeText
 
-class KotlinCompileTask(
+class JvmCompileTask(
     private val module: PotatoModule,
     private val fragment: LeafFragment,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -86,8 +85,6 @@ class KotlinCompileTask(
             // TODO settings!
             val kotlinHome = downloadAndExtractKotlinCompiler(kotlinVersion, userCacheRoot)
 
-            val filesToCompile = fragment.src.walk().filter { it.extension == "kt" }.map { it.pathString }.toList()
-
             val kotlincOptions = mutableListOf<String>()
 
             if (languageVersion != null) {
@@ -103,7 +100,8 @@ class KotlinCompileTask(
                 "-jdk-home", jdkHome.pathString,
                 "-no-stdlib",
                 "-d", taskOutputRoot.path.pathString,
-            ) + filesToCompile
+                fragment.src.pathString,
+            )
 
             // escaping rules from https://github.com/JetBrains/kotlin/blob/6161f44d91e235750077e1aaa5faff7047316190/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/preprocessCommandLineArguments.kt#L83
             val argString = args.joinToString(" ") { arg ->
@@ -118,46 +116,62 @@ class KotlinCompileTask(
             val argFile = Files.createTempFile(tempRoot.path, "kotlin-args-", ".txt")
             argFile.writeText(argString)
 
-            val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
-            val jvmArgs = listOf(
-                javaExecutable.pathString,
-                "-Dkotlin.home=$kotlinHome",
-                "-cp",
-                (kotlinHome / "lib" / "kotlin-preloader.jar").pathString,
-                "org.jetbrains.kotlin.preloading.Preloader",
-                "-cp",
-                (kotlinHome / "lib" / "kotlin-compiler.jar").pathString,
-                "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
-                "@${argFile}",
-            )
+            try {
+                val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
+                val jvmArgs = listOf(
+                    javaExecutable.pathString,
+                    "-Dkotlin.home=$kotlinHome",
+                    "-cp",
+                    (kotlinHome / "lib" / "kotlin-preloader.jar").pathString,
+                    "org.jetbrains.kotlin.preloading.Preloader",
+                    "-cp",
+                    (kotlinHome / "lib" / "kotlin-compiler.jar").pathString,
+                    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+                    "@${argFile}",
+                )
 
-            cleanDirectory(taskOutputRoot.path)
+                cleanDirectory(taskOutputRoot.path)
 
-            spanBuilder("kotlinc")
-                .setAttribute("amper-module", module.userReadableName)
-                .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmArgs)
-                .setAttribute(AttributeKey.stringArrayKey("args"), args)
-                .setAttribute("version", kotlinVersion)
-                .useWithScope { span ->
-                    logger.info("Calling kotlinc $argString")
-                    logger.info(ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
-
-                    val result = BuildPrimitives.runProcessAndGetOutput(jvmArgs, jdkHome)
-                    val stdout = result.stdout.toString()
-                    val stderr = result.stderr.toString()
-
-                    span.setAttribute("exit-code", result.exitCode.toLong())
-                    span.setAttribute("stdout", stdout)
-                    span.setAttribute("stderr", stderr)
-
-                    if (result.exitCode != 0) {
-                        error("kotlinc exited with exit code ${result.exitCode}" +
-                                (if (stderr.isNotEmpty()) "\nSTDERR:\n${stderr}\n" else "") +
-                                (if (stdout.isNotEmpty()) "\nSTDOUT:\n${stdout}\n" else ""))
+                spanBuilder("kotlinc")
+                    .setAttribute("amper-module", module.userReadableName)
+                    .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmArgs)
+                    .setAttribute(AttributeKey.stringArrayKey("args"), args)
+                    .setAttribute("version", kotlinVersion)
+                    .useWithScope { span ->
+                        logger.info("Calling kotlinc $argString")
+                        BuildPrimitives.runProcessAndAssertExitCode(jvmArgs, jdkHome, span)
                     }
+            } finally {
+                BuildPrimitives.deleteLater(argFile)
+            }
 
-                    ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path))
-                }
+            val javaFilesToCompile = fragment.src.walk().filter { it.extension == "java" }.map { it.pathString }.toList()
+            if (javaFilesToCompile.isNotEmpty()) {
+                val javac = listOf(
+                    JdkDownloader.getJavacExecutable(jdkHome).pathString,
+                    "-classpath", (classpath + taskOutputRoot.path.pathString).joinToString(File.pathSeparator),
+                    // TODO ok by default?
+                    "-encoding", "utf-8",
+                    // TODO settings
+                    "-g",
+                    // https://blog.ltgt.net/most-build-tools-misuse-javac/
+                    // we compile module by module, so we don't need javac lookup into other modules
+                    "-sourcepath", "", "-implicit:none",
+                    "-d", taskOutputRoot.path.pathString,
+                ) + javaFilesToCompile
+
+                spanBuilder("javac")
+                    .setAttribute("amper-module", module.userReadableName)
+                    .setAttribute(AttributeKey.stringArrayKey("args"), javac)
+                    .setAttribute("jdk-home", jdkHome.pathString)
+                    // TODO get version from jdkHome/release
+                    // .setAttribute("version", jdkHome.)
+                    .useWithScope { span ->
+                        BuildPrimitives.runProcessAndAssertExitCode(javac, jdkHome, span)
+                    }
+            }
+
+            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path))
         }
 
         return TaskResult(

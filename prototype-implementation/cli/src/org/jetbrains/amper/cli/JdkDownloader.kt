@@ -44,15 +44,18 @@ object JdkDownloader {
         return jdkHome
     }
 
-    fun getJavaExecutable(jdkHome: Path): Path {
-        for (candidateRelative in mutableListOf("bin/java", "bin/java.exe")) {
+    private fun getExecutable(jdkHome: Path, executableName: String): Path {
+        for (candidateRelative in mutableListOf("bin/$executableName", "bin/$executableName.exe")) {
             val candidate = jdkHome.resolve(candidateRelative)
             if (Files.exists(candidate)) {
                 return candidate
             }
         }
-        throw IllegalStateException("No java executables were found under $jdkHome")
+        throw IllegalStateException("No $executableName executables were found under $jdkHome")
     }
+
+    fun getJavaExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "java")
+    fun getJavacExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "javac")
 
     private fun getUrl(os: OS, arch: Arch): URI {
         val ext = ".tar.gz"

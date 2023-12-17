@@ -22,7 +22,7 @@ import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.resolve.resolved
 import org.jetbrains.amper.tasks.JvmRunTask
-import org.jetbrains.amper.tasks.KotlinCompileTask
+import org.jetbrains.amper.tasks.JvmCompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -48,7 +48,7 @@ object AmperBackend {
             .toMap(IdentityHashMap())
 
         fun getTaskOutputPath(taskName: TaskName): TaskOutputRoot {
-            val out = context.buildOutputRoot.path.resolve("tasks").resolve(taskName.path.joinToString("."))
+            val out = context.buildOutputRoot.path.resolve("tasks").resolve(taskName.name.replace(':', '_'))
             return TaskOutputRoot(path = out)
         }
 
@@ -65,8 +65,7 @@ object AmperBackend {
 
             // TODO Check how to better name it
             val task = if (fragment.isTest) "${classifier}JvmTest" else "${classifier}Jvm"
-            // TODO include path in hierarchy
-            return TaskName(listOf(module.userReadableName, task))
+            return TaskName.fromHierarchy(listOf(module.userReadableName, task))
         }
 
         // always process in fixed order, not other requirements yet
@@ -88,7 +87,7 @@ object AmperBackend {
                 }
 
                 val compileTaskName = getTaskName(fragment, JvmTaskType.COMPILE)
-                tasks.registerTask(compileTaskName, KotlinCompileTask(module, fragment, context.userCacheRoot, context.projectTempRoot, getTaskOutputPath(compileTaskName), compileTaskName, executeOnChangedInputs))
+                tasks.registerTask(compileTaskName, JvmCompileTask(module, fragment, context.userCacheRoot, context.projectTempRoot, getTaskOutputPath(compileTaskName), compileTaskName, executeOnChangedInputs))
 
                 val resolveDependenciesTaskName = getTaskName(fragment, JvmTaskType.DEPENDENCIES)
                 val task = ResolveExternalDependenciesTask(module, fragment, context.userCacheRoot, resolveDependenciesTaskName, executeOnChangedInputs)
@@ -179,7 +178,7 @@ object AmperBackend {
         }
 
         runBlocking(Dispatchers.Default) {
-            taskExecutor.run(tasksToRun.map { TaskName.parse(it) })
+            taskExecutor.run(tasksToRun.map { TaskName(it) })
         }
 
 /*
@@ -211,15 +210,13 @@ object AmperBackend {
     }
 }
 
-data class TaskName(val path: List<String>) {
-    override fun toString(): String = ":" + path.joinToString(":")
+data class TaskName(val name: String) {
+    init {
+        require(name.isNotBlank())
+    }
 
     companion object {
-        fun parse(s: String): TaskName {
-            if (s.isBlank()) error("Empty task name")
-            if (!s.startsWith(":")) error("Task name must start with ':'")
-            return TaskName(s.drop(1).split(":"))
-        }
+        fun fromHierarchy(path: List<String>) = TaskName(path.joinToString(":", prefix = ":"))
     }
 }
 

@@ -5,19 +5,43 @@
 package org.jetbrains.amper
 
 import com.google.common.util.concurrent.Futures
+import io.opentelemetry.api.trace.Span
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
+import org.jetbrains.amper.util.ShellQuoting
 import org.jetbrains.amper.util.UnboundedExecutor
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.io.PrintStream
 import java.nio.file.Path
 import java.util.concurrent.Callable
+import kotlin.io.path.deleteIfExists
 
 /**
  * Ordinary operations like running processes and copying files require
  * a comprehensive support in a build system to make it observable
  */
 object BuildPrimitives {
+    /**
+     * Delete one file on background, report errors if any to log warning only
+     */
+    @OptIn(DelicateCoroutinesApi::class)
+    fun deleteLater(file: Path) {
+        // just in case global scope will be cancelled
+        file.toFile().deleteOnExit()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                file.deleteIfExists()
+            } catch (t: Throwable) {
+                logger.warn("Unable to delete file '$file': ${t.message}", t)
+            }
+        }
+    }
+
     class ProcessResult(val exitCode: Int, val stdout: String, val stderr: String)
     suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult {
         // make it all cancellable and running in a different context
@@ -49,6 +73,28 @@ object BuildPrimitives {
 
         val result = ProcessResult(exitCode = rc, stdout = stdout, stderr = stderr)
         return result
+    }
+
+    suspend fun runProcessAndAssertExitCode(command: List<String>, workingDir: Path, span: Span) {
+        require(command.isNotEmpty())
+
+        logger.info("Calling ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
+
+        val result = runProcessAndGetOutput(command, workingDir)
+        val stdout = result.stdout
+        val stderr = result.stderr
+
+        span.setAttribute("exit-code", result.exitCode.toLong())
+        span.setAttribute("stdout", stdout)
+        span.setAttribute("stderr", stderr)
+
+        if (result.exitCode != 0) {
+            error(
+                "${command.first()} exited with exit code ${result.exitCode}" +
+                        (if (stderr.isNotEmpty()) "\nSTDERR:\n${stderr}\n" else "") +
+                        (if (stdout.isNotEmpty()) "\nSTDOUT:\n${stdout}\n" else "")
+            )
+        }
     }
 
     private fun readStreamAndPrintToConsole(inputStream: InputStream, consoleStream: PrintStream): StringBuilder {

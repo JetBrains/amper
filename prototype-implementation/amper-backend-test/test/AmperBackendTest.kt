@@ -89,6 +89,24 @@ class AmperBackendTest {
         assertEquals("language-version", kotlincAmperModule)
     }
 
+    @Test
+    fun `mixed java kotlin`() {
+        val projectContext = ProjectContext(
+            projectRoot = AmperProjectRoot(testDataRoot.resolve("java-kotlin-mixed")),
+            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
+            userCacheRoot = userCacheRoot,
+            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
+        )
+
+        val rc = AmperBackend.run(projectContext, listOf(":java-kotlin-mixed:runJvm"))
+        assertEquals(0, rc)
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Output: <XYZ>"
+        assertInfoLogContains(find)
+    }
+
     private fun assertInfoLogContains(startsWith: String) {
         assertTrue("Log message starting with '$startsWith' was not found") {
             log.entries.any { it.level.ordinal >= Level.INFO.ordinal && it.message.startsWith(startsWith) }
