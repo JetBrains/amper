@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.resolve.resolved
 import org.jetbrains.amper.tasks.JvmRunTask
 import org.jetbrains.amper.tasks.JvmCompileTask
+import org.jetbrains.amper.tasks.JvmTestTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -57,15 +58,16 @@ object AmperBackend {
                 error("No module found for fragment: ${fragment.name}")
             }
 
-            val classifier = when (type) {
-                JvmTaskType.COMPILE -> "compile"
-                JvmTaskType.DEPENDENCIES -> "resolveDependencies"
-                JvmTaskType.RUN -> "run"
+            val fragmentSuffix = if (fragment.isTest) "JvmTest" else "Jvm"
+
+            val taskName = when (type) {
+                JvmTaskType.COMPILE -> "compile$fragmentSuffix"
+                JvmTaskType.DEPENDENCIES -> "resolveDependencies$fragmentSuffix"
+                JvmTaskType.RUN -> "runJvm"
+                JvmTaskType.TEST -> "testJvm"
             }
 
-            // TODO Check how to better name it
-            val task = if (fragment.isTest) "${classifier}JvmTest" else "${classifier}Jvm"
-            return TaskName.fromHierarchy(listOf(module.userReadableName, task))
+            return TaskName.fromHierarchy(listOf(module.userReadableName, taskName))
         }
 
         // always process in fixed order, not other requirements yet
@@ -95,10 +97,14 @@ object AmperBackend {
 
                 tasks.registerDependency(compileTaskName, dependsOn = resolveDependenciesTaskName)
 
-                // or isDefault?
-                if (!fragment.isTest) {
-                    // TODO this does not support runtime dependencies
-                    //  and dependency graph for it will be different
+                // TODO this does not support runtime dependencies
+                //  and dependency graph for it will be different
+                if (fragment.isTest) {
+                    val jvmTestTaskName = getTaskName(fragment, JvmTaskType.TEST)
+                    val jvmTestTask = JvmTestTask(context.userCacheRoot, getTaskOutputPath(jvmTestTaskName), context.projectRoot, module)
+                    tasks.registerTask(jvmTestTaskName, jvmTestTask)
+                    tasks.registerDependency(jvmTestTaskName, compileTaskName)
+                } else {
                     val jvmRunTaskName = getTaskName(fragment, JvmTaskType.RUN)
                     val jvmRunTask = JvmRunTask(jvmRunTaskName, module, fragment, context.userCacheRoot, context.projectRoot)
                     tasks.registerTask(jvmRunTaskName, jvmRunTask)
@@ -207,6 +213,7 @@ object AmperBackend {
         COMPILE,
         DEPENDENCIES,
         RUN,
+        TEST,
     }
 }
 

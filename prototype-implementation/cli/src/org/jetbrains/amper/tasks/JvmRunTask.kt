@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.PathWalkOption
 import kotlin.io.path.isDirectory
@@ -57,8 +56,7 @@ class JvmRunTask(
         // TODO some of them should be coming from module files, some from command line
         // ideally ./amper :cli:jvmRun --debug
 
-        val classpathList = mutableListOf<Path>()
-        buildClasspath(compileTaskResult, classpathList)
+        val classpathList = CommonTaskUtils.buildClasspath(compileTaskResult)
         val classpath = classpathList.joinToString(File.pathSeparator)
 
         // TODO how to customize properties? -ea? -Xmx?
@@ -124,27 +122,6 @@ class JvmRunTask(
         val result = "${prefix}MainKt"
 
         return result
-    }
-
-    // TODO this not how classpath should be built, it does not preserve order
-    //  also will fail on conflicting dependencies
-    //  also it depends on task hierarchy, which could be different from classpath
-    //  but for demo it's fine
-    private fun buildClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
-        val externalClasspath =
-            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
-                .flatMap { it.classpath }
-        for (path in externalClasspath) {
-            if (!result.contains(path)) {
-                result.add(path)
-            }
-        }
-
-        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
-            buildClasspath(depCompileResult, result)
-        }
-
-        compileTaskResult.classesOutputRoot?.let { result.add(it) }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

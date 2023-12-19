@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
 import java.nio.file.Path
+import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -24,6 +25,26 @@ class AmperBackendTest {
 
     @RegisterExtension
     val openTelemetryCollector = OpenTelemetryCollectorExtension()
+
+    @Test
+    fun `jvm kotlin-test smoke test`() {
+        val projectContext = getProjectContext("jvm-kotlin-test-smoke")
+        assertEquals(0, AmperBackend.run(projectContext, listOf(":jvm-kotlin-test-smoke:testJvm")))
+
+        val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "junit-platform-console-standalone" }
+        val stdout = testLauncherSpan.attributes[AttributeKey.stringKey("stdout")]!!
+
+        // not captured by default...
+        assertTrue(stdout.contains("Hello from test method"), stdout)
+
+        assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
+        assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
+
+        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-kotlin-test-smoke_testJvm/reports/TEST-junit-jupiter.xml")
+            .readText()
+
+        assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
+    }
 
     @Test
     fun `get jvm resource from dependency`() {

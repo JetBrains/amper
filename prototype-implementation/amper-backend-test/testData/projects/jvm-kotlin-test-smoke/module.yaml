@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+# TODO this should work by default, but who sets defaults?
+test-dependencies:
+  - $kotlin-test-junit5
+
+test-settings:
+  junit: junit-5

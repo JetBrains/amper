@@ -47,6 +47,8 @@ object BuildPrimitives {
         }
     }
 
+    // TODO sometimes handling entire stdout/stderr in memory won't work
+    //  do we want to offload big (and probably only big outputs) to the disk?
     class ProcessResult(val exitCode: Int, val stdout: String, val stderr: String)
     suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult {
         // make it all cancellable and running in a different context
