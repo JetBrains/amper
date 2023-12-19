@@ -4,38 +4,33 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.helper.aomTest
+import org.jetbrains.amper.frontend.helper.copyLocal
+import org.jetbrains.amper.frontend.helper.diagnosticsTest
 import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class RepositoriesTest : TestWithBuildFile() {
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `parsing id and url `() {
         withBuildFile {
-//            testParseWithTemplates("repositories-id-and-url")
+            aomTest("repositories-id-and-url")
         }
     }
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `parsing credentials`() {
         withBuildFile {
-//            testParseWithTemplates("repositories-credentials") {
-//                copyLocal("repositories-credentials.local.properties")
-//            }
+            copyLocal("repositories-credentials.local.properties", buildDir)
+            aomTest("repositories-credentials")
         }
     }
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `repositories no credentials file`() {
         withBuildFile {
-//            testParseWithTemplates("repositories-no-credentials-file")
+            diagnosticsTest("repositories-no-credentials-file")
         }
     }
 }

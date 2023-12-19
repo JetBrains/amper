@@ -69,5 +69,5 @@ class DiagnosticsTestRun(caseName: String) : BaseTestRun(caseName) {
 
     context(BuildFileAware, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
-        inputPath.readText().trimTrailingWhitespacesAndEmptyLines()
+        readContentsAndReplace(inputPath).trimTrailingWhitespacesAndEmptyLines()
 }

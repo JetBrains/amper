@@ -11,10 +11,15 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyTo
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.readText
 import kotlin.test.asserter
 
 
@@ -91,31 +96,26 @@ internal fun PotatoModule.prettyPrint(): String {
     }
 }
 
-internal class TestDirectory(val dir: File) {
-
-    init {
-        try {
-            Files.createDirectories(dir.toPath())
-        } catch (e: FileAlreadyExistsException) {
-            // do nothing
-        }
-    }
-
-    inline fun directory(name: String, block: TestDirectory.() -> Unit = {}) {
-        val newDir = File(dir, name)
-        TestDirectory(newDir).apply(block)
-    }
-
-    inline fun file(name: String, block: File.() -> Unit = {}) {
-        File(dir, name).apply { createNewFile() }.block()
-    }
-
-    fun copyLocal(localName: String, newName: String = localName) {
-        val localFile = File(".").resolve("testResources/$localName").normalize().takeIf(File::exists)
-        localFile?.copyTo(File(dir, newName), overwrite = true)
-    }
+fun copyLocal(localName: String, dest: Path, newName: String = localName) {
+    val localFile = Path(".").resolve("testResources/$localName").normalize().takeIf(Path::exists)
+    localFile?.copyTo(dest / newName, overwrite = true)
 }
 
-internal inline fun project(projectDir: File, block: TestDirectory.() -> Unit): TestDirectory {
-    return TestDirectory(projectDir).apply(block)
+context(BuildFileAware)
+fun readContentsAndReplace(
+    expectedPath: Path
+): String {
+    val buildDir = buildFile.normalize().toString()
+    val potDir = expectedPath.toAbsolutePath().normalize().parent.toString()
+    val testProcessDir = File(".").absoluteFile.normalize().toString()
+    val testResources = File(".").resolve("testResources").absoluteFile.normalize().toString()
+
+    // This is actual check.
+    val resourceFileText = expectedPath.readText()
+    return resourceFileText
+        .replace("{{ buildDir }}", buildDir)
+        .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
+        .replace("{{ testProcessDir }}", testProcessDir)
+        .replace("{{ testResources }}", testResources)
+        .replace("{{ fileSeparator }}", File.separator)
 }

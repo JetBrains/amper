@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
-import java.io.File
 import java.io.StringReader
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -67,19 +66,6 @@ class BuildAomTestRun(caseName: String) : BaseTestRun(caseName) {
     }
 
     context(BuildFileAware, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path): String {
-        val buildDir = buildFile.normalize().toString()
-        val potDir = expectedPath.toAbsolutePath().normalize().parent.toString()
-        val testProcessDir = File(".").absoluteFile.normalize().toString()
-        val testResources = File(".").resolve("testResources").absoluteFile.normalize().toString()
-
-        // This is actual check.
-        val resourceFileText = expectedPath.readText()
-        return resourceFileText
-            .replace("{{ buildDir }}", buildDir)
-            .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
-            .replace("{{ testProcessDir }}", testProcessDir)
-            .replace("{{ testResources }}", testResources)
-            .replace("{{ fileSeparator }}", File.separator)
-    }
+    override fun getExpectContent(inputPath: Path, expectedPath: Path) =
+        readContentsAndReplace(expectedPath)
 }

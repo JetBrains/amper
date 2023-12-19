@@ -75,6 +75,7 @@ class SchemaBasedModelImport : ModelInit {
 /**
  * Build and resolve internal module dependencies.
  */
+context(ProblemReporterContext)
 internal fun Map<Path, Module>.buildAom(): List<PotatoModule> {
     val modules = map { (mPath, module) ->
         // TODO Remove duplicating enums.
@@ -127,6 +128,7 @@ class DefaultPotatoModuleDependency(
 /**
  * Resolve internal modules against known ones by path.
  */
+context(ProblemReporterContext)
 private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModule>) = let resolve@{
     when (it) {
         is ExternalMavenDependency -> MavenDependency(

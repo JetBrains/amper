@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -15,6 +16,7 @@ import org.jetbrains.amper.frontend.schema.Module
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
+context(ProblemReporterContext)
 open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
@@ -30,6 +32,7 @@ open class DefaultModule(
  * Special kind of module, that appears only on
  * internal module resolve failure.
  */
+context(ProblemReporterContext)
 class NotResolvedModule(
     userReadableName: String,
 ) : DefaultModule(

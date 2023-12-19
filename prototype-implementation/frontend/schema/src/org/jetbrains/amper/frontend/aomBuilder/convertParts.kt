@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.ComposePart
@@ -23,11 +24,13 @@ import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
-import org.jetbrains.amper.frontend.buildClassBasedSet
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.classBasedSet
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import java.util.*
+import kotlin.io.path.exists
 import kotlin.io.path.reader
 
 
@@ -98,6 +101,7 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
     return parts
 }
 
+context(ProblemReporterContext)
 fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
     val parts = classBasedSet<ModulePart<*>>()
 
@@ -109,11 +113,16 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
         mavenRepositories = repositories.value?.map {
             // FIXME Access to the file in a more safe way.
             val credPair = it.credentials.value?.let {
-                // TODO Report missing property and file.
-                val credentialProperties = Properties().apply { load(it.file.value.reader()) }
-                fun getCredProperty(key: String): String = credentialProperties.getProperty(key)
-                    ?: run { error("No such key: $key") }
-                getCredProperty(it.usernameKey.value) to getCredProperty(it.passwordKey.value)
+                if (!it.file.value.exists()) {
+                    SchemaBundle.reportBundleError(it.file, "credentials.file.does.not.exist", it.file.value.normalize())
+                    return@let null
+                } else {
+                    val credentialProperties = Properties().apply { load(it.file.value.reader()) }
+                    // TODO Report missing file.
+                    fun getCredProperty(key: String): String = credentialProperties.getProperty(key)
+                        ?: run { error("No such key: $key") }
+                    getCredProperty(it.usernameKey.value) to getCredProperty(it.passwordKey.value)
+                }
             }
             RepositoriesModulePart.Repository(
                 id = it.id.value,

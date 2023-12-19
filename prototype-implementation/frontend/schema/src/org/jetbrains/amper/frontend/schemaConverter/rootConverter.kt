@@ -68,7 +68,7 @@ private fun MappingNode.convertModuleViaSnake() = Module().apply {
 
 context(ConvertCtx, ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
-    repositories(tryGetMappingNode("repositories")?.convertRepositories())
+    repositories(tryGetSequenceNode("repositories")?.convertRepositories())
 
     dependencies(convertWithModifiers("dependencies") { it.convertDependencies() })
     settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() })
@@ -107,8 +107,7 @@ private fun MappingNode.convertMeta() = Meta().apply {
 }
 
 context(ConvertCtx, ProblemReporterContext)
-private fun Node.convertRepositories(): List<Repository>? {
-    if (this@convertRepositories !is SequenceNode) return null
+private fun SequenceNode.convertRepositories(): List<Repository> {
     // TODO Report wrong type.
     return value.mapNotNull { it.convertRepository() }
 }
@@ -130,9 +129,9 @@ private fun Node.convertRepository() = when (this) {
             tryGetMappingNode("credentials")?.let {
                 Repository.Credentials().apply {
                     // TODO Report non existent path.
-                    file(tryGetScalarNode("file")?.asAbsolutePath()) { /* TODO report */ }
-                    usernameKey(tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
-                    passwordKey(tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
+                    file(it.tryGetScalarNode("file")?.asAbsolutePath()).adjustTrace(it.tryGetScalarNode("file"))
+                    usernameKey(it.tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
+                    passwordKey(it.tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
                 }
             }
         )
