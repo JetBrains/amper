@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.helper.aomTest
 import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -15,34 +16,28 @@ internal class TemplatesTest : TestWithBuildFile() {
     @Ignore
     fun `check artifacts of multi-variant builds`() {
         withBuildFile {
-//            testParseWithTemplates("templates-simple")
+            aomTest("templates-simple")
         }
     }
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `check path literals are adjusted`() {
         withBuildFile {
-//            testParseWithTemplates("templates-adjust-path-test")
+            aomTest("templates-adjust-path-test")
         }
     }
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `empty template file`() {
         withBuildFile {
-//            testParseWithTemplates("templates-empty-file")
+            aomTest("templates-empty-file")
         }
     }
 
-    // TODO Fix
     @Test
-    @Ignore
     fun `empty apply list file`() {
         withBuildFile {
-//            testParseWithTemplates("templates-empty-apply")
+            aomTest("templates-empty-apply")
         }
     }
 }

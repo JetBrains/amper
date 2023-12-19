@@ -25,9 +25,8 @@ internal class ParserKtTest : TestWithBuildFile() {
         }
     }
 
-    // TODO Fix
+    // TODO See: https://youtrack.jetbrains.com/issue/AMPER-114/Change-aliases-DSL-from-object-to-list
     @Test
-    @Ignore
     fun aliases() {
         withBuildFile {
             aomTest("2-aliases")
@@ -35,6 +34,7 @@ internal class ParserKtTest : TestWithBuildFile() {
     }
 
     @Test
+    @Ignore
     fun variants() {
         withBuildFile {
             aomTest("3-variants")
@@ -62,6 +62,8 @@ internal class ParserKtTest : TestWithBuildFile() {
         }
     }
 
+    // TODO Support the case.
+    // TODO Add warning to report.
     @Test
     fun `empty key`() {
         withBuildFile {
@@ -69,7 +71,9 @@ internal class ParserKtTest : TestWithBuildFile() {
         }
     }
 
+    // TODO Add variants issue link.
     @Test
+    @Ignore
     fun `variants even more simplified`() {
         withBuildFile {
             aomTest("8-variants-simplified")
@@ -112,6 +116,7 @@ internal class ParserKtTest : TestWithBuildFile() {
     }
 
     @Test
+    @Ignore
     fun `check artifacts of multi-variant builds`() {
         withBuildFile {
             aomTest("14-check-artifacts-of-multi-variant-build")

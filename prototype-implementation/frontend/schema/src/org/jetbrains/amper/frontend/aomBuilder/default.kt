@@ -7,16 +7,15 @@ package org.jetbrains.amper.frontend.aomBuilder
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.PotatoModuleSource
 import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
-class DefaultModule(
+open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: PotatoModuleSource,
@@ -26,6 +25,19 @@ class DefaultModule(
     override var artifacts = emptyList<DefaultArtifact>()
     override var parts = schemaModule.convertModuleParts()
 }
+
+/**
+ * Special kind of module, that appears only on
+ * internal module resolve failure.
+ */
+class NotResolvedModule(
+    userReadableName: String,
+) : DefaultModule(
+    userReadableName,
+    ProductType.LIB,
+    PotatoModuleProgrammaticSource,
+    Module(),
+)
 
 class DefaultArtifact(
     override val name: String,

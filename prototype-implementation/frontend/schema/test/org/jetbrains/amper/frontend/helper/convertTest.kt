@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.frontend.helper
 
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
 import java.nio.file.Path
 import kotlin.io.path.reader
@@ -20,7 +20,11 @@ class FailedConvertTestRun(
 ) : BaseTestRun(caseName) {
 
     override fun getInputContent(path: Path): String {
-        with(ctx) { convertModule { path.reader() } }
+        with(ctx) {
+            with(ConvertCtx(path.parent)) {
+                convertModule { path.reader() }
+            }
+        }
         return ctx.problemReporter.getErrors().map { it.message }.joinToString()
     }
 

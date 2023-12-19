@@ -22,7 +22,9 @@ fun Module.replaceCatalogDependencies() = apply {
     fun List<Dependency>.convertCatalogDeps() = mapNotNull {
         if (it !is CatalogDependency) return@mapNotNull it
         // TODO Report absence of catalog value.
-        val catalogValue = BuiltInCatalog.findInCatalogue(it.catalogKey.value) ?: return@mapNotNull null
+        val catalogValue = BuiltInCatalog.findInCatalogue(
+            it.catalogKey.value
+        ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
             coordinates(catalogValue)
             exported(it.exported.value)

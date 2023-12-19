@@ -5,17 +5,19 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertTemplateViaSnake
 import java.nio.file.Path
-import kotlin.io.path.reader
 
-context(ProblemReporterContext)
-fun Module.readTemplatesAndMerge(
-    reader: (Path) -> Template = { convertTemplateViaSnake(it) }
-): Module {
-    val readTemplates = apply.value?.map(reader) ?: emptyList()
+context(ProblemReporterContext, ReaderCtx)
+fun Module.readTemplatesAndMerge(): Module {
+    fun readTemplate(path: Path): Template? = path2Reader(path)?.let {
+        with(ConvertCtx(path.parent)) { convertTemplate { it } }
+    }
+    val readTemplates = apply.value?.mapNotNull { readTemplate(it) } ?: emptyList()
     val toMerge = readTemplates + this
 
     // We are sure that last instance is a Module and not null, so we can cast.

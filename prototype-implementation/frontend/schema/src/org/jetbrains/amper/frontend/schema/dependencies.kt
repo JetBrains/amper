@@ -33,7 +33,7 @@ class ExternalMavenDependency : Dependency() {
 
 @CustomSchemaDef(dependencySchema)
 class InternalDependency  : Dependency() {
-    val path = value<Path>()
+    val path = nullableValue<Path>()
 }
 
 @CustomSchemaDef(dependencySchema)

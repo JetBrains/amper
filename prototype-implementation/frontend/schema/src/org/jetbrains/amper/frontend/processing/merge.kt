@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import java.nio.file.Path
 
 
 /**
@@ -29,8 +28,8 @@ import java.nio.file.Path
 
 fun Base.merge(overwrite: Base, target: () -> Base): Base = mergeNode(overwrite, target) {
     mergeNullableCollection(Base::repositories)
-    mergeNodeProperty(Base::dependencies) { this + it }
-    mergeNodeProperty(Base::`test-dependencies`) { this + it }
+    mergeNodeProperty(Base::dependencies) { mergeListsMap(it) }
+    mergeNodeProperty(Base::`test-dependencies`) { mergeListsMap(it) }
 
     mergeNodeProperty(Base::settings) { mergeMap(it) { overwriteSettings -> merge(overwriteSettings) } }
     mergeNodeProperty(Base::`test-settings`) { mergeMap(it) { overwriteSettings -> merge(overwriteSettings) } }
@@ -100,12 +99,11 @@ fun <T> T.mergeNode(
     overwrite: T,
     target: () -> T & Any,
     block: MergeCtx<T & Any>.() -> Unit
-): T  {
+): T {
     return if (overwrite != null && this != null) {
         val builtTarget = target()
         MergeCtx(builtTarget, overwrite, this).apply(block).let { builtTarget }
-    }
-    else overwrite ?: this
+    } else overwrite ?: this
 }
 
 /**
@@ -164,12 +162,18 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
 /**
  * Shortcut for merging map property.
  */
-fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>, merge: V.(V) -> V): Map<K, V> {
-    val result = mutableMapOf<K, V>().apply { putAll(this@mergeMap) }
+fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>, merge: V.(V) -> V) = buildMap<K, V> {
+    putAll(this@mergeMap)
     overwrite.forEach { (k, v) ->
-        val old = result[k]
-        if (old != null) result[k] = old.merge(v)
-        else result[k] = v
+        val old = this[k]
+        if (old != null) this[k] = old.merge(v)
+        else this[k] = v
     }
-    return result
 }
+
+
+/**
+ * Shortcut for merging map of lists.
+ */
+fun <K, V> Map<K, List<V>>.mergeListsMap(overwrite: Map<K, List<V>>) =
+    mergeMap(overwrite) { this + it }

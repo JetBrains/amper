@@ -10,11 +10,13 @@ import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Modifiers
-import org.yaml.snakeyaml.nodes.*
+import org.yaml.snakeyaml.nodes.MappingNode
+import org.yaml.snakeyaml.nodes.Node
+import org.yaml.snakeyaml.nodes.ScalarNode
+import org.yaml.snakeyaml.nodes.SequenceNode
+import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.io.path.exists
 
 /**
  * Try to cast current node to [ScalarNode].
@@ -171,16 +173,9 @@ operator fun NullableSchemaValue<String>.invoke(node: ScalarNode?) = this(node?.
  */
 fun Collection<ScalarNode>.values() = map { it.value }
 
-/**
- * Try to convert string to absolute path, reporting if
- * file is not-existing.
- */
-// TODO Change from error to reporting.
-fun String.asAbsolutePath(): Path? =
-    Path(this).takeIf { it.exists() }?.absolute()
+// TODO Maybe report. Or need to report within resolve.
+context(ConvertCtx)
+fun String.asAbsolutePath(): Path = basePath.resolve(this.replace("/", File.separator)).absolute()
 
-/**
- * Same as [String.asAbsolutePath], but accepts [ScalarNode].
- */
-fun ScalarNode.asAbsolutePath(): Path? =
-    value.asAbsolutePath()
+context(ConvertCtx)
+fun ScalarNode.asAbsolutePath(): Path = value.asAbsolutePath()

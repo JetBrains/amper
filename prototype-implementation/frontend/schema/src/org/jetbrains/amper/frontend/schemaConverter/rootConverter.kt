@@ -6,7 +6,21 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.schema.AmperLayout
+import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.Meta
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schema.noModifiers
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
@@ -14,8 +28,15 @@ import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.io.Reader
+import java.nio.file.Path
 
-context(ProblemReporterContext)
+
+// TODO Rethink.
+data class ConvertCtx(
+    val basePath: Path
+)
+
+context(ConvertCtx, ProblemReporterContext)
 fun convertModuleViaSnake(reader: () -> Reader): Module {
     val yaml = Yaml()
     val rootNode = yaml.compose(reader())
@@ -24,7 +45,7 @@ fun convertModuleViaSnake(reader: () -> Reader): Module {
     return rootNode.convertModuleViaSnake()
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 fun convertTemplateViaSnake(reader: () -> Reader): Template {
     val yaml = Yaml()
     val rootNode = yaml.compose(reader())
@@ -32,7 +53,7 @@ fun convertTemplateViaSnake(reader: () -> Reader): Template {
     return rootNode.convertBase(Template())
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun MappingNode.convertModuleViaSnake() = Module().apply {
     product(tryGetChildNode("product")?.convertProduct()) { /* TODO report */ }
     apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
@@ -44,7 +65,7 @@ private fun MappingNode.convertModuleViaSnake() = Module().apply {
     convertBase(this)
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     repositories(tryGetMappingNode("repositories")?.convertRepositories())
 
@@ -62,7 +83,7 @@ private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     })
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertProduct() = ModuleProduct().apply {
     when (this@convertProduct) {
         is MappingNode -> {
@@ -77,19 +98,19 @@ private fun Node.convertProduct() = ModuleProduct().apply {
 
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun MappingNode.convertMeta() = Meta().apply {
     layout(tryGetScalarNode("layout")?.convertEnum(AmperLayout))
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertRepositories(): List<Repository>? {
     if (this@convertRepositories !is SequenceNode) return null
     // TODO Report wrong type.
     return value.mapNotNull { it.convertRepository() }
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertRepository() = when (this) {
     is ScalarNode -> Repository().apply {
         url(value)
@@ -117,14 +138,14 @@ private fun Node.convertRepository() = when (this) {
     else -> null
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertDependencies() = when(this) {
     is SequenceNode -> value.mapNotNull { it.convertDependency() }
     is ScalarNode -> if (value.isBlank()) emptyList() else null // TODO Report non-null scalar
     else -> null // TODO Report wrong type.
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertDependency(): Dependency? {
     val node = this
     return if (this is ScalarNode) {
@@ -160,25 +181,25 @@ private fun Node.convertDependency(): Dependency? {
     }
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertExternalMavenDep() = ExternalMavenDependency().apply {
     coordinates(keyNode.asScalarNode(true)!!.value)
     convertScopes(this)
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDependency().apply {
     path(keyNode.asScalarNode(true)!!.asAbsolutePath())
     convertScopes(this)
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
     catalogKey(keyNode.asScalarNode(true)?.value?.removePrefix("$"))
     convertScopes(this)
 }
 
-context(ProblemReporterContext)
+context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertScopes(dep: Dependency) = with(dep) {
     val valueNode = valueNode
     when {

@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -22,9 +23,13 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
+import java.io.Reader
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.pathString
 import kotlin.io.path.reader
 
 class SchemaBasedModelImport : ModelInit {
@@ -34,9 +39,18 @@ class SchemaBasedModelImport : ModelInit {
     override fun getModel(root: Path): Result<Model> {
 
         // TODO Replace default reader by something other.
-        fun readAndPreprocess(moduleFile: Path): Module = convertModule { moduleFile.reader() }
-            .readTemplatesAndMerge()
-            .replaceCatalogDependencies()
+        // TODO Report non existing file.
+        val path2Reader: (Path) -> Reader? = {
+            it.takeIf { it.exists() }?.reader()
+        }
+
+        fun readAndPreprocess(moduleFile: Path): Module = with(ReaderCtx(path2Reader)) {
+            with(ConvertCtx(moduleFile.parent)) {
+                convertModule { moduleFile.reader() }
+                    .readTemplatesAndMerge()
+                    .replaceCatalogDependencies()
+            }
+        }
 
         // Find all module files, parse them and perform preprocessing (templates, TODO catalogs)
         val path2SchemaModule = root.findAmperModuleFiles()
@@ -93,32 +107,40 @@ private fun <T> ValueBase<Map<Modifiers, List<T>>>.simplifyModifiers() =
 
 class DefaultPotatoModuleDependency(
     private val myModule: DefaultModule,
+    val path: Path,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
 ) : PotatoModuleDependency, DefaultScopedNotation {
     override val Model.module get() = myModule.asAmperSuccess()
+    override fun toString(): String {
+        return "InternalDependency(module=${path.pathString})"
+    }
 }
 
 /**
  * Resolve internal modules against known ones by path.
  */
-private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModule>) = let {
+private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModule>) = let resolve@{
     when (it) {
         is ExternalMavenDependency -> MavenDependency(
+            // TODO Report absence of coordinates.
             it.coordinates.value,
             scope.value.compile,
             scope.value.runtime,
             it.exported.value,
         )
 
-        is InternalDependency -> DefaultPotatoModuleDependency(
-            // TODO Report on unresolved module.
-            modules[it.path.value] ?: return@let null,
-            scope.value.compile,
-            scope.value.runtime,
-            it.exported.value,
-        )
+        is InternalDependency -> it.path.value?.let { path ->
+            DefaultPotatoModuleDependency(
+                // TODO Report to error module.
+                modules[path] ?: NotResolvedModule(path.name),
+                path,
+                scope.value.compile,
+                scope.value.runtime,
+                it.exported.value,
+            )
+        } ?: return@resolve null
 
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
     }
