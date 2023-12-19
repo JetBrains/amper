@@ -4,12 +4,16 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.frontend.helper.TestSystemInfo
 import org.jetbrains.amper.frontend.helper.aomTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
+import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class ParserKtTest : TestWithBuildFile() {
+internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     
     @Test
     fun `single platform`() {
@@ -134,6 +138,33 @@ internal class ParserKtTest : TestWithBuildFile() {
     fun `compose inline form`() {
         withBuildFile {
             aomTest("compose-inline-form")
+        }
+    }
+
+    @Test
+    fun `common library replacement`() {
+        withBuildFile {
+            aomTest(
+                "17-compose-desktop-replacement",
+                TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.MacOs, "X", SystemInfo.Arch.X64))
+            )
+        }
+    }
+
+    @Test
+    fun `jvm library replacement`() {
+        withBuildFile {
+            aomTest(
+                "18-compose-desktop-jvm-replacement",
+                TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.Linux, "3.14", SystemInfo.Arch.Arm64))
+            )
+        }
+    }
+
+    @Test
+    fun `add kotlin-test automatically`() {
+        withBuildFile {
+            aomTest("19-compose-android-without-tests")
         }
     }
 

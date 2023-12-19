@@ -11,7 +11,6 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-macos-x64:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.compose.desktop:desktop:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.foundation:foundation:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.html:html-core:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.html:html-svg:1.5.10, compile=true, runtime=true, exported=false)

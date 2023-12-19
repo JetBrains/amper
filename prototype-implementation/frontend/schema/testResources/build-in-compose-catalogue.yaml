@@ -18,7 +18,6 @@ dependencies:
   - $compose.html.core
   - $compose.desktop.components.splitPane
   - $compose.desktop.components.animatedImage
-  - $compose.desktop.common
   - $compose.desktop.linux_x64
   - $compose.desktop.linux_arm64
   - $compose.desktop.windows_x64

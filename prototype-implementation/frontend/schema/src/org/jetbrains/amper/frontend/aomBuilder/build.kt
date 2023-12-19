@@ -8,6 +8,8 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
@@ -19,6 +21,7 @@ import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
+import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
 import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
@@ -39,37 +42,55 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModel(root: Path): Result<Model> {
-
         // TODO Replace default reader by something other.
         // TODO Report non existing file.
         val path2Reader: (Path) -> Reader? = {
             it.takeIf { it.exists() }?.reader()
         }
 
-        fun readAndPreprocess(moduleFile: Path): Module = with(ReaderCtx(path2Reader)) {
-            with(ConvertCtx(moduleFile.parent)) {
-                convertModule { moduleFile.reader() }
-                    .readTemplatesAndMerge()
-                    .replaceCatalogDependencies()
-                    .validateSchema()
-            }
-        }
-
-        // Find all module files, parse them and perform preprocessing (templates, TODO catalogs)
-        val path2SchemaModule = root.findAmperModuleFiles()
-            .associateWith { readAndPreprocess(it) }
-
-        // Fail fast if we have fatal errors.
-        if (problemReporter.hasFatal) return amperFailure()
-
-        // Build AOM from ISM.
-        val resultModules = path2SchemaModule.buildAom()
+        val resultModules = doBuild(
+            root,
+            ReaderCtx(path2Reader),
+            root.findAmperModuleFiles()
+        ) ?: return amperFailure()
 
         // Propagate parts from fragment to fragment.
-        val resolvedParts = DefaultModel(resultModules).resolved
-
-        return resolvedParts.asAmperSuccess()
+        return DefaultModel(resultModules).resolved.asAmperSuccess()
     }
+}
+
+/**
+ * Function, introduced for testing.
+ */
+context(ProblemReporterContext)
+internal fun doBuild(
+    root: Path,
+    readerCtx: ReaderCtx,
+    paths: List<Path> = listOf(root),
+    systemInfo: SystemInfo = DefaultSystemInfo,
+): List<PotatoModule>? {
+    fun readAndPreprocess(moduleFile: Path): Module? = with(readerCtx) {
+        with(ConvertCtx(moduleFile.parent)) {
+            with(systemInfo) {
+                path2Reader(moduleFile)?.let { convertModule { it } }
+                    ?.readTemplatesAndMerge()
+                    ?.replaceCatalogDependencies()
+                    ?.validateSchema()
+                    ?.replaceComposeOsSpecific()
+            }
+        }
+    }
+
+    // Parse all module files and perform preprocessing (templates, catalogs, etc.)
+    val path2SchemaModule = paths
+        .mapNotNull { path -> readAndPreprocess(path)?.let { path to it } }
+        .toMap()
+
+    // Fail fast if we have fatal errors.
+    if (problemReporter.hasFatal) return null
+
+    // Build AOM from ISM.
+    return path2SchemaModule.buildAom()
 }
 
 /**

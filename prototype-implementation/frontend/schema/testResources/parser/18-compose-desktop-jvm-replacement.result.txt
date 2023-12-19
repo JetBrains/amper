@@ -1,4 +1,3 @@
-Module {{ userReadableName }}
 Fragments:
   jvm
     External dependencies:
@@ -6,7 +5,7 @@ Fragments:
     Src folder: src
     Fragment dependencies:
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)
@@ -22,7 +21,7 @@ Fragments:
     Fragment dependencies:
       jvm (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
+      KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
       IosPart(teamId=null)
       JavaPart(source=null)

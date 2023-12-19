@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.old.helper.BuildFileAware
@@ -103,12 +104,13 @@ fun copyLocal(localName: String, dest: Path, newName: String = localName) {
 
 context(BuildFileAware)
 fun readContentsAndReplace(
-    expectedPath: Path
+    expectedPath: Path,
+    base: Path,
 ): String {
     val buildDir = buildFile.normalize().toString()
     val potDir = expectedPath.toAbsolutePath().normalize().parent.toString()
-    val testProcessDir = File(".").absoluteFile.normalize().toString()
-    val testResources = File(".").resolve("testResources").absoluteFile.normalize().toString()
+    val testProcessDir = Path(".").normalize().absolutePathString()
+    val testResources = Path(".").resolve(base).normalize().absolutePathString()
 
     // This is actual check.
     val resourceFileText = expectedPath.readText()
@@ -118,4 +120,10 @@ fun readContentsAndReplace(
         .replace("{{ testProcessDir }}", testProcessDir)
         .replace("{{ testResources }}", testResources)
         .replace("{{ fileSeparator }}", File.separator)
+}
+
+class TestSystemInfo(
+    private val predefined: SystemInfo.Os
+) : SystemInfo {
+    override fun detect() = predefined
 }

@@ -4,7 +4,7 @@ product:
 
 
 apply:
-  - ./16-templates/16-template.yaml
+  - ./inner-dir/inner-template.yaml
 
 dependencies:
   - org.yaml:snakeyaml:2.0

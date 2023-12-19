@@ -5,10 +5,10 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.helper.aomTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import kotlin.test.Test
 
-internal class DependencyFlagsTest : TestWithBuildFile() {
+internal class DependencyFlagsTest : TestBase() {
 
     @Test
     fun exported() {

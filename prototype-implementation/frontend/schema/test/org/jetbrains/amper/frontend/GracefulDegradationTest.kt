@@ -5,11 +5,11 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.helper.convertTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-class GracefulDegradationTest : TestWithBuildFile() {
+class GracefulDegradationTest : TestBase() {
 
     @Test
     @Ignore

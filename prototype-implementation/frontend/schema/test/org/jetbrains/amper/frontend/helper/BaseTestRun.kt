@@ -5,7 +5,7 @@
 package org.jetbrains.amper.frontend.helper
 
 import org.jetbrains.amper.frontend.old.helper.BuildFileAware
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 open class BaseTestRun(
     protected val caseName: String,
 ) {
-    open val base: Path = Path("testResources")
+    open val base: Path get() = Path("testResources")
     open val expectPostfix: String = ".result.txt"
     open val inputPostfix: String = ".yaml"
 
@@ -30,7 +30,7 @@ open class BaseTestRun(
     context(BuildFileAware, TestProblemReporterContext)
     open fun getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
 
-    context(TestWithBuildFile)
+    context(TestBase)
     open fun doTest() = with(ctx) {
         with(buildFile) {
             val input = base / "$caseName$inputPostfix"

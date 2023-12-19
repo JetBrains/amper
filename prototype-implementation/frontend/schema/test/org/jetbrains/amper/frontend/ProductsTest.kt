@@ -6,10 +6,12 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.helper.aomTest
 import org.jetbrains.amper.frontend.helper.diagnosticsTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
+import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class ProductsTest : TestWithBuildFile() {
+internal class ProductsTest : TestBase(Path("testResources") / "product") {
 
     @Test
     fun `product with unsupported type `() {

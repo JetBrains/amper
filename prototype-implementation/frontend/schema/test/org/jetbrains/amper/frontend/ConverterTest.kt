@@ -8,15 +8,15 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.helper.convertTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
-import kotlin.test.Ignore
+import org.jetbrains.amper.frontend.old.helper.TestBase
+import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.test.Test
 
-class ConverterTest : TestWithBuildFile() {
+class ConverterTest : TestBase(Path("testResources") / "converter") {
 
     // TODO Check that there are all of settings withing that file.
     @Test
-    @Ignore
     fun `all module settings are converted without errors`() =
         moduleConvertTest("all-module-settings", expectedModule = testModuleAllSettings())
 
@@ -138,32 +138,22 @@ class ConverterTest : TestWithBuildFile() {
         }
     }
 
-    @Test
-    @Ignore
     fun `all template settings are converted without errors`() {
         TODO()
     }
 
-    @Test
-    @Ignore
     fun `all module settings are converted correctly`() {
         TODO()
     }
 
-    @Test
-    @Ignore
     fun `all template settings are converted correctly`() {
         TODO()
     }
 
-    @Test
-    @Ignore
     fun `redundant module settings are causing errors`() {
         TODO()
     }
 
-    @Test
-    @Ignore
     fun `redundant template settings are causing errors`() {
         TODO()
     }

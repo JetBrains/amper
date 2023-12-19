@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.old.helper
 
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.div
 
 data class BuildFileAware(
@@ -13,7 +14,9 @@ data class BuildFileAware(
     val buildFile: Path = buildDir / "build.yaml",
 )
 
-abstract class TestWithBuildFile {
+abstract class TestBase(
+    val base: Path = Path("testResources")
+) {
     @TempDir
     lateinit var tempDir: Path
 

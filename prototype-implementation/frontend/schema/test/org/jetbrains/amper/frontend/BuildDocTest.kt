@@ -6,12 +6,12 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.builders.DocBuilder.Companion.buildDoc
 import org.jetbrains.amper.frontend.helper.doTestWithInput
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.Module
 import java.io.StringWriter
 import kotlin.test.Test
 
-class BuildDocTest : TestWithBuildFile() {
+class BuildDocTest : TestBase() {
 
     @Test
     fun `build doc test`(): Unit = doTestWithInput("doc-test", ".expected") {

@@ -4,15 +4,12 @@
 
 package org.jetbrains.amper.frontend.helper
 
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.ReaderCtx
-import org.jetbrains.amper.frontend.aomBuilder.buildAom
+import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.BuildFileAware
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
-import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
-import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
-import org.jetbrains.amper.frontend.processing.validateSchema
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertModule
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.StringReader
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -20,41 +17,36 @@ import kotlin.io.path.absolute
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
-import kotlin.io.path.reader
 
 
-context(TestWithBuildFile)
-fun aomTest(caseName: String) = BuildAomTestRun(caseName).doTest()
+context(TestBase)
+fun aomTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo) =
+    BuildAomTestRun(caseName, systemInfo, base).doTest()
 
-class BuildAomTestRun(caseName: String) : BaseTestRun(caseName) {
-
+open class BuildAomTestRun(
+    caseName: String,
+    private val systemInfo: SystemInfo = DefaultSystemInfo,
+    override val base: Path,
+) : BaseTestRun(caseName) {
     context(BuildFileAware, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val processPath = Path(".").absolute().normalize()
-        val testResourcesPath = processPath / "testResources"
-        val ctx = ReaderCtx {
-            if (it.startsWith(testResourcesPath)) it.reader()
-            else {
-                val relative = processPath.relativize(it)
-                val resolved = testResourcesPath.resolve(relative)
-                resolved.takeIf { resolved.exists() }?.reader()
-            }
+        val testResourcesPath = processPath / base
+        val readCtx = ReaderCtx {
+            val path = it.absolute().normalize()
+            val resolved = if (!path.startsWith(testResourcesPath)) {
+                val relative = processPath.relativize(path)
+                testResourcesPath.resolve(relative)
+            } else path
+
+            resolved.takeIf { resolved.exists() }
+                ?.readText()?.removeDiagnosticsAnnotations()
+                ?.let { StringReader(it) }
         }
 
         // Read module.
-        val cleared = inputPath.readText().removeDiagnosticsAnnotations()
-        val schemaModule = with(ctx) {
-            with(ConvertCtx(inputPath.parent)) {
-                convertModule { StringReader(cleared) }
-                    .readTemplatesAndMerge()
-                    .replaceCatalogDependencies()
-                    .validateSchema()
-            }
-        }
-
-        // Build AOM.
-        val module = mapOf(inputPath to schemaModule).buildAom().first()
+        val module = doBuild(inputPath, readCtx, systemInfo = systemInfo)?.first()
 
         // Check errors absence.
         assert(problemReporter.getErrors().isEmpty()) {
@@ -62,10 +54,10 @@ class BuildAomTestRun(caseName: String) : BaseTestRun(caseName) {
         }
 
         // Return module's textual representation.
-        return module.prettyPrint()
+        return module?.prettyPrint() ?: error("Could not read and parse")
     }
 
     context(BuildFileAware, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
-        readContentsAndReplace(expectedPath)
+        readContentsAndReplace(expectedPath, base)
 }

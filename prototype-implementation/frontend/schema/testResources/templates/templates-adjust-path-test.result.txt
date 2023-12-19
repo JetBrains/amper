@@ -1,7 +1,7 @@
 Fragments:
   iosArm64
     External dependencies:
-      InternalDependency(module={{ testResources }}{{ fileSeparator }}.{{ fileSeparator }}16-templates{{ fileSeparator }}.{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}.{{ fileSeparator }}inner-dir{{ fileSeparator }}.{{ fileSeparator }}some-dep-2)
       InternalDependency(module={{ testResources }}{{ fileSeparator }}.{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src

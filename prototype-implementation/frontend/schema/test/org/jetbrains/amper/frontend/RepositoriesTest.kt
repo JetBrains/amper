@@ -7,10 +7,12 @@ package org.jetbrains.amper.frontend
 import org.jetbrains.amper.frontend.helper.aomTest
 import org.jetbrains.amper.frontend.helper.copyLocal
 import org.jetbrains.amper.frontend.helper.diagnosticsTest
-import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
+import org.jetbrains.amper.frontend.old.helper.TestBase
+import kotlin.io.path.Path
+import kotlin.io.path.div
 import kotlin.test.Test
 
-internal class RepositoriesTest : TestWithBuildFile() {
+internal class RepositoriesTest : TestBase(Path("testResources") / "repositories") {
 
     @Test
     fun `parsing id and url `() {
