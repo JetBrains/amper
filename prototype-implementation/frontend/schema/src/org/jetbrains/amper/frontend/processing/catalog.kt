@@ -22,7 +22,7 @@ fun Module.replaceCatalogDependencies() = apply {
     fun List<Dependency>.convertCatalogDeps() = mapNotNull {
         if (it !is CatalogDependency) return@mapNotNull it
         // TODO Report absence of catalog value.
-        val catalogValue = BuiltInCatalog.findInCatalogue(
+        val catalogValue = BuiltInCatalog.findInCatalog(
             it.catalogKey.value
         ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
@@ -46,7 +46,7 @@ interface Catalog {
      * Get dependency notation by key.
      */
     context(ProblemReporterContext)
-    fun findInCatalogue(key: String): String?
+    fun findInCatalog(key: String): String?
 
 }
 
@@ -57,7 +57,7 @@ open class PredefinedCatalog(
 
     // TODO Report on absence.
     context(ProblemReporterContext)
-    override fun findInCatalogue(key: String): String? = map[key]
+    override fun findInCatalog(key: String): String? = map[key]
 }
 
 object BuiltInCatalog : PredefinedCatalog({
@@ -98,11 +98,11 @@ object BuiltInCatalog : PredefinedCatalog({
     private val systemInfo = DefaultSystemInfo
 
     context(ProblemReporterContext)
-    override fun findInCatalogue(key: String) = when (key) {
+    override fun findInCatalog(key: String) = when (key) {
         // Handle os detection as compose do.
         "compose.desktop.currentOs" -> systemInfo.detect().familyArch
             .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}" }
 
-        else -> super.findInCatalogue(key)
+        else -> super.findInCatalog(key)
     }
 }
