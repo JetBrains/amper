@@ -26,13 +26,20 @@ class AmperBackendTest {
     val openTelemetryCollector = OpenTelemetryCollectorExtension()
 
     @Test
-    fun `do not call kotlinc again if sources were not changed`() {
-        val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(testDataRoot.resolve("language-version")),
-            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
-            userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
+    fun `get jvm resource from dependency`() {
+        val projectContext = getProjectContext("jvm-resources")
+        assertEquals(0, AmperBackend.run(projectContext, listOf(":two:runJvm")))
+
+        assertInfoLogContains(
+            "Process exited with exit code 0\n" +
+                    "STDOUT:\n" +
+                    "String from resources: Stuff From Resources"
         )
+    }
+
+    @Test
+    fun `do not call kotlinc again if sources were not changed`() {
+        val projectContext = getProjectContext("language-version")
 
         assertEquals(0, AmperBackend.run(projectContext, listOf(":language-version:runJvm")))
         assertInfoLogContains(
@@ -55,13 +62,7 @@ class AmperBackendTest {
 
     @Test
     fun `kotlinc span`() {
-        val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(testDataRoot.resolve("language-version")),
-            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
-            userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
-        )
-
+        val projectContext = getProjectContext("language-version")
         val rc = AmperBackend.run(projectContext, listOf(":language-version:runJvm"))
         assertEquals(0, rc)
 
@@ -91,13 +92,7 @@ class AmperBackendTest {
 
     @Test
     fun `mixed java kotlin`() {
-        val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(testDataRoot.resolve("java-kotlin-mixed")),
-            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
-            userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
-        )
-
+        val projectContext = getProjectContext("java-kotlin-mixed")
         val rc = AmperBackend.run(projectContext, listOf(":java-kotlin-mixed:runJvm"))
         assertEquals(0, rc)
 
@@ -105,6 +100,17 @@ class AmperBackendTest {
                 "STDOUT:\n" +
                 "Output: <XYZ>"
         assertInfoLogContains(find)
+    }
+
+    private fun getProjectContext(testProjectName: String): ProjectContext {
+        val projectContext = ProjectContext(
+            projectRoot = AmperProjectRoot(testDataRoot.resolve(testProjectName)),
+            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
+            userCacheRoot = userCacheRoot,
+            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
+        )
+
+        return projectContext
     }
 
     private fun assertInfoLogContains(startsWith: String) {

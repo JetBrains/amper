@@ -1,0 +1,5 @@
+product:
+  type: jvm/app
+
+dependencies:
+  - ../one

@@ -144,8 +144,7 @@ class JvmRunTask(
             buildClasspath(depCompileResult, result)
         }
 
-        compileTaskResult.resourcesRoot?.let { result.add(it) }
-        compileTaskResult.classesRoot?.let { result.add(it) }
+        compileTaskResult.classesOutputRoot?.let { result.add(it) }
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

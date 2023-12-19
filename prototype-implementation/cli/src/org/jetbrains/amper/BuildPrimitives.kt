@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
+import org.jetbrains.amper.diagnostics.spanBuilder
+import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.util.ShellQuoting
 import org.jetbrains.amper.util.UnboundedExecutor
 import org.slf4j.LoggerFactory
@@ -18,7 +20,10 @@ import java.io.InputStream
 import java.io.PrintStream
 import java.nio.file.Path
 import java.util.concurrent.Callable
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.pathString
 
 /**
  * Ordinary operations like running processes and copying files require
@@ -95,6 +100,22 @@ object BuildPrimitives {
                         (if (stdout.isNotEmpty()) "\nSTDOUT:\n${stdout}\n" else "")
             )
         }
+    }
+
+    // defaults are selected for build system-stuff
+    @OptIn(ExperimentalPathApi::class)
+    suspend fun copy(from: Path, to: Path, overwrite: Boolean = false, followLinks: Boolean = true) {
+        // Do not change coroutine context, we want to stay in tasks pool
+
+        spanBuilder("copy")
+            .setAttribute("from", from.pathString)
+            .setAttribute("to", to.pathString)
+            .useWithScope {
+                // TODO is it really interruptible here?
+                runInterruptible {
+                    from.copyToRecursively(to, overwrite = overwrite, followLinks = followLinks)
+                }
+            }
     }
 
     private fun readStreamAndPrintToConsole(inputStream: InputStream, consoleStream: PrintStream): StringBuilder {
