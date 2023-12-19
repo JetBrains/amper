@@ -38,12 +38,11 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             id.replace(Regex("[^a-zA-Z0-9]"), "_") +
                     "-" + Hashing.sha256().hashString(id, Charsets.UTF_8).toString().take(10))
 
-        val timedExistingResult = measureTimedValue {
-            isUpToDate(stateFile, configuration, inputs)
+        val (existingResult, cacheCheckTime) = measureTimedValue {
+            getCachedResult(stateFile, configuration, inputs)
         }
-        val existingResult = timedExistingResult.value
         if (existingResult != null) {
-            logger.info("INC: up-to-date according to state file at '$stateFile' in ${timedExistingResult.duration}")
+            logger.info("INC: up-to-date according to state file at '$stateFile' in $cacheCheckTime")
             return existingResult
         }
 
@@ -51,23 +50,8 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
 
         writeStateFile(id, stateFile, configuration, inputs, result)
 
-        run {
-            // TODO remove this check later or hide under debug/assert mode
-
-            try {
-                val r = isUpToDate(stateFile, configuration, inputs)
-                    ?: error("Not up-to-date after successfully writing a state file: $stateFile")
-
-                if (r.outputs != result.outputs) {
-                    error("Outputs list mismatch: $stateFile:\n" +
-                            "1: ${r.outputs}\n" +
-                            "2: ${result.outputs}")
-                }
-            } catch (t: Throwable) {
-                Files.deleteIfExists(stateFile)
-                throw t
-            }
-        }
+        // TODO remove this check later or hide under debug/assert mode
+        ensureStateFileIsConsistent(stateFile, configuration, inputs, result)
 
         return result
     }
@@ -85,8 +69,31 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         stateFile.outputStream().buffered().use { properties.store(it, id) }
     }
 
-    // TODO Probably rewrite to JSON?
-    private fun isUpToDate(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
+    private fun ensureStateFileIsConsistent(
+        stateFile: Path,
+        configuration: Map<String, String>,
+        inputs: List<Path>,
+        result: ExecutionResult
+    ) {
+        try {
+            val r = getCachedResult(stateFile, configuration, inputs)
+                ?: error("Not up-to-date after successfully writing a state file: $stateFile")
+
+            if (r.outputs != result.outputs) {
+                error(
+                    "Outputs list mismatch: $stateFile:\n" +
+                            "1: ${r.outputs}\n" +
+                            "2: ${result.outputs}"
+                )
+            }
+        } catch (t: IllegalStateException) {
+            Files.deleteIfExists(stateFile)
+            throw t
+        }
+    }
+
+    // TODO Probably rewrite to JSON? or a binary format?
+    private fun getCachedResult(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
         if (!stateFile.isRegularFile()) {
             logger.info("INC: state file is missing at '$stateFile' -> rebuilding")
             return null
@@ -156,7 +163,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             val mtime = path.getLastModifiedTime()
             val isExecutable = path.isExecutable()
 
-            lines.add("$path size $size mtime $mtime" + if (isExecutable) "executable" else "")
+            lines.add("$path size $size mtime $mtime" + if (isExecutable) " executable" else "")
         }
 
         for (path in paths) {
