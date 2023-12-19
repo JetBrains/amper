@@ -1,5 +1,5 @@
 product:
   type: lib
-  # <![Error] Unknown platform: bar.!>
-  # <![Error] Unknown platform: foo.!>
+  # <![Error] Unknown Platform: bar!>
+  # <![Error] Unknown Platform: foo!>
   platforms: [ jvm, foo, bar ]

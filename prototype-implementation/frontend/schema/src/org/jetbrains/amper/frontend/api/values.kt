@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.api
 
+import org.jetbrains.amper.core.messages.ProblemReporterContext
+
 /**
  * A class, that every enum, participating in
  * schema building should inherit.
@@ -16,7 +18,7 @@ interface SchemaEnum {
  * Class to collect all values registered within it.
  */
 abstract class SchemaNode : Traceable() {
-    private val allValues = mutableListOf<ValueBase<*>>()
+    internal val allValues = mutableListOf<ValueBase<*>>()
 
     /**
      * Register a value.
@@ -27,6 +29,12 @@ abstract class SchemaNode : Traceable() {
      * Register a nullable value.
      */
     fun <T : Any> nullableValue() = NullableSchemaValue<T>().also { allValues.add(it) }
+
+    /**
+     * Register a validator for this node.
+     */
+    context(ProblemReporterContext)
+    open fun validate() {}
 }
 
 sealed class Default<T> {
@@ -42,11 +50,13 @@ sealed class Default<T> {
  * Abstract value that can have a default value.
  */
 sealed class ValueBase<T> : Traceable() {
-    var default: Default<T>? = null
-
     protected var myValue: T? = null
 
+    var default: Default<T>? = null
+
     abstract val value: T
+
+    val unsafe: T? get() = myValue ?: default?.value
 
     val withoutDefault: T? get() = myValue
 
@@ -57,8 +67,9 @@ sealed class ValueBase<T> : Traceable() {
     /**
      * Overwrite current value, if provided value is not null.
      */
-    operator fun invoke(newValue: T?) {
+    operator fun invoke(newValue: T?): ValueBase<T> {
         if (newValue != null) myValue = newValue
+        return this
     }
 }
 
@@ -76,8 +87,9 @@ class SchemaValue<T : Any> : ValueBase<T>() {
      * Overwrite current value, if provided value is not null.
      * Invoke [onNull] if it is.
      */
-    operator fun invoke(newValue: T?, onNull: () -> Unit) {
+    operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> {
         if (newValue == null) onNull() else myValue = newValue
+        return this
     }
 }
 
@@ -85,5 +97,38 @@ class SchemaValue<T : Any> : ValueBase<T>() {
  * Optional (nullable) schema value.
  */
 class NullableSchemaValue<T : Any> : ValueBase<T?>() {
-    override val value: T? get() = myValue ?: default?.value
+    override val value: T? get() = unsafe
+}
+
+/**
+ * Visitor that invokes all validation handlers.
+ */
+context(ProblemReporterContext)
+class ValidationVisitor: SchemaValuesVisitor() {
+    override fun visitNode(it: SchemaNode): Unit? {
+        with(it) { validate() }
+        return super.visitNode(it)
+    }
+}
+
+/**
+ * Abstract class to traverse final schema tree.
+ */
+abstract class SchemaValuesVisitor {
+
+    open fun visit(it: Any): Unit? = when(it) {
+        is List<*> -> visitCollection(it)
+        is Map<*, *> -> visitMap(it)
+        is SchemaValue<*> -> visitValue(it)
+        is SchemaNode -> visitNode(it)
+        else -> Unit
+    }
+
+    open fun visitCollection(it: Collection<*>): Unit? = it.filterNotNull().forEach { visit(it) }
+
+    open fun visitMap(it: Map<*, *>): Unit? = visitCollection(it.values)
+
+    open fun visitNode(it: SchemaNode): Unit? = it.allValues.forEach { visit(it) }
+
+    open fun visitValue(it: SchemaValue<*>): Unit? = it.withoutDefault?.let { visit(it) }
 }

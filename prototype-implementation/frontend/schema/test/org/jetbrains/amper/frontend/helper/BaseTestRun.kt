@@ -25,10 +25,10 @@ open class BaseTestRun(
     protected val ctx = TestProblemReporterContext()
 
     context(BuildFileAware, TestProblemReporterContext)
-    open fun getInputContent(path: Path): String = path.readText()
+    open fun getInputContent(inputPath: Path): String = inputPath.readText()
 
     context(BuildFileAware, TestProblemReporterContext)
-    open fun getExpectContent(path: Path): String = path.readText()
+    open fun getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
 
     context(TestWithBuildFile)
     open fun doTest() = with(ctx) {
@@ -37,7 +37,7 @@ open class BaseTestRun(
             val inputContent = getInputContent(input)
 
             val expect = base / "$caseName$expectPostfix"
-            val expectContent = getExpectContent(expect)
+            val expectContent = getExpectContent(input, expect)
 
             assertEquals(expectContent, inputContent)
         }

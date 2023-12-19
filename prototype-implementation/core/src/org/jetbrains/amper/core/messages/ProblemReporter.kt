@@ -7,6 +7,11 @@ package org.jetbrains.amper.core.messages
 import java.nio.file.Path
 
 interface ProblemReporter {
+    /**
+     * Check if we reported any fatal errors.
+     */
+    val hasFatal: Boolean
+
     fun reportMessage(message: BuildProblem)
 
     /**
@@ -25,6 +30,8 @@ interface ProblemReporterContext {
 // Note: This class is not thread-safe.
 // Problems collecting might misbehave when used from multiple threads (e.g. in Gradle).
 abstract class CollectingProblemReporter : ProblemReporter {
+    override val hasFatal get() = problems.any { it.level == Level.Fatal }
+
     protected val problems: MutableList<BuildProblem> = mutableListOf()
 
     protected abstract fun doReportMessage(message: BuildProblem)

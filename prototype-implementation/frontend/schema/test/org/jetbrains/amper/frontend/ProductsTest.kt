@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.helper.aomTest
+import org.jetbrains.amper.frontend.helper.diagnosticsTest
 import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import kotlin.test.Test
 
@@ -13,7 +14,7 @@ internal class ProductsTest : TestWithBuildFile() {
     @Test
     fun `product with unsupported type `() {
         withBuildFile {
-            aomTest("product-with-unsupported-type")
+            diagnosticsTest("product-with-unsupported-type")
         }
     }
 
@@ -28,21 +29,21 @@ internal class ProductsTest : TestWithBuildFile() {
     @Test
     fun `product lib without platforms full`() {
         withBuildFile {
-            aomTest("product-lib-without-platforms-full")
+            diagnosticsTest("product-lib-without-platforms-full")
         }
     }
 
     @Test
     fun `product lib without platforms inline`() {
         withBuildFile {
-            aomTest("product-lib-without-platforms-inline")
+            diagnosticsTest("product-lib-without-platforms-inline")
         }
     }
 
     @Test
     fun `product lib with empty platforms inline`() {
         withBuildFile {
-            aomTest("product-lib-with-empty-platforms")
+            diagnosticsTest("product-lib-with-empty-platforms")
         }
     }
 
@@ -84,21 +85,21 @@ internal class ProductsTest : TestWithBuildFile() {
     @Test
     fun `product with incompatible platforms`() {
         withBuildFile {
-            aomTest("product-with-incompatible-platforms")
+            diagnosticsTest("product-with-incompatible-platforms")
         }
     }
 
     @Test
     fun `product with single unsupported platform`() {
         withBuildFile {
-            aomTest("product-with-single-unsupported-platform")
+            diagnosticsTest("product-with-single-unsupported-platform")
         }
     }
 
     @Test
     fun `product with multiple unsupported platforms`() {
         withBuildFile {
-            aomTest("product-with-multiple-unsupported-platforms")
+            diagnosticsTest("product-with-multiple-unsupported-platforms")
         }
     }
 

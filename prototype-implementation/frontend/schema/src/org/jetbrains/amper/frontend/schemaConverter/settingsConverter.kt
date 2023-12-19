@@ -5,7 +5,20 @@
 package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.assertNodeType
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
+import org.jetbrains.amper.frontend.schema.IosSettings
+import org.jetbrains.amper.frontend.schema.JavaSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
+import org.jetbrains.amper.frontend.schema.KoverSettings
+import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.PublishingSettings
+import org.jetbrains.amper.frontend.schema.SerializationSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode

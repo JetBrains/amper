@@ -21,8 +21,7 @@ import kotlin.test.asserter
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
 
-    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error }
-
+    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error || it.level == Level.Fatal }
 }
 
 class TestProblemReporterContext : ProblemReporterContext {

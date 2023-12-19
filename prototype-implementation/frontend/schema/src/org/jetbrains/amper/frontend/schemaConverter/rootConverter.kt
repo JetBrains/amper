@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.adjustTrace
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -87,15 +88,17 @@ context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertProduct() = ModuleProduct().apply {
     when (this@convertProduct) {
         is MappingNode -> {
-            type(tryGetScalarNode("type")?.convertEnum(ProductType)) { /* TODO report */ }
-            platforms(tryGetScalarSequenceNode("platforms")
-                ?.mapNotNull { it.convertEnum(Platform) /* TODO report */ }
-            )
+            type(tryGetScalarNode("type")?.convertEnum(ProductType, isFatal = true, isLong = true))
+                .adjustTrace(tryGetScalarNode("type"))
+            val platformsNode = tryGetScalarSequenceNode("platforms")
+            platforms(platformsNode?.mapNotNull { it.convertEnum(Platform) /* TODO report */ })
+                .adjustTrace(tryGetChildNode("platforms"))
         }
-        is ScalarNode -> type(this@convertProduct.convertEnum(ProductType)) { /* TODO report */ }
+
+        is ScalarNode -> type(this@convertProduct.convertEnum(ProductType, isFatal = true, isLong = true))
+            .adjustTrace(this@convertProduct)
         else -> TODO("report")
     }
-
 }
 
 context(ConvertCtx, ProblemReporterContext)
@@ -152,21 +155,16 @@ private fun Node.convertDependency(): Dependency? {
         when {
             // TODO Report non existent path.
             value.startsWith(".") -> value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
-    this is ScalarNode && value.startsWith("$") ->
-        // TODO Report non existent path.
-        value?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")) } }
             // TODO Report non existent path.
 //            value.startsWith("$") -> value
 //                ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
 
-            else ->value?.let { ExternalMavenDependency().apply { coordinates(it) } }
+            else -> value?.let { ExternalMavenDependency().apply { coordinates(it) } }
 
 }
     } else {
         when {    this is MappingNode && value.size > 1 -> TODO("report")
     this is MappingNode && value.isEmpty() -> TODO("report")
-    this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
-        value.first().convertCatalogDep()
 //            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
 //                value.first().convertCatalogDep()
 
@@ -209,5 +207,7 @@ private fun NodeTuple.convertScopes(dep: Dependency) = with(dep) {
             scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
             exported(valueNode.tryGetScalarNode("exported")?.value?.toBoolean())
         }
+
+        else -> error("Unreachable")
     }
 }

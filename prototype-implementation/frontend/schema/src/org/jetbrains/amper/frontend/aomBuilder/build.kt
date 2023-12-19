@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.DefaultScopedNotation
@@ -18,6 +19,7 @@ import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
+import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
@@ -49,12 +51,16 @@ class SchemaBasedModelImport : ModelInit {
                 convertModule { moduleFile.reader() }
                     .readTemplatesAndMerge()
                     .replaceCatalogDependencies()
+                    .validateSchema()
             }
         }
 
         // Find all module files, parse them and perform preprocessing (templates, TODO catalogs)
         val path2SchemaModule = root.findAmperModuleFiles()
             .associateWith { readAndPreprocess(it) }
+
+        // Fail fast if we have fatal errors.
+        if (problemReporter.hasFatal) return amperFailure()
 
         // Build AOM from ISM.
         val resultModules = path2SchemaModule.buildAom()

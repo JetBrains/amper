@@ -20,5 +20,5 @@ class OnlyExpectTestRun(
 ) : BaseTestRun(caseName) {
     override val expectPostfix = postfix
     context(BuildFileAware, TestProblemReporterContext)
-    override fun getInputContent(path: Path) = input()
+    override fun getInputContent(inputPath: Path) = input()
 }

@@ -7,8 +7,20 @@ package org.jetbrains.amper.core.messages
 import java.nio.file.Path
 
 enum class Level {
-    Warning,
+    /**
+     * Cannot process build or import further.
+     */
+    Fatal,
+
+    /**
+     * Can partially finish import or build. Overall build cannot be finished.
+     */
     Error,
+
+    /**
+     * Can finish import and build.
+     */
+    Warning,
 }
 
 data class BuildProblem(

@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.api
 
+import org.yaml.snakeyaml.nodes.Node
+
 /**
  * An entity, that can persist its trace.
  */
@@ -21,16 +23,14 @@ class TraceableString(
         return value
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TraceableString) return false
-
-        if (value != other.value) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
+    override fun hashCode() = value.hashCode()
+    override fun equals(other: Any?) =
+        this === other || (other as? TraceableString)?.value == value
 }
+
+// TODO Replace by traceability generalization.
+fun SchemaValue<String>.toTraceableString(): TraceableString = TraceableString(value).apply {
+    trace = this@toTraceableString.trace
+}
+
+fun <T : Traceable> T.adjustTrace(it: Node?) = apply { trace = it }

@@ -6,28 +6,6 @@ package org.jetbrains.amper.frontend.helper
 
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.render
-import java.io.File
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.readText
-
-fun checkDiagnostics(
-    expectedTestDataFile: Path,
-    cleanedText: String,
-    tempDir: Path,
-    errors: List<BuildProblem>
-) {
-    val expectedText = expectedTestDataFile.readText().trimTrailingWhitespacesAndEmptyLines()
-    val actualText =
-        annotateTextWithDiagnostics(cleanedText, errors) {
-            it.replace(
-                tempDir.absolutePathString() + File.separator,
-                ""
-            )
-        }.trimTrailingWhitespacesAndEmptyLines()
-
-    assertEqualsIgnoreLineSeparator(expectedText, actualText, expectedTestDataFile)
-}
 
 fun String.removeDiagnosticsAnnotations(): String =
     lines()
@@ -77,7 +55,7 @@ private fun StringBuilder.appendDiagnostics(
 private fun computeIndent(line: String): Int = line.takeWhile { it.isWhitespace() }.count()
 private fun generateIndent(size: Int) = " ".repeat(size)
 
-private fun String.trimTrailingWhitespacesAndEmptyLines(): String {
+fun String.trimTrailingWhitespacesAndEmptyLines(): String {
     return lines()
         .dropWhile { it.isBlank() }
         .dropLastWhile { it.isBlank() }

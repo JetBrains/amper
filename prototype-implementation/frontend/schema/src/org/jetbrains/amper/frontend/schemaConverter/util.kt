@@ -4,11 +4,14 @@
 
 package org.jetbrains.amper.frontend.schemaConverter
 
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
@@ -129,13 +132,13 @@ fun <T> MappingNode.convertScalarKeyedMap(
     report: Boolean = true,
     convert: Node.(String) -> T?
 ) = value.mapNotNull {
-        // TODO Report non scalars.
-        // Skip non scalar keys.
-        val scalarKey = it.keyNode.asScalarNode()?.value ?: return@mapNotNull null
-        // Skip those, that we failed to convert.
-        val converted = it.valueNode?.convert(scalarKey) ?: return@mapNotNull null
-        scalarKey to converted
-    }
+    // TODO Report non scalars.
+    // Skip non scalar keys.
+    val scalarKey = it.keyNode.asScalarNode()?.value ?: return@mapNotNull null
+    // Skip those, that we failed to convert.
+    val converted = it.valueNode?.convert(scalarKey) ?: return@mapNotNull null
+    scalarKey to converted
+}
     .toMap()
 
 /**
@@ -155,8 +158,36 @@ fun ScalarNode.extractModifiers(): Modifiers = value
 /**
  * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(enumIndex: EnumMap<T, String>, report: Boolean = true): T? =
-    this?.value?.let { enumIndex.get(it) /* TODO Report wrong type. */ }
+context(ProblemReporterContext)
+fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(
+    enumIndex: EnumMap<T, String>,
+    isFatal: Boolean = false,
+    isLong: Boolean = false,
+): T? = this?.value?.let {
+    val receivedValue = enumIndex.get(it)
+    if (receivedValue == null) {
+        if (isLong) {
+            SchemaBundle.reportBundleError(
+                this,
+                "unknown.property.type.long",
+                enumIndex.enumClass.simpleName!!,
+                it,
+                enumIndex.keys,
+                level = if (isFatal) Level.Fatal else Level.Error
+            )
+        } else {
+            SchemaBundle.reportBundleError(
+                this,
+                "unknown.property.type",
+                enumIndex.enumClass.simpleName!!,
+                it,
+                level = if (isFatal) Level.Fatal else Level.Error
+            )
+        }
+
+    }
+    receivedValue
+}
 
 /**
  * Try to set a value by scalar node, also providing trace.

@@ -7,11 +7,16 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.toTraceableString
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
+import org.yaml.snakeyaml.nodes.Node
 
 
 /**
@@ -23,7 +28,7 @@ fun Module.replaceCatalogDependencies() = apply {
         if (it !is CatalogDependency) return@mapNotNull it
         // TODO Report absence of catalog value.
         val catalogValue = BuiltInCatalog.findInCatalog(
-            it.catalogKey.value
+            it.catalogKey.toTraceableString()
         ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
             coordinates(catalogValue)
@@ -46,7 +51,7 @@ interface Catalog {
      * Get dependency notation by key.
      */
     context(ProblemReporterContext)
-    fun findInCatalog(key: String): String?
+    fun findInCatalog(key: TraceableString): String?
 
 }
 
@@ -57,7 +62,11 @@ open class PredefinedCatalog(
 
     // TODO Report on absence.
     context(ProblemReporterContext)
-    override fun findInCatalog(key: String): String? = map[key]
+    override fun findInCatalog(key: TraceableString): String? = map[key.value] ?: run {
+        val trace = key.trace as? Node
+        if (trace != null) SchemaBundle.reportBundleError(trace, "no.catalog.value", key.value)
+        null
+    }
 }
 
 object BuiltInCatalog : PredefinedCatalog({
@@ -98,7 +107,7 @@ object BuiltInCatalog : PredefinedCatalog({
     private val systemInfo = DefaultSystemInfo
 
     context(ProblemReporterContext)
-    override fun findInCatalog(key: String) = when (key) {
+    override fun findInCatalog(key: TraceableString) = when (key.value) {
         // Handle os detection as compose do.
         "compose.desktop.currentOs" -> systemInfo.detect().familyArch
             .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}" }

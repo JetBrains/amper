@@ -4,9 +4,14 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.*
+import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.SchemaEnum
+import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.reportBundleError
 
 enum class ProductType(
     override val schemaValue: String,
@@ -54,10 +59,37 @@ enum class ProductType(
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::schemaValue)
 }
 
-class ModuleProduct  : SchemaNode() {
+class ModuleProduct : SchemaNode() {
     val type = value<ProductType>()
 
-    // TODO Switch to bundle.
     val platforms = value<Collection<Platform>>()
-        .default("Defaults to product type platforms") { type.value.defaultPlatforms }
+        .default("Defaults to product type platforms") { type.unsafe?.defaultPlatforms }
+
+    context(ProblemReporterContext)
+    override fun validate() {
+        // Check empty platforms.
+        if (platforms.unsafe?.isEmpty() == true)
+            SchemaBundle.reportBundleError(platforms, "product.platforms.should.not.be.empty", level = Level.Fatal)
+
+        // Check no platforms for lib.
+        if (type.unsafe == ProductType.LIB && platforms.unsafe == null)
+            SchemaBundle.reportBundleError(
+                type,
+                "product.type.does.not.have.default.platforms",
+                ProductType.LIB.schemaValue,
+                level = Level.Fatal
+            )
+
+        // Check supported platforms.
+        platforms.unsafe.orEmpty().forEach { platform ->
+            if (platform !in type.value.supportedPlatforms)
+                SchemaBundle.reportBundleError(
+                    platforms,
+                    "product.unsupported.platform",
+                    type.value.schemaValue,
+                    platform.pretty,
+                    type.value.supportedPlatforms.joinToString { it.pretty },
+                )
+        }
+    }
 }

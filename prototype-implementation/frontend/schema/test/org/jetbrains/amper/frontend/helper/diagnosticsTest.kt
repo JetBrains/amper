@@ -18,6 +18,7 @@ import java.io.StringReader
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -25,9 +26,9 @@ import kotlin.io.path.reader
 
 
 context(TestWithBuildFile)
-fun aomTest(caseName: String) = BuildAomTestRun(caseName).doTest()
+fun diagnosticsTest(caseName: String) = DiagnosticsTestRun(caseName).doTest()
 
-class BuildAomTestRun(caseName: String) : BaseTestRun(caseName) {
+class DiagnosticsTestRun(caseName: String) : BaseTestRun(caseName) {
 
     context(BuildFileAware, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
@@ -54,32 +55,19 @@ class BuildAomTestRun(caseName: String) : BaseTestRun(caseName) {
             }
         }
 
-        // Build AOM.
-        val module = mapOf(inputPath to schemaModule).buildAom().first()
-
-        // Check errors absence.
-        assert(problemReporter.getErrors().isEmpty()) {
-            "Expected no errors, but got ${problemReporter.getErrors().joinToString()}"
+        // Build AOM if no fatals.
+        if (!problemReporter.hasFatal) {
+            mapOf(inputPath to schemaModule).buildAom().first()
         }
 
-        // Return module's textual representation.
-        return module.prettyPrint()
+        // Collect errors.
+        val errors = problemReporter.getErrors()
+        return annotateTextWithDiagnostics(cleared, errors) {
+            it.replace(buildDir.absolutePathString() + File.separator, "")
+        }.trimTrailingWhitespacesAndEmptyLines()
     }
 
     context(BuildFileAware, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path): String {
-        val buildDir = buildFile.normalize().toString()
-        val potDir = expectedPath.toAbsolutePath().normalize().parent.toString()
-        val testProcessDir = File(".").absoluteFile.normalize().toString()
-        val testResources = File(".").resolve("testResources").absoluteFile.normalize().toString()
-
-        // This is actual check.
-        val resourceFileText = expectedPath.readText()
-        return resourceFileText
-            .replace("{{ buildDir }}", buildDir)
-            .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
-            .replace("{{ testProcessDir }}", testProcessDir)
-            .replace("{{ testResources }}", testResources)
-            .replace("{{ fileSeparator }}", File.separator)
-    }
+    override fun getExpectContent(inputPath: Path, expectedPath: Path) =
+        inputPath.readText().trimTrailingWhitespacesAndEmptyLines()
 }

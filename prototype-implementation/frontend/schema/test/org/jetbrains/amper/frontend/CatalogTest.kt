@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.helper.aomTest
+import org.jetbrains.amper.frontend.helper.diagnosticsTest
 import org.jetbrains.amper.frontend.old.helper.TestWithBuildFile
 import kotlin.test.Test
 
@@ -17,6 +18,6 @@ internal class CatalogTest : TestWithBuildFile() {
 
     @Test
     fun `check failure with absent catalog key`() = withBuildFile {
-        aomTest("no-catalog-value")
+        diagnosticsTest("no-catalog-value")
     }
 }

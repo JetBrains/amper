@@ -80,10 +80,11 @@ fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: Str
  * Simple class to associate enum values by some string key.
  */
 abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
-    values: () -> Array<EnumT>,
+    valuesGetter: () -> Array<EnumT>,
     private val key: EnumT.() -> KeyT,
 ) : AbstractMap<KeyT, EnumT>() {
-    override val entries = values().associateBy { it.key() }.entries
+    val enumClass = valuesGetter().first()::class
+    override val entries = valuesGetter().associateBy { it.key() }.entries
 }
 
 fun Path.isModuleYaml() = name == "module.yaml"

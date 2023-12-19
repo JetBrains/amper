@@ -19,14 +19,14 @@ class FailedConvertTestRun(
     private val expectedErrors: String,
 ) : BaseTestRun(caseName) {
 
-    override fun getInputContent(path: Path): String {
+    override fun getInputContent(inputPath: Path): String {
         with(ctx) {
-            with(ConvertCtx(path.parent)) {
-                convertModule { path.reader() }
+            with(ConvertCtx(inputPath.parent)) {
+                convertModule { inputPath.reader() }
             }
         }
         return ctx.problemReporter.getErrors().map { it.message }.joinToString()
     }
 
-    override fun getExpectContent(path: Path) = expectedErrors
+    override fun getExpectContent(inputPath: Path, expectedPath: Path) = expectedErrors
 }
