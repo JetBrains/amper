@@ -20,20 +20,20 @@ data class KotlinPart(
 ) : FragmentPart<KotlinPart> {
     override fun propagate(parent: KotlinPart): FragmentPart<KotlinPart> =
         KotlinPart(
-            languageVersion ?: parent.languageVersion,
-            apiVersion ?: parent.apiVersion,
-            allWarningsAsErrors ?: true && parent.allWarningsAsErrors ?: false,
-            (freeCompilerArgs + parent.freeCompilerArgs),
-            suppressWarnings ?: true || parent.suppressWarnings ?: false,
-            verbose ?: true || parent.verbose ?: false, // TODO check
+            languageVersion = languageVersion ?: parent.languageVersion,
+            apiVersion = apiVersion ?: parent.apiVersion,
+            allWarningsAsErrors = (allWarningsAsErrors ?: true) && (parent.allWarningsAsErrors ?: false),
+            freeCompilerArgs = (freeCompilerArgs + parent.freeCompilerArgs),
+            suppressWarnings = (suppressWarnings ?: true) || (parent.suppressWarnings ?: false),
+            verbose = (verbose ?: true) || (parent.verbose ?: false), // TODO check
 
             // Inherit parent state if no current state is set.
-            linkerOpts.ifEmpty { parent.linkerOpts },
-            debug ?: parent.debug,
-            parent.progressiveMode ?: progressiveMode,
-            languageFeatures.ifEmpty { parent.languageFeatures },
-            optIns.ifEmpty { parent.optIns },
-            serialization ?: parent.serialization
+            linkerOpts = linkerOpts.ifEmpty { parent.linkerOpts },
+            debug = debug ?: parent.debug,
+            progressiveMode = parent.progressiveMode ?: progressiveMode,
+            languageFeatures = languageFeatures.ifEmpty { parent.languageFeatures },
+            optIns = optIns.ifEmpty { parent.optIns },
+            serialization = serialization ?: parent.serialization
         )
 
     override fun default(module: PotatoModule): FragmentPart<*> {
