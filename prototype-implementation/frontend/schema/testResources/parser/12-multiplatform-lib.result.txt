@@ -63,9 +63,9 @@ Fragments:
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
       KoverPart(enabled=null, html=null, xml=null)
-  iosArm64
+  ios
     External dependencies:
-    Src folder: src@iosArm64
+    Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
     Parts:
@@ -79,12 +79,12 @@ Fragments:
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
       KoverPart(enabled=null, html=null, xml=null)
-  iosArm64Test
+  iosTest
     External dependencies:
-    Src folder: test@iosArm64
+    Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
-      iosArm64 (FRIEND)
+      ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -164,16 +164,16 @@ Fragments:
       KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
-  [JVM, ANDROID, IOS_ARM64, JS]
+  [IOS_ARM64, JS, JVM, ANDROID]
     Fragments:
+      ios
+      js
       jvm
       android
-      iosArm64
-      js
   isTest: true
-  [JVM, ANDROID, IOS_ARM64, JS]
+  [IOS_ARM64, JS, JVM, ANDROID]
     Fragments:
+      iosTest
+      jsTest
       jvmTest
       androidTest
-      iosArm64Test
-      jsTest

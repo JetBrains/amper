@@ -20,7 +20,6 @@ internal class ProductsTest : TestBase(Path("testResources") / "product") {
         }
     }
 
-
     @Test
     fun `product lib `() {
         withBuildFile {

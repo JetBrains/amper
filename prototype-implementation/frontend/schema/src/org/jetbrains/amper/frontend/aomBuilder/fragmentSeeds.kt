@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.Platform.Companion.leafChildren
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
@@ -30,15 +29,16 @@ data class FragmentSeed(
      * Platforms that form this seed modifier. For example, "ios".
      */
     val rootPlatforms: Set<Platform>? = null,
-
-    var dependency: FragmentSeed? = null,
-
-    var relevantSettings: Settings? = null,
-    var relevantTestSettings: Settings? = null,
-
-    var relevantDependencies: List<Dependency>? = null,
-    var relevantTestDependencies: List<Dependency>? = null,
 ) {
+    val isLeaf by lazy { platforms.singleOrNull()?.isLeaf == true }
+    val dependencies = mutableListOf<FragmentSeed>()
+
+    var relevantSettings: Settings? = null
+    var relevantTestSettings: Settings? = null
+
+    var relevantDependencies: List<Dependency>? = null
+    var relevantTestDependencies: List<Dependency>? = null
+
     internal val modifiersAsStrings: Set<String> = buildList {
         addAll(aliases.orEmpty())
         addAll(rootPlatforms.orEmpty().map { it.pretty })
@@ -58,47 +58,132 @@ data class FragmentSeed(
 }
 
 /**
- * Return combinations of platforms and aliases
+ * All seed generation is combined into steps:
+ * 1. Determining applicable natural hierarchy subtree
+ * 2. Reducing this hierarchy to the minimal matching one
+ * 3. Replacing single leaf fragments by their closest parents (or aliases) if possible.
+ * 4. Adding common fragment if there is no common natural hierarchy root between generated seeds.
+ * 5. Determining dependencies between fragments, based on their platforms.
+ *
+ * So, with declared platforms:
+ * 1. **`[ iosArm64 ]`** - applicable natural hierarchy will be `[ native, apple, ios, iosArm64 ]`,
+ * reduced will be `[ ios, iosArm64 ]`, and `iosArm64` is single leaf platform with parent being `ios`,
+ * so resulting fragments are **`[ ios ]`**.
+ * 2. **`[ iosArm64 ]`** and alias **`myAlias: [ iosArm64 ]`** - applicable natural hierarchy will be
+ * `[ native, apple, ios, iosArm64 ]`, reduced will be `[ ios, iosArm64 ]`,
+ * and `iosArm64` is single leaf platform with parent being `ios`, but closest matching parent or alias is
+ * `myAlias`, so resulting fragments are **`[ myAlias ]`**.
+ * 3. **`[ iosArm64, iosSimulatorArm64 ]`** - applicable natural hierarchy will be `[ native, apple, ios, iosArm64, iosSimulatorArm64 ]`,
+ * reduced will be `[ ios, iosArm64, iosSimulatorArm64 ]` and there are no single leaf platforms,
+ * so result fragments are **`[ ios, iosArm64, iosSimulatorArm64 ]`**
+ * 4. **`[ iosArm64, jvm ]`** - applicable natural hierarchy will be `[ jvm, native, apple, ios, iosArm64 ]`,
+ * reduced will be `[ jvm, ios, iosArm64 ]`, and there is single leaf `iosArm64`, but no common root,
+ * so resulting fragments are **`[ common, jvm, ios ]`**
+ * 5. **`[ iosArm64, macosArm64 ]`** - applicable natural hierarchy will be `[ native, apple, macos, macosArm64, ios, iosArm64 ]`,
+ * reduced will be `[ apple, macos, macosArm64, ios, iosArm64 ]`, there are two single leaf platforms: `macosArm64` and `iosArm64`,
+ * so resulting fragments are **`[ apple, macos, ios ]`**
  */
 // TODO Maybe more comprehensive return value to trace things.
 fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
-    // TODO Check invariant - there should be no aliases with same platforms.
-    val productPlatforms = product.value.platforms.value
-    val usedAliases = aliases.value ?: emptyMap()
-    val aliases2LeafPlatforms = usedAliases.entries
-        .associate { it.key to it.value.flatMap { it.leafChildren }.toSet() }
-    val aliasPlatforms = usedAliases.values.flatten()
+    val declaredPlatforms = product.value.platforms.value
+    val declaredLeafPlatforms = declaredPlatforms.flatMap { it.leaves }.toSet()
 
-    val combinedLeafPlatforms = (productPlatforms + aliasPlatforms)
-        .flatMap { it.leafChildren }
-        .toSet()
+    val declaredAliases = aliases.value ?: emptyMap()
+    val aliases2leafPlatforms = declaredAliases.entries
+        .associate { it.key to it.value.flatMap { it.leaves }.toSet() }
+    // TODO Check - there should be no aliases with same platforms? Maybe report.
+    // Here aliases with same platforms are lost.
+    val leafPlatforms2aliases = buildMap {
+        aliases2leafPlatforms.entries.sortedBy { it.key }.forEach { putIfAbsent(it.value, it.key) }
+    }
 
-    // Collect all nodes from natural hierarchy that match collected platforms.
-    val applicableNaturalHierarchy = Platform.naturalHierarchy.entries
-        .filter { (_, v) -> combinedLeafPlatforms.containsAll(v) }
+    val applicableHierarchy = Platform.naturalHierarchy.entries
+        .filter { (_, v) -> declaredLeafPlatforms.any { it in v } }
         .associate { it.key to it.value }
+    val applicableHierarchyAndLeaves = applicableHierarchy +
+            Platform.leafPlatforms.filter { it in declaredLeafPlatforms }.associate { it to setOf(it) }
+
+    // Separate platform trees from the overall hierarchy.
+    // So, for example, jvm and ios will be in separate trees.
+    val hierarchyTrees = applicableHierarchyAndLeaves.entries.groupBy { it.key.topmostParentNoCommon }
+
+    // Reduce hierarchy to minimal matching one. So `[ iosArm64 ]` will remain intact,
+    // and `[ native, ios, iosArm64, iosSimulatorArm64 ]` will become `[ ios, iosArm64, iosSimulatorArm64 ]`
+    val reduced = buildSet {
+        hierarchyTrees.entries.forEach { (_, tree) ->
+            val treeLeafPlatforms = tree.map { it.key }.filter { it.isLeaf }.toSet()
+            // This is the closest element in the tree, that contains all tree's leaf platforms.
+            val closestRoot = tree
+                .filter { it.value.containsAll(treeLeafPlatforms) }
+                .minByOrNull { it.value.size }
+                ?.key
+                ?: error("Should not be here: Platform hierarchy tree must contain at least one matching root")
+            // Traverse the tree until closest root and add all entries to the reduced hierarchy.
+            tree.sortedBy { it.value.size }.takeWhile { it.key != closestRoot }.forEach { add(it.key) }
+            add(closestRoot)
+        }
+    }
+
+    // Threat reduced hierarchy as aliases.
+    // Replace single leaves (without common parent) with aliases or parents.
+    val combinedAliases = buildMap {
+        putAll(applicableHierarchy)
+        putAll(aliases2leafPlatforms)
+    }
+
+    // Initial seeds, that are computed from the hierarchy and aliases.
+    val initialSeeds = buildSet {
+        reduced.forEach { platform ->
+            // If platforms parent is not in the reduced hierarchy, then
+            // also there are no it's brothers in there.
+            if (platform.isLeaf && platform.parentNoCommon !in reduced) {
+                val matchingClosestAlias = combinedAliases.entries
+                    .filter { platform in it.value }
+                    .sortedBy { it.key.toString() }
+                    .minByOrNull { it.value.size }
+
+                if (matchingClosestAlias != null) {
+                    this += FragmentSeed(
+                        platforms = setOf(platform),
+                        rootPlatforms = (matchingClosestAlias.key as? Platform)?.let { setOf(it) },
+                        aliases = (matchingClosestAlias.key as? String)?.let { setOf(it) },
+                    )
+                } else {
+                    this += FragmentSeed(
+                        platforms = setOf(platform),
+                        rootPlatforms = setOf(platform),
+                    )
+                }
+            } else {
+                this += FragmentSeed(
+                    platforms = platform.leaves,
+                    rootPlatforms = setOf(platform),
+                )
+            }
+        }
+    }
 
     // Get a list of leaf platforms, denoted by modifiers.
     fun Modifiers.convertToLeafPlatforms() =
         // If modifiers are empty, then treat them  like common platform modifiers.
-        if (isEmpty()) combinedLeafPlatforms
+        if (isEmpty()) declaredLeafPlatforms
         // Otherwise, parse every modifier individually.
         else map { it.value }.mapNotNull {
-            aliases2LeafPlatforms[it] ?: Platform[it]?.leafChildren // TODO Report if no such platform
+            aliases2leafPlatforms[it] ?: Platform[it]?.leaves // TODO Report if no such platform
         }.flatten().toSet()
 
     // Create a fragment seed from modifiers like "alias+ios".
     fun Modifiers.convertToSeed(): FragmentSeed {
-        val (areAliases, nonAliases) = partition { aliases2LeafPlatforms.contains(it.value) }
+        val (areAliases, nonAliases) = partition { aliases2leafPlatforms.contains(it.value) }
         val (arePlatforms, nonPlatforms) = nonAliases.partition { Platform.contains(it.value) }
-        val declaredPlatforms = arePlatforms.map { Platform[it.value]!! }.toSet()
-        val usedPlatforms = declaredPlatforms.flatMap { it.leafChildren }.toSet() +
-                areAliases.flatMap { aliases2LeafPlatforms[it.value] ?: emptyList() }
+        val declaredModifierPlatforms = arePlatforms.map { Platform[it.value]!! }.toSet()
+        val usedModifierPlatforms = declaredModifierPlatforms.flatMap { it.leaves }.toSet() +
+                areAliases.flatMap { aliases2leafPlatforms[it.value] ?: emptyList() }
         // TODO Report nonPlatforms
         return FragmentSeed(
-            usedPlatforms,
+            usedModifierPlatforms.intersect(declaredLeafPlatforms).toSet(),
             aliases = areAliases.map { it.value }.toSet(),
-            rootPlatforms = declaredPlatforms,
+            rootPlatforms = declaredModifierPlatforms,
         )
     }
 
@@ -108,54 +193,35 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             dependencies.modifiers +
             `test-dependencies`.modifiers).filter { it.isNotEmpty() }
 
-    // We will certainly create fragments for these.
     val modifiersSeeds = allUsedModifiers.map { it.convertToSeed() }
-
-    val productPlatformSeeds = productPlatforms
-        .map { FragmentSeed(it.leafChildren, rootPlatforms = setOf(it)) }
-
-    val aliasesSeeds = aliases2LeafPlatforms.entries
-        .map { (key, value) -> FragmentSeed(value, aliases = setOf(key)) }
-
-    val naturalHierarchySeeds = applicableNaturalHierarchy
-        .map { (parent, children) -> FragmentSeed(children, rootPlatforms = setOf(parent)) }
-
-    val leafSeeds = combinedLeafPlatforms
-        .map { FragmentSeed(setOf(it), rootPlatforms = setOf(it)) }
 
     // ORDER SENSITIVE!
     val requiredSeeds = buildSet {
-        // Aliases have topmost priority.
-        addAll(aliasesSeeds)
-        // Natural hierarchy is applied first.
-        addAll(naturalHierarchySeeds)
-        // Then modifiers seeds are applied.
+        addAll(initialSeeds)
         addAll(modifiersSeeds)
-
-        addAll(productPlatformSeeds)
-
-        // Leaves must be last.
-        addAll(leafSeeds)
     }.toMutableSet()
 
     // Set up dependencies following platform hierarchy.
     requiredSeeds.forEach { fragmentSeed ->
-        fragmentSeed.dependency = requiredSeeds
-            .filter { it.platforms.containsAll(fragmentSeed.platforms) && it.platforms != fragmentSeed.platforms }
-            // TODO Handle case, when alias is the same as natural hierarchy.
-            .minByOrNull { it.platforms.size }
+        val dependencyCandidates = requiredSeeds.filter {
+            it.platforms.containsAll(fragmentSeed.platforms) && it != fragmentSeed
+        }
+
+        // Exclude all candidates, that include some other candidates entirely.
+        fragmentSeed.dependencies += dependencyCandidates.filter { candidate ->
+            dependencyCandidates.none { it != candidate && candidate.platforms.containsAll(it.platforms) }
+        }
     }
 
     // And add common fragment if needed.
     if (requiredSeeds.size > 1) {
         val roots = requiredSeeds
-            .map { generateSequence(it) { it.dependency }.last() }
-            .distinct()
+            .filter { it.dependencies.isEmpty() }
 
         if (roots.size > 1) {
-            val commonSeed = FragmentSeed(combinedLeafPlatforms, rootPlatforms = setOf(Platform.COMMON))
+            val commonSeed = FragmentSeed(declaredLeafPlatforms, rootPlatforms = setOf(Platform.COMMON))
             requiredSeeds.add(commonSeed)
-            roots.forEach { it.dependency = commonSeed }
+            roots.forEach { it.dependencies.add(commonSeed) }
         }
     }
 

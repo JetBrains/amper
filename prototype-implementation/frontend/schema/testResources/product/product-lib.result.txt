@@ -1,5 +1,5 @@
 Fragments:
-  iosArm64
+  ios
     External dependencies:
     Src folder: src
     Fragment dependencies:
@@ -14,11 +14,11 @@ Fragments:
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
       KoverPart(enabled=null, html=null, xml=null)
-  iosArm64Test
+  iosTest
     External dependencies:
     Src folder: test
     Fragment dependencies:
-      iosArm64 (FRIEND)
+      ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -34,8 +34,8 @@ Artifacts:
   isTest: false
   [IOS_ARM64]
     Fragments:
-      iosArm64
+      ios
   isTest: true
   [IOS_ARM64]
     Fragments:
-      iosArm64Test
+      iosTest

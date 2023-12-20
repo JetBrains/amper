@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mapStartAware
 import org.jetbrains.amper.frontend.schema.Dependency
@@ -22,7 +21,7 @@ class DefaultLeafFragment(
     seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?,
 ) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings), LeafFragment {
     init {
-        assert(seed.rootPlatforms?.firstOrNull()?.isLeaf == true) { "Should be created only for leaf platforms!" }
+        assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
 
     override val platform = seed.rootPlatforms!!.single()
@@ -90,21 +89,19 @@ fun createFragments(
         val testFragment: DefaultFragment,
     )
 
-    fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>) = when {
-        rootPlatforms?.singleOrNull()?.isLeaf == true -> DefaultLeafFragment(
+    fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>) =
+        if (isLeaf) DefaultLeafFragment(
             this,
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings
         )
-
-        else -> DefaultFragment(
+        else DefaultFragment(
             this,
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings
         )
-    }
 
     // Create fragments.
     val initial = seeds.associateWith {
@@ -117,20 +114,20 @@ fun createFragments(
 
     // Set fragment dependencies.
     initial.entries.forEach { (seed, bundle) ->
-        if (seed.dependency != null) {
-            // Main fragment dependency.
-            bundle.mainFragment.fragmentDependencies +=
-                initial[seed.dependency]!!.mainFragment.asRefine()
+        // Main fragment dependency.
+        bundle.mainFragment.fragmentDependencies +=
+            seed.dependencies.map { initial[it]!!.mainFragment.asRefine() }
 
-            initial[seed.dependency]!!.mainFragment.fragmentDependants +=
-                bundle.mainFragment.asRefine()
+        seed.dependencies.forEach {
+            initial[it]!!.mainFragment.fragmentDependants += bundle.mainFragment.asRefine()
+        }
 
-            // Test fragment dependency.
-            bundle.testFragment.fragmentDependencies +=
-                initial[seed.dependency]!!.testFragment.asRefine()
+        // Test fragment dependency.
+        bundle.testFragment.fragmentDependencies +=
+            seed.dependencies.map { initial[it]!!.testFragment.asRefine() }
 
-            initial[seed.dependency]!!.testFragment.fragmentDependants +=
-                bundle.testFragment.asRefine()
+        seed.dependencies.forEach {
+            initial[it]!!.testFragment.fragmentDependants += bundle.testFragment.asRefine()
         }
 
         // Main - test dependency.

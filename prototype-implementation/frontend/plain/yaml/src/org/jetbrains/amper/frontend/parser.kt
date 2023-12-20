@@ -50,7 +50,7 @@ fun parseModule(
     val naturalHierarchy = Platform.values
         .filter { !it.isLeaf }
         .filter { it != Platform.COMMON }
-        .associate { setOf(it).toCamelCaseString().first to it.leafChildren.toSet() }
+        .associate { setOf(it).toCamelCaseString().first to it.leaves.toSet() }
 
     val aliases = config["aliases"] ?: YamlNode.Sequence.Empty
     if (!aliases.castOrReport<YamlNode.Sequence> { FrontendYamlBundle.message("element.name.aliases") }) {

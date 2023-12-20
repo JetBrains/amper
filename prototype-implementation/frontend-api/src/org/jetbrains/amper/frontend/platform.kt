@@ -59,14 +59,29 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
     private fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
     val pretty get() = name.doCamelCase()
 
+    /**
+     * Get leaf children of this parent if it is a parent; List of self otherwise.
+     */
+    val leaves: Set<Platform> by lazy {
+        if (isLeaf) setOf(this)
+        else naturalHierarchy[this]!! // here we must have some.
+    }
+
+    val topmostParentNoCommon by lazy { generateSequence(this) { it.parentNoCommon }.last() }
+
+    val parentNoCommon by lazy { parent?.takeIf { it != COMMON } }
+
     companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {
 
         val leafPlatforms: Set<Platform> = Platform.values.filterTo(mutableSetOf()) { it.isLeaf }
 
         /**
          * Parent-child relations throughout parent hierarchy for every leaf child.
-         * For example, MACOS/MACOS_X64 and APPLE/MACOS_X64 are both present.
-         * Excluding COMMON platform.
+         * For example, **`MACOS/[ MACOS_X64, ... ]`** and **`APPLE/[ MACOS_X64, ... ]`** are both present.
+         *
+         * Leaf platforms are **not present** (for example, **`IOS_ARM64/[ IOS_ARM64 ]`** is not in the map).
+         *
+         * Hierarchy **doest not include** COMMON platform.
          */
         val naturalHierarchy: Map<Platform, Set<Platform>> = buildMap<Platform, MutableSet<Platform>> {
             // Add parent-child relation for every parent in hierarchy.
@@ -76,13 +91,6 @@ enum class Platform(val parent: Platform? = null, val isLeaf: Boolean = false) {
             } else Unit
             Platform.leafPlatforms.forEach { add(it.parent, it) }
         }
-
-        /**
-         * Get leaf children of this parent if it is not a parent, and list of self if it is.
-         */
-        val Platform.leafChildren get(): Set<Platform> =
-            if (isLeaf) setOf(this)
-            else naturalHierarchy[this]!! // here we must have some.
     }
 }
 

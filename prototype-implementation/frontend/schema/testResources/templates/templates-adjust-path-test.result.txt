@@ -1,8 +1,8 @@
 Fragments:
-  iosArm64
+  ios
     External dependencies:
-      InternalDependency(module={{ testResources }}{{ fileSeparator }}.{{ fileSeparator }}inner-dir{{ fileSeparator }}.{{ fileSeparator }}some-dep-2)
-      InternalDependency(module={{ testResources }}{{ fileSeparator }}.{{ fileSeparator }}some-dep)
+      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/prototype-implementation/frontend/schema/testResources/templates/./inner-dir/./some-dep-2)
+      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/prototype-implementation/frontend/schema/testResources/templates/./some-dep)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -17,11 +17,11 @@ Fragments:
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
       KoverPart(enabled=null, html=null, xml=null)
-  iosArm64Test
+  iosTest
     External dependencies:
     Src folder: test
     Fragment dependencies:
-      iosArm64 (FRIEND)
+      ios (FRIEND)
     Parts:
       KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
       AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
@@ -37,8 +37,8 @@ Artifacts:
   isTest: false
   [IOS_ARM64]
     Fragments:
-      iosArm64
+      ios
   isTest: true
   [IOS_ARM64]
     Fragments:
-      iosArm64Test
+      iosTest
