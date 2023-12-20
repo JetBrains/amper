@@ -10,9 +10,18 @@ import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.asAbsolutePath
-import org.jetbrains.yaml.psi.*
-import org.yaml.snakeyaml.nodes.*
+import org.jetbrains.yaml.psi.YAMLKeyValue
+import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLPsiElement
+import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
+import org.jetbrains.yaml.psi.YAMLSequenceItem
+import org.jetbrains.yaml.psi.YAMLValue
+import org.yaml.snakeyaml.nodes.MappingNode
+import org.yaml.snakeyaml.nodes.ScalarNode
+import org.yaml.snakeyaml.nodes.SequenceNode
 import java.nio.file.Path
 
 /**
@@ -197,6 +206,7 @@ fun Collection<YAMLScalar>.values() = map { it.textValue }
 /**
  * Same as [String.asAbsolutePath], but accepts [ScalarNode].
  */
+context(ConvertCtx)
 fun YAMLScalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
 
 

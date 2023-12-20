@@ -6,17 +6,34 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.asAbsolutePath
-import org.jetbrains.yaml.psi.*
+import org.jetbrains.yaml.psi.YAMLDocument
+import org.jetbrains.yaml.psi.YAMLKeyValue
+import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLPsiElement
+import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
+import org.jetbrains.yaml.psi.YAMLSequenceItem
+import org.jetbrains.yaml.psi.YAMLValue
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 public fun YAMLDocument.convertTemplate() = Template().apply {
   val documentMapping = getTopLevelValue()?.asMappingNode()!!
   convertBase(this)
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 public fun YAMLDocument.convertModule() = Module().apply {
   val documentMapping = getTopLevelValue()?.asMappingNode()!!
   product(documentMapping.tryGetChildElement("product")?.convertProduct()) { /* TODO report */ }
@@ -32,7 +49,7 @@ public fun YAMLDocument.convertModule() = Module().apply {
   convertBase(this)
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 internal fun <T : Base> YAMLDocument.convertBase(base: T) = base.apply {
   val documentMapping = getTopLevelValue()?.asMappingNode()!!
   repositories(documentMapping.tryGetChildElement("repositories")?.convertRepositories())
@@ -42,7 +59,7 @@ internal fun <T : Base> YAMLDocument.convertBase(base: T) = base.apply {
   `test-settings`(documentMapping.convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() })
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
   val productMapping = value?.asMappingNode()
   type(productMapping?.tryGetScalarNode("type")?.convertEnum(ProductType)) { /* TODO report */ }
@@ -51,14 +68,14 @@ private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
   )
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLPsiElement.convertRepositories(): List<Repository>? {
   if (this@convertRepositories !is YAMLSequence) return null
   // TODO Report wrong type.
   return items.mapNotNull { it.convertRepository() }
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLSequenceItem.convertRepository() = when (value) {
   is YAMLScalar -> Repository().apply {
     url((value as YAMLScalar).textValue)
@@ -86,12 +103,12 @@ private fun YAMLSequenceItem.convertRepository() = when (value) {
   else -> null
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLValue.convertDependencies() = assertNodeType<YAMLSequence, List<Dependency>>("dependencies") {
   items.mapNotNull { it.convertDependency() }
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLSequenceItem.convertDependency(): Dependency? = when {
   this.value is YAMLScalar && this.value!!.text.startsWith(".") ->
     // TODO Report non existent path.
@@ -108,13 +125,13 @@ private fun YAMLSequenceItem.convertDependency(): Dependency? = when {
   else -> null // Report wrong type
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertExternalMavenDep() = ExternalMavenDependency().apply {
   coordinates(keyText)
   adjustScopes(this)
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertInternalDep(): InternalDependency = InternalDependency().apply {
   path(keyText.asAbsolutePath())
   adjustScopes(this)
@@ -124,13 +141,14 @@ context(ProblemReporterContext)
 private fun YAMLKeyValue.adjustScopes(dep: Dependency) = with(dep) {
   val valueNode = value
   when {
-    valueNode is YAMLScalar && valueNode.textValue == "compile-only" -> `compile-only`(true)
-    valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> `runtime-only`(true)
+    valueNode is YAMLScalar && valueNode.textValue == "compile-only" -> scope(DependencyScope.COMPILE_ONLY)
+    valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> scope(DependencyScope.RUNTIME_ONLY)
     valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true)
     valueNode is YAMLMapping -> {
-      `compile-only`(valueNode.tryGetScalarNode("compile-only")?.textValue?.toBoolean())
-      `runtime-only`(valueNode.tryGetScalarNode("runtime-only")?.textValue?.toBoolean())
+      scope(valueNode.tryGetScalarNode("compile-only")?.convertEnum(DependencyScope))
       exported(valueNode.tryGetScalarNode("exported")?.textValue?.toBoolean())
     }
+
+    else -> Unit
   }
 }

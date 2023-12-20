@@ -12,6 +12,7 @@ import com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertBase
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import org.jetbrains.yaml.YAMLElementTypes
@@ -44,7 +45,7 @@ fun getPsiRawModel(reader: Reader): PsiElement {
   return node.psi
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 fun convertModulePsi(reader: Reader): Module {
   val rootNode = getPsiRawModel(reader)
   // TODO Add reporting.
@@ -52,7 +53,7 @@ fun convertModulePsi(reader: Reader): Module {
   return rootNode.convertModule()
 }
 
-context(ProblemReporterContext)
+context(ProblemReporterContext, ConvertCtx)
 fun convertTemplate(reader: Reader): Template {
   val rootNode = getPsiRawModel(reader)
   if (rootNode !is YAMLDocument) return Template()

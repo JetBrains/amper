@@ -10,7 +10,7 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.ismVisitor.accept
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
+import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertModulePsi
 import java.io.File
 import java.nio.file.Path
@@ -18,15 +18,6 @@ import kotlin.io.path.reader
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-fun moduleConvertTest(
-    caseName: String,
-    expectedErrors: List<String> = emptyList(),
-    expectedModule: Module? = null
-) {
-    moduleConvertTestImpl(caseName, expectedErrors, expectedModule = expectedModule, convertFn = { path ->
-        convertModuleViaSnake(path)
-    })
-}
 
 fun moduleConvertPsiTest(
     caseName: String,
@@ -34,7 +25,9 @@ fun moduleConvertPsiTest(
     expectedModule: Module? = null
 ) {
     moduleConvertTestImpl(caseName, expectedErrors, expectedModule = expectedModule, convertFn = { path ->
-        convertModulePsi(path.reader())
+        with(ConvertCtx(path.parent)) {
+            convertModulePsi(path.reader())
+            }
     })
 }
 
@@ -47,7 +40,7 @@ private fun moduleConvertTestImpl(
     val file = getTestDataResource("$caseName.yaml")
     val ctx = TestProblemReporterContext()
     val module = with(ctx) {
-        with (ctx) {
+        with(ctx) {
             convertFn(file.toPath())
         }
     }

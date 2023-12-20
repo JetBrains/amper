@@ -1,7 +1,20 @@
 package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.JavaSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.SerializationSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
 enum class Phase {
@@ -53,7 +66,7 @@ fun Module.visit(ismVisitor: IsmVisitor) {
   apply.value?.forEach {
     ismVisitor.visitApply(it)
   }
-  repositories.value.forEach {
+  repositories.value?.forEach {
     ismVisitor.visitRepository(it)
   }
   dependencies.value.forEach {

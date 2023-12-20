@@ -5,10 +5,18 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.schema.*
-import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.helper.convertTest
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
@@ -18,11 +26,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
     // TODO Check that there are all of settings withing that file.
     @Test
     fun `all module settings are converted without errors`() =
-        moduleConvertTest("all-module-settings", expectedModule = testModuleAllSettings())
+        convertTest("all-module-settings")
 
     @Test
     fun `all module settings are converted without errors - psi`() =
-        moduleConvertPsiTest("all-module-settings", expectedModule = testModuleAllSettings())
+        moduleConvertPsiTest("converter/all-module-settings", expectedModule = testModuleAllSettings())
 
     private fun testModuleAllSettings(): Module {
         return Module().apply {
@@ -51,11 +59,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                         },
                         ExternalMavenDependency().apply {
                             coordinates("some.dep")
-                            `compile-only`(true)
+                            scope(DependencyScope.COMPILE_ONLY)
                         },
                         ExternalMavenDependency().apply {
                             coordinates("other.dep")
-                            `compile-only`(true)
+                            scope(DependencyScope.COMPILE_ONLY)
                             exported(true)
                         }
                     ),
@@ -74,11 +82,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                             coordinates("androidx.activity:activity-compose:1.6.1")
                         },
                         ExternalMavenDependency().apply {
-                            `compile-only`(true)      // todo (AB) : what is a proper default?
+                            scope(DependencyScope.COMPILE_ONLY)
                             coordinates("androidx.activity:activity-compose:1.6.2")
                         },
                         ExternalMavenDependency().apply {
-                            `runtime-only`(true)
+                            scope(DependencyScope.RUNTIME_ONLY)
                             coordinates("androidx.activity:activity-compose:1.6.3")
                         },
                     )

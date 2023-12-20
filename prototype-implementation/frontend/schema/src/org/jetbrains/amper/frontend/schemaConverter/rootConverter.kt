@@ -97,6 +97,7 @@ private fun Node.convertProduct() = ModuleProduct().apply {
 
         is ScalarNode -> type(this@convertProduct.convertEnum(ProductType, isFatal = true, isLong = true))
             .adjustTrace(this@convertProduct)
+
         else -> TODO("report")
     }
 }
@@ -141,7 +142,7 @@ private fun Node.convertRepository() = when (this) {
 }
 
 context(ConvertCtx, ProblemReporterContext)
-private fun Node.convertDependencies() = when(this) {
+private fun Node.convertDependencies() = when (this) {
     is SequenceNode -> value.mapNotNull { it.convertDependency() }
     is ScalarNode -> if (value.isBlank()) emptyList() else null // TODO Report non-null scalar
     else -> null // TODO Report wrong type.
@@ -155,24 +156,20 @@ private fun Node.convertDependency(): Dependency? {
             // TODO Report non existent path.
             value.startsWith(".") -> value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
             // TODO Report non existent path.
-//            value.startsWith("$") -> value
-//                ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
-
+            value.startsWith("$") -> value
+                ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
             else -> value?.let { ExternalMavenDependency().apply { coordinates(it) } }
-
-}
+        }
     } else {
-        when {    this is MappingNode && value.size > 1 -> TODO("report")
-    this is MappingNode && value.isEmpty() -> TODO("report")
-//            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
-//                value.first().convertCatalogDep()
-
+        when {
+            this is MappingNode && value.size > 1 -> TODO("report")
+            this is MappingNode && value.isEmpty() -> TODO("report")
+            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
+                value.first().convertCatalogDep()
             this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith(".") == true ->
                 value.first().convertInternalDep()
-
             this is MappingNode && value.first().keyNode.asScalarNode()?.value != null ->
                 value.first().convertExternalMavenDep()
-
             else -> null // Report wrong type
         }
     }

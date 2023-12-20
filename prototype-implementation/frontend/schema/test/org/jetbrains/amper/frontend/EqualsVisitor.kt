@@ -1,12 +1,28 @@
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.JavaSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.SerializationSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.fail
 
 class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
   override fun visitModule(module: Module) {
@@ -122,18 +138,16 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
               "path of $index dependency (internal) with key $dependencyKey differs"
             )
           }
+
+          is CatalogDependency -> error("Should not be here")
         }
         assertValueEquals(
           dependency.exported, otherDependency.exported,
           "exported flag of $index dependency with key $dependencyKey differs"
         )
         assertValueEquals(
-          dependency.`runtime-only`, otherDependency.`runtime-only`,
-          "'runtime-only' flag of $index dependency with key $dependencyKey differs"
-        )
-        assertValueEquals(
-          dependency.`compile-only`, otherDependency.`compile-only`,
-          "'compile-only' flag of $index dependency with key $dependencyKey differs"
+          dependency.scope, otherDependency.scope,
+          "scope of $index dependency with key $dependencyKey differs"
         )
       }
     }

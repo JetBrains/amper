@@ -15,7 +15,7 @@ import java.nio.file.Path
 context(ProblemReporterContext, ReaderCtx)
 fun Module.readTemplatesAndMerge(): Module {
     fun readTemplate(path: Path): Template? = path2Reader(path)?.let {
-        with(ConvertCtx(path.parent)) { convertTemplate { it } }
+        with(ConvertCtx(path.parent)) { convertTemplateViaSnake { it } }
     }
     val readTemplates = apply.value?.mapNotNull { readTemplate(it) } ?: emptyList()
     val toMerge = readTemplates + this

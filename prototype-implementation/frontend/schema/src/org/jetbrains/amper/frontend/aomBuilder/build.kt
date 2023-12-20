@@ -27,7 +27,7 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertModule
+import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -45,7 +45,7 @@ internal fun doBuild(
     fun readAndPreprocess(moduleFile: Path): Module? = with(readerCtx) {
         with(ConvertCtx(moduleFile.parent)) {
             with(systemInfo) {
-                path2Reader(moduleFile)?.let { convertModule { it } }
+                path2Reader(moduleFile)?.let { convertModuleViaSnake { it } }
                     ?.readTemplatesAndMerge()
                     ?.replaceCatalogDependencies()
                     ?.validateSchema()
@@ -112,9 +112,6 @@ private fun createArtifacts(
     ProductType.LIB -> listOf(DefaultArtifact(if (!isTest) "lib" else "testLib", fragments, isTest))
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
 }
-
-private fun <T> ValueBase<Map<Modifiers, List<T>>>.simplifyModifiers() =
-    value.entries.associate { it.key.map { it.value }.toSet() to it.value }
 
 class DefaultPotatoModuleDependency(
     private val myModule: PotatoModule,
