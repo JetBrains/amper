@@ -9,7 +9,12 @@ import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.core.messages.*
+import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporter
+import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.messages.renderMessage
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.resolve.resolved
@@ -48,6 +53,7 @@ internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::cla
         when (message.level) {
             Level.Warning -> logger.warn(renderMessage(message))
             Level.Error -> logger.error(renderMessage(message))
+            Level.Fatal -> logger.error(renderMessage(message))
         }
     }
 

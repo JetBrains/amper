@@ -16,8 +16,11 @@ object CliProblemReporterContext : ProblemReporterContext {
     object CliProblemReporter : ProblemReporter {
         private val logger = LoggerFactory.getLogger("build")
         private val problemsWereReported = AtomicBoolean(false)
+        private val fatalsWereReported = AtomicBoolean(false)
 
         fun wereProblemsReported() = problemsWereReported.get()
+
+        override val hasFatal: Boolean get() = fatalsWereReported.get()
 
         override fun reportMessage(message: BuildProblem) {
             when (message.level) {
@@ -25,6 +28,11 @@ object CliProblemReporterContext : ProblemReporterContext {
                 Level.Error -> {
                     logger.error(renderMessage(message))
                     problemsWereReported.set(true)
+                }
+                Level.Fatal -> {
+                    logger.error(renderMessage(message))
+                    problemsWereReported.set(true)
+                    fatalsWereReported.set(true)
                 }
             }
         }

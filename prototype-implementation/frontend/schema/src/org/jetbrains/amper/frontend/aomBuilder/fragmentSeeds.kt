@@ -59,7 +59,7 @@ data class FragmentSeed(
 
 /**
  * All seed generation is combined into steps:
- * 1. Determining applicable natural hierarchy subtree
+ * 1. Determining applicable natural hierarchy sub-forest
  * 2. Reducing this hierarchy to the minimal matching one
  * 3. Replacing single leaf fragments by their closest parents (or aliases) if possible.
  * 4. Adding common fragment if there is no common natural hierarchy root between generated seeds.
@@ -124,7 +124,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         }
     }
 
-    // Threat reduced hierarchy as aliases.
+    // Threat applicable hierarchy as aliases.
     // Replace single leaves (without common parent) with aliases or parents.
     val combinedAliases = buildMap {
         putAll(applicableHierarchy)

@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -13,12 +11,12 @@ import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.ReaderCtx
+import org.jetbrains.amper.frontend.processing.addKotlinSerialization
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
@@ -30,43 +28,18 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
-import java.io.Reader
 import java.nio.file.Path
-import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.reader
-
-class SchemaBasedModelImport : ModelInit {
-    override val name = "yaml-schema-based"
-
-    context(ProblemReporterContext)
-    override fun getModel(root: Path): Result<Model> {
-        // TODO Replace default reader by something other.
-        // TODO Report non existing file.
-        val path2Reader: (Path) -> Reader? = {
-            it.takeIf { it.exists() }?.reader()
-        }
-
-        val resultModules = doBuild(
-            root,
-            ReaderCtx(path2Reader),
-            root.findAmperModuleFiles()
-        ) ?: return amperFailure()
-
-        // Propagate parts from fragment to fragment.
-        return DefaultModel(resultModules).resolved.asAmperSuccess()
-    }
-}
 
 /**
  * Function, introduced for testing.
  */
 context(ProblemReporterContext)
 internal fun doBuild(
-    root: Path,
     readerCtx: ReaderCtx,
-    paths: List<Path> = listOf(root),
+    paths: List<Path>,
+    gradleModules: Map<Path, PotatoModule> = emptyMap(),
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
     fun readAndPreprocess(moduleFile: Path): Module? = with(readerCtx) {
@@ -77,6 +50,7 @@ internal fun doBuild(
                     ?.replaceCatalogDependencies()
                     ?.validateSchema()
                     ?.replaceComposeOsSpecific()
+                    ?.addKotlinSerialization()
             }
         }
     }
@@ -90,25 +64,34 @@ internal fun doBuild(
     if (problemReporter.hasFatal) return null
 
     // Build AOM from ISM.
-    return path2SchemaModule.buildAom()
+    return path2SchemaModule.buildAom(gradleModules)
 }
+
+data class ModuleTriple(
+    val buildFile: Path,
+    val schemaModule: Module,
+    val module: DefaultModule,
+)
 
 /**
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-internal fun Map<Path, Module>.buildAom(): List<PotatoModule> {
+internal fun Map<Path, Module>.buildAom(
+    gradleModules: Map<Path, PotatoModule>,
+): List<PotatoModule> {
     val modules = map { (mPath, module) ->
         // TODO Remove duplicating enums.
         val convertedType = ProductType.getValue(module.product.value.type.value.schemaValue)
-        Triple(mPath, module, DefaultModule(mPath.name, convertedType, PotatoModuleFileSource(mPath), module))
+        ModuleTriple(mPath, module, DefaultModule(mPath.parent.name, convertedType, PotatoModuleFileSource(mPath), module))
     }
 
-    val module2Path = modules.associate { (path, _, module) -> path to module }
+    val moduleDir2module = modules
+        .associate { (path, _, module) -> path.parent to module } + gradleModules
 
     modules.forEach { (_, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds) { it.resolveInternalDependency(module2Path) }
+        val moduleFragments = createFragments(seeds) { it.resolveInternalDependency(moduleDir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {
@@ -118,7 +101,7 @@ internal fun Map<Path, Module>.buildAom(): List<PotatoModule> {
         }
     }
 
-    return modules.map { it.third }
+    return modules.map { it.module }
 }
 
 private fun createArtifacts(
@@ -134,12 +117,13 @@ private fun <T> ValueBase<Map<Modifiers, List<T>>>.simplifyModifiers() =
     value.entries.associate { it.key.map { it.value }.toSet() to it.value }
 
 class DefaultPotatoModuleDependency(
-    private val myModule: DefaultModule,
+    private val myModule: PotatoModule,
     val path: Path,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
 ) : PotatoModuleDependency, DefaultScopedNotation {
+    context (ProblemReporterContext)
     override val Model.module get() = myModule.asAmperSuccess()
     override fun toString(): String {
         return "InternalDependency(module=${path.pathString})"
@@ -150,7 +134,7 @@ class DefaultPotatoModuleDependency(
  * Resolve internal modules against known ones by path.
  */
 context(ProblemReporterContext)
-private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModule>) = let resolve@{
+private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, PotatoModule>) = let resolve@{
     when (it) {
         is ExternalMavenDependency -> MavenDependency(
             // TODO Report absence of coordinates.
@@ -163,7 +147,10 @@ private fun Dependency.resolveInternalDependency(modules: Map<Path, DefaultModul
         is InternalDependency -> it.path.value?.let { path ->
             DefaultPotatoModuleDependency(
                 // TODO Report to error module.
-                modules[path] ?: NotResolvedModule(path.name),
+                moduleDir2module[path] ?: run {
+                    println(path.pathString + " -- " + moduleDir2module.keys.joinToString { it.pathString })
+                    NotResolvedModule(path.name)
+                },
                 path,
                 scope.value.compile,
                 scope.value.runtime,

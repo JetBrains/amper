@@ -46,7 +46,7 @@ open class BuildAomTestRun(
         }
 
         // Read module.
-        val module = doBuild(inputPath, readCtx, systemInfo = systemInfo)?.first()
+        val module = doBuild(readCtx, listOf(inputPath), systemInfo = systemInfo)?.first()
 
         // Check errors absence.
         assert(problemReporter.getErrors().isEmpty()) {

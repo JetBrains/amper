@@ -56,7 +56,8 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
     )
 
     parts += AndroidPart(
-        compileSdk = this?.android?.value?.compileSdk?.value,
+        // TODO Replace with enum for Android versions.
+        compileSdk = this?.android?.value?.compileSdk?.value?.let { "android-$it" },
         minSdk = this?.android?.value?.minSdk?.value,
         maxSdk = this?.android?.value?.maxSdk?.value?.toIntOrNull(), // TODO Verify
         targetSdk = this?.android?.value?.targetSdk?.value,

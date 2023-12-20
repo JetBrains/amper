@@ -13,7 +13,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
-      KoverPart(enabled=null, html=null, xml=null)
+      KoverPart(enabled=true, html=KoverHtmlPart(title=null, charset=null, onCheck=true, reportDir=html), xml=KoverXmlPart(onCheck=false, reportFile=coverage.xml))
   jvmTest
     External dependencies:
     Src folder: test

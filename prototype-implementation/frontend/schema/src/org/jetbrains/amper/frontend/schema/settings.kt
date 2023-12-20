@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.api.*
+import org.jetbrains.amper.frontend.api.SchemaNode
 
 class Settings : SchemaNode() {
     val java = nullableValue<JavaSettings>()
@@ -73,7 +73,7 @@ class IosSettings : SchemaNode() {
 
 class IosFrameworkSettings : SchemaNode() {
     val basename = nullableValue<String>()
-    val mappings = value<Map<String, String>>()
+    val mappings = nullableValue<Map<String, String>>()
 }
 
 class PublishingSettings : SchemaNode() {

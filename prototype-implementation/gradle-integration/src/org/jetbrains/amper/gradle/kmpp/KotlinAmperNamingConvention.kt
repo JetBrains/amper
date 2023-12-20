@@ -7,7 +7,6 @@ package org.jetbrains.amper.gradle.kmpp
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.pretty
 import org.jetbrains.amper.gradle.FragmentWrapper
 import org.jetbrains.amper.gradle.LeafFragmentWrapper
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions

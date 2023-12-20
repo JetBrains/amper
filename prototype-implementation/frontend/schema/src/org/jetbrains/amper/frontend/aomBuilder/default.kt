@@ -6,13 +6,18 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.PotatoModuleSource
 import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
+import java.nio.file.Path
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
@@ -48,4 +53,20 @@ class DefaultArtifact(
     override val isTest: Boolean,
 ) : Artifact {
     override val platforms = fragments.flatMap { it.platforms }.toSet()
+}
+
+class DumbGradleModule(private val file: Path) : PotatoModule {
+    override val userReadableName: String
+        get() = file.parent.fileName.toString()
+    override val type: ProductType
+        get() = ProductType.LIB
+    override val source: PotatoModuleSource
+        get() = PotatoModuleFileSource(file)
+    override val fragments: List<Fragment>
+        get() = listOf()
+    override val artifacts: List<Artifact>
+        get() = listOf()
+
+    override val parts =
+        classBasedSet<ModulePart<*>>()
 }

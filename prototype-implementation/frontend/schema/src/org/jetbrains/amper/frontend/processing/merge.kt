@@ -8,9 +8,14 @@ import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
+import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
+import org.jetbrains.amper.frontend.schema.KoverSettings
+import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 
@@ -41,6 +46,10 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeNodeProperty(Settings::android, AndroidSettings::merge)
     mergeNodeProperty(Settings::kotlin, KotlinSettings::merge)
     mergeNodeProperty(Settings::compose, ComposeSettings::merge)
+    mergeNodeProperty(Settings::kover, KoverSettings::merge)
+    mergeNodeProperty(Settings::ios, IosSettings::merge)
+
+    mergeScalar(Settings::junit)
 }
 
 fun JavaSettings.merge(overwrite: JavaSettings) = mergeNode(overwrite, ::JavaSettings) {
@@ -84,6 +93,34 @@ fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {
     mergeScalar(SerializationSettings::engine)
+}
+
+fun IosSettings.merge(overwrite: IosSettings) = mergeNode(overwrite, ::IosSettings) {
+    mergeScalar(IosSettings::teamId)
+    mergeNodeProperty(IosSettings::framework, IosFrameworkSettings::merge)
+}
+
+fun IosFrameworkSettings.merge(overwrite: IosFrameworkSettings) = mergeNode(overwrite, ::IosFrameworkSettings) {
+    mergeScalar(IosFrameworkSettings::basename)
+    target.mappings(mappings.value?.mergeMap(overwrite.mappings.value) { it })
+}
+
+fun KoverSettings.merge(overwrite: KoverSettings) = mergeNode(overwrite, ::KoverSettings) {
+    mergeScalar(KoverSettings::enabled)
+    mergeNodeProperty(KoverSettings::xml, KoverXmlSettings::merge)
+    mergeNodeProperty(KoverSettings::html, KoverHtmlSettings::merge)
+}
+
+fun KoverHtmlSettings.merge(overwrite: KoverHtmlSettings) = mergeNode(overwrite, ::KoverHtmlSettings) {
+    mergeScalar(KoverHtmlSettings::title)
+    mergeScalar(KoverHtmlSettings::charset)
+    mergeScalar(KoverHtmlSettings::onCheck)
+    mergeScalar(KoverHtmlSettings::reportDir)
+}
+
+fun KoverXmlSettings.merge(overwrite: KoverXmlSettings) = mergeNode(overwrite, ::KoverXmlSettings) {
+    mergeScalar(KoverXmlSettings::onCheck)
+    mergeScalar(KoverXmlSettings::reportFile)
 }
 
 data class MergeCtx<T : Any>(
@@ -162,9 +199,9 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
 /**
  * Shortcut for merging map property.
  */
-fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>, merge: V.(V) -> V) = buildMap<K, V> {
+fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = buildMap<K, V> {
     putAll(this@mergeMap)
-    overwrite.forEach { (k, v) ->
+    overwrite?.forEach { (k, v) ->
         val old = this[k]
         if (old != null) this[k] = old.merge(v)
         else this[k] = v

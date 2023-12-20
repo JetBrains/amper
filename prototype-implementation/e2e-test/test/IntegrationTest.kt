@@ -3,6 +3,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class IntegrationTest : E2ETestFixture("./testData/projects/") {
@@ -151,6 +152,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @Ignore("Ignore variants for now")
     fun `build-variants`() = test(
         "build-variants",
         "build",

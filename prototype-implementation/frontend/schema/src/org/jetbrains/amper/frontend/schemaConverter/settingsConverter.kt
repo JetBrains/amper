@@ -38,6 +38,7 @@ internal fun MappingNode.doConvertSettings() = Settings().apply {
     compose(tryGetChildNode("compose")?.convertComposeSettings())
     ios(tryGetMappingNode("ios")?.convertIosSettings())
     publishing(tryGetMappingNode("publishing")?.convertPublishingSettings())
+    kover(tryGetMappingNode("kover")?.convertKoverSettings())
 }
 
 context(ProblemReporterContext)
@@ -117,7 +118,7 @@ internal fun MappingNode.convertPublishingSettings() = PublishingSettings().appl
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertKoverSettings() = KoverSettings().apply {
-    enabled(tryGetScalarNode("group")?.value?.toBoolean()) // TODO Check type
+    enabled(tryGetScalarNode("enabled")?.value?.toBoolean()) // TODO Check type
     xml(tryGetMappingNode("xml")?.convertKoverXmlSettings())
     html(tryGetMappingNode("html")?.convertKoverHtmlSettings())
 }

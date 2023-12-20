@@ -5,9 +5,7 @@
 package org.jetbrains.amper.gradle.kover
 
 import kotlinx.kover.gradle.plugin.dsl.KoverReportExtension
-import org.jetbrains.amper.frontend.KoverHtmlPart
 import org.jetbrains.amper.frontend.KoverPart
-import org.jetbrains.amper.frontend.KoverXmlPart
 import org.jetbrains.amper.gradle.adjustXmlFactories
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
@@ -22,7 +20,6 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
 
     override fun applyBeforeEvaluate() {
         project.plugins.apply("org.jetbrains.kotlinx.kover")
-
         applySettings()
     }
 

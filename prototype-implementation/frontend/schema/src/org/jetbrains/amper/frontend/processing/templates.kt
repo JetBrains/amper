@@ -28,6 +28,7 @@ fun Module.readTemplatesAndMerge(): Module {
         product(this@readTemplatesAndMerge.product.value)
         aliases(this@readTemplatesAndMerge.aliases.value)
         apply(this@readTemplatesAndMerge.apply.value)
+        module(this@readTemplatesAndMerge.module.value)
 
         // Copy all other fields.
         repositories(merged.repositories.value)

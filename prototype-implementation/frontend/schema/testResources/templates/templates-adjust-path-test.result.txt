@@ -1,8 +1,8 @@
 Fragments:
   ios
     External dependencies:
-      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/prototype-implementation/frontend/schema/testResources/templates/./inner-dir/./some-dep-2)
-      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/prototype-implementation/frontend/schema/testResources/templates/./some-dep)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:

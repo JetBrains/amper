@@ -164,7 +164,7 @@ fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(
     isFatal: Boolean = false,
     isLong: Boolean = false,
 ): T? = this?.value?.let {
-    val receivedValue = enumIndex.get(it)
+    val receivedValue = enumIndex[it]
     if (receivedValue == null) {
         if (isLong) {
             SchemaBundle.reportBundleError(
@@ -206,7 +206,10 @@ fun Collection<ScalarNode>.values() = map { it.value }
 
 // TODO Maybe report. Or need to report within resolve.
 context(ConvertCtx)
-fun String.asAbsolutePath(): Path = basePath.resolve(this.replace("/", File.separator)).absolute()
+fun String.asAbsolutePath(): Path = basePath
+    .resolve(this.replace("/", File.separator))
+    .absolute()
+    .normalize()
 
 context(ConvertCtx)
 fun ScalarNode.asAbsolutePath(): Path = value.asAbsolutePath()

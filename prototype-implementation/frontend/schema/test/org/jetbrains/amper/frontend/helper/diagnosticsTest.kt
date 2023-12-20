@@ -50,7 +50,7 @@ class DiagnosticsTestRun(
                 ?.let { StringReader(it) }
         }
 
-        doBuild(inputPath, readCtx, systemInfo = systemInfo)
+        doBuild(readCtx, listOf(inputPath), systemInfo = systemInfo)
 
         // Collect errors.
         val errors = problemReporter.getErrors()
