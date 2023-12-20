@@ -63,7 +63,7 @@ private fun createArtifacts(
     else -> fragments.map { DefaultArtifact(it.name, listOf(it), isTest) }
 }
 
-private fun <T> ValueBase<Map<Modifiers, Collection<T>>>.simplifyModifiers() =
+private fun <T> ValueBase<Map<Modifiers, List<T>>>.simplifyModifiers() =
     value.entries.associate { it.key.map { it.value }.toSet() to it.value }
 
 class DefaultPotatoModuleDependency(

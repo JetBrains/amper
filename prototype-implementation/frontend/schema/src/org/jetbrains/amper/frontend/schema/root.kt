@@ -17,7 +17,7 @@ sealed class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module")
-    val dependencies = value<Map<Modifiers, Collection<Dependency>>>()
+    val dependencies = value<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process")
@@ -25,7 +25,7 @@ sealed class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("The dependencies necessary to build and run tests of the Module")
-    val `test-dependencies` = value<Map<Modifiers, Collection<Dependency>>>()
+    val `test-dependencies` = value<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests")

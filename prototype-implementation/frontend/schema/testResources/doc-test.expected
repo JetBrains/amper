@@ -3,10 +3,10 @@ Module
 	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
 	apply: Collection<Path>
 	product: ModuleProduct - Defines what should be produced out of the Module
-	dependencies[@modifier]: Collection<Dependency> - The list of modules and libraries necessary to build the Module
+	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module
 	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies
 	settings[@modifier]: Settings - Configures the toolchains used in the build process
-	test-dependencies[@modifier]: Collection<Dependency> - The dependencies necessary to build and run tests of the Module
+	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module
 	test-settings[@modifier]: Settings - Controls building and running the Module tests
 
 ModuleProduct

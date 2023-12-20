@@ -7,12 +7,12 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.convertTemplate
+import org.jetbrains.amper.frontend.schemaConverter.convertTemplateViaSnake
 import java.nio.file.Path
 
 context(ProblemReporterContext)
 fun Module.readTemplatesAndMerge(
-    reader: (Path) -> Template = { convertTemplate(it) }
+    reader: (Path) -> Template = { convertTemplateViaSnake(it) }
 ): Module {
     val readTemplates = apply.value?.map(reader) ?: emptyList()
     val toMerge = readTemplates + this

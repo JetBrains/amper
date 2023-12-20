@@ -112,8 +112,8 @@ fun <T> MappingNode.convertWithModifiers(
     .mapNotNull {
         val modifiers = it.keyNode.asScalarNode()!!.extractModifiers()
         // Skip those, that we failed to convert.
-        val convertd = it.valueNode.convert() ?: return@mapNotNull null
-        modifiers to convertd
+        val converted = it.valueNode.convert() ?: return@mapNotNull null
+        modifiers to converted
     }
     .toMap()
 

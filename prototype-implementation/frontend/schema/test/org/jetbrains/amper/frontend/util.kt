@@ -8,22 +8,51 @@ import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.schemaConverter.convertModule
+import org.jetbrains.amper.frontend.ismVisitor.accept
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
+import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertModulePsi
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.reader
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
 fun moduleConvertTest(
     caseName: String,
     expectedErrors: List<String> = emptyList(),
+    expectedModule: Module? = null
+) {
+    moduleConvertTestImpl(caseName, expectedErrors, expectedModule = expectedModule, convertFn = { path ->
+        convertModuleViaSnake(path)
+    })
+}
+
+fun moduleConvertPsiTest(
+    caseName: String,
+    expectedErrors: List<String> = emptyList(),
+    expectedModule: Module? = null
+) {
+    moduleConvertTestImpl(caseName, expectedErrors, expectedModule = expectedModule, convertFn = { path ->
+        convertModulePsi(path.reader())
+    })
+}
+
+private fun moduleConvertTestImpl(
+    caseName: String,
+    expectedErrors: List<String> = emptyList(),
+    expectedModule: Module? = null,
+    convertFn: ProblemReporterContext.(Path) -> Module
 ) {
     val file = getTestDataResource("$caseName.yaml")
     val ctx = TestProblemReporterContext()
-    with(ctx) {
-        val module = convertModule(file.toPath())
-        module
+    val module = with(ctx) {
+        with (ctx) {
+            convertFn(file.toPath())
+        }
     }
     assertEquals(ctx.problemReporter.getErrors().map { it.message }, expectedErrors)
+    expectedModule?.accept(EqualsVisitor(module))
 }
 
 private class TestProblemReporter : CollectingProblemReporter() {

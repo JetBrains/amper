@@ -8,5 +8,6 @@ apply:
 dependencies:
   - ../../frontend-api
   - ../../core
+  - ../../frontend/plain/yaml-psi
   - org.yaml:snakeyaml:2.0
   - org.jetbrains.kotlin:kotlin-reflect:1.9.20

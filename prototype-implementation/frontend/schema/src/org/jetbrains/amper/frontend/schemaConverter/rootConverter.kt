@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schemaConverter
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.*
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.nodes.MappingNode
@@ -18,16 +17,16 @@ import java.nio.file.Path
 import kotlin.io.path.reader
 
 context(ProblemReporterContext)
-fun convertModule(file: Path): Module {
+fun convertModuleViaSnake(file: Path): Module {
     val yaml = Yaml()
     val rootNode = yaml.compose(file.reader())
     // TODO Add reporting.
     if (rootNode !is MappingNode) return Module()
-    return rootNode.convertModule()
+    return rootNode.convertModuleViaSnake()
 }
 
 context(ProblemReporterContext)
-fun convertTemplate(file: Path): Template {
+fun convertTemplateViaSnake(file: Path): Template {
     val yaml = Yaml()
     val rootNode = yaml.compose(file.reader())
     if (rootNode !is MappingNode) return Template()
@@ -35,10 +34,10 @@ fun convertTemplate(file: Path): Template {
 }
 
 context(ProblemReporterContext)
-private fun MappingNode.convertModule() = Module().apply {
+private fun MappingNode.convertModuleViaSnake() = Module().apply {
     product(tryGetMappingNode("product")?.convertProduct()) { /* TODO report */ }
-    apply(tryGetScalarSequenceNode("apply")?.mapNotNull { it.asAbsolutePath() /* TODO check path */ })
-    aliases(tryGetMappingNode("alias")?.convertScalarKeyedMap {
+    apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
+    aliases(tryGetMappingNode("aliases")?.convertScalarKeyedMap {
         // TODO Report non enum value.
         asScalarSequenceNode()?.map { it.convertEnum(Platform) }?.toSet()
     })
@@ -49,9 +48,9 @@ context(ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     repositories(tryGetMappingNode("repositories")?.convertRepositories())
     dependencies(convertWithModifiers("dependencies") { convertDependencies() })
-    settings(convertWithModifiers("settings") { convertSettings() })
+    settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() })
     `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
-    `test-settings`(convertWithModifiers("test-settings") { convertSettings() })
+    `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() })
 }
 
 context(ProblemReporterContext)
@@ -98,25 +97,43 @@ private fun Node.convertRepository() = when (this) {
 }
 
 context(ProblemReporterContext)
-private fun Node.convertDependencies() = assertNodeType<SequenceNode, Collection<Dependency>>("dependencies") {
-    value.mapNotNull { it.convertDependency() }
+private fun Node.convertDependencies() = when(this) {
+    is SequenceNode -> value.mapNotNull { it.convertDependency() }
+    is ScalarNode -> if (value.isBlank()) emptyList() else null // TODO Report non-null scalar
+    else -> null // TODO Report wrong type.
 }
 
 context(ProblemReporterContext)
-private fun Node.convertDependency(): Dependency? = when {
-    this is ScalarNode && value.startsWith(".") ->
-        // TODO Report non existent path.
-        value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
+private fun Node.convertDependency(): Dependency? {
+    val node = this
+    return if (this is ScalarNode) {
+        when {
+            // TODO Report non existent path.
+            value.startsWith(".") -> value
+                ?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
 
-    this is ScalarNode ->
-        value?.let { ExternalMavenDependency().apply { coordinates(it) } }
-    this is MappingNode && value.size > 1 -> TODO("report")
-    this is MappingNode && value.isEmpty() -> TODO("report")
-    this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith(".") == true ->
-        value.first().convertInternalDep()
-    this is MappingNode && value.first().keyNode.asScalarNode()?.value != null ->
-        value.first().convertExternalMavenDep()
-    else -> null // Report wrong type
+            // TODO Report non existent path.
+//            value.startsWith("$") -> value
+//                ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
+
+            else -> value?.let { ExternalMavenDependency().apply { coordinates(it) } }
+        }
+    } else {
+        when {
+            this is MappingNode && value.size > 1 -> TODO("report")
+            this is MappingNode && value.isEmpty() -> TODO("report")
+//            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith("$") == true ->
+//                value.first().convertCatalogDep()
+
+            this is MappingNode && value.first().keyNode.asScalarNode()?.value?.startsWith(".") == true ->
+                value.first().convertInternalDep()
+
+            this is MappingNode && value.first().keyNode.asScalarNode()?.value != null ->
+                value.first().convertExternalMavenDep()
+
+            else -> null // Report wrong type
+        }
+    }
 }
 
 context(ProblemReporterContext)

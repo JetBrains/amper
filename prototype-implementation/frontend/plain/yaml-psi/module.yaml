@@ -14,12 +14,21 @@ repositories:
   - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
 
 dependencies:
-  - com.jetbrains.intellij.platform:core-ui:232.10203.20
-  - com.jetbrains.intellij.platform:core-impl:232.10203.20
-  - com.jetbrains.intellij.platform:core:232.10203.20
-  - com.jetbrains.intellij.platform:util:232.10203.20
-  - com.jetbrains.intellij.platform:util-base:232.10203.20
-  - com.jetbrains.intellij.platform:util-ui:232.10203.20
-  - com.jetbrains.intellij.platform:util-ex:232.10203.20
-  - com.jetbrains.intellij.platform:indexing:232.10203.20
-  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18
+  - com.jetbrains.intellij.platform:core-ui:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:core-impl:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:core:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:util:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:util-base:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:util-ui:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:util-ex:232.10203.20:
+      exported: true
+  - com.jetbrains.intellij.platform:indexing:232.10203.20:
+      exported: true
+  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18:
+      exported: true

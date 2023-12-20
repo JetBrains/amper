@@ -6,9 +6,9 @@ product:
     - iosArm64
 
 aliases:
-  - jvmAndAndroid:
-      - jvm
-      - android
+  jvmAndAndroid:
+    - jvm
+    - android
 
 dependencies@jvmAndAndroid:
   - org.jetbrains.compose.runtime:runtime:1.4.1
@@ -23,9 +23,6 @@ dependencies@jvm:
 
 dependencies@android:
   - androidx.compose.animation:animation-graphics:1.4.3
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.20
 
 settings:
   android:
@@ -43,12 +40,23 @@ settings:
   kotlin:
     apiVersion: 1.8
     languageVersion: 1.8
-    allWarningsAsError: false
+    allWarningsAsErrors: false
     debug: false
     progressiveMode: false
     suppressWarnings: false
     verbose: true
     freeCompilerArgs:
       - -Xinline-classes
+      - -Xxxx
     optIns:
       - kotlinx.Experimental
+
+# test-setting uses shortcut form of syntax
+test-settings:
+  compose: enabled
+
+# test-dependencies uses shortcut form of syntax
+test-dependencies:
+  - androidx.activity:activity-compose:1.6.1: exported
+  - androidx.activity:activity-compose:1.6.2: compile-only
+  - androidx.activity:activity-compose:1.6.3: runtime-only
