@@ -18,7 +18,7 @@ dependencies@jvm:
   - org.jetbrains.compose.material3:material3:1.4.1
   - some.dep: compile-only
   - other.dep:
-      compile-only: true
+      scope: compile-only
       exported: true
 
 dependencies@android:

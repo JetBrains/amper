@@ -145,7 +145,7 @@ private fun YAMLKeyValue.adjustScopes(dep: Dependency) = with(dep) {
     valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> scope(DependencyScope.RUNTIME_ONLY)
     valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true)
     valueNode is YAMLMapping -> {
-      scope(valueNode.tryGetScalarNode("compile-only")?.convertEnum(DependencyScope))
+      scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
       exported(valueNode.tryGetScalarNode("exported")?.textValue?.toBoolean())
     }
 
