@@ -1,23 +1,12 @@
-package org.jetbrains.amper.frontend
+/*
+ * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
 
+package org.jetbrains.amper.frontend.schema
+
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
-import org.jetbrains.amper.frontend.schema.AndroidSettings
-import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.ComposeSettings
-import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Repository
-import org.jetbrains.amper.frontend.schema.SerializationSettings
-import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

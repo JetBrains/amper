@@ -2,21 +2,12 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend
+package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.helper.convertTest
 import org.jetbrains.amper.frontend.old.helper.TestBase
-import org.jetbrains.amper.frontend.schema.AndroidSettings
-import org.jetbrains.amper.frontend.schema.ComposeSettings
-import org.jetbrains.amper.frontend.schema.DependencyScope
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.helper.convertTest
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test

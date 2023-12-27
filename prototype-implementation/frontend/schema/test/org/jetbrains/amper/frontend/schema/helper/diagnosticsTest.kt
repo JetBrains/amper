@@ -2,69 +2,64 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.helper
+package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import java.io.File
 import java.io.StringReader
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 
 context(TestBase)
-fun aomTest(
-    caseName: String,
-    systemInfo: SystemInfo = DefaultSystemInfo,
-    adjustCtx: TestFioContext.() -> Unit = {},
-) = BuildAomTestRun(caseName, systemInfo, base, adjustCtx).doTest()
+fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo) =
+    DiagnosticsTestRun(caseName, systemInfo, base).doTest()
 
-open class BuildAomTestRun(
+class DiagnosticsTestRun(
     caseName: String,
-    private val systemInfo: SystemInfo = DefaultSystemInfo,
+    private val systemInfo: SystemInfo,
     override val base: Path,
-    private val adjustCtx: TestFioContext.() -> Unit = {},
 ) : BaseTestRun(caseName) {
+
     context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val processPath = Path(".").absolute().normalize()
         val testResourcesPath = processPath / base
+        val cleared = inputPath.readText().removeDiagnosticsAnnotations()
         val readCtx = ReaderCtx {
-            val path = it.absolute().normalize()
-            val resolved = if (!path.startsWith(testResourcesPath)) {
-                val relative = processPath.relativize(path)
+            // If path is absolute - then we had read it internally within schema converter.
+            // Then we need to adjust it to the testResources directory.
+            val resolved = if (it.isAbsolute) {
+                val relative = processPath.relativize(it.absolute())
                 testResourcesPath.resolve(relative)
-            } else path
+            } else it.absolute()
 
             resolved.takeIf { resolved.exists() }
                 ?.readText()?.removeDiagnosticsAnnotations()
                 ?.let { StringReader(it) }
         }
 
-        // Read module.
+        doBuild(readCtx, TestFioContext(buildDir, listOf(inputPath)) ,systemInfo)
 
-        val fioCtx = TestFioContext(buildDir, listOf(inputPath))
-        fioCtx.adjustCtx()
-        val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
-
-        // Check errors absence.
-        assert(problemReporter.getErrors().isEmpty()) {
-            "Expected no errors, but got ${problemReporter.getErrors()
-                .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t")}"
+        // Collect errors.
+        val errors = problemReporter.getErrors()
+        val annotated = annotateTextWithDiagnostics(cleared, errors) {
+            it.replace(buildDir.absolutePathString() + File.separator, "")
         }
-
-        // Return module's textual representation.
-        return module?.prettyPrint() ?: error("Could not read and parse")
+        return annotated.trimTrailingWhitespacesAndEmptyLines()
     }
 
     context(TestBase, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
-        readContentsAndReplace(expectedPath, base)
+        readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
 }

@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.helper
+package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx

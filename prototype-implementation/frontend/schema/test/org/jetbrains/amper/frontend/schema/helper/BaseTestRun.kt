@@ -2,14 +2,13 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.helper
+package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.readText
-import kotlin.test.assertEquals
 
 /**
  * Base test, that derives standard and input paths from case name.
@@ -38,7 +37,7 @@ open class BaseTestRun(
             val expect = base / "$caseName$expectPostfix"
             val expectContent = getExpectContent(input, expect)
 
-            assertEquals(expectContent, inputContent)
+            assertEqualsIgnoreLineSeparator(expectContent, inputContent, input)
         }
     }
 }
