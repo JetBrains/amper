@@ -14,15 +14,11 @@ internal class DependenciesTest : TestBase(Path("testResources") / "dependencies
 
     @Test
     fun exported() {
-        withBuildFile {
-            aomTest("dependency-flags-exported")
-        }
+        aomTest("dependency-flags-exported")
     }
 
     @Test
     fun `compile runtime`() {
-        withBuildFile {
-            aomTest("dependency-flags-runtime-compile")
-        }
+        aomTest("dependency-flags-runtime-compile")
     }
 }

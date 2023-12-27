@@ -1,0 +1,8 @@
+product: android/app
+
+dependencies:
+  - $libs.my.lib
+  - $libs.my.lib.plain.string
+  - $libs.my.lib.group.name
+  - $libs.my.lib.version.ref
+  - $libs.my.lib.all

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.helper
 
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 
@@ -19,6 +18,6 @@ class OnlyExpectTestRun(
     private val input: () -> String,
 ) : BaseTestRun(caseName) {
     override val expectPostfix = postfix
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path) = input()
 }

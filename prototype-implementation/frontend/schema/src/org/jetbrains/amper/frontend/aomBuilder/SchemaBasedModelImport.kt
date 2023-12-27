@@ -14,7 +14,6 @@ import org.jetbrains.amper.frontend.ReaderCtx
 import java.io.Reader
 import java.nio.file.Path
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 import kotlin.io.path.reader
 
 class SchemaBasedModelImport : ModelInit {
@@ -22,25 +21,13 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModel(root: Path): Result<Model> {
-        val rootDir = if (root.isDirectory()) root else root.parent
-
         // TODO Replace default reader by something other.
         // TODO Report non existing file.
-        val path2Reader: (Path) -> Reader? = {
-            it.takeIf { it.exists() }?.reader()
-        }
-
-        val toIgnore = rootDir.parseAmperIgnorePaths()
-        val amperModuleFiles = rootDir.findAmperModuleFiles(toIgnore)
-        val dumbGradleGradleModules = rootDir.findGradleModules(toIgnore, amperModuleFiles)
-
-        val resultModules = doBuild(
-            ReaderCtx(path2Reader),
-            amperModuleFiles,
-            dumbGradleGradleModules,
-        ) ?: return amperFailure()
-
+        val path2Reader: (Path) -> Reader? = { it.takeIf { it.exists() }?.reader() }
+        val fioCtx = DefaultFioContext(root)
+        val resultModules = doBuild(ReaderCtx(path2Reader), fioCtx,)
+            ?: return amperFailure()
         // Propagate parts from fragment to fragment.
-        return DefaultModel(resultModules + dumbGradleGradleModules.values).resolved.asAmperSuccess()
+        return DefaultModel(resultModules + fioCtx.gradleModules.values).resolved.asAmperSuccess()
     }
 }

@@ -11,3 +11,4 @@ dependencies:
   - ../../frontend/plain/yaml-psi
   - org.yaml:snakeyaml:2.0
   - org.jetbrains.kotlin:kotlin-reflect:1.9.20
+  - org.tomlj:tomlj:1.1.0

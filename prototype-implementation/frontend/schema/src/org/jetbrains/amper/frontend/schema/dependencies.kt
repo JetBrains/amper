@@ -22,6 +22,7 @@ enum class DependencyScope(
 }
 
 sealed class Dependency : SchemaNode() {
+    // TODO Replace exported flag by new scope (rethink scopes).
     val exported = value<Boolean>().default(false)
     val scope = value<DependencyScope>().default(DependencyScope.ALL)
 }

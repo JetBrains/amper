@@ -71,7 +71,6 @@ private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     repositories(tryGetSequenceNode("repositories")?.convertRepositories())
 
     dependencies(convertWithModifiers("dependencies") { it.convertDependencies() })
-    settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() })
     `test-dependencies`(convertWithModifiers("test-dependencies") { it.convertDependencies() })
 
     settings(convertWithModifiers("settings") { it.convertSettings() }.apply {
@@ -91,7 +90,7 @@ private fun Node.convertProduct() = ModuleProduct().apply {
             type(tryGetScalarNode("type")?.convertEnum(ProductType, isFatal = true, isLong = true))
                 .adjustTrace(tryGetScalarNode("type"))
             val platformsNode = tryGetScalarSequenceNode("platforms")
-            platforms(platformsNode?.mapNotNull { it.convertEnum(Platform) /* TODO report */ })
+            platforms(platformsNode?.mapNotNull { it.convertEnum(Platform) })
                 .adjustTrace(tryGetChildNode("platforms"))
         }
 

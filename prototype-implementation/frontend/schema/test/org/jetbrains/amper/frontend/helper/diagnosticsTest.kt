@@ -8,7 +8,6 @@ import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.File
 import java.io.StringReader
@@ -31,7 +30,7 @@ class DiagnosticsTestRun(
     override val base: Path,
 ) : BaseTestRun(caseName) {
 
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val processPath = Path(".").absolute().normalize()
@@ -50,7 +49,7 @@ class DiagnosticsTestRun(
                 ?.let { StringReader(it) }
         }
 
-        doBuild(readCtx, listOf(inputPath), systemInfo = systemInfo)
+        doBuild(readCtx, TestFioContext(buildDir, listOf(inputPath)) ,systemInfo)
 
         // Collect errors.
         val errors = problemReporter.getErrors()
@@ -60,7 +59,7 @@ class DiagnosticsTestRun(
         return annotated.trimTrailingWhitespacesAndEmptyLines()
     }
 
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
 }

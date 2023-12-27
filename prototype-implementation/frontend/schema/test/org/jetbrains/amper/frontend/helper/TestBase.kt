@@ -9,20 +9,11 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-data class BuildFileAware(
-    val buildDir: Path,
-    val buildFile: Path = buildDir / "build.yaml",
-)
-
 abstract class TestBase(
     val base: Path = Path("testResources")
 ) {
     @TempDir
-    lateinit var tempDir: Path
+    lateinit var buildDir: Path
 
-    val buildFile
-        get() = BuildFileAware(tempDir)
-
-    protected fun withBuildFile(action: BuildFileAware.() -> Unit) =
-        with(buildFile, action)
+    val buildFile: Path get() = buildDir / "build.yaml"
 }

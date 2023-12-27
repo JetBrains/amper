@@ -16,7 +16,11 @@ import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.ReaderCtx
+import org.jetbrains.amper.frontend.processing.BuiltInCatalog
+import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
+import org.jetbrains.amper.frontend.processing.VersionCatalog
 import org.jetbrains.amper.frontend.processing.addKotlinSerialization
+import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
@@ -33,21 +37,20 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 /**
- * Function, introduced for testing.
+ * AOM build function, introduced for testing.
  */
 context(ProblemReporterContext)
 internal fun doBuild(
     readerCtx: ReaderCtx,
-    paths: List<Path>,
-    gradleModules: Map<Path, PotatoModule> = emptyMap(),
+    fioCtx: FioContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
-    fun readAndPreprocess(moduleFile: Path): Module? = with(readerCtx) {
+    fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(readerCtx) {
         with(ConvertCtx(moduleFile.parent)) {
             with(systemInfo) {
                 path2Reader(moduleFile)?.let { convertModuleViaSnake { it } }
                     ?.readTemplatesAndMerge()
-                    ?.replaceCatalogDependencies()
+                    ?.replaceCatalogDependencies(catalog)
                     ?.validateSchema()
                     ?.replaceComposeOsSpecific()
                     ?.addKotlinSerialization()
@@ -56,15 +59,20 @@ internal fun doBuild(
     }
 
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val path2SchemaModule = paths
-        .mapNotNull { path -> readAndPreprocess(path)?.let { path to it } }
+    val path2SchemaModule = fioCtx.amperModuleFiles
+        .mapNotNull { moduleFile ->
+            val catalogs = fioCtx.amperFiles2gradleCatalogs[moduleFile].orEmpty()
+                .mapNotNull { parseGradleVersionCatalog(it) } + BuiltInCatalog
+            readAndPreprocess(moduleFile, CompositeVersionCatalog(catalogs))
+                ?.let { moduleFile to it }
+        }
         .toMap()
 
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
     // Build AOM from ISM.
-    return path2SchemaModule.buildAom(gradleModules)
+    return path2SchemaModule.buildAom(fioCtx.gradleModules)
 }
 
 data class ModuleTriple(

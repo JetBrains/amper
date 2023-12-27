@@ -12,12 +12,16 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
+import org.jetbrains.amper.frontend.aomBuilder.DefaultFioContext
+import org.jetbrains.amper.frontend.aomBuilder.DumbGradleModule
+import org.jetbrains.amper.frontend.aomBuilder.FioContext
+import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -97,12 +101,14 @@ internal fun PotatoModule.prettyPrint(): String {
     }
 }
 
-fun copyLocal(localName: String, dest: Path, newName: String = localName) {
-    val localFile = Path(".").resolve("testResources/$localName").normalize().takeIf(Path::exists)
-    localFile?.copyTo(dest / newName, overwrite = true)
+context(TestBase)
+fun copyLocal(localName: String, dest: Path = buildFile, newPath: () -> Path = { dest / localName }) {
+    val localFile = base.resolve(localName).normalize().takeIf(Path::exists)
+    val newPathWithDirs = newPath().apply { createDirectories() }
+    localFile?.copyTo(newPathWithDirs, overwrite = true)
 }
 
-context(BuildFileAware)
+context(TestBase)
 fun readContentsAndReplace(
     expectedPath: Path,
     base: Path,
@@ -126,4 +132,13 @@ class TestSystemInfo(
     private val predefined: SystemInfo.Os
 ) : SystemInfo {
     override fun detect() = predefined
+}
+
+open class TestFioContext(
+    override val root: Path,
+    override val amperModuleFiles: List<Path>,
+) : FioContext by DefaultFioContext(root) {
+    override val ignorePaths: MutableList<Path> = mutableListOf()
+    override val gradleModules: MutableMap<Path, DumbGradleModule> = mutableMapOf()
+    override val amperFiles2gradleCatalogs: MutableMap<Path, List<Path>> = mutableMapOf()
 }

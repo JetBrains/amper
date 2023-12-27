@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.helper
 
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -24,10 +23,10 @@ open class BaseTestRun(
 
     protected val ctx = TestProblemReporterContext()
 
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     open fun getInputContent(inputPath: Path): String = inputPath.readText()
 
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     open fun getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
 
     context(TestBase)

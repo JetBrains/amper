@@ -23,11 +23,13 @@ import org.yaml.snakeyaml.nodes.Node
  * Replace all [CatalogDependency] with ones, that are from actual catalog.
  */
 context(ProblemReporterContext)
-fun Module.replaceCatalogDependencies() = apply {
+fun Module.replaceCatalogDependencies(
+    catalog: VersionCatalog,
+) = apply {
     fun List<Dependency>.convertCatalogDeps() = mapNotNull {
         if (it !is CatalogDependency) return@mapNotNull it
         // TODO Report absence of catalog value.
-        val catalogValue = BuiltInCatalog.findInCatalog(
+        val catalogValue = catalog.findInCatalog(
             it.catalogKey.toTraceableString()
         ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
@@ -45,28 +47,60 @@ fun Module.replaceCatalogDependencies() = apply {
     `test-dependencies`(`test-dependencies`.value.replaceCatalogDeps())
 }
 
-interface Catalog {
+/**
+ * Version catalog. Currently, supports only maven dependencies.
+ */
+interface VersionCatalog {
 
     /**
      * Get dependency notation by key.
      */
     context(ProblemReporterContext)
-    fun findInCatalog(key: TraceableString): String?
+    fun findInCatalog(
+        key: TraceableString,
+        report: Boolean = true,
+    ): String?
+
+    context(ProblemReporterContext)
+    fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
+        if (needReport) {
+            val trace = key.trace as? Node
+            if (trace != null) SchemaBundle.reportBundleError(
+                trace,
+                "no.catalog.value",
+                key.value
+            )
+            null
+        } else null
 
 }
 
 open class PredefinedCatalog(
-    builder: MutableMap<String, String>.() -> Unit
-) : Catalog {
-    private val map = buildMap(builder)
+    private val map: Map<String, String>
+) : VersionCatalog {
+    constructor(builder: MutableMap<String, String>.() -> Unit) : this(buildMap(builder))
 
     // TODO Report on absence.
     context(ProblemReporterContext)
-    override fun findInCatalog(key: TraceableString): String? = map[key.value] ?: run {
-        val trace = key.trace as? Node
-        if (trace != null) SchemaBundle.reportBundleError(trace, "no.catalog.value", key.value)
-        null
-    }
+    override fun findInCatalog(
+        key: TraceableString,
+        report: Boolean,
+    ): String? = map[key.value] ?: tryReportCatalogKeyAbsence(key, report)
+}
+
+/**
+ * Composition of multiple version catalogs with priority for first declared.
+ */
+class CompositeVersionCatalog(
+    private val catalogs: List<VersionCatalog>
+) : VersionCatalog {
+
+    context(ProblemReporterContext)
+    override fun findInCatalog(
+        key: TraceableString,
+        report: Boolean,
+    ) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key, false) }
+        ?: tryReportCatalogKeyAbsence(key, report)
 }
 
 object BuiltInCatalog : PredefinedCatalog({
@@ -107,11 +141,14 @@ object BuiltInCatalog : PredefinedCatalog({
     private val systemInfo = DefaultSystemInfo
 
     context(ProblemReporterContext)
-    override fun findInCatalog(key: TraceableString) = when (key.value) {
+    override fun findInCatalog(
+        key: TraceableString,
+        report: Boolean,
+    ) = when (key.value) {
         // Handle os detection as compose do.
         "compose.desktop.currentOs" -> systemInfo.detect().familyArch
             .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}" }
 
-        else -> super.findInCatalog(key)
+        else -> super.findInCatalog(key, report)
     }
 }

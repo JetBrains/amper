@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.helper
 
-import org.jetbrains.amper.frontend.old.helper.BuildFileAware
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
@@ -20,7 +19,7 @@ class ConvertTestRun(
     private val expectedErrors: String = "",
     override val base: Path,
 ) : BaseTestRun(caseName) {
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         with(ctx) {
             with(ConvertCtx(inputPath.parent)) {
@@ -30,6 +29,6 @@ class ConvertTestRun(
         return ctx.problemReporter.getErrors().map { it.message }.joinToString()
     }
 
-    context(BuildFileAware, TestProblemReporterContext)
+    context(TestBase, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) = expectedErrors
 }

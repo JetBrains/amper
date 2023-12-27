@@ -17,29 +17,21 @@ internal class TemplatesTest : TestBase(Path("testResources") / "templates") {
     @Test
     @Ignore
     fun `check artifacts of multi-variant builds`() {
-        withBuildFile {
-            aomTest("templates-simple")
-        }
+        aomTest("templates-simple")
     }
 
     @Test
     fun `check path literals are adjusted`() {
-        withBuildFile {
-            aomTest("templates-adjust-path-test")
-        }
+        aomTest("templates-adjust-path-test")
     }
 
     @Test
     fun `empty template file`() {
-        withBuildFile {
-            aomTest("templates-empty-file")
-        }
+        aomTest("templates-empty-file")
     }
 
     @Test
     fun `empty apply list file`() {
-        withBuildFile {
-            aomTest("templates-empty-apply")
-        }
+        aomTest("templates-empty-apply")
     }
 }

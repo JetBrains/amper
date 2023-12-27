@@ -16,23 +16,17 @@ internal class RepositoriesTest : TestBase(Path("testResources") / "repositories
 
     @Test
     fun `parsing id and url `() {
-        withBuildFile {
-            aomTest("repositories-id-and-url")
-        }
+        aomTest("repositories-id-and-url")
     }
 
     @Test
     fun `parsing credentials`() {
-        withBuildFile {
-            copyLocal("repositories-credentials.local.properties", buildDir)
-            aomTest("repositories-credentials")
-        }
+        copyLocal("repositories-credentials.local.properties", buildDir)
+        aomTest("repositories-credentials")
     }
 
     @Test
     fun `repositories no credentials file`() {
-        withBuildFile {
-            diagnosticsTest("repositories-no-credentials-file")
-        }
+        diagnosticsTest("repositories-no-credentials-file")
     }
 }

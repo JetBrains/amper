@@ -14,192 +14,144 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
-    
+
     @Test
     fun `single platform`() {
-        withBuildFile {
-            aomTest("0-single-platform")
-        }
+        aomTest("0-single-platform")
     }
 
     @Test
     fun `multiplatform app`() {
-        withBuildFile {
-            aomTest("1-multiplatform-app")
-        }
+        aomTest("1-multiplatform-app")
     }
 
     // TODO See: https://youtrack.jetbrains.com/issue/AMPER-114/Change-aliases-DSL-from-object-to-list
     @Test
     fun aliases() {
-        withBuildFile {
-            aomTest("2-aliases")
-        }
+        aomTest("2-aliases")
     }
 
     @Test
     @Ignore
     fun variants() {
-        withBuildFile {
-            aomTest("3-variants")
-        }
+        aomTest("3-variants")
     }
 
     @Test
     fun `jvm run`() {
-        withBuildFile {
-            aomTest("4-jvm-run")
-        }
+        aomTest("4-jvm-run")
     }
 
     // TODO Fix
     @Test
     @Ignore
     fun `common folder bug`() {
-        withBuildFile {
-            aomTest("5-common-folder-bug")
+        aomTest("5-common-folder-bug")
 //            {
 //                directory("common") {
 //                    directory("src")
 //                }
 //            }
-        }
     }
 
     // TODO Support the case.
     // TODO Add warning to report.
     @Test
     fun `empty key`() {
-        withBuildFile {
-            aomTest("6-empty-list-key")
-        }
+        aomTest("6-empty-list-key")
     }
 
     // TODO Add variants issue link.
     @Test
     @Ignore
     fun `variants even more simplified`() {
-        withBuildFile {
-            aomTest("8-variants-simplified")
-        }
+        aomTest("8-variants-simplified")
     }
 
     @Test
     fun `test-dependencies is the same as dependencies@test`() {
-        withBuildFile {
-            aomTest("9-test-dependencies")
-        }
+        aomTest("9-test-dependencies")
     }
 
     @Test
     fun `android properties should be passed in lib`() {
-        withBuildFile {
-            aomTest("10-android-lib")
-        }
+        aomTest("10-android-lib")
     }
 
     @Test
     fun `plain frontend dogfooding`() {
-        withBuildFile {
-            aomTest("11-frontend-plain")
-        }
+        aomTest("11-frontend-plain")
     }
 
     @Test
     fun `multiplatform library`() {
-        withBuildFile {
-            aomTest("12-multiplatform-lib")
-        }
+        aomTest("12-multiplatform-lib")
     }
 
     @Test
     fun `jvmTarget adds to artifacts in android and jvm platforms`() {
-        withBuildFile {
-            aomTest("13-multiplatform-jvmtarget")
-        }
+        aomTest("13-multiplatform-jvmtarget")
     }
 
     @Test
     @Ignore
     fun `check artifacts of multi-variant builds`() {
-        withBuildFile {
-            aomTest("14-check-artifacts-of-multi-variant-build")
-        }
+        aomTest("14-check-artifacts-of-multi-variant-build")
     }
 
     @Test
     fun `compose full form`() {
-        withBuildFile {
-            aomTest("compose-full-form")
-        }
+        aomTest("compose-full-form")
     }
 
     @Test
     fun `compose inline form`() {
-        withBuildFile {
-            aomTest("compose-inline-form")
-        }
+        aomTest("compose-inline-form")
     }
 
     @Test
     fun `common library replacement`() {
-        withBuildFile {
-            aomTest(
-                "17-compose-desktop-replacement",
-                TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.MacOs, "X", SystemInfo.Arch.X64))
-            )
-        }
+        aomTest(
+            "17-compose-desktop-replacement",
+            TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.MacOs, "X", SystemInfo.Arch.X64))
+        )
     }
 
     @Test
     fun `jvm library replacement`() {
-        withBuildFile {
-            aomTest(
-                "18-compose-desktop-jvm-replacement",
-                TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.Linux, "3.14", SystemInfo.Arch.Arm64))
-            )
-        }
+        aomTest(
+            "18-compose-desktop-jvm-replacement",
+            TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.Linux, "3.14", SystemInfo.Arch.Arm64))
+        )
     }
 
     @Test
     fun `add kotlin-test automatically`() {
-        withBuildFile {
-            aomTest("19-compose-android-without-tests")
-        }
+        aomTest("19-compose-android-without-tests")
     }
 
     @Test
     fun `check kotlin serialization settings`() {
-        withBuildFile {
-            aomTest("20-kotlin-serialization")
-        }
+        aomTest("20-kotlin-serialization")
     }
 
     @Test
     fun `check android sdk version`() {
-        withBuildFile {
-            aomTest("21-android-sdk-version")
-        }
+        aomTest("21-android-sdk-version")
     }
 
     @Test
     fun `android namespace set`() {
-        withBuildFile {
-            aomTest("android-namespace-setting")
-        }
+        aomTest("android-namespace-setting")
     }
 
     @Test
-    fun `coverage`() {
-        withBuildFile {
-            aomTest("22-coverage")
-        }
+    fun coverage() {
+        aomTest("22-coverage")
     }
 
     @Test
     fun `coverage short form`() {
-        withBuildFile {
-            aomTest("23-coverage-short-form")
-        }
+        aomTest("23-coverage-short-form")
     }
 }

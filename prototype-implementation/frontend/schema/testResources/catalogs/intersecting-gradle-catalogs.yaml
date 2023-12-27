@@ -1,0 +1,5 @@
+product: android/app
+
+dependencies:
+  - $libs.my.lib
+  - $libs.my.lib.other
