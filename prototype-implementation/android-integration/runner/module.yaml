@@ -6,7 +6,7 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
-  - ../core: exported
+  - ../android-integration-core: exported
   - org.gradle:gradle-tooling-api:8.5
 
 settings:

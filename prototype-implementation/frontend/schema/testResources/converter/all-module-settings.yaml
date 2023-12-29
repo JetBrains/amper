@@ -61,7 +61,6 @@ settings:
     framework:
       basename: iosBasename
       isStatic: true
-      someArbitraryKeyName: xxx
   publishing:
     group: org.jetbrains.amper.frontend.without-fragments.yaml
     version: 42-SNAPSHOT

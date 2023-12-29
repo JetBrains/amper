@@ -1,193 +1,232 @@
-package org.jetbrains.amper.frontend.schemaConverter.psi
-
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+package org.jetbrains.amper.frontend.schemaConverter.psi
+
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.schema.*
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.adjustTrace
-import org.jetbrains.amper.frontend.schemaConverter.tryGetSequenceNode
-import org.jetbrains.yaml.psi.*
+import org.jetbrains.amper.frontend.schema.AmperLayout
+import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.Meta
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.Template
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.adjustTrace
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.asAbsolutePath
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.asMappingNode
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.asScalarSequenceNode
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.asSequenceNode
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChild
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildBoolean
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildEnum
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalar
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalarCollection
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildString
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertEnum
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertModifierAware
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertScalarKeyedMap
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertSelf
+import org.jetbrains.yaml.psi.YAMLDocument
+import org.jetbrains.yaml.psi.YAMLKeyValue
+import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
+import org.jetbrains.yaml.psi.YAMLSequenceItem
+import org.jetbrains.yaml.psi.YAMLValue
+import java.nio.file.Path
+
+// TODO Rethink.
+data class ConvertCtx(
+    val basePath: Path,
+    val pathResolver: FrontendPathResolver
+)
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertModule(path: Path): Module? {
+    val psiFile = pathResolver.path2PsiFile(path)
+    return psiFile?.let { convertModulePsi(it) }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertTemplate(path: Path) =
+    pathResolver.path2PsiFile(path)?.let { convertTemplatePsi(it) }
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertModulePsi(file: PsiFile): Module? {
+    // TODO Add reporting.
+    val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
+    return rootNode?.convertModule()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertTemplatePsi(file: PsiFile): Template? {
+    // TODO Add reporting.
+    val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
+    return rootNode?.convertTemplate()
+}
 
 context(ProblemReporterContext, ConvertCtx)
 public fun YAMLDocument.convertTemplate() = Template().apply {
-  val documentMapping = getTopLevelValue()?.asMappingNode()!!
-  convertBase(this)
+    val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
+    with(documentMapping) {
+        convertBase(this@apply)
+    }
 }
 
 context(ProblemReporterContext, ConvertCtx)
 public fun YAMLDocument.convertModule() = Module().apply {
-  val documentMapping = getTopLevelValue()?.asMappingNode()!!
-  with (documentMapping) {
-    product(tryGetChildElement("product")?.convertProduct()) { /* TODO report */ }
-    apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
-    aliases(tryGetMappingNode("aliases")
-      ?.convertScalarKeyedMap {
-        asSequenceNode()?.asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform) }?.toSet()
-      }
-    ).adjustTrace(tryGetMappingNode("aliases"))
-    module(tryGetMappingNode("module")?.convertMeta())
-    convertBase(this@apply)
-  }
+    val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
+    with(documentMapping) {
+        ::product.convertChild { convertProduct() }
+        this@apply::apply.convertChildScalarCollection { asAbsolutePath() }
+        ::aliases.convertChild {
+            asMappingNode()?.convertScalarKeyedMap {
+                asSequenceNode()
+                    ?.asScalarSequenceNode()
+                    ?.mapNotNull { it.convertEnum(Platform) }
+                    ?.toSet()
+            }
+        }
+        ::module.convertChild { asMappingNode()?.convertMeta() }
+        convertBase(this@apply)
+    }
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun <T : Base> YAMLDocument.convertBase(base: T) = base.apply {
-  getTopLevelValue()?.asMappingNode()?.let { documentMapping ->
-    with (documentMapping) {
-      repositories(tryGetChildElement("repositories")?.convertRepositories()).adjustTrace(tryGetChildElement("repositories"))
-      dependencies(convertWithModifiers("dependencies") { convertDependencies() })
-      settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() }.apply {
-        // Here we must add root settings to take defaults from them.
-        computeIfAbsent(noModifiers) { Settings() }
-      }) {}
-      `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
-      `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() }
-        .apply {
-          // Here we must add root settings to take defaults from them.
-          computeIfAbsent(noModifiers) { Settings() }
-        })
-    }
-  }
+internal fun <T : Base> YAMLMapping.convertBase(base: T) = base.apply {
+    ::repositories.convertChild { convertRepositories() }
+
+    ::dependencies.convertModifierAware { value?.convertDependencies() }
+    ::`test-dependencies`.convertModifierAware { value?.convertDependencies() }
+
+    ::settings.convertModifierAware(Settings()) { asMappingNode()?.convertSettings() }
+    ::`test-settings`.convertModifierAware(Settings()) { asMappingNode()?.convertSettings() }
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
-  when (val productNodeValue = this@convertProduct.value) {
-    is YAMLMapping -> {
-      with(productNodeValue) {
-        type(tryGetScalarNode("type"), ProductType, isFatal = true, isLong = true)
-        platforms(tryGetScalarSequenceNode("platforms")?.mapNotNull { it.convertEnum(Platform) })
-          .adjustTrace(tryGetChildNode("platforms"))
-      }
+    when (val productNodeValue = this@convertProduct.value) {
+        is YAMLMapping -> with(productNodeValue) {
+            ::type.convertChildEnum(ProductType, isFatal = true, isLong = true)
+            ::platforms.convertChildScalarCollection { convertEnum(Platform) }
+        }
+        is YAMLScalar -> ::type.convertSelf { productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true) }
+        else -> TODO("report")
     }
-
-    is YAMLScalar -> type(productNodeValue, ProductType, isFatal = true, isLong = true)
-
-    else -> TODO("report")
-  }
-}.adjustTrace(this)
+}
 
 context(ConvertCtx, ProblemReporterContext)
 private fun YAMLMapping.convertMeta() = Meta().apply {
-  layout(tryGetScalarNode("layout"), AmperLayout)
-}.adjustTrace(this)
+    ::layout.convertChildEnum(AmperLayout)
+}
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertRepositories(): List<Repository>? {
-  (this.value as? YAMLSequence)?.let {
-    return it.items.mapNotNull { it.convertRepository() }
-  }
-  // TODO Report wrong type.
-  return null
+    (this.value as? YAMLSequence)?.let {
+        return it.items.mapNotNull { it.convertRepository() }
+    }
+    // TODO Report wrong type.
+    return null
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLSequenceItem.convertRepository(): Repository? = when (val value = value) {
-  is YAMLScalar -> Repository().apply {
-    url(value)
-    id(value)
-  }
-
-  is YAMLMapping -> Repository().apply {
-    url(value.tryGetScalarNode("url")) { /* TODO report */ }
-    id(value.tryGetScalarNode("id"))
-    // TODO Report wrong type. Introduce helper for boolean maybe?
-    publish(value.tryGetScalarNode("publish"))
-
-    credentials(
-      value.asMappingNode()?.tryGetMappingNode("credentials")?.let {
-        Repository.Credentials().apply {
-          // TODO Report non existent path.
-          file(it.tryGetScalarNode("file")?.asAbsolutePath()) { /* TODO report */ }.adjustTrace(it.tryGetScalarNode("file"))
-          usernameKey(it.tryGetScalarNode("usernameKey")) { /* TODO report */ }
-          passwordKey(it.tryGetScalarNode("passwordKey")) { /* TODO report */ }
-        }.adjustTrace(it)
-      }
-    )
-  }
-
-  else -> null
+    is YAMLScalar -> value.convertRepositoryShort()
+    is YAMLMapping -> value.convertRepositoryFull()
+    else -> null
 }?.adjustTrace(this.value)
 
 context(ProblemReporterContext, ConvertCtx)
-private fun YAMLValue.convertDependencies() = assertNodeType<YAMLSequence, List<Dependency>>("dependencies") {
-  items.mapNotNull { it.convertDependency() }
+private fun YAMLScalar.convertRepositoryShort() = Repository().apply {
+    ::url.convertSelf { textValue }
+    ::id.convertSelf { textValue }
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun YAMLSequenceItem.convertDependency(): Dependency? = when {
-  this.value is YAMLScalar && this.value!!.text.startsWith("$") ->
-    // TODO Report non existent path.
-    this.value!!.text.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(this@convertDependency.value) } }
-  this.value is YAMLScalar && this.value!!.text.startsWith(".") ->
-    // TODO Report non existent path.
-    this.value!!.text.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
+private fun YAMLMapping.convertRepositoryFull(): Repository = Repository().apply {
+    ::url.convertChildString()
+    ::id.convertChildString()
+    ::publish.convertChildBoolean()
+    ::credentials.convertChild {
+        asMappingNode()?.run {
+            Repository.Credentials().apply {
+                // TODO Report non existent path.
+                ::file.convertChildScalar { asAbsolutePath() }
+                ::usernameKey.convertChildString()
+                ::passwordKey.convertChildString()
+            }
+        }
+    }
+}
 
-  this.value is YAMLScalar ->
-    this.value!!.let { ExternalMavenDependency().apply { coordinates(it as YAMLScalar) } }
-  this.value is YAMLPsiElement && getYAMLElements().size > 1 -> TODO("report")
-  this.value is YAMLPsiElement && getYAMLElements().isEmpty() -> TODO("report")
-  this.value is YAMLMapping && (this.value as YAMLMapping).keyValues.first()?.keyText?.startsWith("$") == true ->
-    (this.value as YAMLMapping).keyValues.first().convertCatalogDep()
-  this.value is YAMLMapping && (this.value as YAMLMapping).keyValues.first()?.keyText?.startsWith(".") == true ->
-    (this.value as YAMLMapping).keyValues.first().convertInternalDep()
-  this.value is YAMLMapping && (this.value as YAMLMapping).keyValues.first().keyText != null ->
-    (this.value as YAMLMapping).keyValues.first().convertExternalMavenDep()
-  else -> null // Report wrong type
-}?.adjustTrace(this.value)
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLValue.convertDependencies() =
+    assertNodeType<YAMLSequence, List<Dependency>>("dependencies") {
+        items.mapNotNull { it.convertDependency() }
+    }
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLSequenceItem.convertDependency(): Dependency? = when (val value = value) {
+    is YAMLScalar -> value.convertDependencyShort()
+    is YAMLMapping -> value.convertDependencyFull()
+    else -> null // Report wrong type
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLScalar.convertDependencyShort(): Dependency = when {
+    textValue.startsWith("$") ->
+        textValue.let { CatalogDependency().apply { ::catalogKey.convertSelf { textValue.removePrefix("$") } } }
+    textValue.startsWith(".") -> textValue.let { InternalDependency().apply { ::path.convertSelf { asAbsolutePath() } } }
+    else -> textValue.let { ExternalMavenDependency().apply { ::coordinates.convertSelf { textValue } } }
+}.adjustTrace(this)
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLMapping.convertDependencyFull(): Dependency? = when {
+    getYAMLElements().size > 1 -> null // TODO("report")
+    getYAMLElements().isEmpty() -> null // TODO("report")
+    keyValues.first()?.keyText?.startsWith("$") == true -> keyValues.first().convertCatalogDep()
+    keyValues.first()?.keyText?.startsWith(".") == true -> keyValues.first().convertInternalDep()
+    else -> keyValues.first().convertExternalMavenDep()
+}?.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun YAMLKeyValue.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
-  catalogKey(keyText.removePrefix("$")).adjustTrace(this@convertCatalogDep)
-  convertScopes(this)
-}
-
-context(ConvertCtx, ProblemReporterContext)
-private fun YAMLKeyValue.convertScopes(dep: Dependency) = with(dep) {
-  val valueNode = value
-  when {
-    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true).adjustTrace(valueNode)
-    valueNode is YAMLScalar -> scope(valueNode, DependencyScope)
-    valueNode is YAMLMapping -> {
-      scope(valueNode.tryGetScalarNode("scope"), DependencyScope)
-      exported(valueNode.tryGetScalarNode("exported"))
-    }
-
-    else -> error("Unreachable")
-  }
-}
-
-context(ProblemReporterContext, ConvertCtx)
-private fun YAMLKeyValue.convertExternalMavenDep() = ExternalMavenDependency().apply {
-  coordinates(keyText).adjustTrace(this@convertExternalMavenDep)
-  adjustScopes(this)
+    ::catalogKey.convertSelf { keyText.removePrefix("$") }
+    value?.convertScopes(this)
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertInternalDep(): InternalDependency = InternalDependency().apply {
-  path(keyText.asAbsolutePath())
-  adjustScopes(this)
+    ::path.convertSelf { asAbsolutePath() }
+    value?.convertScopes(this)
 }
 
-context(ProblemReporterContext)
-private fun YAMLKeyValue.adjustScopes(dep: Dependency) = with(dep) {
-  val valueNode = value
-  when {
-    valueNode is YAMLScalar && valueNode.textValue == "compile-only" -> scope(valueNode, DependencyScope)
-    valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> scope(valueNode, DependencyScope)
-    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true).adjustTrace(valueNode)
-    valueNode is YAMLMapping -> {
-      scope(valueNode.tryGetScalarNode("scope"), DependencyScope)
-      exported(valueNode.tryGetScalarNode("exported"))
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLKeyValue.convertExternalMavenDep() = ExternalMavenDependency().apply {
+    ::coordinates.convertSelf { keyText }
+    value?.convertScopes(this)
+}
+
+context(ConvertCtx, ProblemReporterContext)
+private fun YAMLValue.convertScopes(dep: Dependency) = with(dep) {
+    when {
+        this@convertScopes is YAMLScalar && textValue == "exported" -> ::exported.convertSelf { true }
+        this@convertScopes is YAMLScalar -> ::scope.convertSelf { convertEnum(DependencyScope) }
+        this@convertScopes is YAMLMapping -> {
+            ::scope.convertChildEnum(DependencyScope)
+            ::exported.convertChildBoolean()
+        }
+        else -> Unit
     }
-
-    else -> Unit
-  }
 }
-
-fun <T : Traceable> T.adjustTrace(it: YAMLPsiElement?) = apply { trace = it }

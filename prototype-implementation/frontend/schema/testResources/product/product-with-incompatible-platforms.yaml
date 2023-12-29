@@ -1,5 +1,5 @@
 product:
   type: jvm/app
+  # <![Error] Product type jvm/app does not support platform: iosArm64. Only supported platforms are: [jvm].!>
   platforms:
-    # <![Error] Product type jvm/app does not support platform: iosArm64. Only supported platforms are: [jvm].!>
     - iosArm64

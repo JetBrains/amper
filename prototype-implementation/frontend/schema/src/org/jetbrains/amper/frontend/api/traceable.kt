@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.api
 
+import kotlin.reflect.KProperty0
+
 /**
  * An entity, that can persist its trace.
  */
@@ -27,6 +29,6 @@ class TraceableString(
 }
 
 // TODO Replace by traceability generalization.
-fun SchemaValue<String>.toTraceableString(): TraceableString = TraceableString(value).apply {
-    trace = this@toTraceableString.trace
+fun KProperty0<String>.toTraceableString(): TraceableString = TraceableString(get()).apply {
+    trace = this@toTraceableString.valueBase?.trace
 }

@@ -21,34 +21,31 @@ fun Module.replaceComposeOsSpecific() = apply {
         entries.associate { it.key to it.value.replaceComposeOsSpecific() }
 
     // Actual replacement.
-    dependencies(dependencies.value.replaceComposeOsSpecific())
-    `test-dependencies`(`test-dependencies`.value.replaceComposeOsSpecific())
+    dependencies = dependencies?.replaceComposeOsSpecific()
+    `test-dependencies` = `test-dependencies`?.replaceComposeOsSpecific()
 }
 
 context(SystemInfo)
 fun replaceComposeOsSecific(other: ExternalMavenDependency) = when {
-    other.coordinates.value.startsWith("org.jetbrains.compose.desktop:desktop-jvm:") ->
+    other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:") ->
         ExternalMavenDependency().apply {
-            coordinates(
-                other.coordinates.value.replace(
+            coordinates = other.coordinates.replace(
                     "org.jetbrains.compose.desktop:desktop-jvm",
                     "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
                 )
-            )
-            scope(other.scope.value)
-            exported(other.exported.value)
+
+            scope = other.scope
+            exported = other.exported
         }
 
-    other.coordinates.value.startsWith("org.jetbrains.compose.desktop:desktop:") ->
+    other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop:") ->
         ExternalMavenDependency().apply {
-            coordinates(
-                other.coordinates.value.replace(
+            coordinates = other.coordinates.replace(
                     "org.jetbrains.compose.desktop:desktop",
                     "org.jetbrains.compose.desktop:desktop-jvm-${detect().familyArch}"
                 )
-            )
-            scope(other.scope.value)
-            exported(other.exported.value)
+            scope = other.scope
+            exported = other.exported
         }
 
     else -> other

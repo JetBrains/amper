@@ -5,6 +5,11 @@
 package org.jetbrains.amper.frontend.api
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
+import kotlin.reflect.jvm.isAccessible
 
 /**
  * A class, that every enum, participating in
@@ -34,14 +39,15 @@ abstract class SchemaNode : Traceable() {
      * Register a validator for this node.
      */
     context(ProblemReporterContext)
-    open fun validate() {}
+    open fun validate() {
+    }
 }
 
 sealed class Default<T> {
     abstract val value: T?
 
     data class Static<T>(override val value: T) : Default<T>()
-    data class Lambda<T>(val desc: String, private val getter: () -> T?) : Default<T>() {
+    data class Lambda<T>(val desc: String?, private val getter: () -> T?) : Default<T>() {
         override val value by lazy { getter() }
     }
 }
@@ -49,7 +55,9 @@ sealed class Default<T> {
 /**
  * Abstract value that can have a default value.
  */
-sealed class ValueBase<T> : Traceable() {
+sealed class ValueBase<T> :
+    Traceable(),
+    ReadWriteProperty<SchemaNode, T> {
     protected var myValue: T? = null
 
     var default: Default<T>? = null
@@ -62,7 +70,7 @@ sealed class ValueBase<T> : Traceable() {
 
     open fun default(value: T) = apply { default = Default.Static(value) }
 
-    open fun default(desc: String, getter: () -> T?) = apply { default = Default.Lambda(desc, getter) }
+    open fun default(desc: String? = null, getter: () -> T?) = apply { default = Default.Lambda(desc, getter) }
 
     /**
      * Overwrite current value, if provided value is not null.
@@ -76,6 +84,30 @@ sealed class ValueBase<T> : Traceable() {
         }
         return this
     }
+
+    open operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> = invoke(newValue)
+
+    override fun getValue(thisRef: SchemaNode, property: KProperty<*>) = value
+
+    override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
+        myValue = value
+    }
+}
+
+fun <T, V> KProperty1<T, V>.valueBase(receiver: T): ValueBase<V>? =
+    apply { isAccessible = true }.getDelegate(receiver) as? ValueBase<V>
+
+val <T> KProperty0<T>.valueBase: ValueBase<T>? get() =
+    apply { isAccessible = true }.getDelegate() as? ValueBase<T>
+
+val <T> KProperty0<T>.withoutDefault: T? get() {
+    val delegate = valueBase
+    return if (delegate != null) delegate.withoutDefault else get()
+}
+
+val <T> KProperty0<T>.unsafe: T? get() {
+    val delegate = valueBase
+    return if (delegate != null) delegate.unsafe else get()
 }
 
 /**
@@ -86,13 +118,13 @@ class SchemaValue<T : Any> : ValueBase<T>() {
         get() = myValue ?: default?.value ?: error("No value")
 
     override fun default(value: T) = super.default(value) as SchemaValue<T>
-    override fun default(desc: String, getter: () -> T?) = super.default(desc, getter) as SchemaValue<T>
+    override fun default(desc: String?, getter: () -> T?) = super.default(desc, getter) as SchemaValue<T>
 
     /**
      * Overwrite current value, if provided value is not null.
      * Invoke [onNull] if it is.
      */
-    operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> {
+    override operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> {
         if (newValue == null) onNull() else {
             myValue = newValue
             if (newValue is Traceable) {
@@ -110,18 +142,7 @@ class NullableSchemaValue<T : Any> : ValueBase<T?>() {
     override val value: T? get() = unsafe
 
     override fun default(value: T?) = super.default(value) as NullableSchemaValue<T>
-    override fun default(desc: String, getter: () -> T?) = super.default(desc, getter) as NullableSchemaValue<T>
-}
-
-/**
- * Visitor that invokes all validation handlers.
- */
-context(ProblemReporterContext)
-class ValidationVisitor: SchemaValuesVisitor() {
-    override fun visitNode(it: SchemaNode): Unit? {
-        with(it) { validate() }
-        return super.visitNode(it)
-    }
+    override fun default(desc: String?, getter: () -> T?) = super.default(desc, getter) as NullableSchemaValue<T>
 }
 
 /**
@@ -129,7 +150,7 @@ class ValidationVisitor: SchemaValuesVisitor() {
  */
 abstract class SchemaValuesVisitor {
 
-    open fun visit(it: Any): Unit? = when(it) {
+    open fun visit(it: Any): Unit? = when (it) {
         is List<*> -> visitCollection(it)
         is Map<*, *> -> visitMap(it)
         is ValueBase<*> -> visitValue(it)

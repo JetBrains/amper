@@ -8,12 +8,30 @@ import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.processing.*
-import org.jetbrains.amper.frontend.schema.*
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertModule
+import org.jetbrains.amper.frontend.processing.BuiltInCatalog
+import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
+import org.jetbrains.amper.frontend.processing.VersionCatalog
+import org.jetbrains.amper.frontend.processing.addKotlinSerialization
+import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
+import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
+import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
+import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
+import org.jetbrains.amper.frontend.processing.validateSchema
+import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -30,7 +48,8 @@ internal fun doBuild(
     fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(pathResolver) {
         with(ConvertCtx(moduleFile.parent, pathResolver)) {
             with(systemInfo) {
-                convertModule(modulePath = moduleFile)
+                // TODO Report when file is not found.
+                convertModule(moduleFile)
                     ?.readTemplatesAndMerge()
                     ?.replaceCatalogDependencies(catalog)
                     ?.validateSchema()
@@ -72,7 +91,7 @@ internal fun Map<Path, Module>.buildAom(
 ): List<PotatoModule> {
     val modules = map { (mPath, module) ->
         // TODO Remove duplicating enums.
-        val convertedType = ProductType.getValue(module.product.value.type.value.schemaValue)
+        val convertedType = ProductType.getValue(module.product.type.schemaValue)
         ModuleTriple(mPath, module, DefaultModule(mPath.parent.name, convertedType, PotatoModuleFileSource(mPath), module))
     }
 
@@ -125,13 +144,13 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
     when (it) {
         is ExternalMavenDependency -> MavenDependency(
             // TODO Report absence of coordinates.
-            it.coordinates.value,
-            scope.value.compile,
-            scope.value.runtime,
-            it.exported.value,
+            it.coordinates,
+            scope.compile,
+            scope.runtime,
+            it.exported,
         )
 
-        is InternalDependency -> it.path.value?.let { path ->
+        is InternalDependency -> it.path?.let { path ->
             DefaultPotatoModuleDependency(
                 // TODO Report to error module.
                 moduleDir2module[path] ?: run {
@@ -139,9 +158,9 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
                     NotResolvedModule(path.name)
                 },
                 path,
-                scope.value.compile,
-                scope.value.runtime,
-                it.exported.value,
+                scope.compile,
+                scope.runtime,
+                it.exported,
             )
         } ?: return@resolve null
 

@@ -23,7 +23,7 @@ fun aomTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
     adjustCtx: TestFioContext.() -> Unit = {},
-) = BuildAomTestRun(caseName, systemInfo, base, adjustCtx).doTest()
+) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath, adjustCtx).doTest()
 
 open class BuildAomTestRun(
     caseName: String,

@@ -4,99 +4,98 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaNode
+import java.nio.file.Path
 
 class Settings : SchemaNode() {
-    val java = nullableValue<JavaSettings>()
-    val jvm = nullableValue<JvmSettings>()
-    val kotlin = value<KotlinSettings>().default(KotlinSettings())
-    val android = nullableValue<AndroidSettings>()
-    val compose = nullableValue<ComposeSettings>()
-    val junit = nullableValue<String>() // TODO Replace with enum.
-    val ios = nullableValue<IosSettings>()
-    val publishing = nullableValue<PublishingSettings>()
-    val kover = nullableValue<KoverSettings>()
+    var java by nullableValue<JavaSettings>()
+    var jvm by nullableValue<JvmSettings>()
+    var kotlin by value<KotlinSettings>().default(KotlinSettings())
+    var android by nullableValue<AndroidSettings>()
+    var compose by nullableValue<ComposeSettings>()
+    var junit by nullableValue<String>() // TODO Replace with enum.
+    var ios by nullableValue<IosSettings>()
+    var publishing by nullableValue<PublishingSettings>()
+    var kover by nullableValue<KoverSettings>()
 }
 
 class JavaSettings : SchemaNode() {
     // TODO Replace with enum
-    val source = nullableValue<String>()
+    var source by nullableValue<String>()
 }
 
 class JvmSettings : SchemaNode() {
     // TODO Replace with enum
-    val target = value<String>().default("17")
-    val mainClass = nullableValue<String>()
+    var target by value<String>().default("17")
+    var mainClass by nullableValue<String>()
 }
 
 class AndroidSettings : SchemaNode() {
-    val compileSdk = nullableValue<String>()
-    val minSdk = nullableValue<String>()
-    val maxSdk = nullableValue<String>()
-    val targetSdk = nullableValue<String>()
-    val applicationId = nullableValue<String>()
-    val namespace = nullableValue<String>()
+    var compileSdk by nullableValue<String>()
+    var minSdk by nullableValue<String>()
+    var maxSdk by nullableValue<String>()
+    var targetSdk by nullableValue<String>()
+    var applicationId by nullableValue<String>()
+    var namespace by nullableValue<String>()
 }
 
 class KotlinSettings : SchemaNode() {
-    val serialization = nullableValue<SerializationSettings>()
+    var serialization by nullableValue<SerializationSettings>()
 
     // TODO Replace with enum
-    val languageVersion = value<String>().default("1.9")
+    var languageVersion by value<String>().default("1.9")
     // TODO Replace with enum
-    val apiVersion = nullableValue<String>()
-    val allWarningsAsErrors = value<Boolean>().default(false)
-    val freeCompilerArgs = nullableValue<List<String>>()
-    val suppressWarnings = value<Boolean>().default(false)
-    val verbose = value<Boolean>().default(false)
-    val linkerOpts = nullableValue<List<String>>()
-    val debug = value<Boolean>().default(false)
-    val progressiveMode = value<Boolean>().default(false)
+    var apiVersion by nullableValue<String>()
+    var allWarningsAsErrors by value<Boolean>().default(false)
+    var freeCompilerArgs by nullableValue<List<String>>()
+    var suppressWarnings by value<Boolean>().default(false)
+    var verbose by value<Boolean>().default(false)
+    var linkerOpts by nullableValue<List<String>>()
+    var debug by value<Boolean>().default(false)
+    var progressiveMode by value<Boolean>().default(false)
     // TODO Replace with enum
-    val languageFeatures = nullableValue<List<String>>()
+    var languageFeatures by nullableValue<List<String>>()
     // TODO Replace with enum
-    val optIns = nullableValue<List<String>>()
+    var optIns by nullableValue<List<String>>()
 }
 
 class ComposeSettings : SchemaNode() {
-    val enabled = value<Boolean>()
+    var enabled by value<Boolean>()
 }
 
 class SerializationSettings : SchemaNode() {
-    val engine = value<String>()
+    var engine by value<String>().default("json")
 }
 
 class IosSettings : SchemaNode() {
-    val teamId = nullableValue<String>()
-    val framework = nullableValue<IosFrameworkSettings>().default(IosFrameworkSettings())
+    var teamId by nullableValue<String>()
+    var framework by nullableValue<IosFrameworkSettings>()
 }
 
 class IosFrameworkSettings : SchemaNode() {
-    val basename = nullableValue<String>()
-    val isStatic = nullableValue<Boolean>().default(false)
-    val mappings = nullableValue<Map<String, String>>()
+    var basename by nullableValue<String>()
+    var isStatic by nullableValue<Boolean>().default(false)
 }
 
 class PublishingSettings : SchemaNode() {
-    val group = nullableValue<String>()
-    val version = nullableValue<String>()
+    var group by nullableValue<String>()
+    var version by nullableValue<String>()
 }
 
 class KoverSettings : SchemaNode() {
-    val enabled = nullableValue<Boolean>().default(false)
-    val xml = nullableValue<KoverXmlSettings>()
-    val html = nullableValue<KoverHtmlSettings>()
+    var enabled by nullableValue<Boolean>().default(false)
+    var xml by nullableValue<KoverXmlSettings>()
+    var html by nullableValue<KoverHtmlSettings>()
 }
 
 class KoverXmlSettings : SchemaNode() {
-    val onCheck = nullableValue<Boolean>()
-    val reportFile = nullableValue<String>()
+    var onCheck by nullableValue<Boolean>()
+    var reportFile by nullableValue<Path>()
 }
 
 class KoverHtmlSettings : SchemaNode() {
-    val title = nullableValue<String>()
-    val charset = nullableValue<String>()
-    val onCheck = nullableValue<Boolean>()
-    val reportDir = nullableValue<String>()
+    var title by nullableValue<String>()
+    var charset by nullableValue<String>()
+    var onCheck by nullableValue<Boolean>()
+    var reportDir by nullableValue<Path>()
 }

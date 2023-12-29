@@ -85,16 +85,16 @@ data class FragmentSeed(
  */
 // TODO Maybe more comprehensive return value to trace things.
 fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
-    val declaredPlatforms = product.value.platforms.value
+    val declaredPlatforms = product.platforms
     val declaredLeafPlatforms = declaredPlatforms.flatMap { it.leaves }.toSet()
 
-    val declaredAliases = aliases.value ?: emptyMap()
+    val declaredAliases = aliases ?: emptyMap()
     val aliases2leafPlatforms = declaredAliases.entries
         .associate { it.key to it.value.flatMap { it.leaves }.toSet() }
     // TODO Check - there should be no aliases with same platforms? Maybe report.
     // Here aliases with same platforms are lost.
     val leafPlatforms2aliases = buildMap {
-        aliases2leafPlatforms.entries.sortedBy { it.key }.forEach { putIfAbsent(it.value, it.key) }
+        aliases2leafPlatforms.entries.sortedBy { it.key }.forEach { putIfAbsent(it , it.key) }
     }
 
     val applicableHierarchy = Platform.naturalHierarchy.entries
@@ -188,10 +188,10 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     }
 
     // TODO Add modifiers from file system. How?
-    val allUsedModifiers = (settings.modifiers +
-            `test-settings`.modifiers +
-            dependencies.modifiers +
-            `test-dependencies`.modifiers).filter { it.isNotEmpty() }
+    val allUsedModifiers = (settings.keys +
+            `test-settings`.keys +
+            dependencies?.keys.orEmpty() +
+            `test-dependencies`?.keys.orEmpty()).filter { it.isNotEmpty() }
 
     val modifiersSeeds = allUsedModifiers.map { it.convertToSeed() }
 
@@ -226,9 +226,9 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     }
 
     // Get leaf-platforms to settings associations.
-    val leaves2Settings = settings.value.entries
+    val leaves2Settings = settings.entries
         .associate { it.key.convertToLeafPlatforms() to it.value }
-    val leaves2TestSettings = `test-settings`.value.entries
+    val leaves2TestSettings = `test-settings`.entries
         .associate { it.key.convertToLeafPlatforms() to it.value }
 
     // Set up relevant settings.
@@ -238,9 +238,9 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     }
 
     // Get leaf-platforms to dependencies associations.
-    val leaves2Dependencies = dependencies.value.entries
+    val leaves2Dependencies = dependencies?.entries.orEmpty()
         .associate { it.key.convertToLeafPlatforms() to it.value }
-    val leaves2TestDependencies = `test-dependencies`.value.entries
+    val leaves2TestDependencies = `test-dependencies`?.entries.orEmpty()
         .associate { it.key.convertToLeafPlatforms() to it.value }
 
     // Set up relevant dependencies.

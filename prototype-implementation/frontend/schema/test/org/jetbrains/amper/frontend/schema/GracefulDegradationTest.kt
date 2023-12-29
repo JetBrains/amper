@@ -14,6 +14,6 @@ class GracefulDegradationTest : TestBase() {
     @Test
     @Ignore
     // TODO Fill up more reporting before running this test.
-    fun `broken module settings`() = convertTest("broken-module-settings", "", usePsiConverter = true)
+    fun `broken module settings`() = convertTest("broken-module-settings", "")
 
 }

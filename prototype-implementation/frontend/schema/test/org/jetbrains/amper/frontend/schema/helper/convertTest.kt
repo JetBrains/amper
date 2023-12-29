@@ -9,21 +9,18 @@ import org.jetbrains.amper.frontend.ismVisitor.accept
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.EqualsVisitor
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertModule
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.getPsiRawModel
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
-import kotlin.io.path.reader
 
 context(TestBase)
-fun convertTest(caseName: String, expectedErrors: String = "", usePsiConverter: Boolean = false, expectedModule: Module? = null) =
-    ConvertTestRun(caseName, expectedErrors, base, usePsiConverter, expectedModule).doTest()
+fun convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
+    ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath, expectedModule).doTest()
 
 class ConvertTestRun(
     caseName: String,
     private val expectedErrors: String = "",
     override val base: Path,
-    private val usePsiConverter: Boolean = false,
     private val expectedModule: Module? = null
 ) : BaseTestRun(caseName) {
     context(TestBase, TestProblemReporterContext)
@@ -31,7 +28,7 @@ class ConvertTestRun(
         val module = with(ctx) {
             val pathResolver = FrontendPathResolver()
             with(ConvertCtx(inputPath.parent, pathResolver)) {
-                convertModule (usePsiConverter, inputPath)!!
+                convertModule(inputPath)!!
             }
         }
         TestTraceValidationVisitor().visit(module)

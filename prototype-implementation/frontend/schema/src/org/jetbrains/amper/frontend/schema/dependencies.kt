@@ -23,23 +23,23 @@ enum class DependencyScope(
 
 sealed class Dependency : SchemaNode() {
     // TODO Replace exported flag by new scope (rethink scopes).
-    val exported = value<Boolean>().default(false)
-    val scope = value<DependencyScope>().default(DependencyScope.ALL)
+    var exported by value<Boolean>().default(false)
+    var scope by value<DependencyScope>().default(DependencyScope.ALL)
 }
 
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
-    val coordinates = value<String>()
+    var coordinates by value<String>()
 }
 
 @CustomSchemaDef(dependencySchema)
 class InternalDependency  : Dependency() {
-    val path = nullableValue<Path>()
+    var path by nullableValue<Path>()
 }
 
 @CustomSchemaDef(dependencySchema)
 class CatalogDependency  : Dependency() {
-    val catalogKey = value<String>()
+    var catalogKey by value<String>()
 }
 
 const val dependencySchema = """

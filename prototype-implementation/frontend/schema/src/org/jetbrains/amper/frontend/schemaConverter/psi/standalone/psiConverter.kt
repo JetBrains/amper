@@ -1,23 +1,23 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.frontend.schemaConverter.psi.standalone
 
 import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
-import com.intellij.psi.*
+import com.intellij.psi.FileViewProvider
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
+import com.intellij.psi.SingleRootFileViewProvider
 import com.intellij.psi.impl.PsiFileFactoryImpl
 import com.intellij.psi.impl.PsiManagerImpl
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.LocalTimeCounter
-import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertBase
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
-import org.jetbrains.yaml.psi.YAMLDocument
 import java.io.Reader
 import javax.swing.Icon
 
@@ -62,32 +62,4 @@ private fun createPsiFileFromText(text: String, manager: PsiManager): PsiFile {
   }
 
   return viewProvider.getPsi(YAMLLanguage.INSTANCE)
-}
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertModulePsi(reader: () -> Reader): Module {
-  val psiFile = getPsiRawModel(reader())
-  return convertModulePsi(psiFile)
-}
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertModulePsi(psiFile: PsiFile): Module {
-  val rootNode = psiFile.children.first()
-  // TODO Add reporting.
-  if (rootNode !is YAMLDocument) return Module()
-  return rootNode.convertModule()
-}
-
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertTemplatePsi(reader: () -> Reader): Template {
-  val psiFile = getPsiRawModel(reader())
-  return convertTemplatePsi(psiFile)
-}
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertTemplatePsi(psiFile: PsiFile): Template {
-  val rootNode = psiFile.children.first()
-  if (rootNode !is YAMLDocument) return Template()
-  return rootNode.convertBase(Template())
 }

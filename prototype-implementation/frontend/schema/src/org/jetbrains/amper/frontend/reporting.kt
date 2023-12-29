@@ -11,19 +11,29 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.yaml.snakeyaml.nodes.Node
+import kotlin.reflect.KProperty0
 
 
 object SchemaBundle : MessageBundle("messages.FrontendSchemaBundle")
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    value: ValueBase<*>,
+    property: KProperty0<*>,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = when(val trace = value.trace) {
+): Nothing? = reportBundleError(property.valueBase, messageKey, level = level, arguments = arguments)
+
+context(ProblemReporterContext)
+fun MessageBundle.reportBundleError(
+    value: ValueBase<*>?,
+    messageKey: String,
+    vararg arguments: Any,
+    level: Level = Level.Error,
+): Nothing? = when(val trace = value?.trace) {
     is Node -> reportError(message(messageKey, *arguments), level, trace)
     is YAMLPsiElement -> reportError(message(messageKey, *arguments), level, trace)
     else -> reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
@@ -69,7 +79,7 @@ fun reportError(
     node: YAMLPsiElement? = null
 ): Nothing? {
     val lineAndColumn = node?.let { getLineAndColumnInPsiFile(it, it.textRange) }
-    problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line?.let { it+1 }, column = lineAndColumn?.column))
+    problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line, column = lineAndColumn?.column))
     return null
 }
 

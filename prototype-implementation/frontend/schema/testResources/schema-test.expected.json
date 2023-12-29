@@ -337,16 +337,6 @@
         },
         "isStatic": {
           "type": "boolean"
-        },
-        "mappings": {
-          "type": "array",
-          "items": {
-            "patternProperties": {
-              "^[^@+:]+$": {
-                "type": "string"
-              }
-            }
-          }
         }
       }
     },

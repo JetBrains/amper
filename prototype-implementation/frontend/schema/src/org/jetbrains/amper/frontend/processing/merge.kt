@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.ComposeSettings
@@ -18,6 +19,8 @@ import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
 
 
 /**
@@ -102,7 +105,6 @@ fun IosSettings.merge(overwrite: IosSettings) = mergeNode(overwrite, ::IosSettin
 
 fun IosFrameworkSettings.merge(overwrite: IosFrameworkSettings) = mergeNode(overwrite, ::IosFrameworkSettings) {
     mergeScalar(IosFrameworkSettings::basename)
-    target.mappings(mappings.value?.mergeMap(overwrite.mappings.value) { it })
 }
 
 fun KoverSettings.merge(overwrite: KoverSettings) = mergeNode(overwrite, ::KoverSettings) {
@@ -143,17 +145,26 @@ fun <T> T.mergeNode(
     } else overwrite ?: this
 }
 
-/**
- * Shortcut for merging nullable collection property.
- */
-fun <T : Any, V> MergeCtx<T>.mergeNullableCollection(prop: T.() -> ValueBase<List<V>?>) =
-    doMergeCollection(prop) { this }
+fun <T : Any, V> MergeCtx<T>.mergeNullableCollection(
+    prop: KMutableProperty1<T, List<V>?>,
+) = doMergeCollection(prop) { this }
 
-/**
- * Shortcut for merging collection property.
- */
-fun <T : Any, V> MergeCtx<T>.mergeCollection(prop: T.() -> ValueBase<List<V>>) =
-    doMergeCollection(prop) { this }
+fun <T : Any, V> MergeCtx<T>.mergeCollection(
+    prop: KMutableProperty1<T, List<V>>,
+) = doMergeCollection(prop) { this }
+
+private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
+    prop: KMutableProperty1<T, CV>,
+    toCV: List<V>.() -> CV,
+) {
+    // TODO Handle collection merge tuning here.
+    val targetProp = prop.valueBase(target) ?: return
+    val baseValue = prop.valueBase(base)?.withoutDefault
+    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
+    val result = baseValue?.toMutableList() ?: mutableListOf()
+    result.addAll(overwriteValue ?: emptyList())
+    targetProp(result.toCV())
+}
 
 private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
     prop: T.() -> ValueBase<CV>,
@@ -168,26 +179,22 @@ private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
     targetProp(result.toCV())
 }
 
-/**
- * Shortcut for merging scalar property.
- */
-fun <T : Any, V> MergeCtx<T>.mergeScalar(prop: T.() -> ValueBase<V>) {
-    val targetProp = target.prop()
-    val baseValue = base.prop().withoutDefault
-    val overwriteValue = overwrite.prop().withoutDefault
+fun <T : Any, V> MergeCtx<T>.mergeScalar(
+    prop: KProperty1<T, V>
+) {
+    val targetProp = prop.valueBase(target) ?: return
+    val baseValue = prop.valueBase(base)?.withoutDefault
+    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
     targetProp(overwriteValue ?: baseValue)
 }
 
-/**
- * Shortcut for merging [ValueBase] property.
- */
 fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
-    prop: T.() -> ValueBase<V>,
+    prop: KProperty1<T, V>,
     doMerge: (V & Any).(V & Any) -> V,
 ) = apply {
-    val targetProp = target.prop()
-    val baseValue = base.prop().withoutDefault
-    val overwriteValue = overwrite.prop().withoutDefault
+    val targetProp = prop.valueBase(target) ?: return@apply
+    val baseValue = prop.valueBase(base)?.withoutDefault
+    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
         baseValue != null && overwriteValue == null -> targetProp(baseValue)
@@ -196,9 +203,6 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
     }
 }
 
-/**
- * Shortcut for merging map property.
- */
 fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = buildMap<K, V> {
     putAll(this@mergeMap)
     overwrite?.forEach { (k, v) ->
@@ -208,9 +212,5 @@ fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = buildM
     }
 }
 
-
-/**
- * Shortcut for merging map of lists.
- */
 fun <K, V> Map<K, List<V>>.mergeListsMap(overwrite: Map<K, List<V>>) =
     mergeMap(overwrite) { this + it }

@@ -25,12 +25,14 @@ import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import java.util.*
 import kotlin.io.path.exists
+import kotlin.io.path.pathString
 import kotlin.io.path.reader
 
 
@@ -41,62 +43,61 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
     val parts = classBasedSet<FragmentPart<*>>()
 
     parts += KotlinPart(
-        languageVersion = this?.kotlin?.value?.languageVersion?.value,
-        apiVersion = this?.kotlin?.value?.apiVersion?.value,
-        allWarningsAsErrors = this?.kotlin?.value?.allWarningsAsErrors?.value,
-        freeCompilerArgs = this?.kotlin?.value?.freeCompilerArgs?.value ?: emptyList(),
-        suppressWarnings = this?.kotlin?.value?.suppressWarnings?.value,
-        verbose = this?.kotlin?.value?.verbose?.value,
-        linkerOpts = this?.kotlin?.value?.linkerOpts?.value ?: emptyList(),
-        debug = this?.kotlin?.value?.debug?.value,
-        progressiveMode = this?.kotlin?.value?.progressiveMode?.value,
-        languageFeatures = this?.kotlin?.value?.languageFeatures?.value ?: emptyList(),
-        optIns = this?.kotlin?.value?.optIns?.value ?: emptyList(),
-        serialization = this?.kotlin?.value?.serialization?.value?.engine?.value,
+        languageVersion = this?.kotlin?.languageVersion,
+        apiVersion = this?.kotlin?.apiVersion,
+        allWarningsAsErrors = this?.kotlin?.allWarningsAsErrors,
+        freeCompilerArgs = this?.kotlin?.freeCompilerArgs ?: emptyList(),
+        suppressWarnings = this?.kotlin?.suppressWarnings,
+        verbose = this?.kotlin?.verbose,
+        linkerOpts = this?.kotlin?.linkerOpts ?: emptyList(),
+        debug = this?.kotlin?.debug,
+        progressiveMode = this?.kotlin?.progressiveMode,
+        languageFeatures = this?.kotlin?.languageFeatures ?: emptyList(),
+        optIns = this?.kotlin?.optIns ?: emptyList(),
+        serialization = this?.kotlin?.serialization?.engine,
     )
 
     parts += AndroidPart(
         // TODO Replace with enum for Android versions.
-        compileSdk = this?.android?.value?.compileSdk?.value?.let { "android-$it" },
-        minSdk = this?.android?.value?.minSdk?.value,
-        maxSdk = this?.android?.value?.maxSdk?.value?.toIntOrNull(), // TODO Verify
-        targetSdk = this?.android?.value?.targetSdk?.value,
-        applicationId = this?.android?.value?.applicationId?.value,
-        namespace = this?.android?.value?.namespace?.value,
+        compileSdk = this?.android?.compileSdk?.let { "android-$it" },
+        minSdk = this?.android?.minSdk,
+        maxSdk = this?.android?.maxSdk?.toIntOrNull(), // TODO Verify
+        targetSdk = this?.android?.targetSdk,
+        applicationId = this?.android?.applicationId,
+        namespace = this?.android?.namespace,
     )
 
-    parts += IosPart(this?.ios?.value?.teamId?.value)
+    parts += IosPart(this?.ios?.teamId)
 
-    parts += JavaPart(this?.java?.value?.source?.value)
+    parts += JavaPart(this?.java?.source)
 
     parts += JvmPart(
-        this?.jvm?.value?.mainClass?.value,
-        this?.jvm?.value?.target?.value,
+        this?.jvm?.mainClass,
+        this?.jvm?.target,
     )
 
-    parts += JUnitPart(this?.junit?.value?.let { JUnitVersion[it] }) // TODO Replace by enum.
+    parts += JUnitPart(this?.junit?.let { JUnitVersion[it] }) // TODO Replace by enum.
 
     parts += PublicationPart(
-        group = this?.publishing?.value?.group?.value,
-        version = this?.publishing?.value?.version?.value
+        group = this?.publishing?.group,
+        version = this?.publishing?.version
     )
 
     parts += NativeApplicationPart(
         // TODO Fill all other options.
         entryPoint = null, // TODO Pass entry point.
-        declaredFrameworkBasename = this?.ios?.value?.framework?.value?.basename?.value,
-        frameworkParams = this?.ios?.value?.framework?.value?.mappings?.value
+        declaredFrameworkBasename = this?.ios?.framework?.basename,
     )
 
-    parts += ComposePart(this?.compose?.value?.enabled?.value)
+    parts += ComposePart(this?.compose?.enabled)
 
     parts += KoverPart(
-        enabled = this?.kover?.value?.enabled?.value,
-        xml = this?.kover?.value?.xml?.value?.let {
-            KoverXmlPart(it.onCheck.value, it.reportFile.value)
+        enabled = this?.kover?.enabled,
+        xml = this?.kover?.xml?.let {
+            KoverXmlPart(it.onCheck, it.reportFile?.pathString)
         },
-        html = this?.kover?.value?.html?.value?.let {
-            KoverHtmlPart(it.title.value, it.charset.value, it.onCheck.value, it.reportDir.value)
+        html = this?.kover?.html?.let {
+            KoverHtmlPart(it.title, it.charset, it.onCheck, it.reportDir?.pathString)
         }
     )
     return parts
@@ -107,28 +108,32 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
     val parts = classBasedSet<ModulePart<*>>()
 
     parts += MetaModulePart(
-        layout = Layout.valueOf(module.value.layout.value.name)
+        layout = Layout.valueOf(module.layout.name)
     )
 
     parts += RepositoriesModulePart(
-        mavenRepositories = repositories.value?.map {
+        mavenRepositories = repositories?.map {
             // FIXME Access to the file in a more safe way.
-            val credPair = it.credentials.value?.let {
-                if (!it.file.value.exists()) {
-                    SchemaBundle.reportBundleError(it.file, "credentials.file.does.not.exist", it.file.value.normalize())
+            val credPair = it.credentials?.let {
+                if (!it.file.exists()) {
+                    SchemaBundle.reportBundleError(
+                        it::file.valueBase,
+                        "credentials.file.does.not.exist",
+                        it.file.normalize()
+                    )
                     return@let null
                 } else {
-                    val credentialProperties = Properties().apply { load(it.file.value.reader()) }
+                    val credentialProperties = Properties().apply { load(it.file.reader()) }
                     // TODO Report missing file.
                     fun getCredProperty(key: String): String = credentialProperties.getProperty(key)
                         ?: run { error("No such key: $key") }
-                    getCredProperty(it.usernameKey.value) to getCredProperty(it.passwordKey.value)
+                    getCredProperty(it.usernameKey) to getCredProperty(it.passwordKey)
                 }
             }
             RepositoriesModulePart.Repository(
-                id = it.id.value,
-                url = it.url.value,
-                publish = it.publish.value,
+                id = it.id,
+                url = it.url,
+                publish = it.publish,
                 userName = credPair?.first,
                 password = credPair?.second,
             )

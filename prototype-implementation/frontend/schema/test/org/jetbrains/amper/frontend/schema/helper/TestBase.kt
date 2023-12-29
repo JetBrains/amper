@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.old.helper
@@ -10,7 +10,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 
 abstract class TestBase(
-    val base: Path = Path("testResources")
+    val baseTestResourcesPath: Path = Path("testResources")
 ) {
     @TempDir
     lateinit var buildDir: Path

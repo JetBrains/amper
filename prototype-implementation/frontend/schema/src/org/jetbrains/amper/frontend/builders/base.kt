@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
+import org.jetbrains.amper.frontend.api.valueBase
 import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -88,7 +89,7 @@ internal fun visitSchema(
             with(visitor) {
                 val unwrappedType = it.unwrapValueTypeArg ?: return@forEach // TODO Handle non KClass return type.
                 val schemaNodeType = unwrappedType.unwrapSchemaTypeOrNull()
-                val propertyValue = it.get(rootInstance)
+                val propertyValue = it.valueBase(rootInstance) ?: it.get(rootInstance)
                 val defaultValue = propertyValue.default
                 val modifiersAware = it.annotations.any { ModifierAware::class.isInstance(it) }
 
@@ -136,8 +137,9 @@ val KProperty<*>.unwrapValueTypeArg: KType?
             // We have either [SchemaValue] or [NullableSchemaValue] wrapper.
             returnType.arguments.first().type
         } else {
+            returnType
             // Some other type, currently unsupported.
-            error("Not supported type: $kClassClassifier in property ${this.name}")
+//            error("Not supported type: $kClassClassifier in property ${this.name}")
         }
     }
 

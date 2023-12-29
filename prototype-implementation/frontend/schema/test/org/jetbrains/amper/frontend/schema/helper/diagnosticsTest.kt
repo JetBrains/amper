@@ -22,7 +22,7 @@ import kotlin.io.path.readText
 
 context(TestBase)
 fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo) =
-    DiagnosticsTestRun(caseName, systemInfo, base).doTest()
+    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,

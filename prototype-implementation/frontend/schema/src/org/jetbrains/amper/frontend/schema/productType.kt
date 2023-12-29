@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.reportBundleError
 
 enum class ProductType(
@@ -60,35 +61,39 @@ enum class ProductType(
 }
 
 class ModuleProduct : SchemaNode() {
-    val type = value<ProductType>()
+    var type by value<ProductType>()
 
-    val platforms = value<Collection<Platform>>()
-        .default("Defaults to product type platforms") { type.unsafe?.defaultPlatforms }
+    var platforms by value<List<Platform>>()
+        .default { ::type.unsafe?.defaultPlatforms?.toList() }
 
     context(ProblemReporterContext)
     override fun validate() {
         // Check empty platforms.
-        if (platforms.unsafe?.isEmpty() == true)
-            SchemaBundle.reportBundleError(platforms, "product.platforms.should.not.be.empty", level = Level.Fatal)
+        if (::platforms.unsafe?.isEmpty() == true)
+            SchemaBundle.reportBundleError(
+                ::platforms,
+                "product.platforms.should.not.be.empty",
+                level = Level.Fatal
+            )
 
         // Check no platforms for lib.
-        if (type.unsafe == ProductType.LIB && platforms.unsafe == null)
+        if (::type.unsafe == ProductType.LIB && ::platforms.unsafe == null)
             SchemaBundle.reportBundleError(
-                type,
+                ::type,
                 "product.type.does.not.have.default.platforms",
                 ProductType.LIB.schemaValue,
                 level = Level.Fatal
             )
 
         // Check supported platforms.
-        platforms.unsafe.orEmpty().forEach { platform ->
-            if (platform !in type.value.supportedPlatforms)
+        ::platforms.unsafe.orEmpty().forEach { platform ->
+            if (platform !in type.supportedPlatforms)
                 SchemaBundle.reportBundleError(
-                    platforms,
+                    ::platforms,
                     "product.unsupported.platform",
-                    type.value.schemaValue,
+                    type.schemaValue,
                     platform.pretty,
-                    type.value.supportedPlatforms.joinToString { it.pretty },
+                    type.supportedPlatforms.joinToString { it.pretty },
                 )
         }
     }

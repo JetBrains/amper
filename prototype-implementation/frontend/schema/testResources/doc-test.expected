@@ -1,7 +1,7 @@
 Module
 ------
 	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
-	apply: Collection<Path>
+	apply: List<Path>
 	module: Meta
 	product: ModuleProduct - Defines what should be produced out of the Module
 	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module
@@ -16,7 +16,7 @@ Meta: Meta settings for current module
 
 ModuleProduct
 -------------
-	platforms: Collection<Platform>, default: Defaults to product type platforms
+	platforms: List<Platform>
 	type: ProductType
 
 CatalogDependency
@@ -40,7 +40,7 @@ InternalDependency
 Repository
 ----------
 	credentials: Credentials
-	id: String, default: Defaults to url
+	id: String
 	publish: Boolean, default: false
 	url: String
 
@@ -84,7 +84,6 @@ IosFrameworkSettings
 --------------------
 	basename: String
 	isStatic: Boolean, default: false
-	mappings: Map<String, String>
 
 JavaSettings
 ------------
@@ -112,7 +111,7 @@ KotlinSettings
 
 SerializationSettings
 ---------------------
-	engine: String
+	engine: String, default: json
 
 KoverSettings
 -------------
@@ -124,13 +123,13 @@ KoverHtmlSettings
 -----------------
 	charset: String
 	onCheck: Boolean
-	reportDir: String
+	reportDir: Path
 	title: String
 
 KoverXmlSettings
 ----------------
 	onCheck: Boolean
-	reportFile: String
+	reportFile: Path
 
 PublishingSettings
 ------------------

@@ -31,12 +31,12 @@ fun Module.replaceCatalogDependencies(
         if (it !is CatalogDependency) return@mapNotNull it
         // TODO Report absence of catalog value.
         val catalogValue = catalog.findInCatalog(
-            it.catalogKey.toTraceableString()
+            it::catalogKey.toTraceableString()
         ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
-            coordinates(catalogValue)
-            exported(it.exported.value)
-            scope(it.scope.value)
+            coordinates = catalogValue
+            exported = it.exported
+            scope = it.scope
         }
     }
 
@@ -44,8 +44,8 @@ fun Module.replaceCatalogDependencies(
         entries.associate { it.key to it.value.convertCatalogDeps() }
 
     // Actual replacement.
-    dependencies(dependencies.value.replaceCatalogDeps())
-    `test-dependencies`(`test-dependencies`.value.replaceCatalogDeps())
+    dependencies = dependencies?.replaceCatalogDeps()
+    `test-dependencies` = `test-dependencies`?.replaceCatalogDeps()
 }
 
 /**

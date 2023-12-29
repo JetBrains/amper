@@ -6,7 +6,11 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.*
+import org.jetbrains.amper.frontend.api.ModifierAware
+import org.jetbrains.amper.frontend.api.SchemaDoc
+import org.jetbrains.amper.frontend.api.SchemaEnum
+import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
 
@@ -15,54 +19,59 @@ val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
     @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
-    val repositories = nullableValue<List<Repository>>()
+    var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
     @SchemaDoc("The list of modules and libraries necessary to build the Module")
-    val dependencies = value<Map<Modifiers, List<Dependency>>>()
+    var dependencies by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process")
-    val settings = value<Map<Modifiers, Settings>>()
+    var settings by value<Map<Modifiers, Settings>>()
+        .default(mapOf(noModifiers to Settings()))
 
     @ModifierAware
     @SchemaDoc("The dependencies necessary to build and run tests of the Module")
-    val `test-dependencies` = value<Map<Modifiers, List<Dependency>>>()
+    var `test-dependencies` by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests")
-    val `test-settings` = value<Map<Modifiers, Settings>>()
+    var `test-settings` by value<Map<Modifiers, Settings>>()
+        .default(mapOf(noModifiers to Settings()))
 }
 
 class Template : Base()
 
 class Module : Base() {
     @SchemaDoc("Defines what should be produced out of the Module")
-    val product = value<ModuleProduct>()
+    var product by value<ModuleProduct>()
 
+    // TODO Parse list in this:
+    // aliases:
+    //  - <key>: <values>
     @SchemaDoc("Defines the names for the custom code sharing groups")
-    val aliases = nullableValue<Map<String, Set<Platform>>>()
+    var aliases by nullableValue<Map<String, Set<Platform>>>()
 
-    val apply = nullableValue<Collection<Path>>()
+    var apply by nullableValue<List<Path>>()
 
-    val module = value<Meta>().default(Meta())
+    var module by value<Meta>().default(Meta())
 }
 
 class Repository : SchemaNode() {
-    val url = value<String>()
-    val id = value<String>().default("Defaults to url") { url.value }
-    val credentials = nullableValue<Credentials>()
-    val publish = value<Boolean>().default(false)
+    var url by value<String>()
+    var id by value<String>().default { url }
+    var credentials by nullableValue<Credentials>()
+    var publish by value<Boolean>().default(false)
 
     class Credentials : SchemaNode() {
-        val file = value<Path>()
-        val usernameKey = value<String>()
-        val passwordKey = value<String>()
+        var file by value<Path>()
+        var usernameKey by value<String>()
+        var passwordKey by value<String>()
     }
 }
 
 enum class AmperLayout(
-    override val schemaValue: String
+    override var schemaValue: String
 ) : SchemaEnum {
     GRADLE("gradle-kmp"),
     GRADLE_JVM("gradle-jvm"),
@@ -73,5 +82,5 @@ enum class AmperLayout(
 
 @SchemaDoc("Meta settings for current module")
 class Meta : SchemaNode() {
-    val layout = value<AmperLayout>().default(AmperLayout.AMPER)
+    var layout by value<AmperLayout>().default(AmperLayout.AMPER)
 }

@@ -6,36 +6,41 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertTemplate
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 import java.nio.file.Path
 
 context(ProblemReporterContext, FrontendPathResolver)
 fun Module.readTemplatesAndMerge(): Module {
     fun readTemplate(path: Path): Template? = with(ConvertCtx(path.parent, this@FrontendPathResolver)) {
-        convertTemplate( templatePath = path )
+        convertTemplate(path)
     }
 
-    val readTemplates = apply.value?.mapNotNull { readTemplate(it) } ?: emptyList()
+    val readTemplates = apply?.mapNotNull { readTemplate(it) } ?: emptyList()
     val toMerge = readTemplates + this
 
-    // We are sure that last instance is a Module and not null, so we can cast.
     val merged = toMerge.reduce { first, second -> first.merge(second, ::Template) }
 
-    return Module().apply {
-        // Copy non-merge-able stuff.
-        product(this@readTemplatesAndMerge.product.value)
-        aliases(this@readTemplatesAndMerge.aliases.value)
-        apply(this@readTemplatesAndMerge.apply.value)
-        module(this@readTemplatesAndMerge.module.value)
-
-        // Copy all other fields.
-        repositories(merged.repositories.value)
-        dependencies(merged.dependencies.value)
-        settings(merged.settings.value)
-        `test-dependencies`(merged.`test-dependencies`.value)
-        `test-settings`(merged.`test-settings`.value)
+    val result = Module()
+    // Copy non-merge-able stuff.
+    result.mergeNode(this@readTemplatesAndMerge, { result }) {
+        mergeNodeProperty(Module::product) { it }
+        mergeNodeProperty(Module::module) { it }
+        mergeNodeProperty(Module::aliases) { it }
+        mergeNodeProperty(Module::apply) { it }
     }
+
+    // Copy all other fields.
+    result.mergeNode(merged, { result }) {
+        mergeNodeProperty(Base::repositories) { it }
+        mergeNodeProperty(Base::settings) { it }
+        mergeNodeProperty(Base::`test-settings`) { it }
+        mergeNodeProperty(Base::dependencies) { it }
+        mergeNodeProperty(Base::`test-dependencies`) { it }
+    }
+
+    return result
 }

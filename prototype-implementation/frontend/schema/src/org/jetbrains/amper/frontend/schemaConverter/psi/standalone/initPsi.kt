@@ -1,9 +1,9 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.frontend.schemaConverter.psi.standalone
 
-import com.intellij.core.CoreApplicationEnvironment
-import com.intellij.core.CoreEncodingRegistry
-import com.intellij.lang.DefaultASTFactory
-import com.intellij.lang.DefaultASTFactoryImpl
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.lang.PsiBuilderFactory
 import com.intellij.lang.impl.PsiBuilderFactoryImpl
@@ -12,7 +12,6 @@ import com.intellij.mock.MockFileDocumentManagerImpl
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeRegistry
@@ -20,26 +19,14 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.vfs.VirtualFileManagerListener
-import com.intellij.openapi.vfs.VirtualFileSystem
-import com.intellij.openapi.vfs.encoding.EncodingManager
-import com.intellij.openapi.vfs.impl.CoreVirtualFilePointerManager
-import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
-import com.intellij.openapi.vfs.impl.jar.CoreJarFileSystem
-import com.intellij.openapi.vfs.local.CoreLocalFileSystem
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.psi.util.ReadActionCache
-import com.intellij.util.KeyedLazyInstanceEP
 import com.intellij.util.ProcessingContext
 import com.intellij.util.messages.MessageBus
 import com.intellij.util.pico.DefaultPicoContainer
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.YAMLParserDefinition
-import java.util.*
 
 fun initPsiFileFactory(rootDisposable: Disposable, project: Project) {
   if (ApplicationManager.getApplication() != null) {

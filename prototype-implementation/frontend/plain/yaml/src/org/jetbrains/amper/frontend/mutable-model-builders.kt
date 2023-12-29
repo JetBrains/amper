@@ -80,7 +80,10 @@ data class AndroidSdkVersion(val version: Int) {
     }
 }
 
-data class IosFrameworkSettings(var declaredBasename: String?, val settings: List<Pair<String, String>>)
+data class IosFrameworkSettings(
+    var declaredBasename: String?,
+    val settings: List<Pair<String, String>>
+)
 
 data class KotlinPartBuilder(
     var languageVersion: KotlinVersion? = null,

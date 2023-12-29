@@ -81,7 +81,7 @@ internal fun PotatoModule.prettyPrint(): String {
 
 context(TestBase)
 fun copyLocal(localName: String, dest: Path = buildFile, newPath: () -> Path = { dest / localName }) {
-    val localFile = base.resolve(localName).normalize().takeIf(Path::exists)
+    val localFile = baseTestResourcesPath.resolve(localName).normalize().takeIf(Path::exists)
     val newPathWithDirs = newPath().apply { createDirectories() }
     localFile?.copyTo(newPathWithDirs, overwrite = true)
 }

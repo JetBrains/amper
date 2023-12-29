@@ -1,7 +1,23 @@
 package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.api.withoutDefault
+import org.jetbrains.amper.frontend.schema.AmperLayout
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.ComposeSettings
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.JavaSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.Meta
+import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Repository
+import org.jetbrains.amper.frontend.schema.SerializationSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
 enum class Phase {
@@ -42,41 +58,41 @@ interface IsmVisitor {
 fun Module.accept(visitor: IsmVisitor) {
   visitor.visitModule(this)
   (this as Base).accept(visitor)
-  product.withoutDefault?.accept(visitor)
-  module.withoutDefault?.accept(visitor)
-  aliases.withoutDefault?.forEach { visitor.visitAlias(it.key, it.value) }
-  apply.withoutDefault?.forEach { visitor.visitApply(it) }
+  ::product.withoutDefault?.accept(visitor)
+  ::module.withoutDefault?.accept(visitor)
+  ::aliases.withoutDefault?.forEach { visitor.visitAlias(it.key, it.value) }
+  ::apply.withoutDefault?.forEach { visitor.visitApply(it) }
 }
 
 fun Module.visit(ismVisitor: IsmVisitor) {
-  ismVisitor.visitProduct(product.value)
-  ismVisitor.visitModuleMeta(module.value)
-  aliases.value?.forEach {
+  ismVisitor.visitProduct(product)
+  ismVisitor.visitModuleMeta(module)
+  aliases?.forEach {
     ismVisitor.visitAlias(it.key, it.value)
   }
-  apply.value?.forEach {
+  apply?.forEach {
     ismVisitor.visitApply(it)
   }
-  repositories.value?.forEach {
+  repositories?.forEach {
     ismVisitor.visitRepository(it)
   }
-  dependencies.value.forEach {
+  dependencies?.forEach {
     ismVisitor.visitDependencies(it.key, it.value)
   }
-  settings.value.forEach {
+  settings.forEach {
     ismVisitor.visitSettings(it.key, it.value)
   }
-  `test-dependencies`.value.forEach {
+  `test-dependencies`?.forEach {
     ismVisitor.visitTestDependencies(it.key, it.value)
   }
-  `test-settings`.value.forEach {
+  `test-settings`.forEach {
     ismVisitor.visitSettings(it.key, it.value)
   }
 }
 
 fun ModuleProduct.visit(ismVisitor: IsmVisitor) {
-  ismVisitor.visitProductType(type.value)
-  platforms.value.forEach {
+  ismVisitor.visitProductType(type)
+  platforms.forEach {
     ismVisitor.visitProductPlatform(it)
   }
 }
@@ -87,26 +103,26 @@ fun Dependency.accept(visitor: IsmVisitor) {
 
 fun ModuleProduct.accept(visitor: IsmVisitor) {
   visitor.visitProduct(this)
-  type.withoutDefault?.let { visitor.visitProductType(it) }
-  platforms.withoutDefault?.forEach {
+  ::type.withoutDefault?.let { visitor.visitProductType(it) }
+  ::platforms.withoutDefault?.forEach {
     visitor.visitProductPlatform(it)
   }
 }
 
 fun Meta.accept(visitor: IsmVisitor) {
   visitor.visitModuleMeta(this)
-  layout.withoutDefault?.let { visitor.visitModuleMetaLayout(it) }
+  ::layout.withoutDefault?.let { visitor.visitModuleMetaLayout(it) }
 }
 
 fun Base.accept(visitor: IsmVisitor) {
-  repositories.withoutDefault?.let { repositories ->
+  ::repositories.withoutDefault?.let { repositories ->
     visitor.visitRepositories(repositories)
     repositories.forEach { it.accept(visitor) }
   }
-  dependencies.withoutDefault?.visitDependencies(visitor)
-  settings.withoutDefault?.visitSettings(visitor)
-  `test-dependencies`.withoutDefault?.visitTestDependencies(visitor)
-  `test-settings`.withoutDefault?.visitTestSettings(visitor)
+  ::dependencies.withoutDefault?.visitDependencies(visitor)
+  ::settings.withoutDefault?.visitSettings(visitor)
+  ::`test-dependencies`.withoutDefault?.visitTestDependencies(visitor)
+  ::`test-settings`.withoutDefault?.visitTestSettings(visitor)
 }
 
 private fun Map<Modifiers, List<Dependency>>.visitDependencies(visitor: IsmVisitor) {
@@ -147,11 +163,11 @@ private fun Map<Modifiers, Settings>.visitTestSettings(visitor: IsmVisitor) {
 
 fun Settings.accept(visitor: IsmVisitor) {
   visitor.visitSettings(this)
-  java.withoutDefault?.accept(visitor)
-  jvm.withoutDefault?.accept(visitor)
-  android.withoutDefault?.accept(visitor)
-  kotlin.withoutDefault?.accept(visitor)
-  compose.withoutDefault?.accept(visitor)
+  ::java.withoutDefault?.accept(visitor)
+  ::jvm.withoutDefault?.accept(visitor)
+  ::android.withoutDefault?.accept(visitor)
+  ::kotlin.withoutDefault?.accept(visitor)
+  ::compose.withoutDefault?.accept(visitor)
 //  java.withoutDefault?.accept(visitor)
 }
 
@@ -181,7 +197,7 @@ fun SerializationSettings.accept(visitor: IsmVisitor) {
 
 fun Repository.accept(visitor: IsmVisitor) {
   visitor.visitRepository(this)
-  credentials.withoutDefault?.accept(visitor)
+  ::credentials.withoutDefault?.accept(visitor)
 }
 
 fun Repository.Credentials.accept(visitor: IsmVisitor) {

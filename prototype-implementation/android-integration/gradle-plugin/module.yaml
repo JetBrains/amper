@@ -4,7 +4,7 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
-  - ../core
+  - ../android-integration-core
   - ../../core
   - ../../frontend-api
   - ../../frontend/plain/yaml

@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.gradle.*
 import org.jetbrains.amper.gradle.base.*
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
-import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.compilation
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
+import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.compilation
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.mostCommonNearestAmperFragment

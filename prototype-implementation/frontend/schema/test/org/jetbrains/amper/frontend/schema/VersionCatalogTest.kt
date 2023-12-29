@@ -27,7 +27,7 @@ internal class VersionCatalogTest : TestBase(Path("testResources") / "catalogs")
     fun `check simple gradle catalog`() {
         aomTest("simple-gradle-version-catalog") {
             amperFiles2gradleCatalogs[amperModuleFiles.first()] =
-                listOf(base / "simple-gradle-version-catalog.toml")
+                listOf(baseTestResourcesPath / "simple-gradle-version-catalog.toml")
         }
     }
 
@@ -36,8 +36,8 @@ internal class VersionCatalogTest : TestBase(Path("testResources") / "catalogs")
         aomTest("intersecting-gradle-catalogs") {
             amperFiles2gradleCatalogs[amperModuleFiles.first()] =
                 listOf(
-                    base / "high-priority-version-catalog.toml",
-                    base / "low-priority-version-catalog.toml",
+                    baseTestResourcesPath / "high-priority-version-catalog.toml",
+                    baseTestResourcesPath / "low-priority-version-catalog.toml",
                 )
         }
     }

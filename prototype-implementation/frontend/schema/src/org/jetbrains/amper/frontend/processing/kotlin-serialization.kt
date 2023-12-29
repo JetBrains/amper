@@ -19,22 +19,22 @@ fun Module.addKotlinSerialization() = apply {
     fun Map<Modifiers, List<Dependency>>.addKotlinSerialization() =
         toMutableMap().apply {
             compute(emptySet()) { modifiers, v ->
-                if (settings.value[modifiers]?.kotlin?.value?.serialization?.value?.engine?.value == "json")
+                if (settings[modifiers]?.kotlin?.serialization?.engine == "json")
                     v.orEmpty().addKotlinSerialization()
                 else v
             }
         }
 
     // Actual replacement.
-    dependencies(dependencies.value.addKotlinSerialization())
-    `test-dependencies`(`test-dependencies`.value.addKotlinSerialization())
+    dependencies = dependencies?.addKotlinSerialization()
+    `test-dependencies` = `test-dependencies`?.addKotlinSerialization()
 }
 
 const val jsonKotlinSerializationCoordinates = "org.jetbrains.kotlinx:kotlinx-serialization-json"
 const val jsonKotlinSerializationVersion = "1.5.1"
 val Dependency.isKotlinSerialization
     get() =
-        (this as? ExternalMavenDependency)?.coordinates?.value?.startsWith(jsonKotlinSerializationCoordinates) == true
+        (this as? ExternalMavenDependency)?.coordinates?.startsWith(jsonKotlinSerializationCoordinates) == true
 val jsonKotlinSerialization = ExternalMavenDependency().apply {
-    coordinates("$jsonKotlinSerializationCoordinates:$jsonKotlinSerializationVersion")
+    coordinates = "$jsonKotlinSerializationCoordinates:$jsonKotlinSerializationVersion"
 }

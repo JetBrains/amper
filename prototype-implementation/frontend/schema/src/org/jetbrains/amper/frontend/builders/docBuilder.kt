@@ -128,7 +128,7 @@ class DocBuilder private constructor(
             else append(type.simpleView)
 
             // property[@<modifier>]: Type, default: value
-            if (default != null) append(", default: ${default.asString}")
+            if (default is Default.Static<*>) append(", default: ${default.asString}")
 
             // property[@<modifier>]: Type, default: value - some desc
             if (doc != null) append(" - ${doc.doc}")
