@@ -73,6 +73,7 @@ class IosSettings : SchemaNode() {
 
 class IosFrameworkSettings : SchemaNode() {
     val basename = nullableValue<String>()
+    val isStatic = nullableValue<Boolean>().default(false)
     val mappings = nullableValue<Map<String, String>>()
 }
 

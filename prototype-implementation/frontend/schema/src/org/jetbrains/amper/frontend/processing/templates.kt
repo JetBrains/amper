@@ -9,13 +9,14 @@ import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.convertTemplateViaSnake
+import org.jetbrains.amper.frontend.schemaConverter.convertTemplate
+import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertTemplatePsi
 import java.nio.file.Path
 
 context(ProblemReporterContext, ReaderCtx)
 fun Module.readTemplatesAndMerge(): Module {
     fun readTemplate(path: Path): Template? = path2Reader(path)?.let {
-        with(ConvertCtx(path.parent)) { convertTemplateViaSnake { it } }
+        with(ConvertCtx(path.parent)) { convertTemplate{ it } }
     }
     val readTemplates = apply.value?.mapNotNull { readTemplate(it) } ?: emptyList()
     val toMerge = readTemplates + this

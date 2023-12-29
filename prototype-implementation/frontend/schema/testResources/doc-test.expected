@@ -83,6 +83,7 @@ IosSettings
 IosFrameworkSettings
 --------------------
 	basename: String
+	isStatic: Boolean, default: false
 	mappings: Map<String, String>
 
 JavaSettings

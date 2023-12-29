@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.yaml.snakeyaml.nodes.Node
 
 
@@ -64,12 +65,23 @@ interface VersionCatalog {
     context(ProblemReporterContext)
     fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
         if (needReport) {
-            val trace = key.trace as? Node
-            if (trace != null) SchemaBundle.reportBundleError(
-                trace,
-                "no.catalog.value",
-                key.value
-            )
+            when (val trace = key.trace) {
+                is YAMLPsiElement -> {
+                    SchemaBundle.reportBundleError(
+                        trace,
+                        "no.catalog.value",
+                        key.value
+                    )
+                }
+
+                is Node -> {
+                    SchemaBundle.reportBundleError(
+                        trace,
+                        "no.catalog.value",
+                        key.value
+                    )
+                }
+            }
             null
         } else null
 

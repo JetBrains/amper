@@ -28,6 +28,7 @@ data class BuildProblem(
     val level: Level,
     val file: Path? = null,
     val line: Int? = null,
+    val column: Int? = null,
 )
 
 fun BuildProblem.render() = "[$level] $message"

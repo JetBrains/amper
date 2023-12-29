@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.api
 
+import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.yaml.snakeyaml.nodes.Node
 
 /**
@@ -34,3 +35,4 @@ fun SchemaValue<String>.toTraceableString(): TraceableString = TraceableString(v
 }
 
 fun <T : Traceable> T.adjustTrace(it: Node?) = apply { trace = it }
+fun <T : Traceable> T.adjustTrace(it: YAMLPsiElement?) = apply { trace = it }

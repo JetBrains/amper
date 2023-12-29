@@ -7,7 +7,9 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.schema.*
 import org.jetbrains.amper.frontend.schema.helper.convertTest
+import org.jetbrains.amper.frontend.schema.ProductType
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
@@ -17,11 +19,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
     // TODO Check that there are all of settings withing that file.
     @Test
     fun `all module settings are converted without errors`() =
-        convertTest("all-module-settings")
+        convertTest("all-module-settings", expectedModule = testModuleAllSettings())
 
     @Test
     fun `all module settings are converted without errors - psi`() =
-        moduleConvertPsiTest("converter/all-module-settings", expectedModule = testModuleAllSettings())
+        convertTest("all-module-settings", usePsiConverter = true, expectedModule = testModuleAllSettings())
 
     private fun testModuleAllSettings(): Module {
         return Module().apply {
@@ -29,6 +31,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                 ModuleProduct().apply {
                     type(ProductType.LIB)
                     platforms(listOf(Platform.JVM, Platform.ANDROID, Platform.IOS_ARM64))
+                }
+            )
+            module(
+                Meta().apply {
+                    layout(AmperLayout.GRADLE)
                 }
             )
     //                apply(emptyList())
@@ -56,6 +63,11 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                             coordinates("other.dep")
                             scope(DependencyScope.COMPILE_ONLY)
                             exported(true)
+                        },
+                        CatalogDependency().apply {
+                            catalogKey("kotlin-stdlib")
+                            scope(DependencyScope.RUNTIME_ONLY)
+                            exported(true)
                         }
                     ),
                     setOf(TraceableString("android")) to listOf(
@@ -67,7 +79,7 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
 
             `test-dependencies`(
                 mapOf(
-                    setOf(TraceableString("")) to listOf(
+                    emptySet<TraceableString>() to listOf(
                         ExternalMavenDependency().apply {
                             exported(true)
                             coordinates("androidx.activity:activity-compose:1.6.1")
@@ -80,13 +92,16 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                             scope(DependencyScope.RUNTIME_ONLY)
                             coordinates("androidx.activity:activity-compose:1.6.3")
                         },
+                        CatalogDependency().apply {
+                            catalogKey("kotlin-test")
+                        }
                     )
                 )
             )
 
             settings(
                 mapOf(
-                    setOf(TraceableString("")) to Settings().apply {
+                    emptySet<TraceableString>() to Settings().apply {
                         android(
                             AndroidSettings().apply {
                                 compileSdk("33")
@@ -120,18 +135,73 @@ class ConverterTest : TestBase(Path("testResources") / "converter") {
                                 optIns(listOf("kotlinx.Experimental"))
                             }
                         )
+                        ios(
+                            IosSettings().apply {
+                                teamId("iosTeam")
+                                framework(
+                                    IosFrameworkSettings().apply {
+                                        basename("iosBasename")
+                                        isStatic(true)
+                                        mappings(mapOf("someArbitraryKeyName" to "xxx"))
+                                    }
+                                )
+                            }
+                        )
+                        publishing(
+                            PublishingSettings().apply {
+                                group("org.jetbrains.amper.frontend.without-fragments.yaml")
+                                version("42-SNAPSHOT")
+                            }
+                        )
+                        kover(
+                            KoverSettings().apply {
+                                enabled(true)
+                                html(
+                                    KoverHtmlSettings().apply {
+                                        title("koverHtmlReportTitle")
+                                        onCheck(true)
+                                        reportDir("html")
+                                        charset("UTF8")
+                                    }
+                                )
+                                xml(
+                                    KoverXmlSettings().apply {
+                                        onCheck(false)
+                                        reportFile("coverage.xml")
+                                    }
+                                )
+                            }
+                        )
                     }
                 )
             )
             `test-settings`(
                 mapOf(
-                    setOf(TraceableString("")) to Settings().apply {
+                    emptySet<TraceableString>() to Settings().apply {
                         compose(
                             ComposeSettings().apply {
                                 enabled(true)
                             }
                         )
                     }
+                )
+            )
+            repositories(
+                listOf(
+                    Repository().apply {
+                        id("scratch")
+                        url("https://packages.jetbrains.team/maven/p/amper/amper")
+                        publish(true)
+                        credentials(Repository.Credentials().apply {
+                            usernameKey("tName")
+                            passwordKey("tPass")
+                            file(java.nio.file.Path.of("testResources", "converter", "local.properties").toAbsolutePath())
+                        })
+                    },
+                    Repository().apply {
+                        id("https://packages.jetbrains.team/maven/p/deft/deft")
+                        url("https://packages.jetbrains.team/maven/p/deft/deft")
+                    },
                 )
             )
         }

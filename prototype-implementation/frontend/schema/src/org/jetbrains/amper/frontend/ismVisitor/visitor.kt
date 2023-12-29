@@ -1,20 +1,7 @@
 package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schema.AndroidSettings
-import org.jetbrains.amper.frontend.schema.Base
-import org.jetbrains.amper.frontend.schema.ComposeSettings
-import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.JavaSettings
-import org.jetbrains.amper.frontend.schema.JvmSettings
-import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Repository
-import org.jetbrains.amper.frontend.schema.SerializationSettings
-import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.*
 import java.nio.file.Path
 
 enum class Phase {
@@ -27,6 +14,8 @@ interface IsmVisitor {
   fun visitProduct(product: ModuleProduct)
   fun visitProductType(productType: ProductType)
   fun visitProductPlatform(productPlatform: Platform)
+  fun visitModuleMeta(meta: Meta)
+  fun visitModuleMetaLayout(layout: AmperLayout)
   fun visitAlias(name: String, platforms: Set<Platform>)
   fun visitApply(path: Path)
   fun visitRepositories(repo: List<Repository>)
@@ -54,12 +43,14 @@ fun Module.accept(visitor: IsmVisitor) {
   visitor.visitModule(this)
   (this as Base).accept(visitor)
   product.withoutDefault?.accept(visitor)
+  module.withoutDefault?.accept(visitor)
   aliases.withoutDefault?.forEach { visitor.visitAlias(it.key, it.value) }
   apply.withoutDefault?.forEach { visitor.visitApply(it) }
 }
 
 fun Module.visit(ismVisitor: IsmVisitor) {
   ismVisitor.visitProduct(product.value)
+  ismVisitor.visitModuleMeta(module.value)
   aliases.value?.forEach {
     ismVisitor.visitAlias(it.key, it.value)
   }
@@ -100,6 +91,11 @@ fun ModuleProduct.accept(visitor: IsmVisitor) {
   platforms.withoutDefault?.forEach {
     visitor.visitProductPlatform(it)
   }
+}
+
+fun Meta.accept(visitor: IsmVisitor) {
+  visitor.visitModuleMeta(this)
+  layout.withoutDefault?.let { visitor.visitModuleMetaLayout(it) }
 }
 
 fun Base.accept(visitor: IsmVisitor) {

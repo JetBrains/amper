@@ -4,14 +4,16 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.asAbsolutePath
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLPsiElement
@@ -19,10 +21,10 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
-import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.ScalarNode
-import org.yaml.snakeyaml.nodes.SequenceNode
+import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.absolute
 
 /**
  * Try to cast current node to [ScalarNode].
@@ -150,6 +152,7 @@ fun <T> YAMLMapping.convertWithModifiers(
     }
   }
   .toMap()
+  .toMutableMap()
 
 /**
  * convert content of this node, treating its keys as [ScalarNode]s,
@@ -158,14 +161,14 @@ fun <T> YAMLMapping.convertWithModifiers(
 context(ProblemReporterContext)
 fun <T> YAMLMapping.convertScalarKeyedMap(
   report: Boolean = true,
-  convert: YAMLValue.() -> T?
-) = keyValues.mapNotNull {
+  convert: YAMLValue.(String) -> T?
+): Map<String, T> = keyValues.mapNotNull {
   // TODO Report non scalars.
   // Skip non scalar keys.
   val scalarKey = it.keyText
   // Skip those, that we failed to convert.
-  val convertd = it.value?.convert() ?: return@mapNotNull null
-  scalarKey to convertd
+  val converted = it.value?.convert(scalarKey) ?: return@mapNotNull null
+  scalarKey to converted
 }
   .toMap()
 
@@ -174,19 +177,56 @@ fun <T> YAMLMapping.convertScalarKeyedMap(
  */
 // TODO Add traces
 fun YAMLKeyValue.extractModifiers(): Modifiers =
-  keyText.
-  substringAfter("@", "")
-  .split("+")
-  .map { TraceableString(it) }
-  .toSet()
+  keyText.substringAfter("@", "")
+    .split("+")
+    .filter { it.isNotBlank() }
+    .map { TraceableString(it) }
+    .toSet()
 
 // TODO Add traces
 // TODO Handle non existent
 /**
  * convert this scalar node as enum, reporting non-existent values.
  */
-fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(enumIndex: EnumMap<T, String>, report: Boolean = true) =
-  this?.textValue?.let { enumIndex.getOrElse(it) { error("No such enum value: $it") } } ?: error("No node value")
+context(ProblemReporterContext)
+fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(
+  enumIndex: EnumMap<T, String>,
+  isFatal: Boolean = false,
+  isLong: Boolean = false
+): T? = this?.textValue?.let {
+  val receivedValue = enumIndex[it]
+  if (receivedValue == null) {
+    if (isLong) {
+      SchemaBundle.reportBundleError(
+        this,
+        "unknown.property.type.long",
+        enumIndex.enumClass.simpleName!!,
+        it,
+        enumIndex.keys,
+        level = if (isFatal) Level.Fatal else Level.Error
+      )
+    } else {
+      SchemaBundle.reportBundleError(
+        node = this,
+        "unknown.property.type",
+        enumIndex.enumClass.simpleName!!,
+        it,
+        level = if (isFatal) Level.Fatal else Level.Error
+      )
+    }
+
+  }
+  receivedValue
+}
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+operator fun SchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+operator fun NullableSchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
 
 /**
  * Try to set a value by scalar node, also providing trace.
@@ -202,6 +242,17 @@ operator fun NullableSchemaValue<String>.invoke(node: YAMLScalar?) = this(node?.
  * Map collection of scalar nodes to their string values.
  */
 fun Collection<YAMLScalar>.values() = map { it.textValue }
+
+context(ConvertCtx)
+fun String.asAbsolutePath(): Path =
+  this
+    .replace("/", File.separator)
+    .let {
+      basePath
+        .resolve(it)
+        .absolute()
+        .normalize()
+    }
 
 /**
  * Same as [String.asAbsolutePath], but accepts [ScalarNode].

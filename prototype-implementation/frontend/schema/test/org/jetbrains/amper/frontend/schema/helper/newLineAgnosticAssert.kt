@@ -12,12 +12,13 @@ import kotlin.test.asserter
 fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: String, originalFile: Path) {
     // assertEqualsIgnoreLineSeparator(expectedContent,actualContent) - why not assert with precise diff reported
     if (expectedContent.replaceLineSeparators() != actualContent.replaceLineSeparators()) {
-        throw FileComparisonFailedError(
-            "Comparison failed",
-            expectedContent,
-            actualContent,
-            originalFile.absolutePathString()
-        )
+        asserter.assertEquals("Comparison failed", expectedContent, actualContent)
+//        throw FileComparisonFailedError(
+//            "Comparison failed",
+//            expectedContent,
+//            actualContent,
+//            originalFile.absolutePathString()
+//        )
     }
 }
 

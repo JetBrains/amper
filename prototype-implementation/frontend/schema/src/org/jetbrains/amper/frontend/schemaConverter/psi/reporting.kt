@@ -4,21 +4,9 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.reportError
 import org.jetbrains.yaml.psi.YAMLPsiElement
-
-
-/**
- * Reports an error and conveniently returns null.
- */
-context(ProblemReporterContext)
-fun YAMLPsiElement.reportError(message: String): Nothing? {
-    // TODO (AB) : How to resolve (line;column) coordinates by PSI node textOffset?
-    problemReporter.reportMessage(BuildProblem(message, Level.Error, line = -1))
-    return null
-}
 
 /**
  * Assert that node has specified type and then execute provided block,
@@ -32,7 +20,7 @@ inline fun <reified NodeT, T> YAMLPsiElement.assertNodeType(
 ): T? {
     // TODO Replace by bundle.
     if (this !is NodeT && report) return reportError("[$fieldName] field has wrong type: " +
-            "It is ${this::class.simpleName}, but was expected to be ${NodeT::class.simpleName}")
+            "It is ${this::class.simpleName}, but was expected to be ${NodeT::class.simpleName}", node = this)
     if (this !is NodeT) return null
     return this.block()
 }

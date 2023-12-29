@@ -335,6 +335,9 @@
         "basename": {
           "type": "string"
         },
+        "isStatic": {
+          "type": "boolean"
+        },
         "mappings": {
           "type": "array",
           "items": {

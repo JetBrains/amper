@@ -99,15 +99,16 @@ internal fun Node.convertComposeSettings() = when (this) {
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertIosSettings() = IosSettings().apply {
-    teamId(tryGetScalarNode("teamId"))
+    teamId(tryGetScalarNode("teamId")?.value)
     framework(tryGetMappingNode("framework")?.convertIosFrameworkSettings())
 }
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
-    basename(tryGetScalarNode("basename"))
+    basename(tryGetScalarNode("basename")?.value)
+    isStatic(tryGetScalarNode("isStatic")?.value?.toBoolean())
     // TODO Report wrong types/values.
-    mappings(convertScalarKeyedMap { key -> asScalarNode()?.value?.takeIf { key != "basename" } })
+    mappings(convertScalarKeyedMap { key -> asScalarNode()?.value?.takeIf { key != "basename" && key != "isStatic" } })
 }
 
 context(ProblemReporterContext)

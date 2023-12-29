@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.ReaderCtx
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.VersionCatalog
+import org.jetbrains.amper.frontend.ismVisitor.accept
 import org.jetbrains.amper.frontend.processing.addKotlinSerialization
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
@@ -31,10 +32,13 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.convertModule
 import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
+import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertModulePsi
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.reflect.jvm.internal.impl.util.ValueParameterCountCheck.Equals
 
 /**
  * AOM build function, introduced for testing.
@@ -48,7 +52,7 @@ internal fun doBuild(
     fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(readerCtx) {
         with(ConvertCtx(moduleFile.parent)) {
             with(systemInfo) {
-                path2Reader(moduleFile)?.let { convertModuleViaSnake { it } }
+                path2Reader(moduleFile)?.let { convertModule { it } }
                     ?.readTemplatesAndMerge()
                     ?.replaceCatalogDependencies(catalog)
                     ?.validateSchema()

@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.schemaConverter
 
+import java.nio.file.Path
+
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.adjustTrace
@@ -29,10 +31,8 @@ import org.yaml.snakeyaml.nodes.NodeTuple
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.io.Reader
-import java.nio.file.Path
 
-
-// TODO Rethink.
+//// TODO Rethink.
 data class ConvertCtx(
     val basePath: Path
 )
