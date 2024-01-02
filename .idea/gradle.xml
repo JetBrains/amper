@@ -4,11 +4,28 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/prototype-implementation/buildSrc" name="buildSrc">
+                <projects>
+                  <project path="$PROJECT_DIR$/prototype-implementation/buildSrc" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="externalProjectPath" value="$PROJECT_DIR$/prototype-implementation" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/prototype-implementation" />
             <option value="$PROJECT_DIR$/prototype-implementation/amper-backend-test" />
+            <option value="$PROJECT_DIR$/prototype-implementation/android-integration" />
+            <option value="$PROJECT_DIR$/prototype-implementation/android-integration/core" />
+            <option value="$PROJECT_DIR$/prototype-implementation/android-integration/gradle-plugin" />
+            <option value="$PROJECT_DIR$/prototype-implementation/android-integration/runner" />
+            <option value="$PROJECT_DIR$/prototype-implementation/android-integration/runner/jps" />
+            <option value="$PROJECT_DIR$/prototype-implementation/buildSrc" />
             <option value="$PROJECT_DIR$/prototype-implementation/cli" />
             <option value="$PROJECT_DIR$/prototype-implementation/core" />
             <option value="$PROJECT_DIR$/prototype-implementation/e2e-test" />

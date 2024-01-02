@@ -29,6 +29,7 @@ class BootstrapTest {
         val plainFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml/build/libs/yaml-jvm-$version.jar")
         val util = TestUtil.prototypeImplementationRoot.resolve("frontend/util/build/libs/util-jvm-$version.jar")
 
+        // TODO: rewrite to include build approach
         val settingsContent = """
 buildscript {
     repositories {
@@ -38,7 +39,8 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.0")
+        classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
         classpath("org.yaml:snakeyaml:2.0")
         classpath(files("${core.pathString.replace('\\', '/')}"))
         classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))

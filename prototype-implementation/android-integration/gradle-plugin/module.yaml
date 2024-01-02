@@ -1,0 +1,16 @@
+product: jvm/app
+
+apply:
+  - ../../common.module-template.yaml
+
+dependencies:
+  - ../core
+  - ../../core
+  - ../../frontend-api
+  - ../../frontend/plain/yaml
+  - com.android.library:com.android.library.gradle.plugin:8.2.0
+  - com.android.application:com.android.application.gradle.plugin:8.2.0
+
+settings:
+  kotlin:
+    serialization: json
