@@ -22,6 +22,8 @@ import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.YamlModelInit
 import org.jetbrains.amper.frontend.resolve.resolved
+import tooling.ApkPathToolingModelBuilder
+import tooling.RClassToolingModelBuilder
 import java.io.File
 import java.nio.file.Path
 import javax.inject.Inject
@@ -160,7 +162,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
 class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val toolingModelBuilderRegistry: ToolingModelBuilderRegistry) :
     Plugin<Settings> {
     override fun apply(settings: Settings) = with(SLF4JProblemReporterContext()) {
-        toolingModelBuilderRegistry.register(ApkToolingModelBuilder())
+        registerToolingModelBuilders()
 
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
 
@@ -180,6 +182,11 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
                 }
             }
         }
+    }
+
+    private fun registerToolingModelBuilders() {
+        toolingModelBuilderRegistry.register(ApkPathToolingModelBuilder())
+        toolingModelBuilderRegistry.register(RClassToolingModelBuilder())
     }
 
     context(SLF4JProblemReporterContext)

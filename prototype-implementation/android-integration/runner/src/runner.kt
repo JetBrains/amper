@@ -4,7 +4,7 @@ import org.gradle.tooling.GradleConnector
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 
-fun run(buildRequest: AndroidBuildRequest, debug: Boolean = false): AndroidBuildResult {
+inline fun <reified R : AndroidBuildResult> run(buildRequest: AndroidBuildRequest, debug: Boolean = false): R {
     // todo: temp directory isn't the best place for such temporary project, because we don't utilize gradle caches,
     //  but ok for debug
     val tempDir = createTempDirectory()
@@ -38,16 +38,36 @@ configure<AmperAndroidIntegrationExtension> {
         .forProjectDirectory(settingsGradleFile.parentFile)
         .connect()
 
+    val taskName = "${
+        when (buildRequest.phase) {
+            AndroidBuildRequest.Phase.Prepare -> "process"
+            AndroidBuildRequest.Phase.Build -> "assemble"
+        }
+    }${
+        when (buildRequest.buildType) {
+            AndroidBuildRequest.BuildType.Debug -> "Debug"
+            AndroidBuildRequest.BuildType.Release -> "Release"
+        }
+    }${
+        when (buildRequest.phase) {
+            AndroidBuildRequest.Phase.Prepare -> "Resources"
+            AndroidBuildRequest.Phase.Build -> ""
+        }
+    }"
+
+    val tasks = buildList {
+        for(target in buildRequest.target) {
+            if (target == "/") {
+                add(":$taskName")
+            } else {
+                add("${target.replace("/", ":")}:$taskName")
+            }
+        }
+    }.toTypedArray()
+
     val buildLauncher = connection
-        .action { controller -> controller.getModel(AndroidBuildResult::class.java) }
-        .forTasks(
-            "assemble${
-                when (buildRequest.buildType) {
-                    AndroidBuildRequest.BuildType.Debug -> "Debug"
-                    AndroidBuildRequest.BuildType.Release -> "Release"
-                }
-            }"
-        )
+        .action { controller -> controller.getModel(R::class.java) }
+        .forTasks(*tasks)
         .withArguments("--stacktrace")
         .setStandardOutput(System.out)
         .setStandardError(System.err)

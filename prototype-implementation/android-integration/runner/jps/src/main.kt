@@ -24,7 +24,25 @@ fun main(args: Array<String>) {
         Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps/out/artifacts/lib/lib.jar"),
         listOf(),
     )
-    val result = run(
+
+    // phase 1: generate R-class
+    val rClass = run<RClassAndroidBuildResult>(
+        AndroidBuildRequest(
+            Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
+            /* no dependencies and classes required for preparing (we need to generate R class to use it for populating
+             this list of compiled classes using generated R-class) */
+            listOf(),
+            AndroidBuildRequest.BuildType.Debug,
+            AndroidBuildRequest.Phase.Prepare,
+            setOf("/", "/library-module"),
+        ), true
+    )
+    println(rClass)
+
+    // here: compile using generated R class
+
+    // phase 2: actual build
+    val apk = run<ApkPathAndroidBuildResult>(
         AndroidBuildRequest(
             Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
             listOf(
@@ -32,9 +50,9 @@ fun main(args: Array<String>) {
                 lib
             ),
             AndroidBuildRequest.BuildType.Debug,
-            AndroidBuildRequest.Phase.Build
+            AndroidBuildRequest.Phase.Build,
+            setOf("/", "/library-module"),
         ), true
     )
-
-    println(result)
+    println(apk)
 }

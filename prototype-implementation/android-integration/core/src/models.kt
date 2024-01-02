@@ -30,18 +30,18 @@ data class AndroidBuildRequest(
         /**
          * Module name, if not set, all modules will be built
          */
-        val target: String? = null, // todo: use it
+        val target: Set<String>,
 ) {
-    enum class BuildType {
-        Debug,
-        Release
+    enum class BuildType(val value: String) {
+        Debug("debug"),
+        Release("release")
     }
 
     enum class Phase {
         /**
          * generate R class and other things which is needed for compilation
          */
-        Generate, // todo: use it
+        Prepare, // todo: use it
 
         /**
          * build APK
@@ -50,6 +50,12 @@ data class AndroidBuildRequest(
     }
 }
 
-interface AndroidBuildResult: java.io.Serializable {
+interface AndroidBuildResult
+
+interface ApkPathAndroidBuildResult: AndroidBuildResult, java.io.Serializable {
+    val paths: List<String>
+}
+
+interface RClassAndroidBuildResult: AndroidBuildResult, java.io.Serializable {
     val paths: List<String>
 }
