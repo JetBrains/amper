@@ -13,6 +13,8 @@ import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
+import org.jetbrains.amper.frontend.schemaConverter.psi.values
+import org.jetbrains.yaml.psi.YAMLScalar
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
@@ -192,12 +194,48 @@ fun <T : Enum<T>, V : ScalarNode?> V.convertEnum(
 /**
  * Try to set a value by scalar node, also providing trace.
  */
-operator fun SchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
+operator fun SchemaValue<String>.invoke(node: ScalarNode?, onNull: () -> Unit = {}) = this(node?.value, onNull).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun <T : Enum<T>> SchemaValue<T>.invoke(
+    node: ScalarNode?,
+    enumIndex: EnumMap<T, String>,
+    isFatal: Boolean = false,
+    isLong: Boolean = false
+) = this(node?.convertEnum(enumIndex, isFatal, isLong)).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun SchemaValue<Boolean>.invoke(node: ScalarNode?, onNull: () -> Unit = {}) = this(node?.value?.toBoolean(), onNull).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun SchemaValue<List<String>>.invoke(nodeList: List<ScalarNode>?, onNull: () -> Unit = {}) = this(nodeList?.values(), onNull).apply { trace = nodeList }
 
 /**
  * Try to set a value by scalar node, also providing trace.
  */
 operator fun NullableSchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun NullableSchemaValue<Boolean>.invoke(node: ScalarNode?) = this(node?.value?.toBoolean()).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun NullableSchemaValue<List<String>>.invoke(nodeList: List<ScalarNode>?) = this(nodeList?.values()).apply { trace = nodeList }
+
 
 /**
  * Map collection of scalar nodes to their string values.

@@ -4,33 +4,15 @@
 
 package org.jetbrains.amper.frontend.schemaConverter
 
-import java.nio.file.Path
-
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.adjustTrace
-import org.jetbrains.amper.frontend.schema.AmperLayout
-import org.jetbrains.amper.frontend.schema.Base
-import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.DependencyScope
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.Meta
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.frontend.schema.Repository
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schema.noModifiers
+import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.schema.*
+import org.jetbrains.amper.frontend.schemaConverter.psi.adjustTrace
 import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.nodes.MappingNode
-import org.yaml.snakeyaml.nodes.Node
-import org.yaml.snakeyaml.nodes.NodeTuple
-import org.yaml.snakeyaml.nodes.ScalarNode
-import org.yaml.snakeyaml.nodes.SequenceNode
+import org.yaml.snakeyaml.nodes.*
 import java.io.Reader
+import java.nio.file.Path
 
 //// TODO Rethink.
 data class ConvertCtx(
@@ -68,7 +50,7 @@ private fun MappingNode.convertModuleViaSnake() = Module().apply {
 
 context(ConvertCtx, ProblemReporterContext)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
-    repositories(tryGetSequenceNode("repositories")?.convertRepositories())
+    repositories(tryGetSequenceNode("repositories")?.convertRepositories()).adjustTrace(tryGetSequenceNode("repositories"))
 
     dependencies(convertWithModifiers("dependencies") { it.convertDependencies() })
     `test-dependencies`(convertWithModifiers("test-dependencies") { it.convertDependencies() })
@@ -87,24 +69,22 @@ context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertProduct() = ModuleProduct().apply {
     when (this@convertProduct) {
         is MappingNode -> {
-            type(tryGetScalarNode("type")?.convertEnum(ProductType, isFatal = true, isLong = true))
-                .adjustTrace(tryGetScalarNode("type"))
+            type(tryGetScalarNode("type"), ProductType, isFatal = true, isLong = true)
             val platformsNode = tryGetScalarSequenceNode("platforms")
             platforms(platformsNode?.mapNotNull { it.convertEnum(Platform) })
                 .adjustTrace(tryGetChildNode("platforms"))
         }
 
-        is ScalarNode -> type(this@convertProduct.convertEnum(ProductType, isFatal = true, isLong = true))
-            .adjustTrace(this@convertProduct)
+        is ScalarNode -> type(this@convertProduct, ProductType, isFatal = true, isLong = true)
 
         else -> TODO("report")
     }
-}
+}.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun MappingNode.convertMeta() = Meta().apply {
-    layout(tryGetScalarNode("layout")?.convertEnum(AmperLayout))
-}
+    layout(tryGetScalarNode("layout"), AmperLayout)
+}.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun SequenceNode.convertRepositories(): List<Repository> {
@@ -113,32 +93,32 @@ private fun SequenceNode.convertRepositories(): List<Repository> {
 }
 
 context(ConvertCtx, ProblemReporterContext)
-private fun Node.convertRepository() = when (this) {
+private fun Node.convertRepository() = when (val node = this) {
     is ScalarNode -> Repository().apply {
-        url(value)
-        id(value)
+        url(node)
+        id(node)
     }
 
     is MappingNode -> Repository().apply {
-        url(tryGetScalarNode("url")?.value) { /* TODO report */ }
-        id(tryGetScalarNode("id")?.value)
+        url(node.tryGetScalarNode("url")) { /* TODO report */ }
+        id(node.tryGetScalarNode("id"))
         // TODO Report wrong type. Introduce helper for boolean maybe?
-        publish(tryGetScalarNode("publish")?.value?.toBoolean())
+        publish(node.tryGetScalarNode("publish"))
 
         credentials(
-            tryGetMappingNode("credentials")?.let {
+            node.tryGetMappingNode("credentials")?.let {
                 Repository.Credentials().apply {
                     // TODO Report non existent path.
                     file(it.tryGetScalarNode("file")?.asAbsolutePath()).adjustTrace(it.tryGetScalarNode("file"))
-                    usernameKey(it.tryGetScalarNode("usernameKey")?.value) { /* TODO report */ }
-                    passwordKey(it.tryGetScalarNode("passwordKey")?.value) { /* TODO report */ }
-                }
+                    usernameKey(it.tryGetScalarNode("usernameKey")) { /* TODO report */ }
+                    passwordKey(it.tryGetScalarNode("passwordKey")) { /* TODO report */ }
+                }.adjustTrace(it)
             }
         )
     }
 
     else -> null
-}
+}?.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun Node.convertDependencies() = when (this) {
@@ -153,11 +133,11 @@ private fun Node.convertDependency(): Dependency? {
     return if (this is ScalarNode) {
         when {
             // TODO Report non existent path.
-            value.startsWith(".") -> value?.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
+            value.startsWith(".") -> value?.let { InternalDependency().apply { path(it.asAbsolutePath()).adjustTrace(node)  } }
             // TODO Report non existent path.
             value.startsWith("$") -> value
                 ?.let { CatalogDependency().apply { catalogKey(it.removePrefix("$")).adjustTrace(node) } }
-            else -> value?.let { ExternalMavenDependency().apply { coordinates(it) } }
+            else -> value?.let { ExternalMavenDependency().apply { coordinates(node as ScalarNode) } }
         }
     } else {
         when {
@@ -171,24 +151,24 @@ private fun Node.convertDependency(): Dependency? {
                 value.first().convertExternalMavenDep()
             else -> null // Report wrong type
         }
-    }
+    }?.adjustTrace(this)
 }
 
 context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertExternalMavenDep() = ExternalMavenDependency().apply {
-    coordinates(keyNode.asScalarNode(true)!!.value)
+    coordinates(keyNode.asScalarNode(true))
     convertScopes(this)
 }
 
 context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertInternalDep(): InternalDependency = InternalDependency().apply {
-    path(keyNode.asScalarNode(true)!!.asAbsolutePath())
+    path(keyNode.asScalarNode(true)!!.asAbsolutePath()).adjustTrace(keyNode)
     convertScopes(this)
 }
 
 context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
-    catalogKey(keyNode.asScalarNode(true)?.value?.removePrefix("$"))
+    catalogKey(keyNode.asScalarNode(true)?.value?.removePrefix("$")).adjustTrace(keyNode)
     convertScopes(this)
 }
 
@@ -196,13 +176,15 @@ context(ConvertCtx, ProblemReporterContext)
 private fun NodeTuple.convertScopes(dep: Dependency) = with(dep) {
     val valueNode = valueNode
     when {
-        valueNode is ScalarNode && valueNode.value == "exported" -> exported(true)
-        valueNode is ScalarNode -> scope(valueNode.convertEnum(DependencyScope))
+        valueNode is ScalarNode && valueNode.value == "exported" -> exported(true).adjustTrace(valueNode)
+        valueNode is ScalarNode -> scope(valueNode, DependencyScope)
         valueNode is MappingNode -> {
-            scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
-            exported(valueNode.tryGetScalarNode("exported")?.value?.toBoolean())
+            scope(valueNode.tryGetScalarNode("scope"), DependencyScope)
+            exported(valueNode.tryGetScalarNode("exported"))
         }
 
         else -> error("Unreachable")
     }
 }
+
+fun <T : Traceable> T.adjustTrace(it: Node?) = apply { trace = it }

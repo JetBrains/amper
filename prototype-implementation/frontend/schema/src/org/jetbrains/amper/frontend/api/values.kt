@@ -68,7 +68,12 @@ sealed class ValueBase<T> : Traceable() {
      * Overwrite current value, if provided value is not null.
      */
     operator fun invoke(newValue: T?): ValueBase<T> {
-        if (newValue != null) myValue = newValue
+        if (newValue != null) {
+            myValue = newValue
+            if (newValue is Traceable) {
+                trace = newValue.trace
+            }
+        }
         return this
     }
 }
@@ -88,7 +93,12 @@ class SchemaValue<T : Any> : ValueBase<T>() {
      * Invoke [onNull] if it is.
      */
     operator fun invoke(newValue: T?, onNull: () -> Unit): ValueBase<T> {
-        if (newValue == null) onNull() else myValue = newValue
+        if (newValue == null) onNull() else {
+            myValue = newValue
+            if (newValue is Traceable) {
+                trace = newValue.trace
+            }
+        }
         return this
     }
 }
@@ -98,6 +108,9 @@ class SchemaValue<T : Any> : ValueBase<T>() {
  */
 class NullableSchemaValue<T : Any> : ValueBase<T?>() {
     override val value: T? get() = unsafe
+
+    override fun default(value: T?) = super.default(value) as NullableSchemaValue<T>
+    override fun default(desc: String, getter: () -> T?) = super.default(desc, getter) as NullableSchemaValue<T>
 }
 
 /**
@@ -119,7 +132,7 @@ abstract class SchemaValuesVisitor {
     open fun visit(it: Any): Unit? = when(it) {
         is List<*> -> visitCollection(it)
         is Map<*, *> -> visitMap(it)
-        is SchemaValue<*> -> visitValue(it)
+        is ValueBase<*> -> visitValue(it)
         is SchemaNode -> visitNode(it)
         else -> Unit
     }
@@ -130,5 +143,5 @@ abstract class SchemaValuesVisitor {
 
     open fun visitNode(it: SchemaNode): Unit? = it.allValues.forEach { visit(it) }
 
-    open fun visitValue(it: SchemaValue<*>): Unit? = it.withoutDefault?.let { visit(it) }
+    open fun visitValue(it: ValueBase<*>): Unit? = it.withoutDefault?.let { visit(it) }
 }

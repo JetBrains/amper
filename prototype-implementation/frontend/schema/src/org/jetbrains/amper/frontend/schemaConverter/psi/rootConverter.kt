@@ -6,9 +6,11 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.api.adjustTrace
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.*
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.adjustTrace
+import org.jetbrains.amper.frontend.schemaConverter.tryGetSequenceNode
 import org.jetbrains.yaml.psi.*
 
 context(ProblemReporterContext, ConvertCtx)
@@ -20,31 +22,36 @@ public fun YAMLDocument.convertTemplate() = Template().apply {
 context(ProblemReporterContext, ConvertCtx)
 public fun YAMLDocument.convertModule() = Module().apply {
   val documentMapping = getTopLevelValue()?.asMappingNode()!!
-  product(documentMapping.tryGetChildElement("product")?.convertProduct()) { /* TODO report */ }
-  apply(documentMapping.tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
-  aliases(documentMapping.tryGetMappingNode("aliases")
-    ?.convertScalarKeyedMap {
-      asSequenceNode()?.asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform) }?.toSet()
-    }
-  )
-  module(documentMapping.tryGetMappingNode("module")?.convertMeta())
-  convertBase(this)
+  with (documentMapping) {
+    product(tryGetChildElement("product")?.convertProduct()) { /* TODO report */ }
+    apply(tryGetScalarSequenceNode("apply")?.map { it.asAbsolutePath() /* TODO check path */ })
+    aliases(tryGetMappingNode("aliases")
+      ?.convertScalarKeyedMap {
+        asSequenceNode()?.asScalarSequenceNode()?.mapNotNull { it.convertEnum(Platform) }?.toSet()
+      }
+    ).adjustTrace(tryGetMappingNode("aliases"))
+    module(tryGetMappingNode("module")?.convertMeta())
+    convertBase(this@apply)
+  }
 }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun <T : Base> YAMLDocument.convertBase(base: T) = base.apply {
   getTopLevelValue()?.asMappingNode()?.let { documentMapping ->
-    repositories(documentMapping.tryGetChildElement("repositories")?.convertRepositories())
-    dependencies(documentMapping.convertWithModifiers("dependencies") { convertDependencies() })
-    settings(documentMapping.convertWithModifiers("settings") { asMappingNode()?.convertSettings() }.apply {
-      // Here we must add root settings to take defaults from them.
-      computeIfAbsent(noModifiers) { Settings() }
-    }) {}
-    `test-dependencies`(documentMapping.convertWithModifiers("test-dependencies") { convertDependencies() })
-    `test-settings`(documentMapping.convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() }.apply {
-      // Here we must add root settings to take defaults from them.
-      computeIfAbsent(noModifiers) { Settings() }
-    })
+    with (documentMapping) {
+      repositories(tryGetChildElement("repositories")?.convertRepositories()).adjustTrace(tryGetChildElement("repositories"))
+      dependencies(convertWithModifiers("dependencies") { convertDependencies() })
+      settings(convertWithModifiers("settings") { asMappingNode()?.convertSettings() }.apply {
+        // Here we must add root settings to take defaults from them.
+        computeIfAbsent(noModifiers) { Settings() }
+      }) {}
+      `test-dependencies`(convertWithModifiers("test-dependencies") { convertDependencies() })
+      `test-settings`(convertWithModifiers("test-settings") { asMappingNode()?.convertSettings() }
+        .apply {
+          // Here we must add root settings to take defaults from them.
+          computeIfAbsent(noModifiers) { Settings() }
+        })
+    }
   }
 }
 
@@ -53,25 +60,22 @@ private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
   when (val productNodeValue = this@convertProduct.value) {
     is YAMLMapping -> {
       with(productNodeValue) {
-        type(tryGetScalarNode("type")?.convertEnum(ProductType, isFatal = true, isLong = true))
-          .adjustTrace(tryGetScalarNode("type"))
-        val platformsNode = tryGetScalarSequenceNode("platforms")
+        type(tryGetScalarNode("type"), ProductType, isFatal = true, isLong = true)
         platforms(tryGetScalarSequenceNode("platforms")?.mapNotNull { it.convertEnum(Platform) })
           .adjustTrace(tryGetChildNode("platforms"))
       }
     }
 
-    is YAMLScalar -> type(productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true))
-      .adjustTrace(this@convertProduct)
+    is YAMLScalar -> type(productNodeValue, ProductType, isFatal = true, isLong = true)
 
     else -> TODO("report")
   }
-}
+}.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun YAMLMapping.convertMeta() = Meta().apply {
-  layout(tryGetScalarNode("layout")?.convertEnum(AmperLayout))
-}
+  layout(tryGetScalarNode("layout"), AmperLayout)
+}.adjustTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertRepositories(): List<Repository>? {
@@ -83,32 +87,32 @@ private fun YAMLKeyValue.convertRepositories(): List<Repository>? {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun YAMLSequenceItem.convertRepository() = when (value) {
+private fun YAMLSequenceItem.convertRepository(): Repository? = when (val value = value) {
   is YAMLScalar -> Repository().apply {
-    url((value as YAMLScalar).textValue)
-    id((value as YAMLScalar).textValue)
+    url(value)
+    id(value)
   }
 
   is YAMLMapping -> Repository().apply {
-    url((value as YAMLMapping).tryGetScalarNode("url")?.textValue) { /* TODO report */ }
-    id((value as YAMLMapping).tryGetScalarNode("id")?.textValue)
+    url(value.tryGetScalarNode("url")) { /* TODO report */ }
+    id(value.tryGetScalarNode("id"))
     // TODO Report wrong type. Introduce helper for boolean maybe?
-    publish((value as YAMLMapping).tryGetScalarNode("publish")?.textValue?.toBoolean())
+    publish(value.tryGetScalarNode("publish"))
 
     credentials(
-      value?.asMappingNode()?.tryGetMappingNode("credentials")?.let {
+      value.asMappingNode()?.tryGetMappingNode("credentials")?.let {
         Repository.Credentials().apply {
           // TODO Report non existent path.
           file(it.tryGetScalarNode("file")?.asAbsolutePath()) { /* TODO report */ }.adjustTrace(it.tryGetScalarNode("file"))
-          usernameKey(it.tryGetScalarNode("usernameKey")?.textValue) { /* TODO report */ }
-          passwordKey(it.tryGetScalarNode("passwordKey")?.textValue) { /* TODO report */ }
-        }
+          usernameKey(it.tryGetScalarNode("usernameKey")) { /* TODO report */ }
+          passwordKey(it.tryGetScalarNode("passwordKey")) { /* TODO report */ }
+        }.adjustTrace(it)
       }
     )
   }
 
   else -> null
-}
+}?.adjustTrace(this.value)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLValue.convertDependencies() = assertNodeType<YAMLSequence, List<Dependency>>("dependencies") {
@@ -125,7 +129,7 @@ private fun YAMLSequenceItem.convertDependency(): Dependency? = when {
     this.value!!.text.let { InternalDependency().apply { path(it.asAbsolutePath()) } }
 
   this.value is YAMLScalar ->
-    this.value!!.text.let { ExternalMavenDependency().apply { coordinates(it) } }
+    this.value!!.let { ExternalMavenDependency().apply { coordinates(it as YAMLScalar) } }
   this.value is YAMLPsiElement && getYAMLElements().size > 1 -> TODO("report")
   this.value is YAMLPsiElement && getYAMLElements().isEmpty() -> TODO("report")
   this.value is YAMLMapping && (this.value as YAMLMapping).keyValues.first()?.keyText?.startsWith("$") == true ->
@@ -135,11 +139,11 @@ private fun YAMLSequenceItem.convertDependency(): Dependency? = when {
   this.value is YAMLMapping && (this.value as YAMLMapping).keyValues.first().keyText != null ->
     (this.value as YAMLMapping).keyValues.first().convertExternalMavenDep()
   else -> null // Report wrong type
-}
+}?.adjustTrace(this.value)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun YAMLKeyValue.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
-  catalogKey(keyText.removePrefix("$"))
+  catalogKey(keyText.removePrefix("$")).adjustTrace(this@convertCatalogDep)
   convertScopes(this)
 }
 
@@ -147,11 +151,11 @@ context(ConvertCtx, ProblemReporterContext)
 private fun YAMLKeyValue.convertScopes(dep: Dependency) = with(dep) {
   val valueNode = value
   when {
-    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true)
-    valueNode is YAMLScalar -> scope(valueNode.convertEnum(DependencyScope))
+    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true).adjustTrace(valueNode)
+    valueNode is YAMLScalar -> scope(valueNode, DependencyScope)
     valueNode is YAMLMapping -> {
-      scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
-      exported(valueNode.tryGetScalarNode("exported")?.textValue?.toBoolean()).adjustTrace(valueNode.tryGetScalarNode("exported"))
+      scope(valueNode.tryGetScalarNode("scope"), DependencyScope)
+      exported(valueNode.tryGetScalarNode("exported"))
     }
 
     else -> error("Unreachable")
@@ -160,7 +164,7 @@ private fun YAMLKeyValue.convertScopes(dep: Dependency) = with(dep) {
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLKeyValue.convertExternalMavenDep() = ExternalMavenDependency().apply {
-  coordinates(keyText)
+  coordinates(keyText).adjustTrace(this@convertExternalMavenDep)
   adjustScopes(this)
 }
 
@@ -174,14 +178,16 @@ context(ProblemReporterContext)
 private fun YAMLKeyValue.adjustScopes(dep: Dependency) = with(dep) {
   val valueNode = value
   when {
-    valueNode is YAMLScalar && valueNode.textValue == "compile-only" -> scope(DependencyScope.COMPILE_ONLY)
-    valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> scope(DependencyScope.RUNTIME_ONLY)
-    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true)
+    valueNode is YAMLScalar && valueNode.textValue == "compile-only" -> scope(valueNode, DependencyScope)
+    valueNode is YAMLScalar && valueNode.textValue == "runtime-only" -> scope(valueNode, DependencyScope)
+    valueNode is YAMLScalar && valueNode.textValue == "exported" -> exported(true).adjustTrace(valueNode)
     valueNode is YAMLMapping -> {
-      scope(valueNode.tryGetScalarNode("scope")?.convertEnum(DependencyScope))
-      exported(valueNode.tryGetScalarNode("exported")?.textValue?.toBoolean())
+      scope(valueNode.tryGetScalarNode("scope"), DependencyScope)
+      exported(valueNode.tryGetScalarNode("exported"))
     }
 
     else -> Unit
   }
 }
+
+fun <T : Traceable> T.adjustTrace(it: YAMLPsiElement?) = apply { trace = it }

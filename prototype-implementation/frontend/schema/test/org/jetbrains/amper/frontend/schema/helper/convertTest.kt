@@ -33,6 +33,7 @@ class ConvertTestRun(
                 convertModule (usePsiConverter) { inputPath.reader() }
             }
         }
+        ConversionTracesVisitor().visit(module)
         expectedModule?.accept(EqualsVisitor(module))
         return ctx.problemReporter.getErrors().map { it.message }.joinToString()
     }

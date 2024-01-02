@@ -10,7 +10,6 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertTemplate
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertTemplatePsi
 import java.nio.file.Path
 
 context(ProblemReporterContext, ReaderCtx)

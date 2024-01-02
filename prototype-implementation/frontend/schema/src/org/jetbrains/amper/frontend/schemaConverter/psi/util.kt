@@ -10,30 +10,24 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValue
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLPsiElement
-import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLSequence
-import org.jetbrains.yaml.psi.YAMLSequenceItem
-import org.jetbrains.yaml.psi.YAMLValue
-import org.yaml.snakeyaml.nodes.ScalarNode
+import org.jetbrains.yaml.psi.*
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
 /**
- * Try to cast current node to [ScalarNode].
+ * Try to cast current node to [YAMLScalar].
  * Report if node has different type.
  */
 fun YAMLKeyValue.asScalarNode(report: Boolean = true) = value as? YAMLScalar
 
 /**
- * Try to cast current node to [SequenceNode].
+ * Try to cast current node to [YAMLSequence].
  * Report if node has different type.
  */
 // TODO Handle different node type
@@ -41,7 +35,7 @@ context(ProblemReporterContext)
 fun YAMLPsiElement.asSequenceNode(report: Boolean = true) = this as? YAMLSequence
 
 /**
- * Try to cast current node to [SequenceNode] and map its contents as list of [ScalarNode].
+ * Try to cast current node to [YAMLSequence] and map its contents as list of [YAMLScalar].
  * Report if node has different type.
  */
 // TODO Handle different node type
@@ -97,7 +91,7 @@ fun YAMLMapping.tryGetChildElement(name: String, report: Boolean = true): YAMLKe
     .firstOrNull { it?.keyText == name }
 
 /**
- * Try to find child node by given name and cast it to [ScalarNode].
+ * Try to find child node by given name and cast it to [YAMLScalar].
  * Report if no node found or wrong type.
  */
 // TODO Report wrong type
@@ -106,7 +100,7 @@ fun YAMLMapping.tryGetScalarNode(name: String, report: Boolean = true) =
   tryGetChildNode(name)?.asScalarNode(report)
 
 /**
- * Try to find child node by given name and cast it to [ScalarNode].
+ * Try to find child node by given name and cast it to [YAMLScalar].
  * Report if no node found or wrong type.
  */
 // TODO Report wrong type
@@ -115,7 +109,7 @@ fun YAMLSequence.tryGetScalarNode(name: String, report: Boolean = true) =
   tryGetChildNode(name)?.value as? YAMLScalar
 
 /**
- * Try to find child node by given name and cast it to [SequenceNode].
+ * Try to find child node by given name and cast it to [YAMLSequence].
  * Report if no node found or wrong type.
  */
 // TODO Report wrong type
@@ -124,8 +118,8 @@ fun YAMLMapping.tryGetSequenceNode(name: String, report: Boolean = true) =
   tryGetChildNode(name)?.value?.asSequenceNode(report)
 
 /**
- * Try to find child node by given name and cast it to [SequenceNode], and then
- * map its contents as list of [ScalarNode].
+ * Try to find child node by given name and cast it to [YAMLSequence], and then
+ * map its contents as list of [YAMLScalar].
  * Report if no node found or wrong type.
  */
 // TODO Handle non scalar entry
@@ -142,7 +136,7 @@ fun <T> YAMLMapping.convertWithModifiers(
   prefix: String,
   report: Boolean = true,
   convert: YAMLValue.() -> T?
-) = keyValues
+): MutableMap<Modifiers, T> = keyValues
   .filter { it.keyText.startsWith(prefix) }
   .mapNotNull {
     val modifiers = it.extractModifiers()
@@ -155,7 +149,7 @@ fun <T> YAMLMapping.convertWithModifiers(
   .toMutableMap()
 
 /**
- * convert content of this node, treating its keys as [ScalarNode]s,
+ * convert content of this node, treating its keys as [YAMLScalar]s,
  * skipping resulting null values.
  */
 context(ProblemReporterContext)
@@ -218,25 +212,51 @@ fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(
   }
   receivedValue
 }
-/**
- * Try to set a value by scalar node, also providing trace.
- */
-operator fun SchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
 
 /**
  * Try to set a value by scalar node, also providing trace.
  */
-operator fun NullableSchemaValue<String>.invoke(node: ScalarNode?) = this(node?.value).apply { trace = node }
+operator fun SchemaValue<String>.invoke(node: YAMLScalar?, onNull: () -> Unit = {}) = this(node?.textValue, onNull).apply { trace = node }
 
 /**
  * Try to set a value by scalar node, also providing trace.
  */
-operator fun SchemaValue<String>.invoke(node: YAMLScalar?) = this(node?.textValue).apply { trace = node }
+context(ProblemReporterContext)
+operator fun <T: Enum<T>> SchemaValue<T>.invoke(
+  node: YAMLScalar?,
+  enumIndex: EnumMap<T, String>,
+  isFatal: Boolean = false,
+  isLong: Boolean = false
+) = this(node?.convertEnum(enumIndex, isFatal = isFatal, isLong = isLong)).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun SchemaValue<Boolean>.invoke(node: YAMLScalar?, onNull: () -> Unit = {}) = this(node?.textValue?.toBoolean(), onNull).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun SchemaValue<List<String>>.invoke(nodeList: List<YAMLScalar>?, onNull: () -> Unit = {}) = this(nodeList?.values(), onNull).apply { trace = nodeList }
 
 /**
  * Try to set a value by scalar node, also providing trace.
  */
 operator fun NullableSchemaValue<String>.invoke(node: YAMLScalar?) = this(node?.textValue).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun NullableSchemaValue<Boolean>.invoke(node: YAMLScalar?) = this(node?.textValue?.toBoolean()).apply { trace = node }
+
+/**
+ * Try to set a value by scalar node, also providing trace.
+ */
+context(ProblemReporterContext)
+operator fun NullableSchemaValue<List<String>>.invoke(nodeList: List<YAMLScalar>?) = this(nodeList?.values()).apply { trace = nodeList }
 
 /**
  * Map collection of scalar nodes to their string values.
@@ -255,7 +275,7 @@ fun String.asAbsolutePath(): Path =
     }
 
 /**
- * Same as [String.asAbsolutePath], but accepts [ScalarNode].
+ * Same as [String.asAbsolutePath], but accepts [YAMLScalar].
  */
 context(ConvertCtx)
 fun YAMLScalar.asAbsolutePath(): Path = textValue.asAbsolutePath()

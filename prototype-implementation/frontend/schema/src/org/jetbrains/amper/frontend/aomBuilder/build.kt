@@ -8,37 +8,15 @@ import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.DefaultScopedNotation
-import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.ReaderCtx
-import org.jetbrains.amper.frontend.processing.BuiltInCatalog
-import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
-import org.jetbrains.amper.frontend.processing.VersionCatalog
-import org.jetbrains.amper.frontend.ismVisitor.accept
-import org.jetbrains.amper.frontend.processing.addKotlinSerialization
-import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
-import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
-import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
-import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
-import org.jetbrains.amper.frontend.processing.validateSchema
-import org.jetbrains.amper.frontend.schema.CatalogDependency
-import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
-import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.processing.*
+import org.jetbrains.amper.frontend.schema.*
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
-import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertModulePsi
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.reflect.jvm.internal.impl.util.ValueParameterCountCheck.Equals
 
 /**
  * AOM build function, introduced for testing.

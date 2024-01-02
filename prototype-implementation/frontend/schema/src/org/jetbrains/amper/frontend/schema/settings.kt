@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.api.NullableSchemaValue
 import org.jetbrains.amper.frontend.api.SchemaNode
 
 class Settings : SchemaNode() {

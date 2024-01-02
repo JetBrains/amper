@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schemaConverter.psi.adjustTrace
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
@@ -26,7 +27,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode
 context(ProblemReporterContext)
 internal fun Node.convertSettings() = assertNodeType<MappingNode, Settings>("settings") {
     doConvertSettings()
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.doConvertSettings() = Settings().apply {
@@ -44,13 +45,13 @@ internal fun MappingNode.doConvertSettings() = Settings().apply {
 context(ProblemReporterContext)
 internal fun MappingNode.convertJavaSettings() = JavaSettings().apply {
     source(tryGetScalarNode("source"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertJvmSettings() = JvmSettings().apply {
     target(tryGetScalarNode("target"))
     mainClass(tryGetScalarNode("mainClass"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertAndroidSettings() = AndroidSettings().apply {
@@ -60,7 +61,7 @@ internal fun MappingNode.convertAndroidSettings() = AndroidSettings().apply {
     targetSdk(tryGetScalarNode("targetSdk"))
     applicationId(tryGetScalarNode("applicationId"))
     namespace(tryGetScalarNode("namespace"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
@@ -68,72 +69,72 @@ internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
     languageVersion(tryGetScalarNode("languageVersion"))
     apiVersion(tryGetScalarNode("apiVersion"))
 
-    allWarningsAsErrors(tryGetScalarNode("allWarningsAsErrors")?.value?.toBoolean())
-    suppressWarnings(tryGetScalarNode("suppressWarnings")?.value?.toBoolean())
-    verbose(tryGetScalarNode("verbose")?.value?.toBoolean())
-    debug(tryGetScalarNode("debug")?.value?.toBoolean())
-    progressiveMode(tryGetScalarNode("progressiveMode")?.value?.toBoolean())
+    allWarningsAsErrors(tryGetScalarNode("allWarningsAsErrors"))
+    suppressWarnings(tryGetScalarNode("suppressWarnings"))
+    verbose(tryGetScalarNode("verbose"))
+    debug(tryGetScalarNode("debug"))
+    progressiveMode(tryGetScalarNode("progressiveMode"))
 
-    freeCompilerArgs(tryGetScalarSequenceNode("freeCompilerArgs")?.values())
-    linkerOpts(tryGetScalarSequenceNode("linkerOpts")?.values())
-    languageFeatures(tryGetScalarSequenceNode("languageFeatures")?.values())
-    optIns(tryGetScalarSequenceNode("optIns")?.values())
+    freeCompilerArgs(tryGetScalarSequenceNode("freeCompilerArgs"))
+    linkerOpts(tryGetScalarSequenceNode("linkerOpts"))
+    languageFeatures(tryGetScalarSequenceNode("languageFeatures"))
+    optIns(tryGetScalarSequenceNode("optIns"))
 
     serialization(tryGetChildNode("serialization")?.convertSerializationSettings())
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun Node.convertSerializationSettings() = when (this) {
-    is ScalarNode -> SerializationSettings().apply { engine(value) }
+    is ScalarNode -> SerializationSettings().apply { engine(this@convertSerializationSettings) }
     is MappingNode -> SerializationSettings().apply { engine(tryGetScalarNode("engine")) }
     else -> null
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun Node.convertComposeSettings() = when (this) {
     // TODO Report wrong value.
-    is ScalarNode -> ComposeSettings().apply { enabled(value == "enabled") }
-    is MappingNode -> ComposeSettings().apply { enabled(tryGetScalarNode("enabled")?.value?.toBoolean()) }
+    is ScalarNode -> ComposeSettings().apply { enabled(value == "enabled").adjustTrace(this@convertComposeSettings) }
+    is MappingNode -> ComposeSettings().apply { enabled(tryGetScalarNode("enabled")) }
     else -> null
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertIosSettings() = IosSettings().apply {
-    teamId(tryGetScalarNode("teamId")?.value)
+    teamId(tryGetScalarNode("teamId"))
     framework(tryGetMappingNode("framework")?.convertIosFrameworkSettings())
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
-    basename(tryGetScalarNode("basename")?.value)
-    isStatic(tryGetScalarNode("isStatic")?.value?.toBoolean())
+    basename(tryGetScalarNode("basename"))
+    isStatic(tryGetScalarNode("isStatic"))
     // TODO Report wrong types/values.
     mappings(convertScalarKeyedMap { key -> asScalarNode()?.value?.takeIf { key != "basename" && key != "isStatic" } })
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertPublishingSettings() = PublishingSettings().apply {
     group(tryGetScalarNode("group"))
     version(tryGetScalarNode("version"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertKoverSettings() = KoverSettings().apply {
-    enabled(tryGetScalarNode("enabled")?.value?.toBoolean()) // TODO Check type
+    enabled(tryGetScalarNode("enabled"))
     xml(tryGetMappingNode("xml")?.convertKoverXmlSettings())
     html(tryGetMappingNode("html")?.convertKoverHtmlSettings())
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertKoverXmlSettings() = KoverXmlSettings().apply {
-    onCheck(tryGetScalarNode("onCheck")?.value?.toBoolean()) // TODO Check type
+    onCheck(tryGetScalarNode("onCheck"))
     reportFile(tryGetScalarNode("reportFile"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun MappingNode.convertKoverHtmlSettings() = KoverHtmlSettings().apply {
-    onCheck(tryGetScalarNode("onCheck")?.value?.toBoolean()) // TODO Check type
+    onCheck(tryGetScalarNode("onCheck"))
     title(tryGetScalarNode("title"))
     charset(tryGetScalarNode("charset"))
     reportDir(tryGetScalarNode("reportDir"))
-}
+}.adjustTrace(this)

@@ -5,30 +5,16 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.assertNodeType
 import org.jetbrains.amper.frontend.schema.*
-import org.jetbrains.amper.frontend.schemaConverter.*
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertAndroidSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertComposeSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertIosSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertJavaSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertJvmSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertKotlinSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertKoverSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertPublishingSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertSerializationSettings
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
-import org.yaml.snakeyaml.nodes.MappingNode
-import org.yaml.snakeyaml.nodes.Node
 
 context(ProblemReporterContext)
 internal fun YAMLPsiElement.convertSettings() = assertNodeType<YAMLMapping, Settings>("settings") {
     doConvertSettings()
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.doConvertSettings() = Settings().apply {
@@ -52,7 +38,7 @@ context(ProblemReporterContext)
 internal fun YAMLMapping.convertJvmSettings() = JvmSettings().apply {
     target(tryGetScalarNode("target"))
     mainClass(tryGetScalarNode("mainClass"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
@@ -62,82 +48,82 @@ internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
     targetSdk(tryGetScalarNode("targetSdk"))
     applicationId(tryGetScalarNode("applicationId"))
     namespace(tryGetScalarNode("namespace"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertKotlinSettings() = KotlinSettings().apply {
     // TODO Report wrong types.
-    languageVersion(tryGetScalarNode("languageVersion")?.textValue)
-    apiVersion(tryGetScalarNode("apiVersion")?.textValue)
+    languageVersion(tryGetScalarNode("languageVersion"))
+    apiVersion(tryGetScalarNode("apiVersion"))
 
-    allWarningsAsErrors(tryGetScalarNode("allWarningsAsErrors")?.textValue?.toBoolean())
-    suppressWarnings(tryGetScalarNode("suppressWarnings")?.textValue?.toBoolean())
-    verbose(tryGetScalarNode("verbose")?.textValue?.toBoolean())
-    debug(tryGetScalarNode("debug")?.textValue?.toBoolean())
-    progressiveMode(tryGetScalarNode("progressiveMode")?.textValue?.toBoolean())
+    allWarningsAsErrors(tryGetScalarNode("allWarningsAsErrors"))
+    suppressWarnings(tryGetScalarNode("suppressWarnings"))
+    verbose(tryGetScalarNode("verbose"))
+    debug(tryGetScalarNode("debug"))
+    progressiveMode(tryGetScalarNode("progressiveMode"))
 
-    freeCompilerArgs(tryGetScalarSequenceNode("freeCompilerArgs")?.values())
-    linkerOpts(tryGetScalarSequenceNode("linkerOpts")?.values())
-    languageFeatures(tryGetScalarSequenceNode("languageFeatures")?.values())
-    optIns(tryGetScalarSequenceNode("optIns")?.values())
+    freeCompilerArgs(tryGetScalarSequenceNode("freeCompilerArgs"))
+    linkerOpts(tryGetScalarSequenceNode("linkerOpts"))
+    languageFeatures(tryGetScalarSequenceNode("languageFeatures"))
+    optIns(tryGetScalarSequenceNode("optIns"))
 
     serialization(tryGetChildNode("serialization")?.convertSerializationSettings())
-}
+}.adjustTrace(this@convertKotlinSettings)
 
 context(ProblemReporterContext)
 internal fun YAMLKeyValue.convertSerializationSettings() = when (value) {
-    is YAMLScalar -> SerializationSettings().apply { engine(valueText) }
+    is YAMLScalar -> SerializationSettings().apply { engine(value as YAMLScalar) }
     is YAMLMapping -> SerializationSettings().apply { engine((value as YAMLMapping).tryGetScalarNode("engine")) }
     else -> null
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLKeyValue.convertComposeSettings() = when (value) {
     // TODO Report wrong value.
-    is YAMLScalar -> ComposeSettings().apply { enabled(valueText == "enabled") }
-    is YAMLMapping -> ComposeSettings().apply { enabled((value as YAMLMapping).tryGetScalarNode("enabled")?.textValue?.toBoolean()) }
+    is YAMLScalar -> ComposeSettings().apply { enabled(valueText == "enabled").adjustTrace(value) }
+    is YAMLMapping -> ComposeSettings().apply { enabled((value as YAMLMapping).tryGetScalarNode("enabled")) }
     else -> null
-}
+}?.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertIosSettings() = IosSettings().apply {
-    teamId(tryGetScalarNode("teamId")?.textValue)
+    teamId(tryGetScalarNode("teamId"))
     framework(tryGetChildNode("framework")?.value?.asMappingNode()?.convertIosFrameworkSettings())
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
-    basename(tryGetScalarNode("basename")?.textValue)
-    isStatic(tryGetScalarNode("isStatic")?.textValue?.toBoolean())
+    basename(tryGetScalarNode("basename"))
+    isStatic(tryGetScalarNode("isStatic"))
     // TODO Report wrong types/values.
     mappings(convertScalarKeyedMap {key ->
         (this as? YAMLScalar)?.textValue.takeIf { key != "basename" && key != "isStatic" }
     })
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertPublishingSettings() = PublishingSettings().apply {
     group(tryGetScalarNode("group"))
     version(tryGetScalarNode("version"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertKoverSettings() = KoverSettings().apply {
-    enabled(tryGetScalarNode("enabled")?.textValue?.toBoolean()) // TODO Check type
+    enabled(tryGetScalarNode("enabled"))
     xml(tryGetMappingNode("xml")?.convertKoverXmlSettings())
     html(tryGetMappingNode("html")?.convertKoverHtmlSettings())
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertKoverXmlSettings() = KoverXmlSettings().apply {
-    onCheck(tryGetScalarNode("onCheck")?.textValue?.toBoolean()) // TODO Check type
+    onCheck(tryGetScalarNode("onCheck"))
     reportFile(tryGetScalarNode("reportFile"))
-}
+}.adjustTrace(this)
 
 context(ProblemReporterContext)
 internal fun YAMLMapping.convertKoverHtmlSettings() = KoverHtmlSettings().apply {
-    onCheck(tryGetScalarNode("onCheck")?.textValue?.toBoolean()) // TODO Check type
+    onCheck(tryGetScalarNode("onCheck"))
     title(tryGetScalarNode("title"))
     charset(tryGetScalarNode("charset"))
     reportDir(tryGetScalarNode("reportDir"))
-}
+}.adjustTrace(this)
