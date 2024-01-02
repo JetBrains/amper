@@ -69,10 +69,11 @@ fun TomlParseResult.parseCatalogLibraries(
                 val versionRef = libraryTable.getStringOrNull("version.ref")
 
                 val finalVersion = version ?: versionRef?.let { versions[it] }
-                val finalLibraryModule =
-                    if (module != null) module
-                    else if (group != null && name != null) "$group:$name"
-                    else null
+                val finalLibraryModule = when {
+                    module != null -> module
+                    group != null && name != null -> "$group:$name"
+                    else -> null
+                }
                 // Just skip libraries without module or version.
                 if (finalLibraryModule != null && finalVersion != null) {
                     put(aliasKey, "$finalLibraryModule:$finalVersion")
