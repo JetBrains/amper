@@ -117,40 +117,47 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                 else -> (androidExtension as LibraryExtension).libraryVariants
                             }
                             // choose variant
-                            val variant = variants.first {
-                                it.name == when (project.gradle.request?.buildType) {
-                                    AndroidBuildRequest.BuildType.Debug -> "debug"
-                                    AndroidBuildRequest.BuildType.Release -> "release"
-                                    else -> "debug"
+
+                            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }.toSet()
+
+                            val chosenVariants = variants.filter { it.name in buildTypes }
+
+                            for (variant in chosenVariants) {
+
+                                project.tasks.create("prepare${variant.name}") {
+                                    for (output in variant.outputs) {
+                                        it.dependsOn(output.processResourcesProvider)
+                                    }
                                 }
-                            }
-                            requestedModules[project.path]?.let { requestedModule ->
-                                // set dependencies
-                                for (dependency in requestedModule.resolvedAndroidRuntimeDependencies) {
-                                    variant.runtimeConfiguration.dependencies.add(
-                                        ResolvedAmperDependency(
-                                            project,
-                                            dependency
+
+                                requestedModules[project.path]?.let { requestedModule ->
+                                    // set dependencies
+                                    for (dependency in requestedModule.resolvedAndroidRuntimeDependencies) {
+                                        variant.runtimeConfiguration.dependencies.add(
+                                            ResolvedAmperDependency(
+                                                project,
+                                                dependency
+                                            )
                                         )
-                                    )
+                                    }
+
+                                    // set inter-module dependencies between android modules
+                                    val androidDependencyPaths = project.gradle.knownModel?.let { model ->
+                                        androidFragment
+                                            .externalDependencies
+                                            .filterIsInstance<PotatoModuleDependency>()
+                                            .map { with(it) { model.module.get() } }
+                                            .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
+                                            .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
+                                    } ?: listOf()
+
+                                    for (path in androidDependencyPaths) {
+                                        variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to path)))
+                                    }
+
+                                    // set classes
+                                    variant.registerPostJavacGeneratedBytecode(project.files(requestedModule.moduleJar))
                                 }
-
-                                // set inter-module dependencies between android modules
-                                val androidDependencyPaths = project.gradle.knownModel?.let { model ->
-                                    androidFragment
-                                        .externalDependencies
-                                        .filterIsInstance<PotatoModuleDependency>()
-                                        .map { with(it) { model.module.get() } }
-                                        .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
-                                        .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
-                                } ?: listOf()
-
-                                for (path in androidDependencyPaths) {
-                                    variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to path)))
-                                }
-
-                                // set classes
-                                variant.registerPostJavacGeneratedBytecode(project.files(requestedModule.moduleJar))
                             }
                         }
                     }

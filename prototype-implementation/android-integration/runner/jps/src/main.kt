@@ -29,12 +29,7 @@ fun main(args: Array<String>) {
     val rClass = run<RClassAndroidBuildResult>(
         AndroidBuildRequest(
             Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
-            /* no dependencies and classes required for preparing (we need to generate R class to use it for populating
-             this list of compiled classes using generated R-class) */
-            listOf(),
-            AndroidBuildRequest.BuildType.Debug,
             AndroidBuildRequest.Phase.Prepare,
-            setOf("/", "/library-module"),
         ), true
     )
     println(rClass)
@@ -45,13 +40,11 @@ fun main(args: Array<String>) {
     val apk = run<ApkPathAndroidBuildResult>(
         AndroidBuildRequest(
             Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
-            listOf(
+            AndroidBuildRequest.Phase.Build,
+            setOf(
                 module,
                 lib
             ),
-            AndroidBuildRequest.BuildType.Debug,
-            AndroidBuildRequest.Phase.Build,
-            setOf("/", "/library-module"),
         ), true
     )
     println(apk)

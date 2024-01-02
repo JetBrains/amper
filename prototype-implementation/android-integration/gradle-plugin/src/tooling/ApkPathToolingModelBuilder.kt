@@ -4,9 +4,7 @@
 
 package tooling
 
-import AndroidBuildResult
 import ApkPathAndroidBuildResult
-import knownModel
 import org.gradle.api.Project
 import org.gradle.tooling.provider.model.ToolingModelBuilder
 import org.jetbrains.amper.frontend.ProductType
@@ -31,31 +29,33 @@ class ApkPathToolingModelBuilder : ToolingModelBuilder {
                 val p = stack.removeFirst()
 
                 projectPathToModule[p.path]?.let {
-                    val buildTypeValue = request?.buildType?.value ?: "debug"
-                    when (it.type) {
-                        ProductType.LIB -> add(
-                            p
-                                .layout
-                                .buildDirectory
-                                .get()
-                                .asFile
-                                .toPath()
-                                .resolve("outputs/apk/$buildTypeValue/app-$buildTypeValue.apk")
-                                .toAbsolutePath()
-                                .toString()
-                        )
 
-                        else -> add(
-                            p
-                                .layout
-                                .buildDirectory
-                                .get()
-                                .asFile
-                                .toPath()
-                                .resolve("outputs/aar/${p.name}-$buildTypeValue.aar")
-                                .toAbsolutePath()
-                                .toString()
-                        )
+                    for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
+                        when (it.type) {
+                            ProductType.LIB -> add(
+                                p
+                                    .layout
+                                    .buildDirectory
+                                    .get()
+                                    .asFile
+                                    .toPath()
+                                    .resolve("outputs/apk/$buildTypeValue/app-$buildTypeValue.apk")
+                                    .toAbsolutePath()
+                                    .toString()
+                            )
+
+                            else -> add(
+                                p
+                                    .layout
+                                    .buildDirectory
+                                    .get()
+                                    .asFile
+                                    .toPath()
+                                    .resolve("outputs/aar/${p.name}-$buildTypeValue.aar")
+                                    .toAbsolutePath()
+                                    .toString()
+                            )
+                        }
                     }
 
                     for (subproject in p.subprojects) {

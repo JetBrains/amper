@@ -33,34 +33,30 @@ configure<AmperAndroidIntegrationExtension> {
 }
 """.trimIndent()
     )
+
     val connection = GradleConnector
         .newConnector()
         .forProjectDirectory(settingsGradleFile.parentFile)
         .connect()
 
-    val taskName = "${
-        when (buildRequest.phase) {
-            AndroidBuildRequest.Phase.Prepare -> "process"
-            AndroidBuildRequest.Phase.Build -> "assemble"
-        }
-    }${
-        when (buildRequest.buildType) {
-            AndroidBuildRequest.BuildType.Debug -> "Debug"
-            AndroidBuildRequest.BuildType.Release -> "Release"
-        }
-    }${
-        when (buildRequest.phase) {
-            AndroidBuildRequest.Phase.Prepare -> "Resources"
-            AndroidBuildRequest.Phase.Build -> ""
-        }
-    }"
-
     val tasks = buildList {
-        for(target in buildRequest.target) {
-            if (target == "/") {
-                add(":$taskName")
+        for (buildType in buildRequest.buildTypes) {
+            val taskPrefix = when (buildRequest.phase) {
+                AndroidBuildRequest.Phase.Prepare -> "prepare"
+                AndroidBuildRequest.Phase.Build -> "assemble"
+            }
+            val taskBuildType = buildType.name
+            val taskName = "$taskPrefix$taskBuildType"
+            if (buildRequest.targets.isEmpty()) {
+                add(taskName)
             } else {
-                add("${target.replace("/", ":")}:$taskName")
+                for (target in buildRequest.targets) {
+                    if (target == "/") {
+                        add(":$taskName")
+                    } else {
+                        add("${target.replace("/", ":")}:$taskName")
+                    }
+                }
             }
         }
     }.toTypedArray()

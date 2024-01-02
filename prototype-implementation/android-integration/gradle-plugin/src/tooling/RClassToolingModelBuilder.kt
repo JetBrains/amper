@@ -4,8 +4,6 @@
 
 package tooling
 
-import AndroidBuildResult
-import ApkPathAndroidBuildResult
 import RClassAndroidBuildResult
 import org.gradle.api.Project
 import org.gradle.tooling.provider.model.ToolingModelBuilder
@@ -31,33 +29,33 @@ class RClassToolingModelBuilder : ToolingModelBuilder {
                 val p = stack.removeFirst()
 
                 projectPathToModule[p.path]?.let {
-                    val buildTypeValue = request?.buildType?.value ?: "debug"
-                    when (it.type) {
-                        ProductType.LIB -> add(
-                            p
-                                .layout
-                                .buildDirectory
-                                .get()
-                                .asFile
-                                .toPath()
-                                .resolve("intermediates/compile_r_class_jar/$buildTypeValue/R.jar")
-                                .toAbsolutePath()
-                                .toString()
-                        )
-                        else -> add(
-                            p
-                                .layout
-                                .buildDirectory
-                                .get()
-                                .asFile
-                                .toPath()
-                                .resolve("intermediates/compile_and_runtime_not_namespaced_r_class_jar/$buildTypeValue/R.jar")
-                                .toAbsolutePath()
-                                .toString()
-                        )
+                    for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
+                        when (it.type) {
+                            ProductType.LIB -> add(
+                                p
+                                    .layout
+                                    .buildDirectory
+                                    .get()
+                                    .asFile
+                                    .toPath()
+                                    .resolve("intermediates/compile_r_class_jar/$buildTypeValue/R.jar")
+                                    .toAbsolutePath()
+                                    .toString()
+                            )
+                            else -> add(
+                                p
+                                    .layout
+                                    .buildDirectory
+                                    .get()
+                                    .asFile
+                                    .toPath()
+                                    .resolve("intermediates/compile_and_runtime_not_namespaced_r_class_jar/$buildTypeValue/R.jar")
+                                    .toAbsolutePath()
+                                    .toString()
+                            )
+                        }
                     }
                 }
-
 
                 for (subproject in p.subprojects) {
                     if (subproject !in alreadyTraversed) {
