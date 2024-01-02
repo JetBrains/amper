@@ -14,7 +14,7 @@ context(SystemInfo)
 fun Module.replaceComposeOsSpecific() = apply {
     fun List<Dependency>.replaceComposeOsSpecific() = mapNotNull {
         if (it !is ExternalMavenDependency) return@mapNotNull it
-        else replaceComposeOsSecific(it)
+        else replaceComposeOsSpecific(it)
     }
 
     fun Map<Modifiers, List<Dependency>>.replaceComposeOsSpecific() =
@@ -26,7 +26,7 @@ fun Module.replaceComposeOsSpecific() = apply {
 }
 
 context(SystemInfo)
-fun replaceComposeOsSecific(other: ExternalMavenDependency) = when {
+fun replaceComposeOsSpecific(other: ExternalMavenDependency) = when {
     other.coordinates.startsWith("org.jetbrains.compose.desktop:desktop-jvm:") ->
         ExternalMavenDependency().apply {
             coordinates = other.coordinates.replace(
