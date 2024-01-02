@@ -133,23 +133,18 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                     )
                                 }
 
-                                // todo:
-                                //  this is potentially dangerous because resolve in Amper coule differ from Gradle
-                                //  resolve, so it's better to hide this feature under the feature flag
-
                                 // set inter-module dependencies between android modules
-                                val androidDependencies = project.gradle.knownModel?.let { model ->
+                                val androidDependencyPaths = project.gradle.knownModel?.let { model ->
                                     androidFragment
                                         .externalDependencies
                                         .filterIsInstance<PotatoModuleDependency>()
                                         .map { with(it) { model.module.get() } }
                                         .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
+                                        .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
                                 } ?: listOf()
 
-                                for (androidDependency in androidDependencies) {
-                                    val projectPath = project.gradle.moduleFilePathToProject[androidDependency.buildDir]
-                                        ?: error("No linked Gradle project found for module ${androidDependency.userReadableName}")
-                                    variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to projectPath)))
+                                for (path in androidDependencyPaths) {
+                                    variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to path)))
                                 }
 
                                 // set classes
