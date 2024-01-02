@@ -5,12 +5,38 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.FileLocation
+import org.jetbrains.amper.frontend.LineAndColumn
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.tomlj.Toml
 import org.tomlj.TomlInvalidTypeException
 import org.tomlj.TomlParseResult
+import org.tomlj.TomlPosition
 import org.tomlj.TomlTable
 import java.nio.file.Path
 
+private data class TomlLibraryDefinition(
+    val libraryString: String,
+    val position: TomlPosition,
+)
+
+private class TomlCatalog(
+    private val libraries: Map<String, TomlLibraryDefinition>,
+    private val path: Path,
+) : VersionCatalog {
+    context(ProblemReporterContext) override fun findInCatalog(
+        key: TraceableString,
+        report: Boolean
+    ): TraceableString? {
+        val library = libraries[key.value] ?: return tryReportCatalogKeyAbsence(key, report)
+        return TraceableString(library.libraryString).apply {
+            trace = FileLocation(
+                path,
+                LineAndColumn(library.position.line(), library.position.column(), null)
+            )
+        }
+    }
+}
 
 /**
  * A gradle compliant version catalog, that supports only:
@@ -20,14 +46,14 @@ import java.nio.file.Path
 context(ProblemReporterContext)
 fun parseGradleVersionCatalog(
     catalogPath: Path
-): PredefinedCatalog? {
+): VersionCatalog? {
     val parsed = Toml.parse(catalogPath)
 //    parsed.errors().forEach {
         // TODO Report parsing errors.
 //    }
     val versions = parsed.parseCatalogVersions()
     val libraries = parsed.parseCatalogLibraries(versions) ?: return null
-    return PredefinedCatalog(libraries)
+    return TomlCatalog(libraries, catalogPath)
 }
 
 context(ProblemReporterContext)
@@ -44,20 +70,21 @@ fun TomlParseResult.parseCatalogVersions(): Map<String, String> {
  * to match "libs.my.lib" format.
  */
 context(ProblemReporterContext)
-fun TomlParseResult.parseCatalogLibraries(
+private fun TomlParseResult.parseCatalogLibraries(
     versions: Map<String, String>,
-): Map<String, String>? {
+): Map<String, TomlLibraryDefinition>? {
     fun String.normalizeLibraryKey() = "libs." + replace("-", ".")
 
     val librariesTable = getTableOrNull("libraries") ?: return null
     val librariesAliases = librariesTable.keySet() ?: return null
     return buildMap {
         librariesAliases.forEach { alias ->
+            val position = librariesTable.inputPositionOf(alias) ?: return@forEach
             val aliasKey = alias.normalizeLibraryKey()
 
             // my-lib = "com.mycompany:mylib:1.4"
             val libraryString = librariesTable.getStringOrNull(alias)
-            if (libraryString != null) put(aliasKey, libraryString)
+            if (libraryString != null) put(aliasKey, TomlLibraryDefinition(libraryString, position))
 
             // my-lib = { module = "com.mycompany:mylib", version = "1.4" }
             val libraryTable = librariesTable.getTableOrNull(alias)
@@ -76,7 +103,7 @@ fun TomlParseResult.parseCatalogLibraries(
                 }
                 // Just skip libraries without module or version.
                 if (finalLibraryModule != null && finalVersion != null) {
-                    put(aliasKey, "$finalLibraryModule:$finalVersion")
+                    put(aliasKey, TomlLibraryDefinition("$finalLibraryModule:$finalVersion", position))
                 }
             }
         }
@@ -88,3 +115,4 @@ fun TomlTable.getStringOrNull(dottedPath: String): String? =
 
 fun TomlTable.getTableOrNull(dottedPath: String): TomlTable? =
     try { getTable(dottedPath) } catch (ex: TomlInvalidTypeException) { null }
+

@@ -33,9 +33,11 @@ fun Module.replaceCatalogDependencies(
             it::catalogKey.toTraceableString()
         ) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
-            coordinates = catalogValue
+            coordinates = catalogValue.value
             exported = it.exported
             scope = it.scope
+
+            trace = catalogValue.trace
         }
     }
 
@@ -59,7 +61,7 @@ interface VersionCatalog {
     fun findInCatalog(
         key: TraceableString,
         report: Boolean = true,
-    ): String?
+    ): TraceableString?
 
     context(ProblemReporterContext)
     fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
@@ -88,7 +90,7 @@ open class PredefinedCatalog(
     override fun findInCatalog(
         key: TraceableString,
         report: Boolean,
-    ): String? = map[key.value] ?: tryReportCatalogKeyAbsence(key, report)
+    ): TraceableString? = map[key.value]?.let(::TraceableString) ?: tryReportCatalogKeyAbsence(key, report)
 }
 
 /**
@@ -105,6 +107,10 @@ class CompositeVersionCatalog(
     ) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key, false) }
         ?: tryReportCatalogKeyAbsence(key, report)
 }
+
+sealed interface VersionCatalogTrace
+
+data object BuiltInCatalogTrace : VersionCatalogTrace
 
 object BuiltInCatalog : PredefinedCatalog({
     // Add kotlin-test.
@@ -140,6 +146,7 @@ object BuiltInCatalog : PredefinedCatalog({
     put("compose.desktop.macos_arm64", "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:$composeVersion")
     put("compose.desktop.uiTestJUnit4", "org.jetbrains.compose.ui:ui-test-junit4:$composeVersion")
 }) {
+    data object BuiltInCatalogTrace
 
     private val systemInfo = DefaultSystemInfo
 
@@ -147,11 +154,13 @@ object BuiltInCatalog : PredefinedCatalog({
     override fun findInCatalog(
         key: TraceableString,
         report: Boolean,
-    ) = when (key.value) {
+    ): TraceableString? = when (key.value) {
         // Handle os detection as compose do.
         "compose.desktop.currentOs" -> systemInfo.detect().familyArch
-            .let { "org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}" }
+            .let { TraceableString("org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}") }
 
         else -> super.findInCatalog(key, report)
+    }.also {
+        it?.trace = BuiltInCatalogTrace
     }
 }
