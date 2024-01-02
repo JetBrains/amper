@@ -8,6 +8,8 @@ import java.time.Instant
 import java.util.*
 
 object AmperBuild {
+    const val PRODUCT_NAME = "Amper"
+
     val isSNAPSHOT: Boolean
     val BuildNumber: String
     val CommitHash: String?

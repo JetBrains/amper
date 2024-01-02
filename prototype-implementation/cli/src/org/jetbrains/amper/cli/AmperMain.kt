@@ -1,9 +1,11 @@
 package org.jetbrains.amper.cli
 
+import org.jetbrains.amper.core.AmperBuild
 import org.slf4j.LoggerFactory
 import org.tinylog.jul.JulTinylogBridge
 import picocli.CommandLine.Command
 import picocli.CommandLine.Help
+import picocli.CommandLine.IVersionProvider
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
 import java.nio.file.Path
@@ -13,7 +15,7 @@ import java.util.concurrent.Callable
 @Command(
     name = "amper",
     mixinStandardHelpOptions = true,
-    version = ["amper early years"],
+    versionProvider = AmperMain.VersionProvider::class,
     description = ["Amper entry point"]
 )
 class AmperMain : Callable<Int> {
@@ -46,6 +48,10 @@ class AmperMain : Callable<Int> {
         val projectContext = ProjectContext.create(root)
 
         return AmperBackend.run(context = projectContext, tasksToRun = tasksToRun)
+    }
+
+    internal class VersionProvider: IVersionProvider {
+        override fun getVersion(): Array<String> = arrayOf("${AmperBuild.PRODUCT_NAME} ${AmperBuild.BuildNumber}")
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
