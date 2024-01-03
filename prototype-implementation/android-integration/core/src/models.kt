@@ -13,10 +13,10 @@ data class ResolvedDependency(
 
 @Serializable
 data class AndroidModuleData(
-    val modulePath: String, // relative module path from root in format "/path/to/module"
+    val modulePath: String, // relative module path from root in Gradle format ":path:to:module"
     @Serializable(with = PathAsStringSerializer::class)
-    val moduleJar: Path,
-    val resolvedAndroidRuntimeDependencies: List<ResolvedDependency>
+    val moduleClasses: Path? = null,
+    val resolvedAndroidRuntimeDependencies: List<ResolvedDependency> = listOf()
 )
 
 @Serializable

@@ -102,7 +102,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             .gradle
                             .request
                             ?.modules
-                            ?.associate { ":${it.modulePath.replace("/", ":")}" to it } ?: mapOf()
+                            ?.associate { it.modulePath to it } ?: mapOf()
 
                         androidExtension.sourceSets.matching { it.name == "main" }.all {
                             // todo: AndroidManifest actually should be in src/, change it when build jars by ourselves
@@ -145,10 +145,13 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                     val androidDependencyPaths = project.gradle.knownModel?.let { model ->
                                         androidFragment
                                             .externalDependencies
+                                            .asSequence()
                                             .filterIsInstance<PotatoModuleDependency>()
                                             .map { with(it) { model.module.get() } }
                                             .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
                                             .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
+                                            .filter { it in requestedModules }
+                                            .toList()
                                     } ?: listOf()
 
                                     for (path in androidDependencyPaths) {
@@ -156,7 +159,10 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                     }
 
                                     // set classes
-                                    variant.registerPostJavacGeneratedBytecode(project.files(requestedModule.moduleJar))
+
+                                    requestedModule.moduleClasses?.let {
+                                        variant.registerPostJavacGeneratedBytecode(project.files(it))
+                                    }
                                 }
                             }
                         }

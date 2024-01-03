@@ -29,30 +29,32 @@ class RClassToolingModelBuilder : ToolingModelBuilder {
                 val p = stack.removeFirst()
 
                 projectPathToModule[p.path]?.let {
-                    for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
-                        when (it.type) {
-                            ProductType.LIB -> add(
-                                p
-                                    .layout
-                                    .buildDirectory
-                                    .get()
-                                    .asFile
-                                    .toPath()
-                                    .resolve("intermediates/compile_r_class_jar/$buildTypeValue/R.jar")
-                                    .toAbsolutePath()
-                                    .toString()
-                            )
-                            else -> add(
-                                p
-                                    .layout
-                                    .buildDirectory
-                                    .get()
-                                    .asFile
-                                    .toPath()
-                                    .resolve("intermediates/compile_and_runtime_not_namespaced_r_class_jar/$buildTypeValue/R.jar")
-                                    .toAbsolutePath()
-                                    .toString()
-                            )
+                    if (p.path in (project.gradle.request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
+                        for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
+                            when (it.type) {
+                                ProductType.LIB -> add(
+                                    p
+                                        .layout
+                                        .buildDirectory
+                                        .get()
+                                        .asFile
+                                        .toPath()
+                                        .resolve("intermediates/compile_r_class_jar/$buildTypeValue/R.jar")
+                                        .toAbsolutePath()
+                                        .toString()
+                                )
+                                else -> add(
+                                    p
+                                        .layout
+                                        .buildDirectory
+                                        .get()
+                                        .asFile
+                                        .toPath()
+                                        .resolve("intermediates/compile_and_runtime_not_namespaced_r_class_jar/$buildTypeValue/R.jar")
+                                        .toAbsolutePath()
+                                        .toString()
+                                )
+                            }
                         }
                     }
                 }

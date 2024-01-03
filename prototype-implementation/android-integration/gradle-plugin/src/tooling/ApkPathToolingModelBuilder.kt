@@ -29,32 +29,33 @@ class ApkPathToolingModelBuilder : ToolingModelBuilder {
                 val p = stack.removeFirst()
 
                 projectPathToModule[p.path]?.let {
+                    if (p.path in (project.gradle.request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
+                        for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
+                            when (it.type) {
+                                ProductType.ANDROID_APP -> add(
+                                    p
+                                        .layout
+                                        .buildDirectory
+                                        .get()
+                                        .asFile
+                                        .toPath()
+                                        .resolve("outputs/apk/$buildTypeValue/${p.name}-$buildTypeValue.apk")
+                                        .toAbsolutePath()
+                                        .toString()
+                                )
 
-                    for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
-                        when (it.type) {
-                            ProductType.LIB -> add(
-                                p
-                                    .layout
-                                    .buildDirectory
-                                    .get()
-                                    .asFile
-                                    .toPath()
-                                    .resolve("outputs/apk/$buildTypeValue/app-$buildTypeValue.apk")
-                                    .toAbsolutePath()
-                                    .toString()
-                            )
-
-                            else -> add(
-                                p
-                                    .layout
-                                    .buildDirectory
-                                    .get()
-                                    .asFile
-                                    .toPath()
-                                    .resolve("outputs/aar/${p.name}-$buildTypeValue.aar")
-                                    .toAbsolutePath()
-                                    .toString()
-                            )
+                                else -> add(
+                                    p
+                                        .layout
+                                        .buildDirectory
+                                        .get()
+                                        .asFile
+                                        .toPath()
+                                        .resolve("outputs/aar/${p.name}-$buildTypeValue.aar")
+                                        .toAbsolutePath()
+                                        .toString()
+                                )
+                            }
                         }
                     }
 

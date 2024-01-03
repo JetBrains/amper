@@ -51,10 +51,10 @@ configure<AmperAndroidIntegrationExtension> {
                 add(taskName)
             } else {
                 for (target in buildRequest.targets) {
-                    if (target == "/") {
+                    if (target == ":") {
                         add(":$taskName")
                     } else {
-                        add("${target.replace("/", ":")}:$taskName")
+                        add("$target:$taskName")
                     }
                 }
             }
