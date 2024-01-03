@@ -26,7 +26,7 @@ Supported features:
 * [Multi-module](docs/Documentation.md#internal-dependencies) projects.
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
-* Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
+* Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA, Android Studio and Fleet.
 
 Planned features:
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
@@ -57,8 +57,9 @@ You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062
 ## How to Try
 There are multiple ways to try Amper:
 
-* In [IntelliJ IDEA 2023.3](/docs/Usage.md#using-amper-in-intellij-idea), for JVM and Android projects.
+* In [IntelliJ IDEA 2023.3](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio), for JVM and Android projects.
 * In [JetBrains Fleet](/docs/Usage.md#using-amper-in-fleet), for the JVM, Android, and Kotlin Multiplatform projects.
+* In [Android Studio 2023.3](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio), for JVM and Android projects.
 * Using Gradle to build Amper projects [from the CLI or CI/CD](/docs/Usage.md#using-amper-from-command-line).
 
 ## Examples
