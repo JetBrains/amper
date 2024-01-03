@@ -1,2 +1,4 @@
+root = true
+
 [{*.yaml,*.yml}]
 indent_size = 2
