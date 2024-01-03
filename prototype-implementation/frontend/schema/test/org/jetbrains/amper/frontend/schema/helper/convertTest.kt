@@ -4,14 +4,12 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import org.jetbrains.amper.frontend.schema.EqualsVisitor
 import org.jetbrains.amper.frontend.ismVisitor.accept
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.schema.EqualsVisitor
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertModule
-import org.jetbrains.amper.frontend.schemaConverter.convertModuleViaSnake
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.convertModulePsi
 import java.nio.file.Path
 import kotlin.io.path.reader
 
@@ -33,7 +31,7 @@ class ConvertTestRun(
                 convertModule (usePsiConverter) { inputPath.reader() }
             }
         }
-        ConversionTracesVisitor().visit(module)
+        TestTraceValidationVisitor().visit(module)
         expectedModule?.accept(EqualsVisitor(module))
         return ctx.problemReporter.getErrors().map { it.message }.joinToString()
     }

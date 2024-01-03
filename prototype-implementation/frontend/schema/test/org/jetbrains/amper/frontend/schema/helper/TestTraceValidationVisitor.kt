@@ -2,7 +2,6 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.schema.Module
@@ -10,10 +9,11 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.test.assertNotNull
 
 /**
- * Visitor that invokes all validation handlers.
+ * Test visitor that verifies, that traces are set up correctly for every converted node and
+ * attribute.
  */
 context(ProblemReporterContext)
-class ConversionTracesVisitor: SchemaValuesVisitor() {
+class TestTraceValidationVisitor: SchemaValuesVisitor() {
   override fun visitNode(it: SchemaNode): Unit? {
     with(it) {
       if (it::class !in nonTraceableNodes) {
