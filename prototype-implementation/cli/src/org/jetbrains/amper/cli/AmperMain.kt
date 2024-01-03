@@ -29,15 +29,6 @@ class AmperMain : Callable<Int> {
     )
     var projectRoot: Path? = null
 
-    // Provided by amper script
-    @Suppress("unused")
-    @Option(
-        names = ["--from-sources"],
-        description = ["Internal flag used by Amper script"],
-        hidden = true,
-    )
-    var fromSources: Boolean = false
-
     override fun call(): Int {
         // TODO think of a better place to activate it. e.g. we need it in tests too
         JulTinylogBridge.activate()
