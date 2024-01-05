@@ -36,8 +36,7 @@ class MavenCacheDirectoryTest {
 
     @Test
     fun `get path`() {
-        val sha1 = randomString()
-        val path = cache.getPath(kotlinTest(), "jar", sha1)
+        val path = cache.getPath(kotlinTest(), "jar", randomString().toByteArray())
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

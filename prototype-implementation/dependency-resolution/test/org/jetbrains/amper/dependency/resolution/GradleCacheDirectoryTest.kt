@@ -33,7 +33,7 @@ class GradleCacheDirectoryTest {
         var path = cache.guessPath(node, "jar")
         assertNull(path)
 
-        val sha1 = randomString()
+        val sha1 = computeHash("sha1", randomString().toByteArray())
         assertTrue(
             File(
                 temp,
@@ -49,7 +49,7 @@ class GradleCacheDirectoryTest {
 
     @Test
     fun `guess path with variant`() {
-        val sha1 = randomString()
+        val sha1 = computeHash("sha1", randomString().toByteArray())
         val node = kotlinTest().also {
             it.variant = Variant(
                 "",
@@ -75,8 +75,9 @@ class GradleCacheDirectoryTest {
 
     @Test
     fun `get path`() {
-        val sha1 = randomString()
-        val path = cache.getPath(kotlinTest(), "jar", sha1)
+        val bytes = randomString().toByteArray()
+        val sha1 = computeHash("sha1", bytes)
+        val path = cache.getPath(kotlinTest(), "jar", bytes)
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

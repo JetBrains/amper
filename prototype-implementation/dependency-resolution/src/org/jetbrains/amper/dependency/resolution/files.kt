@@ -22,7 +22,7 @@ import kotlin.io.path.readText
 
 interface CacheDirectory {
     fun guessPath(dependency: MavenDependency, extension: String): Path?
-    fun getPath(dependency: MavenDependency, extension: String, sha1: String): Path
+    fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path
 }
 
 class GradleCacheDirectory(private val files: Path) : CacheDirectory {
@@ -50,9 +50,10 @@ class GradleCacheDirectory(private val files: Path) : CacheDirectory {
         }.findAny().orElse(null)
     }
 
-    override fun getPath(dependency: MavenDependency, extension: String, sha1: String): Path {
+    override fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path {
         val location = getLocation(dependency)
         val name = getName(dependency, extension)
+        val sha1 = computeHash("sha1", bytes)
         return location.resolve(sha1).resolve(name)
     }
 
@@ -72,7 +73,7 @@ class MavenCacheDirectory(private val repository: Path) : CacheDirectory {
     override fun guessPath(dependency: MavenDependency, extension: String): Path =
         repository.resolve(getLocation(dependency)).resolve(getName(dependency, extension))
 
-    override fun getPath(dependency: MavenDependency, extension: String, sha1: String): Path =
+    override fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path =
         guessPath(dependency, extension)
 
     private fun getLocation(node: MavenDependency) =
@@ -108,11 +109,13 @@ class DependencyFile(
         return false
     }
 
-    private fun download(file: Path, repository: String, progress: Progress): Boolean {
+    private fun download(file: Path, repository: String, progress: Progress, verify: Boolean = true): Boolean {
         if (FileOutputStream(file.toFile()).use { download(repository, extension, it) }) {
             val bytes = file.readBytes()
-            val sha1 = verifyAndGetSha1(bytes, repository, progress)
-            val target = cacheDirectory.getPath(dependency, extension, sha1)
+            if (verify && !verify(bytes, repository, progress)) {
+                return false
+            }
+            val target = cacheDirectory.getPath(dependency, extension, bytes)
             try {
                 Files.createDirectories(target.parent)
                 file.moveTo(target, true)
@@ -128,8 +131,9 @@ class DependencyFile(
         return false
     }
 
-    private fun verifyAndGetSha1(bytes: ByteArray, repository: String, progress: Progress): String {
-        for (algorithm in listOf("sha512", "sha256", "sha1", "md5")) {
+    private fun verify(bytes: ByteArray, repository: String, progress: Progress): Boolean {
+        val algorithms = listOf("sha512", "sha256", "sha1", "md5")
+        for (algorithm in algorithms) {
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress) ?: continue
             val actualHash = computeHash(algorithm, bytes)
             if (expectedHash != actualHash) {
@@ -139,22 +143,15 @@ class DependencyFile(
                     Severity.ERROR,
                 )
             } else {
-                if (algorithm == "sha1") {
-                    return expectedHash
-                }
-                break
+                return true
             }
         }
-        val actualSha1 = computeHash("sha1", bytes)
-        val expectedSha1 = getOrDownloadExpectedHash("sha1", repository, progress) ?: return actualSha1
-        if (expectedSha1 != actualSha1) {
-            dependency.messages += Message(
-                "Hashes don't match for sha1",
-                "expected: $expectedSha1, actual: $actualSha1",
-                Severity.ERROR,
-            )
-        }
-        return expectedSha1
+        dependency.messages += Message(
+            "Unable to download checksums for $algorithms",
+            repository,
+            Severity.ERROR,
+        )
+        return false
     }
 
     private fun getOrDownloadExpectedHash(algorithm: String, repository: String, progress: Progress) =
@@ -170,7 +167,7 @@ class DependencyFile(
     private fun getHashFromMavenCacheDirectory(algorithm: String, repository: String, progress: Progress): String? {
         if (cacheDirectory !is MavenCacheDirectory) return null
         val hashFile = DependencyFile(listOf(cacheDirectory), dependency, "$extension.$algorithm")
-        return if (hashFile.isDownloaded() || hashFile.download(createTempFile(), repository, progress)) {
+        return if (hashFile.isDownloaded() || hashFile.download(createTempFile(), repository, progress, false)) {
             hashFile.readText()
         } else {
             null
@@ -185,21 +182,6 @@ class DependencyFile(
                 null
             }
         }
-
-    private fun computeHash(algorithm: String, bytes: ByteArray): String {
-        val messageDigest = MessageDigest.getInstance(algorithm)
-        messageDigest.update(bytes, 0, bytes.size)
-        val hash = messageDigest.digest()
-        return toHex(hash)
-    }
-
-    private fun toHex(bytes: ByteArray): String {
-        val result = StringBuilder()
-        for (b in bytes) {
-            result.append(((b.toInt() and 0xFF) + 0x100).toString(16).substring(1))
-        }
-        return result.toString()
-    }
 
     private fun download(it: String, extension: String, os: OutputStream): Boolean {
         val url = it +
@@ -234,3 +216,18 @@ internal fun getName(node: MavenDependency, extension: String): String = "${node
 
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variant?.files?.singleOrNull { it.name == name }
+
+internal fun computeHash(algorithm: String, bytes: ByteArray): String {
+    val messageDigest = MessageDigest.getInstance(algorithm)
+    messageDigest.update(bytes, 0, bytes.size)
+    val hash = messageDigest.digest()
+    return toHex(hash)
+}
+
+private fun toHex(bytes: ByteArray): String {
+    val result = StringBuilder()
+    for (b in bytes) {
+        result.append(((b.toInt() and 0xFF) + 0x100).toString(16).substring(1))
+    }
+    return result.toString()
+}
