@@ -4,22 +4,22 @@
 
 package org.jetbrains.amper
 
-import com.google.common.util.concurrent.Futures
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.jetbrains.amper.processes.ProcessResult
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.processes.awaitAndGetAllOutput
+import org.jetbrains.amper.processes.withGuaranteedTermination
 import org.jetbrains.amper.util.ShellQuoting
-import org.jetbrains.amper.util.UnboundedExecutor
 import org.slf4j.LoggerFactory
-import java.io.InputStream
-import java.io.PrintStream
+import java.io.IOException
 import java.nio.file.Path
-import java.util.concurrent.Callable
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.deleteIfExists
@@ -47,41 +47,59 @@ object BuildPrimitives {
         }
     }
 
-    // TODO sometimes handling entire stdout/stderr in memory won't work
+    /**
+     * Starts a new process with the given [command] in [workingDir], and awaits the result.
+     * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
+     * part of the returned [ProcessResult].
+     *
+     * It is not supported to write to the standard input of the started process.
+     *
+     * If this function is cancelled before the process has terminated, it kills the process (first normally then
+     * forcibly), and cleans the stream readers. If the process is not killable and hangs, this function will also hang
+     * instead of returning (otherwise the zombie process could leak).
+     *
+     * **Note:** since the blocking reads of standard streams are not cancellable, this function may have to wait for
+     * the read of the current line to complete before returning. This is to ensure no coroutines are leaked.
+     * This wait should be reasonable anyway because the process is killed on cancellation, so no more output should be
+     * written in that case.
+     */
+    // TODO sometimes capturing the entire stdout/stderr in memory won't work
     //  do we want to offload big (and probably only big outputs) to the disk?
-    class ProcessResult(val exitCode: Int, val stdout: String, val stderr: String)
-    suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult {
-        // make it all cancellable and running in a different context
-        @Suppress("BlockingMethodInNonBlockingContext")
-        val process = ProcessBuilder()
-            .command(*command.toTypedArray())
-            .directory(workingDir.toFile())
-            .start()
+    suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult =
+        withContext(Dispatchers.IO) {
+            val process = ProcessBuilder(command)
+                .directory(workingDir.toFile())
+                .start()
 
-        // we are not interested whether this operation fails or timeouts
-        Futures.submit({ try {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            process.outputStream.close()
-        } catch (t: Throwable) {
-            logger.warn("Unable to close process stdin: ${t.message}", t)
-        }}, UnboundedExecutor.INSTANCE)
+            process.withGuaranteedTermination {
+                try {
+                    process.outputStream.close()
+                } catch (t: IOException) {
+                    // we are not interested whether this operation fails
+                    logger.warn("Unable to close process stdin: ${t.message}", t)
+                }
+                process.awaitAndGetAllOutput(
+                    onStdoutLine = System.out::println,
+                    onStderrLine = System.err::println,
+                )
+            }
+        }
 
-        // we may receive waitFor earlier than we read all pipes
-        // also read from non-networking streams is not cancellable, so do it with real threads on background
-        val stdoutJob = Futures.submit(Callable { readStreamAndPrintToConsole(process.inputStream, System.out) }, UnboundedExecutor.INSTANCE)
-        val stderrJob = Futures.submit(Callable { readStreamAndPrintToConsole(process.errorStream, System.err) }, UnboundedExecutor.INSTANCE)
-
-        // TODO must terminate the process as well, better on background
-        //  cancellation should be covered by tests, it's almost impossible to get it right from the first time
-        val rc = runInterruptible { process.waitFor() }
-
-        val stdout = runInterruptible { stdoutJob.get() }.toString()
-        val stderr = runInterruptible { stderrJob.get() }.toString()
-
-        val result = ProcessResult(exitCode = rc, stdout = stdout, stderr = stderr)
-        return result
-    }
-
+    /**
+     * Starts a new process with the given [command] in [workingDir], and awaits the result.
+     * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
+     * part of the result. The result (exit code, stdout, stderr) is recorded in the provided [span].
+     *
+     * It is not supported to write to the standard input of the started process.
+     *
+     * If this function is cancelled before the process has terminated, it kills the process (first normally then
+     * forcibly), and cleans the stream readers. If the process is not killable and hangs, this function will also hang
+     * instead of returning (otherwise the zombie process could leak).
+     *
+     * **Note:** since the blocking reads of standard streams are not cancellable, this function may have to wait for
+     * the read of the current line to complete before returning. This is to ensure no threads are leaked.
+     * This wait should be reasonable anyway because the process is killed, so no more output should be written.
+     */
     suspend fun runProcessAndAssertExitCode(command: List<String>, workingDir: Path, span: Span) {
         require(command.isNotEmpty())
 
@@ -118,15 +136,6 @@ object BuildPrimitives {
                     from.copyToRecursively(to, overwrite = overwrite, followLinks = followLinks)
                 }
             }
-    }
-
-    private fun readStreamAndPrintToConsole(inputStream: InputStream, consoleStream: PrintStream): StringBuilder {
-        val sb = StringBuilder()
-        inputStream.reader().forEachLine {
-            sb.appendLine(it)
-            consoleStream.println(it)
-        }
-        return sb
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
