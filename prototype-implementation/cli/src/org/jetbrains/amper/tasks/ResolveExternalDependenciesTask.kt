@@ -9,12 +9,19 @@ import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
+
+val defaultRepositories = listOf(
+    "https://repo1.maven.org/maven2",
+    "https://maven.google.com/",
+    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+)
 
 class ResolveExternalDependenciesTask(private val module: PotatoModule, private val fragment: Fragment, private val userCacheRoot: AmperUserCacheRoot, private val taskName: TaskName, private val executeOnChangedInputs: ExecuteOnChangedInputs): Task {
 
@@ -23,6 +30,8 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url }
+            ?: listOf()).ifEmpty { defaultRepositories }
         val compileDependencies = fragment.externalDependencies
             .filterIsInstance<MavenDependency>()
             .filter { it.compile }
@@ -42,10 +51,10 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
         )
 
         val paths = executeOnChangedInputs.execute(taskName.toString(), configuration, emptyList()) {
-            return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies).toList())
+            return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies, repositories).toList())
         }.outputs
 
-        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
         return TaskResult(classpath = paths, dependencies = dependenciesResult)
     }
