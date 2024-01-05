@@ -22,7 +22,7 @@ class MavenResolverTest {
         val root = tempDir.toPath()
         val resolver = MavenResolver(AmperUserCacheRoot(root))
 
-        val result = resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"))
+        val result = resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
         val relative = result.map { it.relativeTo(root).toString().replace('\\', '/') }.sorted()
         assertEquals(
             listOf(
@@ -42,7 +42,7 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
-        val result = resolver.resolve(coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"))
+        val result = resolver.resolve(coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
         val relative = result.map { it.relativeTo(tempDir.toPath()).toString().replace('\\', '/') }.sorted()
         assertEquals(
             listOf(".m2.cache/org/tinylog/tinylog-api/2.7.0-M1/tinylog-api-2.7.0-M1.jar"),
@@ -55,7 +55,7 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         val t = assertThrows<MavenResolverException> {
-            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999"))
+            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999"), listOf("https://repo1.maven.org/maven2"))
         }
         assertEquals(
             "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
@@ -68,7 +68,7 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         val t = assertThrows<MavenResolverException> {
-            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"))
+            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"), listOf("https://repo1.maven.org/maven2"))
         }
         assertEquals(
             "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
