@@ -1,10 +1,9 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.resolver
 
-import org.eclipse.aether.transfer.ArtifactNotFoundException
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
@@ -55,20 +54,30 @@ class MavenResolverTest {
     fun negativeResolveSingleCoordinates() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
-        assertThrows<ArtifactNotFoundException>("Could not find artifact org.tinylog:slf4j-tinylog:jar:9999 in central (https://repo.maven.apache.org/maven2)") {
+        val t = assertThrows<MavenResolverException> {
             resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999"))
         }
+        assertEquals(
+            "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            t.message
+        )
     }
 
     @Test
     fun negativeResolveMultipleCoordinates() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
-        try {
+        val t = assertThrows<MavenResolverException> {
             resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"))
-        } catch (t: ArtifactNotFoundException) {
-            assertEquals("Could not find artifact org.tinylog:slf4j-tinylog:jar:9999 in central (https://repo.maven.apache.org/maven2)", t.message)
-            assertEquals("Could not find artifact org.tinylog:xxx:jar:9998 in central (https://repo.maven.apache.org/maven2)", t.suppressed.single().message)
         }
+        assertEquals(
+            "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            t.message
+        )
+        assertEquals(
+            "Either metadata or pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])",
+            t.suppressed.single().message
+        )
+        return
     }
 }
