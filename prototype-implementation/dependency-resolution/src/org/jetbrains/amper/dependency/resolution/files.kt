@@ -6,7 +6,6 @@ package org.jetbrains.amper.dependency.resolution
 
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -14,11 +13,9 @@ import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
-import kotlin.io.path.createTempFile
-import kotlin.io.path.moveTo
 import kotlin.io.path.name
-import kotlin.io.path.readBytes
 import kotlin.io.path.readText
+import kotlin.io.path.writeBytes
 
 interface CacheDirectory {
     fun guessPath(dependency: MavenDependency, extension: String): Path?
@@ -100,25 +97,22 @@ class DependencyFile(
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
     fun download(resolver: Resolver): Boolean {
-        val file = createTempFile()
-        for (repository in resolver.settings.repositories) {
-            if (download(file, repository, resolver.settings.progress)) {
-                return true
-            }
-        }
-        return false
+        return resolver.settings.repositories.find { download(it, resolver.settings.progress) }?.also {
+            dependency.messages += Message("Downloaded from $it")
+        } != null
     }
 
-    private fun download(file: Path, repository: String, progress: Progress, verify: Boolean = true): Boolean {
-        if (FileOutputStream(file.toFile()).use { download(repository, extension, it) }) {
-            val bytes = file.readBytes()
+    private fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
+        val baos = ByteArrayOutputStream()
+        if (download(repository, extension, baos)) {
+            val bytes = baos.toByteArray()
             if (verify && !verify(bytes, repository, progress)) {
                 return false
             }
             val target = cacheDirectory.getPath(dependency, extension, bytes)
             try {
                 Files.createDirectories(target.parent)
-                file.moveTo(target, true)
+                target.writeBytes(bytes)
                 return true
             } catch (e: IOException) {
                 dependency.messages += Message(
@@ -167,7 +161,7 @@ class DependencyFile(
     private fun getHashFromMavenCacheDirectory(algorithm: String, repository: String, progress: Progress): String? {
         if (cacheDirectory !is MavenCacheDirectory) return null
         val hashFile = DependencyFile(listOf(cacheDirectory), dependency, "$extension.$algorithm")
-        return if (hashFile.isDownloaded() || hashFile.download(createTempFile(), repository, progress, false)) {
+        return if (hashFile.isDownloaded() || hashFile.download(repository, progress, false)) {
             hashFile.readText()
         } else {
             null
