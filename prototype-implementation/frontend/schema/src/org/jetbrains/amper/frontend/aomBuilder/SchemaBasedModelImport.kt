@@ -4,28 +4,35 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.ReaderCtx
-import java.io.Reader
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.reader
 
 class SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(ProblemReporterContext)
     override fun getModel(root: Path): Result<Model> {
-        // TODO Replace default reader by something other.
-        // TODO Report non existing file.
-        val path2Reader: (Path) -> Reader? = { it.takeIf { it.exists() }?.reader() }
         val fioCtx = DefaultFioContext(root)
-        val resultModules = doBuild(ReaderCtx(path2Reader), fioCtx,)
+        val pathResolver = FrontendPathResolver()
+        val resultModules = doBuild(pathResolver, fioCtx,)
+            ?: return amperFailure()
+        // Propagate parts from fragment to fragment.
+        return DefaultModel(resultModules + fioCtx.gradleModules.values).resolved.asAmperSuccess()
+    }
+
+    context(ProblemReporterContext)
+    override fun getModel(root: PsiFile, project: Project): Result<Model> {
+        val fioCtx = DefaultFioContext(root.virtualFile.toNioPath())
+        val pathResolver = FrontendPathResolver(project = project)
+        val resultModules = doBuild(pathResolver, fioCtx,)
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values).resolved.asAmperSuccess()

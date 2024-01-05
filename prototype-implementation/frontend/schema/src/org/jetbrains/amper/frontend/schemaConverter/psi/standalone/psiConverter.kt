@@ -21,7 +21,7 @@ import org.jetbrains.yaml.psi.YAMLDocument
 import java.io.Reader
 import javax.swing.Icon
 
-fun getPsiRawModel(reader: Reader): PsiElement {
+fun getPsiRawModel(reader: Reader): PsiFile {
   val project: Project = DummyProject.instance
 
   initPsiFileFactory({}, project)
@@ -30,7 +30,7 @@ fun getPsiRawModel(reader: Reader): PsiElement {
   val text = reader.readText().replace("\r\n", "\n")
   val psiFile = createPsiFileFromText(text, psiManager)
   PsiFileFactoryImpl.markGenerated(psiFile)
-  return psiFile.children.first()
+  return psiFile
 }
 
 private fun createPsiFileFromText(text: String, manager: PsiManager): PsiFile {
@@ -66,15 +66,28 @@ private fun createPsiFileFromText(text: String, manager: PsiManager): PsiFile {
 
 context(ProblemReporterContext, ConvertCtx)
 fun convertModulePsi(reader: () -> Reader): Module {
-  val rootNode = getPsiRawModel(reader())
+  val psiFile = getPsiRawModel(reader())
+  return convertModulePsi(psiFile)
+}
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertModulePsi(psiFile: PsiFile): Module {
+  val rootNode = psiFile.children.first()
   // TODO Add reporting.
   if (rootNode !is YAMLDocument) return Module()
   return rootNode.convertModule()
 }
 
+
 context(ProblemReporterContext, ConvertCtx)
 fun convertTemplatePsi(reader: () -> Reader): Template {
-  val rootNode = getPsiRawModel(reader())
+  val psiFile = getPsiRawModel(reader())
+  return convertTemplatePsi(psiFile)
+}
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertTemplatePsi(psiFile: PsiFile): Template {
+  val rootNode = psiFile.children.first()
   if (rootNode !is YAMLDocument) return Template()
   return rootNode.convertBase(Template())
 }

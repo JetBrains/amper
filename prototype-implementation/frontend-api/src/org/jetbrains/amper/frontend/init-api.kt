@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
@@ -20,8 +22,9 @@ interface ModelInit {
 
         context(ProblemReporterContext)
         @UsedInIdePlugin
-        fun loadModelInitService(): Result<ModelInit> {
-            val services = ServiceLoader.load(ModelInit::class.java).associateBy { it.name }
+
+        fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
+            val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"))
                 return amperFailure()
@@ -29,6 +32,7 @@ interface ModelInit {
 
             val modelName = System.getProperty(MODEL_NAME_PROPERTY)
                 ?: System.getenv(MODEL_NAME_ENV)
+//                ?: "schema-based"
                 ?: "plain"
             val service = services[modelName]
             return if (service == null) {
@@ -40,8 +44,13 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
-        fun getModel(root: Path): Result<Model> {
-            return loadModelInitService().flatMap { it.getModel(root) }
+        fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
+            return loadModelInitService(loader).flatMap { it.getModel(root) }
+        }
+
+        context(ProblemReporterContext)
+        fun getModel(root: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
+            return loadModelInitService(loader).flatMap { it.getModel(root, project) }
         }
     }
 
@@ -52,4 +61,7 @@ interface ModelInit {
 
     context(ProblemReporterContext)
     fun getModel(root: Path): Result<Model>
+
+    context(ProblemReporterContext)
+    fun getModel(root: PsiFile, project: Project): Result<Model>
 }

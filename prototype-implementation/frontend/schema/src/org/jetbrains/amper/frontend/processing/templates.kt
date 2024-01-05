@@ -5,18 +5,19 @@
 package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.ReaderCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.convertTemplate
 import java.nio.file.Path
 
-context(ProblemReporterContext, ReaderCtx)
+context(ProblemReporterContext, FrontendPathResolver)
 fun Module.readTemplatesAndMerge(): Module {
-    fun readTemplate(path: Path): Template? = path2Reader(path)?.let {
-        with(ConvertCtx(path.parent)) { convertTemplate{ it } }
+    fun readTemplate(path: Path): Template? = with(ConvertCtx(path.parent, this@FrontendPathResolver)) {
+        convertTemplate( templatePath = path )
     }
+
     val readTemplates = apply.value?.mapNotNull { readTemplate(it) } ?: emptyList()
     val toMerge = readTemplates + this
 

@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.frontend
 
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.readText
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.*
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.model.DumbGradleModule
@@ -38,6 +41,26 @@ class YamlModelInit : ModelInit {
         val ignorePaths = root.amperIgnoreIfAny?.parseIgnorePaths().orEmpty()
 
         return buildModelTopDown(root, ignorePaths)
+    }
+
+    /**
+     * Warning! Do not read content from [moduleYaml]
+     *
+     * This method is used from IDE, which uses VirtualFileSystem. VFS state is more up-to-date than on-disk state.
+     * [contentReader] reads state directly from VFS, while attempting to invoke something like `moduleYaml.readLines()`
+     * will return stale content of the Module
+     */
+    context(ProblemReporterContext)
+    @UsedInIdePlugin
+    override fun getModel(root: PsiFile, project: Project): Result<Model> {
+        if (!root.virtualFile.exists()) {
+            problemReporter.reportError(FrontendYamlBundle.message("no.root.found", root.name))
+            return amperFailure()
+        }
+
+        val ignorePaths = root.virtualFile.toNioPath().amperIgnoreIfAny?.parseIgnorePaths().orEmpty()
+
+        return buildModelTopDown(root.virtualFile.toNioPath(), ignorePaths)
     }
 
     /**

@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.ReaderCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.File
@@ -36,7 +36,7 @@ class DiagnosticsTestRun(
         val processPath = Path(".").absolute().normalize()
         val testResourcesPath = processPath / base
         val cleared = inputPath.readText().removeDiagnosticsAnnotations()
-        val readCtx = ReaderCtx {
+        val readCtx = FrontendPathResolver(path2Reader = {
             // If path is absolute - then we had read it internally within schema converter.
             // Then we need to adjust it to the testResources directory.
             val resolved = if (it.isAbsolute) {
@@ -47,7 +47,7 @@ class DiagnosticsTestRun(
             resolved.takeIf { resolved.exists() }
                 ?.readText()?.removeDiagnosticsAnnotations()
                 ?.let { StringReader(it) }
-        }
+        })
 
         doBuild(readCtx, TestFioContext(buildDir, listOf(inputPath)) ,systemInfo)
 

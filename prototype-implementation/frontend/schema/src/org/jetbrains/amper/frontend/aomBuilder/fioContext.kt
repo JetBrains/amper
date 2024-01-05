@@ -4,16 +4,10 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.util.io.isDirectory
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
-import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.isSameFileAs
-import kotlin.io.path.name
-import kotlin.io.path.pathString
-import kotlin.io.path.readLines
+import kotlin.io.path.*
 
 
 private const val amperModuleFileName = "module.yaml"
@@ -66,8 +60,8 @@ class DefaultFioContext(
     override val root: Path
 ) : FioContext {
 
-    override val rootDir by lazy {
-        root.takeIf(Path::isDirectory)
+    override val rootDir: Path by lazy {
+        root.takeIf{ it.isDirectory() }
             ?: root.parent
             ?: error("Should not call with a rot without parent")
     }

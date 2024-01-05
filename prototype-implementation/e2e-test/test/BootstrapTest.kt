@@ -27,6 +27,7 @@ class BootstrapTest {
         val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val plainFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml/build/libs/yaml-jvm-$version.jar")
+        val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
         val util = TestUtil.prototypeImplementationRoot.resolve("frontend/util/build/libs/util-jvm-$version.jar")
 
         // TODO: rewrite to include build approach
@@ -36,16 +37,20 @@ buildscript {
         mavenCentral()
         google()
         gradlePluginPortal()
+        maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
     }
 
     dependencies {
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
+        classpath("com.jetbrains.intellij.platform:core:232.10203.20")
         classpath("org.yaml:snakeyaml:2.0")
         classpath(files("${core.pathString.replace('\\', '/')}"))
         classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
         classpath(files("${plainFrontend.pathString.replace('\\', '/')}"))
+        classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
         classpath(files("${util.pathString.replace('\\', '/')}"))
     }
 }

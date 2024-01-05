@@ -13,8 +13,6 @@ import org.jetbrains.amper.frontend.api.SchemaValue
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schemaConverter.psi.values
-import org.jetbrains.yaml.psi.YAMLScalar
 import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode

@@ -4,7 +4,9 @@
 
 package org.jetbrains.amper.frontend.schemaConverter
 
+import com.intellij.openapi.project.Project
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.*
@@ -16,7 +18,8 @@ import java.nio.file.Path
 
 //// TODO Rethink.
 data class ConvertCtx(
-    val basePath: Path
+    val basePath: Path,
+    val pathResolver: FrontendPathResolver
 )
 
 context(ConvertCtx, ProblemReporterContext)

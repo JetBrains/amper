@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
-import org.jetbrains.amper.frontend.ReaderCtx
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.StringReader
@@ -36,7 +36,7 @@ open class BuildAomTestRun(
         // Fix paths, so they will point to resources.
         val processPath = Path(".").absolute().normalize()
         val testResourcesPath = processPath / base
-        val readCtx = ReaderCtx {
+        val readCtx = FrontendPathResolver(path2Reader = {
             val path = it.absolute().normalize()
             val resolved = if (!path.startsWith(testResourcesPath)) {
                 val relative = processPath.relativize(path)
@@ -46,7 +46,7 @@ open class BuildAomTestRun(
             resolved.takeIf { resolved.exists() }
                 ?.readText()?.removeDiagnosticsAnnotations()
                 ?.let { StringReader(it) }
-        }
+        })
 
         // Read module.
 

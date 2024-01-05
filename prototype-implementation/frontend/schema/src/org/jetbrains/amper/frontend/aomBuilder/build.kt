@@ -23,14 +23,14 @@ import kotlin.io.path.pathString
  */
 context(ProblemReporterContext)
 internal fun doBuild(
-    readerCtx: ReaderCtx,
+    pathResolver: FrontendPathResolver,
     fioCtx: FioContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
-    fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(readerCtx) {
-        with(ConvertCtx(moduleFile.parent)) {
+    fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(pathResolver) {
+        with(ConvertCtx(moduleFile.parent, pathResolver)) {
             with(systemInfo) {
-                path2Reader(moduleFile)?.let { convertModule { it } }
+                convertModule(modulePath = moduleFile)
                     ?.readTemplatesAndMerge()
                     ?.replaceCatalogDependencies(catalog)
                     ?.validateSchema()

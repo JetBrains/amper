@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.gradle
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -55,6 +57,9 @@ object Models : ModelInit {
         val modelBuilder = modelHandle.builder
         return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
     }
+
+    context(ProblemReporterContext)
+    override fun getModel(root: PsiFile, project: Project): Result<Model> = getModel(root.virtualFile.toNioPath())
 
     private val Path.moduleYaml: Path get() = resolve("module.yaml")
 
