@@ -91,7 +91,7 @@ public fun YAMLDocument.convertModule() = Module().apply {
         ::product.convertChild { convertProduct() }
         this@apply::apply.convertChildScalarCollection { asAbsolutePath() }
         ::aliases.convertChild {
-            asMappingNode()?.convertScalarKeyedMap {
+            asSequenceNode()?.convertScalarKeyedMap {
                 asSequenceNode()
                     ?.asScalarSequenceNode()
                     ?.mapNotNull { it.convertEnum(Platform) }

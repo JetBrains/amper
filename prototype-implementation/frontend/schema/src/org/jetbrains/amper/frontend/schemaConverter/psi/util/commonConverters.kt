@@ -9,25 +9,28 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLValue
 
 
 /**
- * convert content of this node, treating its keys as [YAMLScalar]s,
- * skipping resulting null values.
+ * convert content of this node, treating its elements as
+ * single keyed objects as [YAMLScalar]s, skipping resulting null values.
  */
 context(ProblemReporterContext)
-fun <T> YAMLMapping.convertScalarKeyedMap(
+fun <T> YAMLSequence.convertScalarKeyedMap(
     report: Boolean = true,
     convert: YAMLValue.(String) -> T?
-): Map<String, T> = keyValues.mapNotNull {
+): Map<String, T> = items.mapNotNull {
+    // TODO Report entries with multiple keys.
+    val asMapping = it.value?.asMappingNode() ?: return@mapNotNull null
+    val singleKey = asMapping.keyValues.firstOrNull() ?: return@mapNotNull null
     // TODO Report non scalars.
     // Skip non scalar keys.
-    val scalarKey = it.keyText
+    val scalarKey = singleKey.keyText
     // Skip those, that we failed to convert.
-    val converted = it.value?.convert(scalarKey) ?: return@mapNotNull null
+    val converted = singleKey.value?.convert(scalarKey) ?: return@mapNotNull null
     scalarKey to converted
 }.toMap()
 

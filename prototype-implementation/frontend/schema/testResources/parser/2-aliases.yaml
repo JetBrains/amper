@@ -1,5 +1,5 @@
 aliases:
-  iosSimulator: [ iosSimulatorArm64, iosX64 ]
+  - iosSimulator: [ iosSimulatorArm64, iosX64 ]
 
 dependencies:
   - org.apache.commons:commons-math3:3.6.1

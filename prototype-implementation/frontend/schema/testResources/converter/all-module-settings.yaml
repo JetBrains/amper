@@ -9,9 +9,7 @@ module:
   layout: gradle-kmp
 
 aliases:
-  jvmAndAndroid:
-    - jvm
-    - android
+  - jvmAndAndroid: [ jvm, android ]
 
 dependencies@jvmAndAndroid:
   - org.jetbrains.compose.runtime:runtime:1.4.1
