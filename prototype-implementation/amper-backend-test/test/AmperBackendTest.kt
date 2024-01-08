@@ -160,11 +160,7 @@ class AmperBackendTest {
         }
     }
 
-    // Re-use user cache root for local runs to make testing faster
-    // On CI (TeamCity) make it per-build (temp directory for build is cleaned after each build run)
-    private val userCacheRoot: AmperUserCacheRoot = if (TeamCityHelper.isUnderTeamCity) {
-        AmperUserCacheRoot(TeamCityHelper.tempDirectory.resolve("amperUserCacheRoot"))
-    } else AmperUserCacheRoot(TestUtil.sharedTestCaches)
+    private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
     private val testDataRoot: Path = TestUtil.prototypeImplementationRoot.resolve("amper-backend-test/testData/projects")
 }

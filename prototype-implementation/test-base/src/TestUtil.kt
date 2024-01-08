@@ -51,4 +51,10 @@ object TestUtil {
         println("Temp dir for tests: $dir")
         dir
     }
+
+    // Re-use user cache root for local runs to make testing faster
+    // On CI (TeamCity) make it per-build (temp directory for build is cleaned after each build run)
+    val userCacheRoot: Path = if (TeamCityHelper.isUnderTeamCity) {
+        TeamCityHelper.tempDirectory.resolve("amperUserCacheRoot")
+    } else sharedTestCaches
 }
