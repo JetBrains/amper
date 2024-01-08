@@ -37,7 +37,12 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             val errors = mutableListOf<String>()
             for (node in resolver.root.asSequence()) {
                 if (node is MavenDependencyNode) {
-                    node.dependency.jar.path?.takeIf { it.toFile().exists() }?.let { files.add(it) }
+                    node.dependency
+                        .files
+                        .values
+                        .mapNotNull { it.path }
+                        .filter { it.toFile().exists() }
+                        .forEach { files.add(it) }
                 }
                 node.messages
                     .filter { it.severity == Severity.ERROR }

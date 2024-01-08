@@ -4,4 +4,4 @@
 - [ ] Progress
 - [x] Real JSON/XML files parsing tests
 - [x] Error handling/propagation
-- [ ] Support different artifact types (aar, pom, etc.)
+- [x] Support different artifact types (aar, pom, etc.)

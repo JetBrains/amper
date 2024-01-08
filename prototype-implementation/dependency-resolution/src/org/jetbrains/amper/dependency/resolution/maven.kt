@@ -105,11 +105,28 @@ data class MavenDependency(
 
     val children = mutableListOf<MavenDependency>()
     var variant: Variant? = null
+    var packaging: String? = null
     val messages: MutableCollection<Message> = mutableListOf()
 
     val metadata = DependencyFile(fileCache, this, "module")
     val pom = DependencyFile(fileCache, this, "pom")
-    val jar = DependencyFile(fileCache, this, "jar")
+    val files
+        get() = buildMap {
+            variant?.files?.forEach {
+                val extension = it.name.substringAfterLast('.')
+                put(extension, DependencyFile(fileCache, this@MavenDependency, extension))
+            }
+            packaging?.let {
+                val extension = when (it) {
+                    "bundle" -> "jar"
+                    else -> it
+                }
+                put(extension, DependencyFile(fileCache, this@MavenDependency, extension))
+            }
+            if (isEmpty()) {
+                put("jar", DependencyFile(fileCache, this@MavenDependency, "jar"))
+            }
+        }
 
     override fun toString(): String = "$group:$module:$version"
 
@@ -174,6 +191,7 @@ data class MavenDependency(
         val text = pom.readText()
         if (!text.contains("do_not_remove: published-with-gradle-metadata")) {
             val project = text.parsePom().resolve(resolver, resolutionLevel)
+            packaging = project.packaging
             (project.dependencies?.dependencies ?: listOf()).filter {
                 when (resolver.settings.scope) {
                     Scope.COMPILE -> it.scope == null || it.scope == "compile"
@@ -273,8 +291,6 @@ data class MavenDependency(
         isDownloaded() || level == ResolutionLevel.FULL && download(resolver)
 
     fun downloadDependencies(resolver: Resolver) {
-        if (!jar.isDownloaded()) {
-            jar.download(resolver)
-        }
+        files.values.filter { !it.isDownloaded() }.forEach { it.download(resolver) }
     }
 }

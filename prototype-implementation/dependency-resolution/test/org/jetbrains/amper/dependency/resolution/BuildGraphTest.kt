@@ -297,6 +297,115 @@ class BuildGraphTest {
         )
     }
 
+    @Test
+    fun `androidx_appcompat appcompat 1_6_1`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
+            expected = """root
+                |\--- androidx.appcompat:appcompat:1.6.1
+                |     +--- androidx.activity:activity:1.6.0
+                |     |    +--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.core:core:1.9.0
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.annotation:annotation-experimental:1.3.0
+                |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10
+                |     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10
+                |     |    |    |         \--- org.jetbrains:annotations:13.0
+                |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.5.1
+                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    +--- androidx.arch.core:core-common:2.1.0
+                |     |    |    |    |    \--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    \--- androidx.lifecycle:lifecycle-common:2.5.1
+                |     |    |    |         \--- androidx.annotation:annotation:1.3.0
+                |     |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
+                |     |    |         +--- androidx.annotation:annotation:1.3.0
+                |     |    |         \--- androidx.collection:collection:1.1.0
+                |     |    |              \--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.lifecycle:lifecycle-runtime:2.5.1 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.core:core-ktx:1.2.0
+                |     |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    \--- androidx.core:core:1.9.0 (*)
+                |     |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.5.1
+                |     |    |    |    \--- androidx.lifecycle:lifecycle-common:2.5.1 (*)
+                |     |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
+                |     |    |    +--- androidx.savedstate:savedstate:1.2.0
+                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1
+                |     |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1
+                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.1
+                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0
+                |     |    |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0
+                |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.1
+                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 (*)
+                |     |    +--- androidx.savedstate:savedstate:1.2.0 (*)
+                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     +--- androidx.annotation:annotation:1.3.0
+                |     +--- androidx.appcompat:appcompat-resources:1.6.1
+                |     |    +--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    +--- androidx.vectordrawable:vectordrawable:1.1.0
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    \--- androidx.collection:collection:1.1.0 (*)
+                |     |    \--- androidx.vectordrawable:vectordrawable-animated:1.1.0
+                |     |         +--- androidx.vectordrawable:vectordrawable:1.1.0 (*)
+                |     |         +--- androidx.interpolator:interpolator:1.0.0
+                |     |         |    \--- androidx.annotation:annotation:1.3.0
+                |     |         \--- androidx.collection:collection:1.1.0 (*)
+                |     +--- androidx.core:core:1.9.0 (*)
+                |     +--- androidx.cursoradapter:cursoradapter:1.0.0
+                |     |    \--- androidx.annotation:annotation:1.3.0
+                |     +--- androidx.drawerlayout:drawerlayout:1.0.0
+                |     |    +--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    \--- androidx.customview:customview:1.0.0
+                |     |         +--- androidx.annotation:annotation:1.3.0
+                |     |         \--- androidx.core:core:1.9.0 (*)
+                |     +--- androidx.fragment:fragment:1.3.6
+                |     |    +--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    +--- androidx.collection:collection:1.1.0 (*)
+                |     |    +--- androidx.viewpager:viewpager:1.0.0
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    \--- androidx.customview:customview:1.0.0 (*)
+                |     |    +--- androidx.loader:loader:1.0.0
+                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    +--- androidx.lifecycle:lifecycle-livedata:2.0.0
+                |     |    |    |    +--- androidx.arch.core:core-runtime:2.0.0
+                |     |    |    |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    |    \--- androidx.arch.core:core-common:2.1.0 (*)
+                |     |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.5.1 (*)
+                |     |    |    |    \--- androidx.arch.core:core-common:2.1.0 (*)
+                |     |    |    \--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
+                |     |    +--- androidx.activity:activity:1.6.0 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-livedata-core:2.3.1 -> 2.5.1 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1 (*)
+                |     |    +--- androidx.savedstate:savedstate:1.2.0 (*)
+                |     |    \--- androidx.annotation:annotation-experimental:1.3.0 (*)
+                |     \--- androidx.savedstate:savedstate:1.2.0 (*)
+            """.trimMargin()
+        )
+        val appcompat = root.children.single() as MavenDependencyNode
+        assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.toString())
+        assertEquals(listOf("aar"), appcompat.dependency.files.keys.sortedBy { it }) 
+    }
+
     /**
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */
@@ -449,7 +558,7 @@ class BuildGraphTest {
             )
         },
         @Language("text") expected: String
-    ) {
+    ): DependencyNode {
         val root = Resolver.createFor({ dependency.toRootNode(it) }) {
             this.scope = scope
             this.platform = platform
@@ -461,6 +570,7 @@ class BuildGraphTest {
         }.buildGraph(ResolutionLevel.FULL).root
         assertEquals(expected, root)
         messagesVerification(root.asSequence().flatMap { it.messages }.distinct().toList())
+        return root
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
