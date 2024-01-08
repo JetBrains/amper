@@ -98,9 +98,9 @@ internal fun Map<Path, Module>.buildAom(
     val moduleDir2module = modules
         .associate { (path, _, module) -> path.parent to module } + gradleModules
 
-    modules.forEach { (_, schemaModule, module) ->
+    modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds) { it.resolveInternalDependency(moduleDir2module) }
+        val moduleFragments = createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {

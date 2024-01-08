@@ -14,12 +14,13 @@ import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mapStartAware
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 
 class DefaultLeafFragment(
-    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?,
-) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings), LeafFragment {
+    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?, modulePath: Path,
+) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings, modulePath), LeafFragment {
     init {
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
@@ -32,6 +33,7 @@ open class DefaultFragment(
     final override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
     relevantSettings: Settings?,
+    modulePath: Path,
 ) : Fragment {
 
     private val isCommon = seed.rootPlatforms == setOf(Platform.COMMON)
@@ -68,7 +70,7 @@ open class DefaultFragment(
         val srcPathString =
             if (srcOnlyOwner) srcStringPrefix
             else "$srcStringPrefix$modifier"
-        Path(srcPathString)
+        modulePath.parent.resolve(srcPathString)
     }
 
     override val resourcesPath by lazy {
@@ -76,12 +78,13 @@ open class DefaultFragment(
         val resourcesPathString =
             if (srcOnlyOwner) resourcesStringPrefix
             else "$resourcesStringPrefix$modifier"
-        Path(resourcesPathString)
+        modulePath.parent.resolve(resourcesPathString)
     }
 }
 
 fun createFragments(
     seeds: Collection<FragmentSeed>,
+    modulePath: Path,
     resolveDependency: (Dependency) -> Notation?,
 ): List<DefaultFragment> {
     data class FragmentBundle(
@@ -94,13 +97,15 @@ fun createFragments(
             this,
             isTest,
             externalDependencies,
-            if (isTest) relevantTestSettings else relevantSettings
+            if (isTest) relevantTestSettings else relevantSettings,
+            modulePath
         )
         else DefaultFragment(
             this,
             isTest,
             externalDependencies,
-            if (isTest) relevantTestSettings else relevantSettings
+            if (isTest) relevantTestSettings else relevantSettings,
+            modulePath
         )
 
     // Create fragments.
