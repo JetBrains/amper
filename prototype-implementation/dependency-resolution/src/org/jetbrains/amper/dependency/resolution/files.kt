@@ -7,7 +7,6 @@ package org.jetbrains.amper.dependency.resolution
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.file.Files
@@ -103,9 +102,7 @@ class DependencyFile(
     }
 
     private fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
-        val baos = ByteArrayOutputStream()
-        if (download(repository, extension, baos)) {
-            val bytes = baos.toByteArray()
+        download(repository, extension, progress)?.let { bytes ->
             if (verify && !verify(bytes, repository, progress)) {
                 return false
             }
@@ -155,29 +152,22 @@ class DependencyFile(
             "sha1" -> fileFromVariant(dependency, name)?.sha1
             "md5" -> fileFromVariant(dependency, name)?.md5
             else -> null
-        } ?: (getHashFromMavenCacheDirectory(algorithm, repository, progress)
-            ?: downloadToString("$extension.$algorithm", repository, progress))?.split("\\s".toRegex())?.getOrNull(0)
+        }
+            ?: (getHashFromMavenCacheDirectory(algorithm, repository, progress)
+                ?: download(repository, "$extension.$algorithm", progress)?.toString(Charsets.UTF_8)
+                    )?.split("\\s".toRegex())?.getOrNull(0)
 
     private fun getHashFromMavenCacheDirectory(algorithm: String, repository: String, progress: Progress): String? {
         if (cacheDirectory !is MavenCacheDirectory) return null
         val hashFile = DependencyFile(listOf(cacheDirectory), dependency, "$extension.$algorithm")
         return if (hashFile.isDownloaded() || hashFile.download(repository, progress, false)) {
-            hashFile.readText()
+            hashFile.readText().takeIf { it.isNotEmpty() }
         } else {
             null
         }
     }
 
-    private fun downloadToString(extension: String, repository: String, progress: Progress): String? =
-        ByteArrayOutputStream().let {
-            if (download(repository, extension, it)) {
-                it.toString()
-            } else {
-                null
-            }
-        }
-
-    private fun download(it: String, extension: String, os: OutputStream): Boolean {
+    private fun download(it: String, extension: String, progress: Progress): ByteArray? {
         val url = it +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
@@ -189,20 +179,30 @@ class DependencyFile(
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                connection.inputStream.use { inputStream ->
-                    BufferedInputStream(inputStream).use { bis ->
-                        val data = ByteArray(1024)
-                        var count: Int
-                        while (bis.read(data, 0, 1024).also { count = it } != -1) {
-                            os.write(data, 0, count)
+                val contentLength = connection.contentLength
+                val bytes = ByteArrayOutputStream().also { baos ->
+                    connection.inputStream.use { inputStream ->
+                        BufferedInputStream(inputStream).use { bis ->
+                            val data = ByteArray(1024)
+                            var count: Int
+                            while (bis.read(data, 0, 1024).also { count = it } != -1) {
+                                baos.write(data, 0, count)
+                            }
                         }
                     }
+                }.toByteArray()
+                if (contentLength != -1 && bytes.size != contentLength) {
+                    // TODO log it
+                    return null
                 }
-                return true
+                return bytes
+            } else {
+                // TODO log it
             }
         } catch (ignored: Exception) {
+            // TODO log it
         }
-        return false
+        return null
     }
 }
 

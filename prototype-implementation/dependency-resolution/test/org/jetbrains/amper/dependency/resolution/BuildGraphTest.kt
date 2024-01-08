@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import TestUtil
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.TestInfo
 import kotlin.test.Test
@@ -453,6 +454,10 @@ class BuildGraphTest {
             this.scope = scope
             this.platform = platform
             this.repositories = repositories
+            this.cache = listOf(
+                GradleCacheDirectory(TestUtil.userCacheRoot.resolve(".gradle.cache")),
+                MavenCacheDirectory(TestUtil.userCacheRoot.resolve(".m2.cache")),
+            )
         }.buildGraph(ResolutionLevel.FULL).root
         assertEquals(expected, root)
         messagesVerification(root.asSequence().flatMap { it.messages }.distinct().toList())

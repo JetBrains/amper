@@ -9,6 +9,9 @@ dependencies:
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.apache.maven:maven-artifact:3.9.6
 
+test-dependencies:
+  - ../test-base
+
 settings:
   kotlin:
     serialization: json
