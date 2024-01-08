@@ -61,7 +61,7 @@ class BuildGraphTest {
         doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            emptyMessages = false, // skiko
+            messagesVerification = { assertTrue(it.none { !it.text.contains("org.jetbrains.skiko:skiko:0.7.85") }) },
             expected = """root
                 |\--- org.jetbrains.skiko:skiko:0.7.85
                 |     +--- org.jetbrains.skiko:skiko-android:0.7.85
@@ -85,7 +85,7 @@ class BuildGraphTest {
         doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            emptyMessages = false, // skiko
+            messagesVerification = { assertTrue(it.none { !it.text.contains("org.jetbrains.skiko:skiko:0.7.85") }) },
             expected = """root
                 |\--- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10
                 |     \--- org.jetbrains.compose.desktop:desktop:1.5.10
@@ -431,7 +431,7 @@ class BuildGraphTest {
         scope: Scope = Scope.COMPILE,
         platform: String = "jvm",
         repositories: List<String> = REDIRECTOR_MAVEN2,
-        emptyMessages: Boolean = true,
+        messagesVerification: (List<Message>) -> Unit = { assertTrue(it.isEmpty(), "There should be no messages: $it") },
         @Language("text") expected: String
     ) {
         val root = Resolver.createFor({ dependency.toRootNode(it) }) {
@@ -440,11 +440,7 @@ class BuildGraphTest {
             this.repositories = repositories
         }.buildGraph(ResolutionLevel.FULL).root
         assertEquals(expected, root)
-//        TODO: make check smarter
-//        if (emptyMessages) {
-//            val messages = root.asSequence().flatMap { it.messages }.distinct().toList()
-//            assertTrue(messages.isEmpty(), "There should be no messages: $messages")
-//        }
+        messagesVerification(root.asSequence().flatMap { it.messages }.distinct().toList())
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
