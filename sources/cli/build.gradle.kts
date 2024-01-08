@@ -4,6 +4,24 @@ plugins {
     `maven-publish`
 }
 
+kotlin {
+    jvm {
+        mainRun {
+            val argList = buildList {
+                if (project.hasProperty("amper.cli.project.root")) {
+                    add("--root")
+                    add(project.property("amper.cli.project.root") ?: "")
+                }
+                if (project.hasProperty("amper.cli.project.tasks")) {
+                    add(project.property("amper.cli.project.tasks") ?: "")
+                }
+            }
+            args(*argList.toTypedArray())
+        }
+    }
+}
+
+
 val unpackedDistribution by tasks.creating(Sync::class) {
     val distZip = tasks.getByName("distZip")
 
