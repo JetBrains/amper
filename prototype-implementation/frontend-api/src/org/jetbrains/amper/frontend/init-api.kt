@@ -22,7 +22,6 @@ interface ModelInit {
 
         context(ProblemReporterContext)
         @UsedInIdePlugin
-
         fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
@@ -32,8 +31,8 @@ interface ModelInit {
 
             val modelName = System.getProperty(MODEL_NAME_PROPERTY)
                 ?: System.getenv(MODEL_NAME_ENV)
-//                ?: "schema-based"
-                ?: "plain"
+                ?: "schema-based"
+//                ?: "plain"
             val service = services[modelName]
             return if (service == null) {
                 problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName))
@@ -44,11 +43,13 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
+        @UsedInIdePlugin
         fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
             return loadModelInitService(loader).flatMap { it.getModel(root) }
         }
 
         context(ProblemReporterContext)
+        @UsedInIdePlugin
         fun getModel(root: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
             return loadModelInitService(loader).flatMap { it.getModel(root, project) }
         }
