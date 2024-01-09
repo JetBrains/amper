@@ -23,28 +23,43 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.measureTime
 
 class ProcessesTest {
-    private val unknownCommandExitCode = 127
+    private val unknownCommandExitCode = if (OS.isWindows) 1 else 127
     private val cancelledExitCode = if (OS.isWindows) 1 else 137
     private val loremIpsum1000 =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nibh odio, auctor non tincidunt eu, posuere vitae nisl. Sed lobortis gravida sapien, eget feugiat purus feugiat et. Fusce ullamcorper risus ac diam varius, ullamcorper molestie est aliquam. Ut dictum, tellus sit amet efficitur hendrerit, est dolor bibendum nunc, et lacinia sem erat nec lectus. Donec orci elit, feugiat in arcu vel, dictum ultricies diam. Nullam ut ultricies tortor. Sed a finibus tortor. Vestibulum et diam vitae orci hendrerit faucibus ac posuere leo. Nunc laoreet interdum euismod. Pellentesque ac porttitor enim. In malesuada pharetra orci in euismod. Quisque sit amet rutrum enim. Morbi ultrices blandit augue, non tincidunt sapien sagittis sit amet. Mauris id tempus tortor, vitae ullamcorper orci. Phasellus efficitur dolor mollis, mattis lacus quis, convallis elit. Phasellus dignissim, nibh a aliquam commodo, ipsum risus suscipit massa, et porta lacus eros nec felis. Nulla ante augue, elementum cras amet."
 
     @Test
     fun `awaitAndGetAllOutput should capture stdout and stderr`() = runBlocking(Dispatchers.IO) {
-        val process = ProcessBuilder(binSh("printf '1\n'; printf '2\n'; printf 'line\nbreak'; printf 'hello from stderr' 1>&2")).start()
+        val command = when (OS.type) {
+            // there doesn't seem to be a way to have a line break in the middle of a single echo in Windows batch,
+            // so we don't really test it here (https://stackoverflow.com/questions/132799)
+            OS.Type.Windows -> cmd("@echo line1&& @echo line2&& @echo break&& @echo hello stderr 1>&2")
+            else -> binSh("printf 'line1\n'; printf 'line2\nbreak'; printf 'hello stderr' 1>&2")
+        }
+        val process = ProcessBuilder(command).start()
         val result = process.awaitAndGetAllOutput()
         assertZeroExitCode(result)
-        assertEquals("1\n2\nline\nbreak", result.stdout.trim())
-        assertEquals("hello from stderr", result.stderr.trim())
+        assertEquals(listOf("line1", "line2", "break"), result.stdout.trim().lines())
+        assertEquals("hello stderr", result.stderr.trim())
     }
 
     @Test
     fun `awaitAndGetAllOutput should capture stderr in case of wrong nested command`() = runBlocking(Dispatchers.IO) {
-        val process = ProcessBuilder(binSh("echo 1; not-a-command")).start()
+        val command = when (OS.type) {
+            OS.Type.Windows -> cmd("@echo line1 && not-a-command")
+            else -> binSh("echo line1; not-a-command")
+        }
+        val process = ProcessBuilder(command).start()
         val result = process.awaitAndGetAllOutput()
         assertEquals(unknownCommandExitCode, result.exitCode)
-        assertEquals("1", result.stdout.trim())
+        assertEquals("line1", result.stdout.trim())
         assertContains(result.stderr, "not-a-command")
-        assertContains(result.stderr, "not found")
+
+        val expectedError = when (OS.type) {
+            OS.Type.Windows -> "is not recognized as an internal or external command"
+            else -> "not found"
+        }
+        assertContains(result.stderr, expectedError)
     }
 
     // We don't want to crash if the process is killed externally, we want to read its exit code and stdout/stderr,
