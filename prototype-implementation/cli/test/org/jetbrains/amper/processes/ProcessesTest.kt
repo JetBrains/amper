@@ -153,5 +153,6 @@ private fun echoLoop(n: Int, message: String) = when (OS.type) {
 private fun cmd(command: String) = listOf("cmd", "/c", command)
 
 private fun assertZeroExitCode(result: ProcessResult) {
-    assertEquals(0, result.exitCode, "Process terminated with non-zero exit code ${result.exitCode}")
+    assertEquals(0, result.exitCode, "Process terminated with non-zero exit code ${result.exitCode}, " +
+        "\n stdOut = ${result.stdout}")
 }
