@@ -62,8 +62,9 @@ data class FragmentSeed(
  * 1. Determining applicable natural hierarchy sub-forest
  * 2. Reducing this hierarchy to the minimal matching one
  * 3. Replacing single leaf fragments by their closest parents (or aliases) if possible.
- * 4. Adding common fragment if there is no common natural hierarchy root between generated seeds.
- * 5. Determining dependencies between fragments, based on their platforms.
+ * 4. Adding other aliases if needed.
+ * 5. Adding common fragment if there is no common natural hierarchy root between generated seeds.
+ * 6. Determining dependencies between fragments, based on their platforms.
  *
  * So, with declared platforms:
  * 1. **`[ iosArm64 ]`** - applicable natural hierarchy will be `[ native, apple, ios, iosArm64 ]`,
@@ -132,17 +133,25 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     }
 
     // Initial seeds, that are computed from the hierarchy and aliases.
+    val aliasesLeft = aliases2leafPlatforms.toMutableMap()
     val initialSeeds = buildSet {
         reduced.forEach { platform ->
-            // If platforms parent is not in the reduced hierarchy, then
-            // also there are no it's brothers in there.
+            // Check if the platform is candidate for replacement by alias.
             if (platform.isLeaf && platform.parentNoCommon !in reduced) {
                 val matchingClosestAlias = combinedAliases.entries
                     .filter { platform in it.value }
                     .sortedBy { it.key.toString() }
+                    // Take alias only if it has only single platform present in module.
+                    .filter { alias -> alias.value.filter { it in declaredLeafPlatforms }.size == 1 }
                     .minByOrNull { it.value.size }
 
                 if (matchingClosestAlias != null) {
+                    // Mark alias as used. Also mark aliases with same platforms as used.
+                    aliasesLeft.remove(matchingClosestAlias.key)
+                    combinedAliases.entries
+                        .filter { matchingClosestAlias.value == it.value }
+                        .forEach { aliasesLeft.remove(it.key) }
+
                     this += FragmentSeed(
                         platforms = setOf(platform),
                         rootPlatforms = (matchingClosestAlias.key as? Platform)?.let { setOf(it) },
@@ -162,6 +171,15 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             }
         }
     }
+
+    // TODO Report warning for aliases with same platforms.
+    // Create left aliases seeds.
+    val aliasesSeeds = buildSet {
+        aliasesLeft.entries
+            .distinctBy { it.value }
+            .forEach { add(FragmentSeed(platforms = it.value, aliases = setOf(it.key),)) }
+    }
+
 
     // Get a list of leaf platforms, denoted by modifiers.
     fun Modifiers.convertToLeafPlatforms() =
@@ -198,6 +216,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     // ORDER SENSITIVE!
     val requiredSeeds = buildSet {
         addAll(initialSeeds)
+        addAll(aliasesSeeds)
         addAll(modifiersSeeds)
     }.toMutableSet()
 

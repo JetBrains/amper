@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.mapStartAware
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
-import kotlin.io.path.Path
 
 
 class DefaultLeafFragment(
@@ -25,7 +24,7 @@ class DefaultLeafFragment(
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
 
-    override val platform = seed.rootPlatforms!!.single()
+    override val platform = seed.platforms.single()
 }
 
 open class DefaultFragment(

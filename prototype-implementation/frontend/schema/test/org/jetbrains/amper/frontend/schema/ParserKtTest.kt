@@ -154,4 +154,9 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `coverage short form`() {
         aomTest("23-coverage-short-form")
     }
+
+    @Test
+    fun `no NPE when leaf platform is accessed`() {
+        aomTest("24-no-npe-for-leaf-platform")
+    }
 }

@@ -49,7 +49,6 @@ open class BuildAomTestRun(
         })
 
         // Read module.
-
         val fioCtx = TestFioContext(buildDir, listOf(inputPath))
         fioCtx.adjustCtx()
         val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
