@@ -67,7 +67,8 @@ class JvmCompileTask(
         val languageVersion = kotlinPart?.languageVersion
         val kotlinVersion = "1.9.20"
 
-        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath
+        val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
+        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
 
         val configuration: Map<String, String> = mapOf(
             "jdk.version" to JdkDownloader.JBR_SDK_VERSION,
@@ -198,6 +199,11 @@ class JvmCompileTask(
     class TaskResult(
         override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
         val classesOutputRoot: Path?,
+    ) : org.jetbrains.amper.tasks.TaskResult
+
+    class AdditionalClasspathProviderTaskResult(
+        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+        val classpath: List<Path>
     ) : org.jetbrains.amper.tasks.TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
