@@ -413,7 +413,7 @@ class BuildGraphTest {
      */
     @Test
     fun `kotlin test with junit`() {
-        val root = Resolver.createFor({
+        val root = createResolver({
             listOf(
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
@@ -439,7 +439,7 @@ class BuildGraphTest {
 
     @Test
     fun `kotlin test with junit5`() {
-        val root = Resolver.createFor({
+        val root = createResolver({
             listOf(
                 "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
@@ -471,7 +471,7 @@ class BuildGraphTest {
      */
     @Test
     fun `datetime and kotlin test with junit`() {
-        val root = Resolver.createFor({
+        val root = createResolver({
             listOf(
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0",
@@ -502,7 +502,7 @@ class BuildGraphTest {
 
     @Test
     fun `jackson and guava`() {
-        val root = Resolver.createFor({
+        val root = createResolver({
             listOf(
                 "org.antlr:antlr4-runtime:4.7.1",
                 "org.abego.treelayout:org.abego.treelayout.core:1.0.3",
@@ -556,14 +556,10 @@ class BuildGraphTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
-        val root = Resolver.createFor({ dependency.toRootNode(it) }) {
+        val root = createResolver({ dependency.toRootNode(it) }) {
             this.scope = scope
             this.platform = platform
             this.repositories = repositories
-            this.cache = listOf(
-                GradleCacheDirectory(TestUtil.userCacheRoot.resolve(".gradle.cache")),
-                MavenCacheDirectory(TestUtil.userCacheRoot.resolve(".m2.cache")),
-            )
         }.buildGraph(ResolutionLevel.FULL).root
         assertEquals(expected, root)
         if (verifyMessages) {
@@ -576,6 +572,15 @@ class BuildGraphTest {
         }
         return root
     }
+
+    private fun createResolver(rootProvider: (Resolver) -> DependencyNode, block: Builder.() -> Unit = {}) =
+        Resolver.createFor(rootProvider) {
+            cache = listOf(
+                GradleCacheDirectory(TestUtil.userCacheRoot.resolve(".gradle.cache")),
+                MavenCacheDirectory(TestUtil.userCacheRoot.resolve(".m2.cache")),
+            )
+            block(this)
+        }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         assertEquals(expected, root.prettyPrint().trimEnd())
