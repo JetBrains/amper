@@ -175,7 +175,7 @@ data class MavenDependency(
             } else {
                 messages += Message(
                     "More than a single variant provided for $this",
-                    it.map { it.name }.toString(),
+                    it.joinToString { it.name },
                     Severity.WARNING,
                 )
             }
