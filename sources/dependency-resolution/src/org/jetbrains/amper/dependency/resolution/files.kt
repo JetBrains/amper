@@ -13,6 +13,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
 import kotlin.io.path.name
+import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.writeBytes
 
@@ -90,7 +91,36 @@ class DependencyFile(
 
     override fun toString(): String = path?.toString() ?: "[missing path]/$name"
 
-    fun isDownloaded(): Boolean = path?.toFile()?.exists() == true
+    fun isDownloaded(level: ResolutionLevel, resolver: Resolver): Boolean =
+        isDownloaded(level, resolver.settings.repositories, resolver.settings.progress)
+
+    private fun isDownloaded(
+        level: ResolutionLevel,
+        repositories: Collection<String>,
+        progress: Progress,
+        verify: Boolean = true
+    ): Boolean {
+        val path = path
+        if (path?.toFile()?.exists() != true) {
+            return false
+        }
+        if (!verify) {
+            return true
+        }
+        val bytes = path.readBytes()
+        if (bytes.isEmpty()) {
+            return false
+        }
+        for (repository in repositories) {
+            val result = verify(bytes, repository, progress, level)
+            return when (result) {
+                VerificationResult.PASSED -> true
+                VerificationResult.FAILED -> false
+                else -> continue
+            }
+        }
+        return level < ResolutionLevel.FULL
+    }
 
     fun readText(): String = path?.readText()
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
@@ -103,8 +133,18 @@ class DependencyFile(
 
     private fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
         download(repository, extension, progress)?.let { bytes ->
-            if (verify && !verify(bytes, repository, progress)) {
-                return false
+            if (verify) {
+                val result = verify(bytes, repository, progress)
+                if (result > VerificationResult.PASSED) {
+                    if (result == VerificationResult.UNKNOWN) {
+                        dependency.messages += Message(
+                            "Unable to download checksums",
+                            repository,
+                            Severity.ERROR,
+                        )
+                    }
+                    return false
+                }
             }
             val target = cacheDirectory.getPath(dependency, extension, bytes)
             try {
@@ -122,10 +162,15 @@ class DependencyFile(
         return false
     }
 
-    private fun verify(bytes: ByteArray, repository: String, progress: Progress): Boolean {
+    private fun verify(
+        bytes: ByteArray,
+        repository: String,
+        progress: Progress,
+        level: ResolutionLevel = ResolutionLevel.FULL
+    ): VerificationResult {
         val algorithms = listOf("sha512", "sha256", "sha1", "md5")
         for (algorithm in algorithms) {
-            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress) ?: continue
+            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
             val actualHash = computeHash(algorithm, bytes)
             if (expectedHash != actualHash) {
                 dependency.messages += Message(
@@ -133,35 +178,64 @@ class DependencyFile(
                     "expected: $expectedHash, actual: $actualHash",
                     Severity.ERROR,
                 )
+                return VerificationResult.FAILED
             } else {
-                return true
+                return VerificationResult.PASSED
             }
         }
-        dependency.messages += Message(
-            "Unable to download checksums for $algorithms",
-            repository,
-            Severity.ERROR,
-        )
-        return false
+        return VerificationResult.UNKNOWN
     }
 
-    private fun getOrDownloadExpectedHash(algorithm: String, repository: String, progress: Progress) =
-        when (algorithm) {
+    enum class VerificationResult { PASSED, UNKNOWN, FAILED }
+
+    private fun getOrDownloadExpectedHash(
+        algorithm: String,
+        repository: String,
+        progress: Progress,
+        level: ResolutionLevel = ResolutionLevel.FULL
+    ): String? {
+        val hashFromVariant = when (algorithm) {
             "sha512" -> fileFromVariant(dependency, name)?.sha512
             "sha256" -> fileFromVariant(dependency, name)?.sha256
             "sha1" -> fileFromVariant(dependency, name)?.sha1
             "md5" -> fileFromVariant(dependency, name)?.md5
             else -> null
         }
-            ?: (getHashFromMavenCacheDirectory(algorithm, repository, progress)
-                ?: download(repository, "$extension.$algorithm", progress)?.toString(Charsets.UTF_8)
-                    )?.split("\\s".toRegex())?.getOrNull(0)
+        if (hashFromVariant?.isNotEmpty() == true) {
+            return hashFromVariant
+        }
+        val hashFromGradle = getHashFromGradleCacheDirectory(algorithm)
+        if (hashFromGradle?.isNotEmpty() == true) {
+            return hashFromGradle
+        }
+        val hashFromMaven = getHashFromMavenCacheDirectory(algorithm, repository, progress, level)
+        if (hashFromMaven?.isNotEmpty() == true) {
+            return hashFromMaven.split("\\s".toRegex()).getOrNull(0)
+        }
+        if (level < ResolutionLevel.FULL) {
+            return null
+        }
+        val hashFromRepository = download(repository, "$extension.$algorithm", progress)
+        return hashFromRepository?.toString(Charsets.UTF_8)?.split("\\s".toRegex())?.getOrNull(0)
+    }
 
-    private fun getHashFromMavenCacheDirectory(algorithm: String, repository: String, progress: Progress): String? {
-        if (cacheDirectory !is MavenCacheDirectory) return null
+    private fun getHashFromGradleCacheDirectory(algorithm: String) =
+        if (cacheDirectory is GradleCacheDirectory && algorithm == "sha1") path?.parent?.name else null
+
+    private fun getHashFromMavenCacheDirectory(
+        algorithm: String,
+        repository: String,
+        progress: Progress,
+        level: ResolutionLevel
+    ): String? {
+        if (cacheDirectory !is MavenCacheDirectory) {
+            return null
+        }
         val hashFile = DependencyFile(listOf(cacheDirectory), dependency, "$extension.$algorithm")
-        return if (hashFile.isDownloaded() || hashFile.download(repository, progress, false)) {
-            hashFile.readText().takeIf { it.isNotEmpty() }
+        return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
+            || level == ResolutionLevel.FULL && hashFile.download(repository, progress, false)
+        ) {
+            hashFile.readText()
         } else {
             null
         }

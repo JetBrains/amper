@@ -132,7 +132,7 @@ data class MavenDependency(
 
     fun resolve(resolver: Resolver, level: ResolutionLevel) {
         if (metadata.isDownloadedOrDownload(level, resolver)) {
-            resolveUsingMetadata(resolver)
+            resolveUsingMetadata(resolver, level)
         } else if (pom.isDownloadedOrDownload(level, resolver)) {
             resolveUsingPom(resolver, level)
         } else {
@@ -144,7 +144,7 @@ data class MavenDependency(
         }
     }
 
-    private fun resolveUsingMetadata(resolver: Resolver) {
+    private fun resolveUsingMetadata(resolver: Resolver, level: ResolutionLevel) {
         val text = metadata.readText()
         val module = try {
             text.parseMetadata()
@@ -174,7 +174,7 @@ data class MavenDependency(
                 variant = it.singleOrNull()
             } else {
                 messages += Message(
-                    "More than a single variant provided for $this",
+                    "More than a single variant provided",
                     it.joinToString { it.name },
                     Severity.WARNING,
                 )
@@ -185,7 +185,7 @@ data class MavenDependency(
             createOrReuseDependency(resolver, it.group, it.module, it.version.requires)
         }.let {
             children.addAll(it)
-            state = ResolutionState.RESOLVED
+            state = level.state
         }
     }
 
@@ -306,9 +306,9 @@ data class MavenDependency(
     }
 
     private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, resolver: Resolver) =
-        isDownloaded() || level == ResolutionLevel.FULL && download(resolver)
+        isDownloaded(level, resolver) || level == ResolutionLevel.FULL && download(resolver)
 
     fun downloadDependencies(resolver: Resolver) {
-        files.values.filter { !it.isDownloaded() }.forEach { it.download(resolver) }
+        files.values.filter { !it.isDownloaded(ResolutionLevel.FULL, resolver) }.forEach { it.download(resolver) }
     }
 }

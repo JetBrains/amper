@@ -59,15 +59,10 @@ class BuildGraphTest {
 
     @Test
     fun `org_jetbrains_skiko skiko 0_7_85`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            messagesVerification = {
-                assertTrue(
-                    it.filter { !it.text.contains("org.jetbrains.skiko:skiko:0.7.85") }
-                        .none { !it.text.contains("Downloaded from") }
-                )
-            },
+            verifyMessages = false,
             expected = """root
                 |\--- org.jetbrains.skiko:skiko:0.7.85
                 |     +--- org.jetbrains.skiko:skiko-android:0.7.85
@@ -81,6 +76,12 @@ class BuildGraphTest {
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
             """.trimMargin()
         )
+        root.asSequence().forEach {
+            assertTrue(
+                it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
+                "There should be no messages for $it: ${it.messages}"
+            )
+        }
     }
 
     /**
@@ -88,15 +89,10 @@ class BuildGraphTest {
      */
     @Test
     fun `org_jetbrains_compose_desktop desktop-jvm-macos-arm64 1_5_10`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            messagesVerification = {
-                assertTrue(
-                    it.filter { !it.text.contains("org.jetbrains.skiko:skiko:0.7.85") }
-                        .none { !it.text.contains("Downloaded from") }
-                )
-            },
+            verifyMessages = false,
             expected = """root
                 |\--- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10
                 |     \--- org.jetbrains.compose.desktop:desktop:1.5.10
@@ -172,6 +168,12 @@ class BuildGraphTest {
                 |                         \--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
             """.trimMargin()
         )
+        root.asSequence().forEach {
+            assertTrue(
+                it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
+                "There should be no messages for $it: ${it.messages}"
+            )
+        }
     }
 
     @Test
@@ -403,7 +405,7 @@ class BuildGraphTest {
         )
         val appcompat = root.children.single() as MavenDependencyNode
         assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.toString())
-        assertEquals(listOf("aar"), appcompat.dependency.files.keys.sortedBy { it }) 
+        assertEquals(listOf("aar"), appcompat.dependency.files.keys.sortedBy { it })
     }
 
     /**
@@ -551,12 +553,7 @@ class BuildGraphTest {
         scope: Scope = Scope.COMPILE,
         platform: String = "jvm",
         repositories: List<String> = REDIRECTOR_MAVEN2,
-        messagesVerification: (List<Message>) -> Unit = {
-            assertTrue(
-                it.none { !it.text.contains("Downloaded from") },
-                "There should be no messages: $it"
-            )
-        },
+        verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
         val root = Resolver.createFor({ dependency.toRootNode(it) }) {
@@ -569,7 +566,14 @@ class BuildGraphTest {
             )
         }.buildGraph(ResolutionLevel.FULL).root
         assertEquals(expected, root)
-        messagesVerification(root.asSequence().flatMap { it.messages }.distinct().toList())
+        if (verifyMessages) {
+            root.asSequence().forEach {
+                assertTrue(
+                    it.messages.none { "Downloaded from" !in it.text },
+                    "There should be no messages for $it: ${it.messages}"
+                )
+            }
+        }
         return root
     }
 
