@@ -11,7 +11,6 @@ import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
 import java.nio.file.Path
 import kotlin.io.path.readText
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -47,7 +46,6 @@ class AmperBackendTest {
         assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
     }
 
-    @Ignore
     @Test
     fun `get jvm resource from dependency`() {
         val projectContext = getProjectContext("jvm-resources")
