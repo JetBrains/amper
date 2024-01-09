@@ -146,7 +146,16 @@ data class MavenDependency(
 
     private fun resolveUsingMetadata(resolver: Resolver) {
         val text = metadata.readText()
-        val module = text.parseMetadata()
+        val module = try {
+            text.parseMetadata()
+        } catch (e: Exception) {
+            messages += Message(
+                "Unable to parse metadata file $metadata",
+                e.toString(),
+                Severity.ERROR,
+            )
+            return
+        }
         module.variants.filter {
             it.capabilities.isEmpty() || it.capabilities.singleOrNull() == toCapability()
                     || isKotlinTestJunit() && it.capabilities.sortedBy { it.name } == listOf(
@@ -190,7 +199,16 @@ data class MavenDependency(
     private fun resolveUsingPom(resolver: Resolver, resolutionLevel: ResolutionLevel) {
         val text = pom.readText()
         if (!text.contains("do_not_remove: published-with-gradle-metadata")) {
-            val project = text.parsePom().resolve(resolver, resolutionLevel)
+            val project = try {
+                text.parsePom().resolve(resolver, resolutionLevel)
+            } catch (e: Exception) {
+                messages += Message(
+                    "Unable to parse pom file $pom",
+                    e.toString(),
+                    Severity.ERROR,
+                )
+                return
+            }
             packaging = project.packaging
             (project.dependencies?.dependencies ?: listOf()).filter {
                 when (resolver.settings.scope) {
