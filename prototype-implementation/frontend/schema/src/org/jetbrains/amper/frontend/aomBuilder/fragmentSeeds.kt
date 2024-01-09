@@ -23,12 +23,7 @@ data class FragmentSeed(
     /**
      * Aliases that form this seed modifier. For example, "androidAndJvm".
      */
-    val aliases: Set<String>? = null,
-
-    /**
-     * Platforms that form this seed modifier. For example, "ios".
-     */
-    val rootPlatforms: Set<Platform>? = null,
+    val modifiersAsStrings: Set<String>,
 ) {
     val isLeaf by lazy { platforms.singleOrNull()?.isLeaf == true }
     val dependencies = mutableListOf<FragmentSeed>()
@@ -38,11 +33,6 @@ data class FragmentSeed(
 
     var relevantDependencies: List<Dependency>? = null
     var relevantTestDependencies: List<Dependency>? = null
-
-    internal val modifiersAsStrings: Set<String> = buildList {
-        addAll(aliases.orEmpty())
-        addAll(rootPlatforms.orEmpty().map { it.pretty })
-    }.toSet()
 
     // Seeds equality should be based only on its platforms.
     override fun equals(other: Any?): Boolean {
@@ -128,7 +118,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     // Threat applicable hierarchy as aliases.
     // Replace single leaves (without common parent) with aliases or parents.
     val combinedAliases = buildMap {
-        putAll(applicableHierarchy)
+        applicableHierarchy.forEach { put(it.key.pretty, it.value) }
         putAll(aliases2leafPlatforms)
     }
 
@@ -140,7 +130,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             if (platform.isLeaf && platform.parentNoCommon !in reduced) {
                 val matchingClosestAlias = combinedAliases.entries
                     .filter { platform in it.value }
-                    .sortedBy { it.key.toString() }
+                    .sortedBy { it.key }
                     // Take alias only if it has only single platform present in module.
                     .filter { alias -> alias.value.filter { it in declaredLeafPlatforms }.size == 1 }
                     .minByOrNull { it.value.size }
@@ -154,19 +144,18 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
                     this += FragmentSeed(
                         platforms = setOf(platform),
-                        rootPlatforms = (matchingClosestAlias.key as? Platform)?.let { setOf(it) },
-                        aliases = (matchingClosestAlias.key as? String)?.let { setOf(it) },
+                        modifiersAsStrings = setOf(matchingClosestAlias.key),
                     )
                 } else {
                     this += FragmentSeed(
                         platforms = setOf(platform),
-                        rootPlatforms = setOf(platform),
+                        setOf(platform.pretty),
                     )
                 }
             } else {
                 this += FragmentSeed(
                     platforms = platform.leaves,
-                    rootPlatforms = setOf(platform),
+                    setOf(platform.pretty),
                 )
             }
         }
@@ -177,7 +166,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
     val aliasesSeeds = buildSet {
         aliasesLeft.entries
             .distinctBy { it.value }
-            .forEach { add(FragmentSeed(platforms = it.value, aliases = setOf(it.key),)) }
+            .forEach { add(FragmentSeed(it.value, setOf(it.key))) }
     }
 
     // Get a list of leaf platforms, denoted by modifiers.
@@ -204,8 +193,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             .takeIf { it.isNotEmpty() } ?: return null
         return FragmentSeed(
             actualLeafPlatforms,
-            aliases = areAliases.map { it.value }.toSet(),
-            rootPlatforms = declaredModifierPlatforms,
+            areAliases.map { it.value }.toSet() + declaredModifierPlatforms.map { it.pretty },
         )
     }
 
@@ -217,7 +205,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
 
     val modifiersSeeds = allUsedModifiers.mapNotNull { it.convertToSeed() }
 
-    // ORDER SENSITIVE!
+    // ORDER SENSITIVE! Because [FragmentSeed] is compared by its leaf platforms. See [FragmentSeed::equals].
     val requiredSeeds = buildSet {
         addAll(initialSeeds)
         addAll(aliasesSeeds)
@@ -242,7 +230,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             .filter { it.dependencies.isEmpty() }
 
         if (roots.size > 1) {
-            val commonSeed = FragmentSeed(declaredLeafPlatforms, rootPlatforms = setOf(Platform.COMMON))
+            val commonSeed = FragmentSeed(declaredLeafPlatforms, setOf(Platform.COMMON.pretty))
             requiredSeeds.add(commonSeed)
             roots.forEach { it.dependencies.add(commonSeed) }
         }

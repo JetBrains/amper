@@ -35,7 +35,7 @@ open class DefaultFragment(
     modulePath: Path,
 ) : Fragment {
 
-    private val isCommon = seed.rootPlatforms == setOf(Platform.COMMON)
+    private val isCommon = seed.modifiersAsStrings == setOf(Platform.COMMON.pretty)
 
     /**
      * Modifier that is used to reference this fragment in the module file or within source directory.
@@ -60,8 +60,7 @@ open class DefaultFragment(
     override val isDefault = true
 
     private val srcOnlyOwner by lazy {
-        platforms.singleOrNull() != Platform.COMMON &&
-                fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
+        !isCommon && fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
     }
 
     override val src by lazy {
