@@ -180,7 +180,6 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             .forEach { add(FragmentSeed(platforms = it.value, aliases = setOf(it.key),)) }
     }
 
-
     // Get a list of leaf platforms, denoted by modifiers.
     fun Modifiers.convertToLeafPlatforms() =
         // If modifiers are empty, then treat them  like common platform modifiers.
@@ -191,15 +190,20 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
         }.flatten().toSet()
 
     // Create a fragment seed from modifiers like "alias+ios".
-    fun Modifiers.convertToSeed(): FragmentSeed {
+    fun Modifiers.convertToSeed(): FragmentSeed? {
         val (areAliases, nonAliases) = partition { aliases2leafPlatforms.contains(it.value) }
         val (arePlatforms, nonPlatforms) = nonAliases.partition { Platform.contains(it.value) }
         val declaredModifierPlatforms = arePlatforms.map { Platform[it.value]!! }.toSet()
         val usedModifierPlatforms = declaredModifierPlatforms.flatMap { it.leaves }.toSet() +
                 areAliases.flatMap { aliases2leafPlatforms[it.value] ?: emptyList() }
         // TODO Report nonPlatforms
+
+        val actualLeafPlatforms = usedModifierPlatforms
+            .intersect(declaredLeafPlatforms)
+            .toSet()
+            .takeIf { it.isNotEmpty() } ?: return null
         return FragmentSeed(
-            usedModifierPlatforms.intersect(declaredLeafPlatforms).toSet(),
+            actualLeafPlatforms,
             aliases = areAliases.map { it.value }.toSet(),
             rootPlatforms = declaredModifierPlatforms,
         )
@@ -211,7 +215,7 @@ fun Module.buildFragmentSeeds(): Collection<FragmentSeed> {
             dependencies?.keys.orEmpty() +
             `test-dependencies`?.keys.orEmpty()).filter { it.isNotEmpty() }
 
-    val modifiersSeeds = allUsedModifiers.map { it.convertToSeed() }
+    val modifiersSeeds = allUsedModifiers.mapNotNull { it.convertToSeed() }
 
     // ORDER SENSITIVE!
     val requiredSeeds = buildSet {
