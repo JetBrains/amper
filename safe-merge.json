@@ -5,7 +5,7 @@
       "teamcity": {
         "configuration": "Amper_Build_aggregator",
         "url": "https://amper.teamcity.com/",
-        "token": "${teamcity-token}"
+        "token": "${teamcity-access-token}"
       }
     }
   ]
