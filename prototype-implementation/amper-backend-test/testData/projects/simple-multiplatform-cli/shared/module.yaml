@@ -1,0 +1,3 @@
+product:
+  type: lib
+  platforms: [ jvm, linuxArm64, linuxX64 ]

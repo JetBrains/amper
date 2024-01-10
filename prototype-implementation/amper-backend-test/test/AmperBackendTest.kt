@@ -125,6 +125,19 @@ class AmperBackendTest {
         assertInfoLogContains(find)
     }
 
+    @Ignore
+    @Test
+    fun `simple multiplatform cli`() {
+        val projectContext = getProjectContext("simple-multiplatform-cli")
+        val rc = AmperBackend.run(projectContext, listOf(":linux-cli:runLinuxX64"))
+        assertEquals(0, rc)
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Output: Hello Multiplatform CLI"
+        assertInfoLogContains(find)
+    }
+
     private fun getProjectContext(testProjectName: String): ProjectContext {
         val projectContext = ProjectContext(
             projectRoot = AmperProjectRoot(testDataRoot.resolve(testProjectName)),
