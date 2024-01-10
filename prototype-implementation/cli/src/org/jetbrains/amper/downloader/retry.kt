@@ -37,8 +37,7 @@ suspend fun <T> suspendingRetryWithExponentialBackOff(
         }
         exceptions += if (effectiveDelay > 0) {
             Exception("Attempt $attempt failed with '${e.message}', retrying in ${effectiveDelay}ms", e)
-        }
-        else e
+        } else e
         if (attempt == attempts) {
             throw Exception("$attempts attempts failed, see suppressed exceptions for details").apply {
                 exceptions.forEach(this::addSuppressed)
@@ -58,7 +57,7 @@ suspend fun <T> suspendingRetryWithExponentialBackOff(
     error("Should never be reached")
 }
 
-class NoMoreRetriesException(message: String): Exception(message)
+class NoMoreRetriesException(message: String, cause: Throwable): Exception(message, cause)
 
 private fun nextDelay(
     random: Random,
