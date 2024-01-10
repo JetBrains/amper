@@ -10,6 +10,9 @@
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
 
+# Files with machine-specific information
+/misc.xml
+
 # Imported modules info
 /.name
 /modules/
