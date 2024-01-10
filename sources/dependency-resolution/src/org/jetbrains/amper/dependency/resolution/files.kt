@@ -241,8 +241,8 @@ class DependencyFile(
         }
     }
 
-    private fun download(it: String, extension: String, progress: Progress): ByteArray? {
-        val url = it +
+    private fun download(repository: String, extension: String, progress: Progress): ByteArray? {
+        val url = repository +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
                 "/${dependency.version}" +
@@ -252,7 +252,8 @@ class DependencyFile(
             connection.requestMethod = "GET"
             connection.connectTimeout = 5000
             connection.readTimeout = 5000
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 val contentLength = connection.contentLength
                 val bytes = ByteArrayOutputStream().also { baos ->
                     connection.inputStream.use { inputStream ->
@@ -266,15 +267,27 @@ class DependencyFile(
                     }
                 }.toByteArray()
                 if (contentLength != -1 && bytes.size != contentLength) {
-                    // TODO log it
+                    dependency.messages += Message(
+                        "Content length doesn't match for $repository",
+                        "Expected: $contentLength, actual: ${bytes.size}",
+                        Severity.ERROR
+                    )
                     return null
                 }
                 return bytes
-            } else {
-                // TODO log it
+            } else if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
+                dependency.messages += Message(
+                    "Unexpected response code for $repository",
+                    "Expected: ${HttpURLConnection.HTTP_OK}, actual: $responseCode",
+                    Severity.WARNING,
+                )
             }
-        } catch (ignored: Exception) {
-            // TODO log it
+        } catch (e: Exception) {
+            dependency.messages += Message(
+                "Unable to reach $repository",
+                e.toString(),
+                Severity.ERROR,
+            )
         }
         return null
     }
