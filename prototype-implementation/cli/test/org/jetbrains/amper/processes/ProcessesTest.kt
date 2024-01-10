@@ -86,7 +86,9 @@ class ProcessesTest {
         val result = withTimeoutOrNull(200.milliseconds) { deferredResult.await() }
         assertNotNull(result) { "The result should be returned quickly after the destruction of the process" }
 
-        assertEquals("", result.stderr, "There should be nothing in stderr")
+        // We don't assert anything on stderr, because the way the process is killed may lead to unpredictable stderr.
+        // For example, on Windows, there seems to be races between the cleanup of the standard streams pipes and the
+        // death of the process, leading to errors like: "The process tried to write to a nonexistent pipe".
         assertTrue(result.stdout.startsWith(loremIpsum1000), "At least the first line of output should have been captured, but got: ${result.stdout}")
         assertEquals(cancelledExitCode, result.exitCode, "The exit code should be the cancellation exit code $cancelledExitCode")
     }
