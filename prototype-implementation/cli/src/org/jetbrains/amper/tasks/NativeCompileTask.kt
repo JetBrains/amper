@@ -22,8 +22,10 @@ import org.jetbrains.amper.tasks.TaskResult.Companion.walkDependenciesRecursivel
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
@@ -130,19 +132,32 @@ class NativeCompileTask(
 
                 args.addAll(rootsToCompile.map { it.pathString })
 
-                val environment = mapOf(
-                    "JAVACMD" to javaExecutable.pathString,
-                )
-
                 KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
+                    // todo in the future we'll switch to kotlin tooling api and remove this awful code
+
+                    val konanLib = kotlinNativeHome / "konan" / "lib"
+                    val jvmArgs = listOf(
+                        javaExecutable.pathString,
+                        // from bin/run_konan
+                        "-ea",
+                        "-XX:TieredStopAtLevel=1",
+                        "-Dfile.encoding=UTF-8",
+                        "-Dkonan.home=$kotlinNativeHome",
+                        "-cp",
+                        listOf(konanLib / "kotlin-native-compiler-embeddable.jar",
+                            konanLib / "trove4j.jar").joinToString(File.pathSeparator) { it.pathString },
+                        "org.jetbrains.kotlin.cli.utilities.MainKt",
+                        "konanc",
+                        "@${argFile}",
+                    )
+
                     spanBuilder("konanc")
                         .setAttribute("amper-module", module.userReadableName)
                         .setAttribute(AttributeKey.stringArrayKey("args"), args)
                         .setAttribute("version", kotlinVersion)
                         .useWithScope { span ->
                             logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
-                            BuildPrimitives.runProcessAndAssertExitCode(
-                                listOf(konancExecutable.pathString, "@$argFile"), kotlinNativeHome, span, environment
+                            BuildPrimitives.runProcessAndAssertExitCode(jvmArgs, kotlinNativeHome, span
                             )
                         }
                 }
