@@ -96,11 +96,11 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
             settings = mapOf(
                 emptySet<TraceableString>() to Settings().apply {
                     android = AndroidSettings().apply {
-                        compileSdk = "33"
-                        minSdk = "30"
+                        compileSdk = AndroidVersion.VERSION_33
+                        minSdk = AndroidVersion.VERSION_30
                         applicationId = "my-application"
-                        maxSdk = "33"
-                        targetSdk = "33"
+                        maxSdk = AndroidVersion.VERSION_33
+                        targetSdk = AndroidVersion.VERSION_33
                         namespace = "com.example.namespace"
                     }
 

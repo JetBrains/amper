@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.api.SchemaEnum
 import org.jetbrains.amper.frontend.forEachEndAware
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -86,7 +87,7 @@ val KType.enumSchema
         append("\"enum\": [")
         val enumValues = unwrapKClassOrNull!!.java.enumConstants
         enumValues.toList().forEachEndAware<Any> { isEnd, it ->
-            append("\"$it\"")
+            append("\"${(it as? SchemaEnum)?.schemaValue ?: it}\"")
             if (!isEnd) append(",")
         }
         append("]")

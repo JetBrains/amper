@@ -4,20 +4,28 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.ClassBasedSet
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentPart
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModelImpl
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.plus
+import org.jetbrains.amper.frontend.toClassBasedSet
 
 // Copy paste from "sources/frontend-api/src/org/jetbrains/amper/frontend/resolve/resolve.kt"
 // TODO Need to be removed after parts replacement with Settings.
 
 val Model.resolved: Model
     get() = ModelImpl(
-        this@resolved.modules.map {
-            object : PotatoModule by it {
-                override val fragments = it.fragments.resolve(it)
-            }
-        }
+        this@resolved.modules.map { it.withResolvedParts }
     )
 
+val PotatoModule.withResolvedParts: PotatoModule get() = object : PotatoModule by this {
+    override val fragments: List<Fragment> =
+        this@withResolvedParts.fragments.resolve(this@withResolvedParts)
+}
 
 fun List<Fragment>.resolve(module: PotatoModule): List<Fragment> = buildList {
     var root: Fragment? = this@resolve.firstOrNull()

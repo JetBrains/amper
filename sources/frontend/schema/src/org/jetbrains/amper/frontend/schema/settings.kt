@@ -4,8 +4,18 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.api.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
+
+
+enum class JUnitVersion(override val schemaValue: String) : SchemaEnum {
+    JUNIT4("junit-4"),
+    JUNIT5("junit-5"),
+    NONE("none");
+    companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::schemaValue)
+}
 
 class Settings : SchemaNode() {
     var java by nullableValue<JavaSettings>()
@@ -13,31 +23,11 @@ class Settings : SchemaNode() {
     var kotlin by value<KotlinSettings>().default(KotlinSettings())
     var android by nullableValue<AndroidSettings>()
     var compose by nullableValue<ComposeSettings>()
-    var junit by nullableValue<String>() // TODO Replace with enum.
+    var junit by value<JUnitVersion>().default(JUnitVersion.JUNIT4)
     var ios by nullableValue<IosSettings>()
     var publishing by nullableValue<PublishingSettings>()
     var kover by nullableValue<KoverSettings>()
     var native by nullableValue<NativeSettings>()
-}
-
-class JavaSettings : SchemaNode() {
-    // TODO Replace with enum
-    var source by nullableValue<String>()
-}
-
-class JvmSettings : SchemaNode() {
-    // TODO Replace with enum
-    var target by value<String>().default("17")
-    var mainClass by nullableValue<String>()
-}
-
-class AndroidSettings : SchemaNode() {
-    var compileSdk by nullableValue<String>()
-    var minSdk by nullableValue<String>()
-    var maxSdk by nullableValue<String>()
-    var targetSdk by nullableValue<String>()
-    var applicationId by nullableValue<String>()
-    var namespace by nullableValue<String>()
 }
 
 class KotlinSettings : SchemaNode() {

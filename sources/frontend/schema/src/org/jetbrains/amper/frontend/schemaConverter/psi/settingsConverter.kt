@@ -6,10 +6,13 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
+import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.JavaSettings
+import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
@@ -24,6 +27,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.util.asAbsolutePath
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.asMappingNode
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChild
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildBoolean
+import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildEnum
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalar
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalarCollection
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildString
@@ -51,26 +55,26 @@ internal fun YAMLMapping.doConvertSettings() = Settings().apply {
     ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }
     ::native.convertChildValue { asMappingNode()?.convertNativeSettings() }
 
-    ::junit.convertChildString()
+    ::junit.convertChildEnum(JUnitVersion)
 }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertJavaSettings() = JavaSettings().apply {
-    ::source.convertChildString()
+    ::source.convertChildEnum(JavaVersion.Index)
 }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertJvmSettings() = JvmSettings().apply {
-    ::target.convertChildString()
+    ::target.convertChildEnum(JavaVersion.Index)
     ::mainClass.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
-    ::compileSdk.convertChildString()
-    ::minSdk.convertChildString()
-    ::maxSdk.convertChildString()
-    ::targetSdk.convertChildString()
+    ::compileSdk.convertChildEnum(AndroidVersion)
+    ::minSdk.convertChildEnum(AndroidVersion)
+    ::maxSdk.convertChildEnum(AndroidVersion)
+    ::targetSdk.convertChildEnum(AndroidVersion)
     ::applicationId.convertChildString()
     ::namespace.convertChildString()
 }

@@ -5,11 +5,11 @@ Fragments:
     Fragment dependencies:
     Parts:
       KotlinPart(languageVersion=1.9, apiVersion=null, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=namespace)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=namespace, namespace=namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
@@ -25,7 +25,7 @@ Fragments:
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)

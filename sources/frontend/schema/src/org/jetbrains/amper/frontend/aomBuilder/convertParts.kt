@@ -59,24 +59,24 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
 
     parts += AndroidPart(
         // TODO Replace with enum for Android versions.
-        compileSdk = this?.android?.compileSdk?.let { "android-$it" },
-        minSdk = this?.android?.minSdk,
-        maxSdk = this?.android?.maxSdk?.toIntOrNull(), // TODO Verify
-        targetSdk = this?.android?.targetSdk,
+        compileSdk = this?.android?.compileSdk?.withPrefix,
+        minSdk = this?.android?.minSdk?.schemaValue,
+        maxSdk = this?.android?.maxSdk?.versionNumber,
+        targetSdk = this?.android?.targetSdk?.schemaValue,
         applicationId = this?.android?.applicationId,
         namespace = this?.android?.namespace,
     )
 
     parts += IosPart(this?.ios?.teamId)
 
-    parts += JavaPart(this?.java?.source)
+    parts += JavaPart(this?.java?.source?.schemaValue)
 
     parts += JvmPart(
         this?.jvm?.mainClass,
-        this?.jvm?.target,
+        this?.jvm?.target?.schemaValue,
     )
 
-    parts += JUnitPart(this?.junit?.let { JUnitVersion[it] }) // TODO Replace by enum.
+    parts += JUnitPart(this?.junit?.let { JUnitVersion.valueOf(it.name) }) // TODO Replace by enum.
 
     parts += PublicationPart(
         group = this?.publishing?.group,

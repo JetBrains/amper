@@ -96,11 +96,11 @@ fun KProperty0<Boolean?>.convertChildBoolean() =
  * same as property name.
  */
 context(YAMLMapping, ProblemReporterContext)
-fun <T : Enum<T>> KProperty0<T>.convertChildEnum(
+fun <T : Enum<T>> KProperty0<T?>.convertChildEnum(
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,
     isLong: Boolean = false,
-) = convertChildScalar() {
+) = convertChildScalar {
     convertEnum(enumIndex, isFatal = isFatal, isLong = isLong)
 }
 

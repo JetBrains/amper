@@ -12,7 +12,7 @@ Module
 
 Meta: Meta settings for current module
 --------------------------------------
-	layout: AmperLayout, default: AMPER
+	layout: AmperLayout, default: default
 
 ModuleProduct
 -------------
@@ -23,19 +23,19 @@ CatalogDependency
 -----------------
 	catalogKey: String
 	exported: Boolean, default: false
-	scope: DependencyScope, default: ALL
+	scope: DependencyScope, default: all
 
 ExternalMavenDependency
 -----------------------
 	coordinates: String
 	exported: Boolean, default: false
-	scope: DependencyScope, default: ALL
+	scope: DependencyScope, default: all
 
 InternalDependency
 ------------------
 	path: Path
 	exported: Boolean, default: false
-	scope: DependencyScope, default: ALL
+	scope: DependencyScope, default: all
 
 Repository
 ----------
@@ -56,7 +56,7 @@ Settings
 	compose: ComposeSettings
 	ios: IosSettings
 	java: JavaSettings
-	junit: String
+	junit: JUnitVersion, default: junit-4
 	jvm: JvmSettings
 	kotlin: KotlinSettings
 	kover: KoverSettings
@@ -66,11 +66,11 @@ Settings
 AndroidSettings
 ---------------
 	applicationId: String
-	compileSdk: String
-	maxSdk: String
-	minSdk: String
+	compileSdk: AndroidVersion, default: 34
+	maxSdk: AndroidVersion, default: 34
+	minSdk: AndroidVersion, default: 21
 	namespace: String
-	targetSdk: String
+	targetSdk: AndroidVersion, default: 34
 
 ComposeSettings
 ---------------
@@ -88,12 +88,12 @@ IosFrameworkSettings
 
 JavaSettings
 ------------
-	source: String
+	source: JavaVersion
 
 JvmSettings
 -----------
 	mainClass: String
-	target: String, default: 17
+	target: JavaVersion, default: 17
 
 KotlinSettings
 --------------

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.builders
 
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaDoc
+import org.jetbrains.amper.frontend.api.SchemaEnum
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -149,7 +150,7 @@ class DocBuilder private constructor(
         }
 
     private val Default<*>.asString get() = when(this) {
-        is Default.Static -> value?.toString()
+        is Default.Static -> (value as? SchemaEnum)?.schemaValue ?: value?.toString()
         is Default.Lambda -> desc
     }
 }

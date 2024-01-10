@@ -35,7 +35,7 @@ Fragments:
       KoverPart(enabled=null, html=null, xml=null)
   common
     External dependencies:
-      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}parser{{ fileSeparator }}subModule)
+      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/prototype-implementation/frontend/schema/testResources/parser/subModule)
     Src folder: src
     Fragment dependencies:
     Parts:
@@ -61,7 +61,7 @@ Fragments:
       IosPart(teamId=null)
       JavaPart(source=null)
       JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
       ComposePart(enabled=null)
