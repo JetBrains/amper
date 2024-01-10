@@ -22,6 +22,7 @@ import org.jetbrains.amper.tasks.JvmRunTask
 import org.jetbrains.amper.tasks.JvmTestTask
 import org.jetbrains.amper.tasks.NativeCompileTask
 import org.jetbrains.amper.tasks.NativeRunTask
+import org.jetbrains.amper.tasks.NativeTestTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.Task
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -108,6 +109,7 @@ object AmperBackend {
                                 executeOnChangedInputs = executeOnChangedInputs,
                                 taskName = compileTaskName,
                                 tempRoot = context.projectTempRoot,
+                                isTest = isTest,
                             )
 
                             else -> error("$top is not supported yet")
@@ -162,6 +164,12 @@ object AmperBackend {
                                 projectRoot = context.projectRoot,
                                 taskName = testTaskName,
                                 taskOutputRoot = getTaskOutputPath(testTaskName),
+                            )
+
+                            Platform.NATIVE -> NativeTestTask(
+                                module = module,
+                                projectRoot = context.projectRoot,
+                                taskName = testTaskName,
                             )
 
                             else -> error("$top is not supported yet")

@@ -38,6 +38,7 @@ class NativeCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
+    private val isTest: Boolean,
 ): Task {
     init {
         require(platform.isLeaf)
@@ -97,19 +98,23 @@ class NativeCompileTask(
         val artifact = executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifactExtension = if (module.type.isLibrary()) ".klib" else ".kexe"
+            val artifactExtension = if (module.type.isLibrary() && !isTest) ".klib" else ".kexe"
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
 
             val args = mutableListOf(
                 "-g",
                 "-ea",
-                "-produce", if (module.type.isLibrary()) "library" else "program",
+                "-produce", if (module.type.isLibrary() && !isTest) "library" else "program",
                 // TODO full module path including entire hierarchy? -Xshort-module-name?
                 "-module-name", module.userReadableName,
                 "-output", artifact.pathString,
                 "-target", platform.name.lowercase(),
                 "-Xmulti-platform",
             )
+
+            if (isTest) {
+                args.add("-generate-test-runner")
+            }
 
             if (entryPoint != null) {
                 args.add("-entry")

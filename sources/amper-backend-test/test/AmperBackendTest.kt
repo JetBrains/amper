@@ -151,6 +151,20 @@ class AmperBackendTest {
     }
 
     @Test
+    @MacOnly
+    fun `simple multiplatform cli test on mac`() {
+        val projectContext = getProjectContext("simple-multiplatform-cli")
+        val rc = AmperBackend.run(projectContext, listOf(":shared:testMacosArm64"))
+        assertEquals(0, rc)
+
+        val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "native-test" }
+        val stdout = testLauncherSpan.attributes[AttributeKey.stringKey("stdout")]!!
+
+        assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
+        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
+    }
+
+    @Test
     @LinuxOnly
     fun `simple multiplatform cli on linux`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
