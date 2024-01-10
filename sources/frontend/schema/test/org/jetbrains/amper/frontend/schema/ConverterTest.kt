@@ -113,8 +113,8 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                     }
 
                     kotlin = KotlinSettings().apply {
-                        apiVersion = "1.8"
-                        languageVersion = "1.8"
+                        apiVersion = KotlinVersion.Kotlin18
+                        languageVersion = KotlinVersion.Kotlin18
                         allWarningsAsErrors = false
                         debug = false
                         progressiveMode = false

@@ -98,11 +98,11 @@ JvmSettings
 KotlinSettings
 --------------
 	allWarningsAsErrors: Boolean, default: false
-	apiVersion: String
+	apiVersion: KotlinVersion
 	debug: Boolean, default: false
 	freeCompilerArgs: List<String>
 	languageFeatures: List<String>
-	languageVersion: String, default: 1.9
+	languageVersion: KotlinVersion, default: 1.9
 	linkerOpts: List<String>
 	optIns: List<String>
 	progressiveMode: Boolean, default: false

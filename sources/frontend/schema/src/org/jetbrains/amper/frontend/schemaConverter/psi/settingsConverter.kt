@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
@@ -81,8 +82,8 @@ internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertKotlinSettings() = KotlinSettings().apply {
-    ::languageVersion.convertChildString()
-    ::apiVersion.convertChildString()
+    ::languageVersion.convertChildEnum(KotlinVersion)
+    ::apiVersion.convertChildEnum(KotlinVersion)
 
     ::allWarningsAsErrors.convertChildBoolean()
     ::suppressWarnings.convertChildBoolean()

@@ -369,7 +369,7 @@
           "type": "boolean"
         },
         "apiVersion": {
-          "type": "string"
+          "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"]
         },
         "debug": {
           "type": "boolean"
@@ -387,7 +387,7 @@
           }
         },
         "languageVersion": {
-          "type": "string"
+          "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"]
         },
         "linkerOpts": {
           "type": "array",

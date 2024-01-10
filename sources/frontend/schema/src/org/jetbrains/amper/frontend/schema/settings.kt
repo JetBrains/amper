@@ -30,26 +30,6 @@ class Settings : SchemaNode() {
     var native by nullableValue<NativeSettings>()
 }
 
-class KotlinSettings : SchemaNode() {
-    var serialization by nullableValue<SerializationSettings>()
-
-    // TODO Replace with enum
-    var languageVersion by value<String>().default("1.9")
-    // TODO Replace with enum
-    var apiVersion by nullableValue<String>()
-    var allWarningsAsErrors by value<Boolean>().default(false)
-    var freeCompilerArgs by nullableValue<List<String>>()
-    var suppressWarnings by value<Boolean>().default(false)
-    var verbose by value<Boolean>().default(false)
-    var linkerOpts by nullableValue<List<String>>()
-    var debug by value<Boolean>().default(false)
-    var progressiveMode by value<Boolean>().default(false)
-    // TODO Replace with enum
-    var languageFeatures by nullableValue<List<String>>()
-    // TODO Replace with enum
-    var optIns by nullableValue<List<String>>()
-}
-
 class ComposeSettings : SchemaNode() {
     var enabled by value<Boolean>()
 }

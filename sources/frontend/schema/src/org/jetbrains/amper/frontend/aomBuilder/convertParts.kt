@@ -43,8 +43,8 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
     val parts = classBasedSet<FragmentPart<*>>()
 
     parts += KotlinPart(
-        languageVersion = this?.kotlin?.languageVersion,
-        apiVersion = this?.kotlin?.apiVersion,
+        languageVersion = this?.kotlin?.languageVersion?.schemaValue,
+        apiVersion = this?.kotlin?.apiVersion?.schemaValue,
         allWarningsAsErrors = this?.kotlin?.allWarningsAsErrors,
         freeCompilerArgs = this?.kotlin?.freeCompilerArgs ?: emptyList(),
         suppressWarnings = this?.kotlin?.suppressWarnings,
