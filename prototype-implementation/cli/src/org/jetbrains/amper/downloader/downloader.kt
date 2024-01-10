@@ -174,6 +174,13 @@ object Downloader {
                             StandardCopyOption.ATOMIC_MOVE,
                             StandardCopyOption.REPLACE_EXISTING,
                         )
+                    } catch (httpException: HttpStatusException) {
+                        if (httpException.statusCode == 404) {
+                            // do not retry 404
+                            throw NoMoreRetriesException(httpException.toString(), httpException)
+                        } else {
+                            throw httpException
+                        }
                     } finally {
                         Files.deleteIfExists(tempFile)
                     }
@@ -216,7 +223,7 @@ object Downloader {
 
     private val fileLocks = StripedMutex(stripeCount = 256)
 
-    class HttpStatusException(message: String, private val statusCode: Int, val url: String) :
+    class HttpStatusException(message: String, val statusCode: Int, val url: String) :
         IllegalStateException(message) {
         override fun toString(): String =
             "HttpStatusException(status=${statusCode}, url=${url}, message=${message})"
