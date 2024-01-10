@@ -4,6 +4,27 @@
 
 package org.jetbrains.amper.tasks
 
+import kotlin.reflect.KClass
+
 interface TaskResult {
     val dependencies: List<TaskResult>
+
+    companion object {
+        inline fun <reified R: TaskResult> TaskResult.walkDependenciesRecursively(): List<R> {
+            val result = mutableListOf<R>()
+            collectDependenciesRecursively(R::class, result)
+            return result
+        }
+
+        fun <R: TaskResult> TaskResult.collectDependenciesRecursively(type: KClass<R>, result: MutableList<R>) {
+            for (dependency in dependencies) {
+                if (type.isInstance(dependency)) {
+                    @Suppress("UNCHECKED_CAST")
+                    result.add(dependency as R)
+                }
+
+                dependency.collectDependenciesRecursively(type, result)
+            }
+        }
+    }
 }

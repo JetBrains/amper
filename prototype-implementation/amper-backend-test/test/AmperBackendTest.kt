@@ -125,16 +125,42 @@ class AmperBackendTest {
         assertInfoLogContains(find)
     }
 
-    @Ignore
     @Test
-    fun `simple multiplatform cli`() {
+    fun `simple multiplatform cli on jvm`() {
+        val projectContext = getProjectContext("simple-multiplatform-cli")
+        val rc = AmperBackend.run(projectContext, listOf(":jvm-cli:runJvm"))
+        assertEquals(0, rc)
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello Multiplatform CLI: JVM World"
+        assertInfoLogContains(find)
+    }
+
+    @Test
+    @MacOnly
+    fun `simple multiplatform cli on mac`() {
+        val projectContext = getProjectContext("simple-multiplatform-cli")
+        val rc = AmperBackend.run(projectContext, listOf(":macos-cli:runMacosArm64"))
+        assertEquals(0, rc)
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello Multiplatform CLI: Mac World"
+        assertInfoLogContains(find)
+    }
+
+    @Test
+    @Ignore
+    @LinuxOnly
+    fun `simple multiplatform cli on linux`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
         val rc = AmperBackend.run(projectContext, listOf(":linux-cli:runLinuxX64"))
         assertEquals(0, rc)
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
-                "Output: Hello Multiplatform CLI"
+                "Hello Multiplatform CLI: Linux World"
         assertInfoLogContains(find)
     }
 

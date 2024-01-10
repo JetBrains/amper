@@ -14,8 +14,11 @@ import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.TaskResult.Companion.walkDependenciesRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
@@ -24,7 +27,6 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
-import kotlin.io.path.writeText
 
 class NativeCompileTask(
     private val module: PotatoModule,
@@ -48,6 +50,13 @@ class NativeCompileTask(
             error("Zero fragments in module ${module.userReadableName} for platform $platform")
         }
 
+        val compiledModuleDependencies = dependenciesResult
+            .filterIsInstance<TaskResult>()
+            .flatMap { it.walkDependenciesRecursively<TaskResult>() + it }
+            .map { it.artifact }
+
+        // todo native resources are what exactly?
+
         // TODO dependencies support
         // TODO kotlin version settings
         val kotlinVersion = KotlinCompilerUtil.AMPER_DEFAULT_KOTLIN_VERSION
@@ -62,65 +71,85 @@ class NativeCompileTask(
 
         logger.info("native compile ${module.userReadableName} -- ${fragments.joinToString(" ") { it.name }}")
 
-        // -g debug
-        // -ea
-        // -target
-        // -kotlin-home ?
-
-        // todo native resources are what exactly?
-        // todo let's consider a program which imports all code from dependencies
-        //  also an entry point
-        val existingSourceRoots = fragments.map { it.src }.filter { it.exists() }
-        if (existingSourceRoots.isEmpty()) {
-            logger.warn("sources and resources are missing at ${fragments.joinToString(" ") { "'${it.src}'" }}'. Assuming no compilation step is required")
-            return TaskResult(
-                dependencies = dependenciesResult,
-                artifact = null,
-            )
-        }
-
         // TODO this is JDK to run konanc, what are the requirements?
         val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
         val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
 
+        val entryPoints = if (module.type.isApplication()) {
+            fragments.flatMap { it.parts.filterIsInstance<NativeApplicationPart>() }
+                .mapNotNull { it.entryPoint }.distinct()
+        } else emptyList()
+        if (entryPoints.size > 1) {
+            error("Multiple entry points defined for module ${module.userReadableName} fragments ${fragments.userReadableList()}: ${entryPoints.joinToString()}")
+        }
+        val entryPoint = entryPoints.singleOrNull()
+
         val configuration: Map<String, String> = mapOf(
             "konanc.jdk.version" to JdkDownloader.JBR_SDK_VERSION,
             "kotlin.version" to kotlinVersion,
+            "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = existingSourceRoots
+        val inputs = fragments.map { it.src } + compiledModuleDependencies
         val artifact = executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifact = taskOutputRoot.path.resolve(module.userReadableName + ".kexe")
+            val artifactExtension = if (module.type.isLibrary()) ".klib" else ".kexe"
+            val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
 
-            val args = listOf(
+            val args = mutableListOf(
                 "-g",
                 "-ea",
-                "-produce", "program",
-                // TODO full module path including entire hierarchy
+                "-produce", if (module.type.isLibrary()) "library" else "program",
+                // TODO full module path including entire hierarchy? -Xshort-module-name?
                 "-module-name", module.userReadableName,
-                "-Xshort-module-name=${module.userReadableName}",
                 "-output", artifact.pathString,
                 "-target", platform.name.lowercase(),
                 "-Xmulti-platform",
-            ) + existingSourceRoots.map { it.pathString }
-
-            val environment = mapOf(
-                "JAVACMD" to javaExecutable.pathString,
             )
 
-            KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                spanBuilder("konanc")
-                    .setAttribute("amper-module", module.userReadableName)
-                    .setAttribute(AttributeKey.stringArrayKey("args"), args)
-                    .setAttribute("version", kotlinVersion)
-                    .useWithScope { span ->
-                        logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
-                        BuildPrimitives.runProcessAndAssertExitCode(
-                            listOf(konancExecutable.pathString, "@$argFile"), kotlinNativeHome, span, environment)
-                    }
+            if (entryPoint != null) {
+                args.add("-entry")
+                args.add(entryPoint)
+            }
+
+            args.addAll(compiledModuleDependencies.flatMap { listOf("-l", it.pathString) })
+
+            val tempFilesToDelete = mutableListOf<Path>()
+
+            try {
+                val existingSourceRoots = fragments.map { it.src }.filter { it.exists() }
+                val rootsToCompile = existingSourceRoots.ifEmpty {
+                    // konanc does not want to compile application with zero sources files,
+                    // but it's a perfectly valid situation where all code is in shared library
+                    val emptyKotlinFile = Files.createTempFile(tempRoot.path, "empty", ".kt")
+                        .also { tempFilesToDelete.add(it) }
+                    listOf(emptyKotlinFile)
+                }
+
+                args.addAll(rootsToCompile.map { it.pathString })
+
+                val environment = mapOf(
+                    "JAVACMD" to javaExecutable.pathString,
+                )
+
+                KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
+                    spanBuilder("konanc")
+                        .setAttribute("amper-module", module.userReadableName)
+                        .setAttribute(AttributeKey.stringArrayKey("args"), args)
+                        .setAttribute("version", kotlinVersion)
+                        .useWithScope { span ->
+                            logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
+                            BuildPrimitives.runProcessAndAssertExitCode(
+                                listOf(konancExecutable.pathString, "@$argFile"), kotlinNativeHome, span, environment
+                            )
+                        }
+                }
+            } finally {
+                for (tempPath in tempFilesToDelete) {
+                    BuildPrimitives.deleteLater(tempPath)
+                }
             }
 
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
@@ -134,7 +163,7 @@ class NativeCompileTask(
 
     class TaskResult(
         override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
-        val artifact: Path?,
+        val artifact: Path,
     ) : org.jetbrains.amper.tasks.TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

@@ -26,6 +26,7 @@ import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.Task
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.exists
@@ -74,17 +75,12 @@ object AmperBackend {
         val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
 
         for (module in sortedByPath) {
-            // TODO dunno how to get it legally
-            val modulePlatforms =
-                (module.fragments.flatMap { it.platforms } + module.artifacts.flatMap { it.platforms })
-                .filter { it.isLeaf }
-                .toSet()
+            val modulePlatforms = module.targetLeafPlatforms
             logger.info("distinct module platforms ${module.userReadableName}: ${modulePlatforms.sortedBy { it.name }.joinToString()}")
 
             for (platform in modulePlatforms) {
                 for (isTest in listOf(false, true)) {
-                    val fragments = module.fragments
-                        .filter { it.isTest == isTest && it.platforms.contains(Platform.JVM) }
+                    val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
                     if (isTest && fragments.all { !it.src.exists() }) {
                         // no test code, assume no code generation
                         // other modules could not depend on this module's tests, so it's ok
@@ -192,8 +188,8 @@ object AmperBackend {
                     //  I'm not sure, it's just test -> non-test dependency? Otherwise we build it by platforms
                     if (isTest) {
                         tasks.registerDependency(
-                            taskName = getTaskName(module, CommonTaskType.COMPILE, Platform.JVM, true),
-                            dependsOn = getTaskName(module, CommonTaskType.COMPILE, Platform.JVM, false)
+                            taskName = getTaskName(module, CommonTaskType.COMPILE, platform, true),
+                            dependsOn = getTaskName(module, CommonTaskType.COMPILE, platform, false)
                         )
                     }
 

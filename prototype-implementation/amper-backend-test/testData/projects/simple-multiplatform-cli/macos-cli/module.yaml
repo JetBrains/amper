@@ -1,6 +1,6 @@
 product:
-  type: linux/app
-  platforms: [ linuxArm64, linuxX64 ]
+  type: macos/app
+  platforms: [ macosArm64 ]
 
 dependencies:
   - ../shared

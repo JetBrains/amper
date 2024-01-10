@@ -16,10 +16,12 @@ import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.KotlinPart
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.ShellQuoting
+import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
@@ -60,16 +62,20 @@ class JvmCompileTask(
             languageVersions.firstOrNull()
         }
 
+        // TODO settings!
         val kotlinVersion = KotlinCompilerUtil.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
+
+        val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty()
 
         val configuration: Map<String, String> = mapOf(
             "jdk.version" to JdkDownloader.JBR_SDK_VERSION,
             "kotlin.version" to kotlinVersion,
             "language.version" to (languageVersion ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
+            "isMultiplatform" to isMultiplatform.toString(),
         )
 
         val inputs = fragments.map { it.src } + fragments.map { it.resourcesPath } + classpath
@@ -90,6 +96,10 @@ class JvmCompileTask(
                 if (languageVersion != null) {
                     kotlincOptions.add("-language-version")
                     kotlincOptions.add(languageVersion)
+                }
+
+                if (isMultiplatform) {
+                    kotlincOptions.add("-Xmulti-platform")
                 }
 
                 kotlincOptions.add("-jvm-target")

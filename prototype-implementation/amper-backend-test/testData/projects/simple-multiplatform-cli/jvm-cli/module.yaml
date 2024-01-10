@@ -5,5 +5,5 @@ dependencies:
   - ../shared
 
 settings:
-  native:
-    entryPoint: Program
+  jvm:
+    mainClass: package1.Program1Kt

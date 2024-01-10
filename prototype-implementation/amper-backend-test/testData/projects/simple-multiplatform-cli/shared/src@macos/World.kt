@@ -2,9 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-object Program {
-    @JvmStatic
-    fun main(args: Array<String>) {
-        println("Hello Multiplatform CLI")
+actual class World {
+    actual fun get(): String {
+        return "Mac World"
     }
 }

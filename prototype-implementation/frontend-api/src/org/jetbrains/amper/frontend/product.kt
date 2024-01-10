@@ -49,6 +49,8 @@ enum class ProductType(
         return this == LIB
     }
 
+    fun isApplication(): Boolean = !isLibrary()
+
     override fun toString(): String {
         return value
     }
