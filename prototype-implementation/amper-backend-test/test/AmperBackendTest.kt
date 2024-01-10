@@ -151,7 +151,6 @@ class AmperBackendTest {
     }
 
     @Test
-    @Ignore
     @LinuxOnly
     fun `simple multiplatform cli on linux`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
