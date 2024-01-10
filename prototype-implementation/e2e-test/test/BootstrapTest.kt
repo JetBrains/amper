@@ -34,9 +34,6 @@ class BootstrapTest {
         val core = TestUtil.prototypeImplementationRoot.resolve("core/build/libs/core-jvm-$version.jar")
         val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
 
-        println("############ $version")
-        println("############ gradle-integration libraries ${TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs").toFile().list().toSet()}")
-
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
