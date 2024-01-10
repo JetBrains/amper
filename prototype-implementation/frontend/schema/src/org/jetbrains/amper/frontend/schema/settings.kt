@@ -17,6 +17,7 @@ class Settings : SchemaNode() {
     var ios by nullableValue<IosSettings>()
     var publishing by nullableValue<PublishingSettings>()
     var kover by nullableValue<KoverSettings>()
+    var native by nullableValue<NativeSettings>()
 }
 
 class JavaSettings : SchemaNode() {
@@ -98,4 +99,9 @@ class KoverHtmlSettings : SchemaNode() {
     var charset by nullableValue<String>()
     var onCheck by nullableValue<Boolean>()
     var reportDir by nullableValue<Path>()
+}
+
+class NativeSettings : SchemaNode() {
+    // TODO other options from NativeApplicationPart
+    var entryPoint by nullableValue<String>()
 }

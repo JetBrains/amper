@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
@@ -48,6 +49,7 @@ internal fun YAMLMapping.doConvertSettings() = Settings().apply {
     ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
     ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }
     ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }
+    ::native.convertChildValue { asMappingNode()?.convertNativeSettings() }
 
     ::junit.convertChildString()
 }
@@ -143,4 +145,9 @@ internal fun YAMLMapping.convertKoverHtmlSettings() = KoverHtmlSettings().apply 
     ::title.convertChildString()
     ::charset.convertChildString()
     ::reportDir.convertChildScalar { asAbsolutePath() }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun YAMLMapping.convertNativeSettings() = NativeSettings().apply {
+    ::entryPoint.convertChildString()
 }

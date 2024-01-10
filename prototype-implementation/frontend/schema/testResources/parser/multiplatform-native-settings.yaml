@@ -1,0 +1,7 @@
+product:
+  type: linux/app
+  platforms: [ linuxArm64 ]
+
+settings:
+  native:
+    entryPoint: package.main

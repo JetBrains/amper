@@ -85,7 +85,7 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
 
     parts += NativeApplicationPart(
         // TODO Fill all other options.
-        entryPoint = null, // TODO Pass entry point.
+        entryPoint = this?.native?.entryPoint,
         declaredFrameworkBasename = this?.ios?.framework?.basename,
     )
 

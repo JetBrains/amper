@@ -25,6 +25,11 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
         aomTest("1-multiplatform-app")
     }
 
+    @Test
+    fun `multiplatform native settings`() {
+        aomTest("multiplatform-native-settings")
+    }
+
     // TODO See: https://youtrack.jetbrains.com/issue/AMPER-114/Change-aliases-DSL-from-object-to-list
     @Test
     fun aliases() {
