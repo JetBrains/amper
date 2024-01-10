@@ -60,6 +60,7 @@ Settings
 	jvm: JvmSettings
 	kotlin: KotlinSettings
 	kover: KoverSettings
+	native: NativeSettings
 	publishing: PublishingSettings
 
 AndroidSettings
@@ -130,6 +131,10 @@ KoverXmlSettings
 ----------------
 	onCheck: Boolean
 	reportFile: Path
+
+NativeSettings
+--------------
+	entryPoint: String
 
 PublishingSettings
 ------------------
