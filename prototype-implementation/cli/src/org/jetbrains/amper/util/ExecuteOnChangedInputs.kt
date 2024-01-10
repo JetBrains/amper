@@ -10,16 +10,16 @@ import com.google.common.hash.Hashing
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.PosixFileAttributes
 import java.util.*
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.bufferedReader
-import kotlin.io.path.fileSize
-import kotlin.io.path.getLastModifiedTime
-import kotlin.io.path.isDirectory
-import kotlin.io.path.isExecutable
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.outputStream
+import kotlin.io.path.readAttributes
 import kotlin.io.path.walk
 import kotlin.time.measureTimedValue
 
@@ -158,22 +158,36 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     private fun getPathListState(paths: List<Path>): String {
         val lines = mutableListOf<String>()
 
-        fun addFile(path: Path) {
-            val size = path.fileSize()
-            val mtime = path.getLastModifiedTime()
-            val isExecutable = path.isExecutable()
-
-            lines.add("$path size $size mtime $mtime" + if (isExecutable) " executable" else "")
+        fun addFile(path: Path, attr: BasicFileAttributes?) {
+            if (attr == null) {
+                lines.add("$path MISSING")
+            } else {
+                val posixPart = if (attr is PosixFileAttributes) {
+                    " mode ${PosixUtil.toUnixMode(attr.permissions())} owner ${attr.owner().name} group ${attr.group().name}"
+                } else ""
+                lines.add("$path size ${attr.size()} mtime ${attr.lastModifiedTime()}$posixPart")
+            }
         }
 
         for (path in paths) {
-            if (path.isDirectory()) {
+            // we assume that missing files is exceptional and usually all paths exist
+            val attr: BasicFileAttributes? = try {
+                if (PosixUtil.isPosixFileSystem) {
+                    path.readAttributes<PosixFileAttributes>()
+                } else {
+                    path.readAttributes<BasicFileAttributes>()
+                }
+            } catch (e: NoSuchFileException) {
+                null
+            }
+
+            if (attr?.isDirectory == true) {
                 // TODO this walk could be multi-threaded, it's trivial to implement with coroutines
                 for (sub in path.walk()) {
-                    addFile(sub)
+                    addFile(sub, attr)
                 }
             } else {
-                addFile(path)
+                addFile(path, attr)
             }
         }
 

@@ -9,63 +9,58 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.KotlinCompilerUtil
 import org.jetbrains.amper.cli.TaskName
-import org.jetbrains.amper.cli.downloadAndExtractKotlinCompiler
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.KotlinPart
-import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
-import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
-import kotlin.io.path.writeText
 
 class JvmCompileTask(
     private val module: PotatoModule,
-    private val fragment: LeafFragment,
+    private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val taskName: TaskName,
+    override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ): Task {
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        logger.info("compile ${module.userReadableName} -- ${fragment.name}")
+        logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
 
         val mavenDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .singleOrNull()
-            ?: error("Expected one and only one dependency (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
+            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
         val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
 
-        val resourcesArePresent = fragment.resourcesPath.isDirectory()
-        val sourcesArePresent = fragment.src.exists()
-
-        if (!sourcesArePresent && !resourcesArePresent) {
-            logger.warn("sources and resources are missing at '${fragment.src}' and '${fragment.resourcesPath}'. Assuming no compilation step is required")
-            return TaskResult(
-                classesOutputRoot = null,
-                dependencies = dependenciesResult,
-            )
+        // TODO Do we really want different language versions in different fragments?
+        val languageVersion = run {
+            val kotlinParts = fragments.flatMap { it.parts.filterIsInstance<KotlinPart>() }
+            val languageVersions = kotlinParts.mapNotNull { it.languageVersion }.distinct()
+            if (languageVersions.size > 1) {
+                error("Fragments of module ${module.userReadableName} (${fragments.map { it.name }.sorted().joinToString(" ")}) provide several different kotlin language versions: ${languageVersions.sorted().joinToString(" ")}")
+            }
+            languageVersions.firstOrNull()
         }
 
-        val kotlinPart = fragment.parts.filterIsInstance<KotlinPart>().firstOrNull()
-        val languageVersion = kotlinPart?.languageVersion
-        val kotlinVersion = "1.9.20"
+        val kotlinVersion = KotlinCompilerUtil.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
@@ -77,19 +72,18 @@ class JvmCompileTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = listOfNotNull(
-            fragment.src.takeIf { sourcesArePresent },
-            fragment.resourcesPath.takeIf { resourcesArePresent },
-        ) + classpath
+        val inputs = fragments.map { it.src } + fragments.map { it.resourcesPath } + classpath
+
         executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            if (sourcesArePresent) {
+            val presentSources = fragments.map { it.src }.filter { it.exists() }
+            if (presentSources.isNotEmpty()) {
                 // TODO settings!
                 val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
 
                 // TODO settings!
-                val kotlinHome = downloadAndExtractKotlinCompiler(kotlinVersion, userCacheRoot)
+                val kotlinHome = KotlinCompilerUtil.downloadAndExtractKotlinCompiler(kotlinVersion, userCacheRoot)
 
                 val kotlincOptions = mutableListOf<String>()
 
@@ -106,23 +100,9 @@ class JvmCompileTask(
                     "-jdk-home", jdkHome.pathString,
                     "-no-stdlib",
                     "-d", taskOutputRoot.path.pathString,
-                    fragment.src.pathString,
-                )
+                ) + presentSources.map { it.pathString }
 
-                // escaping rules from https://github.com/JetBrains/kotlin/blob/6161f44d91e235750077e1aaa5faff7047316190/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/preprocessCommandLineArguments.kt#L83
-                val argString = args.joinToString(" ") { arg ->
-                    if (arg.contains(" ") || arg.contains("'")) {
-                        "'${arg.replace("\\", "\\\\").replace("'", "\\'")}'"
-                    } else {
-                        arg
-                    }
-                }
-
-                tempRoot.path.createDirectories()
-                val argFile = Files.createTempFile(tempRoot.path, "kotlin-args-", ".txt")
-                argFile.writeText(argString)
-
-                try {
+                KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
                     val jvmArgs = listOf(
                         javaExecutable.pathString,
@@ -142,17 +122,14 @@ class JvmCompileTask(
                         .setAttribute(AttributeKey.stringArrayKey("args"), args)
                         .setAttribute("version", kotlinVersion)
                         .useWithScope { span ->
-                            logger.info("Calling kotlinc $argString")
+                            logger.info("Calling kotlinc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
                             BuildPrimitives.runProcessAndAssertExitCode(jvmArgs, jdkHome, span)
                         }
-                } finally {
-                    BuildPrimitives.deleteLater(argFile)
                 }
 
-                val javaFilesToCompile = fragment.src.walk()
-                    .filter { it.extension == "java" }
-                    .map { it.pathString }
-                    .toList()
+                val javaFilesToCompile = presentSources.flatMap { src ->
+                    src.walk().filter { it.extension == "java" }
+                }
                 if (javaFilesToCompile.isNotEmpty()) {
                     val javac = listOf(
                         JdkDownloader.getJavacExecutable(jdkHome).pathString,
@@ -165,7 +142,7 @@ class JvmCompileTask(
                         // we compile module by module, so we don't need javac lookup into other modules
                         "-sourcepath", "", "-implicit:none",
                         "-d", taskOutputRoot.path.pathString,
-                    ) + javaFilesToCompile
+                    ) + javaFilesToCompile.map { it.pathString }
 
                     spanBuilder("javac")
                         .setAttribute("amper-module", module.userReadableName)
@@ -177,12 +154,15 @@ class JvmCompileTask(
                             BuildPrimitives.runProcessAndAssertExitCode(javac, jdkHome, span)
                         }
                 }
+            } else {
+                logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
             }
 
-            if (resourcesArePresent) {
-                logger.info("Copy resources from '${fragment.resourcesPath}' to '${taskOutputRoot.path}'")
+            val presentResources = fragments.map { it.resourcesPath }.filter { it.exists() }
+            for (resource in presentResources) {
+                logger.info("Copy resources from '$resource' to '${taskOutputRoot.path}'")
                 BuildPrimitives.copy(
-                    from = fragment.resourcesPath,
+                    from = resource,
                     to = taskOutputRoot.path
                 )
             }

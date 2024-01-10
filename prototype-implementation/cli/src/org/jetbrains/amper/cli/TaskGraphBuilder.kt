@@ -11,11 +11,15 @@ class TaskGraphBuilder {
     private val taskRegistry = mutableMapOf<TaskName, Task>()
     private val dependencies = mutableMapOf<TaskName, Set<TaskName>>()
 
-    fun registerTask(name: TaskName, task: Task) {
-        if (taskRegistry.contains(name)) {
-            error("Task '$name' already exists")
+    fun registerTask(task: Task, dependsOn: List<TaskName> = emptyList()) {
+        if (taskRegistry.contains(task.taskName)) {
+            error("Task '${task.taskName}' already exists")
         }
-        taskRegistry[name] = task
+        taskRegistry[task.taskName] = task
+
+        for (dependsOnTaskName in dependsOn) {
+            registerDependency(task.taskName, dependsOnTaskName)
+        }
     }
 
     fun registerDependency(taskName: TaskName, dependsOn: TaskName) {

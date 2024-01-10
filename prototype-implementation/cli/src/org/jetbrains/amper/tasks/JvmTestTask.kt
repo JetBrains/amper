@@ -9,6 +9,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.Downloader
@@ -24,6 +25,7 @@ class JvmTestTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val projectRoot: AmperProjectRoot,
     private val module: PotatoModule,
+    override val taskName: TaskName,
 ): Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): JvmTestTaskResult {
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar

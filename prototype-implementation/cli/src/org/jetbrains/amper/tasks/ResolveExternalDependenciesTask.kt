@@ -6,11 +6,12 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.TaskName
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -23,7 +24,14 @@ val defaultRepositories = listOf(
     "https://maven.pkg.jetbrains.space/public/p/compose/dev"
 )
 
-class ResolveExternalDependenciesTask(private val module: PotatoModule, private val fragment: Fragment, private val userCacheRoot: AmperUserCacheRoot, private val taskName: TaskName, private val executeOnChangedInputs: ExecuteOnChangedInputs): Task {
+class ResolveExternalDependenciesTask(
+    private val module: PotatoModule,
+    private val userCacheRoot: AmperUserCacheRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val platform: Platform,
+    private val isTest: Boolean,
+    override val taskName: TaskName,
+): Task {
 
     private val mavenResolver by lazy {
         MavenResolver(userCacheRoot)
@@ -32,7 +40,10 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url }
             ?: listOf()).ifEmpty { defaultRepositories }
-        val compileDependencies = fragment.externalDependencies
+        val fragments = module.fragments
+            .filter { it.platforms.contains(platform) && it.isTest == isTest }
+        val compileDependencies = fragments
+            .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
             .filter { it.compile }
             .map { it.coordinates } +
@@ -42,7 +53,7 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
                     "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
                 )
 
-        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")}")
+        logger.info("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")}")
 
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent)
 
@@ -54,7 +65,7 @@ class ResolveExternalDependenciesTask(private val module: PotatoModule, private 
             return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies, repositories).toList())
         }.outputs
 
-        logger.info("resolve dependencies ${module.userReadableName} -- ${fragment.name} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.info("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
         return TaskResult(classpath = paths, dependencies = dependenciesResult)
     }

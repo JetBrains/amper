@@ -11,8 +11,9 @@ import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.JvmPart
-import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
@@ -28,21 +29,27 @@ import kotlin.io.path.readText
 import kotlin.io.path.walk
 
 class JvmRunTask(
-    private val taskName: TaskName,
+    override val taskName: TaskName,
     private val module: PotatoModule,
-    private val fragment: LeafFragment,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
 ) : Task {
-    private val mainClassName = fragment.parts.filterIsInstance<JvmPart>().singleOrNull()?.mainClass
+    private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
+
+    // TODO what if several fragments have a main class?
+    private val mainClassName = fragments
+        .flatMap { it.parts.filterIsInstance<JvmPart>() }
+        .firstNotNullOfOrNull { it.mainClass }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val mainClassReal = if (mainClassName != null) {
             // explicitly defined in module files
             mainClassName
         } else {
-            val discoveredMainClass = findEntryPoint(fragment)
-                ?: error("Main Class is not found for ${module.userReadableName} at ${fragment.src}")
+            // TODO what if several fragments have main.kt?
+            val discoveredMainClass = fragments.firstNotNullOfOrNull { findEntryPoint(it) }
+                ?: error("Main Class is not found for ${module.userReadableName} at: " +
+                        fragments.joinToString(" ") { it.src.pathString })
             discoveredMainClass
         }
 
@@ -101,7 +108,7 @@ class JvmRunTask(
 
     // TODO this not how an entry point should be discovered, but whatever for now
     @OptIn(ExperimentalPathApi::class)
-    private fun findEntryPoint(fragment: LeafFragment): String? {
+    private fun findEntryPoint(fragment: Fragment): String? {
         if (!fragment.src.isDirectory()) {
             return null
         }

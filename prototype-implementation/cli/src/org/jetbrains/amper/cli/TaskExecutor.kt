@@ -42,7 +42,7 @@ class TaskExecutor(private val graph: TaskGraph) {
                 .map { it.await() }
 
             withContext(tasksDispatcher) {
-                val task = graph.tasks[taskName] ?: error("Unable to find task by name: $taskName")
+                val task = graph.tasks[taskName] ?: error("Unable to find task by name: ${taskName.name}")
                 task.run(results)
             }
         }

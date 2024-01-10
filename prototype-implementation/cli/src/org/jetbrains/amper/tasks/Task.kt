@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.tasks
 
+import org.jetbrains.amper.cli.TaskName
+
 interface Task {
+    val taskName: TaskName
     suspend fun run(dependenciesResult: List<TaskResult>): TaskResult
 }

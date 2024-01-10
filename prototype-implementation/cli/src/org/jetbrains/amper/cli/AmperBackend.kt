@@ -11,24 +11,21 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
-import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.FragmentDependencyType
-import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.resolve.resolved
-import org.jetbrains.amper.tasks.JvmRunTask
 import org.jetbrains.amper.tasks.JvmCompileTask
+import org.jetbrains.amper.tasks.JvmRunTask
 import org.jetbrains.amper.tasks.JvmTestTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Paths
-import java.util.*
 import kotlin.io.path.pathString
 
 
@@ -43,28 +40,20 @@ object AmperBackend {
 
         val resolved = model.resolved
 
-        // TODO make it better, fragments should now about parents? or it's alright?
-        val fragment2module = resolved.modules
-            .flatMap { module -> module.fragments.map { it to module } }
-            .toMap(IdentityHashMap())
-
         fun getTaskOutputPath(taskName: TaskName): TaskOutputRoot {
             val out = context.buildOutputRoot.path.resolve("tasks").resolve(taskName.name.replace(':', '_'))
             return TaskOutputRoot(path = out)
         }
 
-        fun getTaskName(fragment: Fragment, type: JvmTaskType): TaskName {
-            val module: PotatoModule = fragment2module[fragment] ?: run {
-                error("No module found for fragment: ${fragment.name}")
-            }
-
-            val fragmentSuffix = if (fragment.isTest) "JvmTest" else "Jvm"
+        fun getTaskName(module: PotatoModule, type: CommonTaskType, platform: Platform, isTest: Boolean): TaskName {
+            val testSuffix = if (isTest) "Test" else ""
+            val platformSuffix = platform.pretty.replaceFirstChar { it.uppercase() }
 
             val taskName = when (type) {
-                JvmTaskType.COMPILE -> "compile$fragmentSuffix"
-                JvmTaskType.DEPENDENCIES -> "resolveDependencies$fragmentSuffix"
-                JvmTaskType.RUN -> "runJvm"
-                JvmTaskType.TEST -> "testJvm"
+                CommonTaskType.COMPILE -> "compile$platformSuffix$testSuffix"
+                CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix$testSuffix"
+                CommonTaskType.RUN -> "run$platformSuffix"
+                CommonTaskType.TEST -> "test$platformSuffix"
             }
 
             return TaskName.fromHierarchy(listOf(module.userReadableName, taskName))
@@ -77,92 +66,103 @@ object AmperBackend {
         val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
 
         for (module in sortedByPath) {
-            for (fragment in module.fragments) {
-                check(fragment is LeafFragment) {
-                    "Only leaf fragments are supported, but got '${fragment.javaClass.name}' " +
-                            "at module '${module.source}' fragment '${fragment.name}'"
-                }
+            // TODO dunno how to get it legally
+            val modulePlatforms = (module.fragments.flatMap { it.platforms } +
+                    module.artifacts.flatMap { it.platforms })
+                .filter { it.isLeaf }
+                .toSet()
+            // TODO remove
+            println("distinct module platforms ${module.userReadableName}: ${modulePlatforms.sortedBy { it.name }.joinToString()}")
 
-                check(fragment.platform == Platform.JVM) {
-                    "Only JVM platform is supported for now, but got '${fragment.platform}' " +
-                            "at module '${module.source}' fragment '${fragment.name}'"
-                }
-
-                val compileTaskName = getTaskName(fragment, JvmTaskType.COMPILE)
-                tasks.registerTask(compileTaskName, JvmCompileTask(module, fragment, context.userCacheRoot, context.projectTempRoot, getTaskOutputPath(compileTaskName), compileTaskName, executeOnChangedInputs))
-
-                val resolveDependenciesTaskName = getTaskName(fragment, JvmTaskType.DEPENDENCIES)
-                val task = ResolveExternalDependenciesTask(module, fragment, context.userCacheRoot, resolveDependenciesTaskName, executeOnChangedInputs)
-                tasks.registerTask(resolveDependenciesTaskName, task)
-
-                tasks.registerDependency(compileTaskName, dependsOn = resolveDependenciesTaskName)
-
-                // TODO this does not support runtime dependencies
-                //  and dependency graph for it will be different
-                if (fragment.isTest) {
-                    val jvmTestTaskName = getTaskName(fragment, JvmTaskType.TEST)
-                    val jvmTestTask = JvmTestTask(context.userCacheRoot, getTaskOutputPath(jvmTestTaskName), context.projectRoot, module)
-                    tasks.registerTask(jvmTestTaskName, jvmTestTask)
-                    tasks.registerDependency(jvmTestTaskName, compileTaskName)
-                } else {
-                    val jvmRunTaskName = getTaskName(fragment, JvmTaskType.RUN)
-                    val jvmRunTask = JvmRunTask(jvmRunTaskName, module, fragment, context.userCacheRoot, context.projectRoot)
-                    tasks.registerTask(jvmRunTaskName, jvmRunTask)
-                    tasks.registerDependency(jvmRunTaskName, compileTaskName)
-                }
-
-                //  TODO Maven resolve dependencies task
-                // TODO In the future this code should be near compile task
-
-                for (fragmentDependency in fragment.fragmentDependencies) {
-                    check(fragmentDependency.type == FragmentDependencyType.FRIEND) {
-                        "Unsupported fragment dependency type '${fragmentDependency.type}' " +
-                                "at module '${module.source}' fragment '${fragment.name}'"
+            // JVM stuff building
+            if (modulePlatforms.contains(Platform.JVM)) {
+                for (isTest in listOf(false, true)) {
+                    val fragments = module.fragments
+                        .filter { it.isTest == isTest && it.platforms.contains(Platform.JVM) }
+                    if (isTest && fragments.isEmpty()) {
+                        // no test code, assume no code generation
+                        // other modules could not depend on this module's tests, so it's ok
+                        continue
                     }
 
-                    // TODO Resolve it better
-                    val realFragment = module.fragments.single { it.name == fragmentDependency.target.name }
+                    val resolveDependenciesTask = ResolveExternalDependenciesTask(
+                        module,
+                        context.userCacheRoot,
+                        executeOnChangedInputs,
+                        isTest = isTest,
+                        platform = Platform.JVM,
+                        taskName = getTaskName(module, CommonTaskType.DEPENDENCIES, Platform.JVM, isTest = isTest)
+                    ).also { tasks.registerTask(it) }
 
-                    val dependencyTaskName = getTaskName(realFragment, JvmTaskType.COMPILE)
-                    tasks.registerDependency(compileTaskName, dependencyTaskName)
-                }
+                    val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, Platform.JVM, isTest)
+                    tasks.registerTask(
+                        JvmCompileTask(
+                            module,
+                            fragments,
+                            context.userCacheRoot,
+                            context.projectTempRoot,
+                            getTaskOutputPath(compileTaskName),
+                            compileTaskName,
+                            executeOnChangedInputs,
+                        ),
+                        dependsOn = listOf(resolveDependenciesTask.taskName),
+                    )
 
-                for (dependency in fragment.externalDependencies) {
-                    when (dependency) {
-                        is MavenDependency -> Unit
-                        is PotatoModuleDependency -> {
-                            // runtime dependencies are not required to be in compile tasks graph
-
-                            if (dependency.compile) {
-                                // TODO test with non-resolved dependency on module
-                                val resolvedDependencyModule = with(dependency) {
-                                    model.module.get()
-                                }
-
-                                // TODO not a nice way to get resolved module
-                                val realResolvedModule = resolved.modules.single { it.source == resolvedDependencyModule.source }
-
-                                // TODO Dependency on which fragment?
-                                // So far, consider all dependencies to be dependencies on non-test target
-                                val fragmentToDependOn = realResolvedModule.fragments.filter { !it.isTest }
-
-                                if (fragmentToDependOn.isNotEmpty()) {
-                                    "No suitable fragments in module '${realResolvedModule.userReadableName}' to depend on " +
-                                            "at module '${module.source}' fragment '${fragment.name}'"
-                                }
-
-                                if (fragmentToDependOn.size > 1) {
-                                    "Many fragments in module '${realResolvedModule.userReadableName}' suitable to depend on " +
-                                            "(" + fragmentToDependOn.joinToString(" ") { it.name } + ")" +
-                                            "at module '${module.source}' fragment '${fragment.name}'"
-                                }
-
-                                val dependencyTaskName = getTaskName(fragmentToDependOn.single(), JvmTaskType.COMPILE)
-                                tasks.registerDependency(compileTaskName, dependencyTaskName)
-                            }
+                    // TODO this does not support runtime dependencies
+                    //  and dependency graph for it will be different
+                    if (isTest) {
+                        val jvmTestTaskName = getTaskName(module, CommonTaskType.TEST, Platform.JVM, isTest = true)
+                        tasks.registerTask(
+                            JvmTestTask(
+                                userCacheRoot = context.userCacheRoot,
+                                taskOutputRoot = getTaskOutputPath(jvmTestTaskName),
+                                projectRoot = context.projectRoot,
+                                module = module,
+                                taskName = jvmTestTaskName,
+                            ),
+                            dependsOn = listOf(compileTaskName),
+                        )
+                    } else {
+                        if (module.type == ProductType.JVM_APP || module.type == ProductType.LEGACY_APP) {
+                            val jvmRunTaskName = getTaskName(module, CommonTaskType.RUN, Platform.JVM, isTest = false)
+                            tasks.registerTask(
+                                JvmRunTask(
+                                    jvmRunTaskName,
+                                    module,
+                                    context.userCacheRoot,
+                                    context.projectRoot,
+                                ),
+                                dependsOn = listOf(compileTaskName),
+                            )
                         }
-                        else -> error("Unsupported dependency type: '$dependency' "  +
-                                "at module '${module.source}' fragment '${fragment.name}'")
+                    }
+
+                    // TODO In the future this code should be near compile task
+                    // TODO What to do with fragment.fragmentDependencies?
+                    //  I'm not sure, it's just test -> non-test dependency? Otherwise we build it by platforms
+                    if (isTest) {
+                        val dependencyTaskName = getTaskName(module, CommonTaskType.COMPILE, Platform.JVM, false)
+                        tasks.registerDependency(compileTaskName, dependencyTaskName)
+                    }
+
+                    for ((fragment, dependency) in fragments.flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }) {
+                        when (dependency) {
+                            is MavenDependency -> Unit
+                            is PotatoModuleDependency -> {
+                                // runtime dependencies are not required to be in compile tasks graph
+                                if (dependency.compile) {
+                                    // TODO test with non-resolved dependency on module
+                                    val resolvedDependencyModule = with(dependency) {
+                                        model.module.get()
+                                    }
+
+                                    val dependencyTaskName = getTaskName(resolvedDependencyModule, CommonTaskType.COMPILE,Platform.JVM, isTest = false)
+                                    tasks.registerDependency(compileTaskName, dependencyTaskName)
+                                }
+                            }
+                            else -> error("Unsupported dependency type: '$dependency' "  +
+                                    "at module '${module.source}' fragment '${fragment.name}'")
+                        }
                     }
                 }
             }
@@ -172,9 +172,9 @@ object AmperBackend {
         val taskExecutor = TaskExecutor(taskGraph)
 
         for (taskName in taskGraph.tasks.keys.sortedBy { it.toString() }) {
-            print(taskName)
+            print("task ${taskName.name}")
             if (taskGraph.dependencies.containsKey(taskName)) {
-                print(" -> ${taskGraph.dependencies[taskName]!!.joinToString()}")
+                print(" -> ${taskGraph.dependencies[taskName]!!.joinToString { it.name }}")
             }
             println()
         }
@@ -209,7 +209,7 @@ object AmperBackend {
         return if (problemReporter.wereProblemsReported()) 1 else 0
     }
 
-    private enum class JvmTaskType {
+    private enum class CommonTaskType {
         COMPILE,
         DEPENDENCIES,
         RUN,

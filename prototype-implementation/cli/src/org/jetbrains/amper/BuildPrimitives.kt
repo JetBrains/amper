@@ -65,10 +65,11 @@ object BuildPrimitives {
      */
     // TODO sometimes capturing the entire stdout/stderr in memory won't work
     //  do we want to offload big (and probably only big outputs) to the disk?
-    suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path): ProcessResult =
+    suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path, environment: Map<String, String> = emptyMap()): ProcessResult =
         withContext(Dispatchers.IO) {
             val process = ProcessBuilder(command)
                 .directory(workingDir.toFile())
+                .also { it.environment().putAll(environment) }
                 .start()
 
             process.withGuaranteedTermination {
@@ -100,12 +101,12 @@ object BuildPrimitives {
      * the read of the current line to complete before returning. This is to ensure no threads are leaked.
      * This wait should be reasonable anyway because the process is killed, so no more output should be written.
      */
-    suspend fun runProcessAndAssertExitCode(command: List<String>, workingDir: Path, span: Span) {
+    suspend fun runProcessAndAssertExitCode(command: List<String>, workingDir: Path, span: Span, environment: Map<String, String> = emptyMap()) {
         require(command.isNotEmpty())
 
         logger.info("Calling ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
 
-        val result = runProcessAndGetOutput(command, workingDir)
+        val result = runProcessAndGetOutput(command, workingDir, environment)
         val stdout = result.stdout
         val stderr = result.stderr
 

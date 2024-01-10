@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
+import org.jetbrains.amper.frontend.Fragment
 import java.nio.file.Path
 
 object CommonTaskUtils {
@@ -34,4 +35,6 @@ object CommonTaskUtils {
 
         compileTaskResult.classesOutputRoot?.let { result.add(it) }
     }
+
+    fun Iterable<Fragment>.userReadableList() = map { it.name }.sorted().joinToString(" ")
 }
