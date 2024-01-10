@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -36,5 +37,15 @@ class SchemaBasedModelImport : ModelInit {
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values).resolved.asAmperSuccess()
+    }
+
+    companion object {
+        context(ProblemReporterContext)
+        @UsedInIdePlugin
+        fun getModel(root: Path): Result<Model> = SchemaBasedModelImport().getModel(root)
+
+        context(ProblemReporterContext)
+        @UsedInIdePlugin
+        fun getModel(root: PsiFile, project: Project): Result<Model> = SchemaBasedModelImport().getModel(root, project)
     }
 }

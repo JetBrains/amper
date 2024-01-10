@@ -7,7 +7,7 @@ dependencies:
   - ../android-integration-core
   - ../../core
   - ../../frontend-api
-  - ../../frontend/plain/yaml
+  - ../../frontend/schema
   - com.android.library:com.android.library.gradle.plugin:8.2.0
   - com.android.application:com.android.application.gradle.plugin:8.2.0
 

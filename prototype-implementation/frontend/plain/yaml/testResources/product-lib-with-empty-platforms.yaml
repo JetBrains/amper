@@ -1,4 +1,0 @@
-product:
-  type: lib
-  # <![Error] Product platforms list should not be empty.!>
-  platforms: []

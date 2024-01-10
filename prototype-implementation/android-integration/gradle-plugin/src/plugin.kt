@@ -12,15 +12,7 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.frontend.AndroidPart
-import org.jetbrains.amper.frontend.LeafFragment
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.YamlModelInit
+import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.frontend.resolve.resolved
 import tooling.ApkPathToolingModelBuilder
 import tooling.RClassToolingModelBuilder
@@ -204,7 +196,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
 
     context(SLF4JProblemReporterContext)
     private fun initProjects(projectRoot: Path, settings: Settings) {
-        val model = when (val result = YamlModelInit().getModel(projectRoot)) {
+        val model = when (val result = ModelInit.getModel(projectRoot)) {
             is Result.Failure -> throw result.exception
             is Result.Success -> result.value
         }

@@ -21,7 +21,8 @@ import kotlin.io.path.reader
 data class FrontendPathResolver(
     val project: Project = DummyProject.instance,
 
-    @Deprecated("to be removed together with snakeyaml")
+    @Deprecated("could be used directly in tests only, " +
+        "all other places should resolve file content via PsiFile, see field  path2PsiFile")
     val path2Reader: (Path) -> Reader? = {
         // TODO Replace default reader by something other.
         // TODO Report non existing file.

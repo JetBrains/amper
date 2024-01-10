@@ -13,7 +13,6 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.yaml.psi.YAMLPsiElement
-import org.yaml.snakeyaml.nodes.Node
 import kotlin.reflect.KProperty0
 
 
@@ -34,18 +33,9 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = when(val trace = value?.trace) {
-    is Node -> reportError(message(messageKey, *arguments), level, trace)
     is YAMLPsiElement -> reportError(message(messageKey, *arguments), level, trace)
     else -> reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
 }
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    node: Node?,
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-): Nothing? = reportError(message(messageKey, *arguments), level, node)
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
@@ -60,17 +50,7 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = reportError(message(messageKey, *arguments), level, null as Node?)
-
-context(ProblemReporterContext)
-fun reportError(
-    message: String,
-    level: Level = Level.Error,
-    node: Node? = null
-): Nothing? {
-    problemReporter.reportMessage(BuildProblem(message, level, line = node?.startMark?.line?.let { it + 1 }))
-    return null
-}
+): Nothing? = reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
 
 context(ProblemReporterContext)
 fun reportError(
@@ -108,27 +88,6 @@ fun offsetToLineAndColumn(
         column + 1,
         lineContent.toString()
     )
-}
-
-/**
- * Assert that node has specified type and then execute provided block,
- * reporting an error if the type is invalid.
- */
-context(ProblemReporterContext)
-inline fun <reified NodeT, T> Node.assertNodeType(
-    fieldName: String,
-    report: Boolean = true,
-    block: NodeT.() -> T
-): T? {
-    // TODO Replace by bundle.
-    if (this !is NodeT && report) return reportError(
-        "[$fieldName] field has wrong type: " +
-                "It is ${this::class.simpleName}, but was expected to be ${NodeT::class.simpleName}",
-        Level.Error,
-        this,
-    )
-    if (this !is NodeT) return null
-    return this.block()
 }
 
 class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {

@@ -11,7 +11,6 @@ dependencies:
   - info.picocli:picocli:4.7.5
   - ../core
   - ../frontend-api
-  - ../frontend/plain/yaml
   - ../frontend/schema
   - ../dependency-resolution
   - org.slf4j:slf4j-api:2.0.9

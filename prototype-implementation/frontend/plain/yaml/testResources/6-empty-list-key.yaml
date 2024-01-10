@@ -1,6 +1,0 @@
-product:
-  type: app
-
-  platforms: [jvm]
-
-dependencies:

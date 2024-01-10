@@ -1,11 +1,15 @@
-import org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml
 import org.gradle.testkit.runner.GradleRunner
+import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.CollectingProblemReporter
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.io.File
 import java.nio.file.*
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
@@ -17,9 +21,15 @@ class BootstrapTest {
     @Test
     fun `amper could build itself using version from sources`() {
         // given
-        val commonTemplateString = TestUtil.prototypeImplementationRoot.resolve("common.module-template.yaml").readText()
-        val yamlMap = Yaml().load<Map<String, Map<String, Map<String, String>>>>(commonTemplateString)
-        val version = yamlMap["settings"]?.get("publishing")?.get("version")
+        val commonTemplatePath = TestUtil.prototypeImplementationRoot.resolve("common.module-template.yaml")
+        val reportingContext = TestProblemReporterContext()
+        val context = ConvertCtx(commonTemplatePath.parent, FrontendPathResolver())
+        val template = with(reportingContext) {
+            with(context) {
+                convertTemplate(commonTemplatePath)!!
+            }
+        }
+        val version = template.settings.get(emptySet())?.publishing?.version
 
         val core = TestUtil.prototypeImplementationRoot.resolve("core/build/libs/core-jvm-$version.jar")
         val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
@@ -28,7 +38,6 @@ class BootstrapTest {
         println("############ gradle-integration libraries ${TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs").toFile().list().toSet()}")
 
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
-        val plainFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml/build/libs/yaml-jvm-$version.jar")
         val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
         val util = TestUtil.prototypeImplementationRoot.resolve("frontend/util/build/libs/util-jvm-$version.jar")
@@ -56,11 +65,9 @@ buildscript {
         classpath("com.jetbrains.intellij.platform:util-ex:232.10203.20")
         classpath("com.jetbrains.intellij.platform:indexing:232.10203.20")
         classpath("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18")
-        classpath("org.yaml:snakeyaml:2.0")
         classpath(files("${core.pathString.replace('\\', '/')}"))
         classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
-        classpath(files("${plainFrontend.pathString.replace('\\', '/')}"))
         classpath(files("${yamlPsi.pathString.replace('\\', '/')}"))
         classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
         classpath(files("${util.pathString.replace('\\', '/')}"))
@@ -103,4 +110,14 @@ fun copyDirectory(source: Path, target: Path) {
             }
         }
     }
+}
+
+class TestProblemReporter : CollectingProblemReporter() {
+    override fun doReportMessage(message: BuildProblem) {}
+
+    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error || it.level == Level.Fatal }
+}
+
+class TestProblemReporterContext : ProblemReporterContext {
+    override val problemReporter: TestProblemReporter = TestProblemReporter()
 }

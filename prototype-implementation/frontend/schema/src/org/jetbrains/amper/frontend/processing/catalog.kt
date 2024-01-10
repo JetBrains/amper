@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.yaml.psi.YAMLPsiElement
-import org.yaml.snakeyaml.nodes.Node
 
 
 /**
@@ -67,14 +66,6 @@ interface VersionCatalog {
         if (needReport) {
             when (val trace = key.trace) {
                 is YAMLPsiElement -> {
-                    SchemaBundle.reportBundleError(
-                        trace,
-                        "no.catalog.value",
-                        key.value
-                    )
-                }
-
-                is Node -> {
                     SchemaBundle.reportBundleError(
                         trace,
                         "no.catalog.value",

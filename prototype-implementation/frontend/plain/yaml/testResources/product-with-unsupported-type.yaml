@@ -1,2 +1,0 @@
-# <![Error] Unsupported product type: foo/bar. It should be one of [lib, app, jvm/app, android/app, ios/app, macos/app, linux/app].!>
-product: foo/bar

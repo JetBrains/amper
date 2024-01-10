@@ -1,4 +1,0 @@
-product:
-  type: lib
-  # <![Error] Unknown platform: foo.!>
-  platforms: [ jvm, foo ]

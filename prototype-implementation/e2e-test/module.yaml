@@ -5,7 +5,15 @@ product:
 dependencies:
   - ../cli
   - ../test-base
+  - ../frontend/schema
+  - ../core
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
+  - com.jetbrains.intellij.platform:core:232.10203.20
+
+#test-dependencies:
+#  - ../frontend/schema
+#  - ../frontend/plain/psi
+#  - ../core
 
 apply:
   - ../common.module-template.yaml
