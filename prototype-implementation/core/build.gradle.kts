@@ -10,8 +10,7 @@ buildscript {
 }
 
 val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
-    val file = project.layout.buildDirectory.asFile.get().resolve("build.properties")
-    destinationFile.set(file)
+    destinationFile.set(project.layout.buildDirectory.file("build.properties"))
 
     comment = "Build info"
     property("version", project.version)
