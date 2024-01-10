@@ -8,11 +8,11 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="schema-test.expected" />
-              <option name="relativePathToSchema" value="prototype-implementation/frontend/schema/testResources/schema-test.expected.json" />
+              <option name="relativePathToSchema" value="sources/frontend/schema/testResources/schema-test.expected.json" />
               <option name="patterns">
                 <list>
                   <Item>
-                    <option name="path" value="prototype-implementation/frontend/schema/testResources/hello.yaml" />
+                    <option name="path" value="sources/frontend/schema/testResources/hello.yaml" />
                   </Item>
                 </list>
               </option>

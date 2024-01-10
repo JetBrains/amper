@@ -98,7 +98,7 @@ open class E2ETestFixture(val pathToProjects: String) {
 
     @OptIn(ExperimentalPathApi::class)
     private fun prepareTempDirWithProject(projectName: String): Path {
-        val implementationDir = Path.of("../../prototype-implementation").toAbsolutePath()
+        val implementationDir = Path.of("../../sources").toAbsolutePath()
         val originalDir = Path.of("${pathToProjects}/$projectName")
 
         assertTrue(implementationDir.exists(), "Amper plugin project not found at $implementationDir")

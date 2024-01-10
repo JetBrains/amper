@@ -5,7 +5,7 @@
 
 **Using locally built Gradle plugin:**
 
-Launch `:publishToMavenLocal` gradle task on `prototype-implementation` project.
+Launch `:publishToMavenLocal` gradle task.
 
 **Using Gradle plugins from sources:**  
 
@@ -13,7 +13,7 @@ Change `setting.gradle.kts` to:
 
 ```kotiln
 pluginManagement {
-    includeBuild("<relative path to ./prototype-implementation")
+    includeBuild("<relative path to checkout root>")
 }
 
 plugins {

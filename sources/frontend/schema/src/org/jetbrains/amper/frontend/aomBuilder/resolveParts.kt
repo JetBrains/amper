@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.*
 
-// Copy paste from "prototype-implementation/frontend-api/src/org/jetbrains/amper/frontend/resolve/resolve.kt"
+// Copy paste from "sources/frontend-api/src/org/jetbrains/amper/frontend/resolve/resolve.kt"
 // TODO Need to be removed after parts replacement with Settings.
 
 val Model.resolved: Model
