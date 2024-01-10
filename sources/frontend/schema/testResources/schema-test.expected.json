@@ -282,6 +282,9 @@
         "kover": {
           "$ref": "#/$defs/KoverSettings"
         },
+        "native": {
+          "$ref": "#/$defs/NativeSettings"
+        },
         "publishing": {
           "$ref": "#/$defs/PublishingSettings"
         }
@@ -458,6 +461,14 @@
           "type": "boolean"
         },
         "reportFile": {
+          "type": "string"
+        }
+      }
+    },
+    "NativeSettings": {
+      "type": "object",
+      "properties": {
+        "entryPoint": {
           "type": "string"
         }
       }
