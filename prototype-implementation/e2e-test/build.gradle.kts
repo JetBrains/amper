@@ -14,7 +14,7 @@ tasks.withType<Test> {
     systemProperties["junit.jupiter.execution.parallel.enabled"] = true
     systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
 
-    dependsOn(":gradle-integration:jar")
+    dependsOn(":prototype-implementation:gradle-integration:jar")
     useJUnitPlatform()
     val inBootstrapMode: String? by project
     inBootstrapMode?.let {
@@ -31,7 +31,7 @@ private val pluginClasspathDir = "pluginUnderTestMetadata"
 
 tasks.findByName("jvmTestProcessResources")?.apply {
     this as AbstractCopyTask
-    dependsOn(":gradle-integration:copyDescriptorsHack")
-    dependsOn(":gradle-integration:pluginUnderTestMetadata")
-    from(project(":gradle-integration").buildDir.resolve(pluginClasspathDir))
+    dependsOn(":prototype-implementation:gradle-integration:copyDescriptorsHack")
+    dependsOn(":prototype-implementation:gradle-integration:pluginUnderTestMetadata")
+    from(project(":prototype-implementation:gradle-integration").buildDir.resolve(pluginClasspathDir))
 }

@@ -3,7 +3,7 @@ repositories:
     url: https://packages.jetbrains.team/maven/p/amper/amper
     publish: true
     credentials:
-      file: ./local.properties
+      file: ../local.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
   - id: mavenCentral

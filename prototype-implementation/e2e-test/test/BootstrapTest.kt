@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.*
+import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
@@ -73,7 +74,7 @@ buildscript {
 plugins.apply("org.jetbrains.amper.settings.plugin")
         """.trimIndent()
 
-        copyDirectory(Path.of("../"), projectPath)
+        copyDirectory(Path("../.."), projectPath)
         projectPath.resolve("settings.gradle.kts").writeText(
             settingsContent,
             options = arrayOf(StandardOpenOption.TRUNCATE_EXISTING)

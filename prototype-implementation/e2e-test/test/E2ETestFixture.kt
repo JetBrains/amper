@@ -110,7 +110,7 @@ open class E2ETestFixture(val pathToProjects: String) {
         GradleDaemonManager.deleteFileOrDirectoryOnExit(tempDir)
 
         val followLinks = false
-        val ignore = setOf(".gradle", "build", "local.properties")
+        val ignore = setOf(".gradle", "build")
         originalDir.copyToRecursively(tempDir, followLinks = followLinks) { src, dst ->
             if (src.name in ignore) CopyActionResult.SKIP_SUBTREE
             else src.copyToIgnoringExistingDirectory(dst, followLinks = followLinks)

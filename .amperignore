@@ -1,0 +1,7 @@
+build
+buildSrc
+examples
+migrated-projects
+prototype-implementation/amper-backend-test/testData
+prototype-implementation/e2e-test/testData
+prototype-implementation/samples-jps

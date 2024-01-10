@@ -17,7 +17,7 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
 
     // no git directory in bootstrap test
     if (project.findProperty("inBootstrapMode") != "true") {
-        val gitRoot = rootProject.projectDir.parentFile.resolve(".git")
+        val gitRoot = rootProject.projectDir.resolve(".git")
         val git = FileRepository(gitRoot)
         val head = git.getReflogReader("HEAD").lastEntry
         property("commitHash", head.newId.name)

@@ -2,3 +2,5 @@ build
 .fleet/scratches
 .gradle
 .DS_Store
+
+local.properties
