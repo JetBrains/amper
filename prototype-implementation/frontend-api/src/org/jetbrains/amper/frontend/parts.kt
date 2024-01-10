@@ -151,7 +151,7 @@ data class PublicationPart(
     )
 
     override fun default(module: PotatoModule): FragmentPart<PublicationPart> =
-        PublicationPart(group ?: "org.example", version ?: "SNAPSHOT-1.0")
+        PublicationPart(group ?: "org.example", version ?: "1.0-SNAPSHOT")
 }
 
 data class KoverPart(val enabled: Boolean?,

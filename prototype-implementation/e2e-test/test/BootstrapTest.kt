@@ -2,10 +2,8 @@ import org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
+import java.io.File
+import java.nio.file.*
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -25,6 +23,10 @@ class BootstrapTest {
 
         val core = TestUtil.prototypeImplementationRoot.resolve("core/build/libs/core-jvm-$version.jar")
         val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
+
+        println("############ $version")
+        println("############ gradle-integration libraries ${TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs").toFile().list().toSet()}")
+
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val plainFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml/build/libs/yaml-jvm-$version.jar")
         val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
