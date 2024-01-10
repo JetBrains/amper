@@ -13,6 +13,7 @@ dependencies:
   - ../frontend-api
   - ../frontend/schema
   - ../dependency-resolution
+  - ../android-integration/runner
   - org.slf4j:slf4j-api:2.0.9
   - org.tinylog:tinylog-api-kotlin:2.6.2
   - org.tinylog:tinylog-impl:2.6.2
@@ -36,6 +37,9 @@ dependencies:
   - org.apache.commons:commons-compress:1.24.0
   - commons-io:commons-io:2.15.0
   - com.google.guava:guava:33.0.0-jre
+  - com.android.tools:sdklib:31.2.0
+  - com.android.tools:common:31.2.0
+
 
 test-dependencies:
   - ../test-base

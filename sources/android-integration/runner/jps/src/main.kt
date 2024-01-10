@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
     val emptyLib = AndroidModuleData(":library-module")
 
     // phase 1: generate R-class
-    val rClass = run<RClassAndroidBuildResult>(
+    val rClass = runAndroidBuild<RClassAndroidBuildResult>(
         AndroidBuildRequest(
             Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
             AndroidBuildRequest.Phase.Prepare,
@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
     // here: compile using generated R class
 
     // phase 2: actual build
-    val apk = run<ApkPathAndroidBuildResult>(
+    val apk = runAndroidBuild<ApkPathAndroidBuildResult>(
         AndroidBuildRequest(
             Path.of("/Users/Anton.Prokhorov/projects/android-sample-jps"),
             AndroidBuildRequest.Phase.Build,

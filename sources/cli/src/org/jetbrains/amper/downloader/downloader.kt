@@ -6,6 +6,7 @@ package org.jetbrains.amper.downloader
 
 import com.google.common.hash.Hashing
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.compression.*
@@ -229,14 +230,14 @@ object Downloader {
             "HttpStatusException(status=${statusCode}, url=${url}, message=${message})"
     }
 
-    private val WRITE_NEW_OPERATION = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
-    private fun CoroutineScope.writeChannel(file: Path): ByteWriteChannel {
-        return reader(CoroutineName("file-writer") + Dispatchers.IO, autoFlush = true) {
-            FileChannel.open(file, WRITE_NEW_OPERATION).use { fileChannel ->
-                channel.copyTo(fileChannel)
-            }
-        }.channel
-    }
-
     private val logger = LoggerFactory.getLogger(javaClass)
+}
+
+val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
+fun CoroutineScope.writeChannel(file: Path): ByteWriteChannel {
+    return reader(CoroutineName("file-writer") + Dispatchers.IO, autoFlush = true) {
+        FileChannel.open(file, WRITE_NEW_OPERATION).use { fileChannel ->
+            channel.copyTo(fileChannel)
+        }
+    }.channel
 }

@@ -10,6 +10,7 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
+import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
@@ -17,6 +18,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.resolve.resolved
+import org.jetbrains.amper.tasks.GetAndroidPlatformJarTask
 import org.jetbrains.amper.tasks.JvmCompileTask
 import org.jetbrains.amper.tasks.JvmRunTask
 import org.jetbrains.amper.tasks.JvmTestTask
@@ -80,18 +82,24 @@ object AmperBackend {
             logger.info("distinct module platforms ${module.userReadableName}: ${modulePlatforms.sortedBy { it.name }.joinToString()}")
 
             for (platform in modulePlatforms) {
+                val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
+                    setupAndroidPlatformTask(module, tasks)
+                } else null
+
                 for (isTest in listOf(false, true)) {
-                    val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
+                    val fragments = module.fragments
+                        .filter { it.isTest == isTest && (Platform.JVM in it.platforms || Platform.ANDROID in it.platforms) }
                     if (isTest && fragments.all { !it.src.exists() }) {
                         // no test code, assume no code generation
                         // other modules could not depend on this module's tests, so it's ok
                         continue
                     }
 
-                    fun createCompileTask(): Task {
+                    fun createCompileTask(): Task? {
                         val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest)
-                        return when (val top = platform.topmostParentNoCommon) {
-                            Platform.JVM -> JvmCompileTask(
+                        val top = platform.topmostParentNoCommon
+                        return when (top) {
+                            Platform.JVM, Platform.ANDROID -> JvmCompileTask(
                                 module = module,
                                 fragments = fragments,
                                 userCacheRoot = context.userCacheRoot,
@@ -100,7 +108,6 @@ object AmperBackend {
                                 taskName = compileTaskName,
                                 executeOnChangedInputs = executeOnChangedInputs,
                             )
-
                             Platform.NATIVE -> NativeCompileTask(
                                 module = module,
                                 platform = platform,
@@ -112,9 +119,17 @@ object AmperBackend {
                                 isTest = isTest,
                             )
 
-                            else -> error("$top is not supported yet")
-                        }.also {
-                            tasks.registerTask(it, dependsOn = listOf(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)))
+                            else -> {
+                                logger.warn("$top is not supported yet")
+                                null
+                            }
+                        }?.also {
+                            tasks.registerTask(it, dependsOn = buildList {
+                                add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
+                                if (top == Platform.ANDROID) {
+                                    androidPlatformJarTaskName?.let { add(it) }
+                                }
+                            })
                         }
                     }
 
@@ -128,7 +143,7 @@ object AmperBackend {
                             taskName = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)
                         ).also { tasks.registerTask(it) }
 
-                    fun createRunTask(): Task {
+                    fun createRunTask(): Task? {
                         require(!isTest)
                         require(!module.type.isLibrary())
 
@@ -147,8 +162,11 @@ object AmperBackend {
                                 taskName = runTaskName,
                             )
 
-                            else -> error("$top is not supported yet")
-                        }.also {
+                            else -> {
+                                logger.warn("$top is not supported yet")
+                                null
+                            }
+                        }?.also {
                             tasks.registerTask(it, dependsOn = listOf(getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false)))
                         }
                     }
@@ -246,6 +264,20 @@ object AmperBackend {
         }
 
         return if (problemReporter.wereProblemsReported()) 1 else 0
+    }
+
+    private fun setupAndroidPlatformTask(module: PotatoModule, tasks: TaskGraphBuilder): TaskName? {
+        return module
+            .fragments
+            .filter { Platform.ANDROID in it.platforms }
+            .firstOrNull { !it.isTest }
+            ?.let { androidFragment ->
+                androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
+                    val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
+                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", androidCompileTaskName))
+                    androidCompileTaskName
+                }
+            }
     }
 
     private enum class CommonTaskType {

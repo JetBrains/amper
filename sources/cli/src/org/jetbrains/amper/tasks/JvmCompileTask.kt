@@ -42,7 +42,7 @@ class JvmCompileTask(
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
-): Task {
+) : Task {
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")

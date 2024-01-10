@@ -4,7 +4,7 @@ import org.gradle.tooling.GradleConnector
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 
-inline fun <reified R : AndroidBuildResult> run(buildRequest: AndroidBuildRequest, debug: Boolean = false): R {
+inline fun <reified R : AndroidBuildResult> runAndroidBuild(buildRequest: AndroidBuildRequest, debug: Boolean = false): R {
     // todo: temp directory isn't the best place for such temporary project, because we don't utilize gradle caches,
     //  but ok for debug
     val tempDir = createTempDirectory()
