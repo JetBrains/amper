@@ -305,6 +305,12 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
             "reportFile of kover xml settings with key $settingsKey differs")
         } ?: assertNull(otherSettings::kover.withoutDefault?.xml, "kover xml settings with key $settingsKey are presented")
       } ?: assertNull(otherSettings::kover.withoutDefault, "kover settings with key $settingsKey are presented")
+
+      settings::native.withoutDefault?.let { nativeSettings ->
+        assertNotNull(otherSettings::native.withoutDefault, "native settings with key $settingsKey is missing")
+        assertValueEquals(nativeSettings::entryPoint, otherSettings::native.withoutDefault?.run { ::entryPoint },
+          "entryPoint of native settings with key $settingsKey differs")
+      } ?: assertNull(otherSettings::publishing.withoutDefault, "native settings with key $settingsKey are presented")
     }
   }
 

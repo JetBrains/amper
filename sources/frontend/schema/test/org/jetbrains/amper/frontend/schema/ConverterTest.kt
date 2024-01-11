@@ -152,6 +152,10 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                         }
 
                     }
+
+                    native = NativeSettings().apply {
+                        entryPoint = "entrypoint-native"
+                    }
                 }
             )
 

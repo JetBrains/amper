@@ -72,6 +72,8 @@ settings:
     xml:
       onCheck: false
       reportFile: coverage.xml
+  native:
+    entryPoint: "entrypoint-native"
 
 # test-setting uses shortcut form of syntax
 test-settings:
