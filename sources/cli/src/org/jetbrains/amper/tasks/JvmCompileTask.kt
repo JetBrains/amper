@@ -26,13 +26,14 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
-import org.jetbrains.kotlin.buildtools.api.KotlinLogger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.exists
 import kotlin.io.path.extension
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 
@@ -67,14 +68,12 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
 
-        val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty()
-
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "language.version" to (languageVersion ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
-            "isMultiplatform" to isMultiplatform.toString(),
+            "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
         val inputs = fragments.map { it.src } + fragments.map { it.resourcesPath } + classpath
@@ -82,7 +81,23 @@ class JvmCompileTask(
         executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val presentSources = fragments.map { it.src }.filter { it.exists() }
+            val presentSources = fragments
+                .map { it.src }
+                .filter {
+                    when {
+                        it.isDirectory() -> it.listDirectoryEntries().isNotEmpty()
+                        it.exists() ->
+                            error("Source directory at '$it' exists, but it's not a directory, this is currently unsupported")
+                        else -> false
+                    }
+                }
+
+            // Enable multi-platform support only if targeting other than JVM platforms
+            // or having a common and JVM fragments (like src and src@jvm directories)
+            // TODO This a lot of effort to prevent using -Xmulti-platform in ordinary JVM code
+            //  is it worth it? Could we always set -Xmulti-platform?
+            val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || presentSources.size > 1
+
             if (presentSources.isNotEmpty()) {
                 // TODO settings!
                 val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
@@ -168,9 +183,11 @@ class JvmCompileTask(
                 add("-language-version")
                 add(languageVersion)
             }
+
             if (isMultiplatform) {
                 add("-Xmulti-platform")
             }
+
             add("-jvm-target")
             add("17")
 
