@@ -47,10 +47,10 @@ class NativeCompileTask(
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): TaskResult {
         val fragments = module.fragments.filter {
-            it.platforms.contains(platform)
+            it.platforms.contains(platform) && it.isTest == isTest
         }
         if (fragments.isEmpty()) {
-            error("Zero fragments in module ${module.userReadableName} for platform $platform")
+            error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
 
         val compiledModuleDependencies = dependenciesResult
