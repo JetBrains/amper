@@ -172,7 +172,7 @@ class ShellScriptsTest {
         outputAssertions(processOutput)
     }
 
-    private val cliScriptExtension = if (OS.isWindows) ".bat" else ""
+    private val cliScriptExtension = if (OS.isWindows) ".bat" else ".sh"
 
     private val cliScript: Path by lazy {
         val script = TestUtil.prototypeImplementationRoot.resolve("cli/scripts/amper$cliScriptExtension")
