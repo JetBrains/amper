@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.resolve.resolved
+import org.jetbrains.amper.tasks.AndroidPrepareTask
 import org.jetbrains.amper.tasks.GetAndroidPlatformJarTask
 import org.jetbrains.amper.tasks.JvmCompileTask
 import org.jetbrains.amper.tasks.JvmRunTask
@@ -95,6 +96,10 @@ object AmperBackend {
                         continue
                     }
 
+                    val testSuffix = if (isTest) "Test" else ""
+                    val prepareDebugAndroidBuild = TaskName.fromHierarchy(listOf(module.userReadableName, "prepare${testSuffix}DebugAndroidBuild"))
+                    tasks.registerTask(AndroidPrepareTask(module, prepareDebugAndroidBuild))
+
                     fun createCompileTask(): Task? {
                         val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest)
                         val top = platform.topmostParentNoCommon
@@ -128,6 +133,7 @@ object AmperBackend {
                                 add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
                                 if (top == Platform.ANDROID) {
                                     androidPlatformJarTaskName?.let { add(it) }
+                                    add(prepareDebugAndroidBuild)
                                 }
                             })
                         }
