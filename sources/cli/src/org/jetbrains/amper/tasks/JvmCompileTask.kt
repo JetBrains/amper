@@ -9,8 +9,8 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -73,7 +73,7 @@ class JvmCompileTask(
         val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty()
 
         val configuration: Map<String, String> = mapOf(
-            "jdk.version" to JdkDownloader.JBR_SDK_VERSION,
+            "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "language.version" to (languageVersion ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,

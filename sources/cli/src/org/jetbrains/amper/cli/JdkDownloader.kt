@@ -7,40 +7,29 @@ package org.jetbrains.amper.cli
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.ExtractOptions
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 
 // TODO so far, no version selection, need to design it a little
 
 object JdkDownloader {
-    const val JBR_SDK_VERSION = "17.0.9b1109.1"
-    private val LOG = LoggerFactory.getLogger(javaClass)
-
     suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot): Path {
-        val os = OS.current
-        val arch = Arch.current
-        return getJdkHome(userCacheRoot, os, arch) {
-            LOG.info(it)
-        }
+        return getJdkHome(userCacheRoot, currentSystemFixedJdkUrl)
     }
 
-    private suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot, os: OS, arch: Arch, infoLog: (String) -> Unit): Path {
-        val jdkUrl = getUrl(os, arch).toString()
-        val jdkArchive = Downloader.downloadFileToCacheLocation(jdkUrl, userCacheRoot)
+    internal suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot, jdkUrl: URI): Path {
+        val jdkArchive = Downloader.downloadFileToCacheLocation(jdkUrl.toString(), userCacheRoot)
         val jdkExtracted = extractFileToCacheLocation(
             jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
-        infoLog("jps-bootstrap JDK is at $jdkExtracted")
 
-        val jdkHome: Path = if (os == OS.MACOSX) {
-            jdkExtracted.resolve("Contents").resolve("Home")
-        }
-        else {
-            jdkExtracted
-        }
-        val executable = getJavaExecutable(jdkHome)
-        infoLog("JDK home is at $jdkHome, executable at $executable")
+        val contentsHome = jdkExtracted.resolve("Contents").resolve("Home")
+        val jdkHome: Path = if (contentsHome.isDirectory()) contentsHome else jdkExtracted
+
+        // assert that executable could be indeed found under jdkHome
+        getJavaExecutable(jdkHome)
+
         return jdkHome
     }
 
@@ -57,11 +46,20 @@ object JdkDownloader {
     fun getJavaExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "java")
     fun getJavacExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "javac")
 
-    private fun getUrl(os: OS, arch: Arch): URI {
-        val ext = ".tar.gz"
+    val currentSystemFixedJdkUrl: URI by lazy {
+        getUrl(OS.current, Arch.current)
+    }
+
+    internal fun getUrl(os: OS, arch: Arch): URI {
+        if (os == OS.WINDOWS && arch == Arch.ARM64) {
+            // no corretto build for windows arm64, use microsoft jdk
+            return URI.create("https://aka.ms/download-jdk/microsoft-jdk-21.0.1-windows-aarch64.zip")
+        }
+
+        val ext = if (os == OS.WINDOWS) "-jdk.zip" else ".tar.gz"
         val osString: String = when (os) {
             OS.WINDOWS -> "windows"
-            OS.MACOSX -> "osx"
+            OS.MACOSX -> "macosx"
             OS.LINUX -> "linux"
         }
         val archString: String = when (arch) {
@@ -69,18 +67,12 @@ object JdkDownloader {
             Arch.ARM64 -> "aarch64"
         }
 
-        val jdkBuild = JBR_SDK_VERSION
-
-        val jdkBuildSplit = jdkBuild.split("b".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        check(jdkBuildSplit.size == 2) { "Malformed jdkBuild property: $jdkBuild" }
-        val version = jdkBuildSplit[0]
-        val build = "b" + jdkBuildSplit[1]
-        return URI.create("https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-" +
-                version + "-" + osString + "-" +
-                archString + "-" + build + ext)
+        // not a global constant, so other classes can't reference it, it's an implementation detail now
+        val correttoVersion = "21.0.1.12.1"
+        return URI.create("https://corretto.aws/downloads/resources/$correttoVersion/amazon-corretto-$correttoVersion-$osString-$archString$ext")
     }
 
-    private enum class OS {
+    internal enum class OS {
         WINDOWS,
         MACOSX,
         LINUX;
@@ -99,7 +91,7 @@ object JdkDownloader {
         }
     }
 
-    private enum class Arch {
+    internal enum class Arch {
         X86_64,
         ARM64;
 

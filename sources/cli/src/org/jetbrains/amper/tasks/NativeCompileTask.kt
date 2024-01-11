@@ -93,7 +93,7 @@ class NativeCompileTask(
         val entryPoint = entryPoints.singleOrNull()
 
         val configuration: Map<String, String> = mapOf(
-            "konanc.jdk.version" to JdkDownloader.JBR_SDK_VERSION,
+            "konanc.jre.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,

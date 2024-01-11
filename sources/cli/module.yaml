@@ -37,6 +37,9 @@ dependencies:
   - commons-io:commons-io:2.15.0
   - com.google.guava:guava:33.0.0-jre
 
+test-dependencies:
+  - ../test-base
+
 settings:
   publishing:
     group: org.jetbrains.amper.cli
