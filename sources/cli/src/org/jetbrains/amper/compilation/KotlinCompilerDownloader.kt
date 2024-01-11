@@ -18,7 +18,8 @@ class KotlinCompilerDownloader(
     companion object {
         const val AMPER_DEFAULT_KOTLIN_VERSION = "1.9.22"
 
-        private const val MAVEN_CENTRAL_REPOSITORY_URL = "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2"
+        private const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
+        // TODO do not depend on internal repositories, depend only on maven central
         private const val KOTLIN_IDE_PLUGIN_DEPENDENCIES_REPOSITORY_URL = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies"
         private const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
     }
