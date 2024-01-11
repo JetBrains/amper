@@ -9,8 +9,9 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.cli.KotlinCompilerUtil
+import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
@@ -40,6 +41,7 @@ class JvmCompileTask(
     private val taskOutputRoot: TaskOutputRoot,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
 ): Task {
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
@@ -63,7 +65,7 @@ class JvmCompileTask(
         }
 
         // TODO settings!
-        val kotlinVersion = KotlinCompilerUtil.AMPER_DEFAULT_KOTLIN_VERSION
+        val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
@@ -89,7 +91,8 @@ class JvmCompileTask(
                 val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
 
                 // TODO settings!
-                val kotlinHome = KotlinCompilerUtil.downloadAndExtractKotlinCompiler(kotlinVersion, userCacheRoot)
+                // TODO do in separate (and cacheable) task
+                val kotlinHome = kotlinCompilerDownloader.downloadAndExtractKotlinCompiler(kotlinVersion)
 
                 val kotlincOptions = mutableListOf<String>()
 
@@ -112,7 +115,7 @@ class JvmCompileTask(
                     "-d", taskOutputRoot.path.pathString,
                 ) + presentSources.map { it.pathString }
 
-                KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
+                withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
                     val jvmArgs = listOf(
                         javaExecutable.pathString,

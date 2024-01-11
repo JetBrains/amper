@@ -9,8 +9,9 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.cli.KotlinCompilerUtil
+import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
@@ -39,6 +40,7 @@ class NativeCompileTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     private val isTest: Boolean,
+    private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
 ): Task {
     init {
         require(platform.isLeaf)
@@ -62,8 +64,10 @@ class NativeCompileTask(
 
         // TODO dependencies support
         // TODO kotlin version settings
-        val kotlinVersion = KotlinCompilerUtil.AMPER_DEFAULT_KOTLIN_VERSION
-        val kotlinNativeHome = KotlinCompilerUtil.downloadAndExtractKotlinNative(kotlinVersion, userCacheRoot)
+        val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
+
+        // TODO do in separate (and cacheable) task
+        val kotlinNativeHome = kotlinCompilerDownloader.downloadAndExtractKotlinNative(kotlinVersion)
             ?: error("kotlin native compiler is not available at this platform")
 
         val ext = if (org.jetbrains.amper.util.OS.isWindows) ".bat" else ""
@@ -137,7 +141,7 @@ class NativeCompileTask(
 
                 args.addAll(rootsToCompile.map { it.pathString })
 
-                KotlinCompilerUtil.withKotlinCompilerArgFile(args, tempRoot) { argFile ->
+                withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     // todo in the future we'll switch to kotlin tooling api and remove this awful code
 
                     val konanLib = kotlinNativeHome / "konan" / "lib"
