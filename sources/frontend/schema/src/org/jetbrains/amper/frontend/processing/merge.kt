@@ -17,6 +17,8 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.NativeSettings
+import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import kotlin.reflect.KMutableProperty1
@@ -51,6 +53,8 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeNodeProperty(Settings::compose, ComposeSettings::merge)
     mergeNodeProperty(Settings::kover, KoverSettings::merge)
     mergeNodeProperty(Settings::ios, IosSettings::merge)
+    mergeNodeProperty(Settings::publishing, PublishingSettings::merge)
+    mergeNodeProperty(Settings::native, NativeSettings::merge)
 
     mergeScalar(Settings::junit)
 }
@@ -101,6 +105,15 @@ fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(ov
 fun IosSettings.merge(overwrite: IosSettings) = mergeNode(overwrite, ::IosSettings) {
     mergeScalar(IosSettings::teamId)
     mergeNodeProperty(IosSettings::framework, IosFrameworkSettings::merge)
+}
+
+fun PublishingSettings.merge(overwrite: PublishingSettings) = mergeNode(overwrite, ::PublishingSettings) {
+    mergeScalar(PublishingSettings::group)
+    mergeScalar(PublishingSettings::version)
+}
+
+fun NativeSettings.merge(overwrite: NativeSettings) = mergeNode(overwrite, ::NativeSettings) {
+    mergeScalar(NativeSettings::entryPoint)
 }
 
 fun IosFrameworkSettings.merge(overwrite: IosFrameworkSettings) = mergeNode(overwrite, ::IosFrameworkSettings) {

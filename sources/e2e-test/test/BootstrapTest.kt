@@ -35,6 +35,9 @@ class BootstrapTest {
         val core = TestUtil.prototypeImplementationRoot.resolve("core/build/libs/core-jvm-$version.jar")
         val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
 
+        println("############ gradle-integration version: $version")
+        println("############ gradle-integration libraries: ${TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs").toFile().list()?.toSet()}")
+
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
@@ -83,7 +86,9 @@ plugins.apply("org.jetbrains.amper.settings.plugin")
         // when
         val buildResult = GradleRunner.create()
             .withProjectDir(projectPath.toFile())
-            .withArguments("publishToMavenLocal", "--stacktrace", "-PinBootstrapMode=true")
+            .withArguments(
+//                "-Dorg.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
+                "publishToMavenLocal", "--stacktrace", "-PinBootstrapMode=true")
             .build()
 
         // then
