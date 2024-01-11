@@ -4,7 +4,7 @@ import org.gradle.tooling.GradleConnector
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 
-inline fun <reified R : AndroidBuildResult> runAndroidBuild(buildRequest: AndroidBuildRequest, debug: Boolean = false, prototypeImplementationPath: Path = Path.of("../../../").toAbsolutePath().normalize()): R {
+inline fun <reified R : AndroidBuildResult> runAndroidBuild(buildRequest: AndroidBuildRequest, debug: Boolean = false, prototypeImplementationPath: Path = Path.of("../../../../").toAbsolutePath().normalize()): R {
     // todo: temp directory isn't the best place for such temporary project, because we don't utilize gradle caches,
     //  but ok for debug
     val tempDir = createTempDirectory()
@@ -19,6 +19,8 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
+        maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
         includeBuild("$prototypeImplementationPath")
     }
 }

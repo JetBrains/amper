@@ -19,6 +19,9 @@ import tooling.RClassToolingModelBuilder
 import java.io.File
 import java.nio.file.Path
 import javax.inject.Inject
+import javax.xml.stream.XMLEventFactory
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLOutputFactory
 import kotlin.io.path.isSameFileAs
 import kotlin.io.path.relativeTo
 
@@ -171,13 +174,15 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
 
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
 
+        val loader = Thread.currentThread().contextClassLoader
         settings.gradle.settingsEvaluated {
             val request = Json.decodeFromString<AndroidBuildRequest>(extension.jsonData.get())
             settings.gradle.request = request
-            initProjects(request.root, settings)
+            initProjects(request.root, settings, loader)
         }
 
         settings.gradle.beforeProject { project ->
+            adjustXmlFactories()
             settings.gradle.projectPathToModule[project.path]?.let { module ->
                 val productTypeIsAndroidApp = module.type == ProductType.ANDROID_APP
                 val productTypeIsLib = module.type == ProductType.LIB
@@ -195,8 +200,8 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
     }
 
     context(SLF4JProblemReporterContext)
-    private fun initProjects(projectRoot: Path, settings: Settings) {
-        val model = when (val result = ModelInit.getModel(projectRoot)) {
+    private fun initProjects(projectRoot: Path, settings: Settings, loader: ClassLoader) {
+        val model = when (val result = ModelInit.getModel(projectRoot, loader)) {
             is Result.Failure -> throw result.exception
             is Result.Success -> result.value
         }
@@ -235,4 +240,24 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
             settings.gradle.moduleFilePathToProject[it.buildDir] = projectPath
         }
     }
+}
+
+fun trySetSystemProperty(key: String, value: String) {
+    if (System.getProperty(key) == null)
+        System.setProperty(key, value)
+}
+
+fun adjustXmlFactories() {
+    trySetSystemProperty(
+        XMLInputFactory::class.qualifiedName!!,
+        "com.sun.xml.internal.stream.XMLInputFactoryImpl"
+    )
+    trySetSystemProperty(
+        XMLOutputFactory::class.qualifiedName!!,
+        "com.sun.xml.internal.stream.XMLOutputFactoryImpl"
+    )
+    trySetSystemProperty(
+        XMLEventFactory::class.qualifiedName!!,
+        "com.sun.xml.internal.stream.events.XMLEventFactoryImpl"
+    )
 }
