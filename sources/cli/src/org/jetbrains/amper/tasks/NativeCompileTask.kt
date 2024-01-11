@@ -9,8 +9,8 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.deleteExisting
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isExecutable
@@ -172,7 +173,7 @@ class NativeCompileTask(
                 }
             } finally {
                 for (tempPath in tempFilesToDelete) {
-                    BuildPrimitives.deleteLater(tempPath)
+                    tempPath.deleteExisting()
                 }
             }
 

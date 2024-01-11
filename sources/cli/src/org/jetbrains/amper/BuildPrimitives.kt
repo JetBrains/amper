@@ -5,15 +5,12 @@
 package org.jetbrains.amper
 
 import io.opentelemetry.api.trace.Span
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import org.jetbrains.amper.processes.ProcessResult
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.processes.withGuaranteedTermination
 import org.jetbrains.amper.util.ShellQuoting
@@ -22,7 +19,6 @@ import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
 
 /**
@@ -30,23 +26,6 @@ import kotlin.io.path.pathString
  * a comprehensive support in a build system to make it observable
  */
 object BuildPrimitives {
-    /**
-     * Delete one file on background, report errors if any to log warning only
-     */
-    @OptIn(DelicateCoroutinesApi::class)
-    fun deleteLater(file: Path) {
-        // just in case global scope will be cancelled
-        file.toFile().deleteOnExit()
-
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                file.deleteIfExists()
-            } catch (t: Throwable) {
-                logger.warn("Unable to delete file '$file': ${t.message}", t)
-            }
-        }
-    }
-
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as

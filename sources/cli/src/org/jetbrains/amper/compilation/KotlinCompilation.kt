@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.compilation
 
-import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteExisting
 import kotlin.io.path.writeText
 
 inline fun <R> withKotlinCompilerArgFile(args: List<String>, tempRoot: AmperProjectTempRoot, block: (Path) -> R): R {
@@ -27,6 +27,6 @@ inline fun <R> withKotlinCompilerArgFile(args: List<String>, tempRoot: AmperProj
         argFile.writeText(argString)
         block(argFile)
     } finally {
-        BuildPrimitives.deleteLater(argFile)
+        argFile.deleteExisting()
     }
 }
