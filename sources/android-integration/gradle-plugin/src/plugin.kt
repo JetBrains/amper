@@ -100,8 +100,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             ?.associate { it.modulePath to it } ?: mapOf()
 
                         androidExtension.sourceSets.matching { it.name == "main" }.all {
-                            // todo: AndroidManifest actually should be in src/, change it when build jars by ourselves
-                            it.manifest.srcFile(androidFragment.src.parent.resolve("AndroidManifest.xml"))
+                            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
                             it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
                         }
 
