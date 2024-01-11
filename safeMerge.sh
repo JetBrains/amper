@@ -162,10 +162,8 @@ function pushID() {
 
 function spaceSshCommand() {
   local -r space_repository="$(spaceRepository "$remote_url")"
-  set -x
   # shellcheck disable=SC2029
-  ssh git.jetbrains.team space "$space_repository" "$@"
-  { set +x; } 2>/dev/null
+  (set -x; ssh git.jetbrains.team space "$space_repository" "$@")
 }
 
 function safeMerge() {
