@@ -31,6 +31,14 @@ class JsonTest {
     @Test
     fun `kotlinx-coroutines-android-1_5_0`(testInfo: TestInfo) = doTest(testInfo) { it.replace("6,", "\"6\",") }
 
+    @Test
+    fun `guava-33_0_0-android`(testInfo: TestInfo) = doTest(testInfo) {
+        it.replace(
+            "ApacheMaven3.9.5(57804ffe001d7215b5e7bcb531cf83df38f93546)",
+            "Apache Maven 3.9.5 (57804ffe001d7215b5e7bcb531cf83df38f93546)"
+        )
+    }
+
     private fun doTest(testInfo: TestInfo, sanitizer: (String) -> String = { it }) {
         val text = Path.of("testData/metadata/json/${testInfo.nameToDependency()}.module").readText()
         val module = text.parseMetadata()

@@ -38,11 +38,18 @@ data class Component(
 
 @Serializable
 data class CreatedBy(
-    val gradle: Gradle,
+    val gradle: Gradle? = null,
+    val maven: Maven? = null,
 )
 
 @Serializable
 data class Gradle(
+    val version: String,
+    val buildId: String? = null,
+)
+
+@Serializable
+data class Maven(
     val version: String,
     val buildId: String? = null,
 )
@@ -91,9 +98,9 @@ data class Version(
 data class File(
     val name: String,
     val url: String,
-    val size: Int,
-    val sha512: String,
-    val sha256: String,
-    val sha1: String,
-    val md5: String,
+    val size: Int? = 0,
+    val sha512: String? = null,
+    val sha256: String? = null,
+    val sha1: String? = null,
+    val md5: String? = null,
 )

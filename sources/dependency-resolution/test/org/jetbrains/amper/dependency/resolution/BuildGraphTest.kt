@@ -409,6 +409,19 @@ class BuildGraphTest {
     }
 
     /**
+     * TODO: com.google.guava:guava:33.0.0-android has multiple capabilities
+     */
+    @Test
+    fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            expected = """root
+                |\--- com.google.guava:guava:33.0.0-android
+            """.trimMargin()
+        )
+    }
+
+    /**
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */
     @Test
@@ -561,7 +574,6 @@ class BuildGraphTest {
             this.platform = platform
             this.repositories = repositories
         }.buildGraph(ResolutionLevel.FULL).root
-        assertEquals(expected, root)
         if (verifyMessages) {
             root.asSequence().forEach {
                 assertTrue(
@@ -570,6 +582,7 @@ class BuildGraphTest {
                 )
             }
         }
+        assertEquals(expected, root)
         return root
     }
 
