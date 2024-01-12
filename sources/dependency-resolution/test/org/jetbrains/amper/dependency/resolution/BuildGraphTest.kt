@@ -408,15 +408,19 @@ class BuildGraphTest {
         assertEquals(listOf("aar"), appcompat.dependency.files.keys.sortedBy { it })
     }
 
-    /**
-     * TODO: com.google.guava:guava:33.0.0-android has multiple capabilities
-     */
     @Test
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
         doTest(
             testInfo,
+            platform = "android",
             expected = """root
                 |\--- com.google.guava:guava:33.0.0-android
+                |     +--- com.google.guava:failureaccess:1.0.2
+                |     +--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+                |     +--- com.google.code.findbugs:jsr305:3.0.2
+                |     +--- org.checkerframework:checker-qual:3.41.0
+                |     +--- com.google.errorprone:error_prone_annotations:2.23.0
+                |     \--- com.google.j2objc:j2objc-annotations:2.8
             """.trimMargin()
         )
     }

@@ -161,6 +161,9 @@ data class MavenDependency(
                     || isKotlinTestJunit() && it.capabilities.sortedBy { it.name } == listOf(
                 Capability(group, "kotlin-test-framework-impl", version),
                 toCapability()
+            ) || isGuava() && it.capabilities.sortedBy { it.name } == listOf(
+                Capability("com.google.collections", "google-collections", version),
+                toCapability()
             )
         }.filter {
             val kotlinPlatformType = it.attributes["org.jetbrains.kotlin.platform.type"]
@@ -169,6 +172,8 @@ data class MavenDependency(
                 Scope.COMPILE -> it.attributes["org.gradle.usage"]?.endsWith("-api") == true
                 Scope.RUNTIME -> it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true
             }
+        }.filter {
+            !isGuava() || it.attributes["org.gradle.jvm.environment"]?.endsWith(resolver.settings.platform) == true
         }.also {
             if (it.size <= 1) {
                 variant = it.singleOrNull()
@@ -191,6 +196,8 @@ data class MavenDependency(
 
     private fun isKotlinTestJunit(): Boolean =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
+
+    private fun isGuava(): Boolean = group == "com.google.guava" && module == "guava"
 
     private fun MavenDependency.toCapability(): Capability = Capability(group, module, version)
 
