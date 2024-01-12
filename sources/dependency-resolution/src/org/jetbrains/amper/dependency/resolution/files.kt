@@ -57,7 +57,8 @@ class GradleCacheDirectory(private val files: Path) : CacheDirectory {
         return location.resolve(sha1).resolve(name)
     }
 
-    private fun getLocation(node: MavenDependency) = files.resolve("${node.group}/${node.module}/${node.version}")
+    private fun getLocation(dependency: MavenDependency) =
+        files.resolve("${dependency.group}/${dependency.module}/${dependency.version}")
 }
 
 class MavenCacheDirectory(private val repository: Path) : CacheDirectory {
@@ -76,8 +77,10 @@ class MavenCacheDirectory(private val repository: Path) : CacheDirectory {
     override fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path =
         guessPath(dependency, extension)
 
-    private fun getLocation(node: MavenDependency) =
-        repository.resolve("${node.group.split('.').joinToString("/")}/${node.module}/${node.version}")
+    private fun getLocation(dependency: MavenDependency) =
+        repository.resolve(
+            "${dependency.group.split('.').joinToString("/")}/${dependency.module}/${dependency.version}"
+        )
 }
 
 class DependencyFile(
