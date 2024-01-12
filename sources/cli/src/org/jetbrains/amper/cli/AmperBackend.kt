@@ -88,17 +88,20 @@ object AmperBackend {
                 } else null
 
                 for (isTest in listOf(false, true)) {
-                    val fragments = module.fragments
-                        .filter { it.isTest == isTest && (Platform.JVM in it.platforms || Platform.ANDROID in it.platforms) }
+                    val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
                     if (isTest && fragments.all { !it.src.exists() }) {
                         // no test code, assume no code generation
                         // other modules could not depend on this module's tests, so it's ok
                         continue
                     }
 
-                    val testSuffix = if (isTest) "Test" else ""
-                    val prepareDebugAndroidBuild = TaskName.fromHierarchy(listOf(module.userReadableName, "prepare${testSuffix}DebugAndroidBuild"))
-                    tasks.registerTask(AndroidPrepareTask(module, prepareDebugAndroidBuild))
+                    val prepareDebugAndroidBuildName = if (platform == Platform.ANDROID) {
+                        val testSuffix = if (isTest) "Test" else ""
+                        val prepareDebugAndroidBuild = TaskName.fromHierarchy(listOf(module.userReadableName, "prepare${testSuffix}DebugAndroidBuild"))
+                        tasks.registerTask(AndroidPrepareTask(module, prepareDebugAndroidBuild))
+                        prepareDebugAndroidBuild
+                    } else null
+
 
                     fun createCompileTask(): Task? {
                         val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest)
@@ -133,7 +136,7 @@ object AmperBackend {
                                 add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
                                 if (top == Platform.ANDROID) {
                                     androidPlatformJarTaskName?.let { add(it) }
-                                    add(prepareDebugAndroidBuild)
+                                    prepareDebugAndroidBuildName?.let { add(it) }
                                 }
                             })
                         }
