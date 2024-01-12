@@ -313,9 +313,11 @@ data class MavenDependency(
     }
 
     private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, resolver: Resolver) =
-        isDownloaded(level, resolver) || level == ResolutionLevel.FULL && download(resolver)
+        isDownloaded(level, resolver.settings) || level == ResolutionLevel.FULL && download(resolver.settings)
 
     fun downloadDependencies(resolver: Resolver) {
-        files.values.filter { !it.isDownloaded(ResolutionLevel.FULL, resolver) }.forEach { it.download(resolver) }
+        files.values
+            .filter { !it.isDownloaded(ResolutionLevel.FULL, resolver.settings) }
+            .forEach { it.download(resolver.settings) }
     }
 }

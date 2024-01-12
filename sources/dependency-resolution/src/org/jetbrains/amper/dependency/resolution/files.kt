@@ -97,8 +97,8 @@ class DependencyFile(
 
     override fun toString(): String = path?.toString() ?: "[missing path]/$name"
 
-    fun isDownloaded(level: ResolutionLevel, resolver: Resolver): Boolean =
-        isDownloaded(level, resolver.settings.repositories, resolver.settings.progress)
+    fun isDownloaded(level: ResolutionLevel, settings: Settings): Boolean =
+        isDownloaded(level, settings.repositories, settings.progress)
 
     private fun isDownloaded(
         level: ResolutionLevel,
@@ -145,8 +145,8 @@ class DependencyFile(
         throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
     }
 
-    fun download(resolver: Resolver): Boolean {
-        return resolver.settings.repositories.find { download(it, resolver.settings.progress) }?.also {
+    fun download(settings: Settings): Boolean {
+        return settings.repositories.find { download(it, settings.progress) }?.also {
             dependency.messages += Message("Downloaded from $it")
         } != null
     }
