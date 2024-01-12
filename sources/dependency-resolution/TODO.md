@@ -11,4 +11,7 @@
 - [ ] Dump resolution graph
 - [ ] Write tests for partial resolution
 - [ ] CacheDirectoryComposite
-- [ ] common(d1) ios(d2) android(d3)
+- [ ] Support fragments: common(d1) ios(d2) android(d3)
+- [ ] Order of dependencies
+- [ ] Resolve: from root or per module (Go modules, Run task)?
+- [ ] Separate IO dispatcher
