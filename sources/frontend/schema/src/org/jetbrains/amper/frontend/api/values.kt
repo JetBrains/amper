@@ -12,14 +12,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 
 /**
- * A class, that every enum, participating in
- * schema building should inherit.
- */
-interface SchemaEnum {
-    val schemaValue: String
-}
-
-/**
  * Class to collect all values registered within it.
  */
 abstract class SchemaNode : Traceable() {

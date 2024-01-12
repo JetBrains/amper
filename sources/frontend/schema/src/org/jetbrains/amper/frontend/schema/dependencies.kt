@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
-import org.jetbrains.amper.frontend.api.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 

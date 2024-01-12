@@ -91,3 +91,11 @@ fun Path.isModuleYaml() = name == "module.yaml"
 
 val Path.amperIgnoreIfAny: Path?
     get() = resolve(".amperignore").takeIf { it.exists() }
+
+/**
+ * A class, that every enum, participating in
+ * schema building should inherit.
+ */
+interface SchemaEnum {
+    val schemaValue: String
+}

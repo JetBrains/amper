@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
-import org.jetbrains.amper.frontend.api.SchemaEnum
+import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.forEachEndAware
 import kotlin.reflect.KClass
 import kotlin.reflect.KType

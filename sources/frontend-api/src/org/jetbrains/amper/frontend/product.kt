@@ -8,7 +8,7 @@ enum class ProductType(
     val value: String,
     val supportedPlatforms: Set<Platform>,
     val defaultPlatforms: Set<Platform>?
-) {
+): SchemaEnum {
     LIB(
         "lib",
         supportedPlatforms = Platform.leafPlatforms,
@@ -54,6 +54,8 @@ enum class ProductType(
     override fun toString(): String {
         return value
     }
+
+    override val schemaValue: String = value
 
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }

@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.SchemaEnum
+import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.reportBundleError
 

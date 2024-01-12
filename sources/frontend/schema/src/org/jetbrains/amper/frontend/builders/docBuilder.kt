@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaDoc
-import org.jetbrains.amper.frontend.api.SchemaEnum
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
