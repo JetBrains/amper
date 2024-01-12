@@ -9,13 +9,16 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.channels.OverlappingFileLockException
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
-import kotlin.io.path.readText
-import kotlin.io.path.writeBytes
 
 interface CacheDirectory {
     fun guessPath(dependency: MavenDependency, extension: String): Path?
@@ -122,8 +125,22 @@ class DependencyFile(
         return level < ResolutionLevel.FULL
     }
 
-    fun readText(): String = path?.readText()
-        ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
+    fun readText(): String {
+        path?.let { path ->
+            FileChannel.open(path, StandardOpenOption.READ).use { channel ->
+                while (true) {
+                    try {
+                        channel.lock(0L, Long.MAX_VALUE, true).use {
+                            return channel.readBytes().toString(Charsets.UTF_8)
+                        }
+                    } catch (e: OverlappingFileLockException) {
+                        Thread.sleep(100)
+                    }
+                }
+            }
+        }
+        throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
+    }
 
     fun download(resolver: Resolver): Boolean {
         return resolver.settings.repositories.find { download(it, resolver.settings.progress) }?.also {
@@ -149,8 +166,40 @@ class DependencyFile(
             val target = cacheDirectory.getPath(dependency, extension, bytes)
             try {
                 Files.createDirectories(target.parent)
-                target.writeBytes(bytes)
-                return true
+                try {
+                    FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
+                        channel.lock().use {
+                            channel.write(ByteBuffer.wrap(bytes))
+                            return true
+                        }
+                    }
+                } catch (e: Exception) {
+                    when (e) {
+                        is FileAlreadyExistsException, is OverlappingFileLockException -> {
+                            FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
+                                // We need to wait for the previous lock to get released.
+                                // This way we ensure that the file was fully written to disk.
+                                while (true) {
+                                    try {
+                                        channel.lock().use {
+                                            if (verify) {
+                                                val result = verify(channel.readBytes(), repository, progress)
+                                                if (result > VerificationResult.PASSED) {
+                                                    channel.write(ByteBuffer.wrap(bytes))
+                                                }
+                                            }
+                                            return true
+                                        }
+                                    } catch (e: OverlappingFileLockException) {
+                                        Thread.sleep(100)
+                                    }
+                                }
+                            }
+                        }
+
+                        else -> throw e
+                    }
+                }
             } catch (e: IOException) {
                 dependency.messages += Message(
                     "Unable to move downloaded file",
@@ -160,6 +209,17 @@ class DependencyFile(
             }
         }
         return false
+    }
+
+    private fun FileChannel.readBytes(): ByteArray {
+        val baos = ByteArrayOutputStream()
+        val buff = ByteBuffer.allocate(1024)
+        var count: Int
+        while (read(buff).also { count = it } != -1) {
+            baos.write(buff.array(), 0, count)
+            buff.rewind()
+        }
+        return baos.toByteArray()
     }
 
     private fun verify(
