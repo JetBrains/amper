@@ -165,7 +165,7 @@ data class Organization(
     @XmlElement(true)
     val name: String,
     @XmlElement(true)
-    val url: String,
+    val url: String? = null,
 )
 
 @Serializable
@@ -181,7 +181,7 @@ data class License(
     @XmlElement(true)
     val name: String,
     @XmlElement(true)
-    val url: String,
+    val url: String? = null,
     @XmlElement(true)
     val distribution: String? = null,
 )
@@ -286,7 +286,7 @@ data class Scm(
     @XmlElement(true)
     val developerConnection: String? = null,
     @XmlElement(true)
-    val url: String,
+    val url: String? = null,
     @XmlElement(true)
     val tag: String? = null,
 )
