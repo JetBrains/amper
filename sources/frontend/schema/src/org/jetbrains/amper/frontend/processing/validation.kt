@@ -8,9 +8,15 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Template
 
 context(ProblemReporterContext)
 fun Module.validateSchema() = apply {
+    ValidationVisitor().visit(this)
+}
+
+context(ProblemReporterContext)
+fun Template.validateSchema() = apply {
     ValidationVisitor().visit(this)
 }
 

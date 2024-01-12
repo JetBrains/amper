@@ -49,8 +49,13 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
-        fun getModel(root: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
-            return loadModelInitService(loader).flatMap { it.getModel(root, project) }
+        fun getModule(root: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<PotatoModule> {
+            return loadModelInitService(loader).flatMap { it.getModule(root, project) }
+        }
+
+        context(ProblemReporterContext)
+        fun getTemplate(templatePath: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Unit> {
+            return loadModelInitService(loader).flatMap { it.getTemplate(templatePath, project) }
         }
     }
 
@@ -63,5 +68,8 @@ interface ModelInit {
     fun getModel(root: Path): Result<Model>
 
     context(ProblemReporterContext)
-    fun getModel(root: PsiFile, project: Project): Result<Model>
+    fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule>
+
+    context(ProblemReporterContext)
+    fun getTemplate(templatePsiFile: PsiFile, project: Project): Result<Unit>
 }

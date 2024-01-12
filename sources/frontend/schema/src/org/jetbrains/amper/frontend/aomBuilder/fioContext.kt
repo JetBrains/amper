@@ -56,7 +56,7 @@ interface FioContext {
 /**
  * Default files context.
  */
-class DefaultFioContext(
+open class DefaultFioContext(
     override val root: Path
 ) : FioContext {
 
@@ -122,3 +122,20 @@ class DefaultFioContext(
     }
 }
 
+/**
+ * Per-file context.
+ */
+class ModuleFioContext(
+    override val root: Path
+) : DefaultFioContext(root) {
+
+    override val amperModuleFiles: List<Path> by lazy {
+        Files.list(rootDir)
+            .filter { file -> file.isModuleYaml() && ignorePaths.none { file.startsWith(it) } }
+            .collect(Collectors.toList())
+    }
+
+    override val gradleModules: Map<Path, DumbGradleModule> by lazy {
+        emptyMap()
+    }
+}

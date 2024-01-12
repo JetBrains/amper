@@ -9,13 +9,24 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.JvmPart
+import org.jetbrains.amper.frontend.KotlinPart
+import org.jetbrains.amper.frontend.ModelInit
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.gradle.util.MockModel
 import org.jetbrains.amper.gradle.util.MockPotatoModule
 import org.jetbrains.amper.gradle.util.getMockModelName
 import org.jetbrains.amper.gradle.util.withDebug
 import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
 import java.nio.file.Path
+import kotlin.collections.listOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.setOf
+import kotlin.collections.single
 import kotlin.io.path.createDirectories
 import kotlin.properties.PropertyDelegateProvider
 
@@ -59,7 +70,15 @@ object Models : ModelInit {
     }
 
     context(ProblemReporterContext)
-    override fun getModel(root: PsiFile, project: Project): Result<Model> = getModel(root.virtualFile.toNioPath())
+    override fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> =
+        when (val result: Result<MockModel> = getModel(modulePsiFile.virtualFile.toNioPath())) {
+            is Result.Failure -> Result.failure(result.exception)
+            is Result.Success -> Result.success(result.value.modules.single())
+        }
+
+    context(ProblemReporterContext) override fun getTemplate(templatePsiFile: PsiFile, project: Project): Result<Nothing> {
+        TODO("Not yet implemented")
+    }
 
     private val Path.moduleYaml: Path get() = resolve("module.yaml")
 

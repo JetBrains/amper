@@ -6,12 +6,15 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.toNioPathOrNull
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.yaml.psi.YAMLPsiElement
 import kotlin.reflect.KProperty0
 
@@ -39,18 +42,22 @@ fun MessageBundle.reportBundleError(
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    node: YAMLPsiElement?,
+    value: TraceableString,
+    messageKey: String,
+    vararg arguments: Any,
+    level: Level = Level.Error,
+): Nothing? = when(val trace = value.trace) {
+    is YAMLPsiElement -> reportError(message(messageKey, *arguments), level, trace)
+    else -> reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
+}
+
+context(ProblemReporterContext)
+fun MessageBundle.reportBundleError(
+    node: YAMLPsiElement,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = reportError(message(messageKey, *arguments), level, node)
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-): Nothing? = reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
 
 context(ProblemReporterContext)
 fun reportError(
@@ -59,7 +66,7 @@ fun reportError(
     node: YAMLPsiElement? = null
 ): Nothing? {
     val lineAndColumn = node?.let { getLineAndColumnInPsiFile(it, it.textRange) }
-    problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line, column = lineAndColumn?.column))
+    problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line, column = lineAndColumn?.column, file = node?.containingFile?.virtualFile?.toNioPathOrNull()))
     return null
 }
 
