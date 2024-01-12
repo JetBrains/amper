@@ -219,8 +219,8 @@ data class MavenDependency(
             packaging = project.packaging
             (project.dependencies?.dependencies ?: listOf()).filter {
                 when (resolver.settings.scope) {
-                    Scope.COMPILE -> it.scope == null || it.scope == "compile"
-                    Scope.RUNTIME -> it.scope == null || it.scope == "compile" || it.scope == "runtime"
+                    Scope.COMPILE -> it.scope in setOf(null, "compile")
+                    Scope.RUNTIME -> it.scope in setOf(null, "compile", "runtime")
                 }
             }.filter {
                 it.version != null && it.optional != true
