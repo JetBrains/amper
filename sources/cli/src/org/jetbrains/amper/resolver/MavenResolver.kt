@@ -9,6 +9,7 @@ import org.jetbrains.amper.dependency.resolution.MavenCacheDirectory
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
+import org.jetbrains.amper.dependency.resolution.Scope
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.createFor
 import org.jetbrains.amper.diagnostics.spanBuilder
@@ -17,7 +18,11 @@ import java.nio.file.Path
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
-    fun resolve(coordinates: Collection<String>, repositories: Collection<String>): Collection<Path> = spanBuilder("mavenResolve")
+    fun resolve(
+        coordinates: Collection<String>,
+        repositories: Collection<String>,
+        scope: Scope = Scope.COMPILE,
+    ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
             val resolver = Resolver.createFor({ resolver ->
@@ -31,6 +36,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             }) {
                 cache = listOf(MavenCacheDirectory(userCacheRoot.path.resolve(".m2.cache")))
                 this.repositories = repositories
+                this.scope = scope
             }.buildGraph().downloadDependencies()
 
             val files = mutableSetOf<Path>()

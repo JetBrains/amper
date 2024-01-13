@@ -5,6 +5,7 @@
 package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.Scope
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -23,7 +24,7 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(root))
 
         val result = resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
-        val relative = result.map { it.relativeTo(root).toString().replace('\\', '/') }.sorted()
+        val relative = result.map { it.relativeTo(root).joinToString("/") }.sorted()
         assertEquals(
             listOf(
                 ".m2.cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar",
@@ -43,9 +44,43 @@ class MavenResolverTest {
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
         val result = resolver.resolve(coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
-        val relative = result.map { it.relativeTo(tempDir.toPath()).toString().replace('\\', '/') }.sorted()
+        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
         assertEquals(
             listOf(".m2.cache/org/tinylog/tinylog-api/2.7.0-M1/tinylog-api-2.7.0-M1.jar"),
+            relative,
+        )
+    }
+
+    @Test
+    fun respectsRuntimeScope() {
+        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+
+        // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
+        val result = resolver.resolve(
+            coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
+            repositories = listOf("https://repo1.maven.org/maven2"),
+            scope = Scope.RUNTIME,
+        )
+        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
+        assertEquals(
+            listOf(
+                ".m2.cache/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+                ".m2.cache/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-build-common/1.9.22/kotlin-build-common-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-build-tools-api/1.9.22/kotlin-build-tools-api-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-build-tools-impl/1.9.22/kotlin-build-tools-impl-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-compiler-embeddable/1.9.22/kotlin-compiler-embeddable-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-compiler-runner/1.9.22/kotlin-compiler-runner-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-daemon-client/1.9.22/kotlin-daemon-client-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-daemon-embeddable/1.9.22/kotlin-daemon-embeddable-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-script-runtime/1.9.22/kotlin-script-runtime-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-stdlib-common/1.5.0/kotlin-stdlib-common-1.5.0.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.5.0/kotlin-stdlib-jdk7-1.5.0.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.5.0/kotlin-stdlib-jdk8-1.5.0.jar",
+                ".m2.cache/org/jetbrains/kotlin/kotlin-stdlib/1.9.22/kotlin-stdlib-1.9.22.jar",
+                ".m2.cache/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.5.0/kotlinx-coroutines-core-jvm-1.5.0.jar",
+            ),
             relative,
         )
     }
