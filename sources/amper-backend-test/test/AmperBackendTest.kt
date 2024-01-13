@@ -6,6 +6,7 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.diagnostics.getAttribute
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
@@ -32,7 +33,7 @@ class AmperBackendTest {
         assertEquals(0, AmperBackend.run(projectContext, listOf(":jvm-kotlin-test-smoke:testJvm")))
 
         val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "junit-platform-console-standalone" }
-        val stdout = testLauncherSpan.attributes[AttributeKey.stringKey("stdout")]!!
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
         assertTrue(stdout.contains("Hello from test method"), stdout)
@@ -51,7 +52,7 @@ class AmperBackendTest {
         val projectContext = getProjectContext("jvm-resources")
         assertEquals(0, AmperBackend.run(projectContext, listOf(":two:runJvm")))
 
-        assertInfoLogContains(
+        assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
                     "STDOUT:\n" +
                     "String from resources: Stuff From Resources"
@@ -63,12 +64,12 @@ class AmperBackendTest {
         val projectContext = getProjectContext("language-version")
 
         assertEquals(0, AmperBackend.run(projectContext, listOf(":language-version:runJvm")))
-        assertInfoLogContains(
+        assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
                     "STDOUT:\n" +
                     "Hello, world!"
         )
-        assertEquals(1, kotlincSpans.size)
+        assertEquals(1, kotlinJvmCompilerSpans.size)
 
         openTelemetryCollector.reset()
         log.reset()
@@ -77,12 +78,12 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello, world!"
-        assertInfoLogContains(find)
-        assertEquals(0, kotlincSpans.size)
+        assertInfoLogStartsWith(find)
+        assertEquals(0, kotlinJvmCompilerSpans.size)
     }
 
     @Test
-    fun `kotlinc span`() {
+    fun `kotlin compiler span`() {
         val projectContext = getProjectContext("language-version")
         val rc = AmperBackend.run(projectContext, listOf(":language-version:runJvm"))
         assertEquals(0, rc)
@@ -90,25 +91,15 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello, world!"
-        assertInfoLogContains(find)
+        assertInfoLogStartsWith(find)
 
-        val kotlinc = kotlincSpans.singleOrNull() ?: fail("No kotlinc spans")
-        kotlinc.assertKotlincArguments("-language-version", "1.9")
+        val compilationSpan = kotlinJvmCompilerSpans.singleOrNull() ?: fail("No kotlin compilation span (or more than 1)")
+        compilationSpan.assertKotlinCompilerArgument("-language-version", "1.9")
 
-        val kotlincExitCode = kotlinc.attributes[AttributeKey.longKey("exit-code")]!!
-        assertEquals(0, kotlincExitCode)
+        assertLogContains(text = "main.kt:1:10 Parameter 'args' is never used", level = Level.WARN)
 
-        val kotlincStdErr = kotlinc.attributes[AttributeKey.stringKey("stderr")]!!
-        val substring = "main.kt:1:10: warning: parameter 'args' is never used"
-        if (!kotlincStdErr.contains(substring)) {
-            fail("kotlinc stderr output must contain '$substring': $kotlincStdErr")
-        }
-
-        val kotlincStdOut = kotlinc.attributes[AttributeKey.stringKey("stdout")]!!
-        assertEquals("", kotlincStdOut)
-
-        val kotlincAmperModule = kotlinc.attributes[AttributeKey.stringKey("amper-module")]!!
-        assertEquals("language-version", kotlincAmperModule)
+        val amperModuleAttr = compilationSpan.getAttribute(AttributeKey.stringKey("amper-module"))
+        assertEquals("language-version", amperModuleAttr)
     }
 
     @Test
@@ -120,7 +111,7 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Output: <XYZ>"
-        assertInfoLogContains(find)
+        assertInfoLogStartsWith(find)
     }
 
     @Test
@@ -132,7 +123,7 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello Multiplatform CLI: JVM World"
-        assertInfoLogContains(find)
+        assertInfoLogStartsWith(find)
     }
 
     @Test
@@ -145,7 +136,7 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello Multiplatform CLI: Mac World"
-        assertInfoLogContains(find)
+        assertInfoLogStartsWith(find)
     }
 
     @Test
@@ -156,7 +147,7 @@ class AmperBackendTest {
         assertEquals(0, rc)
 
         val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "native-test" }
-        val stdout = testLauncherSpan.attributes[AttributeKey.stringKey("stdout")]!!
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
         assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
@@ -172,7 +163,7 @@ class AmperBackendTest {
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello Multiplatform CLI: Linux World"
-        assertInfoLogContains(find)
+        assertInfoLogStartsWith(msgPrefix = find)
     }
 
     private fun getProjectContext(testProjectName: String): ProjectContext {
@@ -186,9 +177,17 @@ class AmperBackendTest {
         return projectContext
     }
 
-    private fun assertInfoLogContains(startsWith: String) {
-        assertTrue("Log message starting with '$startsWith' was not found") {
-            log.entries.any { it.level.ordinal >= Level.INFO.ordinal && it.message.startsWith(startsWith) }
+    private fun assertInfoLogStartsWith(msgPrefix: String) = assertLogStartsWith(msgPrefix, minLevel = Level.INFO)
+
+    private fun assertLogStartsWith(msgPrefix: String, minLevel: Level) {
+        assertTrue("Log message with level>=$minLevel and starting with '$msgPrefix' was not found") {
+            log.entries.any { it.level >= minLevel && it.message.startsWith(msgPrefix) }
+        }
+    }
+
+    private fun assertLogContains(text: String, level: Level) {
+        assertTrue("Log message with level=$level and containing '$text' was not found") {
+            log.entries.any { it.level == level && text in it.message }
         }
     }
 
@@ -197,11 +196,11 @@ class AmperBackendTest {
         tempDir.resolve("space test")
     }
 
-    private val kotlincSpans: List<SpanData>
-        get() = openTelemetryCollector.spans.filter { it.name == "kotlinc" }
+    private val kotlinJvmCompilerSpans: List<SpanData>
+        get() = openTelemetryCollector.spans.filter { it.name == "kotlin-compilation" }
 
-    private fun SpanData.assertKotlincArguments(argumentName: String, argumentValue: String) {
-        val args = attributes[AttributeKey.stringArrayKey("args")]!!
+    private fun SpanData.assertKotlinCompilerArgument(argumentName: String, argumentValue: String) {
+        val args = getAttribute(AttributeKey.stringArrayKey("compiler-args"))
         val pair = argumentName to argumentValue
 
         // we can afford it!

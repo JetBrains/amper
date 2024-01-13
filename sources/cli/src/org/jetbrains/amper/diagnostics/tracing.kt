@@ -5,6 +5,7 @@
 package org.jetbrains.amper.diagnostics
 
 import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.metrics.Meter
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
@@ -12,7 +13,7 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
-import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -52,3 +53,9 @@ suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend (
 }
 
 fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
+
+/**
+ * Returns the value of the attribute [key], or throws [NoSuchElementException] if no such attribute exists in this span.
+ */
+fun <T> SpanData.getAttribute(key: AttributeKey<T>) = attributes[key]
+    ?: throw NoSuchElementException("attribute '$key' not found in span '$name'")

@@ -6,9 +6,11 @@ package org.jetbrains.amper.compilation
 
 import com.sun.jna.Platform
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.Scope
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.ExtractOptions
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
+import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.OS
 import java.nio.file.Path
 
@@ -19,17 +21,21 @@ class KotlinCompilerDownloader(
         const val AMPER_DEFAULT_KOTLIN_VERSION = "1.9.22"
 
         private const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
-        // TODO do not depend on internal repositories, depend only on maven central
-        private const val KOTLIN_IDE_PLUGIN_DEPENDENCIES_REPOSITORY_URL = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies"
         private const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
     }
 
-    suspend fun downloadAndExtractKotlinCompiler(version: String): Path = downloadAndExtractFromMaven(
-        mavenRepository = KOTLIN_IDE_PLUGIN_DEPENDENCIES_REPOSITORY_URL,
-        groupId = KOTLIN_GROUP_ID,
-        artifactId = "kotlin-dist-for-ide",
-        version = version,
-        packaging = "jar",
+    private val mavenResolver = MavenResolver(userCacheRoot)
+
+    /**
+     * Downloads the implementation of the Kotlin Build Tools API (and its dependencies) in the given [version].
+     *
+     * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
+     * that will be used behind the scenes.
+     */
+    fun downloadAndExtractKotlinBuildToolsImpl(version: String): Collection<Path> = mavenResolver.resolve(
+        coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
+        repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
+        scope = Scope.RUNTIME,
     )
 
     /**

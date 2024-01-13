@@ -6,12 +6,14 @@ package org.jetbrains.amper.tasks
 
 import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
-import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
+import org.jetbrains.amper.compilation.asKotlinLogger
+import org.jetbrains.amper.compilation.downloadAndLoadCompilationService
+import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
@@ -21,23 +23,25 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.ShellQuoting
 import org.jetbrains.amper.util.targetLeafPlatforms
+import org.jetbrains.kotlin.buildtools.api.CompilationResult
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.buildtools.api.KotlinLogger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 
+@OptIn(ExperimentalBuildToolsApi::class)
 class JvmCompileTask(
     private val module: PotatoModule,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
-    private val tempRoot: AmperProjectTempRoot,
+    private val projectRoot: AmperProjectRoot,
     private val taskOutputRoot: TaskOutputRoot,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
@@ -55,14 +59,7 @@ class JvmCompileTask(
         val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
 
         // TODO Do we really want different language versions in different fragments?
-        val languageVersion = run {
-            val kotlinParts = fragments.flatMap { it.parts.filterIsInstance<KotlinPart>() }
-            val languageVersions = kotlinParts.mapNotNull { it.languageVersion }.distinct()
-            if (languageVersions.size > 1) {
-                error("Fragments of module ${module.userReadableName} (${fragments.map { it.name }.sorted().joinToString(" ")}) provide several different kotlin language versions: ${languageVersions.sorted().joinToString(" ")}")
-            }
-            languageVersions.firstOrNull()
-        }
+        val languageVersion = singleLanguageVersion()
 
         // TODO settings!
         val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
@@ -89,83 +86,28 @@ class JvmCompileTask(
             if (presentSources.isNotEmpty()) {
                 // TODO settings!
                 val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-
-                // TODO settings!
-                // TODO do in separate (and cacheable) task
-                val kotlinHome = kotlinCompilerDownloader.downloadAndExtractKotlinCompiler(kotlinVersion)
-
-                val kotlincOptions = mutableListOf<String>()
-
-                if (languageVersion != null) {
-                    kotlincOptions.add("-language-version")
-                    kotlincOptions.add(languageVersion)
-                }
-
-                if (isMultiplatform) {
-                    kotlincOptions.add("-Xmulti-platform")
-                }
-
-                kotlincOptions.add("-jvm-target")
-                kotlincOptions.add("17")
-
-                val args = kotlincOptions + listOf(
-                    "-classpath", classpath.joinToString(File.pathSeparator),
-                    "-jdk-home", jdkHome.pathString,
-                    "-no-stdlib",
-                    "-d", taskOutputRoot.path.pathString,
-                ) + presentSources.map { it.pathString }
-
-                withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                    val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
-                    val jvmArgs = listOf(
-                        javaExecutable.pathString,
-                        "-Dkotlin.home=$kotlinHome",
-                        "-cp",
-                        (kotlinHome / "lib" / "kotlin-preloader.jar").pathString,
-                        "org.jetbrains.kotlin.preloading.Preloader",
-                        "-cp",
-                        (kotlinHome / "lib" / "kotlin-compiler.jar").pathString,
-                        "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
-                        "@${argFile}",
-                    )
-
-                    spanBuilder("kotlinc")
-                        .setAttribute("amper-module", module.userReadableName)
-                        .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmArgs)
-                        .setAttribute(AttributeKey.stringArrayKey("args"), args)
-                        .setAttribute("version", kotlinVersion)
-                        .useWithScope { span ->
-                            logger.info("Calling kotlinc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
-                            BuildPrimitives.runProcessAndAssertExitCode(jvmArgs, jdkHome, span)
-                        }
+                val kotlinCompilationResult = compileKotlinSources(
+                    compilerVersion = kotlinVersion,
+                    languageVersion = languageVersion,
+                    isMultiplatform = isMultiplatform,
+                    classpath = classpath,
+                    jdkHome = jdkHome,
+                    sourceFiles = presentSources,
+                )
+                if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
+                    error("Kotlin compilation failed (see errors above)")
                 }
 
                 val javaFilesToCompile = presentSources.flatMap { src ->
                     src.walk().filter { it.extension == "java" }
                 }
                 if (javaFilesToCompile.isNotEmpty()) {
-                    val javac = listOf(
-                        JdkDownloader.getJavacExecutable(jdkHome).pathString,
-                        "-classpath", (classpath + taskOutputRoot.path.pathString).joinToString(File.pathSeparator),
-                        // TODO ok by default?
-                        "-encoding", "utf-8",
-                        // TODO settings
-                        "-g",
-                        // https://blog.ltgt.net/most-build-tools-misuse-javac/
-                        // we compile module by module, so we don't need javac lookup into other modules
-                        "-sourcepath", "", "-implicit:none",
-                        "-d", taskOutputRoot.path.pathString,
-                    ) + javaFilesToCompile.map { it.pathString }
-
-                    spanBuilder("javac")
-                        .setAttribute("amper-module", module.userReadableName)
-                        .setAttribute(AttributeKey.stringArrayKey("args"), javac)
-                        .setAttribute("jdk-home", jdkHome.pathString)
-                        // TODO get version from jdkHome/release
-                        // .setAttribute("version", jdkHome.)
-                        .useWithScope { span ->
-                            BuildPrimitives.runProcessAndAssertExitCode(javac, jdkHome, span)
-                        }
+                    val kotlinClassesPath = listOf(taskOutputRoot.path)
+                    compileJavaSources(
+                        jdkHome = jdkHome,
+                        classpath = classpath + kotlinClassesPath,
+                        javaSourceFiles = javaFilesToCompile,
+                    )
                 }
             } else {
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
@@ -187,6 +129,110 @@ class JvmCompileTask(
             classesOutputRoot = taskOutputRoot.path,
             dependencies = dependenciesResult,
         )
+    }
+
+    private fun singleLanguageVersion(): String? {
+        val kotlinParts = fragments.flatMap { it.parts.filterIsInstance<KotlinPart>() }
+        val languageVersions = kotlinParts.mapNotNull { it.languageVersion }.distinct()
+        if (languageVersions.size > 1) {
+            error("Fragments of module ${module.userReadableName} (${fragments.userReadableList()}) provide several " +
+                    "different kotlin language versions: ${languageVersions.sorted().joinToString(" ")}")
+        }
+        return languageVersions.singleOrNull()
+    }
+
+    private suspend fun compileKotlinSources(
+        compilerVersion: String,
+        languageVersion: String?,
+        isMultiplatform: Boolean,
+        classpath: List<Path>,
+        jdkHome: Path,
+        sourceFiles: List<Path>,
+    ): CompilationResult {
+        // TODO should we download this in a separate task?
+        val compilationService = kotlinCompilerDownloader.downloadAndLoadCompilationService(compilerVersion)
+
+        // TODO should we allow users to choose in-process vs daemon?
+        // TODO settings for daemon JVM args?
+        // FIXME Daemon strategy currently fails with "Can't get connection"
+        val executionConfig = compilationService.makeCompilerExecutionStrategyConfiguration()
+            .useInProcessStrategy()
+            //.useDaemonStrategy(jvmArguments = emptyList())
+
+        // TODO configure incremental compilation here
+        val compilationConfig = compilationService.makeJvmCompilationConfiguration()
+            .useLogger(logger.asKotlinLogger())
+
+        val compilerArgs = buildList {
+            if (languageVersion != null) {
+                add("-language-version")
+                add(languageVersion)
+            }
+            if (isMultiplatform) {
+                add("-Xmulti-platform")
+            }
+            add("-jvm-target")
+            add("17")
+
+            add("-classpath")
+            add(classpath.joinToString(File.pathSeparator))
+
+            add("-jdk-home")
+            add(jdkHome.pathString)
+
+            add("-no-stdlib")
+
+            add("-d")
+            add(taskOutputRoot.path.pathString)
+        }
+
+        val kotlinCompilationResult = spanBuilder("kotlin-compilation")
+            .setAttribute("amper-module", module.userReadableName)
+            .setAttribute(AttributeKey.stringArrayKey("source-files"), sourceFiles.map { it.toString() })
+            .setAttribute(AttributeKey.stringArrayKey("compiler-args"), compilerArgs)
+            .setAttribute("version", compilerVersion)
+            .useWithScope {
+                logger.info("Calling Kotlin compiler...")
+
+                // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
+                compilationService.compileJvm(
+                    projectId = projectRoot.toKotlinProjectId(),
+                    strategyConfig = executionConfig,
+                    compilationConfig = compilationConfig,
+                    sources = sourceFiles.map { it.toFile() },
+                    arguments = compilerArgs,
+                )
+            }
+        return kotlinCompilationResult
+    }
+
+    private suspend fun compileJavaSources(
+        jdkHome: Path,
+        classpath: List<Path>,
+        javaSourceFiles: List<Path>,
+    ) {
+        val javacCommand = listOf(
+            JdkDownloader.getJavacExecutable(jdkHome).pathString,
+            "-classpath", classpath.joinToString(File.pathSeparator),
+            // TODO ok by default?
+            "-encoding", "utf-8",
+            // TODO settings
+            "-g",
+            // https://blog.ltgt.net/most-build-tools-misuse-javac/
+            // we compile module by module, so we don't need javac lookup into other modules
+            "-sourcepath", "", "-implicit:none",
+            "-d", taskOutputRoot.path.pathString,
+        ) + javaSourceFiles.map { it.pathString }
+
+        spanBuilder("javac")
+            .setAttribute("amper-module", module.userReadableName)
+            .setAttribute(AttributeKey.stringArrayKey("args"), javacCommand)
+            .setAttribute("jdk-home", jdkHome.pathString)
+            // TODO get version from jdkHome/release
+            // .setAttribute("version", jdkHome.)
+            .useWithScope { span ->
+                BuildPrimitives.runProcessAndAssertExitCode(javacCommand, jdkHome, span)
+            }
     }
 
     class TaskResult(

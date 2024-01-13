@@ -111,7 +111,7 @@ object AmperBackend {
                                 module = module,
                                 fragments = fragments,
                                 userCacheRoot = context.userCacheRoot,
-                                tempRoot = context.projectTempRoot,
+                                projectRoot = context.projectRoot,
                                 taskOutputRoot = getTaskOutputPath(compileTaskName),
                                 taskName = compileTaskName,
                                 executeOnChangedInputs = executeOnChangedInputs,
@@ -223,8 +223,8 @@ object AmperBackend {
                     //  I'm not sure, it's just test -> non-test dependency? Otherwise we build it by platforms
                     if (isTest) {
                         tasks.registerDependency(
-                            taskName = getTaskName(module, CommonTaskType.COMPILE, platform, true),
-                            dependsOn = getTaskName(module, CommonTaskType.COMPILE, platform, false)
+                            taskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = true),
+                            dependsOn = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false)
                         )
                     }
 
