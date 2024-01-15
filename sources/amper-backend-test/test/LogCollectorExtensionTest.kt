@@ -46,7 +46,12 @@ class LogCollectorExtensionTest {
     }
 
     private fun assertEntry(level: Level, message: String) {
-        val entry = log.entries.single()
+        val entry = when (log.entries.size) {
+            0 -> error("No entries")
+            1 -> log.entries.single()
+            else -> error("Multiple entries, but only one is expected:\n" +
+                    log.entries.joinToString("\n") { it.message })
+        }
         assertEquals(level, entry.level)
         assertEquals(message, entry.message)
     }

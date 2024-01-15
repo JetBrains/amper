@@ -11,14 +11,17 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.defaultLazy
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.file
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
+import org.tinylog.Level
 import java.io.File
 
 private class RootCommand : CliktCommand(name = "amper") {
@@ -38,6 +41,8 @@ private class RootCommand : CliktCommand(name = "amper") {
         .file(mustExist = true, canBeFile = false, canBeDir = true)
         .defaultLazy { File(System.getProperty("user.dir")) }
 
+    val debug by option(help = "Enable debug output").flag(default = false)
+
     val buildOutputRoot by option(
         "--build-output",
         help = "Build output root. 'build' directory under project root by default"
@@ -48,6 +53,9 @@ private class RootCommand : CliktCommand(name = "amper") {
         // TODO disabled jul bridge for now since it reports too much in debug mode
         //  and does not handle source class names from jul LogRecord
         // JulTinylogBridge.activate()
+
+        val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
+        provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)
 
         val projectRoot = root.toPath()
         val buildOutput = buildOutputRoot?.toPath() ?: projectRoot.resolve("build")
