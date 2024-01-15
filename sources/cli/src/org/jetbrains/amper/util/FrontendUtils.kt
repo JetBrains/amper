@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.util
 
+import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.PotatoModule
 
-// TODO dunno how to get it legally
 val PotatoModule.targetLeafPlatforms
-    get() = (fragments.flatMap { it.platforms } + artifacts.flatMap { it.platforms })
+    get() = fragments.filterIsInstance<LeafFragment>().flatMap { it.platforms }
         .filter { it.isLeaf }
         .toSet()
