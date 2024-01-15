@@ -20,6 +20,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.exists
 
+@Suppress("LoggingSimilarMessage")
 class ProjectTasksBuilder(private val context: ProjectContext, private val model: Model) {
 
     fun build(): TaskGraph {
@@ -31,8 +32,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
         for (module in sortedByPath) {
             val modulePlatforms = module.targetLeafPlatforms
-            logger.info("distinct module platforms ${module.userReadableName}: " +
-                        modulePlatforms.sortedBy { it.name }.joinToString())
 
             for (platform in modulePlatforms) {
                 for (isTest in listOf(false, true)) {

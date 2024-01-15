@@ -66,7 +66,7 @@ class ResolveExternalDependenciesTask(
             return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies, repositories).toList())
         }.outputs
 
-        logger.info("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.debug("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
         return TaskResult(classpath = paths, dependencies = dependenciesResult)
     }
