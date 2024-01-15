@@ -30,15 +30,22 @@ class TaskExecutor(private val graph: TaskGraph) {
     // Dispatch on default dispatcher, execute on tasks dispatcher
     suspend fun run(tasks: List<TaskName>) = withContext(Dispatchers.Default) {
         for (task in tasks) {
-            runTask(task)
+            runTask(task, emptyList())
         }
     }
 
     // TODO we need to re-evaluate task order execution later
-    private suspend fun runTask(taskName: TaskName): TaskResult = withContext(Dispatchers.Default) {
+    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>): TaskResult = withContext(Dispatchers.Default) {
+        // TODO slow, we can do better for sure
+        if (currentPath.contains(taskName)) {
+            error("Found a cycle in task execution graph:\n" +
+                    (currentPath + taskName).joinToString(" -> ") { it.name })
+        }
+        val newPath = currentPath + taskName
+
         coroutineScope {
             val results = (graph.dependencies[taskName] ?: emptySet())
-                .map { dependsOn -> async { runTask(dependsOn) } }
+                .map { dependsOn -> async { runTask(dependsOn, newPath) } }
                 .map { it.await() }
 
             withContext(tasksDispatcher) {
