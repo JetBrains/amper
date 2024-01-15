@@ -6,16 +6,18 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 
 context(TestBase)
-fun doTestWithInput(caseName: String, postfix: String, input: () -> String) =
-    OnlyExpectTestRun(caseName, postfix, input).doTest()
+fun doTestWithInput(caseName: String, postfix: String, base: Path = Path("testResources"), input: () -> String) =
+    OnlyExpectTestRun(caseName, postfix, input, base).doTest()
 
 class OnlyExpectTestRun(
     caseName: String,
     postfix: String,
     private val input: () -> String,
+    override val base: Path
 ) : BaseTestRun(caseName) {
     override val expectPostfix = postfix
     context(TestBase, TestProblemReporterContext)
