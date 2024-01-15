@@ -45,6 +45,8 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             logger.debug("INC: up-to-date according to state file at '$stateFile' in $cacheCheckTime")
             logger.info("INC: '$id' is up-to-date")
             return existingResult
+        } else {
+            logger.info("INC: building '$id'")
         }
 
         val result = block()
@@ -96,21 +98,21 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     // TODO Probably rewrite to JSON? or a binary format?
     private fun getCachedResult(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
         if (!stateFile.isRegularFile()) {
-            logger.info("INC: state file is missing at '$stateFile' -> rebuilding")
+            logger.debug("INC: state file is missing at '$stateFile' -> rebuilding")
             return null
         }
 
         val properties = Properties()
         stateFile.bufferedReader().use { properties.load(it) }
         if (properties.getProperty("version") != stateFileFormatVersion.toString()) {
-            logger.info("INC: state file has a wrong version at '$stateFile' -> rebuilding")
+            logger.debug("INC: state file has a wrong version at '$stateFile' -> rebuilding")
             return null
         }
 
         val oldConfiguration = properties.getProperty("configuration")
         val newConfiguration = configuration.entries.sortedBy { it.key }.joinToString("\n") { "${it.key}=${it.value}" }
         if (oldConfiguration != newConfiguration) {
-            logger.info(
+            logger.debug(
                 "INC: state file has a wrong configuration at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldConfiguration}\n" +
                         "  new: $newConfiguration"
@@ -121,7 +123,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldInputsList = properties.getProperty("inputs.list")
         val newInputsList = inputs.sorted().joinToString("\n")
         if (oldInputsList != newInputsList) {
-            logger.info(
+            logger.debug(
                 "INC: state file has a wrong inputs list at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldInputsList}\n" +
                         "  new: $newInputsList"
@@ -132,7 +134,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldInputs = properties.getProperty("inputs")
         val newInputs = getPathListState(inputs)
         if (oldInputs != newInputs) {
-            logger.info(
+            logger.debug(
                 "INC: state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldInputs}\n" +
                         "  new: $newInputs"
@@ -144,7 +146,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         val oldOutputs = properties.getProperty("outputs")
         val newOutputs = getPathListState(outputsList)
         if (oldOutputs != newOutputs) {
-            logger.info(
+            logger.debug(
                 "INC: state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
                         "  old: ${oldOutputs}\n" +
                         "  new: $newOutputs"
