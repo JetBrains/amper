@@ -65,9 +65,9 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         properties["version"] = stateFileFormatVersion.toString()
         properties["configuration"] = configuration.entries.sortedBy { it.key }.joinToString("\n") { "${it.key}=${it.value}" }
         properties["inputs.list"] = inputs.sorted().joinToString("\n")
-        properties["inputs"] = getPathListState(inputs)
+        properties["inputs"] = getPathListState(inputs, failOnMissing = false)
         properties["outputs.list"] = result.outputs.joinToString("\n")
-        properties["outputs"] = getPathListState(result.outputs)
+        properties["outputs"] = getPathListState(result.outputs, failOnMissing = true)
 
         stateFile.outputStream().buffered().use { properties.store(it, id) }
     }
@@ -132,7 +132,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         }
 
         val oldInputs = properties.getProperty("inputs")
-        val newInputs = getPathListState(inputs)
+        val newInputs = getPathListState(inputs, failOnMissing = false)
         if (oldInputs != newInputs) {
             logger.debug(
                 "INC: state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
@@ -142,9 +142,12 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             return null
         }
 
-        val outputsList = (properties.getProperty("outputs.list") ?: "").split("\n").map { Path.of(it) }
+        val outputsListString = properties.getProperty("outputs.list") ?: ""
+        val outputsList = if (outputsListString.isEmpty()) emptyList() else outputsListString
+            .split("\n")
+            .map { Path.of(it) }
         val oldOutputs = properties.getProperty("outputs")
-        val newOutputs = getPathListState(outputsList)
+        val newOutputs = getPathListState(outputsList, failOnMissing = false)
         if (oldOutputs != newOutputs) {
             logger.debug(
                 "INC: state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
@@ -158,12 +161,16 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     }
 
     @OptIn(ExperimentalPathApi::class)
-    private fun getPathListState(paths: List<Path>): String {
+    private fun getPathListState(paths: List<Path>, failOnMissing: Boolean): String {
         val lines = mutableListOf<String>()
 
         fun addFile(path: Path, attr: BasicFileAttributes?) {
             if (attr == null) {
-                lines.add("$path MISSING")
+                if (failOnMissing) {
+                    throw NoSuchFileException(file = path.toFile(), reason = "path from outputs is not found")
+                } else {
+                    lines.add("$path MISSING")
+                }
             } else {
                 val posixPart = if (attr is PosixFileAttributes) {
                     " mode ${PosixUtil.toUnixMode(attr.permissions())} owner ${attr.owner().name} group ${attr.group().name}"
@@ -173,21 +180,11 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         }
 
         for (path in paths) {
-            // we assume that missing files is exceptional and usually all paths exist
-            val attr: BasicFileAttributes? = try {
-                if (PosixUtil.isPosixFileSystem) {
-                    path.readAttributes<PosixFileAttributes>()
-                } else {
-                    path.readAttributes<BasicFileAttributes>()
-                }
-            } catch (e: NoSuchFileException) {
-                null
-            }
-
+            val attr: BasicFileAttributes? = getAttributes(path)
             if (attr?.isDirectory == true) {
                 // TODO this walk could be multi-threaded, it's trivial to implement with coroutines
                 for (sub in path.walk()) {
-                    addFile(sub, attr)
+                    addFile(sub, getAttributes(sub))
                 }
             } else {
                 addFile(path, attr)
@@ -195,6 +192,20 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         }
 
         return lines.sorted().joinToString("\n")
+    }
+
+    private fun getAttributes(path: Path): BasicFileAttributes? {
+        // we assume that missing files is exceptional and usually all paths exist
+        val attr: BasicFileAttributes? = try {
+            if (PosixUtil.isPosixFileSystem) {
+                path.readAttributes<PosixFileAttributes>()
+            } else {
+                path.readAttributes<BasicFileAttributes>()
+            }
+        } catch (e: NoSuchFileException) {
+            null
+        }
+        return attr
     }
 
     class ExecutionResult(val outputs: List<Path>, outputProperties: Map<String, String> = emptyMap()) {
