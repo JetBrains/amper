@@ -81,7 +81,7 @@ class JvmCompileTask(
 
         val inputs = fragments.map { it.src } + fragments.map { it.resourcesPath } + classpath
 
-        executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
+        executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val presentSources = fragments

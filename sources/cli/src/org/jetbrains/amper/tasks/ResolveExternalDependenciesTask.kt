@@ -62,7 +62,7 @@ class ResolveExternalDependenciesTask(
             "dependencies" to compileDependencies.joinToString("|"),
         )
 
-        val paths = executeOnChangedInputs.execute(taskName.toString(), configuration, emptyList()) {
+        val paths = executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
             return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies, repositories).toList())
         }.outputs
 

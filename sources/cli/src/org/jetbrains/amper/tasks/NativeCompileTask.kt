@@ -100,7 +100,7 @@ class NativeCompileTask(
         )
 
         val inputs = fragments.map { it.src } + compiledModuleDependencies
-        val artifact = executeOnChangedInputs.execute(taskName.toString(), configuration, inputs) {
+        val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
             val artifactExtension = if (module.type.isLibrary() && !isTest) ".klib" else ".kexe"
