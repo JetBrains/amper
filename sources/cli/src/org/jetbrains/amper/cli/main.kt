@@ -19,7 +19,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
-import org.tinylog.jul.JulTinylogBridge
 import java.io.File
 
 private class RootCommand : CliktCommand(name = "amper") {
@@ -46,7 +45,9 @@ private class RootCommand : CliktCommand(name = "amper") {
 
     override fun run() {
         // TODO think of a better place to activate it. e.g. we need it in tests too
-        JulTinylogBridge.activate()
+        // TODO disabled jul bridge for now since it reports too much in debug mode
+        //  and does not handle source class names from jul LogRecord
+        // JulTinylogBridge.activate()
 
         val projectRoot = root.toPath()
         val buildOutput = buildOutputRoot?.toPath() ?: projectRoot.resolve("build")
