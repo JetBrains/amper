@@ -9,7 +9,6 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadAndLoadCompilationService
@@ -17,6 +16,7 @@ import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.KotlinPart
 import org.jetbrains.amper.frontend.Platform
@@ -47,7 +47,10 @@ class JvmCompileTask(
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
-) : Task {
+): CompileTask {
+
+    override val platform: Platform = Platform.JVM
+
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")

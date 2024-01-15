@@ -9,12 +9,12 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
@@ -34,7 +34,7 @@ import kotlin.io.path.pathString
 
 class NativeCompileTask(
     private val module: PotatoModule,
-    private val platform: Platform,
+    override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
@@ -42,7 +42,7 @@ class NativeCompileTask(
     private val tempRoot: AmperProjectTempRoot,
     private val isTest: Boolean,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
-): Task {
+): CompileTask {
     init {
         require(platform.isLeaf)
         require(platform.topmostParentNoCommon == Platform.NATIVE)

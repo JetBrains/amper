@@ -5,7 +5,8 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule

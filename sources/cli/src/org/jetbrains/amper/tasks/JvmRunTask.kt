@@ -8,9 +8,9 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
-import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.Platform
@@ -30,10 +30,12 @@ import kotlin.io.path.walk
 
 class JvmRunTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    override val module: PotatoModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
-) : Task {
+) : RunTask {
+    override val platform = Platform.JVM
+
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
 
     // TODO what if several fragments have a main class?

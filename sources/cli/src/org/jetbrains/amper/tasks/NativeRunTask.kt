@@ -6,9 +6,10 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
@@ -17,15 +18,20 @@ import kotlin.io.path.pathString
 
 class NativeRunTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    override val module: PotatoModule,
+    override val platform: Platform,
     private val projectRoot: AmperProjectRoot,
-) : Task {
+) : RunTask {
+    init {
+        require(platform.isLeaf)
+        require(platform.topmostParentNoCommon == Platform.NATIVE)
+    }
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val compileTaskResult = dependenciesResult.filterIsInstance<NativeCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val executable = compileTaskResult.artifact
-            ?: error("Compile task must product an artifact to run it")
 
         return spanBuilder("native-run")
             .setAttribute("executable", executable.pathString)

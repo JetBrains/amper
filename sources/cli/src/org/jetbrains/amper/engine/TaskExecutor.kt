@@ -2,7 +2,7 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.cli
+package org.jetbrains.amper.engine
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +16,7 @@ class TaskExecutor(private val graph: TaskGraph) {
         // verify all dependencies are resolved
         for ((taskName, dependsOn) in graph.dependencies) {
             for (dependency in dependsOn) {
-                if (!graph.tasks.containsKey(dependency)) {
+                if (!graph.nameToTask.containsKey(dependency)) {
                     error("Task '$taskName' depends on task '$dependency' which does not exist")
                 }
             }
@@ -42,7 +42,7 @@ class TaskExecutor(private val graph: TaskGraph) {
                 .map { it.await() }
 
             withContext(tasksDispatcher) {
-                val task = graph.tasks[taskName] ?: error("Unable to find task by name: ${taskName.name}")
+                val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
                 task.run(results)
             }
         }

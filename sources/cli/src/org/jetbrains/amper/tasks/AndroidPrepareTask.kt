@@ -7,7 +7,8 @@ package org.jetbrains.amper.tasks
 import AndroidBuildRequest
 import AndroidModuleData
 import RClassAndroidBuildResult
-import org.jetbrains.amper.cli.TaskName
+import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import runAndroidBuild

@@ -1,3 +1,4 @@
+
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.amper.cli.AmperBackend
@@ -7,10 +8,15 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
+import org.jetbrains.amper.engine.TaskName
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,7 +36,7 @@ class AmperBackendTest {
     @Test
     fun `jvm kotlin-test smoke test`() {
         val projectContext = getProjectContext("jvm-kotlin-test-smoke")
-        assertEquals(0, AmperBackend.run(projectContext, listOf(":jvm-kotlin-test-smoke:testJvm")))
+        AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
         val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "junit-platform-console-standalone" }
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
@@ -50,7 +56,7 @@ class AmperBackendTest {
     @Test
     fun `get jvm resource from dependency`() {
         val projectContext = getProjectContext("jvm-resources")
-        assertEquals(0, AmperBackend.run(projectContext, listOf(":two:runJvm")))
+        AmperBackend(projectContext).runTask(TaskName(":two:runJvm"))
 
         assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
@@ -63,7 +69,7 @@ class AmperBackendTest {
     fun `do not call kotlinc again if sources were not changed`() {
         val projectContext = getProjectContext("language-version")
 
-        assertEquals(0, AmperBackend.run(projectContext, listOf(":language-version:runJvm")))
+        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
         assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
                     "STDOUT:\n" +
@@ -74,7 +80,7 @@ class AmperBackendTest {
         openTelemetryCollector.reset()
         log.reset()
 
-        assertEquals(0, AmperBackend.run(projectContext, listOf(":language-version:runJvm")))
+        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello, world!"
@@ -85,8 +91,7 @@ class AmperBackendTest {
     @Test
     fun `kotlin compiler span`() {
         val projectContext = getProjectContext("language-version")
-        val rc = AmperBackend.run(projectContext, listOf(":language-version:runJvm"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -105,8 +110,7 @@ class AmperBackendTest {
     @Test
     fun `mixed java kotlin`() {
         val projectContext = getProjectContext("java-kotlin-mixed")
-        val rc = AmperBackend.run(projectContext, listOf(":java-kotlin-mixed:runJvm"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -117,8 +121,7 @@ class AmperBackendTest {
     @Test
     fun `simple multiplatform cli on jvm`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
-        val rc = AmperBackend.run(projectContext, listOf(":jvm-cli:runJvm"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -130,8 +133,7 @@ class AmperBackendTest {
     @MacOnly
     fun `simple multiplatform cli on mac`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
-        val rc = AmperBackend.run(projectContext, listOf(":macos-cli:runMacosArm64"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":macos-cli:runMacosArm64"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -143,8 +145,7 @@ class AmperBackendTest {
     @MacOnly
     fun `simple multiplatform cli test on mac`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
-        val rc = AmperBackend.run(projectContext, listOf(":shared:testMacosArm64"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
 
         val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "native-test" }
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
@@ -157,8 +158,7 @@ class AmperBackendTest {
     @LinuxOnly
     fun `simple multiplatform cli on linux`() {
         val projectContext = getProjectContext("simple-multiplatform-cli")
-        val rc = AmperBackend.run(projectContext, listOf(":linux-cli:runLinuxX64"))
-        assertEquals(0, rc)
+        AmperBackend(projectContext).runTask(TaskName(":linux-cli:runLinuxX64"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -166,9 +166,18 @@ class AmperBackendTest {
         assertInfoLogStartsWith(msgPrefix = find)
     }
 
-    private fun getProjectContext(testProjectName: String): ProjectContext {
+    @OptIn(ExperimentalPathApi::class)
+    private fun getProjectContext(testProjectName: String, copy: Boolean = false): ProjectContext {
+        val testDataProjectRoot = testDataRoot.resolve(testProjectName)
+            .also { check(it.exists()) { "Test project is missing at $it" } }
+        val projectRoot = if (copy) {
+            val dir = tempDir.resolve(testProjectName)
+            dir.createDirectories()
+            testDataProjectRoot.copyToRecursively(dir, followLinks = true, overwrite = false)
+            dir
+        } else testDataProjectRoot
         val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(testDataRoot.resolve(testProjectName)),
+            projectRoot = AmperProjectRoot(projectRoot),
             projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
@@ -196,11 +205,20 @@ class AmperBackendTest {
         tempDir.resolve("space test")
     }
 
+    private val kotlinCompilationSpanName = "kotlin-compilation"
+
     private val kotlinJvmCompilerSpans: List<SpanData>
-        get() = openTelemetryCollector.spans.filter { it.name == "kotlin-compilation" }
+        get() {
+            return openTelemetryCollector.spans.filter { it.name == kotlinCompilationSpanName }
+        }
+
+    private fun SpanData.getKotlinCompilerArguments(): List<String> {
+        require(name == kotlinCompilationSpanName)
+        return getAttribute(AttributeKey.stringArrayKey("compiler-args"))
+    }
 
     private fun SpanData.assertKotlinCompilerArgument(argumentName: String, argumentValue: String) {
-        val args = getAttribute(AttributeKey.stringArrayKey("compiler-args"))
+        val args = getKotlinCompilerArguments()
         val pair = argumentName to argumentValue
 
         // we can afford it!

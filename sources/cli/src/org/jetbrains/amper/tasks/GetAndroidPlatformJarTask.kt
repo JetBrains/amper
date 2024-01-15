@@ -4,8 +4,9 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.cli.TaskName
 import org.jetbrains.amper.cli.downloadAndExtractAndroidPlatform
+import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskName
 
 class GetAndroidPlatformJarTask(private val platformCode: String, override val taskName: TaskName) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {

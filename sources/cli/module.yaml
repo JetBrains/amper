@@ -8,7 +8,6 @@ repositories:
     url: https://repo.gradle.org/gradle/libs-releases
 
 dependencies:
-  - info.picocli:picocli:4.7.5
   - ../core
   - ../frontend-api
   - ../frontend/schema
@@ -41,7 +40,7 @@ dependencies:
   - com.google.guava:guava:33.0.0-jre
   - com.android.tools:sdklib:31.2.0
   - com.android.tools:common:31.2.0
-
+  - com.github.ajalt.clikt:clikt:4.2.2
 
 test-dependencies:
   - ../test-base

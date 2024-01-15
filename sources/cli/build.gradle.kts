@@ -23,16 +23,18 @@ kotlin {
 
 
 val unpackedDistribution by tasks.creating(Sync::class) {
-    val distZip = tasks.getByName("distZip")
-
     inputs.property("up-to-date", "11")
 
-    dependsOn(distZip)
+    fun CopySpec.toLib() = eachFile {
+        relativePath = RelativePath(true, "lib", relativePath.lastName)
+    }
 
     from(configurations.getByName("jvmRuntimeClasspath")) {
-        eachFile {
-            relativePath = RelativePath(true, "lib", relativePath.lastName)
-        }
+        toLib()
+    }
+
+    from(tasks.named("jvmJar")) {
+        toLib()
     }
 
     includeEmptyDirs = false

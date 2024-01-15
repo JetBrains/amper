@@ -4,307 +4,136 @@
 
 package org.jetbrains.amper.cli
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.get
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
-import org.jetbrains.amper.frontend.AndroidPart
-import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.resolve.resolved
-import org.jetbrains.amper.tasks.AndroidPrepareTask
-import org.jetbrains.amper.tasks.GetAndroidPlatformJarTask
-import org.jetbrains.amper.tasks.JvmCompileTask
-import org.jetbrains.amper.tasks.JvmRunTask
-import org.jetbrains.amper.tasks.JvmTestTask
-import org.jetbrains.amper.tasks.NativeCompileTask
-import org.jetbrains.amper.tasks.NativeRunTask
-import org.jetbrains.amper.tasks.NativeTestTask
-import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
-import org.jetbrains.amper.tasks.Task
-import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.targetLeafPlatforms
+import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
+import org.jetbrains.amper.tasks.RunTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
-object AmperBackend {
-    fun run(context: ProjectContext, tasksToRun: List<String>): Int = with(CliProblemReporterContext) {
-        val model = spanBuilder("loading model").setAttribute("root", context.projectRoot.path.pathString).startSpan().use {
-            when (val result = ModelInit.getModel(context.projectRoot.path)) {
-                is Result.Failure -> throw result.exception
-                is Result.Success -> result.value
-            }
-        }
-
-        val resolved = model.resolved
-
-        fun getTaskOutputPath(taskName: TaskName): TaskOutputRoot {
-            val out = context.buildOutputRoot.path.resolve("tasks").resolve(taskName.name.replace(':', '_'))
-            return TaskOutputRoot(path = out)
-        }
-
-        fun getTaskName(module: PotatoModule, type: CommonTaskType, platform: Platform, isTest: Boolean): TaskName {
-            val testSuffix = if (isTest) "Test" else ""
-            val platformSuffix = platform.pretty.replaceFirstChar { it.uppercase() }
-
-            val taskName = when (type) {
-                CommonTaskType.COMPILE -> "compile$platformSuffix$testSuffix"
-                CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix$testSuffix"
-                CommonTaskType.RUN -> {
-                    require(!isTest)
-                    "run$platformSuffix"
-                }
-                CommonTaskType.TEST -> {
-                    require(isTest)
-                    "test$platformSuffix"
-                }
-            }
-
-            return TaskName.fromHierarchy(listOf(module.userReadableName, taskName))
-        }
-
-        // always process in fixed order, not other requirements yet
-        val sortedByPath = resolved.modules.sortedBy { (it.source as PotatoModuleFileSource).buildFile }
-
-        val tasks = TaskGraphBuilder()
-        val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
-
-        for (module in sortedByPath) {
-            val modulePlatforms = module.targetLeafPlatforms
-            logger.info("distinct module platforms ${module.userReadableName}: ${modulePlatforms.sortedBy { it.name }.joinToString()}")
-
-            for (platform in modulePlatforms) {
-                val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
-                    setupAndroidPlatformTask(module, tasks)
-                } else null
-
-                for (isTest in listOf(false, true)) {
-                    val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
-                    if (isTest && fragments.all { !it.src.exists() }) {
-                        // no test code, assume no code generation
-                        // other modules could not depend on this module's tests, so it's ok
-                        continue
-                    }
-
-                    val prepareDebugAndroidBuildName = if (platform == Platform.ANDROID) {
-                        val testSuffix = if (isTest) "Test" else ""
-                        val prepareDebugAndroidBuild = TaskName.fromHierarchy(listOf(module.userReadableName, "prepare${testSuffix}DebugAndroidBuild"))
-                        tasks.registerTask(AndroidPrepareTask(module, prepareDebugAndroidBuild))
-                        prepareDebugAndroidBuild
-                    } else null
-
-
-                    fun createCompileTask(): Task? {
-                        val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest)
-                        val top = platform.topmostParentNoCommon
-                        return when (top) {
-                            Platform.JVM, Platform.ANDROID -> JvmCompileTask(
-                                module = module,
-                                fragments = fragments,
-                                userCacheRoot = context.userCacheRoot,
-                                projectRoot = context.projectRoot,
-                                taskOutputRoot = getTaskOutputPath(compileTaskName),
-                                taskName = compileTaskName,
-                                executeOnChangedInputs = executeOnChangedInputs,
-                            )
-                            Platform.NATIVE -> NativeCompileTask(
-                                module = module,
-                                platform = platform,
-                                userCacheRoot = context.userCacheRoot,
-                                taskOutputRoot = getTaskOutputPath(compileTaskName),
-                                executeOnChangedInputs = executeOnChangedInputs,
-                                taskName = compileTaskName,
-                                tempRoot = context.projectTempRoot,
-                                isTest = isTest,
-                            )
-
-                            else -> {
-                                logger.warn("$top is not supported yet")
-                                null
-                            }
-                        }?.also {
-                            tasks.registerTask(it, dependsOn = buildList {
-                                add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
-                                if (top == Platform.ANDROID) {
-                                    androidPlatformJarTaskName?.let { add(it) }
-                                    prepareDebugAndroidBuildName?.let { add(it) }
-                                }
-                            })
-                        }
-                    }
-
-                    fun createResolveTask(): Task =
-                        ResolveExternalDependenciesTask(
-                            module,
-                            context.userCacheRoot,
-                            executeOnChangedInputs,
-                            isTest = isTest,
-                            platform = platform,
-                            taskName = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)
-                        ).also { tasks.registerTask(it) }
-
-                    fun createRunTask(): Task? {
-                        require(!isTest)
-                        require(!module.type.isLibrary())
-
-                        val runTaskName = getTaskName(module, CommonTaskType.RUN, platform, isTest = false)
-                        return when (val top = platform.topmostParentNoCommon) {
-                            Platform.JVM -> JvmRunTask(
-                                module = module,
-                                userCacheRoot = context.userCacheRoot,
-                                projectRoot = context.projectRoot,
-                                taskName = runTaskName,
-                            )
-
-                            Platform.NATIVE -> NativeRunTask(
-                                module = module,
-                                projectRoot = context.projectRoot,
-                                taskName = runTaskName,
-                            )
-
-                            else -> {
-                                logger.warn("$top is not supported yet")
-                                null
-                            }
-                        }?.also {
-                            tasks.registerTask(it, dependsOn = listOf(getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false)))
-                        }
-                    }
-
-                    fun createTestTask(): Task {
-                        require(isTest)
-
-                        val testTaskName = getTaskName(module, CommonTaskType.TEST, platform, isTest = true)
-                        return when (val top = platform.topmostParentNoCommon) {
-                            Platform.JVM -> JvmTestTask(
-                                module = module,
-                                userCacheRoot = context.userCacheRoot,
-                                projectRoot = context.projectRoot,
-                                taskName = testTaskName,
-                                taskOutputRoot = getTaskOutputPath(testTaskName),
-                            )
-
-                            Platform.NATIVE -> NativeTestTask(
-                                module = module,
-                                projectRoot = context.projectRoot,
-                                taskName = testTaskName,
-                            )
-
-                            else -> error("$top is not supported yet")
-                        }.also {
-                            tasks.registerTask(it, dependsOn = listOf(getTaskName(module, CommonTaskType.COMPILE, platform, isTest = true)))
-                        }
-                    }
-
-                    createResolveTask()
-                    createCompileTask()
-
-                    // TODO this does not support runtime dependencies
-                    //  and dependency graph for it will be different
-                    if (isTest) {
-                        createTestTask()
-                    } else {
-                        if (!module.type.isLibrary()) {
-                            createRunTask()
-                        }
-                    }
-
-                    // TODO In the future this code should be near compile task
-                    // TODO What to do with fragment.fragmentDependencies?
-                    //  I'm not sure, it's just test -> non-test dependency? Otherwise we build it by platforms
-                    if (isTest) {
-                        tasks.registerDependency(
-                            taskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = true),
-                            dependsOn = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false)
-                        )
-                    }
-
-                    for ((fragment, dependency) in fragments.flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }) {
-                        when (dependency) {
-                            is MavenDependency -> Unit
-                            is PotatoModuleDependency -> {
-                                // runtime dependencies are not required to be in compile tasks graph
-                                if (dependency.compile) {
-                                    // TODO test with non-resolved dependency on module
-                                    val resolvedDependencyModule = with(dependency) {
-                                        model.module.get()
-                                    }
-
-                                    tasks.registerDependency(
-                                        taskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest),
-                                        dependsOn = getTaskName(resolvedDependencyModule, CommonTaskType.COMPILE, platform, isTest = false),
-                                    )
-                                }
-                            }
-                            else -> error("Unsupported dependency type: '$dependency' "  +
-                                    "at module '${module.source}' fragment '${fragment.name}'")
-                        }
+class AmperBackend(val context: ProjectContext) {
+    private val resolvedModel: Model by lazy {
+        with(CliProblemReporterContext()) {
+            val model = spanBuilder("loading model")
+                .setAttribute("root", context.projectRoot.path.pathString)
+                .startSpan().use {
+                    when (val result = ModelInit.getModel(context.projectRoot.path)) {
+                        is Result.Failure -> throw result.exception
+                        is Result.Success -> result.value
                     }
                 }
+
+            val resolved = model.resolved
+
+            if (problemReporter.wereProblemsReported()) {
+                error("failed to build tasks graph, refer to the errors above")
             }
+
+            resolved
+        }
+    }
+
+    private val taskGraph: TaskGraph by lazy {
+        ProjectTasksBuilder(context = context, model = resolvedModel).build()
+    }
+
+    private val taskExecutor: TaskExecutor by lazy {
+        TaskExecutor(taskGraph)
+    }
+
+    fun compile(platforms: Set<Platform>? = null) {
+        if (platforms != null) {
+            logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
 
-        val taskGraph = tasks.build()
-        val taskExecutor = TaskExecutor(taskGraph)
+        val platformsToCompile: Set<Platform> = platforms ?: Platform.leafPlatforms
+        runBlocking {
+            val taskNames = taskGraph
+                .tasks
+                .filterIsInstance<CompileTask>()
+                .filter { platformsToCompile.contains(it.platform) }
+                .map { it.taskName }
+                .sortedBy { it.name }
+            logger.info("Selected tasks to compile: ${taskNames.joinToString(" ") { it.name }}")
+            taskExecutor.run(taskNames)
+        }
+    }
 
-        for (taskName in taskGraph.tasks.keys.sortedBy { it.toString() }) {
+    fun runTask(taskName: TaskName) {
+        runBlocking {
+            taskExecutor.run(listOf(taskName))
+        }
+    }
+
+    fun showTasks() {
+        for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
             print("task ${taskName.name}")
             if (taskGraph.dependencies.containsKey(taskName)) {
                 print(" -> ${taskGraph.dependencies[taskName]!!.joinToString { it.name }}")
             }
             println()
         }
-
-        if (tasksToRun.isEmpty()) {
-            error("Empty tasks list to run")
-        }
-
-        runBlocking(Dispatchers.Default) {
-            taskExecutor.run(tasksToRun.map { TaskName(it) })
-        }
-
-        return if (problemReporter.wereProblemsReported()) 1 else 0
     }
 
-    private fun setupAndroidPlatformTask(module: PotatoModule, tasks: TaskGraphBuilder): TaskName? {
-        return module
-            .fragments
-            .filter { Platform.ANDROID in it.platforms }
-            .firstOrNull { !it.isTest }
-            ?.let { androidFragment ->
-                androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
-                    val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
-                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", androidCompileTaskName))
-                    androidCompileTaskName
-                }
+    fun run(moduleName: String?, platform: Platform?) {
+        fun availableModulesString() =
+            resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
+
+        val moduleToRun = if (moduleName != null) {
+            resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
+                ?: error("Unable to resolve module by name '$moduleName'.\nAvailable modules: ${availableModulesString()}")
+        } else {
+            val candidates = resolvedModel.modules.filter { it.type.isApplication() }
+            when {
+                candidates.isEmpty() -> error("No modules in the project with application type")
+                candidates.size > 1 ->
+                    error(
+                        "There are several application modules in the project. Please specify one with '--module' argument.\n" +
+                                "Available modules: ${availableModulesString()}"
+                    )
+
+                else -> candidates.single()
             }
-    }
+        }
 
-    private enum class CommonTaskType {
-        COMPILE,
-        DEPENDENCIES,
-        RUN,
-        TEST,
+        val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>().filter { it.module == moduleToRun }
+        if (moduleRunTasks.isEmpty()) {
+            error("No run tasks are available for module '${moduleToRun.userReadableName}'")
+        }
+
+        fun availablePlatformsForModule() = moduleRunTasks.map { it.platform.pretty }.sorted().joinToString(" ")
+
+        val task: RunTask = if (platform == null) {
+            if (moduleRunTasks.size == 1) {
+                moduleRunTasks.single()
+            } else {
+                error("""
+                    Multiple platforms are available to run in module '${moduleToRun.userReadableName}'.
+                    Please specify one with '--platform' argument.
+                    Available platforms: ${availablePlatformsForModule()}
+                """.trimIndent())
+            }
+        } else {
+            moduleRunTasks.firstOrNull { it.platform == platform }
+                ?: error("""
+                    Platform '${platform.pretty}' is not found for module '${moduleToRun.userReadableName}'.
+                    Available platforms: ${availablePlatformsForModule()}
+                """.trimIndent())
+        }
+
+        runTask(task.taskName)
     }
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
-}
-
-data class TaskName(val name: String) {
-    init {
-        require(name.isNotBlank())
-    }
-
-    companion object {
-        fun fromHierarchy(path: List<String>) = TaskName(path.joinToString(":", prefix = ":"))
-    }
 }

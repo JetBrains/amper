@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.messages.renderMessage
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 
-object CliProblemReporterContext : ProblemReporterContext {
+class CliProblemReporterContext : ProblemReporterContext {
     object CliProblemReporter : ProblemReporter {
         private val logger = LoggerFactory.getLogger("build")
         private val problemsWereReported = AtomicBoolean(false)

@@ -4,7 +4,9 @@
 
 package org.jetbrains.amper.cli
 
-import org.jetbrains.amper.tasks.Task
+import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.engine.TaskName
 
 class TaskGraphBuilder {
     // do not give access to the graph while it's being built
@@ -22,9 +24,11 @@ class TaskGraphBuilder {
         }
     }
 
+    fun registerTask(task: Task, dependsOn: TaskName) = registerTask(task = task, dependsOn = listOf(dependsOn))
+
     fun registerDependency(taskName: TaskName, dependsOn: TaskName) {
         dependencies[taskName] = dependencies.getOrDefault(taskName, emptySet()) + dependsOn
     }
 
-    fun build(): TaskGraph = TaskGraph(tasks = taskRegistry.toMap(), dependencies = dependencies.toMap())
+    fun build(): TaskGraph = TaskGraph(nameToTask = taskRegistry.toMap(), dependencies = dependencies.toMap())
 }
