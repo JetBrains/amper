@@ -42,7 +42,8 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             getCachedResult(stateFile, configuration, inputs)
         }
         if (existingResult != null) {
-            logger.info("INC: up-to-date according to state file at '$stateFile' in $cacheCheckTime")
+            logger.debug("INC: up-to-date according to state file at '$stateFile' in $cacheCheckTime")
+            logger.info("INC: '$id' is up-to-date")
             return existingResult
         }
 
