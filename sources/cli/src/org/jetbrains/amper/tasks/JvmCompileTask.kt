@@ -46,7 +46,8 @@ class JvmCompileTask(
     private val taskOutputRoot: TaskOutputRoot,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
+    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
+        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
 
     override val platform: Platform = Platform.JVM

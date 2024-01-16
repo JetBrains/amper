@@ -11,11 +11,13 @@ import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.ExtractOptions
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.OS
 import java.nio.file.Path
 
 class KotlinCompilerDownloader(
-    val userCacheRoot: AmperUserCacheRoot,
+    private val userCacheRoot: AmperUserCacheRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) {
     companion object {
         const val AMPER_DEFAULT_KOTLIN_VERSION = "1.9.22"
@@ -32,11 +34,15 @@ class KotlinCompilerDownloader(
      * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
      * that will be used behind the scenes.
      */
-    fun downloadAndExtractKotlinBuildToolsImpl(version: String): Collection<Path> = mavenResolver.resolve(
-        coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
-        repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
-        scope = Scope.RUNTIME,
-    )
+    suspend fun downloadAndExtractKotlinBuildToolsImpl(version: String): Collection<Path> =
+        executeOnChangedInputs.execute("resolve-kotlin-build-tools-impl-$version", emptyMap(), emptyList()) {
+            val resolved = mavenResolver.resolve(
+                coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
+                repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
+                scope = Scope.RUNTIME,
+            )
+            return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
+        }.outputs
 
     /**
      * Downloads and extracts current system specific kotlin native.

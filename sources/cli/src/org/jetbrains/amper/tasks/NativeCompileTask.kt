@@ -41,7 +41,8 @@ class NativeCompileTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     private val isTest: Boolean,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader = KotlinCompilerDownloader(userCacheRoot),
+    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
+        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
     init {
         require(platform.isLeaf)
