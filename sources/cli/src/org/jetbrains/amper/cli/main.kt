@@ -23,6 +23,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.tinylog.Level
 import java.io.File
+import kotlin.system.exitProcess
 
 private class RootCommand : CliktCommand(name = "amper") {
     init {
@@ -82,14 +83,14 @@ private class TaskCommand : CliktCommand(name = "task", help = "Execute any task
     override fun run() = amperBackend.runTask(TaskName(name))
 }
 
-private class RunCommand : CliktCommand(name = "run", help = "Initialize Amper project ") {
+private class RunCommand : CliktCommand(name = "run", help = "Run your application") {
     val platform by option(
+        "-p",
+        "--platform",
         help = "Run under specified platform",
         completionCandidates = CompletionCandidates.Fixed(prettyLeafPlatforms.keys),
     ).validate { value ->
-        require(prettyLeafPlatforms.containsKey(value)) {
-            "Unsupported platform '$value'. Possible values: $prettyLeafPlatformsString"
-        }
+        checkPlatform(value)
     }
 
     val module by option(help = "specific module to run")
@@ -107,9 +108,19 @@ private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks in 
 
 private class CheckCommand : CliktCommand(name = "check", help = "Run tests in the project") {
     val platform by platformOption()
-    val filter by option(help = "wildcard filter to run only matching tests")
+    val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
+    val module by option("-m", "--module", help = "specific module to check, the option could be repeated to check several modules")
     val amperBackend by requireObject<AmperBackend>()
-    override fun run() = TODO()
+    override fun run() {
+        if (filter != null) {
+            userReadableError("Filters are not implemented yet")
+        }
+
+        amperBackend.check(
+            platforms = platform.ifEmpty { null }?.toSet(),
+            moduleName = module,
+        )
+    }
 }
 
 private class CompileCommand : CliktCommand(name = "compile", help = "Compile and link all code in the project") {
@@ -122,16 +133,36 @@ private val prettyLeafPlatforms = Platform.leafPlatforms.associateBy { it.pretty
 private val prettyLeafPlatformsString = prettyLeafPlatforms.keys.sorted().joinToString(" ")
 
 private fun ParameterHolder.platformOption() = option(
-    help = "Limit to the specified platforms",
+    "-p",
+    "--platform",
+    help = "Limit to the specified platform, the option could be repeated to do the action on several platforms",
     completionCandidates = CompletionCandidates.Fixed(prettyLeafPlatforms.keys),
 ).transformAll { values ->
     for (value in values) {
-        require(prettyLeafPlatforms.containsKey(value)) {
-            fail("Unsupported platform '$value'. Possible values: $prettyLeafPlatformsString")
-        }
+        checkPlatform(value)
     }
 
     values.map { prettyLeafPlatforms[it]!! }
 }
 
-fun main(args: Array<String>) = RootCommand().main(args)
+private fun checkPlatform(value: String) {
+    if (!prettyLeafPlatforms.containsKey(value)) {
+        userReadableError("Unsupported platform '$value'. Possible values: $prettyLeafPlatformsString")
+    }
+}
+
+fun main(args: Array<String>) {
+    try {
+        RootCommand().main(args)
+    } catch (t: UserReadableError) {
+        System.err.println()
+        System.err.println("ERROR: ${t.message}")
+        System.err.println()
+        exitProcess(1)
+    } catch (t: Throwable) {
+        System.err.println()
+        System.err.print("ERROR: ")
+        t.printStackTrace()
+        exitProcess(1)
+    }
+}

@@ -14,6 +14,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.resolve.resolved
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -37,7 +38,7 @@ class AmperBackend(val context: ProjectContext) {
             val resolved = model.resolved
 
             if (problemReporter.wereProblemsReported()) {
-                error("failed to build tasks graph, refer to the errors above")
+                userReadableError("failed to build tasks graph, refer to the errors above")
             }
 
             resolved
@@ -86,20 +87,35 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun run(moduleName: String?, platform: Platform?) {
-        fun availableModulesString() =
-            resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
+    fun check(moduleName: String?, platforms: Set<Platform>?) {
+        require(platforms == null || platforms.isNotEmpty())
 
+        val modulesToCheck: List<PotatoModule> = if (moduleName != null) {
+            val oneModule = (resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
+                ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}"))
+            listOf(oneModule)
+        } else {
+            resolvedModel.modules
+        }
+
+
+
+
+
+
+    }
+
+    fun run(moduleName: String?, platform: Platform?) {
         val moduleToRun = if (moduleName != null) {
             resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
-                ?: error("Unable to resolve module by name '$moduleName'.\nAvailable modules: ${availableModulesString()}")
+                ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}")
         } else {
             val candidates = resolvedModel.modules.filter { it.type.isApplication() }
             when {
-                candidates.isEmpty() -> error("No modules in the project with application type")
+                candidates.isEmpty() -> userReadableError("No modules in the project with application type")
                 candidates.size > 1 ->
-                    error(
-                        "There are several application modules in the project. Please specify one with '--module' argument.\n" +
+                    userReadableError(
+                        "There are several application modules in the project. Please specify one with '--module' argument.\n\n" +
                                 "Available modules: ${availableModulesString()}"
                     )
 
@@ -109,7 +125,7 @@ class AmperBackend(val context: ProjectContext) {
 
         val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>().filter { it.module == moduleToRun }
         if (moduleRunTasks.isEmpty()) {
-            error("No run tasks are available for module '${moduleToRun.userReadableName}'")
+            userReadableError("No run tasks are available for module '${moduleToRun.userReadableName}'")
         }
 
         fun availablePlatformsForModule() = moduleRunTasks.map { it.platform.pretty }.sorted().joinToString(" ")
@@ -118,22 +134,27 @@ class AmperBackend(val context: ProjectContext) {
             if (moduleRunTasks.size == 1) {
                 moduleRunTasks.single()
             } else {
-                error("""
+                userReadableError("""
                     Multiple platforms are available to run in module '${moduleToRun.userReadableName}'.
                     Please specify one with '--platform' argument.
+
                     Available platforms: ${availablePlatformsForModule()}
                 """.trimIndent())
             }
         } else {
             moduleRunTasks.firstOrNull { it.platform == platform }
-                ?: error("""
+                ?: userReadableError("""
                     Platform '${platform.pretty}' is not found for module '${moduleToRun.userReadableName}'.
+
                     Available platforms: ${availablePlatformsForModule()}
                 """.trimIndent())
         }
 
         runTask(task.taskName)
     }
+
+    private fun availableModulesString() =
+        resolvedModel.modules.map { it.userReadableName }.sorted().joinToString(" ")
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 }
