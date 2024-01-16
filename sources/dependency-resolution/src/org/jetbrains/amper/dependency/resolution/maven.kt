@@ -19,34 +19,34 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 
 class MavenDependencyNode(
-    val resolver: Resolver,
+    val context: Context,
     val group: String,
     val module: String,
     val version: String,
 ) : DependencyNode {
 
-    constructor(resolver: Resolver, dependency: MavenDependency) : this(
-        resolver,
+    constructor(context: Context, dependency: MavenDependency) : this(
+        context,
         dependency.group,
         dependency.module,
         dependency.version,
     )
 
     val dependency: MavenDependency
-        get() = createOrReuseDependency(resolver, group, module, version)
+        get() = createOrReuseDependency(context, group, module, version)
 
     override var state: ResolutionState by dependency::state
     override var level: ResolutionLevel by dependency::level
     override val children: Collection<DependencyNode>
-        get() = dependency.children.map { MavenDependencyNode(resolver, it) }
+        get() = dependency.children.map { MavenDependencyNode(context, it) }
     override val messages: Collection<Message> by dependency::messages
 
     override fun resolve(level: ResolutionLevel) {
-        dependency.resolve(resolver, level)
+        dependency.resolve(context, level)
     }
 
     override fun downloadDependencies() {
-        dependency.downloadDependencies(resolver)
+        dependency.downloadDependencies(context.settings)
     }
 
     override fun toString(): String = if (dependency.version == version) {
@@ -65,14 +65,14 @@ class MavenDependencyNode(
 }
 
 private fun createOrReuseDependency(
-    resolver: Resolver,
+    context: Context,
     group: String,
     module: String,
     version: String
 ): MavenDependency {
-    val dep = resolver.cache.computeIfAbsent(getKey(group, module)) {
+    val dep = context.cache.computeIfAbsent(getKey(group, module)) {
         MavenDependency(
-            resolver.settings.fileCache,
+            context.settings.fileCache,
             group,
             module,
             version
@@ -86,8 +86,8 @@ private fun createOrReuseDependency(
     if (curr <= prev) {
         return dep
     }
-    return MavenDependency(resolver.settings.fileCache, group, module, version).also {
-        resolver.cache[getKey(group, module)] = it
+    return MavenDependency(context.settings.fileCache, group, module, version).also {
+        context.cache[getKey(group, module)] = it
     }
 }
 
@@ -130,21 +130,22 @@ data class MavenDependency(
 
     override fun toString(): String = "$group:$module:$version"
 
-    fun resolve(resolver: Resolver, level: ResolutionLevel) {
-        if (metadata.isDownloadedOrDownload(level, resolver)) {
-            resolveUsingMetadata(resolver, level)
-        } else if (pom.isDownloadedOrDownload(level, resolver)) {
-            resolveUsingPom(resolver, level)
+    fun resolve(context: Context, level: ResolutionLevel) {
+        val settings = context.settings
+        if (metadata.isDownloadedOrDownload(level, settings)) {
+            resolveUsingMetadata(context, level)
+        } else if (pom.isDownloadedOrDownload(level, settings)) {
+            resolveUsingPom(context, level)
         } else {
             messages += Message(
                 "Either metadata or pom required for $this",
-                resolver.settings.repositories.toString(),
+                settings.repositories.toString(),
                 if (level == ResolutionLevel.FULL) Severity.ERROR else Severity.WARNING,
             )
         }
     }
 
-    private fun resolveUsingMetadata(resolver: Resolver, level: ResolutionLevel) {
+    private fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
         val text = metadata.readText()
         val module = try {
             text.parseMetadata()
@@ -167,13 +168,13 @@ data class MavenDependency(
             )
         }.filter {
             val kotlinPlatformType = it.attributes["org.jetbrains.kotlin.platform.type"]
-            (kotlinPlatformType == null || kotlinPlatformType == resolver.settings.platform)
-                    && when (resolver.settings.scope) {
+            (kotlinPlatformType == null || kotlinPlatformType == context.settings.platform)
+                    && when (context.settings.scope) {
                 Scope.COMPILE -> it.attributes["org.gradle.usage"]?.endsWith("-api") == true
                 Scope.RUNTIME -> it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true
             }
         }.filter {
-            !isGuava() || it.attributes["org.gradle.jvm.environment"]?.endsWith(resolver.settings.platform) == true
+            !isGuava() || it.attributes["org.gradle.jvm.environment"]?.endsWith(context.settings.platform) == true
         }.also {
             if (it.size <= 1) {
                 variant = it.singleOrNull()
@@ -187,7 +188,7 @@ data class MavenDependency(
         }.flatMap {
             it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
         }.map {
-            createOrReuseDependency(resolver, it.group, it.module, it.version.requires)
+            createOrReuseDependency(context, it.group, it.module, it.version.requires)
         }.let {
             children.addAll(it)
             state = level.state
@@ -203,11 +204,11 @@ data class MavenDependency(
 
     private fun AvailableAt.asDependency(): Dependency = Dependency(group, module, Version(version))
 
-    private fun resolveUsingPom(resolver: Resolver, resolutionLevel: ResolutionLevel) {
+    private fun resolveUsingPom(context: Context, resolutionLevel: ResolutionLevel) {
         val text = pom.readText()
         if (!text.contains("do_not_remove: published-with-gradle-metadata")) {
             val project = try {
-                text.parsePom().resolve(resolver, resolutionLevel)
+                text.parsePom().resolve(context, resolutionLevel)
             } catch (e: Exception) {
                 messages += Message(
                     "Unable to parse pom file $pom",
@@ -218,14 +219,14 @@ data class MavenDependency(
             }
             packaging = project.packaging
             (project.dependencies?.dependencies ?: listOf()).filter {
-                when (resolver.settings.scope) {
+                when (context.settings.scope) {
                     Scope.COMPILE -> it.scope in setOf(null, "compile")
                     Scope.RUNTIME -> it.scope in setOf(null, "compile", "runtime")
                 }
             }.filter {
                 it.version != null && it.optional != true
             }.map {
-                createOrReuseDependency(resolver, it.groupId, it.artifactId, it.version!!)
+                createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
             }.let {
                 children.addAll(it)
                 state = resolutionLevel.state
@@ -233,14 +234,14 @@ data class MavenDependency(
         } else {
             messages += Message(
                 "Pom provided but metadata required for $this",
-                resolver.settings.repositories.toString(),
+                context.settings.repositories.toString(),
                 if (resolutionLevel.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
             )
         }
     }
 
     private fun Project.resolve(
-        resolver: Resolver,
+        context: Context,
         resolutionLevel: ResolutionLevel,
         depth: Int = 0,
         origin: Project = this
@@ -252,12 +253,13 @@ data class MavenDependency(
             )
             return this
         }
+        val settings = context.settings
         val parentNode = parent?.let {
-            MavenDependency(resolver.settings.fileCache, it.groupId, it.artifactId, it.version)
+            MavenDependency(settings.fileCache, it.groupId, it.artifactId, it.version)
         }
-        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, resolver))) {
+        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, settings))) {
             val text = parentNode.pom.readText()
-            val parentProject = text.parsePom().resolve(resolver, resolutionLevel, depth + 1, origin)
+            val parentProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
             copy(
                 groupId = groupId ?: parentProject.groupId,
                 artifactId = artifactId ?: parentProject.artifactId,
@@ -281,10 +283,10 @@ data class MavenDependency(
             ?.map { it.expandTemplates(project) }
             ?.flatMap {
                 if (it.scope == "import" && it.version != null) {
-                    val dependency = MavenDependency(resolver.settings.fileCache, it.groupId, it.artifactId, it.version)
-                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, resolver)) {
+                    val dependency = MavenDependency(settings.fileCache, it.groupId, it.artifactId, it.version)
+                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, settings)) {
                         val text = dependency.pom.readText()
-                        val dependencyProject = text.parsePom().resolve(resolver, resolutionLevel, depth + 1, origin)
+                        val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
                         dependencyProject.dependencyManagement?.dependencies?.dependencies ?: listOf(it)
                     } else {
                         listOf(it)
@@ -312,12 +314,12 @@ data class MavenDependency(
         )
     }
 
-    private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, resolver: Resolver) =
-        isDownloaded(level, resolver.settings) || level == ResolutionLevel.FULL && download(resolver.settings)
+    private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, settings: Settings) =
+        isDownloaded(level, settings) || level == ResolutionLevel.FULL && download(settings)
 
-    fun downloadDependencies(resolver: Resolver) {
+    fun downloadDependencies(settings: Settings) {
         files.values
-            .filter { !it.isDownloaded(ResolutionLevel.FULL, resolver.settings) }
-            .forEach { it.download(resolver.settings) }
+            .filter { !it.isDownloaded(ResolutionLevel.FULL, settings) }
+            .forEach { it.download(settings) }
     }
 }

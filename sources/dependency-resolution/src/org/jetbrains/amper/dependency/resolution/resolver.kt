@@ -5,15 +5,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import java.util.*
 
-fun Resolver.Companion.createFor(rootProvider: (Resolver) -> DependencyNode, block: Builder.() -> Unit = {}): Resolver =
-    Builder(rootProvider).apply(block).build()
-
-class Resolver(rootProvider: (Resolver) -> DependencyNode, val settings: Settings) {
-
-    companion object;
-
-    internal val cache = ResolutionCache()
-    val root: DependencyNode = rootProvider(this)
+class Resolver(val root: DependencyNode) {
 
     fun buildGraph(level: ResolutionLevel = ResolutionLevel.FULL): Resolver {
         val queue = LinkedList(listOf(root))
@@ -119,7 +111,16 @@ enum class Scope {
 
 class AmperDependencyResolutionException(message: String) : RuntimeException(message)
 
-class Builder(val rootProvider: (Resolver) -> DependencyNode) {
+class Context(val settings: Settings) {
+
+    val cache: ResolutionCache = ResolutionCache()
+
+    companion object {
+        fun build(block: Builder.() -> Unit = {}): Context = Builder().apply(block).build()
+    }
+}
+
+class Builder {
 
     var progress: Progress = Progress()
     var scope: Scope = Scope.COMPILE
@@ -136,7 +137,7 @@ class Builder(val rootProvider: (Resolver) -> DependencyNode) {
             cache,
         )
 
-    fun build(): Resolver = Resolver(rootProvider, settings)
+    fun build(): Context = Context(settings)
 }
 
 data class Settings(

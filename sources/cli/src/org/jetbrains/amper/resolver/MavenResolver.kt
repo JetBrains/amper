@@ -5,13 +5,13 @@
 package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.MavenCacheDirectory
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Scope
 import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.createFor
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import java.nio.file.Path
@@ -25,19 +25,20 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
-            val resolver = Resolver.createFor({ resolver ->
+            val context = Context.build {
+                cache = listOf(MavenCacheDirectory(userCacheRoot.path.resolve(".m2.cache")))
+                this.repositories = repositories
+                this.scope = scope
+            }
+            val resolver = Resolver(
                 ModuleDependencyNode(
                     "root",
                     coordinates.map {
                         val (group, module, version) = it.split(":")
-                        MavenDependencyNode(resolver, group, module, version)
+                        MavenDependencyNode(context, group, module, version)
                     }
                 )
-            }) {
-                cache = listOf(MavenCacheDirectory(userCacheRoot.path.resolve(".m2.cache")))
-                this.repositories = repositories
-                this.scope = scope
-            }.buildGraph().downloadDependencies()
+            ).buildGraph().downloadDependencies()
 
             val files = mutableSetOf<Path>()
             val errors = mutableListOf<String>()
