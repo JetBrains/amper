@@ -31,7 +31,7 @@ import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
 
-open class E2ETestFixture(val pathToProjects: String) {
+open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath: Boolean = true) {
 
     @Suppress("unused") // JUnit5 extension.
     @field:RegisterExtension
@@ -71,13 +71,13 @@ open class E2ETestFixture(val pathToProjects: String) {
         additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: (Path) -> Unit = {},
     ) {
-        val tempDir = prepareTempDirWithProject(projectName)
+        val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
 
         newEnv["ANDROID_HOME"] = androidHome.pathString
-
         val runner = gradleRunner
-            .withPluginClasspath()
+        if (runWithPluginClasspath) runner.withPluginClasspath()
+        runner
             .withProjectDir(tempDir.toFile())
             .withEnvironment(newEnv)
 //                .withDebug(true)
@@ -97,7 +97,7 @@ open class E2ETestFixture(val pathToProjects: String) {
     }
 
     @OptIn(ExperimentalPathApi::class)
-    private fun prepareTempDirWithProject(projectName: String): Path {
+    private fun prepareTempDirWithProject(projectName: String, runWithPluginClasspath: Boolean): Path {
         val implementationDir = Path.of("../../sources").toAbsolutePath()
         val originalDir = Path.of("${pathToProjects}/$projectName")
 
@@ -110,7 +110,7 @@ open class E2ETestFixture(val pathToProjects: String) {
         GradleDaemonManager.deleteFileOrDirectoryOnExit(tempDir)
 
         val followLinks = false
-        val ignore = setOf(".gradle", "build")
+        val ignore = setOf(".gradle", "build", "caches")
         originalDir.copyToRecursively(tempDir, followLinks = followLinks) { src, dst ->
             if (src.name in ignore) CopyActionResult.SKIP_SUBTREE
             else src.copyToIgnoringExistingDirectory(dst, followLinks = followLinks)
@@ -119,8 +119,9 @@ open class E2ETestFixture(val pathToProjects: String) {
         val gradleFile = tempDir.resolve("settings.gradle.kts")
         assertTrue(gradleFile.exists(), "file not found: $gradleFile")
 
-        gradleFile.writeText(
-            """
+        if (runWithPluginClasspath) {
+            gradleFile.writeText(
+                """
                 pluginManagement {
                     repositories {
                         mavenCentral()
@@ -128,12 +129,13 @@ open class E2ETestFixture(val pathToProjects: String) {
                         gradlePluginPortal()
                     }
                 }
-    
+
                 plugins {
                     id("org.jetbrains.amper.settings.plugin")
                 }
                 """.trimIndent()
-        )
+            )
+        }
 
         return tempDir
     }
@@ -226,7 +228,11 @@ open class E2ETestFixture(val pathToProjects: String) {
                     "packages" to toolsToInstall.joinToString(" "),
                 )
 
-                val root = ExecuteOnChangedInputs(fakeBuildOutputRoot).execute("android-sdk", configuration, inputs = emptyList()) {
+                val root = ExecuteOnChangedInputs(fakeBuildOutputRoot).execute(
+                    "android-sdk",
+                    configuration,
+                    inputs = emptyList()
+                ) {
                     val root = fakeUserCacheRoot.path / "android-sdk"
                     cleanDirectory(root)
 
@@ -236,10 +242,22 @@ open class E2ETestFixture(val pathToProjects: String) {
                     acceptAndroidLicense(root, "android-sdk-license", "8933bad161af4178b1185d1a37fbf41ea5269c55")
                     acceptAndroidLicense(root, "android-sdk-license", "d56f5187479451eabf01fb78af6dfcb131a6481e")
                     acceptAndroidLicense(root, "android-sdk-license", "24333f8a63b6825ea9c5514f83c2829b004d1fee")
-                    acceptAndroidLicense(root, "android-sdk-preview-license", "84831b9409646a918e30573bab4c9c91346d8abd")
-                    acceptAndroidLicense(root, "android-sdk-preview-license", "504667f4c0de7af1a06de9f4b1727b84351f2910")
+                    acceptAndroidLicense(
+                        root,
+                        "android-sdk-preview-license",
+                        "84831b9409646a918e30573bab4c9c91346d8abd"
+                    )
+                    acceptAndroidLicense(
+                        root,
+                        "android-sdk-preview-license",
+                        "504667f4c0de7af1a06de9f4b1727b84351f2910"
+                    )
                     acceptAndroidLicense(root, "google-gdk-license", "33b6a2b64607f11b759f320ef9dff4ae5c47d97a")
-                    acceptAndroidLicense(root, "intel-android-extra-license", "d975f751698a77b662f1254ddbeed3901e976f5a")
+                    acceptAndroidLicense(
+                        root,
+                        "intel-android-extra-license",
+                        "d975f751698a77b662f1254ddbeed3901e976f5a"
+                    )
 
                     for (tool in toolsToInstall) {
                         suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
@@ -256,7 +274,8 @@ open class E2ETestFixture(val pathToProjects: String) {
 
         private fun getCmdToolsPkgRevision(commandLineToolsZip: Path): String {
             val cmdToolsSourceProperties = ZipFile(commandLineToolsZip.toFile()).use { zip ->
-                zip.getInputStream(zip.getEntry("cmdline-tools/source.properties")!!).readAllBytes() }
+                zip.getInputStream(zip.getEntry("cmdline-tools/source.properties")!!).readAllBytes()
+            }
             val props = Properties().also { it.load(ByteArrayInputStream(cmdToolsSourceProperties)) }
             val cmdToolsPkgRevision: String? = props.getProperty("Pkg.Revision")
             check(!cmdToolsPkgRevision.isNullOrBlank()) {

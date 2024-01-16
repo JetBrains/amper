@@ -8,7 +8,8 @@ import kotlin.reflect.full.declaredFunctions
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
-class ExamplesTest : E2ETestFixture("../../examples/") {
+class ExamplesTest : E2ETestFixture("../../examples/",
+    runWithPluginClasspath = if (System.getenv("WITH_PLUGIN_CLASSPATH") != null) System.getenv("WITH_PLUGIN_CLASSPATH").toBoolean() else true  ) {
     @Test
     fun `check all example projects are tested`() {
         @OptIn(ExperimentalPathApi::class)
@@ -29,21 +30,21 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     fun `new project template runs and prints Hello, World`() = test(
         projectName = "new-project-template",
         "run",
-        expectOutputToHave = "Hello, World!",
+        expectOutputToHave = "Hello, World!"
     )
 
     @Test
     fun `jvm-hello-world runs and prints Hello, World`() = test(
         projectName = "jvm-hello-world",
         "run",
-        expectOutputToHave = "Hello, World!",
+        expectOutputToHave = "Hello, World!"
     )
 
     @Test
     fun `jvm-kotlin+java runs and prints Hello, World`() = test(
         projectName = "jvm-kotlin+java",
         "run",
-        expectOutputToHave = "Hello, World",
+        expectOutputToHave = "Hello, World"
     )
 
     @Test
@@ -51,35 +52,35 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
         projectName = "jvm-with-tests",
         "test",
         expectOutputToHave = "> There were failing tests. See the report at: file:",
-        shouldSucceed = false,
+        shouldSucceed = false
     )
 
     @Test
     fun `modularized test task succeeds`() = test(
         projectName = "modularized",
         "test",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "BUILD SUCCESSFUL"
     )
 
     @Test
     fun `multiplatform build task succeeds`() = test(
         projectName = "multiplatform",
         ":jvm-app:build", ":android-app:build", ":ios-app:build",
-        expectOutputToHave = listOf("BUILD SUCCESSFUL"),
+        expectOutputToHave = listOf("BUILD SUCCESSFUL")
     )
 
     @Test
     fun `compose desktop build task`() = test(
         projectName = "compose-desktop",
         "build",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "BUILD SUCCESSFUL"
     )
 
     @Test
     fun `compose desktop ios task`() = test(
         projectName = "compose-ios",
         "buildIosAppMain",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "BUILD SUCCESSFUL"
     )
 
     @Test
@@ -93,7 +94,7 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     fun `templates build task`() = test(
         projectName = "templates",
         "build",
-        expectOutputToHave = "BUILD SUCCESSFUL",
+        expectOutputToHave = "BUILD SUCCESSFUL"
     )
 
     @Test
@@ -119,7 +120,7 @@ class ExamplesTest : E2ETestFixture("../../examples/") {
     fun `gradle migration jvm`() = test(
         projectName = "gradle-migration-jvm",
         "build", ":app:run",
-        expectOutputToHave = listOf("Hello, World!", "BUILD SUCCESSFUL"),
+        expectOutputToHave = listOf("Hello, World!", "BUILD SUCCESSFUL")
     )
 
     @Test
