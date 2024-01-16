@@ -98,4 +98,5 @@ val Path.amperIgnoreIfAny: Path?
  */
 interface SchemaEnum {
     val schemaValue: String
+    val outdated: Boolean
 }

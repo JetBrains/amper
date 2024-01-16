@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
 
-enum class JUnitVersion(override val schemaValue: String) : SchemaEnum {
+enum class JUnitVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
     JUNIT4("junit-4"),
     JUNIT5("junit-5"),
     NONE("none");

@@ -14,10 +14,11 @@ enum class DependencyScope(
     override val schemaValue: String,
     val runtime: Boolean,
     val compile: Boolean,
+    override val outdated: Boolean = false,
 ) : SchemaEnum {
-    COMPILE_ONLY("compile-only", false, true),
-    RUNTIME_ONLY("runtime-only", true, false),
-    ALL("all", true, true),;
+    COMPILE_ONLY("compile-only", runtime = false, compile = true),
+    RUNTIME_ONLY("runtime-only", runtime = true, compile = false),
+    ALL("all", runtime = true, compile = true);
     companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
 }
 

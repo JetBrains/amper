@@ -86,7 +86,7 @@ val KType.enumSchema
     get() = buildString {
         append("\"enum\": [")
         val enumValues = unwrapKClassOrNull!!.java.enumConstants
-        enumValues.toList().forEachEndAware<Any> { isEnd, it ->
+        enumValues.toList().filter{ it !is SchemaEnum || !it.outdated}.forEachEndAware<Any> { isEnd, it ->
             append("\"${(it as? SchemaEnum)?.schemaValue ?: it}\"")
             if (!isEnd) append(",")
         }

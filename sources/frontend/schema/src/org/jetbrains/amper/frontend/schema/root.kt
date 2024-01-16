@@ -100,7 +100,8 @@ class Repository : SchemaNode() {
 }
 
 enum class AmperLayout(
-    override var schemaValue: String
+    override var schemaValue: String,
+    override val outdated: Boolean = false
 ) : SchemaEnum {
     GRADLE("gradle-kmp"),
     GRADLE_JVM("gradle-jvm"),

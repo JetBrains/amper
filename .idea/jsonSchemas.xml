@@ -8,7 +8,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="schema-test.expected" />
-              <option name="relativePathToSchema" value="sources/frontend/schema/testResources/schema-test.expected.json" />
+              <option name="relativePathToSchema" value="sources/frontend/schema/resources/schema/amper.module.json" />
               <option name="patterns">
                 <list>
                   <Item>

@@ -9,7 +9,7 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 
 
-enum class KotlinVersion(override val schemaValue: String) : SchemaEnum {
+enum class KotlinVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
     Kotlin20("2.0"),
     Kotlin19("1.9"),
     Kotlin18("1.8"),

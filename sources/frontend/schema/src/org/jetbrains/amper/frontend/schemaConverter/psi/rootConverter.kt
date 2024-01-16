@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -18,7 +19,6 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Meta
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
-import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.Template

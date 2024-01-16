@@ -57,5 +57,7 @@ enum class ProductType(
 
     override val schemaValue: String = value
 
+    override val outdated: Boolean = false
+
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }
