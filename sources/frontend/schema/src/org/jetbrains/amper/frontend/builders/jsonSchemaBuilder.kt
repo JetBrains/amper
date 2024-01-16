@@ -13,6 +13,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.typeOf
 
 
 /**
@@ -144,7 +145,17 @@ class JsonSchemaBuilder(
     }
 
     override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) =
-        addProperty(prop) { buildForScalarBased(type) }
+        addProperty(prop) {
+            if (prop.name == "aliases")
+                // Not all platforms could be used in aliases, but only those declared in module file in product definition
+                buildSchemaKeyBasedCollection {
+                    buildSchemaCollection(uniqueElements = true, minItems = 1) {
+                        buildForScalarBased(typeOf<String>())
+                    }
+                }
+            else
+                buildForScalarBased(type)
+        }
 
     private fun buildForScalarBased(type: KType): String = when {
         type.isScalar -> buildScalar(type)

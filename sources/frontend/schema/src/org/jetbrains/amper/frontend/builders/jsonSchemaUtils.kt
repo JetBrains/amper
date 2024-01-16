@@ -44,11 +44,12 @@ fun buildProperty(
 """.trim()
 
 fun buildSchemaCollection(
-    uniqueElements: Boolean = true, // TODO handle
-    minItems: Int? = null, // TODO handle
+    uniqueElements: Boolean = true,
+    minItems: Int? = null,
     block: () -> String,
 ) = """
 "type": "array",
+${minItems?.let { "\"minItems\": $it,\n" } ?: ""}"uniqueItems": $uniqueElements,
 "items": {
   ${block().addIdentButFirst("  ")}
 }

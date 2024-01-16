@@ -14,6 +14,7 @@
       "patternProperties": {
         "^dependencies(@.+)?$": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "anyOf": [
               {
@@ -33,6 +34,7 @@
         },
         "^test-dependencies(@.+)?$": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "anyOf": [
               {
@@ -58,8 +60,10 @@
             "patternProperties": {
               "^[^@+:]+$": {
                 "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
                 "items": {
-                  "enum": ["common","js","jvm","wasm","android","native","linux","linuxX64","linuxArm64","apple","tvos","tvosArm64","tvosX64","tvosSimulatorArm64","macos","macosX64","macosArm64","ios","iosArm64","iosSimulatorArm64","iosX64","watchos","watchosArm64","watchosArm32","watchosDeviceArm64","watchosSimulatorArm64","mingw","mingwX64","androidNative","androidNativeArm32","androidNativeArm64","androidNativeX64","androidNativeX86"]
+                  "type": "string"
                 }
               }
             }
@@ -67,6 +71,7 @@
         },
         "apply": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
@@ -79,6 +84,7 @@
         },
         "repositories": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/Repository"
           }
@@ -98,6 +104,7 @@
       "properties": {
         "platforms": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "enum": ["common","js","jvm","wasm","android","native","linux","linuxX64","linuxArm64","apple","tvos","tvosArm64","tvosX64","tvosSimulatorArm64","macos","macosX64","macosArm64","ios","iosArm64","iosSimulatorArm64","iosX64","watchos","watchosArm64","watchosArm32","watchosDeviceArm64","watchosSimulatorArm64","mingw","mingwX64","androidNative","androidNativeArm32","androidNativeArm64","androidNativeX64","androidNativeX86"]
           }
@@ -376,12 +383,14 @@
         },
         "freeCompilerArgs": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
         },
         "languageFeatures": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
@@ -391,12 +400,14 @@
         },
         "linkerOpts": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
         },
         "optIns": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }

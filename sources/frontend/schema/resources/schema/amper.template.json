@@ -14,6 +14,7 @@
       "patternProperties": {
         "^dependencies(@.+)?$": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "anyOf": [
               {
@@ -33,6 +34,7 @@
         },
         "^test-dependencies(@.+)?$": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "anyOf": [
               {
@@ -54,6 +56,7 @@
       "properties": {
         "repositories": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/Repository"
           }
@@ -329,12 +332,14 @@
         },
         "freeCompilerArgs": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
         },
         "languageFeatures": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
@@ -344,12 +349,14 @@
         },
         "linkerOpts": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
         },
         "optIns": {
           "type": "array",
+          "uniqueItems": true,
           "items": {
             "type": "string"
           }
