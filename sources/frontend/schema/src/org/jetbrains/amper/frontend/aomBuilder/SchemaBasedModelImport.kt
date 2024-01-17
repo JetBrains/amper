@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
@@ -36,7 +35,7 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
-        val fioCtx = ModuleFioContext(modulePsiFile.virtualFile.toNioPath())
+        val fioCtx = ModuleFioContext(modulePsiFile.virtualFile.toNioPath(), project)
         val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx,)
             ?: return amperFailure()

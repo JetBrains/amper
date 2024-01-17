@@ -4,10 +4,17 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.project.Project
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
-import kotlin.io.path.*
+import kotlin.io.path.div
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isSameFileAs
+import kotlin.io.path.name
+import kotlin.io.path.pathString
+import kotlin.io.path.readLines
 
 
 private const val amperModuleFileName = "module.yaml"
@@ -50,7 +57,7 @@ interface FioContext {
      * A list of default gradle version catalog
      * files ([gradleDefaultVersionCatalogName]) for each amper file.
      */
-    val amperFiles2gradleCatalogs: Map<Path, List<Path>>
+    val amperFiles2gradleCatalogs: Map<Path, Path>
 }
 
 /**
@@ -61,7 +68,7 @@ open class DefaultFioContext(
 ) : FioContext {
 
     override val rootDir: Path by lazy {
-        root.takeIf{ it.isDirectory() }
+        root.takeIf { it.isDirectory() }
             ?: root.parent
             ?: error("Should not call with a rot without parent")
     }
@@ -96,14 +103,16 @@ open class DefaultFioContext(
     }
 
     override val amperFiles2gradleCatalogs by lazy {
-        amperModuleFiles.associateWith { it.findGradleCatalogs() }
+        amperModuleFiles
+            .mapNotNull { moduleFile -> moduleFile.findGradleCatalogs()?.let { moduleFile to it } }
+            .toMap()
     }
 
     /**
      * Find "libs.versions.toml" in every gradle directory between [this] path and [rootDir]
      * with deeper files being the first.
      */
-    private fun Path.findGradleCatalogs(): List<Path> {
+    private fun Path.findGradleCatalogs(): Path? {
         assert(startsWith(rootDir)) {
             "Cannot call with the path($pathString) that is outside of (${rootDir.pathString})"
         }
@@ -118,7 +127,7 @@ open class DefaultFioContext(
             .map { it / gradleDirName / gradleDefaultVersionCatalogName }
             .mapNotNull { it.takeIf(Path::exists) }
             .filter { ignorePaths.none { ignorePath -> it.startsWith(ignorePath) } }
-            .toList()
+            .firstOrNull()
     }
 }
 
@@ -126,11 +135,15 @@ open class DefaultFioContext(
  * Per-file context.
  */
 class ModuleFioContext(
-    override val root: Path
-) : DefaultFioContext(root) {
+    requiredFile: Path,
+    project: Project,
+) : DefaultFioContext(project.baseDir.toNioPath()) {
+
+    private val requiredDir =
+        if (requiredFile.isDirectory()) requiredFile else requiredFile.parent
 
     override val amperModuleFiles: List<Path> by lazy {
-        Files.list(rootDir)
+        Files.list(requiredDir)
             .filter { file -> file.isModuleYaml() && ignorePaths.none { file.startsWith(it) } }
             .collect(Collectors.toList())
     }

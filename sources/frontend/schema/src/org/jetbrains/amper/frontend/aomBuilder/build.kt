@@ -62,8 +62,9 @@ internal fun doBuild(
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val path2SchemaModule = fioCtx.amperModuleFiles
         .mapNotNull { moduleFile ->
-            val catalogs = fioCtx.amperFiles2gradleCatalogs[moduleFile].orEmpty()
-                .mapNotNull { parseGradleVersionCatalog(it) } + BuiltInCatalog
+            val gradleCatalog = fioCtx.amperFiles2gradleCatalogs[moduleFile]
+                ?.let { parseGradleVersionCatalog(it) }
+            val catalogs = gradleCatalog?.let { listOf(it) }.orEmpty() + BuiltInCatalog
             readAndPreprocess(moduleFile, CompositeVersionCatalog(catalogs))
                 ?.let { moduleFile to it }
         }

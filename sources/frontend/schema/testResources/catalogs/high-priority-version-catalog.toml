@@ -1,5 +1,0 @@
-[versions]
-my-lib-version = "1.4"
-
-[libraries]
-my-lib = { module = "org.my-company:my-lib", version = "1.5" }
