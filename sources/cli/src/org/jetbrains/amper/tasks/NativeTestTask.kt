@@ -6,10 +6,10 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
-import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
@@ -17,9 +17,10 @@ import kotlin.io.path.pathString
 
 class NativeTestTask(
     override val taskName: TaskName,
-    private val module: PotatoModule,
+    override val module: PotatoModule,
     private val projectRoot: AmperProjectRoot,
-) : Task {
+    override val platform: Platform,
+) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val compileTaskResult = dependenciesResult.filterIsInstance<NativeCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")

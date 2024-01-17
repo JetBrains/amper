@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import com.google.common.io.Files
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.diagnostics.spanBuilder
@@ -14,14 +15,24 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.RunTask
+import org.jetbrains.amper.tasks.TestTask
+import org.jetbrains.amper.util.PlatformUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.zip.ZipInputStream
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.pathString
 
+@OptIn(ExperimentalPathApi::class)
 class AmperBackend(val context: ProjectContext) {
     private val resolvedModel: Model by lazy {
         with(CliProblemReporterContext()) {
@@ -48,6 +59,16 @@ class AmperBackend(val context: ProjectContext) {
 
     private val taskExecutor: TaskExecutor by lazy {
         TaskExecutor(taskGraph)
+    }
+
+    fun clean() {
+        val rootsToClean = listOf(context.buildOutputRoot.path, context.projectTempRoot.path)
+        for (path in rootsToClean) {
+            if (path.exists()) {
+                logger.info("Deleting $path")
+                path.deleteRecursively()
+            }
+        }
     }
 
     fun compile(platforms: Set<Platform>? = null) {
@@ -84,22 +105,101 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
+    private val projectTemplates: Map<String, String> = mapOf(
+        "multiplatform-cli" to "templates/multiplatform-cli.zip"
+    )
+
+    fun newProject(template: String?) {
+        val availableTemplates = projectTemplates.keys.sorted().joinToString(" ")
+
+        if (template == null) {
+            userReadableError("Please specify a template (template name substring is sufficient).\n\n" +
+            "Available templates: $availableTemplates")
+        }
+
+        val root = context.projectRoot.path
+        if (root.exists()) {
+            if (!root.isDirectory()) {
+                userReadableError("Project root is not a directory: $root")
+            }
+
+            if (root.listDirectoryEntries().any { it.name != "amper" && it.name != "amper.bat" }) {
+                userReadableError("Project root is not empty: $root")
+            }
+         }
+
+        val matchedTemplates = projectTemplates.filterKeys {
+            it.contains(template, ignoreCase = true)
+        }
+
+        if (matchedTemplates.isEmpty()) {
+            userReadableError(
+                "No templates were found matching '$template'\n\n" +
+                        "Available templates: $availableTemplates"
+            )
+        }
+        if (matchedTemplates.size > 1) {
+            userReadableError(
+                "Multiple templates (${matchedTemplates.keys.sorted().joinToString("")}) were found matching '$template'\n\n" +
+                        "Available templates: $availableTemplates"
+            )
+        }
+
+        println("Extracting template '${matchedTemplates.keys.single()}' to $root")
+
+        root.createDirectories()
+
+        javaClass.classLoader.getResourceAsStream(matchedTemplates.values.single())!!.use { stream ->
+            val zip = ZipInputStream(stream)
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (entry.isDirectory || entry.name.isEmpty()) {
+                    continue
+                }
+                check(!entry.name.contains("..")) {
+                    "'..' is not allowed in zip entry: ${entry.name}"
+                }
+
+                val relativeFileName = entry.name.replace('\\', '/').trimStart('/')
+                val path = root.resolve(relativeFileName)
+                path.parent.createDirectories()
+                Files.asByteSink(path.toFile()).writeFrom(zip)
+            }
+        }
+    }
+
     fun check(moduleName: String?, platforms: Set<Platform>?) {
         require(platforms == null || platforms.isNotEmpty())
 
-        val modulesToCheck: List<PotatoModule> = if (moduleName != null) {
-            val oneModule = (resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
-                ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}"))
-            listOf(oneModule)
-        } else {
-            resolvedModel.modules
+        if (moduleName != null && resolvedModel.modules.none { it.userReadableName == moduleName }) {
+            userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
+                    "Available modules: ${availableModulesString()}")
         }
 
+        if (platforms != null) {
+            for (platform in platforms) {
+                if (!PlatformUtil.platformsMayRunOnCurrentSystem.contains(platform)) {
+                    userReadableError(
+                        "Unable to run platform '$platform' on current system.\n\n" +
+                                "Available platforms on current system: " +
+                                PlatformUtil.platformsMayRunOnCurrentSystem.map { it.name }.sorted().joinToString(" ")
+                    )
+                }
+            }
+        }
 
+        val testTasks = taskGraph.tasks
+            .filterIsInstance<TestTask>()
+            .filter { moduleName == null || moduleName == it.module.userReadableName }
+            .filter { platforms == null || platforms.contains(it.platform) }
 
+        if (testTasks.isEmpty()) {
+            userReadableError("No test tasks were found for specified module and platform filters")
+        }
 
-
-
+        runBlocking {
+            taskExecutor.run(testTasks.map { it.taskName })
+        }
     }
 
     fun run(moduleName: String?, platform: Platform?) {

@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.PlatformUtil
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -129,6 +130,15 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         require(!module.type.isLibrary())
 
                         val runTaskName = getTaskName(module, CommonTaskType.RUN, platform, isTest = false)
+
+                        if (!PlatformUtil.platformsMayRunOnCurrentSystem.contains(platform)) {
+                            logger.debug(
+                                "Skipping creating run task '{}' since it could not run on current system",
+                                runTaskName
+                            )
+                            return
+                        }
+
                         when (val top = platform.topmostParentNoCommon) {
                             Platform.JVM -> JvmRunTask(
                                 module = module,
@@ -156,11 +166,19 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         }
                     }
 
-                    fun createTestTask(): Task {
+                    fun createTestTask() {
                         require(isTest)
 
                         val testTaskName = getTaskName(module, CommonTaskType.TEST, platform, isTest = true)
-                        return when (val top = platform.topmostParentNoCommon) {
+                        if (!PlatformUtil.platformsMayRunOnCurrentSystem.contains(platform)) {
+                            logger.debug(
+                                "Skipping creating test task '{}' since it could not run on current system",
+                                testTaskName
+                            )
+                            return
+                        }
+
+                        when (val top = platform.topmostParentNoCommon) {
                             Platform.JVM -> JvmTestTask(
                                 module = module,
                                 userCacheRoot = context.userCacheRoot,
@@ -173,10 +191,14 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 module = module,
                                 projectRoot = context.projectRoot,
                                 taskName = testTaskName,
+                                platform = platform,
                             )
 
-                            else -> error("$top is not supported yet")
-                        }.also {
+                            else -> {
+                                logger.warn("$top is not supported yet")
+                                null
+                            }
+                        }?.also {
                             tasks.registerTask(
                                 it,
                                 dependsOn = listOf(

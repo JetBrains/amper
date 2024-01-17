@@ -49,7 +49,9 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             logger.info("INC: building '$id'")
         }
 
-        val result = block()
+        val (result, buildTime) = measureTimedValue { block() }
+
+        logger.info("INC: built '$id' in $buildTime")
 
         writeStateFile(id, stateFile, configuration, inputs, result)
 

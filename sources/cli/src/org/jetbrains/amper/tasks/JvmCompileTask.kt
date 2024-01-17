@@ -9,6 +9,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
@@ -115,7 +116,7 @@ class JvmCompileTask(
                     sourceFiles = presentSources,
                 )
                 if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
-                    error("Kotlin compilation failed (see errors above)")
+                    userReadableError("Kotlin compilation failed (see errors above)")
                 }
 
                 val javaFilesToCompile = presentSources.flatMap { src ->

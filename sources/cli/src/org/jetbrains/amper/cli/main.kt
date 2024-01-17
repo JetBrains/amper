@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -29,6 +30,7 @@ private class RootCommand : CliktCommand(name = "amper") {
     init {
         versionOption(version = AmperBuild.BuildNumber)
         subcommands(
+            CleanCommand(),
             CheckCommand(),
             CompileCommand(),
             NewCommand(),
@@ -71,9 +73,14 @@ private class RootCommand : CliktCommand(name = "amper") {
 }
 
 private class NewCommand : CliktCommand(name = "new", help = "New Amper project") {
-    val template by argument(help = "project template name, e.g., 'cli'")
+    val template by argument(help = "project template name, e.g., 'cli'").optional()
     val amperBackend by requireObject<AmperBackend>()
-    override fun run() = TODO()
+    override fun run() = amperBackend.newProject(template = template)
+}
+
+private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
+    val amperBackend by requireObject<AmperBackend>()
+    override fun run() = amperBackend.clean()
 }
 
 private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
@@ -92,7 +99,7 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
         checkPlatform(value)
     }
 
-    val module by option(help = "specific module to run")
+    val module by option("-m", "--module", help = "specific module to run")
     val amperBackend by requireObject<AmperBackend>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
@@ -146,7 +153,7 @@ private fun ParameterHolder.platformOption() = option(
 
 private fun checkPlatform(value: String) {
     if (!prettyLeafPlatforms.containsKey(value)) {
-        userReadableError("Unsupported platform '$value'. Possible values: $prettyLeafPlatformsString")
+        userReadableError("Unsupported platform '$value'.\n\nPossible values: $prettyLeafPlatformsString")
     }
 }
 
