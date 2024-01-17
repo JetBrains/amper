@@ -7,21 +7,37 @@ package org.jetbrains.amper.tasks
 import AndroidBuildRequest
 import AndroidModuleData
 import RClassAndroidBuildResult
+import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.util.BuildType
+import org.jetbrains.amper.util.toAndroidRequestBuildType
 import runAndroidBuild
 import java.nio.file.Path
 
-class AndroidPrepareTask(private val module: PotatoModule, override val taskName: TaskName) : Task {
+class AndroidPrepareTask(
+    private val module: PotatoModule,
+    private val buildType: BuildType,
+    override val taskName: TaskName
+) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val rootPath = (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
-        val request = AndroidBuildRequest(rootPath, AndroidBuildRequest.Phase.Prepare, setOf(AndroidModuleData(":")))
-        val result = runAndroidBuild<RClassAndroidBuildResult>(request, prototypeImplementationPath = Path.of("../../").toAbsolutePath().normalize())
+        val rootPath =
+            (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
+        val request = AndroidBuildRequest(
+            rootPath,
+            AndroidBuildRequest.Phase.Prepare,
+            setOf(AndroidModuleData(":")),
+            setOf(buildType.toAndroidRequestBuildType)
+        )
+        val result = runAndroidBuild<RClassAndroidBuildResult>(
+            request,
+            sourcesPath = Path.of("../../").toAbsolutePath().normalize()
+        )
         return JvmCompileTask.AdditionalClasspathProviderTaskResult(
             dependenciesResult,
-            result.paths.map { Path.of(it) }
+            result.paths.map { Path.of(it) },
         )
     }
 }

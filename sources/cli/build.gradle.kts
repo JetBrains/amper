@@ -7,16 +7,10 @@ plugins {
 kotlin {
     jvm {
         mainRun {
-            val argList = buildList {
-                if (project.hasProperty("amper.cli.project.root")) {
-                    add("--root")
-                    add(project.property("amper.cli.project.root") ?: "")
-                }
-                if (project.hasProperty("amper.cli.project.tasks")) {
-                    add(project.property("amper.cli.project.tasks") ?: "")
-                }
+            if (project.hasProperty("amper.cli.args")) {
+                val args = project.property("amper.cli.args")
+                args((args as String).split(" "))
             }
-            args(*argList.toTypedArray())
         }
     }
 }

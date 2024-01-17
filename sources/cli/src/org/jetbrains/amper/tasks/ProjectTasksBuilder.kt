@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.Logger
@@ -42,28 +43,35 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         continue
                     }
 
-                    val prepareDebugAndroidBuildName = if (platform == Platform.ANDROID) {
-                        val testSuffix = if (isTest) "Test" else ""
-                        val prepareDebugAndroidBuild = TaskName.fromHierarchy(listOf(module.userReadableName, "prepare${testSuffix}DebugAndroidBuild"))
-                        tasks.registerTask(AndroidPrepareTask(module, prepareDebugAndroidBuild))
-                        prepareDebugAndroidBuild
-                    } else null
-
                     val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
                         setupAndroidPlatformTask(module, tasks)
                     } else null
 
-                    fun createCompileTask() {
-                        val compileTaskName = getTaskName(module, CommonTaskType.COMPILE, platform, isTest = isTest)
-                        when (val top = platform.topmostParentNoCommon) {
-                            Platform.JVM -> JvmCompileTask(
-                                module = module,
-                                fragments = fragments,
-                                userCacheRoot = context.userCacheRoot,
-                                taskOutputRoot = getTaskOutputPath(compileTaskName),
-                                taskName = compileTaskName,
-                                executeOnChangedInputs = executeOnChangedInputs,
-                                projectRoot =  context.projectRoot,
+                    val prepareAndroidBuildTasks = setupPrepareAndroidTasks(platform, module, isTest, tasks)
+
+                    fun createCompileTask(buildType: BuildType = BuildType.Debug): Task? {
+                        val compileTaskName = getTaskName(
+                            module = module,
+                            type = CommonTaskType.COMPILE,
+                            platform = platform,
+                            isTest = isTest,
+                        )
+                        val top = platform.topmostParentNoCommon
+                        val jvmCompileTask = JvmCompileTask(
+                            module = module,
+                            fragments = fragments,
+                            userCacheRoot = context.userCacheRoot,
+                            projectRoot = context.projectRoot,
+                            taskOutputRoot = getTaskOutputPath(compileTaskName),
+                            taskName = compileTaskName,
+                            executeOnChangedInputs = executeOnChangedInputs,
+                        )
+                        return when (top) {
+                            Platform.JVM -> jvmCompileTask
+
+                            Platform.ANDROID -> AndroidCompileTask(
+                                jvmCompileTask = jvmCompileTask,
+                                buildType = buildType
                             )
 
                             Platform.NATIVE -> NativeCompileTask(
@@ -81,11 +89,14 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 logger.warn("$top is not supported yet")
                                 null
                             }
-                        }?.also { task ->
-                            tasks.registerTask(
-                                task,
-                                dependsOn = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)
-                            )
+                        }?.also {
+                            tasks.registerTask(it, dependsOn = buildList {
+                                add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
+                                if (top == Platform.ANDROID) {
+                                    androidPlatformJarTaskName?.let { add(it) }
+                                    prepareAndroidBuildTasks[buildType]?.let { add(it) }
+                                }
+                            })
                         }
                     }
 
@@ -101,7 +112,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             tasks.registerTask(resolveTask, dependsOn = buildList {
                                 if (platform.topmostParentNoCommon == Platform.ANDROID) {
                                     androidPlatformJarTaskName?.let { add(it) }
-                                    prepareDebugAndroidBuildName?.let { add(it) }
                                 }
                             })
                         }
@@ -174,7 +184,14 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     }
 
                     createResolveTask()
-                    createCompileTask()
+
+                    if (platform == Platform.ANDROID) {
+                        for (buildType in setOf(BuildType.Debug, BuildType.Release)) {
+                            createCompileTask(buildType)
+                        }
+                    } else createCompileTask()
+
+                    setupAndroidBuildTasks(platform, module, tasks, isTest)
 
                     // TODO this does not support runtime dependencies
                     //  and dependency graph for it will be different
@@ -235,20 +252,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         return tasks.build()
     }
 
-    private fun setupAndroidPlatformTask(module: PotatoModule, tasks: TaskGraphBuilder): TaskName? {
-        return module
-            .fragments
-            .filter { Platform.ANDROID in it.platforms }
-            .firstOrNull { !it.isTest }
-            ?.let { androidFragment ->
-                androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
-                    val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
-                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", androidCompileTaskName))
-                    androidCompileTaskName
-                }
-            }
-    }
-
     private fun PotatoModuleDependency.resolveModuleDependency(): PotatoModule = with(CliProblemReporterContext()) {
         val result = model.module.get()
 
@@ -261,12 +264,18 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
     // All task binding between themselves happens here, so let's keep it private here
     // This function is the only place where we define task naming convention
-    private fun getTaskName(module: PotatoModule, type: CommonTaskType, platform: Platform, isTest: Boolean): TaskName {
+    private fun getTaskName(
+        module: PotatoModule,
+        type: CommonTaskType,
+        platform: Platform,
+        isTest: Boolean,
+        buildType: BuildType? = null
+    ): TaskName {
         val testSuffix = if (isTest) "Test" else ""
         val platformSuffix = platform.pretty.replaceFirstChar { it.uppercase() }
 
         val taskName = when (type) {
-            CommonTaskType.COMPILE -> "compile$platformSuffix$testSuffix"
+            CommonTaskType.COMPILE -> "compile$platformSuffix$testSuffix${buildType?.name ?: ""}"
             CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix$testSuffix"
             CommonTaskType.RUN -> {
                 require(!isTest)
@@ -288,6 +297,72 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
     private fun getTaskOutputPath(taskName: TaskName): TaskOutputRoot {
         val out = context.buildOutputRoot.path.resolve("tasks").resolve(taskName.name.replace(':', '_'))
         return TaskOutputRoot(path = out)
+    }
+
+    private fun setupPrepareAndroidTasks(
+        platform: Platform,
+        module: PotatoModule,
+        isTest: Boolean,
+        tasks: TaskGraphBuilder
+    ) = if (platform == Platform.ANDROID) {
+        val testSuffix = if (isTest) "Test" else ""
+        buildMap {
+            for (buildType in setOf(BuildType.Debug, BuildType.Release)) {
+                val prepareAndroidBuildName = TaskName.fromHierarchy(
+                    listOf(
+                        module.userReadableName, "prepare${testSuffix}${buildType.name}AndroidBuild"
+                    )
+                )
+                put(buildType, prepareAndroidBuildName)
+                tasks.registerTask(
+                    AndroidPrepareTask(
+                        module,
+                        buildType,
+                        prepareAndroidBuildName
+                    )
+                )
+            }
+        }
+    } else mapOf()
+
+    private fun setupAndroidBuildTasks(
+        platform: Platform,
+        module: PotatoModule,
+        tasks: TaskGraphBuilder,
+        isTest: Boolean,
+    ) = if (platform == Platform.ANDROID) {
+        val testSuffix = if (isTest) "Test" else ""
+        buildMap {
+            for (buildType in setOf(BuildType.Debug, BuildType.Release)) {
+                val buildAndroidBuildName = TaskName.fromHierarchy(
+                    listOf(
+                        module.userReadableName, "finalize${testSuffix}${buildType.name}AndroidBuild"
+                    )
+                )
+                put(buildType, buildAndroidBuildName)
+                tasks.registerTask(
+                    AndroidBuildTask(module, buildType, buildAndroidBuildName),
+                    listOf(
+                        getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
+                        getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)
+                    )
+                )
+            }
+        }
+    } else mapOf()
+
+    private fun setupAndroidPlatformTask(module: PotatoModule, tasks: TaskGraphBuilder): TaskName? {
+        return module
+            .fragments
+            .filter { Platform.ANDROID in it.platforms }
+            .firstOrNull { !it.isTest }
+            ?.let { androidFragment ->
+                androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
+                    val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
+                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", androidCompileTaskName))
+                    androidCompileTaskName
+                }
+            }
     }
 
     // All task binding between themselves happens here, so let's keep it private
