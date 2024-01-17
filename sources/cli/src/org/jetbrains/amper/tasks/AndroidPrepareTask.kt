@@ -9,12 +9,12 @@ import AndroidModuleData
 import RClassAndroidBuildResult
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import runAndroidBuild
 import java.nio.file.Path
@@ -36,7 +36,7 @@ class AndroidPrepareTask(
             setOf(buildType.toAndroidRequestBuildType)
         )
         val inputs = listOf((module.source as PotatoModuleFileSource).buildFile.parent.resolve("res"))
-        val androidConfig = fragments.mapNotNull { it.parts.find<AndroidPart>() }.joinToString()
+        val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             val result = runAndroidBuild<RClassAndroidBuildResult>(

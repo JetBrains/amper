@@ -6,12 +6,12 @@ import ApkPathAndroidBuildResult
 import ResolvedDependency
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
 import runAndroidBuild
@@ -41,7 +41,7 @@ class AndroidBuildTask(
             setOf(buildType.toAndroidRequestBuildType)
         )
         val inputs = listOf(classes) + resolvedAndroidRuntimeDependencies
-        val androidConfig = fragments.mapNotNull { it.parts.find<AndroidPart>() }.joinToString()
+        val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             val result = runAndroidBuild<ApkPathAndroidBuildResult>(
