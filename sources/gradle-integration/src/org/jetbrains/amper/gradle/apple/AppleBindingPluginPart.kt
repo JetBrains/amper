@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.gradle.apple
 
-import org.jetbrains.amper.frontend.IosPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.gradle.base.BindingPluginPart
@@ -39,7 +38,7 @@ class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart 
 
         // Add ios App
         applePE?.iosApp {
-            iosDeviceFragments[0].parts.find<IosPart>()?.teamId?.let {
+            iosDeviceFragments[0].settings.ios.teamId?.let {
                 buildSettings.DEVELOPMENT_TEAM(it)
             }
             productInfo["UILaunchScreen"] = mapOf<String, Any>()

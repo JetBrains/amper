@@ -43,6 +43,6 @@ class JavaSettings : SchemaNode() {
 }
 
 class JvmSettings : SchemaNode() {
-    var target by value<JavaVersion>().default(JavaVersion.VERSION_17)
+    var target by value(JavaVersion.VERSION_17)
     var mainClass by nullableValue<String>()
 }

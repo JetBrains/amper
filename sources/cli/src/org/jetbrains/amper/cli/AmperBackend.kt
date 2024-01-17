@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.resolve.resolved
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.RunTask
@@ -35,13 +34,11 @@ class AmperBackend(val context: ProjectContext) {
                     }
                 }
 
-            val resolved = model.resolved
-
             if (problemReporter.wereProblemsReported()) {
                 userReadableError("failed to build tasks graph, refer to the errors above")
             }
 
-            resolved
+            model
         }
     }
 

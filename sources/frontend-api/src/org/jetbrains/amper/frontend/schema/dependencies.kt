@@ -24,8 +24,8 @@ enum class DependencyScope(
 
 sealed class Dependency : SchemaNode() {
     // TODO Replace exported flag by new scope (rethink scopes).
-    var exported by value<Boolean>().default(false)
-    var scope by value<DependencyScope>().default(DependencyScope.ALL)
+    var exported by value(false)
+    var scope by value(DependencyScope.ALL)
 }
 
 @CustomSchemaDef(dependencySchema)

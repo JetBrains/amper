@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
-import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.FrontendApiBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.reportBundleError
@@ -57,19 +57,19 @@ enum class AndroidVersion(
 }
 
 class AndroidSettings : SchemaNode() {
-    var compileSdk by value<AndroidVersion>().default(AndroidVersion.VERSION_34)
-    var minSdk by value<AndroidVersion>().default(AndroidVersion.VERSION_21)
-    var maxSdk by value<AndroidVersion>().default(AndroidVersion.VERSION_34)
-    var targetSdk by value<AndroidVersion>().default(AndroidVersion.VERSION_34)
-    var namespace by nullableValue<String>()
-    var applicationId by nullableValue<String>().default { namespace }
+    var minSdk by value(AndroidVersion.VERSION_21)
+    var maxSdk by value(AndroidVersion.VERSION_34)
+    var targetSdk by value(AndroidVersion.VERSION_34)
+    var compileSdk by value { targetSdk }
+    var namespace by value("org.example.namespace")
+    var applicationId by value { namespace }
 
     context(ProblemReporterContext) override fun validate() {
         // Check that used android versions are not too old.
         val usedVersions = listOf(::compileSdk, ::minSdk, ::maxSdk, ::targetSdk)
         val oldVersions = usedVersions.filter { it.get() < AndroidVersion.VERSION_21 }
         oldVersions.forEach {
-            SchemaBundle.reportBundleError(
+            FrontendApiBundle.reportBundleError(
                 it,
                 "too.old.android.version",
                 it.get(),

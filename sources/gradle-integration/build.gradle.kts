@@ -17,7 +17,7 @@ gradlePlugin {
 }
 
 kotlin {
-    sourceSets.named("jvm") {
+    (sourceSets.findByName("jvm") ?: sourceSets.findByName("jvmMain"))?.apply {
         dependencies {
             implementation("org.jetbrains.kotlin:kotlin-serialization") {
                 version {

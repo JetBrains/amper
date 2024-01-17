@@ -5,17 +5,15 @@
 package org.jetbrains.amper.gradle.kover
 
 import kotlinx.kover.gradle.plugin.dsl.KoverReportExtension
-import org.jetbrains.amper.frontend.KoverPart
 import org.jetbrains.amper.gradle.adjustXmlFactories
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
-import java.io.File
 
 class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
     private val koverRE get() = project.extensions.findByName("koverReport") as KoverReportExtension
 
     override val needToApply: Boolean by lazy {
-        module.leafFragments.any { it.parts.find<KoverPart>()?.enabled == true }
+        module.leafFragments.any { it.settings.kover?.enabled == true }
     }
 
     override fun applyBeforeEvaluate() {
@@ -24,9 +22,9 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
     }
 
     fun applySettings() {
-        val koverPart = module.leafFragments.map { it.parts.find<KoverPart>() }.firstOrNull()
-        val htmlPart = koverPart?.html
-        val xmlPart = koverPart?.xml
+        val koverSettings = module.leafFragments.map { it.settings.kover }.firstOrNull()
+        val htmlPart = koverSettings?.html
+        val xmlPart = koverSettings?.xml
 
         koverRE.defaults {
             if(htmlPart != null) {
@@ -37,18 +35,14 @@ class KoverPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
                         html.onCheck = htmlPart.onCheck ?: false
                     }
 
-                    if(htmlPart.reportDir != null) {
-                        html.setReportDir(File(htmlPart.reportDir!!))
-                    }
+                    htmlPart.reportDir?.toFile()?.let { html.setReportDir(it) }
                 }
             }
 
             if(xmlPart != null) {
                 it.xml { xml ->
                     xml.onCheck = xmlPart.onCheck ?: false
-                    if(xmlPart.reportFile != null) {
-                        xml.setReportFile(File(xmlPart.reportFile!!))
-                    }
+                    xmlPart.reportFile?.toFile()?.let { xml.setReportFile(it) }
                 }
 
                 adjustXmlFactories()

@@ -2,9 +2,11 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.propagate
+package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -109,6 +111,8 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.externalDependencies
             override val parts: ClassBasedSet<FragmentPart<*>>
                 get() = this@FragmentBuilder.parts.toClassBasedSet()
+            override val settings: Settings
+                get() = Settings()
             override val platforms: Set<Platform>
                 get() = this@FragmentBuilder.platforms
             override val isTest: Boolean
@@ -184,6 +188,8 @@ class PotatoModuleBuilder(var name: String) {
                 get() = this@PotatoModuleBuilder.type
             override val source: PotatoModuleSource
                 get() = this@PotatoModuleBuilder.source
+            override val origin: Module
+                get() = Module()
             override val fragments: List<Fragment>
                 get() = this@PotatoModuleBuilder.fragments.map { it.build() }
             override val artifacts: List<Artifact>

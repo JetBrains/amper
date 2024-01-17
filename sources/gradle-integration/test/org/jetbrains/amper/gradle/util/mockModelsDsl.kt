@@ -6,7 +6,26 @@ package org.jetbrains.amper.gradle.util
 
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.ClassBasedSet
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentDependencyType
+import org.jetbrains.amper.frontend.FragmentLink
+import org.jetbrains.amper.frontend.FragmentPart
+import org.jetbrains.amper.frontend.Layout
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.MetaModulePart
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModulePart
+import org.jetbrains.amper.frontend.Notation
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.classBasedSet
+import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -19,10 +38,11 @@ class MockModel(
 }
 
 class MockPotatoModule(
-        buildFile: Path,
-        override var type: ProductType = ProductType.JVM_APP,
-        override var userReadableName: String = "module",
-        override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
+    buildFile: Path,
+    override var type: ProductType = ProductType.JVM_APP,
+    override var userReadableName: String = "module",
+    override val parts: ClassBasedSet<ModulePart<*>> = classBasedSet(),
+    override val origin: Module = Module(),
 ) : PotatoModule {
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
@@ -65,6 +85,7 @@ class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDep
 
 open class MockFragment(
     override var name: String = "fragment",
+    override val settings: Settings = Settings(),
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentLink>()
     override val externalDependencies = mutableListOf<Notation>()
@@ -87,7 +108,6 @@ open class MockFragment(
 
     fun dependency(notation: Notation) = externalDependencies.add(notation)
     fun dependency(module: MockPotatoModule) = externalDependencies.add(MockPotatoDependency(module))
-    fun addPart(part: FragmentPart<*>) = parts.add(part)
 }
 
 class LeafMockFragment(

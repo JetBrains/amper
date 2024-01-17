@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
 
@@ -15,11 +16,20 @@ import java.nio.file.Path
  */
 interface Fragment {
     val name: String
+
     val fragmentDependencies: List<FragmentLink>
+
     val fragmentDependants: List<FragmentLink>
+
     val externalDependencies: List<Notation>
+
+    @Deprecated("Should be replaced with [settings]")
     val parts: ClassBasedSet<FragmentPart<*>>
+
+    val settings: Settings
+
     val platforms: Set<Platform>
+
     val isTest: Boolean
 
     /**

@@ -7,15 +7,12 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.api.withoutDefault
-import org.jetbrains.amper.frontend.reportBundleError
 import java.nio.file.Path
 
 
@@ -32,8 +29,7 @@ sealed class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("Configures the toolchains used in the build process")
-    var settings by value<Map<Modifiers, Settings>>()
-        .default(mapOf(noModifiers to Settings()))
+    var settings by value(mapOf(noModifiers to Settings()))
 
     @ModifierAware
     @SchemaDoc("The dependencies necessary to build and run tests of the Module")
@@ -41,16 +37,15 @@ sealed class Base : SchemaNode() {
 
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests")
-    var `test-settings` by value<Map<Modifiers, Settings>>()
-        .default(mapOf(noModifiers to Settings()))
+    var `test-settings` by value(mapOf(noModifiers to Settings()))
 
     context(ProblemReporterContext)
     override fun validate() {
         super.validate()
-        ::dependencies.withoutDefault?.keys?.forEach{ it.validate() }
-        ::settings.withoutDefault?.keys?.forEach{ it.validate() }
-        ::`test-dependencies`.withoutDefault?.keys?.forEach{ it.validate() }
-        ::`test-settings`.withoutDefault?.keys?.forEach{ it.validate() }
+        ::dependencies.withoutDefault?.keys?.forEach { it.validate() }
+        ::settings.withoutDefault?.keys?.forEach { it.validate() }
+        ::`test-dependencies`.withoutDefault?.keys?.forEach { it.validate() }
+        ::`test-settings`.withoutDefault?.keys?.forEach { it.validate() }
     }
 
     context(ProblemReporterContext)
@@ -59,12 +54,12 @@ sealed class Base : SchemaNode() {
             platform.value !in Platform.values.map { it.pretty }
         }
 
-        if (unknownPlatforms.isNotEmpty())
-            return SchemaBundle.reportBundleError(
-                unknownPlatforms.first(),
-                "product.unknown.platforms",
-                unknownPlatforms.joinToString { it.value },
-            )
+//        if (unknownPlatforms.isNotEmpty())
+//            return SchemaBundle.reportBundleError(
+//                unknownPlatforms.first(),
+//                "product.unknown.platforms",
+//                unknownPlatforms.joinToString { it.value },
+//            )
         return null
     }
 }
@@ -83,14 +78,14 @@ class Module : Base() {
 
     var apply by nullableValue<List<Path>>()
 
-    var module by value<Meta>().default(Meta())
+    var module by value(::Meta)
 }
 
 class Repository : SchemaNode() {
     var url by value<String>()
-    var id by value<String>().default { url }
+    var id by value { url }
     var credentials by nullableValue<Credentials>()
-    var publish by value<Boolean>().default(false)
+    var publish by value(false)
 
     class Credentials : SchemaNode() {
         var file by value<Path>()
@@ -112,5 +107,5 @@ enum class AmperLayout(
 
 @SchemaDoc("Meta settings for current module")
 class Meta : SchemaNode() {
-    var layout by value<AmperLayout>().default(AmperLayout.AMPER)
+    var layout by value(AmperLayout.AMPER)
 }

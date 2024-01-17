@@ -18,34 +18,34 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 }
 
 class Settings : SchemaNode() {
-    var java by nullableValue<JavaSettings>()
-    var jvm by nullableValue<JvmSettings>()
-    var kotlin by value<KotlinSettings>().default(KotlinSettings())
-    var android by nullableValue<AndroidSettings>()
+    var java by value(::JavaSettings)
+    var jvm by value(::JvmSettings)
+    var kotlin by value(::KotlinSettings)
+    var android by value(::AndroidSettings)
     var compose by nullableValue<ComposeSettings>()
-    var junit by value<JUnitVersion>().default(JUnitVersion.JUNIT4)
-    var ios by nullableValue<IosSettings>()
+    var junit by value(JUnitVersion.JUNIT4)
+    var ios by value(::IosSettings)
     var publishing by nullableValue<PublishingSettings>()
     var kover by nullableValue<KoverSettings>()
     var native by nullableValue<NativeSettings>()
 }
 
 class ComposeSettings : SchemaNode() {
-    var enabled by value<Boolean>()
+    var enabled by value(false)
 }
 
 class SerializationSettings : SchemaNode() {
-    var engine by value<String>().default("json")
+    var engine by value("json")
 }
 
 class IosSettings : SchemaNode() {
     var teamId by nullableValue<String>()
-    var framework by nullableValue<IosFrameworkSettings>()
+    var framework by value(::IosFrameworkSettings)
 }
 
 class IosFrameworkSettings : SchemaNode() {
-    var basename by nullableValue<String>()
-    var isStatic by nullableValue<Boolean>().default(false)
+    var basename by value("kotlin")
+    var isStatic by value(false)
 }
 
 class PublishingSettings : SchemaNode() {
@@ -54,7 +54,7 @@ class PublishingSettings : SchemaNode() {
 }
 
 class KoverSettings : SchemaNode() {
-    var enabled by nullableValue<Boolean>().default(false)
+    var enabled by value(false)
     var xml by nullableValue<KoverXmlSettings>()
     var html by nullableValue<KoverHtmlSettings>()
 }

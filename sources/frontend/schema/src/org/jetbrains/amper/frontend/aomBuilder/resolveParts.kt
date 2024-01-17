@@ -12,6 +12,8 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelImpl
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.plus
+import org.jetbrains.amper.frontend.processing.merge
+import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.toClassBasedSet
 
 // Copy paste from "sources/frontend-api/src/org/jetbrains/amper/frontend/resolve/resolve.kt"
@@ -48,7 +50,7 @@ fun List<Fragment>.resolve(module: PotatoModule): List<Fragment> = buildList {
             // Equals comparison works not good for anonymous objects.
             // Also, fragment names are unique, so we can use it.
             if (dependant.name !in alreadyResolved) {
-                val resolved = dependant.resolve(fragment, module)
+                val resolved = dependant.resolve(module, fragment)
                 alreadyResolved.add(resolved.name)
                 deque.add(resolved)
                 add(resolved)
@@ -58,40 +60,41 @@ fun List<Fragment>.resolve(module: PotatoModule): List<Fragment> = buildList {
 }
 
 
-fun Fragment.resolve(parent: Fragment, module: PotatoModule): Fragment {
-    return resolveParts(parts + parent.parts, module)
-}
-
-fun Fragment.resolve(module: PotatoModule): Fragment {
-    return resolveParts(parts, module)
+fun Fragment.resolve(module: PotatoModule, parent: Fragment? = null): Fragment {
+    return resolveParts(parts + parent?.parts.orEmpty().toClassBasedSet(), module, parent)
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun Fragment.resolveParts(parts: ClassBasedSet<FragmentPart<*>>, module: PotatoModule): Fragment {
+private fun Fragment.resolveParts(
+    parts: ClassBasedSet<FragmentPart<*>>,
+    module: PotatoModule,
+    parent: Fragment?,
+): Fragment {
     val resolvedParts = parts.map {
         propagateFor(it as FragmentPart<Any>).default(module)
     }.toClassBasedSet()
-    return createResolvedAdapter(resolvedParts)
+    val mergedSettings: Settings = parent?.settings?.merge(settings) ?: settings
+    return createResolvedAdapter(resolvedParts, mergedSettings)
 }
 
 
 fun Fragment.createResolvedAdapter(
-    resolvedParts: ClassBasedSet<FragmentPart<*>>
+    resolvedParts: ClassBasedSet<FragmentPart<*>>,
+    mergedSettings: Settings,
 ) = if (this@createResolvedAdapter is LeafFragment)
     object : LeafFragment by this@createResolvedAdapter {
-        override val parts: ClassBasedSet<FragmentPart<*>>
-            get() = resolvedParts
-
+        @Deprecated("Should be replaced with [settings]", ReplaceWith("settings"))
+        override val parts: ClassBasedSet<FragmentPart<*>> get() = resolvedParts
+        override val settings = mergedSettings
         override fun equals(other: Any?) = other != null &&
                 other is LeafFragment &&
                 name == other.name
-
         override fun hashCode() = name.hashCode()
     }
 else object : Fragment by this@createResolvedAdapter {
-    override val parts: ClassBasedSet<FragmentPart<*>>
-        get() = resolvedParts
-
+    @Deprecated("Should be replaced with [settings]")
+    override val parts = resolvedParts
+    override val settings = mergedSettings
     override fun equals(other: Any?) = other != null &&
             other is LeafFragment &&
             name == other.name

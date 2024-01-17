@@ -10,17 +10,23 @@ import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
-import org.jetbrains.amper.frontend.*
-import org.jetbrains.amper.gradle.*
+import org.jetbrains.amper.frontend.Layout
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.gradle.EntryPointType
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.amper.gradle.closureSources
+import org.jetbrains.amper.gradle.contains
+import org.jetbrains.amper.gradle.findEntryPoint
 import org.jetbrains.amper.gradle.java.JavaAmperNamingConvention.amperFragment
 import org.jetbrains.amper.gradle.java.JavaAmperNamingConvention.maybeCreateJavaSourceSet
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
+import org.jetbrains.amper.gradle.layout
+import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -72,10 +78,10 @@ class JavaBindingPluginPart(
     private fun applyJavaTargetForKotlin() = with(KotlinAmperNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
             with(fragment.target!!) {
-                fragment.parts.find<JvmPart>()?.target?.let { jvmTarget ->
+                fragment.settings.jvm?.target.let { jvmTarget ->
                     fragment.compilation?.compileTaskProvider?.configure {
                         it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                        it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
+                        it.compilerOptions.jvmTarget.set(jvmTarget?.schemaValue?.let { JvmTarget.fromTarget(it) })
                     }
                 }
             }
@@ -91,23 +97,24 @@ class JavaBindingPluginPart(
                         "Applying application settings from first one."
             )
         val fragment = leafPlatformFragments.firstOrNull() ?: return
-        if (fragment.parts.find<ComposePart>()?.enabled != true) {
+        if (fragment.settings.compose?.enabled != true) {
             project.plugins.apply(ApplicationPlugin::class.java)
         }
 
-        val jvmPart = fragment.parts.find<JvmPart>()
-        val javaSource = fragment.parts.find<JavaPart>()?.source ?: jvmPart?.target
-        jvmPart?.target?.let {
-            javaPE.targetCompatibility = JavaVersion.toVersion(it)
+        val jvmSettings = fragment.settings.jvm
+        val javaSource = fragment.settings.java?.source ?: jvmSettings?.target
+        jvmSettings?.target?.let {
+            javaPE.targetCompatibility = JavaVersion.toVersion(it.schemaValue)
         }
         javaSource?.let {
-            javaPE.sourceCompatibility = JavaVersion.toVersion(it)
+            javaPE.sourceCompatibility = JavaVersion.toVersion(it.schemaValue)
         }
+
         // Do when layout is known.
         project.afterEvaluate {
             if (module.type.isLibrary()) return@afterEvaluate
-            val foundMainClass = if (jvmPart?.mainClass != null) {
-                jvmPart.mainClass
+            val foundMainClass = if (jvmSettings?.mainClass != null) {
+                jvmSettings.mainClass
             } else {
                 val sources = fragment.kotlinSourceSet?.closureSources?.ifEmpty {
                     val kotlinSourceSet = fragment.kotlinSourceSet
@@ -174,6 +181,7 @@ class JavaBindingPluginPart(
 //                    sourceSet.resources.setSrcDirs(listOf(fragment.resourcesPath))
                     sourceSet.resources.setSrcDirs(emptyList<File>())
                 }
+
                 layout == Layout.AMPER && fragment == null -> {
                     sourceSet.java.setSrcDirs(emptyList<File>())
                     sourceSet.resources.setSrcDirs(emptyList<File>())

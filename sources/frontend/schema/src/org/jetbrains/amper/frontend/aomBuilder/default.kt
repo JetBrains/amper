@@ -26,11 +26,11 @@ open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: PotatoModuleSource,
-    schemaModule: Module,
+    final override val origin: Module,
 ) : PotatoModule {
     override var fragments = emptyList<DefaultFragment>()
     override var artifacts = emptyList<DefaultArtifact>()
-    override var parts = schemaModule.convertModuleParts()
+    override var parts = origin.convertModuleParts()
 }
 
 /**
@@ -62,6 +62,8 @@ class DumbGradleModule(private val file: Path) : PotatoModule {
         get() = ProductType.LIB
     override val source: PotatoModuleSource
         get() = PotatoModuleFileSource(file)
+    override val origin: Module
+        get() = Module()
     override val fragments: List<Fragment>
         get() = listOf()
     override val artifacts: List<Artifact>

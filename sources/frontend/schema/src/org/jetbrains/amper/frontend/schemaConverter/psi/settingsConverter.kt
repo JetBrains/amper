@@ -122,6 +122,7 @@ internal fun YAMLMapping.convertIosSettings() = IosSettings().apply {
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
     ::basename.convertChildString()
+//    println("FOO Read basename is $basename")
     ::isStatic.convertChildBoolean()
 }
 

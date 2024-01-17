@@ -90,6 +90,7 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
     mergeNullableCollection(KotlinSettings::linkerOpts)
     mergeNullableCollection(KotlinSettings::languageFeatures)
     mergeNullableCollection(KotlinSettings::optIns)
+    println("FOO: Opt ins are ${optIns?.joinToString()}")
 
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
 }
@@ -118,6 +119,7 @@ fun NativeSettings.merge(overwrite: NativeSettings) = mergeNode(overwrite, ::Nat
 
 fun IosFrameworkSettings.merge(overwrite: IosFrameworkSettings) = mergeNode(overwrite, ::IosFrameworkSettings) {
     mergeScalar(IosFrameworkSettings::basename)
+    println("FOO Merged basename is ${target.basename}")
 }
 
 fun KoverSettings.merge(overwrite: KoverSettings) = mergeNode(overwrite, ::KoverSettings) {

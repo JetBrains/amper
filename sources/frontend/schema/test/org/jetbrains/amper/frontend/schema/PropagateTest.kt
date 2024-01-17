@@ -1,11 +1,12 @@
-/*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
+package org.jetbrains.amper.frontend.schema
 
-package org.jetbrains.amper.frontend.propagate
-
-import org.jetbrains.amper.frontend.*
-import org.jetbrains.amper.frontend.resolve.resolved
+import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.JvmPart
+import org.jetbrains.amper.frontend.KotlinPart
+import org.jetbrains.amper.frontend.ModelImpl
+import org.jetbrains.amper.frontend.aomBuilder.resolved
+import org.jetbrains.amper.frontend.findInstance
+import org.jetbrains.amper.frontend.schema.helper.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

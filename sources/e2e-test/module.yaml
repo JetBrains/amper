@@ -5,6 +5,7 @@ product:
 dependencies:
   - ../cli
   - ../test-base
+  - ../frontend-api
   - ../frontend/schema
   - ../core
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3

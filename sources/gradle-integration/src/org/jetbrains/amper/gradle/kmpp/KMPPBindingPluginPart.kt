@@ -12,6 +12,9 @@ import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.schema.IosSettings
+import org.jetbrains.amper.frontend.schema.JUnitVersion
+import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.gradle.*
 import org.jetbrains.amper.gradle.base.*
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
@@ -43,14 +46,13 @@ fun KotlinSourceSet.doDependsOn(it: FragmentWrapper) {
     dependsOn(dependency ?: return)
 }
 
-private fun KotlinSourceSet.doApplyPart(kotlinPart: KotlinPart?) = languageSettings.apply {
-    kotlinPart ?: return@apply
-    languageVersion = kotlinPart.languageVersion
-    apiVersion = kotlinPart.apiVersion
-    if (progressiveMode != (kotlinPart.progressiveMode ?: false)) progressiveMode =
-        kotlinPart.progressiveMode ?: false
-    kotlinPart.languageFeatures.forEach { enableLanguageFeature(it.capitalized()) }
-    kotlinPart.optIns.forEach { optIn(it) }
+private fun KotlinSourceSet.doApplyPart(settings: KotlinSettings?) = languageSettings.apply {
+    settings ?: return@apply
+    languageVersion = settings.languageVersion.schemaValue
+    apiVersion = settings.apiVersion?.schemaValue
+    if (progressiveMode != settings.progressiveMode) progressiveMode = settings.progressiveMode
+    settings.languageFeatures?.forEach { enableLanguageFeature(it.capitalized()) }
+    settings.optIns?.forEach { optIn(it) }
 }
 
 /**
@@ -61,7 +63,7 @@ class KMPPBindingPluginPart(
     ctx: PluginPartCtx,
 ) : BindingPluginPart by ctx, KMPEAware, AmperNamingConventions {
 
-    internal val fragmentsByName = module.fragments.associateBy { it.name }
+    internal val fragmentsByKotlinSourceSetName = mutableMapOf<String, FragmentWrapper>()
 
     override val kotlinMPE: KotlinMultiplatformExtension =
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
@@ -72,9 +74,9 @@ class KMPPBindingPluginPart(
         initTargets()
         initFragments()
         val hasJUnit5 = module.fragments
-            .any { it.parts.find<JUnitPart>()?.version == JUnitVersion.JUNIT5 }
+            .any { it.settings.junit == JUnitVersion.JUNIT5 }
         val hasJUnit = module.fragments
-            .any { it.parts.find<JUnitPart>()?.version != JUnitVersion.NONE }
+            .any { it.settings.junit != JUnitVersion.NONE }
         if (hasJUnit) {
             project.configurations.all { config ->
                 config.resolutionStrategy.capabilitiesResolution.withCapability("org.jetbrains.kotlin:kotlin-test-framework-impl") {
@@ -168,7 +170,7 @@ class KMPPBindingPluginPart(
                     val patchedCompilations = mutableListOf<KotlinCompilation<*>>()
                     module.leafFragments.filter { it.platform == platform }.forEach { fragment ->
                         fragment.compilation?.apply {
-                            fragment.parts.find<KotlinPart>()?.let {
+                            fragment.settings.kotlin.let {
                                 kotlinOptions::allWarningsAsErrors trySet it.allWarningsAsErrors
                                 kotlinOptions::freeCompilerArgs trySet it.freeCompilerArgs
                                 kotlinOptions::suppressWarnings trySet it.suppressWarnings
@@ -176,12 +178,12 @@ class KMPPBindingPluginPart(
                             }
 
                             // Set jvm target for all jvm like compilations.
-                            val selectedJvmTarget = fragment.parts.find<JvmPart>()?.target
+                            val selectedJvmTarget = fragment.settings.jvm?.target
                             if (selectedJvmTarget != null) {
                                 compileTaskProvider.configure {
                                     it.compilerOptions.apply {
                                         if (this !is KotlinJvmCompilerOptions) return@apply
-                                        this.jvmTarget.set(JvmTarget.fromTarget(selectedJvmTarget))
+                                        this.jvmTarget.set(JvmTarget.fromTarget(selectedJvmTarget.schemaValue))
                                     }
                                 }
                             }
@@ -196,12 +198,12 @@ class KMPPBindingPluginPart(
                             .mostCommonNearestAmperFragment
 
                         val foundJvmTarget = nearestFragment
-                            ?.parts?.find<JvmPart>()?.target ?: return@loop
+                            ?.settings?.jvm?.target ?: return@loop
 
                         compilation.compileTaskProvider.configure {
                             it.compilerOptions.apply {
                                 if (this !is KotlinJvmCompilerOptions) return@apply
-                                this.jvmTarget.set(JvmTarget.fromTarget(foundJvmTarget))
+                                this.jvmTarget.set(JvmTarget.fromTarget(foundJvmTarget.schemaValue))
                             }
                         }
                     }
@@ -256,7 +258,8 @@ class KMPPBindingPluginPart(
         kotlinNativeCompilation: KotlinNativeCompilation,
         fragment: LeafFragmentWrapper,
     ) {
-        val part = fragment.parts.find<NativeApplicationPart>()
+        val iosSettings = fragment.settings.ios
+        val nativeSettings = fragment.settings.native
 
         target.binaries {
             when {
@@ -268,7 +271,8 @@ class KMPPBindingPluginPart(
                     adjustExecutable(fragment, kotlinNativeCompilation)
                 }
 
-                (module.type == ProductType.LIB && !fragment.isTest) -> adjustLib(target, part, fragment)
+                (module.type == ProductType.LIB && !fragment.isTest) ->
+                    adjustLib(target, iosSettings, fragment)
 
                 (module.type == ProductType.LIB && fragment.isTest) -> return@binaries
 
@@ -277,8 +281,8 @@ class KMPPBindingPluginPart(
                     project.afterEvaluate {
                         // Check if entry point was not set in build script.
                         if (entryPoint == null) {
-                            entryPoint = if (part?.entryPoint != null) {
-                                part.entryPoint
+                            entryPoint = if (nativeSettings?.entryPoint != null) {
+                                nativeSettings.entryPoint
                             } else {
                                 val sources = kotlinNativeCompilation.defaultSourceSet.closureSources
                                 findEntryPoint(sources, EntryPointType.NATIVE, JavaBindingPluginPart.logger)
@@ -299,15 +303,15 @@ class KMPPBindingPluginPart(
 
     private fun adjustLib(
         target: KotlinNativeTarget,
-        part: NativeApplicationPart?,
+        settings: IosSettings?,
         fragment: LeafFragmentWrapper,
     ) {
         if (!module.type.isLibrary() || fragment.isTest) return
 
         if (target.konanTarget.family == Family.IOS) {
             target.binaries {
-                framework(part?.declaredFrameworkBasename ?: module.userReadableName) {
-                    part?.frameworkParams?.get("isStatic")?.let { isStatic = it == "true" }
+                framework(settings?.framework?.basename ?: module.userReadableName) {
+                    isStatic = settings?.framework?.isStatic ?: false
                 }
             }
         }
@@ -317,14 +321,15 @@ class KMPPBindingPluginPart(
         fragment: LeafFragmentWrapper,
         kotlinNativeCompilation: KotlinNativeCompilation,
     ) {
+//        println("FOO basename is ${fragment.settings.ios?.framework?.basename}")
         compilation = kotlinNativeCompilation
-        fragment.parts.find<NativeApplicationPart>()?.let {
-            ::baseName trySet it.baseName
-            ::optimized trySet it.optimized
-            binaryOptions.putAll(it.binaryOptions)
+        fragment.settings.ios.framework.let {
+            ::baseName trySet it.basename
+//            ::optimized trySet it.optimized
+//            binaryOptions.putAll(it.binaryOptions)
         }
-        fragment.parts.find<KotlinPart>()?.let {
-            linkerOpts.addAll(it.linkerOpts)
+        fragment.settings.kotlin.let {
+            linkerOpts.addAll(it.linkerOpts.orEmpty())
             ::debuggable trySet it.debug
         }
     }
@@ -333,6 +338,7 @@ class KMPPBindingPluginPart(
         // First iteration - create source sets and add dependencies.
         module.fragments.forEach { fragment ->
             fragment.maybeCreateSourceSet {
+                fragmentsByKotlinSourceSetName[name] = fragment
                 dependencies {
                     fragment.externalDependencies.forEach { externalDependency ->
                         val depFunction: KotlinDependencyHandler.(Any) -> Unit =
@@ -366,7 +372,7 @@ class KMPPBindingPluginPart(
                     // Add implicit tests dependencies.
                     if (fragment.isTest) {
                         if (fragment.platforms.all { it == Platform.JVM || it == Platform.ANDROID }) {
-                            when (fragment.parts.find<JUnitPart>()?.version) {
+                            when (fragment.settings.junit) {
                                 JUnitVersion.JUNIT5 -> {
                                     implementation("org.jetbrains.kotlin:kotlin-test-junit5:${UsedVersions.kotlinVersion}")
                                     implementation("org.jetbrains.kotlin:kotlin-test:${UsedVersions.kotlinVersion}")
@@ -398,20 +404,19 @@ class KMPPBindingPluginPart(
 
             for (sourceSet in sourceSets) {
                 // Apply language settings.
-                sourceSet.doApplyPart(fragment.parts.find<KotlinPart>())
+                sourceSet.doApplyPart(fragment.settings.kotlin)
                 adjustedSourceSets.add(sourceSet)
             }
         }
 
         // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
         // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
-        val commonKotlinPart = module.fragments
+        val commonKotlinSettings = module.fragments
             .firstOrNull { it.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE } }
-            ?.parts
-            ?.find<KotlinPart>()
+            ?.settings?.kotlin
 
         (kotlinMPE.sourceSets.toSet() - adjustedSourceSets).forEach { sourceSet ->
-            commonKotlinPart?.let {
+            commonKotlinSettings?.let {
                 sourceSet.doApplyPart(it)
             }
         }
@@ -420,7 +425,7 @@ class KMPPBindingPluginPart(
         kotlinMPE.sourceSets
             .matching { !adjustedSourceSets.contains(it) }
             .configureEach { sourceSet ->
-                commonKotlinPart?.let {
+                commonKotlinSettings?.let {
                     sourceSet.doApplyPart(it)
                 }
             }
@@ -462,9 +467,8 @@ class KMPPBindingPluginPart(
 
         // TODO: AMPER-189 workaround remove after KTIJ-27212 will be fixed
         module.leafFragments.forEach { fragment ->
-            val kotlinPart = fragment.parts.find<KotlinPart>()
-            kotlinPart
-                ?.freeCompilerArgs
+            fragment.settings.kotlin
+                .freeCompilerArgs
                 ?.filter { it.startsWith("-X") }
                 ?.map { it.substring(2) }
                 ?.map {

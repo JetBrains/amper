@@ -5,14 +5,18 @@
 package org.jetbrains.amper.gradle.android
 
 import com.android.build.gradle.BaseExtension
-import org.jetbrains.amper.frontend.*
-import org.jetbrains.amper.gradle.*
+import org.jetbrains.amper.frontend.Layout
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
+import org.jetbrains.amper.gradle.buildDir
+import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.doDependsOn
+import org.jetbrains.amper.gradle.layout
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -88,7 +92,7 @@ class AndroidBindingPluginPart(
                     // Also add all resources from dependants.
                     val collectedResources = mutableSetOf<File>()
                     val queue = mutableListOf(fragment)
-                    while(queue.isNotEmpty()) {
+                    while (queue.isNotEmpty()) {
                         val next = queue.removeFirst()
                         queue.addAll(next.refineDependencies)
                         if (next.androidSourceSet == null) {
@@ -127,11 +131,13 @@ class AndroidBindingPluginPart(
                     androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
                 }
                 compilations.configureEach {
-                    fragment.parts.find<JvmPart>()?.let { part ->
+                    fragment.settings.jvm.let { jvmSettings ->
                         it.compileTaskProvider.configure {
-                            part.target?.let { target ->
+                            jvmSettings?.target.let { target ->
                                 it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                it.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(target))
+                                it.compilerOptions.jvmTarget.set(target?.schemaValue?.let {
+                                    JvmTarget.fromTarget(it)
+                                })
                             }
                         }
                     }
@@ -150,25 +156,21 @@ class AndroidBindingPluginPart(
         val firstAndroidFragment = leafPlatformFragments.first()
         androidPE?.compileOptions {
             val compileOptions = it
-            val jvmTarget = firstAndroidFragment.parts.find<JvmPart>()?.target
-            val javaSource = firstAndroidFragment.parts.find<JavaPart>()?.source ?: jvmTarget
-            jvmTarget?.let {
-                compileOptions.setTargetCompatibility(it)
-            }
-            javaSource?.let {
-                compileOptions.setSourceCompatibility(it)
-            }
+            val jvmTarget = firstAndroidFragment.settings.jvm?.target
+            val javaSource = firstAndroidFragment.settings.java?.source ?: jvmTarget
+            jvmTarget?.schemaValue?.let { compileOptions.setTargetCompatibility(it) }
+            javaSource?.schemaValue?.let { compileOptions.setSourceCompatibility(it) }
         }
         leafPlatformFragments.forEach { fragment ->
-            val part = fragment.parts.find<AndroidPart>() ?: return@forEach
+            val androidSettings = fragment.settings.android
             androidPE?.apply {
-                part.compileSdk?.let { compileSdkVersion(it) }
+                compileSdkVersion(androidSettings.compileSdk.versionNumber)
                 defaultConfig.apply {
-                    if (!module.type.isLibrary()) part.applicationId?.let { applicationId = it }
-                    part.namespace?.let { namespace = it }
-                    part.minSdk?.let { minSdkVersion(it) }
-                    part.maxSdk?.let { maxSdkVersion(it) }
-                    part.targetSdk?.let { targetSdkVersion(it) }
+                    if (!module.type.isLibrary()) androidSettings.applicationId.let { applicationId = it }
+                    androidSettings.namespace.let { namespace = it }
+                    minSdkVersion(androidSettings.minSdk.versionNumber)
+                    maxSdkVersion(androidSettings.maxSdk.versionNumber)
+                    targetSdkVersion(androidSettings.targetSdk.versionNumber)
                 }
             }
         }

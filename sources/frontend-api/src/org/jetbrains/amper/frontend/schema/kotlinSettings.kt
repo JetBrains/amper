@@ -28,15 +28,15 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
 
 class KotlinSettings : SchemaNode() {
     var serialization by nullableValue<SerializationSettings>()
-    var languageVersion by value<KotlinVersion>().default(KotlinVersion.Kotlin19)
-    var apiVersion by nullableValue<KotlinVersion>()
-    var allWarningsAsErrors by value<Boolean>().default(false)
+    var languageVersion by value(KotlinVersion.Kotlin19)
+    var apiVersion by value { languageVersion }
+    var allWarningsAsErrors by value(false)
     var freeCompilerArgs by nullableValue<List<String>>()
-    var suppressWarnings by value<Boolean>().default(false)
-    var verbose by value<Boolean>().default(false)
+    var suppressWarnings by value(false)
+    var verbose by value(false)
     var linkerOpts by nullableValue<List<String>>()
-    var debug by value<Boolean>().default(false)
-    var progressiveMode by value<Boolean>().default(false)
+    var debug by value(false)
+    var progressiveMode by value(false)
     // TODO Replace with enum
     var languageFeatures by nullableValue<List<String>>()
     // TODO Replace with enum

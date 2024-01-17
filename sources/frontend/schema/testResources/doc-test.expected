@@ -66,15 +66,15 @@ Settings
 AndroidSettings
 ---------------
 	applicationId: String
-	compileSdk: AndroidVersion, default: 34
+	compileSdk: AndroidVersion
 	maxSdk: AndroidVersion, default: 34
 	minSdk: AndroidVersion, default: 21
-	namespace: String
+	namespace: String, default: org.example.namespace
 	targetSdk: AndroidVersion, default: 34
 
 ComposeSettings
 ---------------
-	enabled: Boolean
+	enabled: Boolean, default: false
 
 IosSettings
 -----------
@@ -83,7 +83,7 @@ IosSettings
 
 IosFrameworkSettings
 --------------------
-	basename: String
+	basename: String, default: kotlin
 	isStatic: Boolean, default: false
 
 JavaSettings

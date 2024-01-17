@@ -22,11 +22,7 @@ internal interface KMPEAware {
 object KotlinAmperNamingConvention {
     context(KMPPBindingPluginPart)
     val KotlinSourceSet.amperFragment: FragmentWrapper?
-        get() = when(name) {
-            "androidUnitTest" -> fragmentsByName["androidTest"]
-            "commonMain" -> fragmentsByName["common"]
-            else -> fragmentsByName[name]
-        }
+        get() = fragmentsByKotlinSourceSetName[name]
 
     context(KMPPBindingPluginPart)
     private val KotlinSourceSet.nearestAmperFragments: List<FragmentWrapper>

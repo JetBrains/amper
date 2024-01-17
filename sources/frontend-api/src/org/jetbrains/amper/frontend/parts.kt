@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.schema.JUnitVersion
+
 data class KotlinPart(
     val languageVersion: String?,
     val apiVersion: String?,
@@ -89,12 +91,6 @@ data class JvmPart(
             mainClass,
             target ?: "17",
         )
-}
-
-enum class JUnitVersion(val key: String) {
-    JUNIT4("junit-4"), JUNIT5("junit-5"), NONE("none");
-
-    companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::key)
 }
 
 data class JUnitPart(

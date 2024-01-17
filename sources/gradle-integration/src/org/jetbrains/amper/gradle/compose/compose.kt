@@ -4,9 +4,8 @@
 
 package org.jetbrains.amper.gradle.compose
 
-import org.jetbrains.amper.frontend.ComposePart
-import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
+import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
@@ -18,7 +17,7 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
     override val needToApply by lazy {
-        module.leafFragments.any { it.parts.find<ComposePart>()?.enabled == true }
+        module.leafFragments.any { it.settings.compose?.enabled == true }
     }
 
     override fun applyBeforeEvaluate() {

@@ -23,6 +23,16 @@ abstract class SchemaNode : Traceable() {
     fun <T : Any> value() = SchemaValue<T>().also { allValues.add(it) }
 
     /**
+     * Register a value with a default.
+     */
+    fun <T : Any> value(default: T) = SchemaValue<T>().also { allValues.add(it) }.apply { default(default) }
+
+    /**
+     * Register a value with a default.
+     */
+    fun <T : Any> value(default: () -> T) = SchemaValue<T>().also { allValues.add(it) }.apply { default(null, default) }
+
+    /**
      * Register a nullable value.
      */
     fun <T : Any> nullableValue() = NullableSchemaValue<T>().also { allValues.add(it) }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.schema.Module
 import java.nio.file.Path
 
 sealed interface PotatoModuleSource
@@ -65,6 +66,11 @@ interface PotatoModule {
     val type: ProductType
 
     val source: PotatoModuleSource
+
+    /**
+     * Original schema values, that this module came from.
+     */
+    val origin: Module
 
     val fragments: List<Fragment>
 

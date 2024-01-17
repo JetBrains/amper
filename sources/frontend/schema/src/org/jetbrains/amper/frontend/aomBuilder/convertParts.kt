@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.ComposePart
 import org.jetbrains.amper.frontend.FragmentPart
 import org.jetbrains.amper.frontend.IosPart
 import org.jetbrains.amper.frontend.JUnitPart
-import org.jetbrains.amper.frontend.JUnitVersion
 import org.jetbrains.amper.frontend.JavaPart
 import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.KotlinPart
@@ -28,6 +27,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Settings
 import java.util.*
@@ -76,7 +76,7 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
         this?.jvm?.target?.schemaValue,
     )
 
-    parts += JUnitPart(this?.junit?.let { JUnitVersion.valueOf(it.name) }) // TODO Replace by enum.
+    parts += JUnitPart(this?.junit?.let { JUnitVersion.valueOf(it.name) })
 
     parts += PublicationPart(
         group = this?.publishing?.group,
@@ -84,7 +84,6 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
     )
 
     parts += NativeApplicationPart(
-        // TODO Fill all other options.
         entryPoint = this?.native?.entryPoint,
         declaredFrameworkBasename = this?.ios?.framework?.basename,
     )

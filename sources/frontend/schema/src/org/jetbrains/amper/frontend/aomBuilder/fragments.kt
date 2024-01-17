@@ -55,7 +55,10 @@ open class DefaultFragment(
 
     override val variants = emptyList<String>()
 
+    @Deprecated("Should be replaced with [settings]")
     override val parts = relevantSettings.convertFragmentParts()
+
+    override val settings = relevantSettings ?: Settings()
 
     override val isDefault = true
 

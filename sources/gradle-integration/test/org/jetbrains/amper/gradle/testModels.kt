@@ -9,24 +9,22 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.AndroidPart
-import org.jetbrains.amper.frontend.JvmPart
-import org.jetbrains.amper.frontend.KotlinPart
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidVersion
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.gradle.util.MockModel
 import org.jetbrains.amper.gradle.util.MockPotatoModule
 import org.jetbrains.amper.gradle.util.getMockModelName
 import org.jetbrains.amper.gradle.util.withDebug
 import org.jetbrains.kotlin.gradle.utils.ProviderDelegate
 import java.nio.file.Path
-import kotlin.collections.listOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.setOf
-import kotlin.collections.single
 import kotlin.io.path.createDirectories
 import kotlin.properties.PropertyDelegateProvider
 
@@ -76,7 +74,10 @@ object Models : ModelInit {
             is Result.Success -> Result.success(result.value.modules.single())
         }
 
-    context(ProblemReporterContext) override fun getTemplate(templatePsiFile: PsiFile, project: Project): Result<Nothing> {
+    context(ProblemReporterContext) override fun getTemplate(
+        templatePsiFile: PsiFile,
+        project: Project
+    ): Result<Nothing> {
         TODO("Not yet implemented")
     }
 
@@ -92,7 +93,7 @@ object Models : ModelInit {
                 setOf(Platform.JVM),
                 leafFragment {
                     platforms.add(Platform.JVM)
-                    addPart(JvmPart(mainClass = "MainKt"))
+                    settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
                 }
             )
         }
@@ -139,18 +140,15 @@ object Models : ModelInit {
                 "myApp",
                 setOf(Platform.JVM),
                 leafFragment {
-                    addPart(
-                        KotlinPart(
-                            languageVersion = "1.9",
-                            apiVersion = "1.9",
-                            debug = null,
-                            progressiveMode = true,
-                            languageFeatures = listOf("InlineClasses"),
-                            optIns = listOf("org.mylibrary.OptInAnnotation"),
-                            serialization = null
-                        ),
-                    )
-                    addPart(JvmPart(mainClass = "MainKt"))
+                    settings.kotlin = KotlinSettings().apply {
+                        languageVersion = KotlinVersion.Kotlin19
+                        debug = false
+                        progressiveMode = true
+                        languageFeatures = listOf("InlineClasses")
+                        optIns = listOf("org.mylibrary.OptInAnnotation")
+                    }
+                    settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
+
                     platforms.add(Platform.JVM)
                 }
             )
@@ -164,11 +162,11 @@ object Models : ModelInit {
                 setOf(Platform.ANDROID),
                 leafFragment {
                     platforms.add(Platform.ANDROID)
-                    addPart(
-                        AndroidPart(
-                            "android-31", "24", 17
-                        )
-                    )
+                    settings.android = AndroidSettings().apply {
+                        compileSdk = AndroidVersion.VERSION_31
+                        minSdk = AndroidVersion.VERSION_24
+                        maxSdk = AndroidVersion.VERSION_34
+                    }
                 }
             )
         }
@@ -181,7 +179,7 @@ object Models : ModelInit {
                 setOf(Platform.JVM),
                 leafFragment {
                     platforms.add(Platform.JVM)
-                    addPart(JvmPart(mainClass = "MainKt"))
+                    settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
                 }
             )
         }
@@ -192,7 +190,7 @@ object Models : ModelInit {
                 leafFragment {
                     dependency(module1)
                     platforms.add(Platform.JVM)
-                    addPart(JvmPart(mainClass = "MainKt"))
+                    settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
                 }
             )
         }
@@ -254,7 +252,7 @@ object Models : ModelInit {
             setOf(Platform.JVM),
             leafFragment {
                 platforms.add(Platform.JVM)
-                addPart(JvmPart(mainClass = "MainKt"))
+                settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
             }
         )
     }

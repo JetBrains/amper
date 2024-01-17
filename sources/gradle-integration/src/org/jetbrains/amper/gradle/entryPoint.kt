@@ -17,7 +17,6 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.messages.renderMessage
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.resolve.resolved
 import org.slf4j.LoggerFactory
 
 @Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
@@ -31,7 +30,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
             }
 
             // Use [ModelWrapper] to cache and preserve links on [PotatoModule].
-            val modelWrapper = ModelWrapper(model.get().resolved)
+            val modelWrapper = ModelWrapper(model.get())
             SettingsPluginRun(settings, modelWrapper).run()
         }
     }

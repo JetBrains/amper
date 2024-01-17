@@ -12,8 +12,15 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.frontend.*
-import org.jetbrains.amper.frontend.resolve.resolved
+import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModelInit
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleDependency
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.ProductType
 import tooling.ApkPathToolingModelBuilder
 import tooling.RClassToolingModelBuilder
 import java.io.File
@@ -205,12 +212,10 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
             is Result.Success -> result.value
         }
 
-        val resolvedModel = model.resolved
-
-        settings.gradle.knownModel = resolvedModel
+        settings.gradle.knownModel = model
 
         val rootPath = projectRoot.normalize().toAbsolutePath()
-        val androidModules = resolvedModel
+        val androidModules = model
             .modules
             .filter {
                 val productTypeIsAndroidApp = it.type == ProductType.ANDROID_APP

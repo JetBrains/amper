@@ -10,10 +10,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.amper.frontend.JUnitPart
-import org.jetbrains.amper.frontend.JUnitVersion
 import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.gradle.android.AndroidBindingPluginPart
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
@@ -122,7 +121,7 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     private fun applyTest(linkedModule: PotatoModuleWrapper, project: Project) {
-        if (linkedModule.leafTestFragments.mapNotNull { it.parts.find<JUnitPart>() }.any { it.version == JUnitVersion.JUNIT5 }) {
+        if (linkedModule.leafTestFragments.any { it.settings.junit == JUnitVersion.JUNIT5 }) {
             project.tasks.withType(Test::class.java) {
                 // TODO Add more comprehensive support - only enable for those tasks,
                 //   that relate to fragment.
