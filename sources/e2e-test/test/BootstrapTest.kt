@@ -41,7 +41,6 @@ class BootstrapTest {
         val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
-        val util = TestUtil.prototypeImplementationRoot.resolve("frontend/util/build/libs/util-jvm-$version.jar")
 
         // TODO: rewrite to include build approach
         val settingsContent = """
@@ -71,7 +70,6 @@ buildscript {
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
         classpath(files("${yamlPsi.pathString.replace('\\', '/')}"))
         classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
-        classpath(files("${util.pathString.replace('\\', '/')}"))
     }
 }
 plugins.apply("org.jetbrains.amper.settings.plugin")

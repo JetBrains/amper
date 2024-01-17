@@ -4,21 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import com.intellij.rt.execution.junit5.FileComparisonFailedError
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.test.asserter
 
 fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: String, originalFile: Path) {
-    // assertEqualsIgnoreLineSeparator(expectedContent,actualContent) - why not assert with precise diff reported
     if (expectedContent.replaceLineSeparators() != actualContent.replaceLineSeparators()) {
-        asserter.assertEquals("Comparison failed", expectedContent, actualContent)
-//        throw FileComparisonFailedError(
-//            "Comparison failed",
-//            expectedContent,
-//            actualContent,
-//            originalFile.absolutePathString()
-//        )
+        asserter.assertEquals("Comparison failed, original file: ${originalFile.absolutePathString()}", expectedContent, actualContent)
     }
 }
 
