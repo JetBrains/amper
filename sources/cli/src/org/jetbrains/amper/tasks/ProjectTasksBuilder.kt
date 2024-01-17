@@ -45,7 +45,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     }
 
                     val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
-                        setupAndroidPlatformTask(module, tasks)
+                        setupAndroidPlatformTask(module, tasks, executeOnChangedInputs)
                     } else null
 
                     val prepareAndroidBuildTasks = setupPrepareAndroidTasks(
@@ -365,7 +365,11 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         }
     } else mapOf()
 
-    private fun setupAndroidPlatformTask(module: PotatoModule, tasks: TaskGraphBuilder): TaskName? {
+    private fun setupAndroidPlatformTask(
+        module: PotatoModule,
+        tasks: TaskGraphBuilder,
+        executeOnChangedInputs: ExecuteOnChangedInputs
+    ): TaskName? {
         return module
             .fragments
             .filter { Platform.ANDROID in it.platforms }
@@ -373,7 +377,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             ?.let { androidFragment ->
                 androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
                     val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
-                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", androidCompileTaskName))
+                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", executeOnChangedInputs, androidCompileTaskName))
                     androidCompileTaskName
                 }
             }
