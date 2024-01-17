@@ -11,7 +11,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
-import org.jetbrains.amper.compilation.downloadAndLoadCompilationService
+import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -25,6 +25,7 @@ import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
+import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -169,7 +170,7 @@ class JvmCompileTask(
         sourceFiles: List<Path>,
     ): CompilationResult {
         // TODO should we download this in a separate task?
-        val compilationService = kotlinCompilerDownloader.downloadAndLoadCompilationService(compilerVersion)
+        val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinCompilerDownloader)
 
         // TODO should we allow users to choose in-process vs daemon?
         // TODO settings for daemon JVM args?

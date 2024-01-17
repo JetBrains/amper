@@ -1,13 +1,17 @@
 package org.jetbrains.amper.compilation
 
+import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.util.StripedMutex
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
 import org.jetbrains.kotlin.buildtools.api.ProjectId
 import org.slf4j.Logger
+import java.net.URL
 import java.net.URLClassLoader
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.absolutePathString
 
 /**
@@ -22,18 +26,44 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
 }
 
 /**
- * Downloads the Kotlin Build Tools implementation in the given [kotlinVersion], and loads the [CompilationService]
- * from it. That service supports pure JVM and common/JVM mixed compilation with expect/actual. It doesn't support
- * JS, Native, nor other targets at the moment.
+ * Loads the Kotlin Build Tools [CompilationService] implementation in the given [kotlinVersion], downloading it if
+ * necessary. This operation is thread-safe so that the same compiler version is never downloaded twice, even if
+ * requested concurrently.
  */
 @OptIn(ExperimentalBuildToolsApi::class)
-internal suspend fun KotlinCompilerDownloader.downloadAndLoadCompilationService(kotlinVersion: String): CompilationService {
-    val buildToolsImplJars = downloadKotlinBuildToolsImpl(kotlinVersion)
-    val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray()
-    // TODO maybe we should cache class loaders to avoid re-creating this every time
-    // FIXME this classloader is never closed
-    val classLoader = URLClassLoader("KotlinBuildToolsImplClassLoader", urls, CompilationService::class.java.classLoader)
-    return CompilationService.loadImplementation(classLoader)
+suspend fun CompilationService.Companion.loadMaybeCachedImpl(
+    kotlinVersion: String,
+    downloader: KotlinCompilerDownloader,
+): CompilationService {
+    val classLoader = KotlinBuildToolsClassLoaderCache.getOrPut(kotlinVersion) {
+        val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion)
+        val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray<URL>()
+        URLClassLoader("KotlinBuildToolsImplClassLoader-$kotlinVersion", urls, CompilationService::class.java.classLoader)
+    }
+    return loadImplementation(classLoader)
+}
+
+// TODO add a mechanism (like Gradle BuildService) that allows us to know when no more tasks will need these
+//  classloaders, so we know when to close them. At the moment they are closed when Amper exits.
+/**
+ * A thread-safe cache for Kotlin Build Tools implementation class loaders. At the moment, these class loaders are
+ * kept until the end of the Amper execution.
+ */
+private object KotlinBuildToolsClassLoaderCache {
+
+    private val classLoaders = ConcurrentHashMap<String, ClassLoader>()
+
+    // There are usually very few different versions of Kotlin in the same project, but they collide easily with less
+    // than 64 stripes (for example "1.8.20" and "1.9.21" hashes collide even with 32 stripes)
+    private val stripedMutex = StripedMutex(stripeCount = 64)
+
+    suspend fun getOrPut(kotlinVersion: String, createClassLoader: suspend () -> ClassLoader): ClassLoader =
+        // ConcurrentMap.getOrPut guarantees atomic insert but doesn't guarantee that createClassLoader() will only be
+        // called once, so without locking we could download the dependency twice and then discard one classloader
+        // without closing it. The JDK computeIfAbsent() would solve this problem but doesn't support suspend functions.
+        stripedMutex.getLock(kotlinVersion.hashCode()).withLock {
+            classLoaders.getOrPut(kotlinVersion) { createClassLoader() }
+        }
 }
 
 /**
