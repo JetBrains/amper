@@ -2,12 +2,22 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
 import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
 
-inline fun <reified R : AndroidBuildResult> runAndroidBuild(buildRequest: AndroidBuildRequest, debug: Boolean = false, sourcesPath: Path = Path.of("../../../../").toAbsolutePath().normalize()): R {
-    // todo: temp directory isn't the best place for such temporary project, because we don't utilize gradle caches,
-    //  but ok for debug
-    val tempDir = createTempDirectory()
+inline fun <reified R : AndroidBuildResult> runAndroidBuild(
+    buildRequest: AndroidBuildRequest,
+    debug: Boolean = false,
+    sourcesPath: Path = Path.of("../../../../").toAbsolutePath().normalize()
+): R {
+    val homeDir = System.getProperty("user.home") ?: error("Cannot find user home directory")
+    val homePath = Paths.get(homeDir)
+
+    val tempDir = homePath
+        .resolve(".android/build/${buildRequest.root.toAbsolutePath().toString().sha1}")
+        .createDirectories()
+
     val settingsGradle = tempDir.resolve("settings.gradle.kts")
     val settingsGradleFile = settingsGradle.toFile()
     settingsGradleFile.createNewFile()
