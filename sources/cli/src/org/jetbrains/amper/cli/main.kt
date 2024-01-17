@@ -16,13 +16,13 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
-import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.tinylog.Level
-import java.io.File
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 private class RootCommand : CliktCommand(name = "amper") {
@@ -39,15 +39,15 @@ private class RootCommand : CliktCommand(name = "amper") {
     }
 
     val root by option(help = "Amper project root")
-        .file(mustExist = true, canBeFile = false, canBeDir = true)
-        .defaultLazy { File(System.getProperty("user.dir")) }
+        .path(mustExist = true, canBeFile = false, canBeDir = true)
+        .defaultLazy { Path(System.getProperty("user.dir")) }
 
     val debug by option(help = "Enable debug output").flag(default = false)
 
     val buildOutputRoot by option(
         "--build-output",
         help = "Build output root. 'build' directory under project root by default"
-    ).file(mustExist = true, canBeFile = false, canBeDir = true)
+    ).path(mustExist = true, canBeFile = false, canBeDir = true)
 
     override fun run() {
         // TODO think of a better place to activate it. e.g. we need it in tests too
@@ -58,10 +58,9 @@ private class RootCommand : CliktCommand(name = "amper") {
         val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
         provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)
 
-        val projectRoot = root.toPath()
-        val buildOutput = buildOutputRoot?.toPath() ?: projectRoot.resolve("build")
+        val buildOutput = buildOutputRoot ?: root.resolve("build")
         val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(projectRoot),
+            projectRoot = AmperProjectRoot(root),
             buildOutputRoot = AmperBuildOutputRoot(buildOutput),
             projectTempRoot = AmperProjectTempRoot(buildOutput.resolve("temp")),
             userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
