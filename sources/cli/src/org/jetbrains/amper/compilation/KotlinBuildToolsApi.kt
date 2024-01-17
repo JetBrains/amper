@@ -28,7 +28,7 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
  */
 @OptIn(ExperimentalBuildToolsApi::class)
 internal suspend fun KotlinCompilerDownloader.downloadAndLoadCompilationService(kotlinVersion: String): CompilationService {
-    val buildToolsImplJars = downloadAndExtractKotlinBuildToolsImpl(kotlinVersion)
+    val buildToolsImplJars = downloadKotlinBuildToolsImpl(kotlinVersion)
     val urls = buildToolsImplJars.map { it.toUri().toURL() }.toTypedArray()
     // TODO maybe we should cache class loaders to avoid re-creating this every time
     // FIXME this classloader is never closed

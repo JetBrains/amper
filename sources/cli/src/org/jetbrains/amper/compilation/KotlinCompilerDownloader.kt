@@ -34,7 +34,8 @@ class KotlinCompilerDownloader(
      * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
      * that will be used behind the scenes.
      */
-    suspend fun downloadAndExtractKotlinBuildToolsImpl(version: String): Collection<Path> =
+    suspend fun downloadKotlinBuildToolsImpl(version: String): Collection<Path> =
+        // using executeOnChangedInputs because currently DR takes ~3s even when the artifact is already cached
         executeOnChangedInputs.execute("resolve-kotlin-build-tools-impl-$version", emptyMap(), emptyList()) {
             val resolved = mavenResolver.resolve(
                 coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
