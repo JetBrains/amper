@@ -8,6 +8,7 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
@@ -47,7 +48,14 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         setupAndroidPlatformTask(module, tasks)
                     } else null
 
-                    val prepareAndroidBuildTasks = setupPrepareAndroidTasks(platform, module, isTest, tasks)
+                    val prepareAndroidBuildTasks = setupPrepareAndroidTasks(
+                        platform,
+                        module,
+                        isTest,
+                        tasks,
+                        executeOnChangedInputs,
+                        fragments
+                    )
 
                     fun createCompileTask(buildType: BuildType = BuildType.Debug): Task? {
                         val compileTaskName = getTaskName(
@@ -191,7 +199,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         }
                     } else createCompileTask()
 
-                    setupAndroidBuildTasks(platform, module, tasks, isTest)
+                    setupAndroidBuildTasks(platform, module, tasks, isTest, executeOnChangedInputs, fragments)
 
                     // TODO this does not support runtime dependencies
                     //  and dependency graph for it will be different
@@ -303,7 +311,9 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         platform: Platform,
         module: PotatoModule,
         isTest: Boolean,
-        tasks: TaskGraphBuilder
+        tasks: TaskGraphBuilder,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        fragments: List<Fragment>,
     ) = if (platform == Platform.ANDROID) {
         val testSuffix = if (isTest) "Test" else ""
         buildMap {
@@ -318,6 +328,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     AndroidPrepareTask(
                         module,
                         buildType,
+                        executeOnChangedInputs,
+                        fragments,
                         prepareAndroidBuildName
                     )
                 )
@@ -330,6 +342,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         module: PotatoModule,
         tasks: TaskGraphBuilder,
         isTest: Boolean,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        fragments: List<Fragment>,
     ) = if (platform == Platform.ANDROID) {
         val testSuffix = if (isTest) "Test" else ""
         buildMap {
@@ -341,7 +355,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 )
                 put(buildType, buildAndroidBuildName)
                 tasks.registerTask(
-                    AndroidBuildTask(module, buildType, buildAndroidBuildName),
+                    AndroidBuildTask(module, buildType, executeOnChangedInputs, fragments, buildAndroidBuildName),
                     listOf(
                         getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
                         getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)

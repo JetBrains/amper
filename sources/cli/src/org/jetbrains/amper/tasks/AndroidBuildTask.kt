@@ -6,9 +6,12 @@ import ApkPathAndroidBuildResult
 import ResolvedDependency
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.AndroidPart
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.util.BuildType
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
 import runAndroidBuild
@@ -17,13 +20,15 @@ import java.nio.file.Path
 class AndroidBuildTask(
     private val module: PotatoModule,
     private val buildType: BuildType,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val fragments: List<Fragment>,
     override val taskName: TaskName
 ) : Task {
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
         val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
-            .firstNotNullOfOrNull { it.classesOutputRoot }?.parent ?: error("No build classes")
+            .firstNotNullOfOrNull { it.classesOutputRoot } ?: error("No build classes")
         val resolvedAndroidRuntimeDependencies =
             dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.classpath }
         val androidModuleData = AndroidModuleData(":", classes, resolvedAndroidRuntimeDependencies.map {
@@ -35,12 +40,17 @@ class AndroidBuildTask(
             setOf(androidModuleData),
             setOf(buildType.toAndroidRequestBuildType)
         )
-        val result = runAndroidBuild<ApkPathAndroidBuildResult>(
-            request, sourcesPath = Path.of("../../").toAbsolutePath().normalize()
-        )
-
-        logger.info("ANDROID ARTIFACTS: ${result.paths}")
-        return TaskResult(dependenciesResult, result.paths.map { Path.of(it) })
+        val inputs = listOf(classes) + resolvedAndroidRuntimeDependencies
+        val androidConfig = fragments.mapNotNull { it.parts.find<AndroidPart>() }.joinToString()
+        val configuration = mapOf("androidConfig" to androidConfig)
+        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+            val result = runAndroidBuild<ApkPathAndroidBuildResult>(
+                request, sourcesPath = Path.of("../../").toAbsolutePath().normalize()
+            )
+            ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
+        }
+        logger.info("ANDROID ARTIFACTS: ${executionResult.outputs}")
+        return TaskResult(dependenciesResult, executionResult.outputs)
     }
 
     class TaskResult(
