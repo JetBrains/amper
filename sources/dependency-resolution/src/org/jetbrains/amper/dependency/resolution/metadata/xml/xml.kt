@@ -31,7 +31,8 @@ private val xml = XML {
     }
 }
 
-internal fun String.parsePom(): Project = xml.decodeFromString(this.replace("<project>", "<project xmlns=\"$POM_XML_NAMESPACE\">"))
+internal fun String.parsePom(): Project =
+    xml.decodeFromString(this.replace("<project>", "<project xmlns=\"$POM_XML_NAMESPACE\">"))
 
 internal fun Project.serialize(): String = xml.encodeToString(this)
 
@@ -349,5 +350,5 @@ private fun String.expandTemplate(project: Project): String {
             return value
         }
     }
-    return project.properties?.properties?.get(key) ?: this
+    return project.properties?.properties?.get(key)?.expandTemplate(project) ?: this
 }
