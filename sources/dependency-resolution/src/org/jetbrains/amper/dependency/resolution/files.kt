@@ -237,7 +237,7 @@ class DependencyFile(
         for ((level, algorithm) in algorithms) {
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
             val actualHash = computeHash(algorithm, bytes)
-            if (expectedHash != actualHash) {
+            if (expectedHash != actualHash || expectedHash.trimStart('0') /*old Gradle compatibility*/ != actualHash) {
                 dependency.messages += Message(
                     "Hashes don't match for $algorithm",
                     "expected: $expectedHash, actual: $actualHash",
@@ -370,10 +370,5 @@ internal fun computeHash(algorithm: String, bytes: ByteArray): String {
     return toHex(hash)
 }
 
-private fun toHex(bytes: ByteArray): String {
-    val result = StringBuilder()
-    for (b in bytes) {
-        result.append(((b.toInt() and 0xFF) + 0x100).toString(16).substring(1))
-    }
-    return result.toString()
-}
+@OptIn(ExperimentalStdlibApi::class)
+private fun toHex(bytes: ByteArray) = bytes.toHexString()
