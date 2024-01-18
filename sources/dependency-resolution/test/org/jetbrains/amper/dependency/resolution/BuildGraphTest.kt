@@ -105,7 +105,7 @@ class BuildGraphTest {
                 |               |         |         |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
                 |               |         |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
                 |               |         |         |                   +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
-                |               |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20
+                |               |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.8.20
                 |               |         |         |                   |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20
                 |               |         |         |                   |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
                 |               |         |         |                   |    |    \--- org.jetbrains:annotations:13.0
@@ -204,34 +204,34 @@ class BuildGraphTest {
                 |     |    |    +--- androidx.core:core:1.8.0
                 |     |    |    |    +--- androidx.annotation:annotation:1.2.0
                 |     |    |    |    +--- androidx.annotation:annotation-experimental:1.1.0
-                |     |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1
-                |     |    |    |    |    +--- androidx.annotation:annotation:1.2.0
+                |     |    |    |    +--- androidx.lifecycle:lifecycle-runtime:2.3.1 -> 2.6.1
+                |     |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    +--- androidx.arch.core:core-common:2.2.0
-                |     |    |    |    |    |    \--- androidx.annotation:annotation:1.2.0
+                |     |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1
                 |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10
                 |     |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10
                 |     |    |    |    |         \--- org.jetbrains:annotations:13.0
                 |     |    |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
-                |     |    |    |         +--- androidx.annotation:annotation:1.2.0
+                |     |    |    |         +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |         \--- androidx.collection:collection:1.0.0
-                |     |    |    |              \--- androidx.annotation:annotation:1.2.0
+                |     |    |    |              \--- androidx.annotation:annotation:1.0.0 -> 1.2.0
                 |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 (*)
                 |     |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1
                 |     |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1
-                |     |    |    |    +--- androidx.annotation:annotation:1.2.0
+                |     |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.2.0
                 |     |    |    |    +--- androidx.core:core-ktx:1.2.0
-                |     |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
-                |     |    |    |    |    +--- androidx.annotation:annotation:1.2.0
-                |     |    |    |    |    \--- androidx.core:core:1.8.0 (*)
+                |     |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.3.41 -> 1.8.10 (*)
+                |     |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
+                |     |    |    |    |    \--- androidx.core:core:1.2.0 -> 1.8.0 (*)
                 |     |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.6.1
                 |     |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1
                 |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
                 |     |    |    |    +--- androidx.savedstate:savedstate:1.2.1
-                |     |    |    |    |    +--- androidx.annotation:annotation:1.2.0
+                |     |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
@@ -239,7 +239,7 @@ class BuildGraphTest {
                 |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    +--- androidx.core:core-ktx:1.1.0 -> 1.2.0 (*)
                 |     |    +--- androidx.lifecycle:lifecycle-runtime-ktx:2.6.1
-                |     |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
+                |     |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.2.0
                 |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 (*)
                 |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
@@ -264,11 +264,11 @@ class BuildGraphTest {
                 |     |    |    +--- androidx.annotation:annotation:1.2.0
                 |     |    |    \--- androidx.compose.ui:ui-unit:1.0.1
                 |     |    |         +--- androidx.compose.ui:ui-geometry:1.0.1 (*)
-                |     |    |         \--- androidx.annotation:annotation:1.2.0
+                |     |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    +--- androidx.compose.ui:ui-text:1.0.1
                 |     |    |    +--- androidx.compose.ui:ui-graphics:1.0.1 (*)
                 |     |    |    +--- androidx.compose.ui:ui-unit:1.0.1 (*)
-                |     |    |    \--- androidx.annotation:annotation:1.2.0
+                |     |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    +--- androidx.compose.ui:ui-unit:1.0.1 (*)
                 |     |    \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     \--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
@@ -306,99 +306,99 @@ class BuildGraphTest {
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
                 |     +--- androidx.activity:activity:1.6.0
-                |     |    +--- androidx.annotation:annotation:1.3.0
-                |     |    +--- androidx.core:core:1.9.0
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    +--- androidx.core:core:1.8.0 -> 1.9.0
+                |     |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.3.0
                 |     |    |    +--- androidx.annotation:annotation-experimental:1.3.0
                 |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10
                 |     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10
                 |     |    |    |         \--- org.jetbrains:annotations:13.0
-                |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.5.1
-                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.3.1 -> 2.5.1
+                |     |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
                 |     |    |    |    +--- androidx.arch.core:core-common:2.1.0
-                |     |    |    |    |    \--- androidx.annotation:annotation:1.3.0
+                |     |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.3.0
                 |     |    |    |    \--- androidx.lifecycle:lifecycle-common:2.5.1
-                |     |    |    |         \--- androidx.annotation:annotation:1.3.0
+                |     |    |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.3.0
                 |     |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
-                |     |    |         +--- androidx.annotation:annotation:1.3.0
-                |     |    |         \--- androidx.collection:collection:1.1.0
-                |     |    |              \--- androidx.annotation:annotation:1.3.0
+                |     |    |         +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    |         \--- androidx.collection:collection:1.0.0 -> 1.1.0
+                |     |    |              \--- androidx.annotation:annotation:1.1.0 -> 1.3.0
                 |     |    +--- androidx.lifecycle:lifecycle-runtime:2.5.1 (*)
                 |     |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.7.10 (*)
                 |     |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
+                |     |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
                 |     |    |    +--- androidx.core:core-ktx:1.2.0
-                |     |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
-                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    |    \--- androidx.core:core:1.9.0 (*)
+                |     |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.3.41 -> 1.7.10 (*)
+                |     |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    |    |    \--- androidx.core:core:1.2.0 -> 1.9.0 (*)
                 |     |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.5.1
                 |     |    |    |    \--- androidx.lifecycle:lifecycle-common:2.5.1 (*)
                 |     |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
                 |     |    |    +--- androidx.savedstate:savedstate:1.2.0
-                |     |    |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
-                |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.20 -> 1.7.10 (*)
+                |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.7.10 (*)
                 |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1
                 |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1
                 |     |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1
                 |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.1
                 |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0
-                |     |    |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
+                |     |    |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.7.10 (*)
                 |     |    |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0
-                |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
-                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10
+                |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.7.10 (*)
+                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.7.10
                 |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.1
                 |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 (*)
                 |     |    +--- androidx.savedstate:savedstate:1.2.0 (*)
                 |     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 (*)
                 |     +--- androidx.annotation:annotation:1.3.0
                 |     +--- androidx.appcompat:appcompat-resources:1.6.1
-                |     |    +--- androidx.annotation:annotation:1.3.0
-                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    +--- androidx.annotation:annotation:1.2.0 -> 1.3.0
+                |     |    +--- androidx.core:core:1.6.0 -> 1.9.0 (*)
                 |     |    +--- androidx.vectordrawable:vectordrawable:1.1.0
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    |    +--- androidx.core:core:1.1.0 -> 1.9.0 (*)
                 |     |    |    \--- androidx.collection:collection:1.1.0 (*)
                 |     |    \--- androidx.vectordrawable:vectordrawable-animated:1.1.0
                 |     |         +--- androidx.vectordrawable:vectordrawable:1.1.0 (*)
                 |     |         +--- androidx.interpolator:interpolator:1.0.0
-                |     |         |    \--- androidx.annotation:annotation:1.3.0
+                |     |         |    \--- androidx.annotation:annotation:1.0.0 -> 1.3.0
                 |     |         \--- androidx.collection:collection:1.1.0 (*)
                 |     +--- androidx.core:core:1.9.0 (*)
                 |     +--- androidx.cursoradapter:cursoradapter:1.0.0
-                |     |    \--- androidx.annotation:annotation:1.3.0
+                |     |    \--- androidx.annotation:annotation:1.0.0 -> 1.3.0
                 |     +--- androidx.drawerlayout:drawerlayout:1.0.0
-                |     |    +--- androidx.annotation:annotation:1.3.0
-                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
+                |     |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
                 |     |    \--- androidx.customview:customview:1.0.0
-                |     |         +--- androidx.annotation:annotation:1.3.0
-                |     |         \--- androidx.core:core:1.9.0 (*)
+                |     |         +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
+                |     |         \--- androidx.core:core:1.0.0 -> 1.9.0 (*)
                 |     +--- androidx.fragment:fragment:1.3.6
-                |     |    +--- androidx.annotation:annotation:1.3.0
-                |     |    +--- androidx.core:core:1.9.0 (*)
+                |     |    +--- androidx.annotation:annotation:1.1.0 -> 1.3.0
+                |     |    +--- androidx.core:core:1.2.0 -> 1.9.0 (*)
                 |     |    +--- androidx.collection:collection:1.1.0 (*)
                 |     |    +--- androidx.viewpager:viewpager:1.0.0
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
+                |     |    |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
                 |     |    |    \--- androidx.customview:customview:1.0.0 (*)
                 |     |    +--- androidx.loader:loader:1.0.0
-                |     |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    +--- androidx.core:core:1.9.0 (*)
+                |     |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
+                |     |    |    +--- androidx.core:core:1.0.0 -> 1.9.0 (*)
                 |     |    |    +--- androidx.lifecycle:lifecycle-livedata:2.0.0
                 |     |    |    |    +--- androidx.arch.core:core-runtime:2.0.0
-                |     |    |    |    |    +--- androidx.annotation:annotation:1.3.0
-                |     |    |    |    |    \--- androidx.arch.core:core-common:2.1.0 (*)
-                |     |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.5.1 (*)
-                |     |    |    |    \--- androidx.arch.core:core-common:2.1.0 (*)
-                |     |    |    \--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
-                |     |    +--- androidx.activity:activity:1.6.0 (*)
+                |     |    |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.3.0
+                |     |    |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+                |     |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.0.0 -> 2.5.1 (*)
+                |     |    |    |    \--- androidx.arch.core:core-common:2.0.0 -> 2.1.0 (*)
+                |     |    |    \--- androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.5.1 (*)
+                |     |    +--- androidx.activity:activity:1.2.4 -> 1.6.0 (*)
                 |     |    +--- androidx.lifecycle:lifecycle-livedata-core:2.3.1 -> 2.5.1 (*)
-                |     |    +--- androidx.lifecycle:lifecycle-viewmodel:2.5.1 (*)
-                |     |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1 (*)
-                |     |    +--- androidx.savedstate:savedstate:1.2.0 (*)
-                |     |    \--- androidx.annotation:annotation-experimental:1.3.0 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel:2.3.1 -> 2.5.1 (*)
+                |     |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1 -> 2.5.1 (*)
+                |     |    +--- androidx.savedstate:savedstate:1.1.0 -> 1.2.0 (*)
+                |     |    \--- androidx.annotation:annotation-experimental:1.0.0 -> 1.3.0 (*)
                 |     \--- androidx.savedstate:savedstate:1.2.0 (*)
             """.trimMargin()
         )
@@ -502,7 +502,7 @@ class BuildGraphTest {
             ||    \--- org.jetbrains:annotations:13.0
             |+--- org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
             ||    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
-            ||         +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+            ||         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)
             ||         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.0
             |+--- org.jetbrains.kotlin:kotlin-test:1.9.0 -> 1.9.20
             ||    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
@@ -541,7 +541,7 @@ class BuildGraphTest {
             ||    |    +--- com.fasterxml.jackson.core:jackson-core:2.9.9
             ||    |    \--- com.fasterxml.jackson.core:jackson-databind:2.9.9
             ||    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
-            ||    |         \--- com.fasterxml.jackson.core:jackson-core:2.9.9
+            ||    |         \--- com.fasterxml.jackson.core:jackson-core:${'$'}{jackson.version} -> 2.9.9
             ||    \--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.9
             ||         +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
             ||         +--- com.fasterxml.jackson.core:jackson-core:2.9.9
@@ -597,9 +597,10 @@ class BuildGraphTest {
     }
 }
 
-private fun String.toRootNode(context: Context) = ModuleDependencyNode("root", listOf(toMavenNode(context)))
+private fun String.toRootNode(context: Context) = ModuleDependencyNode(context, "root", listOf(toMavenNode(context)))
 
-private fun List<String>.toRootNode(context: Context) = ModuleDependencyNode("root", map { it.toMavenNode(context) })
+private fun List<String>.toRootNode(context: Context) =
+    ModuleDependencyNode(context, "root", map { it.toMavenNode(context) })
 
 private fun String.toMavenNode(context: Context): MavenDependencyNode {
     val (group, module, version) = split(":")

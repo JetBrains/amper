@@ -8,18 +8,43 @@ import java.util.*
 class Resolver(val root: DependencyNode) {
 
     fun buildGraph(level: ResolutionLevel = ResolutionLevel.FULL): Resolver {
+        val nodes = mutableMapOf<Key<*>, LinkedHashSet<DependencyNode>>()
+        val conflicts = mutableSetOf<Key<*>>()
         val queue = LinkedList(listOf(root))
-        while (queue.isNotEmpty()) {
-            val node = queue.remove()
-            if (node.level < level) {
+        do {
+            conflicts.clear()
+            while (queue.isNotEmpty()) {
+                val node = queue.remove()
+                val candidates = nodes.computeIfAbsent(node.key) { LinkedHashSet() }.also { it += node }
+                if (node.key in conflicts || candidates.haveConflicts()) {
+                    conflicts += node.key
+                    continue
+                }
                 if (node.state < level.state) {
                     node.resolve(level)
                 }
                 node.level = level
                 queue.addAll(node.children)
             }
-        }
+            for (key in conflicts) {
+                val candidates = nodes[key] ?: throw AmperDependencyResolutionException("Nodes are missing for $key")
+                candidates.resolveConflict()
+                queue.addAll(candidates)
+            }
+        } while (conflicts.isNotEmpty())
         return this
+    }
+
+    private fun LinkedHashSet<DependencyNode>.haveConflicts() =
+        root.context.settings.conflictResolutionStrategies
+            .filter { it.isApplicableFor(this) }
+            .any { it.seesConflictsIn(this) }
+
+    private fun LinkedHashSet<DependencyNode>.resolveConflict() {
+        root.context.settings.conflictResolutionStrategies
+            .filter { it.isApplicableFor(this) }
+            .find { it.seesConflictsIn(this) }
+            ?.resolveConflictsIn(this)
     }
 
     fun downloadDependencies(): Resolver {
@@ -35,6 +60,8 @@ class Resolver(val root: DependencyNode) {
 
 interface DependencyNode {
 
+    val context: Context
+    val key: Key<*>
     var state: ResolutionState
     var level: ResolutionLevel
     val children: Collection<DependencyNode>
@@ -57,12 +84,12 @@ interface DependencyNode {
     private fun prettyPrint(
         builder: StringBuilder,
         indent: StringBuilder = StringBuilder(),
-        visited: MutableSet<DependencyNode> = mutableSetOf(),
+        visited: MutableSet<Key<*>> = mutableSetOf(),
         addLevel: Boolean = false,
     ) {
         builder.append(indent).append(toString())
 
-        val seen = !visited.add(this)
+        val seen = !visited.add(key)
         if (seen && children.isNotEmpty()) {
             builder.append(" (*)")
         }
@@ -127,6 +154,7 @@ class Builder {
     var platform: String = "jvm"
     var repositories: Collection<String> = listOf("https://repo1.maven.org/maven2")
     var cache: List<CacheDirectory> = listOf(GradleCacheDirectory(), MavenCacheDirectory())
+    var conflictResolutionStrategies = listOf(HighestVersionStrategy())
 
     val settings: Settings
         get() = Settings(
@@ -135,6 +163,7 @@ class Builder {
             platform,
             repositories,
             cache,
+            conflictResolutionStrategies,
         )
 
     fun build(): Context = Context(settings)
@@ -146,6 +175,7 @@ data class Settings(
     val platform: String,
     val repositories: Collection<String>,
     val fileCache: List<CacheDirectory>,
+    val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
 )
 
 data class Message(

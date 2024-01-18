@@ -32,6 +32,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             }
             val resolver = Resolver(
                 ModuleDependencyNode(
+                    context,
                     "root",
                     coordinates.map {
                         val (group, module, version) = it.split(":")

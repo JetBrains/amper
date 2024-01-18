@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.amper.dependency.resolution.metadata.json.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.Dependency
@@ -17,29 +16,46 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 class MavenDependencyNode(
-    val context: Context,
-    val group: String,
-    val module: String,
-    val version: String,
+    override val context: Context,
+    var dependency: MavenDependency,
 ) : DependencyNode {
 
-    constructor(context: Context, dependency: MavenDependency) : this(
+    constructor(context: Context, group: String, module: String, version: String) : this(
         context,
-        dependency.group,
-        dependency.module,
-        dependency.version,
+        createOrReuseDependency(context, group, module, version),
     )
 
-    val dependency: MavenDependency
-        get() = createOrReuseDependency(context, group, module, version)
+    val group: String = dependency.group
+    val module: String = dependency.module
+    val version: String = dependency.version
 
-    override var state: ResolutionState by dependency::state
-    override var level: ResolutionLevel by dependency::level
-    override val children: Collection<DependencyNode>
-        get() = dependency.children.map { MavenDependencyNode(context, it) }
-    override val messages: Collection<Message> by dependency::messages
+    override val key: Key<*> = Key<MavenDependency>("$group:$module")
+    override var state: ResolutionState
+        get() = dependency.state
+        set(value) {
+            dependency.state = value
+        }
+    override var level: ResolutionLevel
+        get() = dependency.level
+        set(value) {
+            dependency.level = value
+        }
+    override val children: Collection<DependencyNode> by PropertyWithDependency(
+        value = listOf<MavenDependencyNode>(),
+        dependency = listOf<DependencyNode>(),
+        valueProvider = { thisRef ->
+            thisRef.dependency.children.map { MavenDependencyNode(thisRef.context, it) }
+        },
+        dependencyProvider = { thisRef ->
+            thisRef.dependency.children.toList()
+        }
+    )
+    override val messages: Collection<Message>
+        get() = dependency.messages
 
     override fun resolve(level: ResolutionLevel) {
         dependency.resolve(context, level)
@@ -54,14 +70,22 @@ class MavenDependencyNode(
     } else {
         "$group:$module:$version -> ${dependency.version}"
     }
+}
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass || other !is MavenDependencyNode) return false
-        return dependency == other.dependency
+class PropertyWithDependency<in T, out V, D>(
+    private var value: V,
+    private var dependency: D,
+    val valueProvider: (T) -> V,
+    val dependencyProvider: (T) -> D
+) : ReadOnlyProperty<T, V> {
+    override fun getValue(thisRef: T, property: KProperty<*>): V {
+        val newDependency = dependencyProvider(thisRef)
+        if (dependency != newDependency) {
+            dependency = newDependency
+            value = valueProvider(thisRef)
+        }
+        return value
     }
-
-    override fun hashCode(): Int = dependency.hashCode()
 }
 
 private fun createOrReuseDependency(
@@ -69,31 +93,11 @@ private fun createOrReuseDependency(
     group: String,
     module: String,
     version: String
-): MavenDependency {
-    val dep = context.cache.computeIfAbsent(getKey(group, module)) {
-        MavenDependency(
-            context.settings.fileCache,
-            group,
-            module,
-            version
-        )
-    }
-    if (version == dep.version) {
-        return dep
-    }
-    val prev = ComparableVersion(dep.version)
-    val curr = ComparableVersion(version)
-    if (curr <= prev) {
-        return dep
-    }
-    return MavenDependency(context.settings.fileCache, group, module, version).also {
-        context.cache[getKey(group, module)] = it
-    }
+): MavenDependency = context.cache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
+    MavenDependency(context.settings.fileCache, group, module, version)
 }
 
-private fun getKey(group: String, module: String) = Key<MavenDependency>("$group:$module")
-
-data class MavenDependency(
+class MavenDependency internal constructor(
     val fileCache: List<CacheDirectory>,
     val group: String,
     val module: String,
@@ -103,7 +107,7 @@ data class MavenDependency(
     var state: ResolutionState = ResolutionState.UNKNOWN
     var level: ResolutionLevel = ResolutionLevel.CREATED
 
-    val children = mutableListOf<MavenDependency>()
+    val children: MutableList<MavenDependency> = mutableListOf()
     var variant: Variant? = null
     var packaging: String? = null
     val messages: MutableCollection<Message> = mutableListOf()
@@ -264,7 +268,7 @@ data class MavenDependency(
         }
         val settings = context.settings
         val parentNode = parent?.let {
-            MavenDependency(settings.fileCache, it.groupId, it.artifactId, it.version)
+            createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
         }
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, settings))) {
             val text = parentNode.pom.readText()
@@ -292,7 +296,7 @@ data class MavenDependency(
             ?.map { it.expandTemplates(project) }
             ?.flatMap {
                 if (it.scope == "import" && it.version != null) {
-                    val dependency = MavenDependency(settings.fileCache, it.groupId, it.artifactId, it.version)
+                    val dependency = createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, settings)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)

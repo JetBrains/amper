@@ -5,7 +5,7 @@
 - [x] Real JSON/XML files parsing tests
 - [x] Error handling/propagation
 - [x] Support different artifact types (aar, pom, etc.)
-- [ ] Conflict resolution (move #creteOrReuse out of MavenDep)
+- [x] Conflict resolution (move #creteOrReuse out of MavenDep)
 - [ ] Suspend getChildren() in case of version conflict
 - [ ] Coroutines scope per MavenDependency
 - [ ] Dump resolution graph
