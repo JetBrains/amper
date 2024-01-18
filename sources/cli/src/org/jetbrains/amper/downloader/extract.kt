@@ -7,6 +7,7 @@ package org.jetbrains.amper.downloader
 import com.google.common.io.MoreFiles
 import com.google.common.io.RecursiveDeleteOption
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -14,6 +15,7 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.input.CloseShieldInputStream
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.util.StripedMutex
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -25,10 +27,12 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
 import java.util.logging.Logger
+import kotlin.io.path.createDirectories
 import kotlin.io.path.listDirectoryEntries
 
 // initially from intellij:community/platform/build-scripts/downloader/src/org/jetbrains/intellij/build/dependencies/BuildDependenciesDownloader.kt
@@ -38,30 +42,43 @@ import kotlin.io.path.listDirectoryEntries
  */
 suspend fun extractFileToCacheLocation(archiveFile: Path,
                                amperUserCacheRoot: AmperUserCacheRoot,
-                               vararg options: ExtractOptions): Path {
+                               vararg options: ExtractOptions): Path = withContext(Dispatchers.IO) {
     val cachePath = amperUserCacheRoot.path.resolve("extract.cache")
+        .also { it.createDirectories() }
     val hash = Downloader.hashString(archiveFile.toString() + getExtractOptionsShortString(options)).substring(0, 6)
     val directoryName = "${archiveFile.fileName}.${hash}.d"
     val targetDirectory = cachePath.resolve(directoryName)
     val flagFile = cachePath.resolve("${directoryName}.flag")
-    extractFileWithFlagFileLocation(archiveFile, targetDirectory, flagFile, options)
-    return targetDirectory
+
+    // First lock locks the stuff inside one JVM process
+    extractFileLock.getLock(targetDirectory.hashCode()).withLock {
+        // Second lock locks a flagFile across all processes on the system
+        FileChannel.open(flagFile, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+            .use { flagChannel ->
+                flagChannel.lock().use {
+                    extractFileWithFlag(archiveFile, targetDirectory, flagChannel, flagFile, options)
+                }
+            }
+    }
+
+    return@withContext targetDirectory
 }
 
-private suspend fun extractFileWithFlagFileLocation(
+private suspend fun extractFileWithFlag(
     archiveFile: Path,
     targetDirectory: Path,
-    flagFile: Path,
+    flagChannel: FileChannel,
+    flagFile2: Path,
     options: Array<out ExtractOptions>,
 ) = withContext(Dispatchers.IO) {
-    if (checkFlagFile(archiveFile, flagFile, targetDirectory, options)) {
-        LOG.fine("Skipping extract to $targetDirectory since flag file $flagFile is correct")
+    if (checkFlagFile(archiveFile, flagChannel, targetDirectory, options)) {
+        LOG.fine("Skipping extract to $targetDirectory since flag file $flagFile2 is correct")
 
         // Update file modification time to maintain FIFO caches i.e.
         // in persistent cache folder on TeamCity agent
         val now = FileTime.from(Instant.now())
         Files.setLastModifiedTime(targetDirectory, now)
-        Files.setLastModifiedTime(flagFile, now)
+        Files.setLastModifiedTime(flagFile2, now)
         return@withContext
     }
 
@@ -99,9 +116,24 @@ private suspend fun extractFileWithFlagFileLocation(
                 " Magic number (little endian hex): ${Integer.toHexString(magicNumber)}." +
                 " Currently only .tar.gz/.zip/.bz2 are supported")
     }
-    Files.write(flagFile, getExpectedFlagFileContent(archiveFile, targetDirectory, options))
-    check(checkFlagFile(archiveFile, flagFile, targetDirectory, options)) {
-        "'checkFlagFile' must be true right after extracting the archive. flagFile:${flagFile} archiveFile:${archiveFile} target:${targetDirectory}"
+
+    val expectedFlagFileContent = getExpectedFlagFileContent(archiveFile, targetDirectory, options)
+
+    flagChannel.truncate(0)
+    flagChannel.position(0)
+    flagChannel.writeFully(ByteBuffer.wrap(expectedFlagFileContent))
+
+    check(checkFlagFile(archiveFile, flagChannel, targetDirectory, options)) {
+        "'checkFlagFile' must be true right after extracting the archive. flagFile:${flagFile2} archiveFile:${archiveFile} target:${targetDirectory}"
+    }
+}
+
+private fun FileChannel.writeFully(bb: ByteBuffer) {
+    while (bb.remaining() > 0) {
+        val n = write(bb)
+        if (n <= 0) {
+            error("no bytes written")
+        }
     }
 }
 
@@ -137,6 +169,8 @@ fun extractZip(archiveFile: Path, target: Path, stripRoot: Boolean) {
         }, target, stripRoot)
     }
 }
+
+private val extractFileLock = StripedMutex()
 
 private val octal_0111 = "111".toInt(8)
 
@@ -280,12 +314,12 @@ private fun normalizeEntryName(name: String): String {
 }
 
 private fun assertValidEntryName(normalizedEntryName: String) {
-    check(!normalizedEntryName.isBlank()) { "Entry names should not be blank" }
+    check(normalizedEntryName.isNotBlank()) { "Entry names should not be blank" }
     check(!normalizedEntryName.contains('\\')) { "Normalized entry names should not contain '\\'" }
-    check(!normalizedEntryName.startsWith('/')) { "Normalized entry names should not start with '/': ${normalizedEntryName}" }
-    check(!normalizedEntryName.endsWith('/')) { "Normalized entry names should not end with '/': ${normalizedEntryName}" }
-    check(!normalizedEntryName.contains("//")) { "Normalized entry name should not contain '//': ${normalizedEntryName}" }
-    check(!(normalizedEntryName.contains("..") && normalizedEntryName.split('/').contains(".."))) { "Invalid entry name: ${normalizedEntryName}" }
+    check(!normalizedEntryName.startsWith('/')) { "Normalized entry names should not start with '/': $normalizedEntryName" }
+    check(!normalizedEntryName.endsWith('/')) { "Normalized entry names should not end with '/': $normalizedEntryName" }
+    check(!normalizedEntryName.contains("//")) { "Normalized entry name should not contain '//': $normalizedEntryName" }
+    check(!(normalizedEntryName.contains("..") && normalizedEntryName.split('/').contains(".."))) { "Invalid entry name: $normalizedEntryName" }
 }
 
 // increment on semantic changes in extract code to invalidate all current caches
@@ -313,14 +347,35 @@ fun cleanDirectory(directory: Path) {
 }
 
 private fun checkFlagFile(archiveFile: Path,
-                          flagFile: Path,
+                          flagChannel: FileChannel,
                           targetDirectory: Path,
                           options: Array<out ExtractOptions>): Boolean {
-    if (!Files.isRegularFile(flagFile) || !Files.isDirectory(targetDirectory)) {
+    if (!Files.isDirectory(targetDirectory)) {
         return false
     }
-    val existingContent = Files.readAllBytes(flagFile)
+    val existingContent = flagChannel.readEntireFileToByteArray()
     return existingContent.contentEquals(getExpectedFlagFileContent(archiveFile, targetDirectory, options))
+}
+
+private fun FileChannel.readEntireFileToByteArray(): ByteArray {
+    position(0)
+
+    val size = Math.toIntExact(size())
+    if (size == 0) {
+        return ByteArray(0)
+    }
+
+    val buf = ByteArray(size)
+    val bb = ByteBuffer.wrap(buf)
+
+    while (bb.remaining() > 0) {
+        val n = read(bb)
+        if (n <= 0) {
+            error("no bytes read from file")
+        }
+    }
+
+    return buf
 }
 
 private fun getExtractOptionsShortString(options: Array<out ExtractOptions>): String {
