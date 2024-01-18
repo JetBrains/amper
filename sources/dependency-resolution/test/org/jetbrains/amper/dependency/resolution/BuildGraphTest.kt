@@ -581,7 +581,7 @@ class BuildGraphTest {
             root.asSequence().forEach {
                 assertTrue(
                     it.messages.none { "Downloaded from" !in it.text },
-                    "There should be no messages for $it: ${it.messages}"
+                    "There must be no messages for $it: ${it.messages}"
                 )
             }
         }

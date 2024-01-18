@@ -24,13 +24,16 @@ class DependencyFileTest {
             temp,
             "${dependency.group}/${dependency.module}/${dependency.version}/3bf4b49eb37b4aca302f99bd99769f6e310bdb2/$name"
         )
-        assertTrue(file.parentFile.mkdirs())
+        assertTrue(file.parentFile.mkdirs(), "Unable to create directories")
         file.writeText(Path.of("testData/metadata/json/$name").readText())
+
         val dependencyFile = DependencyFile(
             settings.fileCache,
             dependency,
             extension
         )
-        assertTrue(dependencyFile.isDownloaded(ResolutionLevel.PARTIAL, settings))
+        val downloaded = dependencyFile.isDownloaded(ResolutionLevel.PARTIAL, settings)
+        assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
+        assertTrue(downloaded, "File must be downloaded as it was created above")
     }
 }
