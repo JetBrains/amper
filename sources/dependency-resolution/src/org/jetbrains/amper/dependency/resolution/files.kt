@@ -237,7 +237,7 @@ class DependencyFile(
         for ((level, algorithm) in algorithms) {
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
             val actualHash = computeHash(algorithm, bytes)
-            if (expectedHash != actualHash && expectedHash != actualHash.trimStart('0') /*old Gradle compatibility*/) {
+            if (expectedHash != actualHash) {
                 dependency.messages += Message(
                     "Hashes don't match for $algorithm",
                     "expected: $expectedHash, actual: $actualHash",
@@ -285,7 +285,11 @@ class DependencyFile(
     }
 
     private fun getHashFromGradleCacheDirectory(algorithm: String) =
-        if (cacheDirectory is GradleCacheDirectory && algorithm == "sha1") path?.parent?.name else null
+        if (cacheDirectory is GradleCacheDirectory && algorithm == "sha1") {
+            path?.parent?.name?.padStart(40, '0') // old Gradle compatibility
+        } else {
+            null
+        }
 
     private fun getHashFromMavenCacheDirectory(
         algorithm: String,
