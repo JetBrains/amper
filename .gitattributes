@@ -6,3 +6,5 @@
 gradlew text eol=lf
 
 *.png binary
+
+*.module text eol=lf
