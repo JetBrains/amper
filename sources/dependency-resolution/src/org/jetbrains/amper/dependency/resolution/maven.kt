@@ -132,16 +132,34 @@ data class MavenDependency(
 
     fun resolve(context: Context, level: ResolutionLevel) {
         val settings = context.settings
-        if (metadata.isDownloadedOrDownload(level, settings)) {
-            resolveUsingMetadata(context, level)
-        } else if (pom.isDownloadedOrDownload(level, settings)) {
-            resolveUsingPom(context, level)
+        // 1. Download pom.
+        val pomText = if (pom.isDownloadedOrDownload(level, settings)) {
+            pom.readText()
         } else {
             messages += Message(
-                "Either metadata or pom required for $this",
+                "Pom required for $this",
                 settings.repositories.toString(),
                 if (level == ResolutionLevel.FULL) Severity.ERROR else Severity.WARNING,
             )
+            null
+        }
+        // 2. If pom is missing or mentions metadata, use it.
+        if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
+            if (metadata.isDownloadedOrDownload(level, settings)) {
+                resolveUsingMetadata(context, level)
+                return
+            }
+            if (pomText != null) {
+                messages += Message(
+                    "Pom provided but metadata required for $this",
+                    context.settings.repositories.toString(),
+                    if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
+                )
+            }
+        }
+        // 3. If can't use metadata, use pom.
+        if (pomText != null) {
+            resolveUsingPom(pomText, context, level)
         }
     }
 
@@ -204,39 +222,30 @@ data class MavenDependency(
 
     private fun AvailableAt.asDependency(): Dependency = Dependency(group, module, Version(version))
 
-    private fun resolveUsingPom(context: Context, resolutionLevel: ResolutionLevel) {
-        val text = pom.readText()
-        if (!text.contains("do_not_remove: published-with-gradle-metadata")) {
-            val project = try {
-                text.parsePom().resolve(context, resolutionLevel)
-            } catch (e: Exception) {
-                messages += Message(
-                    "Unable to parse pom file $pom",
-                    e.toString(),
-                    Severity.ERROR,
-                )
-                return
-            }
-            packaging = project.packaging
-            (project.dependencies?.dependencies ?: listOf()).filter {
-                when (context.settings.scope) {
-                    Scope.COMPILE -> it.scope in setOf(null, "compile")
-                    Scope.RUNTIME -> it.scope in setOf(null, "compile", "runtime")
-                }
-            }.filter {
-                it.version != null && it.optional != true
-            }.map {
-                createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
-            }.let {
-                children.addAll(it)
-                state = resolutionLevel.state
-            }
-        } else {
+    private fun resolveUsingPom(text: String, context: Context, resolutionLevel: ResolutionLevel) {
+        val project = try {
+            text.parsePom().resolve(context, resolutionLevel)
+        } catch (e: Exception) {
             messages += Message(
-                "Pom provided but metadata required for $this",
-                context.settings.repositories.toString(),
-                if (resolutionLevel.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
+                "Unable to parse pom file ${this.pom}",
+                e.toString(),
+                Severity.ERROR,
             )
+            return
+        }
+        packaging = project.packaging
+        (project.dependencies?.dependencies ?: listOf()).filter {
+            when (context.settings.scope) {
+                Scope.COMPILE -> it.scope in setOf(null, "compile")
+                Scope.RUNTIME -> it.scope in setOf(null, "compile", "runtime")
+            }
+        }.filter {
+            it.version != null && it.optional != true
+        }.map {
+            createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
+        }.let {
+            children.addAll(it)
+            state = resolutionLevel.state
         }
     }
 

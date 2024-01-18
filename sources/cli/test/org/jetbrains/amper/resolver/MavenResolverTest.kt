@@ -93,7 +93,7 @@ class MavenResolverTest {
             resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999"), listOf("https://repo1.maven.org/maven2"))
         }
         assertEquals(
-            "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
             t.message
         )
     }
@@ -106,11 +106,11 @@ class MavenResolverTest {
             resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"), listOf("https://repo1.maven.org/maven2"))
         }
         assertEquals(
-            "Either metadata or pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
             t.message
         )
         assertEquals(
-            "Either metadata or pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])",
+            "Pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])",
             t.suppressed.single().message
         )
         return
