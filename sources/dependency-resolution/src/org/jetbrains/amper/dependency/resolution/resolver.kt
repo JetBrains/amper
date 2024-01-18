@@ -64,8 +64,8 @@ interface DependencyNode {
     val key: Key<*>
     var state: ResolutionState
     var level: ResolutionLevel
-    val children: Collection<DependencyNode>
-    val messages: Collection<Message>
+    val children: List<DependencyNode>
+    val messages: List<Message>
 
     fun resolve(level: ResolutionLevel)
     fun downloadDependencies()
@@ -152,7 +152,7 @@ class Builder {
     var progress: Progress = Progress()
     var scope: Scope = Scope.COMPILE
     var platform: String = "jvm"
-    var repositories: Collection<String> = listOf("https://repo1.maven.org/maven2")
+    var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: List<CacheDirectory> = listOf(GradleCacheDirectory(), MavenCacheDirectory())
     var conflictResolutionStrategies = listOf(HighestVersionStrategy())
 
@@ -173,7 +173,7 @@ data class Settings(
     val progress: Progress,
     val scope: Scope,
     val platform: String,
-    val repositories: Collection<String>,
+    val repositories: List<String>,
     val fileCache: List<CacheDirectory>,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
 )

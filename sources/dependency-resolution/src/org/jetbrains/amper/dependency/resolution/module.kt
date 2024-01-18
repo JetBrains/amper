@@ -7,13 +7,13 @@ package org.jetbrains.amper.dependency.resolution
 class ModuleDependencyNode(
     override val context: Context,
     val name: String,
-    override val children: Collection<DependencyNode>,
+    override val children: List<DependencyNode>,
 ) : DependencyNode {
 
     override val key: Key<*> = Key<ModuleDependencyNode>(name)
     override var state: ResolutionState = ResolutionState.RESOLVED
     override var level: ResolutionLevel = ResolutionLevel.CREATED
-    override val messages: Collection<Message> = listOf()
+    override val messages: List<Message> = listOf()
 
     override fun toString(): String = name
 

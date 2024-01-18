@@ -44,7 +44,7 @@ class MavenDependencyNode(
         set(value) {
             dependency.level = value
         }
-    override val children: Collection<DependencyNode> by PropertyWithDependency(
+    override val children: List<DependencyNode> by PropertyWithDependency(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
         valueProvider = { thisRef ->
@@ -54,7 +54,7 @@ class MavenDependencyNode(
             thisRef.dependency.children.toList()
         }
     )
-    override val messages: Collection<Message>
+    override val messages: List<Message>
         get() = dependency.messages
 
     override fun resolve(level: ResolutionLevel) {
@@ -110,7 +110,7 @@ class MavenDependency internal constructor(
     val children: MutableList<MavenDependency> = mutableListOf()
     var variant: Variant? = null
     var packaging: String? = null
-    val messages: MutableCollection<Message> = mutableListOf()
+    val messages: MutableList<Message> = mutableListOf()
 
     val metadata = DependencyFile(fileCache, this, "module")
     val pom = DependencyFile(fileCache, this, "pom")

@@ -27,7 +27,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .startSpan().use {
             val context = Context.build {
                 cache = listOf(MavenCacheDirectory(userCacheRoot.path.resolve(".m2.cache")))
-                this.repositories = repositories
+                this.repositories = repositories.toList()
                 this.scope = scope
             }
             val resolver = Resolver(

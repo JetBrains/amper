@@ -102,7 +102,7 @@ class DependencyFile(
 
     private fun isDownloaded(
         level: ResolutionLevel,
-        repositories: Collection<String>,
+        repositories: List<String>,
         progress: Progress,
         verify: Boolean = true
     ): Boolean {
