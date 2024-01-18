@@ -229,10 +229,12 @@ class DependencyFile(
         bytes: ByteArray,
         repository: String,
         progress: Progress,
-        level: ResolutionLevel = ResolutionLevel.FULL
+        requestedLevel: ResolutionLevel = ResolutionLevel.FULL
     ): VerificationResult {
-        val algorithms = listOf("sha512", "sha256", "sha1", "md5")
-        for (algorithm in algorithms) {
+        // Let's first check hashes available on disk.
+        val algorithms = setOf(ResolutionLevel.PARTIAL, requestedLevel)
+            .flatMap { level -> listOf("sha512", "sha256", "sha1", "md5").map { level to it } }
+        for ((level, algorithm) in algorithms) {
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
             val actualHash = computeHash(algorithm, bytes)
             if (expectedHash != actualHash) {
