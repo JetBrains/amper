@@ -32,3 +32,13 @@ annotation class ModifierAware
 annotation class CustomSchemaDef(
     val json: String
 )
+
+/**
+ * A way of rude tuning resulting json schema.
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class AdditionalSchemaDef(
+    val json: String,
+    val useOneOf: Boolean = false
+)

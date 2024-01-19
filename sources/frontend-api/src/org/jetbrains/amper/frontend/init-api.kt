@@ -44,8 +44,8 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
-        fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
-            return loadModelInitService(loader).flatMap { it.getModel(root) }
+        fun getModel(root: Path, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
+            return loadModelInitService(loader).flatMap { it.getModel(root, project) }
         }
 
         context(ProblemReporterContext)
@@ -65,7 +65,7 @@ interface ModelInit {
     val name: String
 
     context(ProblemReporterContext)
-    fun getModel(root: Path): Result<Model>
+    fun getModel(root: Path, project: Project): Result<Model>
 
     context(ProblemReporterContext)
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule>

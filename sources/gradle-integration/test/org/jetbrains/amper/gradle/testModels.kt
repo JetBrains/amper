@@ -51,7 +51,7 @@ object Models : ModelInit {
     override val name = "test"
 
     context(ProblemReporterContext)
-    override fun getModel(root: Path): Result<MockModel> {
+    override fun getModel(root: Path, project: Project): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {
             problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug))
@@ -69,7 +69,7 @@ object Models : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> =
-        when (val result: Result<MockModel> = getModel(modulePsiFile.virtualFile.toNioPath())) {
+        when (val result: Result<MockModel> = getModel(modulePsiFile.virtualFile.toNioPath(), project)) {
             is Result.Failure -> Result.failure(result.exception)
             is Result.Success -> Result.success(result.value.modules.single())
         }

@@ -15,6 +15,10 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.processing.BuiltInCatalog
+import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
+import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
+import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
@@ -24,9 +28,9 @@ class SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(ProblemReporterContext)
-    override fun getModel(root: Path): Result<Model> {
+    override fun getModel(root: Path, project: Project): Result<Model> {
         val fioCtx = DefaultFioContext(root)
-        val pathResolver = FrontendPathResolver()
+        val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx,)
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
@@ -46,13 +50,18 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getTemplate(templatePsiFile: PsiFile, project: Project): Result<Unit> {
-        val pathResolver = FrontendPathResolver(project = project)
         val templatePath = templatePsiFile.virtualFile.toNioPath()
+        val fioCtx = ModuleFioContext(templatePath, project)
+        val pathResolver = FrontendPathResolver(project = project)
         with(ConvertCtx(templatePath.parent, pathResolver)) {
             convertTemplate(templatePath)
-        }
-            ?.validateSchema()
-            ?: return amperFailure()
+        }?.let {
+            val gradleCatalog = fioCtx.amperFiles2gradleCatalogs[templatePath] ?.let { parseGradleVersionCatalog(it) }
+            val catalogs = gradleCatalog?.let { listOf(it) }.orEmpty() + BuiltInCatalog
+            it.replaceCatalogDependencies(CompositeVersionCatalog(catalogs))
+                .validateSchema()
+        } ?: return amperFailure()
+
         // Propagate parts from fragment to fragment.
         return Result.success(Unit)
     }
@@ -60,7 +69,7 @@ class SchemaBasedModelImport : ModelInit {
     companion object {
         context(ProblemReporterContext)
         @UsedInIdePlugin
-        fun getModel(root: Path): Result<Model> = SchemaBasedModelImport().getModel(root)
+        fun getModel(root: Path, project: Project): Result<Model> = SchemaBasedModelImport().getModel(root, project)
 
         /**
          * @return Module parsed from file with all templates resolved

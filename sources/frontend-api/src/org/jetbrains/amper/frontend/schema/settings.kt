@@ -6,6 +6,8 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
@@ -30,13 +32,32 @@ class Settings : SchemaNode() {
     var native by nullableValue<NativeSettings>()
 }
 
+@AdditionalSchemaDef(composeSettingsShortForm)
 class ComposeSettings : SchemaNode() {
     var enabled by value(false)
 }
 
+const val composeSettingsShortForm = """
+  {
+    "enum": [
+      "enabled"
+    ]
+  }
+"""
+
+@AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
     var engine by value("json")
 }
+
+const val serializationSettingsShortForm = """
+  {
+    "enum": [
+      "json",
+      "none"
+    ]
+  }
+"""
 
 class IosSettings : SchemaNode() {
     var teamId by nullableValue<String>()
@@ -53,11 +74,20 @@ class PublishingSettings : SchemaNode() {
     var version by nullableValue<String>()
 }
 
+@AdditionalSchemaDef(koverSettingsShortForm)
 class KoverSettings : SchemaNode() {
     var enabled by value(false)
     var xml by nullableValue<KoverXmlSettings>()
     var html by nullableValue<KoverHtmlSettings>()
 }
+
+const val koverSettingsShortForm = """
+  {
+    "enum": [
+      "enabled"
+    ]
+  }
+"""
 
 class KoverXmlSettings : SchemaNode() {
     var onCheck by nullableValue<Boolean>()

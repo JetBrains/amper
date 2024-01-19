@@ -77,7 +77,7 @@ fun convertTemplatePsi(file: PsiFile): Template? {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-public fun YAMLDocument.convertTemplate() = Template().apply {
+fun YAMLDocument.convertTemplate() = Template().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         convertBase(this@apply)

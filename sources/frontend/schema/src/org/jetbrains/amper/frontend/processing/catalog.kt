@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toTraceableString
 import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
@@ -23,7 +24,7 @@ import org.jetbrains.yaml.psi.YAMLPsiElement
  * Replace all [CatalogDependency] with ones, that are from actual catalog.
  */
 context(ProblemReporterContext)
-fun Module.replaceCatalogDependencies(
+fun <T: Base> T.replaceCatalogDependencies(
     catalog: VersionCatalog,
 ) = apply {
     fun List<Dependency>.convertCatalogDeps() = mapNotNull {

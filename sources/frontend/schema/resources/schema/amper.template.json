@@ -181,21 +181,28 @@
       ]
     },
     "Repository": {
-      "type": "object",
-      "properties": {
-        "credentials": {
-          "$ref": "#/$defs/Credentials"
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "credentials": {
+              "$ref": "#/$defs/Credentials"
+            },
+            "id": {
+              "type": "string"
+            },
+            "publish": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
         },
-        "id": {
-          "type": "string"
-        },
-        "publish": {
-          "type": "boolean"
-        },
-        "url": {
+        {
           "type": "string"
         }
-      }
+      ]
     },
     "Credentials": {
       "type": "object",
@@ -270,12 +277,21 @@
       }
     },
     "ComposeSettings": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
         }
-      }
+      ]
     },
     "IosSettings": {
       "type": "object",
@@ -376,26 +392,45 @@
       }
     },
     "SerializationSettings": {
-      "type": "object",
-      "properties": {
-        "engine": {
-          "type": "string"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "engine": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "enum": [
+            "json",
+            "none"
+          ]
         }
-      }
+      ]
     },
     "KoverSettings": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "html": {
+              "$ref": "#/$defs/KoverHtmlSettings"
+            },
+            "xml": {
+              "$ref": "#/$defs/KoverXmlSettings"
+            }
+          }
         },
-        "html": {
-          "$ref": "#/$defs/KoverHtmlSettings"
-        },
-        "xml": {
-          "$ref": "#/$defs/KoverXmlSettings"
+        {
+          "enum": [
+            "enabled"
+          ]
         }
-      }
+      ]
     },
     "KoverHtmlSettings": {
       "type": "object",

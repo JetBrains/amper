@@ -9,10 +9,12 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.reportBundleError
 
+@AdditionalSchemaDef(productShortForm, useOneOf = true)
 class ModuleProduct : SchemaNode() {
     var type by value<ProductType>()
 
@@ -51,3 +53,9 @@ class ModuleProduct : SchemaNode() {
         }
     }
 }
+
+const val productShortForm = """
+  {
+    "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
+  }
+"""

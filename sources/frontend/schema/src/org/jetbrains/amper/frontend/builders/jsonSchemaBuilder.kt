@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.forEachEndAware
@@ -22,6 +23,7 @@ import kotlin.reflect.typeOf
 class JsonSchemaBuilderCtx {
     val visited = mutableSetOf<KClass<*>>()
     val customSchemaDef = mutableMapOf<String, String>()
+    val additionalSchemaDef = mutableMapOf<String, AdditionalSchemaDef>()
     val declaredPatternProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
     val declaredProperties: MutableMap<String, MutableList<String>> = mutableMapOf()
 }
@@ -68,27 +70,40 @@ class JsonSchemaBuilder(
                         if (customSchema != null) {
                             appendLine(customSchema.prependIndent("      "))
                         } else {
-                            appendLine("      \"type\": \"object\",")
+                            val (additionalSchema, useOneOf) = additionalSchemaDef[key]?.let { it.json.trimIndent() to it.useOneOf } ?: (null to null)
+                            if (additionalSchema != null) {
+                                val term = if (useOneOf == true) "oneOf" else "anyOf"
+                                appendLine("      \"$term\": [")
+                                appendLine("        {")
+                            }
+                            val identPrefix = additionalSchema?.let { "    " } ?: ""
+                            appendLine("$identPrefix      \"type\": \"object\",")
 
                             // pattern properties section.
                             if (patternProperties != null) {
-                                appendLine("      \"patternProperties\": {")
+                                appendLine("$identPrefix      \"patternProperties\": {")
                                 patternProperties.forEachEndAware { isEnd2, it ->
-                                    append(it.replaceIndent("        "))
+                                    append(it.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
-                                if (propertyValues != null) appendLine("      },")
-                                else appendLine("      }")
+                                if (propertyValues != null) appendLine("$identPrefix      },")
+                                else appendLine("$identPrefix      }")
                             }
 
                             // properties section.
                             if (propertyValues != null) {
-                                appendLine("      \"properties\": {")
+                                appendLine("$identPrefix      \"properties\": {")
                                 propertyValues.forEachEndAware { isEnd2, it ->
-                                    append(it.replaceIndent("        "))
+                                    append(it.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
-                                appendLine("      }")
+                                appendLine("$identPrefix      }")
+                            }
+
+                            if (additionalSchema != null) {
+                                appendLine("        },")
+                                appendLine(additionalSchema.prependIndent("        "))
+                                appendLine("      ]")
                             }
                         }
 
@@ -117,8 +132,12 @@ class JsonSchemaBuilder(
         when {
             klass.hasAnnotation<CustomSchemaDef>() ->
                 ctx.customSchemaDef[klass.jsonDef] = klass.findAnnotation<CustomSchemaDef>()!!.json.trimIndent()
-            else ->
+            else -> {
+                if (klass.hasAnnotation<AdditionalSchemaDef>()) {
+                    ctx.additionalSchemaDef[klass.jsonDef] = klass.findAnnotation<AdditionalSchemaDef>()!!
+                }
                 visitSchema(klass, JsonSchemaBuilder(klass, ctx))
+            }
         }
     } else Unit
 

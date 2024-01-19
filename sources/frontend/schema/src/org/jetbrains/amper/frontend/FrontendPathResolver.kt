@@ -31,7 +31,7 @@ data class FrontendPathResolver(
 
     val path2PsiFile: (Path) -> PsiFile? = { path ->
         val application = ApplicationManager.getApplication()
-        if (application != null && application !is MockApplication) {
+        if (application != null && application !is MockApplication && project != DummyProject.instance) {
             val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
             vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
         } else {

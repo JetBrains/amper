@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -81,6 +82,7 @@ class Module : Base() {
     var module by value(::Meta)
 }
 
+@AdditionalSchemaDef(repositoryShortForm, useOneOf = true)
 class Repository : SchemaNode() {
     var url by value<String>()
     var id by value { url }
@@ -93,6 +95,12 @@ class Repository : SchemaNode() {
         var passwordKey by value<String>()
     }
 }
+
+const val repositoryShortForm = """
+  {
+    "type": "string"
+  }
+"""
 
 enum class AmperLayout(
     override var schemaValue: String,
