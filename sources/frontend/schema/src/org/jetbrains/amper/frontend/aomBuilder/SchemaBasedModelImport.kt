@@ -22,15 +22,16 @@ import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
+import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import java.nio.file.Path
 
 class SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(ProblemReporterContext)
-    override fun getModel(root: Path, project: Project): Result<Model> {
+    override fun getModel(root: Path, project: Project?): Result<Model> {
         val fioCtx = DefaultFioContext(root)
-        val pathResolver = FrontendPathResolver(project = project)
+        val pathResolver = FrontendPathResolver(project = project ?: DummyProject.instance)
         val resultModules = doBuild(pathResolver, fioCtx,)
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
@@ -69,7 +70,7 @@ class SchemaBasedModelImport : ModelInit {
     companion object {
         context(ProblemReporterContext)
         @UsedInIdePlugin
-        fun getModel(root: Path, project: Project): Result<Model> = SchemaBasedModelImport().getModel(root, project)
+        fun getModel(root: Path, project: Project?): Result<Model> = SchemaBasedModelImport().getModel(root, project)
 
         /**
          * @return Module parsed from file with all templates resolved

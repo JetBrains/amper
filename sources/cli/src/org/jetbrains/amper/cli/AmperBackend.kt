@@ -15,7 +15,6 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.RunTask
@@ -40,7 +39,7 @@ class AmperBackend(val context: ProjectContext) {
             val model = spanBuilder("loading model")
                 .setAttribute("root", context.projectRoot.path.pathString)
                 .startSpan().use {
-                    when (val result = ModelInit.getModel(context.projectRoot.path, DummyProject.instance)) {
+                    when (val result = ModelInit.getModel(context.projectRoot.path)) {
                         is Result.Failure -> throw result.exception
                         is Result.Success -> result.value
                     }

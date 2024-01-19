@@ -21,7 +21,6 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.ProductType
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import tooling.ApkPathToolingModelBuilder
 import tooling.RClassToolingModelBuilder
 import java.io.File
@@ -208,7 +207,7 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
 
     context(SLF4JProblemReporterContext)
     private fun initProjects(projectRoot: Path, settings: Settings, loader: ClassLoader) {
-        val model = when (val result = ModelInit.getModel(projectRoot, DummyProject.instance, loader)) {
+        val model = when (val result = ModelInit.getModel(projectRoot, loader = loader)) {
             is Result.Failure -> throw result.exception
             is Result.Success -> result.value
         }

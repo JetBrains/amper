@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.SystemIndependent
 import java.lang.Deprecated
 
-class DummyProject private constructor() : UserDataHolderBase(), Project {
+internal class DummyProject private constructor() : UserDataHolderBase(), Project {
   private object DummyProjectHolder {
     val ourInstance: DummyProject = DummyProject()
   }

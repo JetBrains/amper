@@ -51,7 +51,7 @@ object Models : ModelInit {
     override val name = "test"
 
     context(ProblemReporterContext)
-    override fun getModel(root: Path, project: Project): Result<MockModel> {
+    override fun getModel(root: Path, project: Project?): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {
             problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug))

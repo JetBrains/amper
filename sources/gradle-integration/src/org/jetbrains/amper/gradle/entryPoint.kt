@@ -17,7 +17,6 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.messages.renderMessage
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import org.slf4j.LoggerFactory
 
 @Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
@@ -25,7 +24,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val rootPath = settings.rootDir.toPath().toAbsolutePath()
         with(SLF4JProblemReporterContext()) {
-            val model = ModelInit.getModel(rootPath, DummyProject.instance)
+            val model = ModelInit.getModel(rootPath)
             if (model is Result.Failure<Model>) {
                 throw GradleException(problemReporter.getGradleError())
             }
