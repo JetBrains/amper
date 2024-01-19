@@ -115,9 +115,6 @@ class DependencyFile(
             return true
         }
         val bytes = path.readBytes()
-        if (bytes.isEmpty()) {
-            return false
-        }
         for (repository in repositories) {
             val result = verify(bytes, repository, progress, level)
             return when (result) {
