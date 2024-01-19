@@ -6,8 +6,8 @@ package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.Context
-import org.jetbrains.amper.dependency.resolution.MavenCacheDirectory
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Scope
@@ -26,7 +26,10 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
             val context = Context.build {
-                cache = listOf(MavenCacheDirectory(userCacheRoot.path.resolve(".m2.cache")))
+                this.cache = {
+                    amperCache = userCacheRoot.path.resolve(".amper")
+                    localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
+                }
                 this.repositories = repositories.toList()
                 this.scope = scope
             }

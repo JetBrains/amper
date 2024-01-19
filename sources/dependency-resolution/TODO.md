@@ -10,7 +10,7 @@
 - [ ] Coroutines scope per MavenDependency
 - [ ] Dump resolution graph
 - [ ] Write tests for partial resolution
-- [ ] CacheDirectoryComposite
+- [x] CacheDirectoryComposite
 - [ ] Support fragments: common(d1) ios(d2) android(d3)
 - [x] Order of dependencies
 - [ ] Resolve: from root or per module (Go modules, Run task)?

@@ -11,13 +11,13 @@ import kotlin.io.path.relativeTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MavenCacheDirectoryTest {
+class MavenLocalRepositoryTest {
 
     @field:TempDir
     lateinit var temp: File
 
-    private val cache: MavenCacheDirectory
-        get() = MavenCacheDirectory(temp.toPath())
+    private val cache: MavenLocalRepository
+        get() = MavenLocalRepository(temp.toPath())
 
     @Test
     fun `get name`() {
@@ -43,7 +43,10 @@ class MavenCacheDirectoryTest {
         )
     }
 
-    private fun kotlinTest() = MavenDependency(listOf(cache), "org.jetbrains.kotlin", "kotlin-test", "1.9.10")
+    private fun kotlinTest() = MavenDependency(
+        FileCacheBuilder { localRepositories = listOf(cache) }.build(),
+        "org.jetbrains.kotlin", "kotlin-test", "1.9.10"
+    )
 
     private fun randomString() = UUID.randomUUID().toString()
 }

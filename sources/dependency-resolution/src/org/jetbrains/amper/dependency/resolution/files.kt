@@ -20,12 +20,12 @@ import java.security.MessageDigest
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 
-interface CacheDirectory {
+interface LocalRepository {
     fun guessPath(dependency: MavenDependency, extension: String): Path?
     fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path
 }
 
-class GradleCacheDirectory(private val files: Path) : CacheDirectory {
+class GradleLocalRepository(private val files: Path) : LocalRepository {
 
     constructor() : this(getRootFromUserHome())
 
@@ -61,7 +61,7 @@ class GradleCacheDirectory(private val files: Path) : CacheDirectory {
         files.resolve("${dependency.group}/${dependency.module}/${dependency.version}")
 }
 
-class MavenCacheDirectory(private val repository: Path) : CacheDirectory {
+class MavenLocalRepository(private val repository: Path) : LocalRepository {
 
     constructor() : this(getRootFromUserHome())
 
@@ -84,14 +84,15 @@ class MavenCacheDirectory(private val repository: Path) : CacheDirectory {
 }
 
 class DependencyFile(
-    fileCache: List<CacheDirectory>,
     val dependency: MavenDependency,
-    val extension: String
+    val extension: String,
+    fileCache: FileCache = dependency.fileCache,
 ) {
 
     private val name = getName(dependency, extension)
     private val cacheDirectory =
-        fileCache.find { it.guessPath(dependency, extension)?.toFile()?.exists() == true } ?: fileCache.first()
+        fileCache.localRepositories.find { it.guessPath(dependency, extension)?.toFile()?.exists() == true }
+            ?: fileCache.fallbackLocalRepository
     val path: Path?
         get() = cacheDirectory.guessPath(dependency, extension)
 
@@ -285,7 +286,7 @@ class DependencyFile(
     }
 
     private fun getHashFromGradleCacheDirectory(algorithm: String) =
-        if (cacheDirectory is GradleCacheDirectory && algorithm == "sha1") {
+        if (cacheDirectory is GradleLocalRepository && algorithm == "sha1") {
             path?.parent?.name?.padStart(40, '0') // old Gradle compatibility
         } else {
             null
@@ -297,10 +298,10 @@ class DependencyFile(
         progress: Progress,
         level: ResolutionLevel
     ): String? {
-        if (cacheDirectory !is MavenCacheDirectory) {
+        if (cacheDirectory !is MavenLocalRepository) {
             return null
         }
-        val hashFile = DependencyFile(listOf(cacheDirectory), dependency, "$extension.$algorithm")
+        val hashFile = DependencyFile(dependency, "$extension.$algorithm")
         return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
             || level == ResolutionLevel.FULL && hashFile.download(repository, progress, false)
         ) {

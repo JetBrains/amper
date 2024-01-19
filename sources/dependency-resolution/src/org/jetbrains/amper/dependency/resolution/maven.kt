@@ -98,7 +98,7 @@ private fun createOrReuseDependency(
 }
 
 class MavenDependency internal constructor(
-    val fileCache: List<CacheDirectory>,
+    val fileCache: FileCache,
     val group: String,
     val module: String,
     val version: String
@@ -112,23 +112,23 @@ class MavenDependency internal constructor(
     var packaging: String? = null
     val messages: MutableList<Message> = mutableListOf()
 
-    val metadata = DependencyFile(fileCache, this, "module")
-    val pom = DependencyFile(fileCache, this, "pom")
+    val metadata = DependencyFile(this, "module")
+    val pom = DependencyFile(this, "pom")
     val files
         get() = buildMap {
             variant?.files?.forEach {
                 val extension = it.name.substringAfterLast('.')
-                put(extension, DependencyFile(fileCache, this@MavenDependency, extension))
+                put(extension, DependencyFile(this@MavenDependency, extension))
             }
             packaging?.let {
                 val extension = when (it) {
                     "bundle" -> "jar"
                     else -> it
                 }
-                put(extension, DependencyFile(fileCache, this@MavenDependency, extension))
+                put(extension, DependencyFile(this@MavenDependency, extension))
             }
             if (isEmpty()) {
-                put("jar", DependencyFile(fileCache, this@MavenDependency, "jar"))
+                put("jar", DependencyFile(this@MavenDependency, "jar"))
             }
         }
 

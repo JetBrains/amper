@@ -17,7 +17,9 @@ class DependencyFileTest {
     fun `kotlin-test-1_9_20 module hash`() {
         val path = temp.toPath()
         val settings = Context.build {
-            cache = listOf(GradleCacheDirectory(path))
+            cache = {
+                localRepositories = listOf(GradleLocalRepository(path))
+            }
         }.settings
         val dependency = MavenDependency(settings.fileCache, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
         val extension = "module"
@@ -28,7 +30,7 @@ class DependencyFileTest {
         Files.createDirectories(target.parent)
         Path.of("testData/metadata/json/$name").copyTo(target)
 
-        val dependencyFile = DependencyFile(settings.fileCache, dependency, extension)
+        val dependencyFile = DependencyFile(dependency, extension)
         val downloaded = dependencyFile.isDownloaded(ResolutionLevel.PARTIAL, settings)
         assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
         assertTrue(downloaded, "File must be downloaded as it was created above")

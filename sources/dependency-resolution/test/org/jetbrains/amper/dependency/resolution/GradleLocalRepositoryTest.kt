@@ -14,13 +14,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class GradleCacheDirectoryTest {
+class GradleLocalRepositoryTest {
 
     @field:TempDir
     lateinit var temp: File
 
-    private val cache: GradleCacheDirectory
-        get() = GradleCacheDirectory(temp.toPath())
+    private val cache: GradleLocalRepository
+        get() = GradleLocalRepository(temp.toPath())
 
     @Test
     fun `get name`() {
@@ -84,7 +84,10 @@ class GradleCacheDirectoryTest {
         )
     }
 
-    private fun kotlinTest() = MavenDependency(listOf(cache), "org.jetbrains.kotlin", "kotlin-test", "1.9.10")
+    private fun kotlinTest() = MavenDependency(
+        FileCacheBuilder { localRepositories = listOf(cache) }.build(),
+        "org.jetbrains.kotlin", "kotlin-test", "1.9.10"
+    )
 
     private fun randomString() = UUID.randomUUID().toString()
 }
