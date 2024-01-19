@@ -9,7 +9,7 @@ import org.jetbrains.amper.gradle.base.PluginPartCtx
 
 class SerializationPluginPart(ctx: PluginPartCtx) : BindingPluginPart by ctx {
     override val needToApply: Boolean by lazy {
-        module.leafFragments.any { it.settings.kotlin.serialization?.engine == "json" }
+        module.leafFragments.any { it.settings.kotlin.serialization?.format == "json" }
     }
 
     override fun applyBeforeEvaluate() {

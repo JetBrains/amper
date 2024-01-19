@@ -54,7 +54,7 @@ fun Settings?.convertFragmentParts(): ClassBasedSet<FragmentPart<*>> {
         progressiveMode = this?.kotlin?.progressiveMode,
         languageFeatures = this?.kotlin?.languageFeatures ?: emptyList(),
         optIns = this?.kotlin?.optIns ?: emptyList(),
-        serialization = this?.kotlin?.serialization?.engine,
+        serialization = this?.kotlin?.serialization?.format,
     )
 
     parts += AndroidPart(

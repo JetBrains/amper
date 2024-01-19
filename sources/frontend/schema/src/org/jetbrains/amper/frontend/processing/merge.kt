@@ -100,7 +100,7 @@ fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::
 }
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {
-    mergeScalar(SerializationSettings::engine)
+    mergeScalar(SerializationSettings::format)
 }
 
 fun IosSettings.merge(overwrite: IosSettings) = mergeNode(overwrite, ::IosSettings) {

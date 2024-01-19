@@ -97,7 +97,8 @@ class JsonSchemaBuilder(
                                     append(it.replaceIndent("$identPrefix        "))
                                     if (!isEnd2) appendLine(",") else appendLine()
                                 }
-                                appendLine("$identPrefix      }")
+                                appendLine("$identPrefix      },")
+                                appendLine("$identPrefix      \"additionalProperties\": false")
                             }
 
                             if (additionalSchema != null) {

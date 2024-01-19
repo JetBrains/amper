@@ -89,7 +89,8 @@
             "$ref": "#/$defs/Repository"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Meta": {
       "type": "object",
@@ -97,7 +98,8 @@
         "layout": {
           "enum": ["gradle-kmp","gradle-jvm","default"]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ModuleProduct": {
       "oneOf": [
@@ -114,7 +116,8 @@
             "type": {
               "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
             }
-          }
+          },
+          "additionalProperties": false
         },
         {
           "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
@@ -255,7 +258,8 @@
             "url": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         },
         {
           "type": "string"
@@ -274,7 +278,8 @@
         "usernameKey": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Settings": {
       "type": "object",
@@ -309,7 +314,8 @@
         "publishing": {
           "$ref": "#/$defs/PublishingSettings"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "AndroidSettings": {
       "type": "object",
@@ -332,7 +338,8 @@
         "targetSdk": {
           "enum": ["26","27","28","29","30","31","32","33","34"]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ComposeSettings": {
       "anyOf": [
@@ -342,7 +349,8 @@
             "enabled": {
               "type": "boolean"
             }
-          }
+          },
+          "additionalProperties": false
         },
         {
           "enum": [
@@ -360,7 +368,8 @@
         "teamId": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "IosFrameworkSettings": {
       "type": "object",
@@ -371,7 +380,8 @@
         "isStatic": {
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "JavaSettings": {
       "type": "object",
@@ -379,7 +389,8 @@
         "source": {
           "enum": ["1.8","11","17","21","22","23","24","25"]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "JvmSettings": {
       "type": "object",
@@ -390,7 +401,8 @@
         "target": {
           "enum": ["1.8","11","17","21","22","23","24","25"]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "KotlinSettings": {
       "type": "object",
@@ -447,17 +459,19 @@
         "verbose": {
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "SerializationSettings": {
       "anyOf": [
         {
           "type": "object",
           "properties": {
-            "engine": {
+            "format": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         },
         {
           "enum": [
@@ -481,7 +495,8 @@
             "xml": {
               "$ref": "#/$defs/KoverXmlSettings"
             }
-          }
+          },
+          "additionalProperties": false
         },
         {
           "enum": [
@@ -505,7 +520,8 @@
         "title": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "KoverXmlSettings": {
       "type": "object",
@@ -516,7 +532,8 @@
         "reportFile": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "NativeSettings": {
       "type": "object",
@@ -524,7 +541,8 @@
         "entryPoint": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "PublishingSettings": {
       "type": "object",
@@ -535,7 +553,8 @@
         "version": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }

@@ -101,8 +101,8 @@ internal fun YAMLMapping.convertKotlinSettings() = KotlinSettings().apply {
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLValue.convertSerializationSettings() = when (this) {
-    is YAMLScalar -> SerializationSettings().apply { ::engine.convertSelf { textValue } }
-    is YAMLMapping -> SerializationSettings().apply { ::engine.convertChildString() }
+    is YAMLScalar -> SerializationSettings().apply { ::format.convertSelf { textValue } }
+    is YAMLMapping -> SerializationSettings().apply { ::format.convertChildString() }
     else -> null
 }
 

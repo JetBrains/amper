@@ -19,7 +19,7 @@ fun Module.addKotlinSerialization() = apply {
     fun Map<Modifiers, List<Dependency>>.addKotlinSerialization() =
         toMutableMap().apply {
             compute(emptySet()) { modifiers, v ->
-                if (settings[modifiers]?.kotlin?.serialization?.engine == "json")
+                if (settings[modifiers]?.kotlin?.serialization?.format == "json")
                     v.orEmpty().addKotlinSerialization()
                 else v
             }

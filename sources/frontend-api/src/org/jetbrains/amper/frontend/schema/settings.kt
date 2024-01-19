@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
-import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
 
@@ -47,7 +46,7 @@ const val composeSettingsShortForm = """
 
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
-    var engine by value("json")
+    var format by value("json")
 }
 
 const val serializationSettingsShortForm = """

@@ -112,7 +112,7 @@ KotlinSettings
 
 SerializationSettings
 ---------------------
-	engine: String, default: json
+	format: String, default: json
 
 KoverSettings
 -------------
