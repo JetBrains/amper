@@ -21,13 +21,13 @@ class MavenLocalRepositoryTest {
 
     @Test
     fun `get name`() {
-        assertEquals("kotlin-test-1.9.10.jar", getName(kotlinTest(), "jar"))
+        assertEquals("kotlin-test-1.9.10.jar", "${getNameWithoutExtension(kotlinTest())}.jar")
     }
 
     @Test
     fun `guess path`() {
         val node = kotlinTest()
-        val path = cache.guessPath(node, "jar")
+        val path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -36,7 +36,7 @@ class MavenLocalRepositoryTest {
 
     @Test
     fun `get path`() {
-        val path = cache.getPath(kotlinTest(), "jar", randomString().toByteArray())
+        val path = cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", randomString().toByteArray())
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

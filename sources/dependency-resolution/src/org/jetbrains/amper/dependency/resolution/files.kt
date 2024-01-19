@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -16,13 +17,18 @@ import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.FileTime
 import java.security.MessageDigest
+import java.time.ZonedDateTime
+import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 interface LocalRepository {
-    fun guessPath(dependency: MavenDependency, extension: String): Path?
-    fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path
+    fun guessPath(dependency: MavenDependency, name: String): Path?
+    fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path
 }
 
 class GradleLocalRepository(private val files: Path) : LocalRepository {
@@ -39,20 +45,18 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
 
     override fun toString(): String = "[Gradle] $files"
 
-    override fun guessPath(dependency: MavenDependency, extension: String): Path? {
+    override fun guessPath(dependency: MavenDependency, name: String): Path? {
         val location = getLocation(dependency)
-        val name = getName(dependency, extension)
         val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
         if (pathFromVariant != null) return pathFromVariant
-        if (!location.toFile().exists()) return null
+        if (!location.exists()) return null
         return Files.walk(location, 2).filter {
             it.name == name
         }.findAny().orElse(null)
     }
 
-    override fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path {
+    override fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path {
         val location = getLocation(dependency)
-        val name = getName(dependency, extension)
         val sha1 = computeHash("sha1", bytes)
         return location.resolve(sha1).resolve(name)
     }
@@ -71,11 +75,11 @@ class MavenLocalRepository(private val repository: Path) : LocalRepository {
 
     override fun toString(): String = "[Maven] $repository"
 
-    override fun guessPath(dependency: MavenDependency, extension: String): Path =
-        repository.resolve(getLocation(dependency)).resolve(getName(dependency, extension))
+    override fun guessPath(dependency: MavenDependency, name: String): Path =
+        repository.resolve(getLocation(dependency)).resolve(name)
 
-    override fun getPath(dependency: MavenDependency, extension: String, bytes: ByteArray): Path =
-        guessPath(dependency, extension)
+    override fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path =
+        guessPath(dependency, name)
 
     private fun getLocation(dependency: MavenDependency) =
         repository.resolve(
@@ -83,32 +87,43 @@ class MavenLocalRepository(private val repository: Path) : LocalRepository {
         )
 }
 
-class DependencyFile(
+fun getDependencyFile(
+    dependency: MavenDependency,
+    nameWithoutExtension: String,
+    extension: String,
+    fileCache: FileCache = dependency.fileCache,
+) = if (dependency.version.endsWith("-SNAPSHOT")) {
+    SnapshotDependencyFile(dependency, nameWithoutExtension, extension, fileCache)
+} else {
+    DependencyFile(dependency, nameWithoutExtension, extension, fileCache)
+}
+
+open class DependencyFile(
     val dependency: MavenDependency,
+    val nameWithoutExtension: String,
     val extension: String,
     fileCache: FileCache = dependency.fileCache,
 ) {
 
-    private val name = getName(dependency, extension)
-    private val cacheDirectory =
-        fileCache.localRepositories.find { it.guessPath(dependency, extension)?.toFile()?.exists() == true }
-            ?: fileCache.fallbackLocalRepository
+    private val cacheDirectory = fileCache.localRepositories.find {
+        it.guessPath(dependency, "$nameWithoutExtension.$extension")?.exists() == true
+    } ?: fileCache.fallbackLocalRepository
     val path: Path?
-        get() = cacheDirectory.guessPath(dependency, extension)
+        get() = cacheDirectory.guessPath(dependency, "$nameWithoutExtension.$extension")
 
-    override fun toString(): String = path?.toString() ?: "[missing path]/$name"
+    override fun toString(): String = path?.toString() ?: "[missing path]/$nameWithoutExtension.$extension"
 
     fun isDownloaded(level: ResolutionLevel, settings: Settings): Boolean =
         isDownloaded(level, settings.repositories, settings.progress)
 
-    private fun isDownloaded(
+    protected open fun isDownloaded(
         level: ResolutionLevel,
         repositories: List<String>,
         progress: Progress,
         verify: Boolean = true
     ): Boolean {
         val path = path
-        if (path?.toFile()?.exists() != true) {
+        if (path?.exists() != true) {
             return false
         }
         if (!verify) {
@@ -149,8 +164,13 @@ class DependencyFile(
         } != null
     }
 
-    private fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
-        download(repository, extension, progress)?.let { bytes ->
+    protected fun download(
+        repository: String,
+        progress: Progress,
+        verify: Boolean = true,
+        overwrite: Boolean = false
+    ): Boolean {
+        downloadBytes(repository, progress)?.let { bytes ->
             if (verify) {
                 val result = verify(bytes, repository, progress)
                 if (result > VerificationResult.PASSED) {
@@ -164,7 +184,7 @@ class DependencyFile(
                     return false
                 }
             }
-            val target = cacheDirectory.getPath(dependency, extension, bytes)
+            val target = cacheDirectory.getPath(dependency, "$nameWithoutExtension.$extension", bytes)
             try {
                 Files.createDirectories(target.parent)
                 try {
@@ -183,11 +203,13 @@ class DependencyFile(
                                 while (true) {
                                     try {
                                         channel.lock().use {
-                                            if (verify) {
-                                                val result = verify(channel.readBytes(), repository, progress)
-                                                if (result > VerificationResult.PASSED) {
-                                                    channel.write(ByteBuffer.wrap(bytes))
-                                                }
+                                            val verificationFailed = verify && verify(
+                                                channel.readBytes(),
+                                                repository,
+                                                progress
+                                            ) > VerificationResult.PASSED
+                                            if (verificationFailed || overwrite) {
+                                                channel.write(ByteBuffer.wrap(bytes))
                                             }
                                             return true
                                         }
@@ -257,6 +279,7 @@ class DependencyFile(
         progress: Progress,
         level: ResolutionLevel = ResolutionLevel.FULL
     ): String? {
+        val name = "$nameWithoutExtension.$extension"
         val hashFromVariant = when (algorithm) {
             "sha512" -> fileFromVariant(dependency, name)?.sha512
             "sha256" -> fileFromVariant(dependency, name)?.sha256
@@ -278,7 +301,10 @@ class DependencyFile(
         if (level < ResolutionLevel.FULL) {
             return null
         }
-        val hashFromRepository = download(repository, "$extension.$algorithm", progress)
+        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").also {
+            it.download(repository, progress, false)
+        }
+        val hashFromRepository = hashFile.path?.takeIf { it.exists() }?.readBytes()
         return hashFromRepository?.toString(Charsets.UTF_8)?.split("\\s".toRegex())?.getOrNull(0)
     }
 
@@ -298,7 +324,7 @@ class DependencyFile(
         if (cacheDirectory !is MavenLocalRepository) {
             return null
         }
-        val hashFile = DependencyFile(dependency, "$extension.$algorithm")
+        val hashFile = DependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
         return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
             || level == ResolutionLevel.FULL && hashFile.download(repository, progress, false)
         ) {
@@ -308,13 +334,13 @@ class DependencyFile(
         }
     }
 
-    private fun download(repository: String, extension: String, progress: Progress): ByteArray? {
-        val url = repository +
-                "/${dependency.group.replace('.', '/')}" +
-                "/${dependency.module}" +
-                "/${dependency.version}" +
-                "/${dependency.module}-${dependency.version}.${extension}"
+    private fun downloadBytes(repository: String, progress: Progress): ByteArray? {
         try {
+            val url = repository +
+                    "/${dependency.group.replace('.', '/')}" +
+                    "/${dependency.module}" +
+                    "/${dependency.version}" +
+                    "/${getNamePart(repository, nameWithoutExtension, extension, progress)}"
             val connection = URL(url).openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.connectTimeout = 5000
@@ -341,6 +367,7 @@ class DependencyFile(
                     )
                     return null
                 }
+                onFileDownloaded()
                 return bytes
             } else if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
                 dependency.messages += Message(
@@ -358,9 +385,82 @@ class DependencyFile(
         }
         return null
     }
+
+    protected open fun getNamePart(repository: String, name: String, extension: String, progress: Progress) =
+        "$name.$extension"
+
+    protected open fun onFileDownloaded() {
+    }
 }
 
-internal fun getName(node: MavenDependency, extension: String): String = "${node.module}-${node.version}.${extension}"
+class SnapshotDependencyFile(
+    dependency: MavenDependency,
+    name: String,
+    extension: String,
+    fileCache: FileCache = dependency.fileCache,
+) : DependencyFile(dependency, name, extension, fileCache) {
+
+    private val mavenMetadata by lazy {
+        SnapshotDependencyFile(dependency, "maven-metadata", "xml", FileCacheBuilder {
+            amperCache = fileCache.amperCache
+            localRepositories = listOf(
+                MavenLocalRepository(fileCache.amperCache.resolve("caches/maven-metadata"))
+            )
+        }.build())
+    }
+    private val versionFile by lazy { mavenMetadata.path?.parent?.resolve("$extension.version") }
+    private val snapshotVersion by lazy {
+        val metadata = mavenMetadata.readText().parseMetadata()
+        metadata.versioning.snapshotVersions.snapshotVersions.find {
+            it.extension == extension.substringBefore('.') // pom.sha512 -> pom
+        }?.value
+    }
+
+    override fun isDownloaded(
+        level: ResolutionLevel,
+        repositories: List<String>,
+        progress: Progress,
+        verify: Boolean
+    ): Boolean {
+        val path = path
+        if (path?.exists() != true) {
+            return false
+        }
+        if (nameWithoutExtension != "maven-metadata") {
+            if (versionFile?.exists() != true) {
+                return false
+            }
+            if (mavenMetadata.isDownloaded(level, repositories, progress, false)) {
+                if (versionFile?.readText() != snapshotVersion) {
+                    return false
+                }
+            } else {
+                return false
+            }
+        } else {
+            return Files.getLastModifiedTime(path) > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
+        }
+        return super.isDownloaded(level, repositories, progress, verify)
+    }
+
+    override fun getNamePart(repository: String, name: String, extension: String, progress: Progress): String {
+        if (name != "maven-metadata" &&
+            (mavenMetadata.isDownloaded(ResolutionLevel.FULL, listOf(repository), progress, false)
+                    || mavenMetadata.download(repository, progress, verify = false, overwrite = true))
+        ) {
+            snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }
+        }
+        return super.getNamePart(repository, name, extension, progress)
+    }
+
+    override fun onFileDownloaded() {
+        if (nameWithoutExtension != "maven-metadata") {
+            snapshotVersion?.let { versionFile?.writeText(it) }
+        }
+    }
+}
+
+internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.module}-${node.version}"
 
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variant?.files?.singleOrNull { it.name == name }

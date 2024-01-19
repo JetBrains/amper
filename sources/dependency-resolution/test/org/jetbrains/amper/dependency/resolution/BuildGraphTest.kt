@@ -424,6 +424,23 @@ class BuildGraphTest {
         )
     }
 
+    @Test
+    fun `org_jetbrains_packagesearch packagesearch-plugin 1_0_0-SNAPSHOT`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/kpm/public",
+            expected = """root
+                |\--- org.jetbrains.packagesearch:packagesearch-plugin:1.0.0-SNAPSHOT
+                |     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0
+                |          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.0
+                |          |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
+                |          |    \--- org.jetbrains:annotations:13.0
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0
+                |               \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.0 (*)
+            """.trimMargin()
+        )
+    }
+
     /**
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */

@@ -23,14 +23,14 @@ class GradleLocalRepositoryTest {
         get() = GradleLocalRepository(temp.toPath())
 
     @Test
-    fun `get name`() {
-        assertEquals("kotlin-test-1.9.10.jar", getName(kotlinTest(), "jar"))
+    fun `get name without extension`() {
+        assertEquals("kotlin-test-1.9.10", getNameWithoutExtension(kotlinTest()))
     }
 
     @Test
     fun `guess path`() {
         val node = kotlinTest()
-        var path = cache.guessPath(node, "jar")
+        var path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertNull(path)
 
         val sha1 = computeHash("sha1", randomString().toByteArray())
@@ -40,7 +40,7 @@ class GradleLocalRepositoryTest {
                 "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar"
             ).mkdirs()
         )
-        path = cache.guessPath(node, "jar")
+        path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -66,7 +66,7 @@ class GradleLocalRepositoryTest {
                 ),
             )
         }
-        val path = cache.guessPath(node, "jar")
+        val path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -77,7 +77,7 @@ class GradleLocalRepositoryTest {
     fun `get path`() {
         val bytes = randomString().toByteArray()
         val sha1 = computeHash("sha1", bytes)
-        val path = cache.getPath(kotlinTest(), "jar", bytes)
+        val path = cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", bytes)
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

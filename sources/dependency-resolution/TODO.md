@@ -16,4 +16,4 @@
 - [ ] Resolve: from root or per module (Go modules, Run task)?
 - [ ] Separate IO dispatcher
 - [ ] Unsuccessful network calls (404) cache
-- [ ] Snapshot versions
+- [x] Snapshot versions

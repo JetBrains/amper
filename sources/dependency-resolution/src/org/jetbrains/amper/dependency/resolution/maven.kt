@@ -112,23 +112,32 @@ class MavenDependency internal constructor(
     var packaging: String? = null
     val messages: MutableList<Message> = mutableListOf()
 
-    val metadata = DependencyFile(this, "module")
-    val pom = DependencyFile(this, "pom")
+    val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
+    val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
         get() = buildMap {
             variant?.files?.forEach {
                 val extension = it.name.substringAfterLast('.')
-                put(extension, DependencyFile(this@MavenDependency, extension))
+                put(
+                    extension,
+                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
+                )
             }
             packaging?.let {
                 val extension = when (it) {
                     "bundle" -> "jar"
                     else -> it
                 }
-                put(extension, DependencyFile(this@MavenDependency, extension))
+                put(
+                    extension,
+                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
+                )
             }
             if (isEmpty()) {
-                put("jar", DependencyFile(this@MavenDependency, "jar"))
+                put(
+                    "jar",
+                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar")
+                )
             }
         }
 
