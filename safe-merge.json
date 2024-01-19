@@ -3,7 +3,7 @@
     "builds": [
         {
             "teamcity": {
-                "configuration": "Amper_Build_aggregator",
+                "configuration": "Amper_01_Build_aggregator",
                 "url": "https://amper.teamcity.com/",
                 "token": "${teamcity-token}"
             }
