@@ -1,0 +1,35 @@
+<metadata>
+    <groupId>org.jetbrains.packagesearch</groupId>
+    <artifactId>packagesearch-plugin-gradle-core-shadow</artifactId>
+    <version>233.13000-SNAPSHOT</version>
+    <versioning>
+        <snapshot>
+            <timestamp>20240116.143731</timestamp>
+            <buildNumber>33</buildNumber>
+        </snapshot>
+        <lastUpdated>20240116143731</lastUpdated>
+        <snapshotVersions>
+            <snapshotVersion>
+                <extension>jar</extension>
+                <value>233.13000-20240116.143731-33</value>
+                <updated>20240116143731</updated>
+            </snapshotVersion>
+            <snapshotVersion>
+                <extension>module</extension>
+                <value>233.13000-20240116.143731-33</value>
+                <updated>20240116143731</updated>
+            </snapshotVersion>
+            <snapshotVersion>
+                <extension>pom</extension>
+                <value>233.13000-20240116.143731-33</value>
+                <updated>20240116143731</updated>
+            </snapshotVersion>
+            <snapshotVersion>
+                <classifier>sources</classifier>
+                <extension>jar</extension>
+                <value>233.13000-20240116.143731-33</value>
+                <updated>20240116143731</updated>
+            </snapshotVersion>
+        </snapshotVersions>
+    </versioning>
+</metadata>

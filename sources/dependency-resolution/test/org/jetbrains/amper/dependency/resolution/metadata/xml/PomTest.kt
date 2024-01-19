@@ -11,7 +11,7 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
 
-class XmlTest {
+class PomTest {
 
     @Test
     fun `kotlin-stdlib-1_9_20`(testInfo: TestInfo) = doTest(testInfo)
@@ -97,7 +97,7 @@ class XmlTest {
     }
 
     private fun doTest(testInfo: TestInfo, sanitizer: (String) -> String = { it }) {
-        val text = Path.of("testData/metadata/xml/${testInfo.nameToDependency()}.pom").readText()
+        val text = Path.of("testData/metadata/xml/pom/${testInfo.nameToDependency()}.pom").readText()
         val project = text.parsePom()
         assertEquals(sanitizer(sanitize(text)), sanitizer(project.serialize()))
     }

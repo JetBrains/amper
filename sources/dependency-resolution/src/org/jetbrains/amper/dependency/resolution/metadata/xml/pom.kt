@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-private val xml = XML {
+internal val xml = XML {
     defaultPolicy {
         ignoreUnknownChildren()
     }
