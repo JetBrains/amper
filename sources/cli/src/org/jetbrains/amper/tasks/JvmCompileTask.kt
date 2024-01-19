@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks
 
-import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
@@ -14,6 +13,7 @@ import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.toKotlinProjectId
+import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
@@ -211,8 +211,8 @@ class JvmCompileTask(
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAttribute("amper-module", module.userReadableName)
-            .setAttribute(AttributeKey.stringArrayKey("source-files"), sourceFiles.map { it.toString() })
-            .setAttribute(AttributeKey.stringArrayKey("compiler-args"), compilerArgs)
+            .setListAttribute("source-files", sourceFiles.map { it.toString() })
+            .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("version", compilerVersion)
             .useWithScope {
                 logger.info("Calling Kotlin compiler...")
@@ -249,7 +249,7 @@ class JvmCompileTask(
 
         spanBuilder("javac")
             .setAttribute("amper-module", module.userReadableName)
-            .setAttribute(AttributeKey.stringArrayKey("args"), javacCommand)
+            .setListAttribute("args", javacCommand)
             .setAttribute("jdk-home", jdkHome.pathString)
             // TODO get version from jdkHome/release
             // .setAttribute("version", jdkHome.)

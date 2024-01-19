@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.tasks
 
-import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.Downloader
@@ -95,8 +95,8 @@ class JvmTestTask(
         return spanBuilder("junit-platform-console-standalone")
             .setAttribute("junit-platform-console-standalone", junitConsole.pathString)
             .setAttribute("workding-dir", workingDirectory.pathString)
-            .setAttribute(AttributeKey.stringArrayKey("tests-classpath"), testClasspath.map { it.pathString })
-            .setAttribute(AttributeKey.stringArrayKey("jvm-args"), jvmCommand)
+            .setListAttribute("tests-classpath", testClasspath.map { it.pathString })
+            .setListAttribute("jvm-args", jvmCommand)
             .useWithScope { span ->
                 BuildPrimitives.runProcessAndAssertExitCode(jvmCommand, workingDirectory, span)
 
