@@ -10,7 +10,9 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
+import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.asKotlinLogger
+import org.jetbrains.amper.compilation.kotlinCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -19,9 +21,10 @@ import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.KotlinPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
@@ -56,6 +59,12 @@ class JvmCompileTask(
 
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+        if (fragments.isEmpty()) {
+            // TODO maybe this should be handled during the task graph construction.
+            //  (e.g. should we really add a useless task to the graph?)
+            logger.warn("Module '${module.userReadableName}' has no JVM fragments to compile, skipping JVM compilation")
+            return TaskResult(classesOutputRoot = taskOutputRoot.path, dependencies = dependenciesResult)
+        }
         logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
 
         val mavenDependencies = dependenciesResult
@@ -65,10 +74,9 @@ class JvmCompileTask(
 
         val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
 
-        // TODO Do we really want different language versions in different fragments?
-        val languageVersion = singleLanguageVersion()
+        val kotlinUserSettings = fragments.mergedKotlinSettings()
 
-        // TODO settings!
+        // TODO Make kotlin version configurable in settings
         val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
@@ -77,7 +85,7 @@ class JvmCompileTask(
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
-            "language.version" to (languageVersion ?: ""),
+            "language.version" to kotlinUserSettings.languageVersion.schemaValue,
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
@@ -109,7 +117,7 @@ class JvmCompileTask(
                 val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
                 val kotlinCompilationResult = compileKotlinSources(
                     compilerVersion = kotlinVersion,
-                    languageVersion = languageVersion,
+                    kotlinUserSettings = kotlinUserSettings,
                     isMultiplatform = isMultiplatform,
                     classpath = classpath,
                     jdkHome = jdkHome,
@@ -152,19 +160,40 @@ class JvmCompileTask(
         )
     }
 
-    private fun singleLanguageVersion(): String? {
-        val kotlinParts = fragments.flatMap { it.parts.filterIsInstance<KotlinPart>() }
-        val languageVersions = kotlinParts.mapNotNull { it.languageVersion }.distinct()
-        if (languageVersions.size > 1) {
-            error("Fragments of module ${module.userReadableName} (${fragments.userReadableList()}) provide several " +
-                    "different kotlin language versions: ${languageVersions.sorted().joinToString(" ")}")
+    // TODO Consider for which Kotlin settings we should enforce consistency between fragments.
+    //  Currently we compile all related fragments together (we don't do klib for common separately), so we have to use
+    //  consistent compiler arguments. This is why we forbid configurations where some fragments diverge.
+    private fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
+        languageVersion = unanimousKotlinSetting("languageVersion") { it.languageVersion },
+        apiVersion = unanimousKotlinSetting("apiVersion") { it.apiVersion },
+        allWarningsAsErrors = unanimousKotlinSetting("allWarningsAsErrors") { it.allWarningsAsErrors },
+        suppressWarnings = unanimousKotlinSetting("suppressWarnings") { it.suppressWarnings },
+        verbose = unanimousKotlinSetting("verbose") { it.verbose },
+        progressiveMode = unanimousKotlinSetting("progressiveMode") { it.progressiveMode },
+        languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures } ?: emptyList(),
+        optIns = unanimousOptionalKotlinSetting("optIns") { it.optIns } ?: emptyList(),
+        freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs } ?: emptyList(),
+    )
+
+    private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
+        unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) }
+
+    private fun <T : Any> List<Fragment>.unanimousKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T): T =
+        unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) } ?:
+            error("Module '${module.userReadableName}' has no fragments, cannot merge Kotlin setting '$settingFqn'")
+
+    private fun <T> List<Fragment>.unanimousSetting(settingFqn: String, selector: (Settings) -> T): T? {
+        val distinctValues = mapNotNull { selector(it.settings) }.distinct()
+        if (distinctValues.size > 1) {
+            error("The fragments ${userReadableList()} of module '${module.userReadableName}' are compiled " +
+                    "together but provide several different values for 'settings.$settingFqn': $distinctValues")
         }
-        return languageVersions.singleOrNull()
+        return distinctValues.singleOrNull()
     }
 
     private suspend fun compileKotlinSources(
         compilerVersion: String,
-        languageVersion: String?,
+        kotlinUserSettings: KotlinUserSettings,
         isMultiplatform: Boolean,
         classpath: List<Path>,
         jdkHome: Path,
@@ -184,30 +213,13 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger())
 
-        val compilerArgs = buildList {
-            if (languageVersion != null) {
-                add("-language-version")
-                add(languageVersion)
-            }
-
-            if (isMultiplatform) {
-                add("-Xmulti-platform")
-            }
-
-            add("-jvm-target")
-            add("17")
-
-            add("-classpath")
-            add(classpath.joinToString(File.pathSeparator))
-
-            add("-jdk-home")
-            add(jdkHome.pathString)
-
-            add("-no-stdlib")
-
-            add("-d")
-            add(taskOutputRoot.path.pathString)
-        }
+        val compilerArgs = kotlinCompilerArgs(
+            isMultiplatform = isMultiplatform,
+            kotlinUserSettings = kotlinUserSettings,
+            classpath = classpath,
+            jdkHome = jdkHome,
+            outputPath = taskOutputRoot.path
+        )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAttribute("amper-module", module.userReadableName)
