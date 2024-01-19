@@ -26,7 +26,7 @@ class BootstrapTest {
     @Test
     fun `amper could build itself using version from sources`() {
         // given
-        val commonTemplatePath = TestUtil.prototypeImplementationRoot.resolve("common.module-template.yaml")
+        val commonTemplatePath = TestUtil.amperSourcesRoot.resolve("common.module-template.yaml")
         val reportingContext = TestProblemReporterContext()
         val context = ConvertCtx(commonTemplatePath.parent, FrontendPathResolver())
         val template = with(reportingContext) {
@@ -36,15 +36,15 @@ class BootstrapTest {
         }
         val version = template.settings[noModifiers]?.publishing?.version
 
-        val core = TestUtil.prototypeImplementationRoot.resolve("core/build/libs/core-jvm-$version.jar")
-        val gradleIntegration = TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
+        val core = TestUtil.amperSourcesRoot.resolve("core/build/libs/core-jvm-$version.jar")
+        val gradleIntegration = TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
 
         println("############ gradle-integration version: $version")
-        println("############ gradle-integration libraries: ${TestUtil.prototypeImplementationRoot.resolve("gradle-integration/build/libs").toFile().list()?.toSet()}")
+        println("############ gradle-integration libraries: ${TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs").toFile().list()?.toSet()}")
 
-        val frontendApi = TestUtil.prototypeImplementationRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
-        val yamlPsi = TestUtil.prototypeImplementationRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
-        val schemaFrontend = TestUtil.prototypeImplementationRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
+        val frontendApi = TestUtil.amperSourcesRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
+        val yamlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
+        val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
 
         // TODO: rewrite to include build approach
         val settingsContent = """

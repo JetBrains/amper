@@ -20,7 +20,7 @@ object TestUtil {
         error("Unable to find Amper checkout root upwards from '$start'")
     }
 
-    val prototypeImplementationRoot = amperCheckoutRoot / "sources"
+    val amperSourcesRoot = amperCheckoutRoot / "sources"
 
     // Shared between different runs of testing
     // on developer's machine: some place under working copy, assuming it won't be cleared after every test run

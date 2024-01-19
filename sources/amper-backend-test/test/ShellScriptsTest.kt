@@ -24,7 +24,7 @@ class ShellScriptsTest {
 
     @Test
     fun `shell script does not download or extract on subsequent run`() {
-        val projectPath = TestUtil.prototypeImplementationRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
+        val projectPath = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
         assertTrue { projectPath.isDirectory() }
 
         val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
@@ -175,7 +175,7 @@ class ShellScriptsTest {
     private val cliScriptExtension = if (OS.isWindows) ".bat" else ".sh"
 
     private val cliScript: Path by lazy {
-        val script = TestUtil.prototypeImplementationRoot.resolve("cli/scripts/amper$cliScriptExtension")
+        val script = TestUtil.amperSourcesRoot.resolve("cli/scripts/amper$cliScriptExtension")
         assertTrue { script.isExecutable() }
         script
     }

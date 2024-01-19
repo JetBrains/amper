@@ -229,5 +229,5 @@ class AmperBackendTest {
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
-    private val testDataRoot: Path = TestUtil.prototypeImplementationRoot.resolve("amper-backend-test/testData/projects")
+    private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 }
