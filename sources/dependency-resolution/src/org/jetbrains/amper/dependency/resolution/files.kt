@@ -24,7 +24,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 interface LocalRepository {
     fun guessPath(dependency: MavenDependency, name: String): Path?
@@ -164,11 +163,7 @@ open class DependencyFile(
         } != null
     }
 
-    protected fun download(
-        repository: String,
-        progress: Progress,
-        verify: Boolean = true
-    ): Boolean {
+    protected fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
         downloadBytes(repository, progress)?.let { bytes ->
             if (verify) {
                 val result = verify(bytes, repository, progress)
@@ -185,39 +180,9 @@ open class DependencyFile(
             }
             val target = cacheDirectory.getPath(dependency, "$nameWithoutExtension.$extension", bytes)
             try {
-                Files.createDirectories(target.parent)
-                try {
-                    FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
-                        channel.lock().use {
-                            channel.write(ByteBuffer.wrap(bytes))
-                            onFileDownloaded()
-                            return true
-                        }
-                    }
-                } catch (e: Exception) {
-                    when (e) {
-                        is FileAlreadyExistsException, is OverlappingFileLockException -> {
-                            FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
-                                // We need to wait for the previous lock to get released.
-                                // This way we ensure that the file was fully written to disk.
-                                while (true) {
-                                    try {
-                                        channel.lock().use {
-                                            if (shouldOverwrite(repository, progress, verify, channel)) {
-                                                channel.write(ByteBuffer.wrap(bytes))
-                                                onFileDownloaded()
-                                            }
-                                            return true
-                                        }
-                                    } catch (e: OverlappingFileLockException) {
-                                        Thread.sleep(100)
-                                    }
-                                }
-                            }
-                        }
-
-                        else -> throw e
-                    }
+                if (saveContentWithLock(target, bytes) { shouldOverwrite(repository, progress, verify, it) }) {
+                    onFileDownloaded()
+                    return true
                 }
             } catch (e: IOException) {
                 dependency.messages += Message(
@@ -228,6 +193,46 @@ open class DependencyFile(
             }
         }
         return false
+    }
+
+    @Throws(IOException::class)
+    protected fun saveContentWithLock(
+        target: Path,
+        bytes: ByteArray,
+        shouldOverwrite: (FileChannel) -> Boolean
+    ): Boolean {
+        Files.createDirectories(target.parent)
+        try {
+            FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
+                channel.lock().use {
+                    channel.write(ByteBuffer.wrap(bytes))
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is FileAlreadyExistsException, is OverlappingFileLockException -> {
+                    FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
+                        // We need to wait for the previous lock to get released.
+                        // This way we ensure that the file was fully written to disk.
+                        while (true) {
+                            try {
+                                channel.lock().use {
+                                    if (shouldOverwrite(channel)) {
+                                        channel.write(ByteBuffer.wrap(bytes))
+                                    }
+                                    return true
+                                }
+                            } catch (e: OverlappingFileLockException) {
+                                Thread.sleep(100)
+                            }
+                        }
+                    }
+                }
+
+                else -> throw e
+            }
+        }
     }
 
     protected open fun shouldOverwrite(
@@ -464,11 +469,16 @@ class SnapshotDependencyFile(
         progress: Progress,
         verify: Boolean,
         channel: FileChannel
-    ): Boolean = nameWithoutExtension == "maven-metadata" || versionFile?.readText() != snapshotVersion
+    ): Boolean = nameWithoutExtension == "maven-metadata"
+            || versionFile?.takeIf { it.exists() }?.readText() != snapshotVersion
 
     override fun onFileDownloaded() {
         if (nameWithoutExtension != "maven-metadata") {
-            snapshotVersion?.let { versionFile?.writeText(it) }
+            snapshotVersion?.let { version ->
+                versionFile?.let {
+                    saveContentWithLock(it, version.toByteArray()) { true }
+                }
+            }
         }
     }
 }
