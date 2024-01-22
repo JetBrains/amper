@@ -1,122 +1,122 @@
 Module
 ------
-	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups
-	apply: List<Path>
-	module: Meta
-	product: ModuleProduct - Defines what should be produced out of the Module
-	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module
-	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies
-	settings[@modifier]: Settings - Configures the toolchains used in the build process
-	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module
-	test-settings[@modifier]: Settings - Controls building and running the Module tests
+	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups. See [aliases](#Aliases)
+	apply: List<Path> - List of templates that are applied. See [Templates](#Templates)
+	module: Meta - Non-code/product related aspects of the Module (e.g. file layout)
+	product: ModuleProduct - Defines what should be produced out of the module. See [products](#Product types)
+	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. See [dependencies](#Dependencies)
+	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. See [repositories](#Managing Maven repositories)
+	settings[@modifier]: Settings - Configures the toolchains used in the build process. See [settings](#settings)
+	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. See [dependencies](#Dependencies)
+	test-settings[@modifier]: Settings - Controls building and running the Module tests. See [settings](#settings)
 
 Meta: Meta settings for current module
 --------------------------------------
-	layout: AmperLayout, default: default
+	layout: AmperLayout, default: default - Which file layout to use
 
-ModuleProduct
--------------
-	platforms: List<Platform>
-	type: ProductType
+ModuleProduct: Description of the product that should be built from the module
+------------------------------------------------------------------------------
+	platforms: List<Platform> - What platforms to generate the product for
+	type: ProductType - What type of the product to generate
 
 CatalogDependency
 -----------------
-	catalogKey: String
-	exported: Boolean, default: false
-	scope: DependencyScope, default: all
+	catalogKey: String - [Dependency from a dependency catalog](#dependencyversion-catalogs)
+	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
+	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
 
 ExternalMavenDependency
 -----------------------
-	coordinates: String
-	exported: Boolean, default: false
-	scope: DependencyScope, default: all
+	coordinates: String - [Dependency on a Kotlin or Java library](#external-maven-dependencies) in a Maven repository
+	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
+	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
 
 InternalDependency
 ------------------
-	path: Path
-	exported: Boolean, default: false
-	scope: DependencyScope, default: all
+	path: Path - [Dependency on another Module](#internal-dependencies) in the codebase
+	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
+	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
 
-Repository
-----------
-	credentials: Credentials
-	id: String
-	publish: Boolean, default: false
-	url: String
+Repository: Maven repository settings
+-------------------------------------
+	credentials: Credentials - Username/password authentication support
+	id: String - The ID of the repository, used for to reference it (defaults to url)
+	publish: Boolean, default: false - Should this repository used to publish artifacts
+	url: String - The url to the repository
 
-Credentials
------------
-	file: Path
-	passwordKey: String
-	usernameKey: String
+Credentials: Username/password pair for maven repository
+--------------------------------------------------------
+	file: Path - A relative path to a file with the credentials
+	passwordKey: String - A key in the file that holds the password
+	usernameKey: String - A key in the file that holds the username
 
-Settings
---------
-	android: AndroidSettings
-	compose: ComposeSettings
-	ios: IosSettings
-	java: JavaSettings
-	junit: JUnitVersion, default: junit-4
-	jvm: JvmSettings
-	kotlin: KotlinSettings
-	kover: KoverSettings
-	native: NativeSettings
-	publishing: PublishingSettings
+Settings: Configures the toolchains used in the build process. See [settings](#settings).
+-----------------------------------------------------------------------------------------
+	android: AndroidSettings - Android toolchain and platform settings
+	compose: ComposeSettings - Compose multiplatform framework settings
+	ios: IosSettings - iOS toolchain and platform settings
+	java: JavaSettings - Java language and the compiler for the JVM platform settings
+	junit: JUnitVersion, default: junit-4 - Used JUnit version
+	jvm: JvmSettings - JVM platform specific settings
+	kotlin: KotlinSettings - Kotlin language and the compiler settings
+	kover: KoverSettings - Kover settings
+	native: NativeSettings - Native applications related settings
+	publishing: PublishingSettings - Artifact publishing related settings
 
 AndroidSettings
 ---------------
-	applicationId: String
-	compileSdk: AndroidVersion
-	maxSdk: AndroidVersion, default: 34
-	minSdk: AndroidVersion, default: 21
-	namespace: String, default: org.example.namespace
-	targetSdk: AndroidVersion, default: 34
+	applicationId: String - The ID for the application on a device and in the Google Play Store. Read [more](https://developer.android.com/build/configure-app-module#set-namespace)
+	compileSdk: AndroidVersion - The API level to compile the code. The code can use only the Android APIs up to that API level. Read [more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())
+	maxSdk: AndroidVersion, default: 34 - Maximum API level on which the application can run. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. Read [more](https://developer.android.com/build/configure-app-module#set-namespace)
+	targetSdk: AndroidVersion, default: 34 - The target API level for the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 
 ComposeSettings
 ---------------
-	enabled: Boolean, default: false
+	enabled: Boolean, default: false - Enable Compose runtime, dependencies and the compiler plugins
 
 IosSettings
 -----------
-	framework: IosFrameworkSettings
-	teamId: String
+	framework: IosFrameworkSettings - (Only for the library [product type](Documentation.md#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)
+	teamId: String - A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)
 
 IosFrameworkSettings
 --------------------
-	basename: String, default: kotlin
-	isStatic: Boolean, default: false
+	basename: String, default: kotlin - The name of the generated framework
+	isStatic: Boolean, default: false - Whether to create a dynamically linked or statically linked framework
 
 JavaSettings
 ------------
-	source: JavaVersion
+	source: JavaVersion - A Java language version of the source files
 
 JvmSettings
 -----------
-	mainClass: String
-	target: JavaVersion, default: 17
+	mainClass: String - (Only for `jvm/app` [product type](#product-types). A fully-qualified name of the class used to run the application
+	target: JavaVersion, default: 17 - A bytecode version of generated jvm bytecode (by java or kotlin compiler)
 
 KotlinSettings
 --------------
-	allWarningsAsErrors: Boolean, default: false
-	apiVersion: KotlinVersion
-	debug: Boolean, default: false
-	freeCompilerArgs: List<String>
+	allWarningsAsErrors: Boolean, default: false - Turn any warnings into a compilation error
+	apiVersion: KotlinVersion - Allow using declarations only from the specified version of Kotlin bundled libraries
+	debug: Boolean, default: false - (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information
+	freeCompilerArgs: List<String> - Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly
 	languageFeatures: List<String>
-	languageVersion: KotlinVersion, default: 1.9
+	languageVersion: KotlinVersion, default: 1.9 - Source compatibility with the specified version of Kotlin
 	linkerOpts: List<String>
-	optIns: List<String>
-	progressiveMode: Boolean, default: false
-	serialization: SerializationSettings
-	suppressWarnings: Boolean, default: false
-	verbose: Boolean, default: false
+	optIns: List<String> - Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name
+	progressiveMode: Boolean, default: false - Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)
+	serialization: SerializationSettings - Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)
+	suppressWarnings: Boolean, default: false - Suppress the compiler from displaying warnings during compilation
+	verbose: Boolean, default: false - Enable verbose logging output which includes details of the compilation process
 
 SerializationSettings
 ---------------------
-	format: String, default: json
+	format: String, default: json - Chosen serialization engine
 
 KoverSettings
 -------------
-	enabled: Boolean, default: false
+	enabled: Boolean, default: false - Enable kover library
 	html: KoverHtmlSettings
 	xml: KoverXmlSettings
 
@@ -134,10 +134,10 @@ KoverXmlSettings
 
 NativeSettings
 --------------
-	entryPoint: String
+	entryPoint: String - Fqn of the function that is an entry of the application
 
 PublishingSettings
 ------------------
-	group: String
-	version: String
+	group: String - Group id of the published module
+	version: String - Version of the published module
 

@@ -1,7 +1,6 @@
 package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -15,6 +14,7 @@ import org.jetbrains.amper.frontend.schema.Meta
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings

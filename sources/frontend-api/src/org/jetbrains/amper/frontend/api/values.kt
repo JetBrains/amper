@@ -4,12 +4,25 @@
 
 package org.jetbrains.amper.frontend.api
 
+import com.intellij.openapi.util.Key
+import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
+
+/**
+ * Key, pointing to schema value, that was connected to [PsiElement].
+ */
+val linkedAmperValue = Key.create<ValueBase<*>>("org.jetbrains.amper.frontend.linkedValue")
+
+/**
+ * Key, pointing to schema node, that was connected to [PsiElement].
+ */
+val linkedAmperNode = Key.create<SchemaNode>("org.jetbrains.amper.frontend.linkedNode")
 
 /**
  * Class to collect all values registered within it.
@@ -43,6 +56,12 @@ abstract class SchemaNode : Traceable() {
     context(ProblemReporterContext)
     open fun validate() {
     }
+
+    override var trace: Any? = null
+        set(value) {
+            if (value is PsiElement) value.putUserData(linkedAmperNode, this)
+            field = value
+        }
 }
 
 sealed class Default<T> {
@@ -59,7 +78,9 @@ sealed class Default<T> {
  */
 sealed class ValueBase<T> :
     Traceable(),
-    ReadWriteProperty<SchemaNode, T> {
+    ReadWriteProperty<SchemaNode, T>,
+    PropertyDelegateProvider<SchemaNode, ValueBase<T>> {
+
     protected var myValue: T? = null
 
     var default: Default<T>? = null
@@ -69,6 +90,8 @@ sealed class ValueBase<T> :
     val unsafe: T? get() = myValue ?: default?.value
 
     val withoutDefault: T? get() = myValue
+
+    var knownAnnotations: List<Annotation>? = null
 
     open fun default(value: T) = apply { default = Default.Static(value) }
 
@@ -94,6 +117,16 @@ sealed class ValueBase<T> :
     override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
         myValue = value
     }
+
+    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>) = apply {
+        knownAnnotations = property.annotations
+    }
+
+    override var trace: Any? = null
+        set(value) {
+            if (value is PsiElement) value.putUserData(linkedAmperValue, this)
+            field = value
+        }
 }
 
 fun <T, V> KProperty1<T, V>.valueBase(receiver: T): ValueBase<V>? =

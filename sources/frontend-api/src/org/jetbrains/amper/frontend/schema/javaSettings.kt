@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
 
@@ -39,10 +40,16 @@ enum class JavaVersion(override val schemaValue: String, override val outdated: 
 }
 
 class JavaSettings : SchemaNode() {
+
+    @SchemaDoc("A Java language version of the source files")
     var source by nullableValue<JavaVersion>()
 }
 
 class JvmSettings : SchemaNode() {
+
+    @SchemaDoc("A bytecode version of generated jvm bytecode (by java or kotlin compiler)")
     var target by value(JavaVersion.VERSION_17)
+
+    @SchemaDoc("(Only for `jvm/app` [product type](#product-types). A fully-qualified name of the class used to run the application")
     var mainClass by nullableValue<String>()
 }

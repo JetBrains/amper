@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.convertTest

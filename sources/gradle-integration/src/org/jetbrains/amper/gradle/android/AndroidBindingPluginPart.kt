@@ -7,7 +7,7 @@ package org.jetbrains.amper.gradle.android
 import com.android.build.gradle.BaseExtension
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart

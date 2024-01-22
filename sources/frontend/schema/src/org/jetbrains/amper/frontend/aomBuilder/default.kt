@@ -14,9 +14,9 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.PotatoModuleSource
-import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model

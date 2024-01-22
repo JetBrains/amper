@@ -90,7 +90,6 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
     mergeNullableCollection(KotlinSettings::linkerOpts)
     mergeNullableCollection(KotlinSettings::languageFeatures)
     mergeNullableCollection(KotlinSettings::optIns)
-    println("FOO: Opt ins are ${optIns?.joinToString()}")
 
     mergeNodeProperty(KotlinSettings::serialization, SerializationSettings::merge)
 }

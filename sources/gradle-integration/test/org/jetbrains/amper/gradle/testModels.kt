@@ -12,12 +12,12 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.ProductType
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.util.MockModel
 import org.jetbrains.amper.gradle.util.MockPotatoModule
 import org.jetbrains.amper.gradle.util.getMockModelName

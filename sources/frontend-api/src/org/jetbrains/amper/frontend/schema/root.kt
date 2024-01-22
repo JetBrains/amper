@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.ModifierAware
@@ -14,6 +15,7 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.withoutDefault
+import org.jetbrains.amper.frontend.reportBundleError
 import java.nio.file.Path
 
 
@@ -21,77 +23,106 @@ typealias Modifiers = Set<TraceableString>
 val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
-    @SchemaDoc("The list of repositories used to look up and download the Module dependencies")
+
+    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. See [repositories](#Managing Maven repositories)")
     var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
-    @SchemaDoc("The list of modules and libraries necessary to build the Module")
+    @SchemaDoc("The list of modules and libraries necessary to build the Module. See [dependencies](#Dependencies)")
     var dependencies by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
-    @SchemaDoc("Configures the toolchains used in the build process")
+    @SchemaDoc("Configures the toolchains used in the build process. See [settings](#settings)")
     var settings by value(mapOf(noModifiers to Settings()))
 
     @ModifierAware
-    @SchemaDoc("The dependencies necessary to build and run tests of the Module")
+    @SchemaDoc("The dependencies necessary to build and run tests of the Module. See [dependencies](#Dependencies)")
     var `test-dependencies` by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
-    @SchemaDoc("Controls building and running the Module tests")
+    @SchemaDoc("Controls building and running the Module tests. See [settings](#settings)")
     var `test-settings` by value(mapOf(noModifiers to Settings()))
 
+    /**
+     * Check that modifiers are either known platforms, or known aliases.
+     */
     context(ProblemReporterContext)
-    override fun validate() {
-        super.validate()
+    protected fun validateModifiers(knownAliases: Set<String> = emptySet()) {
+        fun Modifiers.validate() {
+            val unknownPlatforms = this
+                .filter { it.value !in knownAliases }
+                .filter { it.value !in Platform.values.map { it.schemaValue } }
+
+            if (unknownPlatforms.isNotEmpty())
+                SchemaBundle.reportBundleError(
+                    unknownPlatforms.first(),
+                    "product.unknown.platforms",
+                    unknownPlatforms.joinToString { it.value },
+                )
+        }
+
         ::dependencies.withoutDefault?.keys?.forEach { it.validate() }
         ::settings.withoutDefault?.keys?.forEach { it.validate() }
         ::`test-dependencies`.withoutDefault?.keys?.forEach { it.validate() }
         ::`test-settings`.withoutDefault?.keys?.forEach { it.validate() }
     }
+}
 
+class Template : Base() {
     context(ProblemReporterContext)
-    private fun Modifiers.validate(): Nothing? {
-        val unknownPlatforms = this.filter { platform ->
-            platform.value !in Platform.values.map { it.pretty }
-        }
-
-//        if (unknownPlatforms.isNotEmpty())
-//            return SchemaBundle.reportBundleError(
-//                unknownPlatforms.first(),
-//                "product.unknown.platforms",
-//                unknownPlatforms.joinToString { it.value },
-//            )
-        return null
+    override fun validate() {
+        // Check the modifiers.
+        validateModifiers()
     }
 }
 
-class Template : Base()
-
 class Module : Base() {
-    @SchemaDoc("Defines what should be produced out of the Module")
+
+    @SchemaDoc("Defines what should be produced out of the module. See [products](#Product types)")
     var product by value<ModuleProduct>()
 
-    // TODO Parse list in this:
-    // aliases:
-    //  - <key>: <values>
-    @SchemaDoc("Defines the names for the custom code sharing groups")
+    @SchemaDoc("Defines the names for the custom code sharing groups. See [aliases](#Aliases)")
     var aliases by nullableValue<Map<String, Set<Platform>>>()
 
+    @SchemaDoc("List of templates that are applied. See [Templates](#Templates)")
     var apply by nullableValue<List<Path>>()
 
+    @SchemaDoc("Non-code/product related aspects of the Module (e.g. file layout)")
     var module by value(::Meta)
+
+    context(ProblemReporterContext)
+    override fun validate() {
+        // Check the modifiers.
+        validateModifiers(aliases?.keys.orEmpty())
+    }
 }
 
 @AdditionalSchemaDef(repositoryShortForm, useOneOf = true)
+@SchemaDoc("Maven repository settings")
 class Repository : SchemaNode() {
+
+    @SchemaDoc("The url to the repository")
     var url by value<String>()
+
+    @SchemaDoc("The ID of the repository, used for to reference it (defaults to url)")
     var id by value { url }
+
+    @SchemaDoc("Username/password authentication support")
     var credentials by nullableValue<Credentials>()
+
+    @SchemaDoc("Should this repository used to publish artifacts")
     var publish by value(false)
 
+    @SchemaDoc("Username/password pair for maven repository")
     class Credentials : SchemaNode() {
+
+        @SchemaDoc("A relative path to a file with the credentials")
         var file by value<Path>()
+
+        @SchemaDoc("A key in the file that holds the username")
         var usernameKey by value<String>()
+
+        @SchemaDoc("A key in the file that holds the password")
         var passwordKey by value<String>()
     }
 }
@@ -102,12 +133,18 @@ const val repositoryShortForm = """
   }
 """
 
+@SchemaDoc("File layout that is used for the module")
 enum class AmperLayout(
     override var schemaValue: String,
     override val outdated: Boolean = false
 ) : SchemaEnum {
+    @SchemaDoc("Gradle like file layout")
     GRADLE("gradle-kmp"),
+
+    @SchemaDoc("Jvm compatible gradle like layout")
     GRADLE_JVM("gradle-jvm"),
+
+    @SchemaDoc("Amper file layout")
     AMPER("default"),;
 
     companion object : EnumMap<AmperLayout, String>(AmperLayout::values, AmperLayout::schemaValue)
@@ -115,5 +152,7 @@ enum class AmperLayout(
 
 @SchemaDoc("Meta settings for current module")
 class Meta : SchemaNode() {
+
+    @SchemaDoc("Which file layout to use")
     var layout by value(AmperLayout.AMPER)
 }

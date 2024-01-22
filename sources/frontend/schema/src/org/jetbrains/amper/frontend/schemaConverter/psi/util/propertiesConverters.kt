@@ -54,9 +54,9 @@ fun <T> KProperty0<T>.convertChild(
  */
 context(YAMLMapping, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChildValue(
-    convertValue: YAMLValue.() -> T?
+    convertValue: YAMLKeyValue.() -> T?
 ) {
-    tryGetChildNode(name)?.let(YAMLKeyValue::getValue)?.let { childValue ->
+    tryGetChildNode(name)?.let { childValue ->
         val newValue = convertValue(childValue)
         valueBase?.invoke(newValue)
         valueBase?.adjustTrace(childValue)
@@ -147,7 +147,6 @@ fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
                 }
             }
     }
-
 
     valueBase?.invoke(newValue)
 }

@@ -34,15 +34,14 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalarC
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildString
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildValue
 import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertSelf
+import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLValue
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun YAMLPsiElement.convertSettings() = assertNodeType<YAMLMapping, Settings>("settings") {
-    doConvertSettings()
-}?.adjustTrace(this)
+internal fun YAMLKeyValue.convertSettings() =
+    asMappingNode()?.doConvertSettings()?.adjustTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.doConvertSettings() = Settings().apply {
@@ -50,7 +49,7 @@ internal fun YAMLMapping.doConvertSettings() = Settings().apply {
     ::jvm.convertChildValue { asMappingNode()?.convertJvmSettings() }
     ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
     ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
-    ::compose.convertChildValue { convertComposeSettings() }
+    ::compose.convertChildValue { value?.convertComposeSettings() }
     ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
     ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }
     ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }

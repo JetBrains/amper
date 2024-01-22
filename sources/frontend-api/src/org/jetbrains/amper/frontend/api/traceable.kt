@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty0
  * An entity, that can persist its trace.
  */
 abstract class Traceable {
-    var trace: Any? = null
+    open var trace: Any? = null
 }
 
 /**

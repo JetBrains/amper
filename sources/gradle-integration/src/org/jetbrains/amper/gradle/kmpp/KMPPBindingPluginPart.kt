@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.*
 import org.jetbrains.amper.gradle.base.*
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart

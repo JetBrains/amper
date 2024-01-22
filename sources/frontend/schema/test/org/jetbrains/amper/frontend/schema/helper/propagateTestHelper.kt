@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.*
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path

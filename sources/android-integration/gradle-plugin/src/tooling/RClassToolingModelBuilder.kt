@@ -7,7 +7,7 @@ package tooling
 import RClassAndroidBuildResult
 import org.gradle.api.Project
 import org.gradle.tooling.provider.model.ToolingModelBuilder
-import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.schema.ProductType
 import projectPathToModule
 import request
 

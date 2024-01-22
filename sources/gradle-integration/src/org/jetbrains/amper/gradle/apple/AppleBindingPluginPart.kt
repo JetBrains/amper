@@ -5,7 +5,7 @@
 package org.jetbrains.amper.gradle.apple
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.kmpp.KMPEAware

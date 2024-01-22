@@ -20,7 +20,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.ProductType
+import org.jetbrains.amper.frontend.schema.ProductType
 import tooling.ApkPathToolingModelBuilder
 import tooling.RClassToolingModelBuilder
 import java.io.File

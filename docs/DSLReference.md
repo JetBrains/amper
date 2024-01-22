@@ -343,10 +343,10 @@ settings:
 
 `settings:ios:framework:` configures the generated framework. By default, a dynamically linked framework with name of the module is generated
 
-| Attribute           | Description                                                            | Default              |
-|---------------------|------------------------------------------------------------------------|----------------------|
-| `basename: string`  | The name of the generated framework.                                   | <name of the module> |
-| `isStatic: boolean` | Whether to create a dynamically linked or statically linked framework. | false                |
+| Attribute           | Description                                                            | Default |
+|---------------------|------------------------------------------------------------------------|---------|
+| `basename: string`  | The name of the generated framework.                                   | kotlin  |
+| `isStatic: boolean` | Whether to create a dynamically linked or statically linked framework. | false   |
 
 #### Compose
 
