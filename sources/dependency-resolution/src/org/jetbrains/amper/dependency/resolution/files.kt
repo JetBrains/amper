@@ -205,8 +205,8 @@ open class DependencyFile(
                                         channel.lock().use {
                                             if (shouldOverwrite(repository, progress, verify, channel)) {
                                                 channel.write(ByteBuffer.wrap(bytes))
+                                                onFileDownloaded()
                                             }
-                                            onFileDownloaded()
                                             return true
                                         }
                                     } catch (e: OverlappingFileLockException) {
