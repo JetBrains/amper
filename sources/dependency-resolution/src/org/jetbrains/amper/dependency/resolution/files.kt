@@ -167,8 +167,7 @@ open class DependencyFile(
     protected fun download(
         repository: String,
         progress: Progress,
-        verify: Boolean = true,
-        overwrite: Boolean = false
+        verify: Boolean = true
     ): Boolean {
         downloadBytes(repository, progress)?.let { bytes ->
             if (verify) {
@@ -191,6 +190,7 @@ open class DependencyFile(
                     FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
                         channel.lock().use {
                             channel.write(ByteBuffer.wrap(bytes))
+                            onFileDownloaded()
                             return true
                         }
                     }
@@ -203,14 +203,10 @@ open class DependencyFile(
                                 while (true) {
                                     try {
                                         channel.lock().use {
-                                            val verificationFailed = verify && verify(
-                                                channel.readBytes(),
-                                                repository,
-                                                progress
-                                            ) > VerificationResult.PASSED
-                                            if (verificationFailed || overwrite) {
+                                            if (shouldOverwrite(repository, progress, verify, channel)) {
                                                 channel.write(ByteBuffer.wrap(bytes))
                                             }
+                                            onFileDownloaded()
                                             return true
                                         }
                                     } catch (e: OverlappingFileLockException) {
@@ -233,6 +229,17 @@ open class DependencyFile(
         }
         return false
     }
+
+    protected open fun shouldOverwrite(
+        repository: String,
+        progress: Progress,
+        verify: Boolean,
+        channel: FileChannel
+    ): Boolean = verify && verify(
+        channel.readBytes(),
+        repository,
+        progress
+    ) > VerificationResult.PASSED
 
     private fun FileChannel.readBytes(): ByteArray {
         val baos = ByteArrayOutputStream()
@@ -367,7 +374,6 @@ open class DependencyFile(
                     )
                     return null
                 }
-                onFileDownloaded()
                 return bytes
             } else if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
                 dependency.messages += Message(
@@ -446,12 +452,19 @@ class SnapshotDependencyFile(
     override fun getNamePart(repository: String, name: String, extension: String, progress: Progress): String {
         if (name != "maven-metadata" &&
             (mavenMetadata.isDownloaded(ResolutionLevel.FULL, listOf(repository), progress, false)
-                    || mavenMetadata.download(repository, progress, verify = false, overwrite = true))
+                    || mavenMetadata.download(repository, progress, verify = false))
         ) {
             snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }
         }
         return super.getNamePart(repository, name, extension, progress)
     }
+
+    override fun shouldOverwrite(
+        repository: String,
+        progress: Progress,
+        verify: Boolean,
+        channel: FileChannel
+    ): Boolean = nameWithoutExtension == "maven-metadata" || versionFile?.readText() != snapshotVersion
 
     override fun onFileDownloaded() {
         if (nameWithoutExtension != "maven-metadata") {
