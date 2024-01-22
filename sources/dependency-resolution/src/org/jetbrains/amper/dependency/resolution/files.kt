@@ -221,7 +221,7 @@ open class DependencyFile(
                 }
             } catch (e: IOException) {
                 dependency.messages += Message(
-                    "Unable to move downloaded file",
+                    "Unable to save downloaded file",
                     e.toString(),
                     Severity.ERROR,
                 )
