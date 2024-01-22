@@ -5,6 +5,7 @@ Fragments:
       MavenDependency(coordinates=org.my-company:my-lib-all:1.4, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.my-company:my-lib-plain-string:1.4, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.my-company:my-lib-version-ref:1.4, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.my-company:my-lib-with-underscores:1.4, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.my-company:my-lib:1.4, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:

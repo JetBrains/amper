@@ -7,3 +7,4 @@ my-lib-plain-string = "org.my-company:my-lib-plain-string:1.4"
 my-lib-group-name = { group = "org.my-company-group", name = "my-lib-name", version = "1.4" }
 my-lib-version-ref = { module = "org.my-company:my-lib-version-ref", version.ref = "my-lib-version" }
 my-lib-all = { group = "org.my-company", name = "my-lib-all", version.ref = "my-lib-version" }
+my_lib_with_underscores = "org.my-company:my-lib-with-underscores:1.4"

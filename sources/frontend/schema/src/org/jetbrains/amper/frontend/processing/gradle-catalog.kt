@@ -73,7 +73,7 @@ context(ProblemReporterContext)
 private fun TomlParseResult.parseCatalogLibraries(
     versions: Map<String, String>,
 ): Map<String, TomlLibraryDefinition>? {
-    fun String.normalizeLibraryKey() = "libs." + replace("-", ".")
+    fun String.normalizeLibraryKey() = "libs." + replace("-", ".").replace("_", ".")
 
     val librariesTable = getTableOrNull("libraries") ?: return null
     val librariesAliases = librariesTable.keySet() ?: return null

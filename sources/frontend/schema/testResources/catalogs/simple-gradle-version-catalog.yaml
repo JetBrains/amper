@@ -6,3 +6,4 @@ dependencies:
   - $libs.my.lib.group.name
   - $libs.my.lib.version.ref
   - $libs.my.lib.all
+  - $libs.my.lib.with.underscores
