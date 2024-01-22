@@ -180,9 +180,10 @@ open class DependencyFile(
             }
             val target = cacheDirectory.getPath(dependency, "$nameWithoutExtension.$extension", bytes)
             try {
-                saveContentWithLock(target, bytes) { shouldOverwrite(repository, progress, verify, it) }
-                onFileDownloaded()
-                return true
+                if (saveContentWithLock(target, bytes) { shouldOverwrite(repository, progress, verify, it) }) {
+                    onFileDownloaded()
+                    return true
+                }
             } catch (e: IOException) {
                 dependency.messages += Message(
                     "Unable to save downloaded file",
@@ -199,13 +200,13 @@ open class DependencyFile(
         target: Path,
         bytes: ByteArray,
         shouldOverwrite: (FileChannel) -> Boolean
-    ) {
+    ): Boolean {
         Files.createDirectories(target.parent)
         try {
             FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
                 channel.lock().use {
                     channel.write(ByteBuffer.wrap(bytes))
-                    return
+                    return true
                 }
             }
         } catch (e: Exception) {
@@ -214,21 +215,18 @@ open class DependencyFile(
                     FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
                         // We need to wait for the previous lock to get released.
                         // This way we ensure that the file was fully written to disk.
-                        var count = 0
-                        while (count < 10) {
+                        while (true) {
                             try {
                                 channel.lock().use {
                                     if (shouldOverwrite(channel)) {
                                         channel.write(ByteBuffer.wrap(bytes))
                                     }
-                                    return
+                                    return true
                                 }
                             } catch (e: OverlappingFileLockException) {
-                                count++
                                 Thread.sleep(100)
                             }
                         }
-                        throw IOException("Unable to acquire file lock after $count attempts")
                     }
                 }
 
