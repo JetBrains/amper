@@ -583,7 +583,7 @@ class BuildGraphTest {
     private fun doTest(
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
-        scope: Scope = Scope.COMPILE,
+        scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: String = "jvm",
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,

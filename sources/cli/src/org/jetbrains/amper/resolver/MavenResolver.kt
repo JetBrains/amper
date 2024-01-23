@@ -10,7 +10,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
 import org.jetbrains.amper.dependency.resolution.Resolver
-import org.jetbrains.amper.dependency.resolution.Scope
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
@@ -21,7 +21,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     fun resolve(
         coordinates: Collection<String>,
         repositories: Collection<String>,
-        scope: Scope = Scope.COMPILE,
+        scope: ResolutionScope = ResolutionScope.COMPILE,
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {

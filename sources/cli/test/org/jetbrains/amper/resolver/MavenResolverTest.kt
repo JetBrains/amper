@@ -5,7 +5,7 @@
 package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.dependency.resolution.Scope
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -59,7 +59,7 @@ class MavenResolverTest {
         val result = resolver.resolve(
             coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
             repositories = listOf("https://repo1.maven.org/maven2"),
-            scope = Scope.RUNTIME,
+            scope = ResolutionScope.RUNTIME,
         )
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
         assertEquals(

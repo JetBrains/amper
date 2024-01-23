@@ -6,7 +6,7 @@ package org.jetbrains.amper.compilation
 
 import com.sun.jna.Platform
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.dependency.resolution.Scope
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.ExtractOptions
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
@@ -40,7 +40,7 @@ class KotlinCompilerDownloader(
             val resolved = mavenResolver.resolve(
                 coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
                 repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
-                scope = Scope.RUNTIME,
+                scope = ResolutionScope.RUNTIME,
             )
             return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
         }.outputs

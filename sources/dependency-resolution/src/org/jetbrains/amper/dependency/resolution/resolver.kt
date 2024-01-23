@@ -109,7 +109,7 @@ class Resolver(val root: DependencyNode) {
  * - Has mutable state, children, and messages that could change as a result of the resolution process.
  *
  * By the resolution process we mean finding the node's dependencies (children) according to provided context,
- * namely, a [Scope] and a platform.
+ * namely, a [ResolutionScope] and a platform.
  */
 interface DependencyNode {
 

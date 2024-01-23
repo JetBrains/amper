@@ -16,7 +16,7 @@ class Context(val settings: Settings) {
 class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
-    var scope: Scope = Scope.COMPILE
+    var scope: ResolutionScope = ResolutionScope.COMPILE
     var platform: String = "jvm"
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
@@ -54,7 +54,7 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
 
 data class Settings(
     val progress: Progress,
-    val scope: Scope,
+    val scope: ResolutionScope,
     val platform: String,
     val repositories: List<String>,
     val fileCache: FileCache,

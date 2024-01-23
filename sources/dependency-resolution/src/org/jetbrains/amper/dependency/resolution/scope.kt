@@ -7,7 +7,7 @@ package org.jetbrains.amper.dependency.resolution
 import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 
-enum class Scope(
+enum class ResolutionScope(
     private val variantMatcher: (Variant) -> Boolean,
     private val dependencyMatcher: (Dependency) -> Boolean,
 ) {
