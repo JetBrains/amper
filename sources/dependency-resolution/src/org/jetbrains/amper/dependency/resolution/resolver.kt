@@ -112,7 +112,7 @@ interface DependencyNode {
 }
 
 enum class ResolutionState {
-    UNKNOWN, UNSURE, RESOLVED
+    INITIAL, UNSURE, RESOLVED
 }
 
 enum class ResolutionLevel(val state: ResolutionState) {

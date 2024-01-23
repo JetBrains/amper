@@ -99,7 +99,7 @@ class MavenDependency internal constructor(
     val version: String
 ) {
 
-    var state: ResolutionState = ResolutionState.UNKNOWN
+    var state: ResolutionState = ResolutionState.INITIAL
     val children: MutableList<MavenDependency> = mutableListOf()
     var variant: Variant? = null
     var packaging: String? = null
