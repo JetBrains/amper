@@ -311,7 +311,7 @@ open class DependencyFile(
         }
         val hashFromMaven = getHashFromMavenCacheDirectory(algorithm, repository, progress, level)
         if (hashFromMaven?.isNotEmpty() == true) {
-            return hashFromMaven.split("\\s".toRegex()).getOrNull(0)
+            return hashFromMaven.sanitize()
         }
         if (level < ResolutionLevel.FULL) {
             return null
@@ -320,8 +320,17 @@ open class DependencyFile(
             it.download(repository, progress, false)
         }
         val hashFromRepository = hashFile.path?.takeIf { it.exists() }?.readBytes()
-        return hashFromRepository?.toString(Charsets.UTF_8)?.split("\\s".toRegex())?.getOrNull(0)
+        if (hashFromRepository?.isNotEmpty() == true) {
+            return hashFromRepository.toString(Charsets.UTF_8).sanitize()
+        }
+        return null
     }
+
+    /**
+     * Sometimes files with checksums have additional information, e.g., a path to a file.
+     * We expect that at least the first word in a file is a hash.
+     */
+    private fun String.sanitize() = split("\\s".toRegex()).getOrNull(0)?.takeIf { it.isNotEmpty() }
 
     private fun getHashFromGradleCacheDirectory(algorithm: String) =
         if (cacheDirectory is GradleLocalRepository && algorithm == "sha1") {
