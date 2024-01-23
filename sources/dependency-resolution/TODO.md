@@ -17,3 +17,4 @@
 - [ ] Separate IO dispatcher
 - [ ] Unsuccessful network calls (404) cache
 - [x] Snapshot versions
+- [ ] Connection pool
