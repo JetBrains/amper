@@ -317,7 +317,9 @@ open class DependencyFile(
             return null
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").also {
-            it.download(repository, progress, false)
+            if (!it.isDownloaded(ResolutionLevel.FULL, listOf(repository), progress, false)) {
+                it.download(repository, progress, false)
+            }
         }
         val hashFromRepository = hashFile.path?.takeIf { it.exists() }?.readBytes()
         if (hashFromRepository?.isNotEmpty() == true) {
