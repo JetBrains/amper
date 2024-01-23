@@ -9,7 +9,7 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 
 object TestUtil {
-    private val amperCheckoutRoot: Path by lazy {
+    val amperCheckoutRoot: Path by lazy {
         val start = Path.of(System.getProperty("user.dir"))
 
         var current: Path = start
