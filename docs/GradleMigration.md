@@ -277,6 +277,7 @@ test-dependencies:
 Note several things here:
 * The example assumes that `api` and `test-utils` modules can be found the at the corresponding relative paths. See [details on the internal dependencies](Documentation.md#internal-dependencies).
 * Gradle's `api()` dependency is mapped to `exported` dependency attribute. See [details on scopes and visibility](Documentation.md#scopes-and-visibility).   
+* Use of cataloged dependencies requires a `$` prefix, so Gradle's `libs.gson` becomes `$libs.gson` in Amper.   
 * You don't need to add a `kotlin("test")` dependency as it is added automatically.
 
 In Kotlin Multiplatform projects, it is typical that certain target platforms have their own dependencies. So the similar list of dependencies could look like this:  
@@ -288,7 +289,7 @@ kotlin {
             dependencies {
                 api(":api")
                 implementation("io.ktor:ktor-client-core:2.3.2")
-                implementation(lib.gson)
+                implementation(libs.gson)
             }
         }
         val commonTest by getting {
