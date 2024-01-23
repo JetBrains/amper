@@ -211,6 +211,7 @@ open class DependencyFile(
         } catch (e: Exception) {
             when (e) {
                 is FileAlreadyExistsException, is OverlappingFileLockException -> {
+                    // We need READ 'cause we can verify existing content in #shouldOverwrite.
                     FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
                         // We need to wait for the previous lock to get released.
                         // This way we ensure that the file was fully written to disk.
