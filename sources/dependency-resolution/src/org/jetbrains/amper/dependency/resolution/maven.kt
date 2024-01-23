@@ -177,9 +177,8 @@ class MavenDependency internal constructor(
     }
 
     private fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
-        val text = metadata.readText()
         val module = try {
-            text.parseMetadata()
+            metadata.readText().parseMetadata()
         } catch (e: Exception) {
             messages += Message(
                 "Unable to parse metadata file $metadata",
@@ -189,18 +188,9 @@ class MavenDependency internal constructor(
             return
         }
         module.variants.filter {
-            it.capabilities.isEmpty() || it.capabilities.singleOrNull() == toCapability()
-                    || isKotlinTestJunit() && it.capabilities.sortedBy { it.name } == listOf(
-                Capability(group, "kotlin-test-framework-impl", version),
-                toCapability()
-            ) || isGuava() && it.capabilities.sortedBy { it.name } == listOf(
-                Capability("com.google.collections", "google-collections", version),
-                toCapability()
-            )
+            it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions(context)
         }.filter {
             context.settings.platform.matches(it) && context.settings.scope.matches(it)
-        }.filter {
-            !isGuava() || it.attributes["org.gradle.jvm.environment"]?.endsWith(context.settings.platform) == true
         }.also {
             if (it.size <= 1) {
                 variant = it.singleOrNull()
@@ -221,21 +211,35 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun Variant.isOneOfExceptions(context: Context) = isKotlinException() || isGuavaException(context)
+
+    private fun Variant.isKotlinException() =
+        isKotlinTestJunit() && capabilities.sortedBy { it.name } == listOf(
+            Capability(group, "kotlin-test-framework-impl", version),
+            toCapability()
+        )
+
+    private fun isKotlinTestJunit() =
+        group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
+
+    private fun Variant.isGuavaException(context: Context) =
+        isGuava() && capabilities.sortedBy { it.name } == listOf(
+            Capability("com.google.collections", "google-collections", version),
+            toCapability()
+        ) && attributes["org.gradle.jvm.environment"]?.endsWith(context.settings.platform) == true
+
+    private fun isGuava() = group == "com.google.guava" && module == "guava"
+
+    private fun MavenDependency.toCapability() = Capability(group, module, version)
+
     private fun String.matches(variant: Variant) =
         variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
 
-    private fun isKotlinTestJunit(): Boolean =
-        group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
+    private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
-    private fun isGuava(): Boolean = group == "com.google.guava" && module == "guava"
-
-    private fun MavenDependency.toCapability(): Capability = Capability(group, module, version)
-
-    private fun AvailableAt.asDependency(): Dependency = Dependency(group, module, Version(version))
-
-    private fun resolveUsingPom(text: String, context: Context, resolutionLevel: ResolutionLevel) {
+    private fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
         val project = try {
-            text.parsePom().resolve(context, resolutionLevel)
+            text.parsePom().resolve(context, level)
         } catch (e: Exception) {
             messages += Message(
                 "Unable to parse pom file ${this.pom}",
@@ -253,7 +257,7 @@ class MavenDependency internal constructor(
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
         }?.let {
             children.addAll(it)
-            state = resolutionLevel.state
+            state = level.state
         }
     }
 
