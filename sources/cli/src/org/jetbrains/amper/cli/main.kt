@@ -103,7 +103,7 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     val amperBackend by requireObject<AmperBackend>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
-        amperBackend.run(platform = platformToRun, moduleName = module)
+        amperBackend.runApplication(platform = platformToRun, moduleName = module)
     }
 }
 

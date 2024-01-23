@@ -23,7 +23,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         val projectContext = setupExampleProject("jvm-hello-world")
         projectContext.assertHasJvmApplicationTasks()
 
-        AmperBackend(projectContext).run(moduleName = null, platform = null)
+        AmperBackend(projectContext).runApplication()
         assertStdoutContains("Hello, World!")
     }
 
@@ -32,7 +32,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         val projectContext = setupExampleProject("jvm-kotlin+java")
         projectContext.assertHasJvmApplicationTasks()
 
-        AmperBackend(projectContext).run(moduleName = null, platform = null)
+        AmperBackend(projectContext).runApplication()
         assertStdoutContains("Hello, World")
 
         with(kotlinJvmCompilerSpans.single()) {
@@ -51,7 +51,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         val projectContext = setupExampleProject("jvm-with-tests")
         projectContext.assertHasJvmApplicationTasks()
 
-        AmperBackend(projectContext).run(moduleName = null, platform = null)
+        AmperBackend(projectContext).runApplication()
         assertStdoutContains("Hello, World!")
     }
 

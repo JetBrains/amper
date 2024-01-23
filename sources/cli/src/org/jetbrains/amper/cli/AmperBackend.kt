@@ -202,7 +202,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun run(moduleName: String?, platform: Platform?) {
+    fun runApplication(moduleName: String? = null, platform: Platform? = null) {
         val moduleToRun = if (moduleName != null) {
             resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
                 ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}")
