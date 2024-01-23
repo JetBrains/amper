@@ -2,14 +2,23 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+package org.jetbrains.amper.backend.test
+
 import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.sdk.trace.data.SpanData
+import org.jetbrains.amper.backend.test.extensions.LogCollectorExtension
+import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtension
+import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
+import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
+import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level

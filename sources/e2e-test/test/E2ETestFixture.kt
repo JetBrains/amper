@@ -13,6 +13,7 @@ import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.downloader.extractZip
 import org.jetbrains.amper.downloader.suspendingRetryWithExponentialBackOff
+import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayInputStream

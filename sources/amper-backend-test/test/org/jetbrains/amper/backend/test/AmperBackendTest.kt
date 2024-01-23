@@ -1,12 +1,14 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
+package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.test.TestUtil
 import org.tinylog.Level
 import java.nio.file.Path
 import kotlin.io.path.readText

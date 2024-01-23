@@ -4,6 +4,7 @@
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext

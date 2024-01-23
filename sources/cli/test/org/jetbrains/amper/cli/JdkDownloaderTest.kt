@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.cli
 
-import TestUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.test.TestUtil
 import kotlin.test.Test
 
 class JdkDownloaderTest {
