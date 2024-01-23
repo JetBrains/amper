@@ -1,5 +1,9 @@
 #!/bin/bash
 #
+# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+#
+
+#
 # Pushes specified revision via [Space Safe Merge](https://helpserver.labs.jb.gg/help/space/internal/branch-and-merge-restrictions.html#safe-merge).
 #
 # Usage:

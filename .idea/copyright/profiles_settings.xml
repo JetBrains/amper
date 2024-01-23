@@ -1,7 +1,7 @@
 <component name="CopyrightManager">
   <settings>
     <module2copyright>
-      <element module="Prototype Implementation" copyright="Apache 2.0" />
+      <element module="Amper" copyright="Apache 2.0" />
     </module2copyright>
     <LanguageOptions name="Properties">
       <option name="fileTypeOverride" value="1" />

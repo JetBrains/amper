@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Amper" pattern="!file[amper]:migrated-projects//*&amp;&amp;!file[amper*]:META-INF/services//*" />
+</component>

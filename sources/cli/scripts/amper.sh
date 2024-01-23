@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+#
+
 # TODO gradlew also tries to set ulimit -n (max files), probably we should too
 # TODO Script could be run in parallel for the first time, so download/extract code should not fail in that case
 # TODO Use slim versions of JetBrains Runtime instead
