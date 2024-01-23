@@ -15,26 +15,36 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
-import org.jetbrains.amper.frontend.processing.VersionCatalog
 import org.jetbrains.amper.frontend.processing.addKotlinSerialization
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
 import org.jetbrains.amper.frontend.processing.validateSchema
+import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+
+/**
+ * Module wrapper to hold also chosen catalog.
+ */
+data class ModuleHolder(
+    val module: Module,
+    val chosenCatalog: VersionCatalog?,
+)
 
 /**
  * AOM build function, introduced for testing.
@@ -45,28 +55,31 @@ internal fun doBuild(
     fioCtx: FioContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
-    fun readAndPreprocess(moduleFile: Path, catalog: VersionCatalog): Module? = with(pathResolver) {
-        with(ConvertCtx(moduleFile.parent, pathResolver)) {
-            with(systemInfo) {
-                // TODO Report when file is not found.
-                convertModule(moduleFile)
-                    ?.readTemplatesAndMerge()
-                    ?.replaceCatalogDependencies(catalog)
-                    ?.validateSchema()
-                    ?.replaceComposeOsSpecific()
-                    ?.addKotlinSerialization()
-            }
-        }
-    }
-
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
     val path2SchemaModule = fioCtx.amperModuleFiles
         .mapNotNull { moduleFile ->
-            val gradleCatalog = fioCtx.amperFiles2gradleCatalogs[moduleFile]
-                ?.let { parseGradleVersionCatalog(it) }
-            val catalogs = gradleCatalog?.let { listOf(it) }.orEmpty() + BuiltInCatalog
-            readAndPreprocess(moduleFile, CompositeVersionCatalog(catalogs))
-                ?.let { moduleFile to it }
+            // Read initial module file.
+            val nonProcessed = with(pathResolver) {
+                with(ConvertCtx(moduleFile.parent, pathResolver)) {
+                    // TODO Report when file is not found.
+                    convertModule(moduleFile)?.readTemplatesAndMerge(fioCtx)
+                }
+            } ?: return@mapNotNull null
+
+            // Choose catalogs.
+            val chosenCatalog = tryGetCatalogFor(fioCtx, moduleFile, nonProcessed)
+
+            // Process module file.
+            val processedModule = with(systemInfo) {
+                nonProcessed
+                    .replaceCatalogDependencies(chosenCatalog)
+                    .validateSchema()
+                    .replaceComposeOsSpecific()
+                    .addKotlinSerialization()
+            }
+
+            // Return result module.
+            moduleFile to ModuleHolder(processedModule, chosenCatalog)
         }
         .toMap()
 
@@ -75,6 +88,32 @@ internal fun doBuild(
 
     // Build AOM from ISM.
     return path2SchemaModule.buildAom(fioCtx.gradleModules)
+}
+
+/**
+ * Try to find gradle catalog and compose it with built-in catalog.
+ */
+context(ProblemReporterContext)
+fun tryGetCatalogFor(fioCtx: FioContext, path: Path, nonProcessed: Base): VersionCatalog {
+    val gradleCatalog = fioCtx.getCatalogPathFor(path)
+        ?.let { parseGradleVersionCatalog(it) }
+    val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
+    return compositeCatalog
+}
+
+/**
+ * Try to get used version catalog.
+ */
+context(ProblemReporterContext)
+fun addBuiltInCatalog(
+    nonProcessed: Base,
+    otherCatalog: VersionCatalog? = null,
+): VersionCatalog {
+    val chosenComposeVersion = nonProcessed.settings[noModifiers]?.compose?.version
+    val builtInCatalog = BuiltInCatalog(composeVersion = chosenComposeVersion)
+    val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
+    val compositeCatalog = CompositeVersionCatalog(catalogs)
+    return compositeCatalog
 }
 
 data class ModuleTriple(
@@ -87,13 +126,23 @@ data class ModuleTriple(
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-internal fun Map<Path, Module>.buildAom(
+internal fun Map<Path, ModuleHolder>.buildAom(
     gradleModules: Map<Path, PotatoModule>,
 ): List<PotatoModule> {
-    val modules = map { (mPath, module) ->
+    val modules = map { (mPath, holder) ->
         // TODO Remove duplicating enums.
-        val convertedType = ProductType.getValue(module.product.type.schemaValue)
-        ModuleTriple(mPath, module, DefaultModule(mPath.parent.name, convertedType, PotatoModuleFileSource(mPath), module))
+        val convertedType = ProductType.getValue(holder.module.product.type.schemaValue)
+        ModuleTriple(
+            mPath,
+            holder.module,
+            DefaultModule(
+                mPath.parent.name,
+                convertedType,
+                PotatoModuleFileSource(mPath),
+                holder.module,
+                holder.chosenCatalog,
+            )
+        )
     }
 
     val moduleDir2module = modules
@@ -131,7 +180,9 @@ class DefaultPotatoModuleDependency(
     override val exported: Boolean = false,
 ) : PotatoModuleDependency, DefaultScopedNotation {
     context (ProblemReporterContext)
-    override val Model.module get() = myModule.asAmperSuccess()
+    override val Model.module
+        get() = myModule.asAmperSuccess()
+
     override fun toString(): String {
         return "InternalDependency(module=${path.pathString})"
     }
@@ -166,5 +217,7 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
         } ?: return@resolve null
 
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
+
+        else -> error("Unknown dependency type: ${it::class}")
     }
 }

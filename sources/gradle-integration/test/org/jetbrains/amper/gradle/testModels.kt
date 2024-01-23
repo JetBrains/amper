@@ -77,7 +77,7 @@ object Models : ModelInit {
     context(ProblemReporterContext) override fun getTemplate(
         templatePsiFile: PsiFile,
         project: Project
-    ): Result<Nothing> {
+    ): ModelInit.TemplateHolder {
         TODO("Not yet implemented")
     }
 

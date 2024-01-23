@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
@@ -36,7 +37,7 @@ class Settings : SchemaNode() {
     var android by value(::AndroidSettings)
 
     @SchemaDoc("Compose multiplatform framework settings")
-    var compose by nullableValue<ComposeSettings>()
+    var compose by value(::ComposeSettings)
 
     @SchemaDoc("Used JUnit version")
     var junit by value(JUnitVersion.JUNIT4)
@@ -59,6 +60,10 @@ class ComposeSettings : SchemaNode() {
 
     @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
     var enabled by value(false)
+
+    @SchemaDoc("Used compose version")
+    var version by nullableValue<String>()
+        .default { UsedVersions.composeVersion.takeIf { enabled } }
 }
 
 const val composeSettingsShortForm = """

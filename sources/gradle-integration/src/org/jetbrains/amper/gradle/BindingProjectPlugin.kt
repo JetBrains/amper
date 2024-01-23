@@ -30,8 +30,6 @@ class BindingProjectPlugin : Plugin<Project> {
 
     lateinit var appliedParts: List<BindingPluginPart>
 
-    fun onDefExtensionChanged() = appliedParts.forEach { it.onDefExtensionChanged() }
-
     override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
         // Prepare context.
         val model = project.gradle.knownModel ?: return

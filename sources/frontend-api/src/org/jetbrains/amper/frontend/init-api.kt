@@ -10,7 +10,10 @@ import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.flatMap
+import org.jetbrains.amper.core.getOrNull
+import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.schema.Template
 import java.nio.file.Path
 import java.util.*
 
@@ -54,9 +57,13 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
-        fun getTemplate(templatePath: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Unit> {
-            return loadModelInitService(loader).flatMap { it.getTemplate(templatePath, project) }
-        }
+        fun getTemplate(
+            templatePath: PsiFile,
+            project: Project,
+            loader: ClassLoader = Thread.currentThread().contextClassLoader
+        ): TemplateHolder? = loadModelInitService(loader)
+            .map { it.getTemplate(templatePath, project) }
+            .getOrNull()
     }
 
     /**
@@ -70,6 +77,14 @@ interface ModelInit {
     context(ProblemReporterContext)
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule>
 
+    /**
+     * Wrapper class to hold info about requested template.
+     */
+    data class TemplateHolder(
+        val template: Template,
+        val chosenCatalog: VersionCatalog?,
+    )
+
     context(ProblemReporterContext)
-    fun getTemplate(templatePsiFile: PsiFile, project: Project): Result<Unit>
+    fun getTemplate(templatePsiFile: PsiFile, project: Project): TemplateHolder?
 }

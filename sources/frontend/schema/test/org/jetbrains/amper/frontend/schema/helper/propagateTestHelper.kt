@@ -197,6 +197,8 @@ class PotatoModuleBuilder(var name: String) {
                 get() = this@PotatoModuleBuilder.artifacts
             override val parts: ClassBasedSet<ModulePart<*>>
                 get() = this@PotatoModuleBuilder.parts
+            override val usedCatalog: VersionCatalog?
+                get() = null
         }
     }
 }

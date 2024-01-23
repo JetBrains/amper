@@ -26,7 +26,7 @@ internal class VersionCatalogTest : TestBase(Path("testResources") / "catalogs")
     @Test
     fun `check simple gradle catalog`() {
         aomTest("simple-gradle-version-catalog") {
-            amperFiles2gradleCatalogs[amperModuleFiles.first()] =
+            path2catalog[amperModuleFiles.first()] =
                 baseTestResourcesPath / "simple-gradle-version-catalog.toml"
         }
     }

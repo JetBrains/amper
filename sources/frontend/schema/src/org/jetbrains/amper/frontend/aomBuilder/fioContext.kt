@@ -54,10 +54,9 @@ interface FioContext {
     val gradleModules: Map<Path, DumbGradleModule>
 
     /**
-     * A list of default gradle version catalog
-     * files ([gradleDefaultVersionCatalogName]) for each amper file.
+     * Try to find catalog path for given module or template path.
      */
-    val amperFiles2gradleCatalogs: Map<Path, Path>
+    fun getCatalogPathFor(file: Path): Path?
 }
 
 /**
@@ -102,17 +101,17 @@ open class DefaultFioContext(
             .toMap()
     }
 
-    override val amperFiles2gradleCatalogs by lazy {
-        amperModuleFiles
-            .mapNotNull { moduleFile -> moduleFile.findGradleCatalogs()?.let { moduleFile to it } }
-            .toMap()
-    }
+    data class CatalogPathHolder(val path: Path?)
+    val myKnownGradleCatalogs = mutableMapOf<Path, CatalogPathHolder>()
+    override fun getCatalogPathFor(file: Path) = myKnownGradleCatalogs
+        .computeIfAbsent(file) { CatalogPathHolder(it.findGradleCatalog()) }
+        .path
 
     /**
      * Find "libs.versions.toml" in every gradle directory between [this] path and [rootDir]
      * with deeper files being the first.
      */
-    private fun Path.findGradleCatalogs(): Path? {
+    private fun Path.findGradleCatalog(): Path? {
         assert(startsWith(rootDir)) {
             "Cannot call with the path($pathString) that is outside of (${rootDir.pathString})"
         }

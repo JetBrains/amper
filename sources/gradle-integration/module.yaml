@@ -16,7 +16,7 @@ dependencies:
   - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20
   - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.20
   - com.android.library:com.android.library.gradle.plugin:8.1.0
-  - org.jetbrains.compose:compose-gradle-plugin:1.5.10
+  - org.jetbrains.compose:compose-gradle-plugin:1.5.10: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.23
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4
   - io.github.skeptick.libres:gradle-plugin:1.2.2

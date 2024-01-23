@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FileLocation
 import org.jetbrains.amper.frontend.LineAndColumn
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.tomlj.Toml
 import org.tomlj.TomlInvalidTypeException
@@ -24,6 +25,9 @@ private class TomlCatalog(
     private val libraries: Map<String, TomlLibraryDefinition>,
     private val path: Path,
 ) : VersionCatalog {
+
+    override val catalogKeys = libraries.keys
+
     context(ProblemReporterContext) override fun findInCatalog(
         key: TraceableString,
         report: Boolean

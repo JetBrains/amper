@@ -37,14 +37,6 @@ interface BindingPluginPart {
     fun applyBeforeEvaluate() {}
 
     /**
-     * Invoked during configuration, when Amper extensions value is changed.
-     */
-    // Workaround for those settings, that need to be adjusted
-    // after [beforeProject], but before [afterProject].
-    // (For example, Android source sets.)
-    fun onDefExtensionChanged() {}
-
-    /**
      * Logic, that needs to be applied after project evaluation.
      */
     fun applyAfterEvaluate() {}

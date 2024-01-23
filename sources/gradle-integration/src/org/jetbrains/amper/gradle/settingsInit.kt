@@ -5,7 +5,9 @@
 package org.jetbrains.amper.gradle
 
 import org.gradle.api.initialization.Settings
+import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.gradle.compose.chooseComposeVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import kotlin.io.path.extension
@@ -22,8 +24,21 @@ class SettingsPluginRun(
     private val model: Model,
 ) {
 
+    context(ProblemReporterContext)
     fun run() {
         settings.gradle.knownModel = model
+
+        // Adjust compose plugin dynamically.
+        val chosenComposeVersion = chooseComposeVersion(
+            model,
+            this@ProblemReporterContext
+        )
+        if (chosenComposeVersion != null) {
+            settings.setupDynamicPlugins(
+                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion"
+            )
+        }
+
         initProjects(settings, model)
 
         // Initialize plugins for each module.

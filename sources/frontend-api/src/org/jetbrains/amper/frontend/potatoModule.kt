@@ -78,4 +78,6 @@ interface PotatoModule {
     val artifacts: List<Artifact>
 
     val parts: ClassBasedSet<ModulePart<*>>
+
+    val usedCatalog: VersionCatalog?
 }

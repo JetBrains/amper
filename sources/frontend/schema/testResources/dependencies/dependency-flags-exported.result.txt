@@ -15,7 +15,7 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   androidTest
     External dependencies:
@@ -31,7 +31,7 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false

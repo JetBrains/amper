@@ -24,3 +24,7 @@ dependencies:
   - $compose.desktop.macos_x64
   - $compose.desktop.macos_arm64
   - $compose.desktop.uiTestJUnit4
+
+settings:
+  compose:
+    enabled: true

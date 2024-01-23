@@ -7,17 +7,14 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toTraceableString
-import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.yaml.psi.YAMLPsiElement
 
 
 /**
@@ -50,41 +47,12 @@ fun <T: Base> T.replaceCatalogDependencies(
     `test-dependencies` = `test-dependencies`?.replaceCatalogDeps()
 }
 
-/**
- * Version catalog. Currently, supports only maven dependencies.
- */
-interface VersionCatalog {
-
-    /**
-     * Get dependency notation by key.
-     */
-    context(ProblemReporterContext)
-    fun findInCatalog(
-        key: TraceableString,
-        report: Boolean = true,
-    ): TraceableString?
-
-    context(ProblemReporterContext)
-    fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
-        if (needReport) {
-            when (val trace = key.trace) {
-                is YAMLPsiElement -> {
-                    SchemaBundle.reportBundleError(
-                        trace,
-                        "no.catalog.value",
-                        key.value
-                    )
-                }
-            }
-            null
-        } else null
-
-}
-
 open class PredefinedCatalog(
     private val map: Map<String, String>
 ) : VersionCatalog {
     constructor(builder: MutableMap<String, String>.() -> Unit) : this(buildMap(builder))
+
+    override val catalogKeys = map.keys
 
     // TODO Report on absence.
     context(ProblemReporterContext)
@@ -101,6 +69,8 @@ class CompositeVersionCatalog(
     private val catalogs: List<VersionCatalog>
 ) : VersionCatalog {
 
+    override val catalogKeys = catalogs.flatMap { it.catalogKeys }.toSet()
+
     context(ProblemReporterContext)
     override fun findInCatalog(
         key: TraceableString,
@@ -111,9 +81,12 @@ class CompositeVersionCatalog(
 
 sealed interface VersionCatalogTrace
 
+@Suppress("unused")
 data object BuiltInCatalogTrace : VersionCatalogTrace
 
-object BuiltInCatalog : PredefinedCatalog({
+class BuiltInCatalog(
+    composeVersion: String?,
+) : PredefinedCatalog({
     // Add kotlin-test.
     val kotlinTestVersion = UsedVersions.kotlinVersion
     put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinTestVersion")
@@ -121,31 +94,32 @@ object BuiltInCatalog : PredefinedCatalog({
     put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinTestVersion")
 
     // Add compose.
-    val composeVersion = UsedVersions.composeVersion
-    put("compose.animation", "org.jetbrains.compose.animation:animation:$composeVersion")
-    put("compose.animationGraphics", "org.jetbrains.compose.animation:animation-graphics:$composeVersion")
-    put("compose.foundation", "org.jetbrains.compose.foundation:foundation:$composeVersion")
-    put("compose.material", "org.jetbrains.compose.material:material:$composeVersion")
-    put("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
-    put("compose.runtime", "org.jetbrains.compose.runtime:runtime:$composeVersion")
-    put("compose.runtimeSaveable", "org.jetbrains.compose.runtime:runtime-saveable:$composeVersion")
-    put("compose.ui", "org.jetbrains.compose.ui:ui:$composeVersion")
-    put("compose.uiTooling", "org.jetbrains.compose.ui:ui-tooling:$composeVersion")
-    put("compose.preview", "org.jetbrains.compose.ui:ui-tooling-preview:$composeVersion")
-    put("compose.materialIconsExtended", "org.jetbrains.compose.material:material-icons-extended:$composeVersion")
-    put("compose.components.resources", "org.jetbrains.compose.components:components-resources:$composeVersion")
-    put("compose.html.svg", "org.jetbrains.compose.html:html-svg:$composeVersion")
-    put("compose.html.testUtils", "org.jetbrains.compose.html:html-test-utils:$composeVersion")
-    put("compose.html.core", "org.jetbrains.compose.html:html-core:$composeVersion")
-    put("compose.desktop.components.splitPane", "org.jetbrains.compose.components:components-splitpane:$composeVersion")
-    put("compose.desktop.components.animatedImage", "org.jetbrains.compose.components:components-animatedimage:$composeVersion")
-    put("compose.desktop.common", "org.jetbrains.compose.desktop:desktop:$composeVersion")
-    put("compose.desktop.linux_x64", "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:$composeVersion")
-    put("compose.desktop.linux_arm64", "org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:$composeVersion")
-    put("compose.desktop.windows_x64", "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:$composeVersion")
-    put("compose.desktop.macos_x64", "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:$composeVersion")
-    put("compose.desktop.macos_arm64", "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:$composeVersion")
-    put("compose.desktop.uiTestJUnit4", "org.jetbrains.compose.ui:ui-test-junit4:$composeVersion")
+    if (composeVersion != null) {
+        put("compose.animation", "org.jetbrains.compose.animation:animation:$composeVersion")
+        put("compose.animationGraphics", "org.jetbrains.compose.animation:animation-graphics:$composeVersion")
+        put("compose.foundation", "org.jetbrains.compose.foundation:foundation:$composeVersion")
+        put("compose.material", "org.jetbrains.compose.material:material:$composeVersion")
+        put("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
+        put("compose.runtime", "org.jetbrains.compose.runtime:runtime:$composeVersion")
+        put("compose.runtimeSaveable", "org.jetbrains.compose.runtime:runtime-saveable:$composeVersion")
+        put("compose.ui", "org.jetbrains.compose.ui:ui:$composeVersion")
+        put("compose.uiTooling", "org.jetbrains.compose.ui:ui-tooling:$composeVersion")
+        put("compose.preview", "org.jetbrains.compose.ui:ui-tooling-preview:$composeVersion")
+        put("compose.materialIconsExtended", "org.jetbrains.compose.material:material-icons-extended:$composeVersion")
+        put("compose.components.resources", "org.jetbrains.compose.components:components-resources:$composeVersion")
+        put("compose.html.svg", "org.jetbrains.compose.html:html-svg:$composeVersion")
+        put("compose.html.testUtils", "org.jetbrains.compose.html:html-test-utils:$composeVersion")
+        put("compose.html.core", "org.jetbrains.compose.html:html-core:$composeVersion")
+        put("compose.desktop.components.splitPane", "org.jetbrains.compose.components:components-splitpane:$composeVersion")
+        put("compose.desktop.components.animatedImage", "org.jetbrains.compose.components:components-animatedimage:$composeVersion")
+        put("compose.desktop.common", "org.jetbrains.compose.desktop:desktop:$composeVersion")
+        put("compose.desktop.linux_x64", "org.jetbrains.compose.desktop:desktop-jvm-linux-x64:$composeVersion")
+        put("compose.desktop.linux_arm64", "org.jetbrains.compose.desktop:desktop-jvm-linux-arm64:$composeVersion")
+        put("compose.desktop.windows_x64", "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:$composeVersion")
+        put("compose.desktop.macos_x64", "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:$composeVersion")
+        put("compose.desktop.macos_arm64", "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:$composeVersion")
+        put("compose.desktop.uiTestJUnit4", "org.jetbrains.compose.ui:ui-test-junit4:$composeVersion")
+    }
 }) {
     data object BuiltInCatalogTrace
 

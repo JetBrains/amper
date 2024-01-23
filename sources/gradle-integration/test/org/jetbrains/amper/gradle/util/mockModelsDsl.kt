@@ -47,6 +47,8 @@ class MockPotatoModule(
     override val source = PotatoModuleFileSource(buildFile)
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
+    override val usedCatalog = null
+
     init {
         parts.add(MetaModulePart(layout = Layout.AMPER))
     }

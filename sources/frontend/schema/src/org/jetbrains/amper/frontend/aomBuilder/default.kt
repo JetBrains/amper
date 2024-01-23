@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -27,6 +28,7 @@ open class DefaultModule(
     override val type: ProductType,
     override val source: PotatoModuleSource,
     final override val origin: Module,
+    override val usedCatalog: VersionCatalog?,
 ) : PotatoModule {
     override var fragments = emptyList<DefaultFragment>()
     override var artifacts = emptyList<DefaultArtifact>()
@@ -45,6 +47,7 @@ class NotResolvedModule(
     ProductType.LIB,
     PotatoModuleProgrammaticSource,
     Module(),
+    null
 )
 
 class DefaultArtifact(
@@ -55,20 +58,13 @@ class DefaultArtifact(
     override val platforms = fragments.flatMap { it.platforms }.toSet()
 }
 
-class DumbGradleModule(private val file: Path) : PotatoModule {
-    override val userReadableName: String
-        get() = file.parent.fileName.toString()
-    override val type: ProductType
-        get() = ProductType.LIB
-    override val source: PotatoModuleSource
-        get() = PotatoModuleFileSource(file)
-    override val origin: Module
-        get() = Module()
-    override val fragments: List<Fragment>
-        get() = listOf()
-    override val artifacts: List<Artifact>
-        get() = listOf()
-
-    override val parts =
-        classBasedSet<ModulePart<*>>()
+class DumbGradleModule(file: Path) : PotatoModule {
+    override val userReadableName = file.parent.fileName.toString()
+    override val type = ProductType.LIB
+    override val source = PotatoModuleFileSource(file)
+    override val origin = Module()
+    override val fragments = listOf<Fragment>()
+    override val artifacts = listOf<Artifact>()
+    override val parts = classBasedSet<ModulePart<*>>()
+    override val usedCatalog = null
 }

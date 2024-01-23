@@ -6,6 +6,9 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.ModelInit
+import org.jetbrains.amper.frontend.aomBuilder.FioContext
+import org.jetbrains.amper.frontend.aomBuilder.tryGetCatalogFor
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
@@ -13,13 +16,18 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 import java.nio.file.Path
 
-context(ProblemReporterContext, FrontendPathResolver)
-fun Module.readTemplatesAndMerge(): Module {
-    fun readTemplate(path: Path): Template? = with(ConvertCtx(path.parent, this@FrontendPathResolver)) {
-        convertTemplate(path)
-    }
 
-    val readTemplates = apply?.mapNotNull { readTemplate(it) } ?: emptyList()
+context(ProblemReporterContext, FrontendPathResolver)
+fun readTemplate(fioCtx: FioContext, path: Path): ModelInit.TemplateHolder? = with(ConvertCtx(path.parent, this@FrontendPathResolver)) {
+    val nonProcessed = convertTemplate(path) ?: return@with null
+    val chosenCatalog = tryGetCatalogFor(fioCtx, path, nonProcessed)
+    val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
+    ModelInit.TemplateHolder(processed, chosenCatalog)
+}
+
+context(ProblemReporterContext, FrontendPathResolver)
+fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
+    val readTemplates = apply?.mapNotNull { readTemplate(fioCtx, it)?.template } ?: emptyList()
     val toMerge = readTemplates + this
 
     val merged = toMerge.reduce { first, second -> first.merge(second, ::Template) }

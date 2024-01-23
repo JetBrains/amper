@@ -75,6 +75,7 @@ AndroidSettings
 ComposeSettings
 ---------------
 	enabled: Boolean, default: false - Enable Compose runtime, dependencies and the compiler plugins
+	version: String - Used compose version
 
 IosSettings
 -----------

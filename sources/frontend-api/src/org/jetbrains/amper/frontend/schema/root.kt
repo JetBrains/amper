@@ -68,6 +68,16 @@ sealed class Base : SchemaNode() {
     }
 }
 
+/**
+ * Common settings section.
+ */
+val Base.commonSettings get() = settings[noModifiers]!!
+
+/**
+ * Common test settings section.
+ */
+val Base.commonTestSettings get() = `test-settings`[noModifiers]!!
+
 class Template : Base() {
     context(ProblemReporterContext)
     override fun validate() {

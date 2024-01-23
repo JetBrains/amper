@@ -1,8 +1,8 @@
 Fragments:
   ios
     External dependencies:
-      InternalDependency(module={{ testResources }}{{ fileSeparator }}inner-dir{{ fileSeparator }}some-dep-2)
-      InternalDependency(module={{ testResources }}{{ fileSeparator }}some-dep)
+      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/templates/inner-dir/some-dep-2)
+      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/templates/some-dep)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -15,7 +15,7 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   iosTest
     External dependencies:
@@ -31,7 +31,7 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false

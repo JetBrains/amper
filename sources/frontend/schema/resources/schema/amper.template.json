@@ -288,6 +288,9 @@
           "properties": {
             "enabled": {
               "type": "boolean"
+            },
+            "version": {
+              "type": "string"
             }
           },
           "additionalProperties": false

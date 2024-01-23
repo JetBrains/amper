@@ -118,5 +118,6 @@ open class TestFioContext(
 ) : FioContext by DefaultFioContext(root) {
     override val ignorePaths: MutableList<Path> = mutableListOf()
     override val gradleModules: MutableMap<Path, DumbGradleModule> = mutableMapOf()
-    override val amperFiles2gradleCatalogs: MutableMap<Path, Path> = mutableMapOf()
+    val path2catalog: MutableMap<Path, Path> = mutableMapOf()
+    override fun getCatalogPathFor(file: Path) = path2catalog[file]
 }

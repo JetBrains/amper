@@ -12,8 +12,8 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
-      KoverPart(enabled=true, html=KoverHtmlPart(title=null, charset=null, onCheck=true, reportDir={{ testResources }}{{ fileSeparator }}html), xml=KoverXmlPart(onCheck=false, reportFile={{ testResources }}{{ fileSeparator }}coverage.xml))
+      ComposePart(enabled=false)
+      KoverPart(enabled=true, html=KoverHtmlPart(title=null, charset=null, onCheck=true, reportDir=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/parser/html), xml=KoverXmlPart(onCheck=false, reportFile=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/parser/coverage.xml))
   jvmTest
     External dependencies:
     Src folder: test
@@ -28,7 +28,7 @@ Fragments:
       JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false
