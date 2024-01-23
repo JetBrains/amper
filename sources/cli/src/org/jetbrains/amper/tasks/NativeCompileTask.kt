@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
+import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -164,7 +165,7 @@ class NativeCompileTask(
                     )
 
                     spanBuilder("konanc")
-                        .setAttribute("amper-module", module.userReadableName)
+                        .setAmperModule(module)
                         .setListAttribute("args", args)
                         .setAttribute("version", kotlinVersion)
                         .useWithScope { span ->

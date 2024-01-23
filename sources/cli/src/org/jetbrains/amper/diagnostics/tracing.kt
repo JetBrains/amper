@@ -15,6 +15,7 @@ import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.frontend.PotatoModule
 import kotlin.coroutines.cancellation.CancellationException
 
 private const val AMPER_SCOPE_NAME = "amper"
@@ -53,6 +54,8 @@ suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend (
 }
 
 fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
+
+fun SpanBuilder.setAmperModule(module: PotatoModule) = setAttribute("amper-module", module.userReadableName)
 
 fun SpanBuilder.setListAttribute(key: String, list: List<String>) = setAttribute(AttributeKey.stringArrayKey(key), list)
 

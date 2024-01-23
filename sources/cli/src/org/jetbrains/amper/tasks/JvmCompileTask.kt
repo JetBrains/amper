@@ -15,6 +15,7 @@ import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.kotlinCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.toKotlinProjectId
+import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -222,7 +223,7 @@ class JvmCompileTask(
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
-            .setAttribute("amper-module", module.userReadableName)
+            .setAmperModule(module)
             .setListAttribute("source-files", sourceFiles.map { it.toString() })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("version", compilerVersion)
@@ -260,7 +261,7 @@ class JvmCompileTask(
         ) + javaSourceFiles.map { it.pathString }
 
         spanBuilder("javac")
-            .setAttribute("amper-module", module.userReadableName)
+            .setAmperModule(module)
             .setListAttribute("args", javacCommand)
             .setAttribute("jdk-home", jdkHome.pathString)
             // TODO get version from jdkHome/release
