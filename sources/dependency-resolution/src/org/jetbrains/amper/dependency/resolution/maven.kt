@@ -124,10 +124,7 @@ class MavenDependency internal constructor(
                 )
             }
             packaging?.let {
-                val extension = when (it) {
-                    "bundle" -> "jar"
-                    else -> it
-                }
+                val extension = if (it == "bundle") "jar" else it
                 put(
                     extension,
                     getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
