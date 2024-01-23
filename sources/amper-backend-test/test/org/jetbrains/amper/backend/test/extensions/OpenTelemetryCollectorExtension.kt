@@ -15,9 +15,10 @@ import io.opentelemetry.sdk.trace.SpanProcessor
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 
-class OpenTelemetryCollectorExtension: BeforeEachCallback, AfterEachCallback {
+class OpenTelemetryCollectorExtension: Extension, BeforeEachCallback, AfterEachCallback {
     private val collected = mutableListOf<SpanData>()
 
     val spans: List<SpanData>

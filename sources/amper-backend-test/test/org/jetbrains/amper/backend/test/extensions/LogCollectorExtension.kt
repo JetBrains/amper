@@ -6,10 +6,11 @@ package org.jetbrains.amper.backend.test.extensions
 
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.tinylog.core.LogEntry
 
-class LogCollectorExtension : BeforeEachCallback, AfterEachCallback {
+class LogCollectorExtension : Extension, BeforeEachCallback, AfterEachCallback {
     private val collected = mutableListOf<LogEntry>()
 
     val entries: List<LogEntry>

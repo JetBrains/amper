@@ -6,6 +6,7 @@ package org.jetbrains.amper.backend.test.extensions
 
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
@@ -18,7 +19,7 @@ fun StderrCollectorExtension() = StdStreamCollectorExtension(System.err, System:
 class StdStreamCollectorExtension(
     private val default: PrintStream,
     private val setStream: (PrintStream) -> Unit,
-) : BeforeEachCallback, AfterEachCallback {
+) : Extension, BeforeEachCallback, AfterEachCallback {
 
     private val tappedStream = TappedPrintStream(default)
 
