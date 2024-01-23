@@ -137,7 +137,7 @@ open class DependencyFile(
                 else -> continue
             }
         }
-        return level < ResolutionLevel.FULL
+        return level < ResolutionLevel.NETWORK
     }
 
     fun readText(): String {
@@ -264,10 +264,10 @@ open class DependencyFile(
         bytes: ByteArray,
         repository: String,
         progress: Progress,
-        requestedLevel: ResolutionLevel = ResolutionLevel.FULL
+        requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
     ): VerificationResult {
         // Let's first check hashes available on disk.
-        val algorithms = setOf(ResolutionLevel.PARTIAL, requestedLevel)
+        val algorithms = setOf(ResolutionLevel.LOCAL, requestedLevel)
             .flatMap { level -> listOf("sha512", "sha256", "sha1", "md5").map { level to it } }
         for ((level, algorithm) in algorithms) {
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
@@ -292,7 +292,7 @@ open class DependencyFile(
         algorithm: String,
         repository: String,
         progress: Progress,
-        level: ResolutionLevel = ResolutionLevel.FULL
+        level: ResolutionLevel = ResolutionLevel.NETWORK
     ): String? {
         val name = "$nameWithoutExtension.$extension"
         val hashFromVariant = when (algorithm) {
@@ -313,11 +313,11 @@ open class DependencyFile(
         if (hashFromMaven?.isNotEmpty() == true) {
             return hashFromMaven.sanitize()
         }
-        if (level < ResolutionLevel.FULL) {
+        if (level < ResolutionLevel.NETWORK) {
             return null
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").also {
-            if (!it.isDownloaded(ResolutionLevel.FULL, listOf(repository), progress, false)) {
+            if (!it.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)) {
                 it.download(repository, progress, false)
             }
         }
@@ -352,7 +352,7 @@ open class DependencyFile(
         }
         val hashFile = DependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
         return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
-            || level == ResolutionLevel.FULL && hashFile.download(repository, progress, false)
+            || level == ResolutionLevel.NETWORK && hashFile.download(repository, progress, false)
         ) {
             hashFile.readText()
         } else {
@@ -470,7 +470,7 @@ class SnapshotDependencyFile(
 
     override fun getNamePart(repository: String, name: String, extension: String, progress: Progress): String {
         if (name != "maven-metadata" &&
-            (mavenMetadata.isDownloaded(ResolutionLevel.FULL, listOf(repository), progress, false)
+            (mavenMetadata.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
                     || mavenMetadata.download(repository, progress, verify = false))
         ) {
             snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }

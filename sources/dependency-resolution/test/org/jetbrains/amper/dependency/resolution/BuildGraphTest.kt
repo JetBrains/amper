@@ -453,7 +453,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test:1.9.20",
                 "junit:junit:4.12",
             ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
-        ).buildGraph(ResolutionLevel.FULL).root
+        ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
@@ -478,7 +478,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
             ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
-        ).buildGraph(ResolutionLevel.FULL).root
+        ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
             |+--- org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
@@ -512,7 +512,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "junit:junit:4.12",
             ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
-        ).buildGraph(ResolutionLevel.FULL).root
+        ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
@@ -547,7 +547,7 @@ class BuildGraphTest {
                 "javax.inject:javax.inject:1",
                 "net.openhft:compiler:2.3.4",
             ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
-        ).buildGraph(ResolutionLevel.FULL).root
+        ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
             |+--- org.antlr:antlr4-runtime:4.7.1
@@ -593,7 +593,7 @@ class BuildGraphTest {
             this.scope = scope
             this.platform = platform
             this.repositories = repositories
-        })).buildGraph(ResolutionLevel.FULL).root
+        })).buildGraph(ResolutionLevel.NETWORK).root
         if (verifyMessages) {
             root.asSequence().forEach {
                 assertTrue(

@@ -37,7 +37,7 @@ class DependencyFileTest {
         val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
         assertTrue(dependencyFile.path!!.startsWith(path))
 
-        val downloaded = dependencyFile.isDownloaded(ResolutionLevel.PARTIAL, settings)
+        val downloaded = dependencyFile.isDownloaded(ResolutionLevel.LOCAL, settings)
         assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
         assertTrue(downloaded, "File must be downloaded as it was created above")
     }

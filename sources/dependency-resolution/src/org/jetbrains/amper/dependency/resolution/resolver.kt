@@ -8,7 +8,7 @@ import java.util.*
 
 class Resolver(val root: DependencyNode) {
 
-    fun buildGraph(level: ResolutionLevel = ResolutionLevel.FULL): Resolver {
+    fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK): Resolver {
         val nodes = mutableMapOf<Key<*>, LinkedHashSet<DependencyNode>>()
         val conflicts = mutableSetOf<Key<*>>()
         val queue = LinkedList(listOf(root))
@@ -127,8 +127,8 @@ enum class ResolutionState {
 
 enum class ResolutionLevel(val state: ResolutionState) {
     CREATED(ResolutionState.UNKNOWN),
-    PARTIAL(ResolutionState.UNSURE),
-    FULL(ResolutionState.RESOLVED),
+    LOCAL(ResolutionState.UNSURE),
+    NETWORK(ResolutionState.RESOLVED),
 }
 
 class Progress

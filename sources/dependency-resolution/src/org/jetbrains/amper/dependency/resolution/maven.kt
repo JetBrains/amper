@@ -152,7 +152,7 @@ class MavenDependency internal constructor(
             messages += Message(
                 "Pom required for $this",
                 settings.repositories.toString(),
-                if (level == ResolutionLevel.FULL) Severity.ERROR else Severity.WARNING,
+                if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
             )
             null
         }
@@ -337,11 +337,11 @@ class MavenDependency internal constructor(
     }
 
     private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, settings: Settings) =
-        isDownloaded(level, settings) || level == ResolutionLevel.FULL && download(settings)
+        isDownloaded(level, settings) || level == ResolutionLevel.NETWORK && download(settings)
 
     fun downloadDependencies(settings: Settings) {
         files.values
-            .filter { !it.isDownloaded(ResolutionLevel.FULL, settings) }
+            .filter { !it.isDownloaded(ResolutionLevel.NETWORK, settings) }
             .forEach { it.download(settings) }
     }
 }
