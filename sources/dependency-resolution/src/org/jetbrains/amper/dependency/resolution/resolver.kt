@@ -3,8 +3,6 @@
  */
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
-import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
 
 /**
