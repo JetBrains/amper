@@ -48,15 +48,7 @@ class Resolver(val root: DependencyNode) {
             ?.resolveConflictsIn(this)
     }
 
-    fun downloadDependencies(): Resolver {
-        val queue = LinkedList(listOf(root))
-        while (queue.isNotEmpty()) {
-            val node = queue.remove()
-            node.downloadDependencies()
-            queue.addAll(node.children)
-        }
-        return this
-    }
+    fun downloadDependencies(): Resolver = root.asSequence().forEach { it.downloadDependencies() }.let { this }
 }
 
 interface DependencyNode {
