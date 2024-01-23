@@ -9,7 +9,7 @@ repositories:
 
 dependencies:
   - ../core
-  - ../frontend-api
+  - ../frontend-api: exported
   - ../frontend/schema
   - ../dependency-resolution
   - ../android-integration/runner
