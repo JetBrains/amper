@@ -27,7 +27,9 @@ class Resolver(val root: DependencyNode) {
             }
             for (key in conflicts) {
                 val candidates = nodes[key] ?: throw AmperDependencyResolutionException("Nodes are missing for $key")
-                candidates.resolveConflict()
+                if (!candidates.resolveConflict()) {
+                    return this
+                }
                 queue.addAll(candidates)
             }
         } while (conflicts.isNotEmpty())
@@ -39,12 +41,11 @@ class Resolver(val root: DependencyNode) {
             .filter { it.isApplicableFor(this) }
             .any { it.seesConflictsIn(this) }
 
-    private fun LinkedHashSet<DependencyNode>.resolveConflict() {
+    private fun LinkedHashSet<DependencyNode>.resolveConflict() =
         root.context.settings.conflictResolutionStrategies
             .filter { it.isApplicableFor(this) }
             .find { it.seesConflictsIn(this) }
-            ?.resolveConflictsIn(this)
-    }
+            ?.resolveConflictsIn(this) ?: true
 
     fun downloadDependencies(): Resolver = root.asSequence().forEach { it.downloadDependencies() }.let { this }
 }

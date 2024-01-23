@@ -9,7 +9,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion
 interface ConflictResolutionStrategy {
     fun isApplicableFor(candidates: LinkedHashSet<DependencyNode>): Boolean
     fun seesConflictsIn(candidates: LinkedHashSet<DependencyNode>): Boolean
-    fun resolveConflictsIn(candidates: LinkedHashSet<DependencyNode>)
+    fun resolveConflictsIn(candidates: LinkedHashSet<DependencyNode>): Boolean
 }
 
 class HighestVersionStrategy : ConflictResolutionStrategy {
@@ -23,11 +23,12 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
             .distinctBy { ComparableVersion(it.version) }
             .size > 1
 
-    override fun resolveConflictsIn(candidates: LinkedHashSet<DependencyNode>) {
+    override fun resolveConflictsIn(candidates: LinkedHashSet<DependencyNode>): Boolean {
         val mavenDependencyNodes = candidates.map { it as MavenDependencyNode }
         val dependency = mavenDependencyNodes.map { it.dependency }.maxWith(
             compareBy<MavenDependency> { ComparableVersion(it.version) }.thenBy { it.state }
         )
         mavenDependencyNodes.forEach { it.dependency = dependency }
+        return true
     }
 }
