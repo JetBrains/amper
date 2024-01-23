@@ -100,13 +100,13 @@ interface DependencyNode {
         }
 
         children.forEachIndexed { i, it ->
-            val addLevel = i < children.size - 1
-            if (addLevel) {
+            val addAnotherLevel = i < children.size - 1
+            if (addAnotherLevel) {
                 indent.append("+--- ")
             } else {
                 indent.append("\\--- ")
             }
-            it.prettyPrint(builder, indent, visited, addLevel)
+            it.prettyPrint(builder, indent, visited, addAnotherLevel)
             indent.setLength(indent.length - 5)
         }
     }
