@@ -316,12 +316,11 @@ open class DependencyFile(
         if (level < ResolutionLevel.NETWORK) {
             return null
         }
-        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").also {
-            if (!it.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)) {
-                it.download(repository, progress, false)
-            }
+        val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
+            it.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
+                    || it.download(repository, progress, false)
         }
-        val hashFromRepository = hashFile.path?.takeIf { it.exists() }?.readBytes()
+        val hashFromRepository = hashFile?.readText()?.toByteArray()
         if (hashFromRepository?.isNotEmpty() == true) {
             return hashFromRepository.toString(Charsets.UTF_8).sanitize()
         }
