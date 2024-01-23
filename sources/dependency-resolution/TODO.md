@@ -18,3 +18,5 @@
 - [ ] Unsuccessful network calls (404) cache
 - [x] Snapshot versions
 - [ ] Connection pool
+- [ ] Use file size from variant before computing hash
+- [ ] Don't expose DependencyFile#path, provide access under lock only
