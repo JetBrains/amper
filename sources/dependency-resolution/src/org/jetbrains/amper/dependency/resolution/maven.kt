@@ -198,12 +198,7 @@ class MavenDependency internal constructor(
                 toCapability()
             )
         }.filter {
-            val kotlinPlatformType = it.attributes["org.jetbrains.kotlin.platform.type"]
-            (kotlinPlatformType == null || kotlinPlatformType == context.settings.platform)
-                    && when (context.settings.scope) {
-                Scope.COMPILE -> it.attributes["org.gradle.usage"]?.endsWith("-api") == true
-                Scope.RUNTIME -> it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true
-            }
+            context.settings.platform.matches(it) && context.settings.scope.matches(it)
         }.filter {
             !isGuava() || it.attributes["org.gradle.jvm.environment"]?.endsWith(context.settings.platform) == true
         }.also {
@@ -226,6 +221,9 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun String.matches(variant: Variant) =
+        variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
+
     private fun isKotlinTestJunit(): Boolean =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
 
@@ -247,16 +245,13 @@ class MavenDependency internal constructor(
             return
         }
         packaging = project.packaging
-        (project.dependencies?.dependencies ?: listOf()).filter {
-            when (context.settings.scope) {
-                Scope.COMPILE -> it.scope in setOf(null, "compile")
-                Scope.RUNTIME -> it.scope in setOf(null, "compile", "runtime")
-            }
-        }.filter {
+        project.dependencies?.dependencies?.filter {
+            context.settings.scope.matches(it)
+        }?.filter {
             it.version != null && it.optional != true
-        }.map {
+        }?.map {
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
-        }.let {
+        }?.let {
             children.addAll(it)
             state = resolutionLevel.state
         }

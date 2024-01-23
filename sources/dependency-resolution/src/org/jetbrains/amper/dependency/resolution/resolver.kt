@@ -133,10 +133,6 @@ enum class ResolutionLevel(val state: ResolutionState) {
 
 class Progress
 
-enum class Scope {
-    COMPILE, RUNTIME
-}
-
 class AmperDependencyResolutionException(message: String) : RuntimeException(message)
 
 class Context(val settings: Settings) {
