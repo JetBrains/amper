@@ -23,7 +23,6 @@ class Resolver(val root: DependencyNode) {
                 if (node.state < level.state) {
                     node.resolve(level)
                 }
-                node.level = level
                 queue.addAll(node.children)
             }
             for (key in conflicts) {
@@ -55,7 +54,6 @@ interface DependencyNode {
     val context: Context
     val key: Key<*>
     var state: ResolutionState
-    var level: ResolutionLevel
     val children: List<DependencyNode>
     val messages: List<Message>
 
@@ -117,7 +115,6 @@ enum class ResolutionState {
 }
 
 enum class ResolutionLevel(val state: ResolutionState) {
-    CREATED(ResolutionState.UNKNOWN),
     LOCAL(ResolutionState.UNSURE),
     NETWORK(ResolutionState.RESOLVED),
 }

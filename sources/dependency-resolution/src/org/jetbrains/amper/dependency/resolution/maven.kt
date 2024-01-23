@@ -39,11 +39,6 @@ class MavenDependencyNode(
         set(value) {
             dependency.state = value
         }
-    override var level: ResolutionLevel
-        get() = dependency.level
-        set(value) {
-            dependency.level = value
-        }
     override val children: List<DependencyNode> by PropertyWithDependency(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
@@ -105,8 +100,6 @@ class MavenDependency internal constructor(
 ) {
 
     var state: ResolutionState = ResolutionState.UNKNOWN
-    var level: ResolutionLevel = ResolutionLevel.CREATED
-
     val children: MutableList<MavenDependency> = mutableListOf()
     var variant: Variant? = null
     var packaging: String? = null
