@@ -377,19 +377,17 @@ dependencies:
 
 ### Dependency/Version Catalogs
 
-There are several types of dependency catalogs that could be used in Amper:
-- dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.),
-- user-defined dependency catalogs,
-- Gradle version catalogs from [*.versions.toml files](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml).
+There are several types of dependency catalogs that are available in Amper:
+- Dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.). The toolchain catalog names correspond to the [names of the toolchains in the settings section](#settings). E.g. dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog, and its settings using the `compose:` section.
+- Gradle-based Amper supports Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
+- User-defined dependency catalogs (not yet implemented).
 
-_NOTE: Dependency catalogs are in a preliminary design. Only toolchains catalogs are currently implemented._
-
-Catalogs could be used via a `$<catalog.key>` reference, for example:
+All supported catalogs could be accessed via a `$<catalog-name.key>` reference, for example:
 ```yaml
 dependencies:
-  - $compose.foundation          # dependency from a Compose Multiplatform catalog
-  - $my-catalog.ktor             # dependency from a custom project catalog with a name 'my-catalog' 
-  - $gradle.lib.commons-lang3    # dependency from a Gradle default 'lib' catalog
+  - $compose.material3    # dependency from a Compose Multiplatform catalog
+  - $my-catalog.ktor      # dependency from a custom project catalog with a name 'my-catalog' 
+  - $libs.commons.lang3   # dependency from a Gradle default libs.versions.toml catalog
 ```
 
 Dependencies from catalogs may have [scope and visibility](#scopes-and-visibility):
@@ -1417,6 +1415,13 @@ plugins {
 The Gradle interop supports two main scenarios:
 * smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Module Manifest,
 * writing custom Gradle tasks or using existing Gradle plugins in an existing Module Manifest.
+
+Gradle features supported by Amper:
+* Cross-project dependencies between Gradle sub-projects and Amper modules.
+* Using the default [libs.versions.toml version catalogs](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). 
+* Writing custom tasks in Gradle build scripts.
+* Using Gradle plugins in Gradle build scripts.
+* Configuring additional settings in Gradle build scripts
 
 To use Gradle interop in a Module Manifest, place either a `build.gradle.kts` or a `build.gradle` file next to your `module.yaml` file:
 ```

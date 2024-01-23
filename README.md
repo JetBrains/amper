@@ -25,6 +25,7 @@ Supported features:
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
 * [Multi-module](docs/Documentation.md#internal-dependencies) projects.
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
+* Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
 * Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA, Android Studio and Fleet.
 
@@ -32,7 +33,6 @@ Planned features:
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
 * [Platform-specific test types](docs/Documentation.md#special-types-of-tests), including android instrumented tests.
 * [Native dependencies](docs/Documentation.md#native-dependencies) support, such as CocoaPods, Swift Package Manager.
-* Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
 * [Packaging](docs/Documentation.md#packaging) and [publication](docs/Documentation.md#publishing). 
 * [Build variants](docs/Documentation.md#build-variants) support.
 * [Extensibility](docs/Documentation.md#extensibility).

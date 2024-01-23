@@ -253,20 +253,22 @@ The next step is to migrate the dependencies. See the [details on the dependenci
 Let's take a typical dependencies section:
 ```kotlin
 dependencies {
-    api(":api")
-    implementation("io.ktor:ktor-client-core:2.3.2")
-    implementation("io.ktor:ktor-client-java:2.3.2")
-    testImplementation(kotlin("test"))
-    testImplementation(":test-utils")
+    api(":api") // API dependency on a sub-project
+    implementation("io.ktor:ktor-client-core:2.3.2") // regular Maven dependency
+    implementation(libs.gson) // dependency from the Gradle libs.versions.toml version catalog
+    implementation(compose.desktop.currentOS) // dependency provided by the Compose Multiplatform plugin
+    testImplementation(kotlin("test")) // test dependency on a Kotlin Test library
+    testImplementation(":test-utils") // test dependency on a sub-project 
 }
 ```
 
 Here is how it maps to the Amper Module DSL:
 ```yaml
 dependencies:
-  - ../api: exported  
+  - ../api: exported    
   - io.ktor:ktor-client-core:2.3.2
-  - io.ktor:ktor-client-java:2.3.2
+  - $libs.gson
+  - $compose.desktop.currentOS
 
 test-dependencies:
   - ../test-utils
@@ -286,6 +288,7 @@ kotlin {
             dependencies {
                 api(":api")
                 implementation("io.ktor:ktor-client-core:2.3.2")
+                implementation(lib.gson)
             }
         }
         val commonTest by getting {
@@ -316,6 +319,7 @@ Here is how it maps to the Amper Module DSL:
 dependencies:
   - ../api: exported  
   - io.ktor:ktor-client-core:2.3.2
+  - $libs.gson
 
 dependencies@jvm:
   - io.ktor:ktor-client-java:2.3.2
