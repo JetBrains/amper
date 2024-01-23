@@ -25,7 +25,7 @@ class StdStreamCollectorExtension(
     fun capturedText(): String = tappedStream.capturedText()
 
     override fun beforeEach(context: ExtensionContext?) {
-        clear()
+        reset()
         setStream(tappedStream)
     }
 
@@ -33,8 +33,8 @@ class StdStreamCollectorExtension(
         setStream(default)
     }
 
-    fun clear() {
-        tappedStream.clear()
+    fun reset() {
+        tappedStream.reset()
     }
 }
 
@@ -58,7 +58,7 @@ private class TappedPrintStream(delegate: OutputStream) : PrintStream(delegate, 
         captured.write(buf, off, len)
     }
 
-    fun clear() {
+    fun reset() {
         captured.reset()
     }
 }

@@ -34,10 +34,10 @@ class StdStreamCollectorExtensionTest {
     }
 
     @Test
-    fun shouldClearCapturedOutput() {
+    fun shouldResetCapturedOutput() {
         print("hello")
         assertEquals("hello", stdout.capturedText())
-        stdout.clear()
+        stdout.reset()
         assertEquals("", stdout.capturedText())
     }
 

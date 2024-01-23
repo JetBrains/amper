@@ -75,6 +75,13 @@ abstract class IntegrationTestBase {
         )
     }
 
+    protected fun resetCollectors() {
+        logCollector.reset()
+        stdoutCollector.reset()
+        stderrCollector.reset()
+        openTelemetryCollector.reset()
+    }
+
     @OptIn(ExperimentalPathApi::class)
     private fun Path.copyToTempRoot(): Path = tempRoot.resolve(fileName).also { dir ->
         dir.createDirectories()

@@ -68,8 +68,7 @@ class AmperBackendTest : IntegrationTestBase() {
         )
         assertEquals(1, kotlinJvmCompilerSpans.size)
 
-        openTelemetryCollector.reset()
-        logCollector.reset()
+        resetCollectors()
 
         AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
         val find = "Process exited with exit code 0\n" +
