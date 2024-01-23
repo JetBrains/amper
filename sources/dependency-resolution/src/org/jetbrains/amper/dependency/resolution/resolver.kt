@@ -3,6 +3,8 @@
  */
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
+import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
 
 /**
@@ -45,7 +47,7 @@ class Resolver(val root: DependencyNode) {
      * @return current instance
      */
     fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK): Resolver {
-        val nodes = mutableMapOf<Key<*>, LinkedHashSet<DependencyNode>>()
+        val nodes = mutableMapOf<Key<*>, MutableList<DependencyNode>>()
         val conflicts = mutableSetOf<Key<*>>()
         val queue = LinkedList(listOf(root))
         do {
@@ -54,7 +56,7 @@ class Resolver(val root: DependencyNode) {
             while (queue.isNotEmpty()) {
                 val node = queue.remove()
                 // 1.1. Check if a node with such a key was already registered.
-                val candidates = nodes.computeIfAbsent(node.key) { LinkedHashSet() }.also { it += node }
+                val candidates = nodes.computeIfAbsent(node.key) { mutableListOf() }.also { it += node }
                 // 1.2. If it's a known or new conflict, postpone node processing for later.
                 if (node.key in conflicts || candidates.haveConflicts()) {
                     conflicts += node.key
@@ -82,12 +84,12 @@ class Resolver(val root: DependencyNode) {
         return this
     }
 
-    private fun LinkedHashSet<DependencyNode>.haveConflicts() =
+    private fun List<DependencyNode>.haveConflicts() =
         root.context.settings.conflictResolutionStrategies
             .filter { it.isApplicableFor(this) }
             .any { it.seesConflictsIn(this) }
 
-    private fun LinkedHashSet<DependencyNode>.resolveConflict() =
+    private fun List<DependencyNode>.resolveConflict() =
         root.context.settings.conflictResolutionStrategies
             .filter { it.isApplicableFor(this) }
             .find { it.seesConflictsIn(this) }
