@@ -213,7 +213,7 @@ class AmperBackend(val context: ProjectContext) {
                 candidates.size > 1 ->
                     userReadableError(
                         "There are several application modules in the project. Please specify one with '--module' argument.\n\n" +
-                                "Available modules: ${availableModulesString()}"
+                                "Available application modules: ${candidates.map { it.userReadableName }.sorted()}"
                     )
 
                 else -> candidates.single()
