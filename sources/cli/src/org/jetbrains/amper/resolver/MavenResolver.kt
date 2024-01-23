@@ -25,7 +25,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
-            val context = Context.build {
+            val context = Context {
                 this.cache = {
                     amperCache = userCacheRoot.path.resolve(".amper")
                     localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))

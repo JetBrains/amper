@@ -20,7 +20,7 @@ class DependencyFileTest {
     @Test
     fun `kotlin-test-1_9_20 module hash`() {
         val path = temp.toPath()
-        val settings = Context.build {
+        val settings = Context {
             cache = {
                 localRepositories = listOf(GradleLocalRepository(path))
             }

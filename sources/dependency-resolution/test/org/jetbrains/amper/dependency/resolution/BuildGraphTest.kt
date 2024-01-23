@@ -452,7 +452,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "org.jetbrains.kotlin:kotlin-test:1.9.20",
                 "junit:junit:4.12",
-            ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -477,7 +477,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
-            ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -511,7 +511,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test:1.9.0",
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "junit:junit:4.12",
-            ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -546,7 +546,7 @@ class BuildGraphTest {
                 "org.reflections:reflections:0.9.8",
                 "javax.inject:javax.inject:1",
                 "net.openhft:compiler:2.3.4",
-            ).toRootNode(Context.build { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -589,7 +589,7 @@ class BuildGraphTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
-        val root = Resolver(dependency.toRootNode(Context.build {
+        val root = Resolver(dependency.toRootNode(Context {
             this.scope = scope
             this.platform = platform
             this.repositories = repositories

@@ -8,14 +8,12 @@ import java.nio.file.Path
 
 class Context(val settings: Settings) {
 
-    val cache: ResolutionCache = ResolutionCache()
+    constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
-    companion object {
-        fun build(block: Builder.() -> Unit = {}): Context = Builder(block).build()
-    }
+    val cache: ResolutionCache = ResolutionCache()
 }
 
-class Builder(init: Builder.() -> Unit = {}) {
+class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
     var scope: Scope = Scope.COMPILE
@@ -37,8 +35,6 @@ class Builder(init: Builder.() -> Unit = {}) {
             FileCacheBuilder(cache).build(),
             conflictResolutionStrategies,
         )
-
-    fun build(): Context = Context(settings)
 }
 
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
