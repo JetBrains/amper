@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.tasks
 
+import com.android.sdklib.devices.Abi
+import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
 import org.jetbrains.amper.cli.CliProblemReporterContext
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
@@ -11,7 +13,6 @@ import org.jetbrains.amper.core.get
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
@@ -19,16 +20,21 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.util.AndroidSdkDetector
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.PlatformUtil
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.exists
 
 @Suppress("LoggingSimilarMessage")
 class ProjectTasksBuilder(private val context: ProjectContext, private val model: Model) {
+
+    private val androidSdkPath by lazy { AndroidSdkDetector().detectSdkPath() ?: error("Android SDK is not found") }
 
     fun build(): TaskGraph {
         // always process in fixed order, no other requirements yet
@@ -50,7 +56,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     }
 
                     val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
-                        setupAndroidPlatformTask(module, tasks, executeOnChangedInputs)
+                        setupAndroidPlatformTask(module, tasks, executeOnChangedInputs, androidSdkPath)
                     } else null
 
                     val prepareAndroidBuildTasks = setupPrepareAndroidTasks(
@@ -223,9 +229,18 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         for (buildType in setOf(BuildType.Debug, BuildType.Release)) {
                             createCompileTask(buildType)
                         }
+
+                        val androidBuildTasksNames = setupAndroidBuildTasks(
+                            platform,
+                            module,
+                            tasks,
+                            isTest,
+                            executeOnChangedInputs,
+                            fragments
+                        )
+                        setupAndroidRunTasks(module, androidBuildTasksNames, executeOnChangedInputs, tasks, androidSdkPath)
                     } else createCompileTask()
 
-                    setupAndroidBuildTasks(platform, module, tasks, isTest, executeOnChangedInputs, fragments)
 
                     // TODO this does not support runtime dependencies
                     //  and dependency graph for it will be different
@@ -391,21 +406,103 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         }
     } else mapOf()
 
+    private fun setupAndroidRunTasks(
+        module: PotatoModule,
+        androidBuildTasksNames: Map<BuildType, TaskName>,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        tasks: TaskGraphBuilder,
+        androidSdkPath: Path,
+    ) {
+        val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.ANDROID) }
+        val androidFragment = fragments.firstOrNull() ?: error("Only one ${Platform.ANDROID} fragment is expected")
+        val avdPath = AndroidSdkDetector(buildList {
+            add(AndroidSdkDetector.EnvironmentVariableSuggester("ANDROID_AVD_HOME"))
+            add(AndroidSdkDetector.SystemPropertySuggester("ANDROID_AVD_HOME"))
+            add(object: AndroidSdkDetector.Suggester {
+                override fun suggestSdkPath(): Path? = System.getProperty("user.home")?.let { Paths.get(it).resolve(".android/avd") }
+            })
+        }).detectSdkPath() ?: error("No avd path")
+
+        val downloadAndroidEmulatorTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidEmulator"))
+        tasks.registerTask(
+            GetAndroidPlatformFileFromPackageTask(
+                "emulator",
+                executeOnChangedInputs,
+                androidSdkPath,
+                downloadAndroidEmulatorTaskName
+            )
+        )
+
+        val downloadCmdlineTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadCmdlineTools"))
+
+        tasks.registerTask(
+            GetAndroidPlatformFileFromPackageTask(
+                "system-images;android-${androidFragment.settings.android.targetSdk.versionNumber};${DEFAULT_TAG.id};${Abi.ARM64_V8A}",
+                executeOnChangedInputs,
+                androidSdkPath,
+                downloadCmdlineTools
+            )
+        )
+
+        val downloadPlatformTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadPlatformTools"))
+        tasks.registerTask(
+            GetAndroidPlatformFileFromPackageTask(
+                "platform-tools",
+                executeOnChangedInputs,
+                androidSdkPath,
+                downloadPlatformTools
+            )
+        )
+        for (buildType in setOf(BuildType.Debug, BuildType.Release)) {
+            val androidBuildTaskName =
+                androidBuildTasksNames[buildType] ?: error("There is no androidBuildTaskName for $buildType")
+            tasks.registerTask(
+                AndroidRunTask(
+                    TaskName.fromHierarchy(
+                        listOf(
+                            module.userReadableName,
+                            "run${buildType.name}Android"
+                        )
+                    ),
+                    module,
+                    androidSdkPath,
+                    avdPath,
+                ),
+                listOf(
+                    androidBuildTaskName,
+                    downloadAndroidEmulatorTaskName,
+                    downloadPlatformTools,
+                    downloadCmdlineTools
+                )
+            )
+        }
+    }
+
     private fun setupAndroidPlatformTask(
         module: PotatoModule,
         tasks: TaskGraphBuilder,
-        executeOnChangedInputs: ExecuteOnChangedInputs
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        androidSdkPath: Path,
     ): TaskName? {
         return module
             .fragments
             .filter { Platform.ANDROID in it.platforms }
             .firstOrNull { !it.isTest }
             ?.let { androidFragment ->
-                androidFragment.parts.find<AndroidPart>()?.targetSdk?.let { targetSdk ->
-                    val androidCompileTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
-                    tasks.registerTask(GetAndroidPlatformJarTask("android-$targetSdk", executeOnChangedInputs, androidCompileTaskName))
-                    androidCompileTaskName
-                }
+                val targetSdk = androidFragment.settings.android.targetSdk.versionNumber
+                val androidCompileTaskName =
+                    TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
+                tasks.registerTask(
+                    GetAndroidPlatformJarTask(
+                        GetAndroidPlatformFileFromPackageTask(
+                            "platforms;android-$targetSdk",
+                            executeOnChangedInputs,
+                            androidSdkPath,
+                            androidCompileTaskName
+                        )
+                    )
+                )
+                androidCompileTaskName
             }
     }
 

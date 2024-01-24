@@ -40,7 +40,10 @@ dependencies:
   - com.google.guava:guava:33.0.0-jre
   - com.android.tools:sdklib:31.2.0
   - com.android.tools:common:31.2.0
+  - com.android.tools.ddms:ddmlib:25.3.0
   - com.github.ajalt.clikt:clikt:4.2.2
+  - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
+  - org.jetbrains.kotlinx:atomicfu:0.23.1
 
 test-dependencies:
   - ../test-base
@@ -48,3 +51,6 @@ test-dependencies:
 settings:
   publishing:
     group: org.jetbrains.amper.cli
+
+  kotlin:
+    serialization: json

@@ -6,6 +6,7 @@ import com.intellij.util.io.sha256Hex
 
 plugins {
     `maven-publish`
+    id("org.jetbrains.kotlin.plugin.atomicfu") version "1.9.22"
 }
 
 kotlin {

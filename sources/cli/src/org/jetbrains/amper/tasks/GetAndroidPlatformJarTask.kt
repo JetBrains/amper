@@ -4,20 +4,20 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.cli.downloadAndExtractAndroidPlatform
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.util.ExecuteOnChangedInputs
 
 class GetAndroidPlatformJarTask(
-    private val platformCode: String,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val getAndroidPlatformFileFromPackageTask: GetAndroidPlatformFileFromPackageTask
+) :
+    Task {
     override val taskName: TaskName
-) : Task {
+        get() = getAndroidPlatformFileFromPackageTask.taskName
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val result = executeOnChangedInputs.execute(taskName.name, mapOf("platformCode" to platformCode), listOf()) {
-            ExecuteOnChangedInputs.ExecutionResult(listOf(downloadAndExtractAndroidPlatform(platformCode).resolve("android.jar")))
-        }
-        return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, result.outputs)
+        val result = getAndroidPlatformFileFromPackageTask
+            .run(dependenciesResult) as GetAndroidPlatformFileFromPackageTask.TaskResult
+        val classpath = result.outputs.map { it.resolve("android.jar") }
+        return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, classpath)
     }
 }

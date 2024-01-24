@@ -78,17 +78,19 @@ class KtorDownloader(private val androidSdkPath: Path) : Downloader {
     }
 }
 
-fun downloadAndExtractAndroidPlatform(platformCode: String): Path {
-    val userHome = System.getProperty("user.home") ?: error("User home must not be null")
-    val androidSdkPath = Path.of(userHome).resolve(".android-sdk")
+fun downloadAndExtractAndroidPlatform(
+    packageName: String,
+    androidSdkPath: Path = Path.of(System.getProperty("user.home") ?: error("User home must not be null"))
+        .resolve(".android-sdk")
+): Path {
     val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
     val consoleProgressIndicator = ConsoleProgressIndicator()
     val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
     val downloader = KtorDownloader(androidSdkPath)
-    val localPackage: LocalPackage? = repoManager.packages.localPackages["platforms;$platformCode"]
+    val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
     return localPackage?.location ?: run {
         repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
-        val remotePackage: RemotePackage? = repoManager.packages.remotePackages["platforms;$platformCode"]
+        val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
         val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
         installer.prepare(consoleProgressIndicator)
         installer.complete(consoleProgressIndicator)
