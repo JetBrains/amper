@@ -1,8 +1,8 @@
 Fragments:
   jvm
     External dependencies:
-      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/frontend-api)
-      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/frontend/util)
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend-api)
+      InternalDependency(module={{ testProcessDir }}{{ fileSeparator }}testResources{{ fileSeparator }}frontend{{ fileSeparator }}util)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-reflect:1.8.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.yaml:snakeyaml:2.0, compile=true, runtime=true, exported=false)
     Src folder: src

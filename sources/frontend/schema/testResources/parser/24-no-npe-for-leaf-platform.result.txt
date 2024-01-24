@@ -35,7 +35,7 @@ Fragments:
       KoverPart(enabled=null, html=null, xml=null)
   common
     External dependencies:
-      InternalDependency(module=/Users/Alexander.Tsarev/projects/models-design-sandbox/sources/frontend/schema/testResources/parser/subModule)
+      InternalDependency(module={{ testResources }}{{ fileSeparator }}subModule)
     Src folder: src
     Fragment dependencies:
     Parts:
