@@ -63,6 +63,8 @@ class NestedCompletionSchemaBuilder(
             .apply {
                 visitClas(root)
             }
+
+        fun modifiersRegExp(propName: String) = "$propName(@[A-z]+)?"
     }
 
     override fun visitClas(klass: KClass<*>) =
@@ -87,7 +89,7 @@ class NestedCompletionSchemaBuilder(
             }
             type.isMap && type.mapValueType.isSchemaNode && modifierAware -> {
                 val parent = previousNode.firstParent() // isolated nodes are bound to top level completion nodes list
-                val nestedNode = NestedCompletionNodeImpl("${prop.name}(@[A-z]+)?", isRegExp = true, parent = parent, isolated = true)
+                val nestedNode = NestedCompletionNodeImpl(modifiersRegExp(prop.name), isRegExp = true, parent = parent, isolated = true)
                 parent.children.add(nestedNode)
                 currentNode = nestedNode
                 types.forEach { visitClas(it) }

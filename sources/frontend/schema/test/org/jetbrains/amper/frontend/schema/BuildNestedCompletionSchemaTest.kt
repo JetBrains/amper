@@ -23,6 +23,17 @@ class BuildNestedCompletionSchemaTest : TestBase() {
         result.toString()
     }
 
+    @Test
+    fun `test settings regex`() {
+        val settingModifiersRegExp = NestedCompletionSchemaBuilder.modifiersRegExp("settings").toRegex()
+        val testSettingModifiersRegExp = NestedCompletionSchemaBuilder.modifiersRegExp("test-settings").toRegex()
+        assert(settingModifiersRegExp.matches("settings"))
+        assert(settingModifiersRegExp.matches("settings@jvm"))
+        assert(settingModifiersRegExp.matches("settings@AnDrOiDD"))
+        assert(testSettingModifiersRegExp.matches("test-settings@AnDrOiDD"))
+        assert(testSettingModifiersRegExp.matches("test-settings"))
+    }
+
     private fun ident(level: Int): String =
         StringBuilder().apply {
             var i = 0
