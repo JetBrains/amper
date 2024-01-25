@@ -52,7 +52,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     if (isTest && fragments.all { !it.src.exists() }) {
                         // no test code, assume no code generation
                         // other modules could not depend on this module's tests, so it's ok
-                        continue
+                        continue // TODO shouldn't we consistently keep these tasks in the graph even if they are noops?
                     }
 
                     val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
