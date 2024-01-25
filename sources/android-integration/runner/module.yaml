@@ -7,6 +7,7 @@ apply:
 
 dependencies:
   - ../android-integration-core: exported
+  - ../../core
   - org.gradle:gradle-tooling-api:8.5
 
 settings:

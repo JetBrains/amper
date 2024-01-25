@@ -5,10 +5,10 @@
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
+import org.jetbrains.amper.core.AmperBuild
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createDirectories
-import kotlin.io.path.createTempDirectory
 
 inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     buildRequest: AndroidBuildRequest,
@@ -25,7 +25,6 @@ inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     val settingsGradle = tempDir.resolve("settings.gradle.kts")
     val settingsGradleFile = settingsGradle.toFile()
     settingsGradleFile.createNewFile()
-    // todo: hide by feature flag building plugin from source
     settingsGradleFile.writeText(
         """
 pluginManagement {
@@ -35,13 +34,14 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-        includeBuild("$sourcesPath")
+        maven("https://packages.jetbrains.team/maven/p/amper/amper")
+        ${if (AmperBuild.isSNAPSHOT) "includeBuild(\"$sourcesPath\")" else ""}
     }
 }
 
 
 plugins {
-    id("org.jetbrains.amper.android.settings.plugin")
+    id("org.jetbrains.amper.android.settings.plugin")${if (!AmperBuild.isSNAPSHOT) ".version(\"${AmperBuild.BuildNumber}\")" else ""}
 }
 
 configure<AmperAndroidIntegrationExtension> {
