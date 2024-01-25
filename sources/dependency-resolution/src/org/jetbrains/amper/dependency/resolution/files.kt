@@ -6,28 +6,31 @@ package org.jetbrains.amper.dependency.resolution
 
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import java.io.BufferedInputStream
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
+import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.nio.channels.OverlappingFileLockException
+import java.nio.channels.ReadableByteChannel
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.security.MessageDigest
 import java.time.ZonedDateTime
 import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.io.path.readBytes
 import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 interface LocalRepository {
     fun guessPath(dependency: MavenDependency, name: String): Path?
-    fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path
+    fun getTempPath(dependency: MavenDependency, name: String): Path
+    fun getPath(dependency: MavenDependency, name: String, sha1: String): Path
 }
 
 class GradleLocalRepository(private val files: Path) : LocalRepository {
@@ -54,9 +57,11 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
         }.findAny().orElse(null)
     }
 
-    override fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path {
+    override fun getTempPath(dependency: MavenDependency, name: String): Path =
+        getLocation(dependency).resolve("~$name")
+
+    override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path {
         val location = getLocation(dependency)
-        val sha1 = computeHash("sha1", bytes)
         return location.resolve(sha1).resolve(name)
     }
 
@@ -77,8 +82,9 @@ class MavenLocalRepository(private val repository: Path) : LocalRepository {
     override fun guessPath(dependency: MavenDependency, name: String): Path =
         repository.resolve(getLocation(dependency)).resolve(name)
 
-    override fun getPath(dependency: MavenDependency, name: String, bytes: ByteArray): Path =
-        guessPath(dependency, name)
+    override fun getTempPath(dependency: MavenDependency, name: String): Path = guessPath(dependency, "~$name")
+
+    override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path = guessPath(dependency, name)
 
     private fun getLocation(dependency: MavenDependency) =
         repository.resolve(
@@ -128,9 +134,9 @@ open class DependencyFile(
         if (!verify) {
             return true
         }
-        val bytes = path.readBytes()
+        val hashers = computeHash(path)
         for (repository in repositories) {
-            val result = verify(bytes, repository, progress, level)
+            val result = verify(hashers, repository, progress, level)
             return when (result) {
                 VerificationResult.PASSED -> true
                 VerificationResult.FAILED -> false
@@ -140,33 +146,76 @@ open class DependencyFile(
         return level < ResolutionLevel.NETWORK
     }
 
-    fun readText(): String {
-        path?.let { path ->
-            FileChannel.open(path, StandardOpenOption.READ).use { channel ->
-                while (true) {
-                    try {
-                        channel.lock(0L, Long.MAX_VALUE, true).use {
-                            return channel.readBytes().toString(Charsets.UTF_8)
-                        }
-                    } catch (e: OverlappingFileLockException) {
-                        Thread.sleep(100)
+    fun readText(): String = path?.readText()
+        ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
+
+    fun download(settings: Settings): Boolean = download(settings.repositories, settings.progress)
+
+    protected fun download(
+        repositories: List<String>,
+        progress: Progress,
+        verify: Boolean = true,
+    ): Boolean {
+        val temp = cacheDirectory.getTempPath(dependency, "$nameWithoutExtension.$extension")
+        try {
+            Files.createDirectories(temp.parent)
+            try {
+                FileChannel.open(temp, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
+                    channel.lock().use {
+                        return download(channel, temp, repositories, progress, verify)
                     }
                 }
+            } catch (e: Exception) {
+                when (e) {
+                    is FileAlreadyExistsException, is OverlappingFileLockException ->
+                        FileChannel.open(temp, StandardOpenOption.WRITE).use { channel ->
+                            // Someone's already downloading the file. Let's wait for it and then check the result.
+                            var delay = 10L
+                            val times = 10
+                            repeat(times) {
+                                try {
+                                    channel.lock().use {
+                                        return isDownloaded(ResolutionLevel.NETWORK, repositories, progress, verify)
+                                    }
+                                } catch (e: OverlappingFileLockException) {
+                                    Thread.sleep(delay)
+                                    delay = (delay * 2).coerceAtMost(1000)
+                                }
+                            }
+                            throw IOException("Unable to acquire file lock after $times attempts")
+                        }
+
+                    else -> throw e
+                }
             }
+        } catch (e: IOException) {
+            dependency.messages += Message(
+                "Unable to save downloaded file",
+                e.toString(),
+                Severity.ERROR,
+            )
+            return false
+        } finally {
+            Files.deleteIfExists(temp)
         }
-        throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
     }
 
-    fun download(settings: Settings): Boolean {
-        return settings.repositories.find { download(it, settings.progress) }?.also {
-            dependency.messages += Message("Downloaded from $it")
-        } != null
-    }
-
-    protected fun download(repository: String, progress: Progress, verify: Boolean = true): Boolean {
-        downloadBytes(repository, progress)?.let { bytes ->
+    private fun download(
+        channel: FileChannel,
+        temp: Path,
+        repositories: List<String>,
+        progress: Progress,
+        verify: Boolean,
+    ): Boolean {
+        for (repository in repositories) {
+            val hashers = createHashers().filter { verify || it.algorithm == "sha1" }
+            val writers = hashers.map { it.writer } + Writer(channel::write)
+            if (!download(writers, repository, progress)) {
+                channel.truncate(0)
+                continue
+            }
             if (verify) {
-                val result = verify(bytes, repository, progress)
+                val result = verify(hashers, repository, progress)
                 if (result > VerificationResult.PASSED) {
                     if (result == VerificationResult.UNKNOWN) {
                         dependency.messages += Message(
@@ -175,103 +224,55 @@ open class DependencyFile(
                             Severity.ERROR,
                         )
                     }
-                    return false
+                    channel.truncate(0)
+                    continue
                 }
             }
-            val target = cacheDirectory.getPath(dependency, "$nameWithoutExtension.$extension", bytes)
+            val target = cacheDirectory.getPath(
+                dependency,
+                "$nameWithoutExtension.$extension",
+                hashers.find { it.algorithm == "sha1" }?.hash
+                    ?: throw AmperDependencyResolutionException("sha1 must be present among hashers"),
+            )
+            Files.createDirectories(target.parent)
             try {
-                saveContentWithLock(target, bytes) { shouldOverwrite(repository, progress, verify, it) }
-                onFileDownloaded()
-                return true
-            } catch (e: IOException) {
-                dependency.messages += Message(
-                    "Unable to save downloaded file",
-                    e.toString(),
-                    Severity.ERROR,
-                )
+                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE)
+            } catch (e: FileAlreadyExistsException) {
+                if (repositories.any { shouldOverwrite({ computeHash(target) }, it, progress, verify) }) {
+                    Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                }
             }
+            onFileDownloaded()
+            dependency.messages += Message("Downloaded from $repository")
+            return true
         }
         return false
     }
 
-    @Throws(IOException::class)
-    protected fun saveContentWithLock(
-        target: Path,
-        bytes: ByteArray,
-        shouldOverwrite: (FileChannel) -> Boolean
-    ) {
-        Files.createDirectories(target.parent)
-        try {
-            FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
-                channel.lock().use {
-                    channel.write(ByteBuffer.wrap(bytes))
-                    return
-                }
-            }
-        } catch (e: Exception) {
-            when (e) {
-                is FileAlreadyExistsException, is OverlappingFileLockException -> {
-                    // We need READ 'cause we can verify existing content in #shouldOverwrite.
-                    FileChannel.open(target, StandardOpenOption.WRITE, StandardOpenOption.READ).use { channel ->
-                        // We need to wait for the previous lock to get released.
-                        // This way we ensure that the file was fully written to disk.
-                        var count = 0
-                        while (count < 10) {
-                            try {
-                                channel.lock().use {
-                                    if (shouldOverwrite(channel)) {
-                                        channel.write(ByteBuffer.wrap(bytes))
-                                    }
-                                    return
-                                }
-                            } catch (e: OverlappingFileLockException) {
-                                count++
-                                Thread.sleep(100)
-                            }
-                        }
-                        throw IOException("Unable to acquire file lock after $count attempts")
-                    }
-                }
-
-                else -> throw e
-            }
-        }
-    }
-
     protected open fun shouldOverwrite(
+        hashersProvider: () -> Collection<Hasher>,
         repository: String,
         progress: Progress,
-        verify: Boolean,
-        channel: FileChannel
+        verify: Boolean
     ): Boolean = verify && verify(
-        channel.readBytes(),
+        hashersProvider(),
         repository,
-        progress
+        progress,
     ) > VerificationResult.PASSED
 
-    private fun FileChannel.readBytes(): ByteArray {
-        val baos = ByteArrayOutputStream()
-        val buff = ByteBuffer.allocate(1024)
-        var count: Int
-        while (read(buff).also { count = it } != -1) {
-            baos.write(buff.array(), 0, count)
-            buff.rewind()
-        }
-        return baos.toByteArray()
-    }
-
     private fun verify(
-        bytes: ByteArray,
+        hashers: Collection<Hasher>,
         repository: String,
         progress: Progress,
         requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
     ): VerificationResult {
         // Let's first check hashes available on disk.
-        val algorithms = setOf(ResolutionLevel.LOCAL, requestedLevel)
-            .flatMap { level -> listOf("sha512", "sha256", "sha1", "md5").map { level to it } }
-        for ((level, algorithm) in algorithms) {
+        val levelToHasher = setOf(ResolutionLevel.LOCAL, requestedLevel)
+            .flatMap { level -> hashers.map { level to it } }
+        for ((level, hasher) in levelToHasher) {
+            val algorithm = hasher.algorithm
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
-            val actualHash = computeHash(algorithm, bytes)
+            val actualHash = hasher.hash
             if (expectedHash != actualHash) {
                 dependency.messages += Message(
                     "Hashes don't match for $algorithm",
@@ -318,7 +319,7 @@ open class DependencyFile(
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
             it.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
-                    || it.download(repository, progress, false)
+                    || it.download(listOf(repository), progress, verify = false)
         }
         val hashFromRepository = hashFile?.readText()?.toByteArray()
         if (hashFromRepository?.isNotEmpty() == true) {
@@ -351,7 +352,7 @@ open class DependencyFile(
         }
         val hashFile = DependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
         return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
-            || level == ResolutionLevel.NETWORK && hashFile.download(repository, progress, false)
+            || level == ResolutionLevel.NETWORK && hashFile.download(listOf(repository), progress, verify = false)
         ) {
             hashFile.readText()
         } else {
@@ -359,7 +360,7 @@ open class DependencyFile(
         }
     }
 
-    private fun downloadBytes(repository: String, progress: Progress): ByteArray? {
+    private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
         try {
             val url = repository +
                     "/${dependency.group.replace('.', '/')}" +
@@ -373,26 +374,18 @@ open class DependencyFile(
             val responseCode = connection.responseCode
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val contentLength = connection.contentLength
-                val bytes = ByteArrayOutputStream().also { baos ->
-                    connection.inputStream.use { inputStream ->
-                        BufferedInputStream(inputStream).use { bis ->
-                            val data = ByteArray(1024)
-                            var count: Int
-                            while (bis.read(data, 0, 1024).also { count = it } != -1) {
-                                baos.write(data, 0, count)
-                            }
-                        }
-                    }
-                }.toByteArray()
-                if (contentLength != -1 && bytes.size != contentLength) {
+                val size = Channels.newChannel(BufferedInputStream(connection.inputStream)).use { channel ->
+                    channel.readTo(writers)
+                }
+                if (contentLength != -1 && size != contentLength) {
                     dependency.messages += Message(
                         "Content length doesn't match for $repository",
-                        "Expected: $contentLength, actual: ${bytes.size}",
+                        "Expected: $contentLength, actual: $size",
                         Severity.ERROR
                     )
-                    return null
+                    return false
                 }
-                return bytes
+                return true
             } else if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
                 dependency.messages += Message(
                     "Unexpected response code for $repository",
@@ -407,7 +400,7 @@ open class DependencyFile(
                 Severity.ERROR,
             )
         }
-        return null
+        return false
     }
 
     protected open fun getNamePart(repository: String, name: String, extension: String, progress: Progress) =
@@ -470,7 +463,7 @@ class SnapshotDependencyFile(
     override fun getNamePart(repository: String, name: String, extension: String, progress: Progress): String {
         if (name != "maven-metadata" &&
             (mavenMetadata.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
-                    || mavenMetadata.download(repository, progress, verify = false))
+                    || mavenMetadata.download(listOf(repository), progress, verify = false))
         ) {
             snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }
         }
@@ -478,20 +471,16 @@ class SnapshotDependencyFile(
     }
 
     override fun shouldOverwrite(
+        hashersProvider: () -> Collection<Hasher>,
         repository: String,
         progress: Progress,
         verify: Boolean,
-        channel: FileChannel
     ): Boolean = nameWithoutExtension == "maven-metadata"
             || versionFile?.takeIf { it.exists() }?.readText() != snapshotVersion
 
     override fun onFileDownloaded() {
         if (nameWithoutExtension != "maven-metadata") {
-            snapshotVersion?.let { version ->
-                versionFile?.let {
-                    saveContentWithLock(it, version.toByteArray()) { true }
-                }
-            }
+            snapshotVersion?.let { versionFile?.writeText(it) }
         }
     }
 }
@@ -501,12 +490,40 @@ internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.mo
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variant?.files?.singleOrNull { it.name == name }
 
-internal fun computeHash(algorithm: String, bytes: ByteArray): String {
-    val messageDigest = MessageDigest.getInstance(algorithm)
-    messageDigest.update(bytes, 0, bytes.size)
-    val hash = messageDigest.digest()
-    return toHex(hash)
+fun interface Writer {
+    fun write(data: ByteBuffer)
+}
+
+class Hasher(algorithm: String) {
+    private val digest = MessageDigest.getInstance(algorithm)
+    val algorithm: String = digest.algorithm
+    val writer: Writer = Writer(digest::update)
+    val hash: String by lazy { toHex(digest.digest()) }
+}
+
+private fun computeHash(path: Path): Collection<Hasher> {
+    val hashers = createHashers()
+    FileChannel.open(path, StandardOpenOption.READ).use { channel ->
+        channel.readTo(hashers.map { it.writer })
+    }
+    return hashers
+}
+
+private fun createHashers() = listOf("sha512", "sha256", "sha1", "md5").map { Hasher(it) }
+
+private fun ReadableByteChannel.readTo(writers: Collection<Writer>): Int {
+    var size = 0
+    val data = ByteBuffer.allocate(1024)
+    while (read(data) != -1) {
+        writers.forEach {
+            data.flip()
+            it.write(data)
+        }
+        size += data.position()
+        data.clear()
+    }
+    return size
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-private fun toHex(bytes: ByteArray) = bytes.toHexString()
+internal fun toHex(bytes: ByteArray) = bytes.toHexString()
