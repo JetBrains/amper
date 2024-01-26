@@ -2,10 +2,8 @@ product:
   type: lib
   platforms: [jvm]
 
-# This is redundant declaration, but without it build fails
-repositories:
-  - https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases
-  - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
+apply:
+  - ../../common.module-template.yaml
 
 dependencies:
   - ../../frontend-api
