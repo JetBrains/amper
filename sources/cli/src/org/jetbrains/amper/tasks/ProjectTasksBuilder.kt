@@ -56,7 +56,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     }
 
                     val androidPlatformJarTaskName = if (platform == Platform.ANDROID) {
-                        setupAndroidPlatformTask(module, tasks, executeOnChangedInputs, androidSdkPath)
+                        setupAndroidPlatformTask(module, tasks, executeOnChangedInputs, androidSdkPath, isTest)
                     } else null
 
                     val prepareAndroidBuildTasks = setupPrepareAndroidTasks(
@@ -238,7 +238,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             executeOnChangedInputs,
                             fragments
                         )
-                        setupAndroidRunTasks(module, androidBuildTasksNames, executeOnChangedInputs, tasks, androidSdkPath)
+                        setupAndroidRunTasks(module, androidBuildTasksNames, executeOnChangedInputs, tasks, androidSdkPath, isTest)
                     } else createCompileTask()
 
 
@@ -412,9 +412,15 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         executeOnChangedInputs: ExecuteOnChangedInputs,
         tasks: TaskGraphBuilder,
         androidSdkPath: Path,
+        isTest: Boolean,
     ) {
-        val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.ANDROID) }
-        val androidFragment = fragments.firstOrNull() ?: error("Only one ${Platform.ANDROID} fragment is expected")
+        val testSuffix = if (isTest) "Test" else ""
+        val fragments = module.fragments
+            .filter { it.isTest == isTest }
+            .filter { Platform.ANDROID in it.platforms }
+        val androidFragment = fragments.firstOrNull() ?: run {
+            error("Only one ${Platform.ANDROID} fragment is expected")
+        }
         val avdPath = AndroidSdkDetector(buildList {
             add(AndroidSdkDetector.EnvironmentVariableSuggester("ANDROID_AVD_HOME"))
             add(AndroidSdkDetector.SystemPropertySuggester("ANDROID_AVD_HOME"))
@@ -423,7 +429,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             })
         }).detectSdkPath() ?: error("No avd path")
 
-        val downloadAndroidEmulatorTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidEmulator"))
+        val downloadAndroidEmulatorTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidEmulator$testSuffix"))
         tasks.registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "emulator",
@@ -433,8 +439,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             )
         )
 
-        val downloadCmdlineTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadCmdlineTools"))
-
+        val downloadCmdlineTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadCmdlineTools$testSuffix"))
         tasks.registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "system-images;android-${androidFragment.settings.android.targetSdk.versionNumber};${DEFAULT_TAG.id};${Abi.ARM64_V8A}",
@@ -444,7 +449,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             )
         )
 
-        val downloadPlatformTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadPlatformTools"))
+        val downloadPlatformTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadPlatformTools$testSuffix"))
         tasks.registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "platform-tools",
@@ -461,7 +466,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     TaskName.fromHierarchy(
                         listOf(
                             module.userReadableName,
-                            "run${buildType.name}Android"
+                            "run${buildType.name}Android$testSuffix"
                         )
                     ),
                     module,
@@ -483,15 +488,17 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         tasks: TaskGraphBuilder,
         executeOnChangedInputs: ExecuteOnChangedInputs,
         androidSdkPath: Path,
+        isTest: Boolean,
     ): TaskName? {
+        val testSuffix = if (isTest) "Test" else ""
         return module
             .fragments
             .filter { Platform.ANDROID in it.platforms }
-            .firstOrNull { !it.isTest }
+            .firstOrNull { it.isTest == isTest }
             ?.let { androidFragment ->
                 val targetSdk = androidFragment.settings.android.targetSdk.versionNumber
                 val androidCompileTaskName =
-                    TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk"))
+                    TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidSdk$testSuffix"))
                 tasks.registerTask(
                     GetAndroidPlatformJarTask(
                         GetAndroidPlatformFileFromPackageTask(
