@@ -5,13 +5,5 @@
 package org.jetbrains.amper.dependency.resolution
 
 import org.junit.jupiter.api.TestInfo
-import java.security.MessageDigest
 
 fun TestInfo.nameToDependency(): String = testMethod.get().name.replace('_', '.').replace(' ', ':')
-
-fun computeHash(algorithm: String, bytes: ByteArray): String {
-    val messageDigest = MessageDigest.getInstance(algorithm)
-    messageDigest.update(bytes, 0, bytes.size)
-    val hash = messageDigest.digest()
-    return toHex(hash)
-}
