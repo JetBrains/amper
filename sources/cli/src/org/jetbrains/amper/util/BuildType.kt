@@ -7,11 +7,19 @@ package org.jetbrains.amper.util
 import AndroidBuildRequest
 
 enum class BuildType {
-    Debug, Release
+    Default, Debug, Release;
+
+    val suffix: String get() {
+        return when(this) {
+            Default -> ""
+            Debug, Release -> name
+        }
+    }
 }
 
 val BuildType.toAndroidRequestBuildType
     get() = when (this) {
+        BuildType.Default -> AndroidBuildRequest.BuildType.Debug
         BuildType.Debug -> AndroidBuildRequest.BuildType.Debug
         BuildType.Release -> AndroidBuildRequest.BuildType.Release
     }

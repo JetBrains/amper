@@ -138,18 +138,17 @@ private val androidBaseTasks = listOf(
     "compileAndroidDebug",
     "compileAndroidRelease",
     "downloadAndroidEmulator",
-    "downloadAndroidSdk",
-    "downloadCmdlineTools",
+    "downloadSdkAndroid",
     "downloadPlatformTools",
-    "finalizeDebugAndroidBuild",
-    "finalizeReleaseAndroidBuild",
-    "prepareDebugAndroidBuild",
-    "prepareReleaseAndroidBuild",
+    "finalizeBuildAndroidDebug",
+    "finalizeBuildAndroidRelease",
+    "prepareBuildAndroidDebug",
+    "prepareBuildAndroidRelease",
     "resolveDependenciesAndroid",
 )
 private val androidAppTasks = androidBaseTasks + listOf(
-    "runDebugAndroid",
-    "runReleaseAndroid",
+    "runAndroidDebug",
+    "runAndroidRelease",
 )
 private val androidTestTasks = listOf(
     "compileAndroidTestDebug",

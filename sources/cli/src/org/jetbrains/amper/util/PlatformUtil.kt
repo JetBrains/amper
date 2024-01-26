@@ -18,6 +18,7 @@ object PlatformUtil {
     val platformsMayRunOnCurrentSystem: Set<Platform> by lazy {
         val set = buildSet {
             add(Platform.JVM)
+            add(Platform.ANDROID)
 
             when (OS.type) {
                 Windows -> {
