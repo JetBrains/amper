@@ -15,9 +15,9 @@
 
 set -e -u
 
-amper_version=0.2.0-dev-347
+amper_version=0.2.0-dev-414
 amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$amper_version/cli-$amper_version-dist.zip"
-amper_sha256=c7db9f51c47915660f27184ee2f7ee4db7d86907f0adc81e3a6f1eb91f641911
+amper_sha256=840c8b5469c0dd0a446fc0487beb140486cd2001ed92903279dd9c2fde43e003
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
