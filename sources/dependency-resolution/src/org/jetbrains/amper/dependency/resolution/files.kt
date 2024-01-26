@@ -308,16 +308,9 @@ open class DependencyFile(
         if (hashFromGradle?.isNotEmpty() == true) {
             return hashFromGradle
         }
-        val hashFromMaven = getHashFromMavenCacheDirectory(algorithm, repository, progress, level)
-        if (hashFromMaven?.isNotEmpty() == true) {
-            return hashFromMaven.sanitize()
-        }
-        if (level < ResolutionLevel.NETWORK) {
-            return null
-        }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
-            it.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
-                    || it.download(listOf(repository), progress, verify = false)
+            it.isDownloaded(level, listOf(repository), progress, false)
+                    || level == ResolutionLevel.NETWORK && it.download(listOf(repository), progress, verify = false)
         }
         val hashFromRepository = hashFile?.readText()?.toByteArray()
         if (hashFromRepository?.isNotEmpty() == true) {
@@ -338,25 +331,6 @@ open class DependencyFile(
         } else {
             null
         }
-
-    private fun getHashFromMavenCacheDirectory(
-        algorithm: String,
-        repository: String,
-        progress: Progress,
-        level: ResolutionLevel
-    ): String? {
-        if (cacheDirectory !is MavenLocalRepository) {
-            return null
-        }
-        val hashFile = DependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm")
-        return if (hashFile.isDownloaded(level, listOf(repository), progress, false)
-            || level == ResolutionLevel.NETWORK && hashFile.download(listOf(repository), progress, verify = false)
-        ) {
-            hashFile.readText()
-        } else {
-            null
-        }
-    }
 
     private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
         try {
