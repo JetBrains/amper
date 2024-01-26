@@ -1,10 +1,13 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.JvmSettings
+import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Settings
@@ -57,6 +60,7 @@ class FragmentBuilder(var name: String) {
     private val fragmentDependencies: MutableList<FragmentLink> = mutableListOf()
     private val fragmentDependants: MutableSet<FragmentLink> = mutableSetOf()
     private val externalDependencies: MutableList<Notation> = mutableListOf()
+    private val settings = Settings()
     private val parts: ClassBasedSet<FragmentPart<*>> = classBasedSet()
     private val platforms: MutableSet<Platform> = mutableSetOf()
 
@@ -80,22 +84,19 @@ class FragmentBuilder(var name: String) {
         })
     }
 
-    fun kotlinPart(init: KotlinFragmentPartBuilder.() -> Unit) {
-        val builder = KotlinFragmentPartBuilder()
-        builder.init()
-        parts.add(builder.build())
+    fun kotlin(init: KotlinSettings.() -> Unit) {
+        // we reassign to trigger the delegate (to force non-default state)
+        settings.kotlin = KotlinSettings().apply(init)
     }
 
-    fun jvmPart(init: JvmPartBuilder.() -> Unit) {
-        val builder = JvmPartBuilder()
-        builder.init()
-        parts.add(builder.build())
+    fun jvm(init: JvmSettings.() -> Unit) {
+        // we reassign to trigger the delegate (to force non-default state)
+        settings.jvm = JvmSettings().apply(init)
     }
 
-    fun androidPart(init: AndroidPartBuilder.() -> Unit) {
-        val builder = AndroidPartBuilder()
-        builder.init()
-        parts.add(builder.build())
+    fun android(init: AndroidSettings.() -> Unit) {
+        // we reassign to trigger the delegate (to force non-default state)
+        settings.android = AndroidSettings().apply(init)
     }
 
     fun build(): LeafFragment {
@@ -113,7 +114,7 @@ class FragmentBuilder(var name: String) {
             override val parts: ClassBasedSet<FragmentPart<*>>
                 get() = this@FragmentBuilder.parts.toClassBasedSet()
             override val settings: Settings
-                get() = Settings()
+                get() = this@FragmentBuilder.settings
             override val platforms: Set<Platform>
                 get() = this@FragmentBuilder.platforms
             override val isTest: Boolean
@@ -126,45 +127,6 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.variants
         }
     }
-}
-
-class KotlinFragmentPartBuilder {
-    var languageVersion: String? = null
-    var apiVersion: String? = null
-    var progressiveMode: Boolean? = null
-    val languageFeatures: MutableList<String> = mutableListOf()
-    val optIns: MutableList<String> = mutableListOf()
-    fun build(): KotlinPart =
-        KotlinPart(
-            languageVersion = languageVersion,
-            apiVersion = apiVersion,
-            allWarningsAsErrors = null,
-            debug = null,
-            progressiveMode = progressiveMode,
-            languageFeatures = languageFeatures,
-            optIns = optIns,
-            linkerOpts = emptyList(),
-            serialization = null
-        )
-}
-
-
-class AndroidPartBuilder {
-    var compileSdk: String? = null
-    var minSdk: String? = null
-    var targetSdk: String? = null
-    var maxSdk: Int? = null
-    var applicationId: String? = null
-    var namespace: String? = null
-
-    fun build(): AndroidPart = AndroidPart(
-            compileSdk = compileSdk,
-            minSdk = minSdk,
-            targetSdk = targetSdk,
-            maxSdk = maxSdk,
-            applicationId = applicationId,
-            namespace = namespace
-    )
 }
 
 class PotatoModuleBuilder(var name: String) {

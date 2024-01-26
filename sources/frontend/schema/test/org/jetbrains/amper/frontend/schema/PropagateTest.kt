@@ -4,15 +4,15 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.frontend.AndroidPart
-import org.jetbrains.amper.frontend.JvmPart
-import org.jetbrains.amper.frontend.KotlinPart
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.aomBuilder.ModelImpl
 import org.jetbrains.amper.frontend.aomBuilder.resolved
-import org.jetbrains.amper.frontend.findInstance
 import org.jetbrains.amper.frontend.schema.helper.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class PropagateTest {
 
@@ -24,8 +24,8 @@ class PropagateTest {
         val module = potatoModule("main") {
             fragment("common") {
                 dependant("jvm")
-                kotlinPart {
-                    languageVersion = "1.9"
+                kotlin {
+                    languageVersion = KotlinVersion.Kotlin19
                 }
             }
             fragment("jvm") {
@@ -38,11 +38,8 @@ class PropagateTest {
         // when
         val resultModel = model.resolved
 
-        val part = resultModel.modules.first().fragments.find { it.name == "jvm" }
-            ?.parts
-            ?.findInstance<KotlinPart>()
-
-        assertEquals("1.9", part?.languageVersion)
+        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.languageVersion)
     }
 
     @Test
@@ -50,8 +47,8 @@ class PropagateTest {
         val module = potatoModule("main") {
             fragment("common") {
                 dependant("native")
-                kotlinPart {
-                    languageVersion = "1.9"
+                kotlin {
+                    languageVersion = KotlinVersion.Kotlin19
                 }
             }
             fragment("native") {
@@ -69,11 +66,8 @@ class PropagateTest {
         // when
         val resultModel = model.resolved
 
-        val part = resultModel.modules.first().fragments.find { it.name == "darwin" }
-            ?.parts
-            ?.findInstance<KotlinPart>()
-
-        assertEquals("1.9", part?.languageVersion)
+        val darwinFragment = assertSingleFragment(resultModel, "darwin")
+        assertEquals(KotlinVersion.Kotlin19, darwinFragment.settings.kotlin.languageVersion)
     }
 
     @Test
@@ -81,8 +75,8 @@ class PropagateTest {
         val module = potatoModule("main") {
             fragment("common") {
                 dependant("jvm")
-                kotlinPart {
-                    languageVersion = "1.9"
+                kotlin {
+                    languageVersion = KotlinVersion.Kotlin19
                 }
             }
             fragment("jvm") {
@@ -93,11 +87,8 @@ class PropagateTest {
         val model = ModelImpl(module)
         val resultModel = model.resolved
 
-        assertEquals(
-            "1.9",
-            resultModel.modules.first().fragments.find { it.name == "jvm" }
-                ?.parts?.findInstance<KotlinPart>()?.apiVersion
-        )
+        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.apiVersion)
     }
 
     @Test
@@ -108,19 +99,15 @@ class PropagateTest {
             }
             fragment("jvm") {
                 dependsOn("common")
-                jvmPart {}
+                jvm {}
             }
         }
 
         val model = ModelImpl(module)
         val resultModel = model.resolved
 
-        val jvmFragment = resultModel.modules.first().fragments.find { it.name == "jvm" }
-        val parts = jvmFragment?.parts
-        assertEquals(
-            "17",
-            parts?.find<JvmPart>()?.target
-        )
+        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        assertEquals(JavaVersion.VERSION_17, jvmFragment.settings.jvm.target)
     }
 
     @Test
@@ -128,29 +115,20 @@ class PropagateTest {
         val module = potatoModule("androidApp") {
             fragment("common") {
                 dependant("android")
-                androidPart {
+                android {
                     namespace = "namespace"
                 }
             }
             fragment("android") {
                 dependsOn("common")
-                androidPart {}
             }
         }
 
         val model = ModelImpl(module)
         val resultModel = model.resolved
 
-        val actualNamespace = resultModel
-            .modules
-            .first()
-            .fragments
-            .find { it.name == "android" }
-            ?.parts
-            ?.find<AndroidPart>()
-            ?.namespace
-
-        assertEquals("namespace", actualNamespace)
+        val androidFragment = assertSingleFragment(resultModel, "android")
+        assertEquals("namespace", androidFragment.settings.android.namespace)
     }
 
     @Test
@@ -158,37 +136,37 @@ class PropagateTest {
         val module = potatoModule("androidApp") {
             fragment("common") {
                 dependant("android")
-                androidPart {
+                android {
                     applicationId = "com.example.applicationid"
                     namespace = "com.example.namespace"
-                    minSdk = "30"
-                    maxSdk = 33
-                    compileSdk = "33"
-                    targetSdk = "33"
+                    minSdk = AndroidVersion.VERSION_30
+                    maxSdk = AndroidVersion.VERSION_33
+                    compileSdk = AndroidVersion.VERSION_33
+                    targetSdk = AndroidVersion.VERSION_33
                 }
             }
             fragment("android") {
                 dependsOn("common")
-                androidPart {}
             }
         }
 
         val model = ModelImpl(module)
         val resultModel = model.resolved
 
-        val androidPart = resultModel
-            .modules
-            .first()
-            .fragments
-            .find { it.name == "android" }
-            ?.parts
-            ?.find<AndroidPart>()!!
+        val androidFragment = assertSingleFragment(resultModel, "android")
+        val androidSettings = androidFragment.settings.android
 
-        assertEquals("com.example.applicationid", androidPart.applicationId)
-        assertEquals("com.example.namespace", androidPart.namespace)
-        assertEquals("30", androidPart.minSdk)
-        assertEquals(33, androidPart.maxSdk)
-        assertEquals("33", androidPart.compileSdk)
-        assertEquals("33", androidPart.targetSdk)
+        assertEquals("com.example.applicationid", androidSettings.applicationId)
+        assertEquals("com.example.namespace", androidSettings.namespace)
+        assertEquals(AndroidVersion.VERSION_30, androidSettings.minSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings.maxSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings.compileSdk)
+        assertEquals(AndroidVersion.VERSION_33, androidSettings.targetSdk)
+    }
+
+    private fun assertSingleFragment(resultModel: Model, fragmentName: String): Fragment {
+        val module = resultModel.modules.singleOrNull() ?: fail("Expected a single module")
+        return module.fragments.singleOrNull { it.name == fragmentName }
+            ?: fail("Expected a single fragment named '$fragmentName'")
     }
 }
