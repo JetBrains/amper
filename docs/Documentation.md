@@ -143,7 +143,7 @@ The product types is supposed to be [extensible](#extensibility), so the followi
 
 ### Packaging
 
-Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
+Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as AABs and APKs, and `jvm/app` as jars.
 By default, packages are generated according to platform and build tool conventions. When custom configuration is needed, Amper offer a separate `packaging:` section.
 
 _NOTE: Packaging configuration is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for packaging._
