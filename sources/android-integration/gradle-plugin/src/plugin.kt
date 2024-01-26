@@ -90,19 +90,13 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                     .filterIsInstance<LeafFragment>()
                     .firstOrNull { it.platforms.contains(Platform.ANDROID) }?.let { androidFragment ->
 
-                        androidFragment.parts.find<AndroidPart>()?.let { androidPart ->
-                            androidPart.compileSdk?.let { compileSdk ->
-                                androidExtension.compileSdkVersion(compileSdk)
-                            }
-                            androidExtension.defaultConfig {
-                                // todo: from fragment settings
-                                it.minSdk = 23
-                                it.versionCode = 1
-                            }
-                            androidPart.namespace?.let { namespace ->
-                                androidExtension.namespace = namespace
-                            }
+                        val androidSettings = androidFragment.settings.android
+                        androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
+                        androidExtension.defaultConfig {
+                            it.minSdk = androidSettings.minSdk.versionNumber
+                            it.versionCode = 1
                         }
+                        androidExtension.namespace = androidSettings.namespace
 
                         val requestedModules = project
                             .gradle

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -39,9 +39,7 @@ class JvmRunTask(
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
 
     // TODO what if several fragments have a main class?
-    private val mainClassName = fragments
-        .flatMap { it.parts.filterIsInstance<JvmPart>() }
-        .firstNotNullOfOrNull { it.mainClass }
+    private val mainClassName = fragments.firstNotNullOfOrNull { it.settings.jvm.mainClass }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val mainClassReal = if (mainClassName != null) {

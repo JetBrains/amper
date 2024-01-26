@@ -87,8 +87,7 @@ class NativeCompileTask(
         val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
 
         val entryPoints = if (module.type.isApplication()) {
-            fragments.flatMap { it.parts.filterIsInstance<NativeApplicationPart>() }
-                .mapNotNull { it.entryPoint }.distinct()
+            fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
         } else emptyList()
         if (entryPoints.size > 1) {
             error("Multiple entry points defined for module ${module.userReadableName} fragments ${fragments.userReadableList()}: ${entryPoints.joinToString()}")
