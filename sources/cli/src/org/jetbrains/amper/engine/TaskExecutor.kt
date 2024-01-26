@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.engine
@@ -15,6 +15,9 @@ class TaskExecutor(private val graph: TaskGraph) {
     init {
         // verify all dependencies are resolved
         for ((taskName, dependsOn) in graph.dependencies) {
+            if (!graph.nameToTask.containsKey(taskName)) {
+                error("Task '$taskName' does not exist, yet it defines dependencies")
+            }
             for (dependency in dependsOn) {
                 if (!graph.nameToTask.containsKey(dependency)) {
                     error("Task '$taskName' depends on task '$dependency' which does not exist")
