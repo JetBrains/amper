@@ -26,24 +26,31 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `jvm-hello-world`() {
         val projectContext = setupExampleProject("jvm-hello-world")
-        projectContext.assertHasJvmApplicationTasks()
+        projectContext.assertHasTasks(jvmAppTasks)
 
         AmperBackend(projectContext).runApplication()
+
+        // testing some default compiler arguments
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
+            hasCompilerArgument("-api-version", "1.9")
+            hasCompilerArgument("-jvm-target", "17")
+        }
         assertStdoutContains("Hello, World!")
     }
 
     @Test
     fun `jvm-kotlin+java`() {
         val projectContext = setupExampleProject("jvm-kotlin+java")
-        projectContext.assertHasJvmApplicationTasks()
+        projectContext.assertHasTasks(jvmAppTasks)
 
         AmperBackend(projectContext).runApplication()
-        assertStdoutContains("Hello, World")
 
-        with(kotlinJvmCompilerSpans.single()) {
-            assertKotlinCompilerArgument("-language-version", "1.8")
-            assertKotlinCompilerArgument("-jvm-target", "17")
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "1.8") // explicit
+            hasCompilerArgument("-jvm-target", "17") // explicit
         }
+        assertStdoutContains("Hello, World")
         // TODO add support for Java settings
 //        with(javacSpans.single()) {
 //            assertJavaCompilerArgument("-source", "17")
@@ -54,23 +61,100 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `jvm-with-tests`() {
         val projectContext = setupExampleProject("jvm-with-tests")
-        projectContext.assertHasJvmApplicationTasks()
+        projectContext.assertHasTasks(jvmAppTasks + jvmTestTasks)
 
         AmperBackend(projectContext).runApplication()
+
+        kotlinJvmCompilationSpans.assertSingle()
         assertStdoutContains("Hello, World!")
+
+        resetCollectors()
+
+        // FIXME fix test compilation
+//        AmperBackend(projectContext).check()
     }
 
-    private fun ProjectContext.assertHasJvmApplicationTasks() {
-        assertHasTasks("compileJvm", "resolveDependenciesJvm", "runJvm")
+    @Test
+    fun modularized() {
+        val projectContext = setupExampleProject("modularized")
+        projectContext.assertHasTasks(jvmAppTasks, module = "app")
+        projectContext.assertHasTasks(jvmBaseTasks + jvmTestTasks, module = "shared")
+
+        AmperBackend(projectContext).runApplication()
+
+        kotlinJvmCompilationSpans.withAmperModule("app").assertSingle()
+        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
+        assertStdoutContains("Hello, World!")
+
+        resetCollectors()
+
+        // FIXME fix test compilation
+//        AmperBackend(projectContext).check()
     }
 
-    private fun ProjectContext.assertHasTasks(vararg tasks: String) {
+    @Test
+    fun multiplatform() {
+        val projectContext = setupExampleProject("multiplatform")
+
+        projectContext.assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
+        projectContext.assertHasTasks(androidAppTasks, module = "android-app")
+        projectContext.assertHasTasks(jvmAppTasks, module = "jvm-app")
+        projectContext.assertHasTasks(iosAppTasks, module = "ios-app")
+
+        // FIXME compileAndroid task doesn't exist yet defines dependencies
+//        AmperBackend(projectContext).compile()
+//
+//        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
+//        kotlinJvmCompilationSpans.withAmperModule("android-app").assertSingle()
+//        kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
+//        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertSingle()
+    }
+
+    private fun ProjectContext.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
         AmperBackend(this).showTasks()
         tasks.forEach { task ->
-            assertStdoutContains(":${projectRoot.path.name}:$task")
+            assertStdoutContains(":${module ?: projectRoot.path.name}:$task")
         }
     }
 }
+
+private val jvmBaseTasks = listOf("compileJvm", "resolveDependenciesJvm")
+private val jvmTestTasks = listOf("compileJvmTest", "resolveDependenciesJvmTest")
+private val jvmAppTasks = jvmBaseTasks + listOf("runJvm")
+
+private val iosBaseTasks = listOf(
+    "compileIosArm64",
+    "compileIosSimulatorArm64",
+    "compileIosX64",
+)
+private val iosAppTasks = iosBaseTasks
+private val iosTestTasks = listOf(
+    "compileIosArm64Test",
+    "compileIosSimulatorArm64Test",
+    "compileIosX64Test",
+)
+
+private val androidBaseTasks = listOf(
+    "compileAndroidDebug",
+    "compileAndroidRelease",
+    "downloadAndroidEmulator",
+    "downloadAndroidSdk",
+    "downloadCmdlineTools",
+    "downloadPlatformTools",
+    "finalizeDebugAndroidBuild",
+    "finalizeReleaseAndroidBuild",
+    "prepareDebugAndroidBuild",
+    "prepareReleaseAndroidBuild",
+    "resolveDependenciesAndroid",
+)
+private val androidAppTasks = androidBaseTasks + listOf(
+    "runDebugAndroid",
+    "runReleaseAndroid",
+)
+private val androidTestTasks = listOf(
+    "compileAndroidTestDebug",
+    "compileAndroidTestRelease",
+)
 
 // doesn't contain the Gradle version catalog on purpose, we want to keep it because Amper supports it
 private val knownGradleFiles = setOf(

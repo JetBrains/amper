@@ -4,6 +4,7 @@
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
+import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
@@ -13,9 +14,7 @@ import org.tinylog.Level
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class AmperBackendTest : IntegrationTestBase() {
 
@@ -29,7 +28,7 @@ class AmperBackendTest : IntegrationTestBase() {
         val projectContext = setupTestDataProject("jvm-kotlin-test-smoke")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
-        val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "junit-platform-console-standalone" }
+        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
@@ -66,7 +65,7 @@ class AmperBackendTest : IntegrationTestBase() {
                     "STDOUT:\n" +
                     "Hello, world!"
         )
-        assertEquals(1, kotlinJvmCompilerSpans.size)
+        kotlinJvmCompilationSpans.assertSingle()
 
         resetCollectors()
 
@@ -75,7 +74,7 @@ class AmperBackendTest : IntegrationTestBase() {
                 "STDOUT:\n" +
                 "Hello, world!"
         assertInfoLogStartsWith(find)
-        assertEquals(0, kotlinJvmCompilerSpans.size)
+        kotlinJvmCompilationSpans.assertNone()
     }
 
     @Test
@@ -88,13 +87,11 @@ class AmperBackendTest : IntegrationTestBase() {
                 "Hello, world!"
         assertInfoLogStartsWith(find)
 
-        val compilationSpan = kotlinJvmCompilerSpans.singleOrNull() ?: fail("No kotlin compilation span (or more than 1)")
-        compilationSpan.assertKotlinCompilerArgument("-language-version", "1.9")
-
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
+            hasAmperModule("language-version")
+        }
         assertLogContains(text = "main.kt:1:10 Parameter 'args' is never used", level = Level.WARN)
-
-        val amperModuleAttr = compilationSpan.getAttribute(AttributeKey.stringKey("amper-module"))
-        assertEquals("language-version", amperModuleAttr)
     }
 
     @Test
@@ -137,7 +134,7 @@ class AmperBackendTest : IntegrationTestBase() {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
 
-        val testLauncherSpan = openTelemetryCollector.spans.single { it.name == "native-test" }
+        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)

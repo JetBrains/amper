@@ -5,8 +5,11 @@
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.sdk.trace.data.SpanData
+import org.jetbrains.amper.backend.test.assertions.FilteredSpans
+import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
+import org.jetbrains.amper.backend.test.assertions.spansNamed
+import org.jetbrains.amper.backend.test.assertions.withAttribute
 import org.jetbrains.amper.backend.test.extensions.LogCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
@@ -34,7 +37,7 @@ abstract class IntegrationTestBase {
     @TempDir
     private lateinit var tempDir: Path
 
-    protected val tempRoot by lazy {
+    private val tempRoot: Path by lazy {
         // Always run tests in a directory with space, tests quoting in a lot of places
         tempDir.resolve("space test")
     }
@@ -51,15 +54,8 @@ abstract class IntegrationTestBase {
     @RegisterExtension
     protected val openTelemetryCollector = OpenTelemetryCollectorExtension()
 
-    private val kotlinCompilationSpanName = "kotlin-compilation"
-
-    protected val kotlinJvmCompilerSpans: List<SpanData>
-        get() = openTelemetryCollector.spans.filter { it.name == kotlinCompilationSpanName }
-
-    private val javacSpanName = "javac"
-
-    protected val javacSpans: List<SpanData>
-        get() = openTelemetryCollector.spans.filter { it.name == javacSpanName }
+    protected val kotlinJvmCompilationSpans: FilteredSpans
+        get() = openTelemetryCollector.spansNamed("kotlin-compilation")
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
@@ -110,27 +106,40 @@ abstract class IntegrationTestBase {
         }
     }
 
-    protected fun SpanData.assertKotlinCompilerArgument(argumentName: String, argumentValue: String) {
-        require(name == kotlinCompilationSpanName) {
-            "Cannot assert Kotlin compiler arguments on span '$name' (should be '$kotlinCompilationSpanName')"
-        }
-        val args = getAttribute(AttributeKey.stringArrayKey("compiler-args"))
-        val pair = argumentName to argumentValue
+    protected fun assertKotlinJvmCompilationSpan(assertions: KotlinJvmCompilationSpanAssertions.() -> Unit = {}) {
+        val kotlinSpan = kotlinJvmCompilationSpans.assertSingle()
+        KotlinJvmCompilationSpanAssertions(kotlinSpan).assertions()
+    }
+}
 
-        assertTrue("Compiler argument '$argumentName $argumentValue' is missing. Actual args: $args") {
-            args.zipWithNext().contains(pair)
+private val amperModuleKey = AttributeKey.stringKey("amper-module")
+private val compilerArgsKey = AttributeKey.stringArrayKey("compiler-args")
+
+fun FilteredSpans.withAmperModule(name: String) = withAttribute(amperModuleKey, name)
+
+class KotlinJvmCompilationSpanAssertions(private val span: SpanData) {
+    private val compilerArgs: List<String>
+        get() = span.getAttribute(compilerArgsKey)
+
+    fun hasAmperModule(name: String) {
+        span.assertHasAttribute(amperModuleKey, name)
+    }
+
+    fun hasCompilerArgument(argument: String) {
+        assertTrue("Compiler argument '$argument' is missing. Actual args: $compilerArgs") {
+            compilerArgs.contains(argument)
         }
     }
 
-    protected fun SpanData.assertJavaCompilerArgument(argumentName: String, argumentValue: String) {
-        require(name == javacSpanName) {
-            "Cannot assert Java compiler arguments on span '$name' (should be '$javacSpanName')"
-        }
-        val args = getAttribute(AttributeKey.stringArrayKey("args"))
-        val pair = argumentName to argumentValue
-
-        assertTrue("Compiler argument '$argumentName $argumentValue' is missing. Actual args: $args") {
-            args.zipWithNext().contains(pair)
+    fun hasCompilerArgument(name: String, expectedValue: String) {
+        hasCompilerArgument(name)
+        val actualValue = compilerArgAfter(name)
+            ?: fail("Compiler argument '$name' has no value. Actual args: $compilerArgs")
+        if (actualValue != expectedValue) {
+            fail("Compiler argument '$name' has value '$actualValue', expected '$expectedValue'")
         }
     }
+
+    private fun compilerArgAfter(previous: String): String? =
+        compilerArgs.zipWithNext().firstOrNull { it.first == previous }?.second
 }

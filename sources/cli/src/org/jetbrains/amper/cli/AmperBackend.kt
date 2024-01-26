@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
@@ -168,7 +168,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun check(moduleName: String?, platforms: Set<Platform>?) {
+    fun check(moduleName: String? = null, platforms: Set<Platform>? = null) {
         require(platforms == null || platforms.isNotEmpty())
 
         if (moduleName != null && resolvedModel.modules.none { it.userReadableName == moduleName }) {
