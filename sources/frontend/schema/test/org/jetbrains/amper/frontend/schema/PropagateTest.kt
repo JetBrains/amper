@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.KotlinPart
-import org.jetbrains.amper.frontend.ModelImpl
+import org.jetbrains.amper.frontend.aomBuilder.ModelImpl
 import org.jetbrains.amper.frontend.aomBuilder.resolved
 import org.jetbrains.amper.frontend.findInstance
 import org.jetbrains.amper.frontend.schema.helper.potatoModule
@@ -15,6 +15,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PropagateTest {
+
+    private fun ModelImpl(vararg modules: PotatoModule) = ModelImpl(modules.toList())
 
     @Test
     fun `basic fragment property propagation`() {

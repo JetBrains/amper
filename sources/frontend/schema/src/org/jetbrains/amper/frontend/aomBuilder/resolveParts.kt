@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.ModelImpl
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.plus
 import org.jetbrains.amper.frontend.processing.merge
@@ -18,6 +17,8 @@ import org.jetbrains.amper.frontend.toClassBasedSet
 
 // Copy paste from "sources/frontend-api/src/org/jetbrains/amper/frontend/resolve/resolve.kt"
 // TODO Need to be removed after parts replacement with Settings.
+
+internal class ModelImpl(override val modules: List<PotatoModule>) : Model
 
 val Model.resolved: Model
     get() = ModelImpl(
