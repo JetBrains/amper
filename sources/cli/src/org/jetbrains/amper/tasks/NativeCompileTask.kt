@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks
 
-import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
@@ -17,7 +16,6 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.NativeApplicationPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList

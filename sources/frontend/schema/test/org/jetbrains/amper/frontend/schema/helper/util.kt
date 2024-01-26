@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -15,6 +15,10 @@ import org.jetbrains.amper.frontend.aomBuilder.DefaultFioContext
 import org.jetbrains.amper.frontend.aomBuilder.DumbGradleModule
 import org.jetbrains.amper.frontend.aomBuilder.FioContext
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.schema.KoverSettings
+import org.jetbrains.amper.frontend.schema.NativeSettings
+import org.jetbrains.amper.frontend.schema.PublishingSettings
+import org.jetbrains.amper.frontend.schema.Settings
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -51,9 +55,7 @@ internal fun PotatoModule.prettyPrint(): String {
                 appendLine("      ${dependency.target.name} (${dependency.type})")
             }
             appendLine("    Parts:")
-            for (part in fragment.parts) {
-                appendLine("      $part")
-            }
+            appendLine(fragment.settings.toLegacyPartsString().trim().prependIndent("      "))
         }
         appendLine("Artifacts:")
         for (artifact in artifacts.sortedBy { it.name }) {
@@ -76,6 +78,42 @@ internal fun PotatoModule.prettyPrint(): String {
                 appendLine("    password: ${it.password}")
             }
         }
+    }
+}
+
+// TODO Use a visitor to generate the real settings tree instead
+private fun Settings.toLegacyPartsString() = buildString {
+    with(kotlin) {
+        appendLine("KotlinPart(languageVersion=$languageVersion, apiVersion=$apiVersion, allWarningsAsErrors=$allWarningsAsErrors, freeCompilerArgs=${freeCompilerArgs ?: emptyList()}, suppressWarnings=$suppressWarnings, verbose=$verbose, linkerOpts=${linkerOpts ?: emptyList()}, debug=$debug, progressiveMode=$progressiveMode, languageFeatures=${languageFeatures ?: emptyList()}, optIns=${optIns ?: emptyList()}, serialization=${serialization?.format})")
+    }
+    with(android) {
+        appendLine("AndroidPart(compileSdk=android-${compileSdk.schemaValue}, minSdk=${minSdk.schemaValue}, maxSdk=${maxSdk.schemaValue}, targetSdk=${targetSdk.schemaValue}, applicationId=$applicationId, namespace=$namespace)")
+    }
+    with(ios) {
+        appendLine("IosPart(teamId=$teamId)")
+    }
+    with(java) {
+        appendLine("JavaPart(source=${source?.schemaValue})")
+    }
+    with(jvm) {
+        appendLine("JvmPart(mainClass=$mainClass, target=${target.schemaValue})")
+    }
+    with(junit) {
+        appendLine("JUnitPart(version=$this)")
+    }
+    with(publishing ?: PublishingSettings()) {
+        appendLine("PublicationPart(group=$group, version=$version)")
+    }
+    with(native ?: NativeSettings()) {
+        appendLine("NativeApplicationPart(entryPoint=$entryPoint, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)")
+    }
+    with(compose) {
+        appendLine("ComposePart(enabled=$enabled)")
+    }
+    with(kover ?: KoverSettings()) {
+        val htmlString = html?.run { "KoverHtmlPart(title=$title, charset=$charset, onCheck=$onCheck, reportDir=$reportDir)" }
+        val xmlString = xml?.run { "KoverXmlPart(onCheck=$onCheck, reportFile=$reportFile)" }
+        appendLine("KoverPart(enabled=${if (enabled) true else null}, html=$htmlString, xml=$xmlString)")
     }
 }
 

@@ -61,7 +61,6 @@ class FragmentBuilder(var name: String) {
     private val fragmentDependants: MutableSet<FragmentLink> = mutableSetOf()
     private val externalDependencies: MutableList<Notation> = mutableListOf()
     private val settings = Settings()
-    private val parts: ClassBasedSet<FragmentPart<*>> = classBasedSet()
     private val platforms: MutableSet<Platform> = mutableSetOf()
 
     private val variants: MutableList<String> = mutableListOf()
@@ -111,8 +110,6 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.fragmentDependants.toList()
             override val externalDependencies: List<Notation>
                 get() = this@FragmentBuilder.externalDependencies
-            override val parts: ClassBasedSet<FragmentPart<*>>
-                get() = this@FragmentBuilder.parts.toClassBasedSet()
             override val settings: Settings
                 get() = this@FragmentBuilder.settings
             override val platforms: Set<Platform>
@@ -162,17 +159,5 @@ class PotatoModuleBuilder(var name: String) {
             override val usedCatalog: VersionCatalog?
                 get() = null
         }
-    }
-}
-
-class JvmPartBuilder {
-    var mainClass: String? = null
-    var target: String? = null
-
-    fun build(): JvmPart {
-        return JvmPart(
-            mainClass = mainClass,
-            target = target,
-        )
     }
 }

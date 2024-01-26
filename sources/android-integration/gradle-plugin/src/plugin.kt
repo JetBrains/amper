@@ -16,7 +16,6 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.frontend.AndroidPart
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit

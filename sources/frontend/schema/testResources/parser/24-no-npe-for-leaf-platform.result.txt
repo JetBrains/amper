@@ -6,15 +6,15 @@ Fragments:
     Fragment dependencies:
       jvmAndAndroid (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   androidTest
     External dependencies:
@@ -23,15 +23,15 @@ Fragments:
       jvmAndAndroidTest (REFINE)
       android (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   common
     External dependencies:
@@ -72,15 +72,15 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   iosTest
     External dependencies:
@@ -89,15 +89,15 @@ Fragments:
       commonTest (REFINE)
       ios (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   jvm
     External dependencies:
@@ -107,15 +107,15 @@ Fragments:
     Fragment dependencies:
       jvmAndAndroid (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   jvmAndAndroid
     External dependencies:
@@ -123,15 +123,15 @@ Fragments:
     Fragment dependencies:
       common (REFINE)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   jvmAndAndroidTest
     External dependencies:
@@ -140,15 +140,15 @@ Fragments:
       commonTest (REFINE)
       jvmAndAndroid (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
   jvmTest
     External dependencies:
@@ -157,15 +157,15 @@ Fragments:
       jvmAndAndroidTest (REFINE)
       jvm (FRIEND)
     Parts:
-      KotlinPart(languageVersion=null, apiVersion=null, allWarningsAsErrors=null, freeCompilerArgs=[], suppressWarnings=null, verbose=null, linkerOpts=[], debug=null, progressiveMode=null, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=null, minSdk=null, maxSdk=null, targetSdk=null, applicationId=null, namespace=null)
+      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
+      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
       IosPart(teamId=null)
       JavaPart(source=null)
-      JvmPart(mainClass=null, target=null)
-      JUnitPart(version=null)
+      JvmPart(mainClass=null, target=17)
+      JUnitPart(version=JUNIT4)
       PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=null, frameworkParams=null)
-      ComposePart(enabled=null)
+      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
+      ComposePart(enabled=false)
       KoverPart(enabled=null, html=null, xml=null)
 Artifacts:
   isTest: false

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -22,9 +22,6 @@ interface Fragment {
     val fragmentDependants: List<FragmentLink>
 
     val externalDependencies: List<Notation>
-
-    @Deprecated("Should be replaced with [settings]")
-    val parts: ClassBasedSet<FragmentPart<*>>
 
     val settings: Settings
 
@@ -95,11 +92,4 @@ enum class FragmentDependencyType {
 interface FragmentLink {
     val target: Fragment
     val type: FragmentDependencyType
-}
-
-sealed interface FragmentPart<SelfT> {
-
-    // Default propagation is overwriting.
-    fun propagate(parent: SelfT): FragmentPart<*> = this
-    fun default(module: PotatoModule): FragmentPart<*> = this
 }

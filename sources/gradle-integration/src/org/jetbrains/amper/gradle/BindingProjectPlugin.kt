@@ -10,7 +10,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.amper.frontend.PublicationPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.gradle.android.AndroidBindingPluginPart

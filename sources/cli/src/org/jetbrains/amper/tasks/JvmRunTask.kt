@@ -12,7 +12,6 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.JvmPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource

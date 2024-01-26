@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.util
@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
-import org.jetbrains.amper.frontend.FragmentPart
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MetaModulePart
@@ -94,7 +93,6 @@ open class MockFragment(
     override val platforms = mutableSetOf<Platform>()
     override val isTest: Boolean = false
     override val isDefault: Boolean = true
-    override val parts = classBasedSet<FragmentPart<*>>()
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override val src = Path(name).resolve("src")
     override val resourcesPath = src.resolve("resources")

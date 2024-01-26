@@ -27,7 +27,7 @@ class SchemaBasedModelImport : ModelInit {
     override fun getModel(root: Path, project: Project?): Result<Model> {
         val fioCtx = DefaultFioContext(root)
         val pathResolver = FrontendPathResolver(project = project ?: DummyProject.instance)
-        val resultModules = doBuild(pathResolver, fioCtx,)
+        val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values)
@@ -44,7 +44,7 @@ class SchemaBasedModelImport : ModelInit {
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
         // Propagate parts from fragment to fragment.
-        return resultModules.takeIf { it.size == 1 }?.first()?.withResolvedParts?.asAmperSuccess()
+        return resultModules.takeIf { it.size == 1 }?.first()?.withResolvedFragments()?.asAmperSuccess()
             ?: return amperFailure()
     }
 
