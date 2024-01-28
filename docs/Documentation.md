@@ -478,7 +478,7 @@ settings:
     enabled: true
 ```
 
-_NOTE: For Compose Android and iOS you also need to set a couple if flags in `gradle.properties`:_
+_NOTE: For Compose Android and iOS you also need to set a couple of flags in `gradle.properties`:_
 ```properties
 # Compose requires AndroidX
 android.useAndroidX=true
