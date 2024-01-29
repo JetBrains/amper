@@ -96,7 +96,11 @@ class Resolver(val root: DependencyNode) {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    fun downloadDependencies(): Resolver = root.asSequence().forEach { it.downloadDependencies() }.let { this }
+    fun downloadDependencies(): Resolver =
+        root.asSequence()
+            .distinctBy { it.key }
+            .forEach { it.downloadDependencies() }
+            .let { this }
 }
 
 /**
