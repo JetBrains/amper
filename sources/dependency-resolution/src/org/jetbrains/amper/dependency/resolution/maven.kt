@@ -326,11 +326,11 @@ class MavenDependency internal constructor(
     }
 
     private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, settings: Settings) =
-        isDownloaded(level, settings) || level == ResolutionLevel.NETWORK && download(settings)
+        isDownloaded() && hasMatchingChecksum(level, settings) || level == ResolutionLevel.NETWORK && download(settings)
 
     fun downloadDependencies(settings: Settings) {
         files.values
-            .filter { !it.isDownloaded(ResolutionLevel.NETWORK, settings) }
+            .filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, settings)) }
             .forEach { it.download(settings) }
     }
 }

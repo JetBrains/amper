@@ -37,8 +37,10 @@ class DependencyFileTest {
         val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
         assertTrue(dependencyFile.path!!.startsWith(path))
 
-        val downloaded = dependencyFile.isDownloaded(ResolutionLevel.LOCAL, settings)
+        val downloaded = dependencyFile.isDownloaded()
+        val hasMatchingChecksum = dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, settings)
         assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
         assertTrue(downloaded, "File must be downloaded as it was created above")
+        assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
     }
 }

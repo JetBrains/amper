@@ -118,22 +118,13 @@ open class DependencyFile(
 
     override fun toString(): String = path?.toString() ?: "[missing path]/$nameWithoutExtension.$extension"
 
-    fun isDownloaded(level: ResolutionLevel, settings: Settings): Boolean =
-        isDownloaded(level, settings.repositories, settings.progress)
+    open fun isDownloaded(): Boolean = path?.exists() == true
 
-    protected open fun isDownloaded(
-        level: ResolutionLevel,
-        repositories: List<String>,
-        progress: Progress,
-        verify: Boolean = true
-    ): Boolean {
-        val path = path
-        if (path?.exists() != true) {
-            return false
-        }
-        if (!verify) {
-            return true
-        }
+    fun hasMatchingChecksum(level: ResolutionLevel, settings: Settings): Boolean =
+        hasMatchingChecksum(level, settings.repositories, settings.progress)
+
+    private fun hasMatchingChecksum(level: ResolutionLevel, repositories: List<String>, progress: Progress): Boolean {
+        val path = path ?: return false
         val hashers = computeHash(path)
         for (repository in repositories) {
             val result = verify(hashers, repository, progress, level)
@@ -174,7 +165,11 @@ open class DependencyFile(
                             while (true) {
                                 try {
                                     channel.lock().use {
-                                        return isDownloaded(ResolutionLevel.NETWORK, repositories, progress, verify)
+                                        return isDownloaded() && (!verify || hasMatchingChecksum(
+                                            ResolutionLevel.NETWORK,
+                                            repositories,
+                                            progress
+                                        ))
                                     }
                                 } catch (e: OverlappingFileLockException) {
                                     Thread.sleep(delay)
@@ -316,7 +311,7 @@ open class DependencyFile(
             return hashFromGradle
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
-            it.isDownloaded(level, listOf(repository), progress, false)
+            it.isDownloaded()
                     || level == ResolutionLevel.NETWORK && it.download(listOf(repository), progress, verify = false)
         }
         val hashFromRepository = hashFile?.readText()?.toByteArray()
@@ -412,12 +407,7 @@ class SnapshotDependencyFile(
         }?.value
     }
 
-    override fun isDownloaded(
-        level: ResolutionLevel,
-        repositories: List<String>,
-        progress: Progress,
-        verify: Boolean
-    ): Boolean {
+    override fun isDownloaded(): Boolean {
         val path = path
         if (path?.exists() != true) {
             return false
@@ -426,7 +416,7 @@ class SnapshotDependencyFile(
             if (versionFile?.exists() != true) {
                 return false
             }
-            if (mavenMetadata.isDownloaded(level, repositories, progress, false)) {
+            if (mavenMetadata.isDownloaded()) {
                 if (versionFile?.readText() != snapshotVersion) {
                     return false
                 }
@@ -436,13 +426,12 @@ class SnapshotDependencyFile(
         } else {
             return Files.getLastModifiedTime(path) > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
         }
-        return super.isDownloaded(level, repositories, progress, verify)
+        return true
     }
 
     override fun getNamePart(repository: String, name: String, extension: String, progress: Progress): String {
         if (name != "maven-metadata" &&
-            (mavenMetadata.isDownloaded(ResolutionLevel.NETWORK, listOf(repository), progress, false)
-                    || mavenMetadata.download(listOf(repository), progress, verify = false))
+            (mavenMetadata.isDownloaded() || mavenMetadata.download(listOf(repository), progress, verify = false))
         ) {
             snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }
         }
