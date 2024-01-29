@@ -236,7 +236,12 @@ open class DependencyFile(
             try {
                 Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
-                if (repositories.any { shouldOverwrite({ computeHash(target) }, it, progress, verify) }) {
+                if (repositories.any {
+                        shouldOverwrite(object : HashersProvider {
+                            private val lazyHashers: Collection<Hasher> by lazy { computeHash(target) }
+                            override fun invoke(): Collection<Hasher> = lazyHashers
+                        }, it, progress, verify)
+                    }) {
                     Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
@@ -247,8 +252,10 @@ open class DependencyFile(
         return false
     }
 
+    fun interface HashersProvider : () -> Collection<Hasher>
+
     protected open fun shouldOverwrite(
-        hashersProvider: () -> Collection<Hasher>,
+        hashersProvider: HashersProvider,
         repository: String,
         progress: Progress,
         verify: Boolean
@@ -443,7 +450,7 @@ class SnapshotDependencyFile(
     }
 
     override fun shouldOverwrite(
-        hashersProvider: () -> Collection<Hasher>,
+        hashersProvider: HashersProvider,
         repository: String,
         progress: Progress,
         verify: Boolean,
