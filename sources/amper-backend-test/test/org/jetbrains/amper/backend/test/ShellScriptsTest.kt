@@ -80,7 +80,7 @@ class ShellScriptsTest {
             .substringAfterLast('=')
 
         runAmperVersion(customJavaHome = jdkHome) { output ->
-            val expectedVersionString = "Amper $expectedAmperVersion"
+            val expectedVersionString = "amper version $expectedAmperVersion"
 
             assertTrue("Process output must contain '$expectedVersionString'. Output:\n$output") {
                 output.lines().contains(expectedVersionString)
@@ -136,7 +136,7 @@ class ShellScriptsTest {
                     it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 }
             }
-            .command(cliScript.pathString, ":shell-scripts:runJvm")
+            .command(cliScript.pathString, "task", ":shell-scripts:runJvm")
             .start()
 
         process.outputStream.close()
