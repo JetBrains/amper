@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -25,8 +25,8 @@ fun Template.validateSchema() = apply {
  */
 context(ProblemReporterContext)
 class ValidationVisitor : SchemaValuesVisitor() {
-    override fun visitNode(it: SchemaNode): Unit? {
+    override fun visitNode(it: SchemaNode) {
         with(it) { validate() }
-        return super.visitNode(it)
+        super.visitNode(it)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
@@ -185,19 +185,31 @@ class NullableSchemaValue<T : Any> : ValueBase<T?>() {
  */
 abstract class SchemaValuesVisitor {
 
-    open fun visit(it: Any): Unit? = when (it) {
-        is List<*> -> visitCollection(it)
-        is Map<*, *> -> visitMap(it)
-        is ValueBase<*> -> visitValue(it)
-        is SchemaNode -> visitNode(it)
-        else -> Unit
+    open fun visit(it: Any?) {
+        when (it) {
+            is List<*> -> visitCollection(it)
+            is Map<*, *> -> visitMap(it)
+            is ValueBase<*> -> visitValue(it)
+            is SchemaNode -> visitNode(it)
+            else -> visitOther(it)
+        }
     }
 
-    open fun visitCollection(it: Collection<*>): Unit? = it.filterNotNull().forEach { visit(it) }
+    open fun visitCollection(it: Collection<*>) {
+        it.filterNotNull().forEach { visit(it) }
+    }
 
-    open fun visitMap(it: Map<*, *>): Unit? = visitCollection(it.values)
+    open fun visitMap(it: Map<*, *>) {
+        visitCollection(it.values)
+    }
 
-    open fun visitNode(it: SchemaNode): Unit? = it.allValues.forEach { visit(it) }
+    open fun visitNode(it: SchemaNode) {
+        it.allValues.forEach { visit(it) }
+    }
 
-    open fun visitValue(it: ValueBase<*>): Unit? = it.withoutDefault?.let { visit(it) }
+    open fun visitValue(it: ValueBase<*>) {
+        it.withoutDefault?.let { visit(it) }
+    }
+
+    open fun visitOther(it: Any?) = Unit
 }

@@ -18,22 +18,22 @@ import kotlin.test.assertNotNull
  */
 context(ProblemReporterContext)
 class TestTraceValidationVisitor: SchemaValuesVisitor() {
-  override fun visitNode(it: SchemaNode): Unit? {
+  override fun visitNode(it: SchemaNode) {
     with(it) {
       if (it::class !in nonTraceableNodes) {
         assertNotNull(trace, "Trace of the node ${it::class.simpleName} should not be null")
       }
     }
-    return super.visitNode(it)
+    super.visitNode(it)
   }
 
-  override fun visitValue(it: ValueBase<*>): Unit? {
+  override fun visitValue(it: ValueBase<*>) {
     with(it) {
       if (it.shouldHaveTrace()) {
         assertNotNull(trace, "Trace of the node value ${it.withoutDefault} of type ${it.withoutDefault!!::class.simpleName} should not be null")
       }
     }
-    return super.visitValue(it)
+    super.visitValue(it)
   }
 
   private fun ValueBase<*>.shouldHaveTrace() =
