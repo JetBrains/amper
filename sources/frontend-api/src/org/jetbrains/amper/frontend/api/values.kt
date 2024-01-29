@@ -33,22 +33,33 @@ abstract class SchemaNode : Traceable() {
     /**
      * Register a value.
      */
-    fun <T : Any> value() = SchemaValue<T>().also { allValues.add(it) }
+    internal fun <T : Any> value() = SchemaValueProvider<T>()
 
     /**
      * Register a value with a default.
      */
-    fun <T : Any> value(default: T) = SchemaValue<T>().also { allValues.add(it) }.apply { default(default) }
+    internal fun <T : Any> value(default: T) = SchemaValueProvider(Default.Static(default))
 
     /**
-     * Register a value with a default.
+     * Register a value with a lazy default.
      */
-    fun <T : Any> value(default: () -> T) = SchemaValue<T>().also { allValues.add(it) }.apply { default(null, default) }
+    // the default value is nullable to allow performing validation without crashing (using "unsafe" access)
+    internal fun <T : Any> value(default: () -> T?) = SchemaValueProvider(Default.Lambda(desc = null, default))
 
     /**
      * Register a nullable value.
      */
-    fun <T : Any> nullableValue() = NullableSchemaValue<T>().also { allValues.add(it) }
+    internal fun <T : Any> nullableValue() = NullableSchemaValueProvider<T>()
+
+    /**
+     * Register a nullable value with a default.
+     */
+    internal fun <T : Any> nullableValue(default: T?) = NullableSchemaValueProvider(Default.Static(default))
+
+    /**
+     * Register a nullable value with a lazy default.
+     */
+    internal fun <T : Any> nullableValue(default: () -> T?) = NullableSchemaValueProvider(Default.Lambda(desc = null, default))
 
     /**
      * Register a validator for this node.
@@ -73,29 +84,41 @@ sealed class Default<T> {
     }
 }
 
+internal class SchemaValueProvider<T : Any>(
+    val default: Default<T>? = null,
+) : PropertyDelegateProvider<SchemaNode, SchemaValue<T>> {
+
+    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): SchemaValue<T> =
+        SchemaValue(property, default).also {
+            thisRef.allValues.add(it)
+        }
+}
+
+internal class NullableSchemaValueProvider<T : Any>(
+    val default: Default<T?>? = null,
+) : PropertyDelegateProvider<SchemaNode, NullableSchemaValue<T>> {
+
+    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>): NullableSchemaValue<T> =
+        NullableSchemaValue(property, default).also {
+            thisRef.allValues.add(it)
+        }
+}
+
 /**
  * Abstract value that can have a default value.
  */
-sealed class ValueBase<T> :
-    Traceable(),
-    ReadWriteProperty<SchemaNode, T>,
-    PropertyDelegateProvider<SchemaNode, ValueBase<T>> {
+sealed class ValueBase<T>(
+    val property: KProperty<*>,
+    val default: Default<T>?,
+) : Traceable(), ReadWriteProperty<SchemaNode, T> {
 
     protected var myValue: T? = null
-
-    var default: Default<T>? = null
 
     abstract val value: T
 
     val unsafe: T? get() = myValue ?: default?.value
 
     val withoutDefault: T? get() = myValue
-
-    var knownAnnotations: List<Annotation>? = null
-
-    open fun default(value: T) = apply { default = Default.Static(value) }
-
-    open fun default(desc: String? = null, getter: () -> T?) = apply { default = Default.Lambda(desc, getter) }
 
     /**
      * Overwrite current value, if provided value is not null.
@@ -116,10 +139,6 @@ sealed class ValueBase<T> :
 
     override fun setValue(thisRef: SchemaNode, property: KProperty<*>, value: T) {
         myValue = value
-    }
-
-    override fun provideDelegate(thisRef: SchemaNode, property: KProperty<*>) = apply {
-        knownAnnotations = property.annotations
     }
 
     override var trace: Any? = null
@@ -148,12 +167,9 @@ val <T> KProperty0<T>.unsafe: T? get() {
 /**
  * Required (non-null) schema value.
  */
-class SchemaValue<T : Any> : ValueBase<T>() {
+class SchemaValue<T : Any>(property: KProperty<*>, default: Default<T>?) : ValueBase<T>(property, default) {
     override val value: T
         get() = myValue ?: default?.value ?: error("No value")
-
-    override fun default(value: T) = super.default(value) as SchemaValue<T>
-    override fun default(desc: String?, getter: () -> T?) = super.default(desc, getter) as SchemaValue<T>
 
     /**
      * Overwrite current value, if provided value is not null.
@@ -173,11 +189,8 @@ class SchemaValue<T : Any> : ValueBase<T>() {
 /**
  * Optional (nullable) schema value.
  */
-class NullableSchemaValue<T : Any> : ValueBase<T?>() {
+class NullableSchemaValue<T : Any>(property: KProperty<*>, default: Default<T?>?) : ValueBase<T?>(property, default) {
     override val value: T? get() = unsafe
-
-    override fun default(value: T?) = super.default(value) as NullableSchemaValue<T>
-    override fun default(desc: String?, getter: () -> T?) = super.default(desc, getter) as NullableSchemaValue<T>
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -59,11 +59,10 @@ class Settings : SchemaNode() {
 class ComposeSettings : SchemaNode() {
 
     @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
-    var enabled by value(false)
+    var enabled by value(default = false)
 
     @SchemaDoc("Used compose version")
-    var version by nullableValue<String>()
-        .default { UsedVersions.composeVersion.takeIf { enabled } }
+    var version by nullableValue<String> { UsedVersions.composeVersion.takeIf { enabled } }
 }
 
 const val composeSettingsShortForm = """

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -85,12 +85,11 @@ enum class ProductType(
 @AdditionalSchemaDef(productShortForm, useOneOf = true)
 class ModuleProduct : SchemaNode() {
 
-    @SchemaDoc("What type of the product to generate")
+    @SchemaDoc("What type of product to generate")
     var type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by value<List<Platform>>()
-        .default { ::type.unsafe?.defaultPlatforms?.toList() }
+    var platforms by value<List<Platform>> { ::type.unsafe?.defaultPlatforms?.toList() }
 
     context(ProblemReporterContext)
     override fun validate() {

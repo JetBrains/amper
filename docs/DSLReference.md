@@ -5,7 +5,7 @@ Read more about the [product types](Documentation.md#product-types).
 
 | Attribute             | Description                                 |
 |-----------------------|---------------------------------------------|
-| `type: enum`          | What type of the product to generate.       |
+| `type: enum`          | What type of product to generate.           |
 | `platform: enum list` | What platforms to generate the product for. |
 
 Supported product types and platforms:

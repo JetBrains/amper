@@ -17,7 +17,7 @@ Meta: Meta settings for current module
 ModuleProduct: Description of the product that should be built from the module
 ------------------------------------------------------------------------------
 	platforms: List<Platform> - What platforms to generate the product for
-	type: ProductType - What type of the product to generate
+	type: ProductType - What type of product to generate
 
 CatalogDependency
 -----------------
