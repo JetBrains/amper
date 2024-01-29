@@ -136,7 +136,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             tasks,
                             executeOnChangedInputs,
                             fragments,
-                            buildType
+                            buildType,
+                            androidSdkPath
                         )
 
                         val androidBuildTasksName = setupAndroidBuildTasks(
@@ -146,7 +147,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             isTest,
                             executeOnChangedInputs,
                             fragments,
-                            buildType
+                            buildType,
+                            androidSdkPath
                         )
 
                         fun createCompileTask(buildType: BuildType = BuildType.Debug): Task? {
@@ -422,7 +424,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         tasks: TaskGraphBuilder,
         executeOnChangedInputs: ExecuteOnChangedInputs,
         fragments: List<Fragment>,
-        buildType: BuildType
+        buildType: BuildType,
+        androidSdkPath: Path
     ) = if (platform == Platform.ANDROID) {
         val testSuffix = if (isTest) "Test" else ""
         val prepareAndroidBuildName = TaskName.fromHierarchy(
@@ -436,6 +439,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 module,
                 buildType,
                 executeOnChangedInputs,
+                androidSdkPath,
                 fragments,
                 prepareAndroidBuildName
             )
@@ -450,7 +454,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         isTest: Boolean,
         executeOnChangedInputs: ExecuteOnChangedInputs,
         fragments: List<Fragment>,
-        buildType: BuildType
+        buildType: BuildType,
+        androidSdkPath: Path
     ): TaskName? {
         return if (platform == Platform.ANDROID) {
             val testSuffix = if (isTest) "Test" else ""
@@ -460,7 +465,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 )
             )
             tasks.registerTask(
-                AndroidBuildTask(module, buildType, executeOnChangedInputs, fragments, buildAndroidBuildName),
+                AndroidBuildTask(module, buildType, executeOnChangedInputs, androidSdkPath, fragments, buildAndroidBuildName),
                 listOf(
                     getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
                     getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)

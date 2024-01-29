@@ -25,8 +25,9 @@ class AndroidBuildTask(
     private val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    override val taskName: TaskName
+    override val taskName: TaskName,
 ) : Task {
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val rootPath =
@@ -42,7 +43,8 @@ class AndroidBuildTask(
             rootPath,
             AndroidBuildRequest.Phase.Build,
             setOf(androidModuleData),
-            setOf(buildType.toAndroidRequestBuildType)
+            setOf(buildType.toAndroidRequestBuildType),
+            sdkDir = androidSdkPath
         )
         val inputs = listOf(classes) + resolvedAndroidRuntimeDependencies
         val androidConfig = fragments.joinToString { it.settings.android.repr }

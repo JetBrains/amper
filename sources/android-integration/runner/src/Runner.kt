@@ -84,6 +84,10 @@ configure<AmperAndroidIntegrationExtension> {
         .setStandardOutput(System.out)
         .setStandardError(System.err)
 
+    buildRequest.sdkDir?.let {
+        buildLauncher.withSystemProperties(mutableMapOf("sdk.dir" to it.toAbsolutePath().toString()))
+    }
+
     if (debug) {
         buildLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
     }

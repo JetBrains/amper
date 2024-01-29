@@ -23,6 +23,7 @@ class AndroidPrepareTask(
     private val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
     override val taskName: TaskName
 ) : Task {
@@ -33,7 +34,8 @@ class AndroidPrepareTask(
             rootPath,
             AndroidBuildRequest.Phase.Prepare,
             setOf(AndroidModuleData(":")),
-            setOf(buildType.toAndroidRequestBuildType)
+            setOf(buildType.toAndroidRequestBuildType),
+            sdkDir = androidSdkPath
         )
         val inputs = listOf((module.source as PotatoModuleFileSource).buildFile.parent.resolve("res"))
         val androidConfig = fragments.joinToString { it.settings.android.repr }

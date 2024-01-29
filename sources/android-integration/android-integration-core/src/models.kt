@@ -35,6 +35,9 @@ data class AndroidBuildRequest(
      * Module name, if not set, all modules will be built
      */
     val targets: Set<String> = setOf(),
+
+    @Serializable(with = PathAsStringSerializer::class)
+    val sdkDir: Path? = null
 ) {
     enum class BuildType(val value: String) {
         Debug("debug"),
