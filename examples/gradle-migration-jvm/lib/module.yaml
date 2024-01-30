@@ -10,3 +10,7 @@ module:
   layout: gradle-jvm
 
 
+dependencies:
+  - $libs.gson
+
+

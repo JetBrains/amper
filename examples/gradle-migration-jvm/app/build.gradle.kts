@@ -15,6 +15,7 @@ dependencies {
     // Use an Amper Module as a dependency
     implementation(project(":lib"))
     testImplementation(kotlin("test"))
+    implementation(libs.gson)
 }
 
 tasks.test {
