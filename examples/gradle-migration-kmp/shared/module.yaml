@@ -8,7 +8,7 @@ module:
   layout: gradle-kmp
 
 dependencies:
-  - $libs.kotlinx.datetime
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 
 dependencies@android:
   - com.squareup.retrofit2:retrofit:2.9.0
