@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.progress.blockingContext
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
@@ -56,6 +57,17 @@ class SchemaBasedModelImport : ModelInit {
     }
 
     companion object {
+        /**
+         * @return Project model containing all modules found and referenced from a given root
+         */
+        context(ProblemReporterContext)
+        @UsedInIdePlugin
+        @Suppress("UnstableApiUsage")
+        suspend fun getModelNonBlocking(root: Path, project: Project?): Result<Model> {
+            return blockingContext {
+                getModel(root, project)
+            }
+        }
         context(ProblemReporterContext)
         @UsedInIdePlugin
         fun getModel(root: Path, project: Project?): Result<Model> = SchemaBasedModelImport().getModel(root, project)
@@ -65,11 +77,24 @@ class SchemaBasedModelImport : ModelInit {
          */
         context(ProblemReporterContext)
         @UsedInIdePlugin
-        fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> = SchemaBasedModelImport().getModule(modulePsiFile, project)
+        @Suppress("UnstableApiUsage")
+        suspend fun getModuleNonBlocking(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> = blockingContext {
+            getModule(modulePsiFile, project)
+        }
+        context(ProblemReporterContext)
+        @UsedInIdePlugin
+        fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> =
+            SchemaBasedModelImport().getModule(modulePsiFile, project)
 
         /**
          * @return Module parsed from file with all templates resolved
          */
+        context(ProblemReporterContext)
+        @UsedInIdePlugin
+        @Suppress("UnstableApiUsage")
+        suspend fun getTemplateNonBlocking(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? = blockingContext {
+            SchemaBasedModelImport().getTemplate(templatePsiFile, project)
+        }
         context(ProblemReporterContext)
         @UsedInIdePlugin
         fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? =

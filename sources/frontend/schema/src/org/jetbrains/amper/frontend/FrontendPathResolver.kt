@@ -5,9 +5,9 @@
 package org.jetbrains.amper.frontend
 
 import com.intellij.mock.MockApplication
-import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
@@ -31,11 +31,13 @@ data class FrontendPathResolver(
 
     val path2PsiFile: (Path) -> PsiFile? = { path ->
         val application = ApplicationManager.getApplication()
-        if (application != null && application !is MockApplication && project != DummyProject.instance) {
-            val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
-            vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
-        } else {
-            path2Reader(path)?.let { getPsiRawModel(it) }
-        }
+        application.runReadAction(Computable {
+            if (application != null && application !is MockApplication && project != DummyProject.instance) {
+                val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
+                vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
+            } else {
+                path2Reader(path)?.let { getPsiRawModel(it) }
+            }
+        })
     },
 )
