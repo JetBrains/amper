@@ -47,9 +47,9 @@ fun chooseComposeVersion(
         .sorted()
 
     return if (knownComposeVersions.size > 1) {
-        problemReporterContext
-            ?.problemReporter
-            ?.reportError("Multiple compose versions declared. Can't apply them all.")
+//        problemReporterContext
+//            ?.problemReporter
+//            ?.reportError("Multiple compose versions declared. Can't apply them all.")
         knownComposeVersions.first()
     } else if (knownComposeVersions.isEmpty()) null
     else knownComposeVersions.first()
