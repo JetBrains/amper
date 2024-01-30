@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -96,6 +96,7 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
 
 fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {
     mergeScalar(ComposeSettings::enabled)
+    mergeScalar(ComposeSettings::version)
 }
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {

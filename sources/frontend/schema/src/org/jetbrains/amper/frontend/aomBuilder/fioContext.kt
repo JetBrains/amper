@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -115,10 +115,11 @@ open class DefaultFioContext(
         assert(startsWith(rootDir)) {
             "Cannot call with the path($pathString) that is outside of (${rootDir.pathString})"
         }
+        val currentDir = takeIf { it.isDirectory() } ?: parent
 
         // Directories from [this] to [rootDir], both ends including.
-        val directories = if (isSameFileAs(rootDir)) listOf(rootDir)
-        else generateSequence(this) { dir ->
+        val directories = if (currentDir.isSameFileAs(rootDir)) listOf(currentDir)
+        else generateSequence(currentDir) { dir ->
             dir.parent.takeIf { !it.isSameFileAs(rootDir) }
         }.filter { it.isDirectory() }.toList() + rootDir
 

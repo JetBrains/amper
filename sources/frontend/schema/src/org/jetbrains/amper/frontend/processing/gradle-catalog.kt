@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -25,21 +25,21 @@ private class TomlCatalog(
     private val libraries: Map<String, TomlLibraryDefinition>,
     private val path: Path,
 ) : VersionCatalog {
-
-    override val catalogKeys = libraries.keys
+    override val entries: Map<String, TraceableString>
+        get() = libraries.map {
+            it.key to TraceableString(it.value.libraryString)
+                .apply {
+                    trace = FileLocation(
+                        path,
+                        LineAndColumn(it.value.position.line(), it.value.position.column(), null)
+                    )
+                }
+        }.toMap()
 
     context(ProblemReporterContext) override fun findInCatalog(
         key: TraceableString,
         report: Boolean
-    ): TraceableString? {
-        val library = libraries[key.value] ?: return tryReportCatalogKeyAbsence(key, report)
-        return TraceableString(library.libraryString).apply {
-            trace = FileLocation(
-                path,
-                LineAndColumn(library.position.line(), library.position.column(), null)
-            )
-        }
-    }
+    ) = entries[key.value] ?: tryReportCatalogKeyAbsence(key, report)
 }
 
 /**
@@ -115,8 +115,16 @@ private fun TomlParseResult.parseCatalogLibraries(
 }
 
 fun TomlTable.getStringOrNull(dottedPath: String): String? =
-    try { getString(dottedPath) } catch (ex: TomlInvalidTypeException) { null }
+    try {
+        getString(dottedPath)
+    } catch (ex: TomlInvalidTypeException) {
+        null
+    }
 
 fun TomlTable.getTableOrNull(dottedPath: String): TomlTable? =
-    try { getTable(dottedPath) } catch (ex: TomlInvalidTypeException) { null }
+    try {
+        getTable(dottedPath)
+    } catch (ex: TomlInvalidTypeException) {
+        null
+    }
 

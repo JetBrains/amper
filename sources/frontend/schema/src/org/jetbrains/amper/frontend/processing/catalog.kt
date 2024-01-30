@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.processing
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toTraceableString
@@ -48,18 +49,17 @@ fun <T: Base> T.replaceCatalogDependencies(
 }
 
 open class PredefinedCatalog(
-    private val map: Map<String, String>
+    override val entries: Map<String, TraceableString>
 ) : VersionCatalog {
-    constructor(builder: MutableMap<String, String>.() -> Unit) : this(buildMap(builder))
-
-    override val catalogKeys = map.keys
+    constructor(builder: MutableMap<String, String>.() -> Unit) :
+            this(buildMap(builder).map { it.key to TraceableString(it.value) }.toMap())
 
     // TODO Report on absence.
     context(ProblemReporterContext)
     override fun findInCatalog(
         key: TraceableString,
         report: Boolean,
-    ): TraceableString? = map[key.value]?.let(::TraceableString) ?: tryReportCatalogKeyAbsence(key, report)
+    ): TraceableString? = entries[key.value] ?: tryReportCatalogKeyAbsence(key, report)
 }
 
 /**
@@ -69,7 +69,10 @@ class CompositeVersionCatalog(
     private val catalogs: List<VersionCatalog>
 ) : VersionCatalog {
 
-    override val catalogKeys = catalogs.flatMap { it.catalogKeys }.toSet()
+    override val entries: Map<String, TraceableString> = buildMap {
+        // First catalogs have the highest priority.
+        catalogs.reversed().forEach { putAll(it.entries) }
+    }
 
     context(ProblemReporterContext)
     override fun findInCatalog(
@@ -79,13 +82,12 @@ class CompositeVersionCatalog(
         ?: tryReportCatalogKeyAbsence(key, report)
 }
 
-sealed interface VersionCatalogTrace
-
 @Suppress("unused")
-data object BuiltInCatalogTrace : VersionCatalogTrace
+data object BuiltInCatalogTrace
 
 class BuiltInCatalog(
     composeVersion: String?,
+    private val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : PredefinedCatalog({
     // Add kotlin-test.
     val kotlinTestVersion = UsedVersions.kotlinVersion
@@ -119,23 +121,10 @@ class BuiltInCatalog(
         put("compose.desktop.macos_x64", "org.jetbrains.compose.desktop:desktop-jvm-macos-x64:$composeVersion")
         put("compose.desktop.macos_arm64", "org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:$composeVersion")
         put("compose.desktop.uiTestJUnit4", "org.jetbrains.compose.ui:ui-test-junit4:$composeVersion")
+        put("compose.desktop.currentOs", "org.jetbrains.compose.desktop:desktop-jvm-${systemInfo.detect().familyArch}:$composeVersion")
     }
 }) {
-    data object BuiltInCatalogTrace
-
-    private val systemInfo = DefaultSystemInfo
-
-    context(ProblemReporterContext)
-    override fun findInCatalog(
-        key: TraceableString,
-        report: Boolean,
-    ): TraceableString? = when (key.value) {
-        // Handle os detection as compose do.
-        "compose.desktop.currentOs" -> systemInfo.detect().familyArch
-            .let { TraceableString("org.jetbrains.compose.desktop:desktop-jvm-$it:${UsedVersions.composeVersion}") }
-
-        else -> super.findInCatalog(key, report)
-    }.also {
-        it?.trace = BuiltInCatalogTrace
+    init {
+        entries.forEach { it.value.trace = BuiltInCatalogTrace }
     }
 }

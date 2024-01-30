@@ -108,7 +108,10 @@ internal fun YAMLValue.convertSerializationSettings() = when (this) {
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLValue.convertComposeSettings() = when (this) {
     is YAMLScalar -> ComposeSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
-    is YAMLMapping -> ComposeSettings().apply { ::enabled.convertChildBoolean() }
+    is YAMLMapping -> ComposeSettings().apply {
+        ::enabled.convertChildBoolean()
+        ::version.convertChildString()
+    }
     else -> null
 }
 
