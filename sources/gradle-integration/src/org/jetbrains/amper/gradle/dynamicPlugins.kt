@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package org.jetbrains.amper.gradle
 
 import org.gradle.api.initialization.Settings
@@ -16,7 +20,6 @@ import org.gradle.initialization.DefaultSettings
 import java.lang.reflect.Field
 
 private const val DYNAMIC_PLUGINS_CLASSPATH = "dynamicPluginsClasspath"
-private const val DYNAMIC_PLUGINS_RESOLVED_CLASSPATH = "dynamicPluginsResolvedClasspath"
 
 /**
  * Try to add plugins dynamically to be accessible within
@@ -48,17 +51,16 @@ fun GradleInternal.setupDynamicPlugins(
     // Create configurations.
     val configurationContainer = dependencyResolution.configurationContainer as RoleBasedConfigurationContainerInternal
     val classpathConfig = configurationContainer.create(DYNAMIC_PLUGINS_CLASSPATH)
-    val resolveConfig = configurationContainer.resolvable(DYNAMIC_PLUGINS_RESOLVED_CLASSPATH) {
-        it.extendsFrom(classpathConfig)
-    }.get()
 
     // Adjust configurations.
     plugins.forEach { dependencyHandler.add(DYNAMIC_PLUGINS_CLASSPATH, it) }
     dependencyResolution.resolveRepositoryHandler.apply { mavenCentral() }
-    classPathResolver.prepareClassPath(classpathConfig, dependencyHandler)
+
+    // TODO Investigate why required attributes are not found for compose.
+//    classPathResolver.prepareClassPath(classpathConfig, dependencyHandler)
 
     // Resolve classpath.
-    val foundClassPath = classPathResolver.resolveClassPath(resolveConfig)
+    val foundClassPath = classPathResolver.resolveClassPath(classpathConfig)
 
     // Set classpath for settings ClassLoaderScope.
     // (so that, this classpath will be accessible in project scripts)

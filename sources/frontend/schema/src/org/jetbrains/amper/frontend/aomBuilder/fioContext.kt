@@ -121,7 +121,7 @@ open class DefaultFioContext(
         val directories = if (currentDir.isSameFileAs(rootDir)) listOf(currentDir)
         else generateSequence(currentDir) { dir ->
             dir.parent.takeIf { !it.isSameFileAs(rootDir) }
-        }.filter { it.isDirectory() }.toList() + rootDir
+        }.filter { it.isDirectory() }.toList() + listOf(rootDir)
 
         return directories.asSequence()
             .map { it / gradleDirName / gradleDefaultVersionCatalogName }
