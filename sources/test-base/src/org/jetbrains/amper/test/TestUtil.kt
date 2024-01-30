@@ -47,6 +47,8 @@ object TestUtil {
     }
 
     // Always run tests in a directory with a space in the name, tests quoting in a lot of places
+    // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
+    // on TeamCity: will be removed after the build
     val tempDir: Path by lazy {
         val dir = if (TeamCityHelper.isUnderTeamCity) {
             TeamCityHelper.tempDirectory / "amper tests"
