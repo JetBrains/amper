@@ -31,13 +31,14 @@ data class FrontendPathResolver(
 
     val path2PsiFile: (Path) -> PsiFile? = { path ->
         val application = ApplicationManager.getApplication()
-        application.runReadAction(Computable {
-            if (application != null && application !is MockApplication && project != DummyProject.instance) {
+
+        if (application != null && application !is MockApplication && project != DummyProject.instance) {
+            application.runReadAction(Computable {
                 val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
                 vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
-            } else {
-                path2Reader(path)?.let { getPsiRawModel(it) }
-            }
-        })
+            })
+        } else {
+            path2Reader(path)?.let { getPsiRawModel(it) }
+        }
     },
 )
