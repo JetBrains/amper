@@ -21,13 +21,13 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-BOOTSTRAP_AMPER_VERSION="0.2.0-dev-419"
+BOOTSTRAP_AMPER_VERSION="0.2.0"
 KOTLIN_VERSION="1.9.20"
 COMPOSE_VERSION="1.5.10"
 GRADLE_VERSION="8.1.1-bin.zip"
 ANDROID_VERSION="8.1.0"
 
-DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
+DIST_SHA256=$(curl -L -s "https://maven.pkg.jetbrains.space/public/p/amper/amper/org/jetbrains/amper/cli/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
 
 # --- Replacement rules ---
 # Note: To add new rule with [add_update_rule] - add regex, that matches string inclusively right

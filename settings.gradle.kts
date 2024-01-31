@@ -15,7 +15,7 @@ buildscript {
         mavenLocal()
 
         // For published version
-        maven("https://packages.jetbrains.team/maven/p/amper/amper")
+        maven("https://maven.pkg.jetbrains.space/public/p/amper/amper")
 
         // For idea api dependencies
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
@@ -31,7 +31,7 @@ buildscript {
 
     dependencies {
         // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.2.0-dev-419")
+        classpath("org.jetbrains.amper.settings.plugin:gradle-integration:0.2.0")
     }
 }
 
