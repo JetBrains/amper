@@ -16,6 +16,7 @@ import java.nio.channels.OverlappingFileLockException
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
@@ -158,25 +159,38 @@ open class DependencyFile(
                 }
             } catch (e: Exception) {
                 when (e) {
-                    is FileAlreadyExistsException, is OverlappingFileLockException ->
-                        FileChannel.open(temp, StandardOpenOption.WRITE).use { channel ->
-                            // Someone's already downloading the file. Let's wait for it and then check the result.
-                            var delay = 10L
-                            while (true) {
-                                try {
-                                    channel.lock().use {
-                                        return isDownloaded() && (!verify || hasMatchingChecksum(
-                                            ResolutionLevel.NETWORK,
-                                            repositories,
-                                            progress
-                                        ))
+                    is FileAlreadyExistsException, is OverlappingFileLockException -> {
+                        // Someone's already downloading the file. Let's wait for it and then check the result.
+                        var delay = 10L
+                        while (true) {
+                            try {
+                                FileChannel.open(temp, StandardOpenOption.WRITE).use { channel ->
+                                    channel.lock().close()
+                                }
+                            } catch (e: Exception) {
+                                when (e) {
+                                    // The file is still being downloaded.
+                                    is OverlappingFileLockException -> {
+                                        Thread.sleep(delay)
+                                        delay = (delay * 2).coerceAtMost(1000)
+                                        continue
                                     }
-                                } catch (e: OverlappingFileLockException) {
-                                    Thread.sleep(delay)
-                                    delay = (delay * 2).coerceAtMost(1000)
+
+                                    // The file has been released and moved.
+                                    is NoSuchFileException -> {
+                                        break
+                                    }
+
+                                    else -> throw e
                                 }
                             }
                         }
+                        return isDownloaded() && (!verify || hasMatchingChecksum(
+                            ResolutionLevel.NETWORK,
+                            repositories,
+                            progress
+                        ))
+                    }
 
                     else -> throw e
                 }
