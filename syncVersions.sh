@@ -27,6 +27,8 @@ COMPOSE_VERSION="1.5.10"
 GRADLE_VERSION="8.1.1-bin.zip"
 ANDROID_VERSION="8.1.0"
 
+DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
+
 # --- Replacement rules ---
 # Note: To add new rule with [add_update_rule] - add regex, that matches string inclusively right
 # before the version (even quotes). Yet, you can add arbitrary sed rule, by using [append_to_sed_file].
@@ -34,6 +36,15 @@ ANDROID_VERSION="8.1.0"
 # Amper
 add_update_rule $BOOTSTRAP_AMPER_VERSION "org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
 add_update_rule $BOOTSTRAP_AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
+
+append_to_sed_file "s#(cli\/cli\/).*(\/.*)(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2\\3#g"
+append_to_sed_file "s#(cli-).*(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2#g"
+append_to_sed_file "s#^amper_version=.*#amper_version=$BOOTSTRAP_AMPER_VERSION#g"
+append_to_sed_file "s#^set amper_version=.*#set amper_version=$BOOTSTRAP_AMPER_VERSION#g"
+
+# Amper dist sha256
+append_to_sed_file "s#^amper_sha256=.*#amper_sha256=$DIST_SHA256#g"
+append_to_sed_file "s#^set amper_sha256=.*#set amper_sha256=$DIST_SHA256#g"
 
 # Kotlin
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.multiplatform:org\.jetbrains\.kotlin\.multiplatform\.gradle\.plugin:"
@@ -68,7 +79,7 @@ FOUND_FILES_FILE=$(mktemp /tmp/sync_versions_found_files.XXXXXX)
 EDITED_FILES_FILE=$(mktemp /tmp/sync_versions_edited_files.XXXXXX)
 
 # Find matching files..
-AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.kt|\.md|\.properties|module\.yaml)"
+AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.kt|\.md|\.properties|module\.yaml|amper\.sh|amper\.bat)"
 
 echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""
@@ -82,7 +93,7 @@ echo "Performing replacement."
 
 # Perform replacement.
 cat "$FOUND_FILES_FILE" | \
-  xargs sed -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
+  xargs sed -r -E -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
 
 find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
   grep -v "/build/" 1> "$EDITED_FILES_FILE"
