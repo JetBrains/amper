@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.gradle
 
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.SettingsInternal
@@ -26,14 +27,16 @@ private const val DYNAMIC_PLUGINS_CLASSPATH = "dynamicPluginsClasspath"
  * project scripts classpath.
  */
 fun Settings.setupDynamicPlugins(
-    vararg plugins: String
+    vararg plugins: String,
+    adjustDependencies: RepositoryHandler.() -> Unit,
 ) {
     val internalGradle = gradle as GradleInternal
-    internalGradle.setupDynamicPlugins(this as SettingsInternal, *plugins)
+    internalGradle.doSetupDynamicPlugins(this as SettingsInternal, adjustDependencies, *plugins)
 }
 
-fun GradleInternal.setupDynamicPlugins(
+private fun GradleInternal.doSetupDynamicPlugins(
     settings: SettingsInternal,
+    adjustDependencies: RepositoryHandler.() -> Unit,
     vararg plugins: String,
 ) {
     // Prepare services.
@@ -54,7 +57,7 @@ fun GradleInternal.setupDynamicPlugins(
 
     // Adjust configurations.
     plugins.forEach { dependencyHandler.add(DYNAMIC_PLUGINS_CLASSPATH, it) }
-    dependencyResolution.resolveRepositoryHandler.apply { mavenCentral() }
+    dependencyResolution.resolveRepositoryHandler.adjustDependencies()
 
     // TODO Investigate why required attributes are not found for compose.
 //    classPathResolver.prepareClassPath(classpathConfig, dependencyHandler)

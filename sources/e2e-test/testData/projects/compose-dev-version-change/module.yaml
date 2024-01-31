@@ -1,0 +1,10 @@
+product: ios/app
+
+settings:
+  compose:
+    enabled: true
+    version: 1.6.0-dev1397
+
+dependencies:
+  - $compose.foundation
+  - $compose.ui

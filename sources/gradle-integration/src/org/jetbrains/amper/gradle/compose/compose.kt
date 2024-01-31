@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.gradle.compose
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.schema.commonSettings
+import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
@@ -30,27 +28,4 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
             implementation("org.jetbrains.compose.runtime:runtime:$composeVersion")
         }
     }
-}
-
-/**
- * Try to find single compose version within model.
- */
-fun chooseComposeVersion(
-    model: Model,
-    problemReporterContext: ProblemReporterContext? = null,
-): String? {
-    val knownComposeVersions = model.modules
-        .map { it.origin.commonSettings.compose }
-        .filter { it.enabled }
-        .mapNotNull { it.version }
-        .toSet()
-        .sorted()
-
-    return if (knownComposeVersions.size > 1) {
-//        problemReporterContext
-//            ?.problemReporter
-//            ?.reportError("Multiple compose versions declared. Can't apply them all.")
-        knownComposeVersions.first()
-    } else if (knownComposeVersions.isEmpty()) null
-    else knownComposeVersions.first()
 }

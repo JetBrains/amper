@@ -264,4 +264,20 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+    
+    @Test
+    @EnabledOnOs(value = [OS.MAC])
+    fun `compose dev version change`() = test(
+        projectName = "compose-dev-version-change",
+        "compileKotlinIosArm64",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    fun `compose version conflict`() = test(
+        projectName = "compose-version-conflict",
+        "assemble",
+        shouldSucceed = false,
+        expectOutputToHave = "Currently, compose versions should be the same across all module files"
+    )
 }
