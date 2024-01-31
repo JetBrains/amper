@@ -171,8 +171,7 @@ open class DependencyFile(
                         FileChannel.open(temp, StandardOpenOption.WRITE).use { channel ->
                             // Someone's already downloading the file. Let's wait for it and then check the result.
                             var delay = 10L
-                            val times = 10
-                            repeat(times) {
+                            while (true) {
                                 try {
                                     channel.lock().use {
                                         return isDownloaded(ResolutionLevel.NETWORK, repositories, progress, verify)
@@ -182,7 +181,6 @@ open class DependencyFile(
                                     delay = (delay * 2).coerceAtMost(1000)
                                 }
                             }
-                            throw IOException("Unable to acquire file lock after $times attempts")
                         }
 
                     else -> throw e
