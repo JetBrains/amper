@@ -14,5 +14,3 @@ dependencies:
 settings:
   kotlin:
     serialization: json
-  publishing:
-    group: org.jetbrains.amper.android.settings.plugin

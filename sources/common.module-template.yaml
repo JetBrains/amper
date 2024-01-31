@@ -26,6 +26,7 @@ repositories:
 
 settings:
   publishing:
+    group: org.jetbrains.amper
     version: 1.0-SNAPSHOT
 
   kotlin:

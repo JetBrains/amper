@@ -5,10 +5,6 @@ product:
 apply:
   - ../../common.module-template.yaml
 
-settings:
-  publishing:
-    group: org.jetbrains.amper.frontend
-
 dependencies:
   - ../../frontend-api
   - ../../core

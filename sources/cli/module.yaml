@@ -49,8 +49,5 @@ test-dependencies:
   - ../test-base
 
 settings:
-  publishing:
-    group: org.jetbrains.amper.cli
-
   kotlin:
     serialization: json
