@@ -52,9 +52,9 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
         val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
         if (pathFromVariant != null) return pathFromVariant
         if (!location.exists()) return null
-        return Files.walk(location, 2).filter {
-            it.name == name
-        }.findAny().orElse(null)
+        return Files.walk(location, 2).use {
+            it.filter { it.name == name }.findAny().orElse(null)
+        }
     }
 
     override fun getTempPath(dependency: MavenDependency, name: String): Path =
