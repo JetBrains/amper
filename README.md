@@ -57,9 +57,9 @@ You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062
 ## How to Try
 There are multiple ways to try Amper:
 
-* In [IntelliJ IDEA 2023.3](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio), for JVM and Android projects.
-* In [JetBrains Fleet](/docs/Usage.md#using-amper-in-fleet), for the JVM, Android, and Kotlin Multiplatform projects.
-* In [Android Studio 2023.3](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio), for JVM and Android projects.
+* In [IntelliJ IDEA 2024.1 EAP](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio)).
+* In [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](/docs/Usage.md#using-amper-in-fleet)).
+* In [Android Studio 2023.3](https://androidstudio.googleblog.com/2023/), for JVM and Android projects ([instructions](/docs/Usage.md#using-amper-in-intellij-idea-and-android-studio)).
 * Using Gradle to build Amper projects [from the CLI or CI/CD](/docs/Usage.md#using-amper-from-command-line).
 
 ## Examples
