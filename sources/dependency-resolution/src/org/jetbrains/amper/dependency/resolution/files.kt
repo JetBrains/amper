@@ -165,7 +165,11 @@ open class DependencyFile(
                         while (true) {
                             try {
                                 FileChannel.open(temp, StandardOpenOption.WRITE).use { channel ->
-                                    channel.lock().close()
+                                    channel.lock().use {
+                                        // Another thread has created a file,
+                                        // but this thread was faster to acquire a lock.
+                                        return download(channel, temp, repositories, progress, verify)
+                                    }
                                 }
                             } catch (e: Exception) {
                                 when (e) {
