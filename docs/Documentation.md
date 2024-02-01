@@ -165,6 +165,7 @@ Publishing means preparing the resulting [package](#packaging) for external use,
 Here are a few examples of publishing:
 - Preparing a JVM jar or a KLIB with sources and docs and uploading them Maven Central or to another Maven repository.
 - Creating a CocoaPods package and publishing it for use in Xcode projects.
+- Preparing Android AABs or Apple IPAs for publishing into App Stores. 
 - Preparing and signing an MSI, DMG, or DEB distributions
 
 Here is a very rough approximation, how publishing could look like in Amper:
