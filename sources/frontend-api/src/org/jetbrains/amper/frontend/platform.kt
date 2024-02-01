@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -68,7 +68,7 @@ enum class Platform(
      */
     val leaves: Set<Platform> by lazy {
         if (isLeaf) setOf(this)
-        else naturalHierarchy[this]!! // here we must have some.
+        else naturalHierarchy[this] ?: error("Platform $this is not a leaf platform and doesn't have a hierarchy")
     }
 
     val topmostParentNoCommon by lazy { generateSequence(this) { it.parentNoCommon }.last() }

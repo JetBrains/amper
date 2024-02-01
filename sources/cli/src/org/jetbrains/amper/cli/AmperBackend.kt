@@ -98,8 +98,8 @@ class AmperBackend(val context: ProjectContext) {
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
             print("task ${taskName.name}")
-            if (taskGraph.dependencies.containsKey(taskName)) {
-                print(" -> ${taskGraph.dependencies[taskName]!!.joinToString { it.name }}")
+            taskGraph.dependencies[taskName]?.let { taskDeps ->
+                print(" -> ${taskDeps.joinToString { it.name }}")
             }
             println()
         }
