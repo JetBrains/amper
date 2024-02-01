@@ -21,7 +21,7 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-BOOTSTRAP_AMPER_VERSION="0.3.0-dev-421"
+BOOTSTRAP_AMPER_VERSION="0.3.0-dev-422"
 KOTLIN_VERSION="1.9.20"
 COMPOSE_VERSION="1.5.10"
 GRADLE_VERSION="8.1.1-bin.zip"
