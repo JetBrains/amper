@@ -6,6 +6,8 @@ package org.jetbrains.amper.dependency.resolution
 
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.TestInfo
+import kotlin.io.path.extension
+import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -173,6 +175,13 @@ class BuildGraphTest {
                 "There should be no messages for $it: ${it.messages}"
             )
         }
+        root.asSequence()
+            .mapNotNull { it as? MavenDependencyNode }
+            .flatMap { it.dependency.files.values }
+            .mapNotNull { it.path }
+            .forEach {
+                assertTrue(it.extension == "jar", "Only jar files are expected, got ${it.name}")
+            }
     }
 
     @Test
