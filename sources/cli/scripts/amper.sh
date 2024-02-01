@@ -15,7 +15,7 @@
 
 set -e -u
 
-amper_version=0.3.0-dev-421
+amper_version=0.2.0-dev-414
 amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$amper_version/cli-$amper_version-dist.zip"
 amper_sha256=840c8b5469c0dd0a446fc0487beb140486cd2001ed92903279dd9c2fde43e003
 
