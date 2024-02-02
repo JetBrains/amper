@@ -200,7 +200,7 @@ abstract class SchemaValuesVisitor {
 
     open fun visit(it: Any?) {
         when (it) {
-            is List<*> -> visitCollection(it)
+            is Collection<*> -> visitCollection(it)
             is Map<*, *> -> visitMap(it)
             is ValueBase<*> -> visitValue(it)
             is SchemaNode -> visitNode(it)
