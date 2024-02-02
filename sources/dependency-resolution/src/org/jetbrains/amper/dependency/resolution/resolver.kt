@@ -119,7 +119,7 @@ interface DependencyNode {
 
     val context: Context
     val key: Key<*>
-    var state: ResolutionState
+    val state: ResolutionState
     val children: List<DependencyNode>
     val messages: List<Message>
 

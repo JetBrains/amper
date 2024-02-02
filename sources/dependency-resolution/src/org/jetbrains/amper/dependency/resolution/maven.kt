@@ -34,11 +34,8 @@ class MavenDependencyNode(
     val version: String = dependency.version
 
     override val key: Key<*> = Key<MavenDependency>("$group:$module")
-    override var state: ResolutionState
+    override val state: ResolutionState
         get() = dependency.state
-        set(value) {
-            dependency.state = value
-        }
     override val children: List<DependencyNode> by PropertyWithDependency(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),

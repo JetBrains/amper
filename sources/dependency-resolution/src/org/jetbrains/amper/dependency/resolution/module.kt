@@ -11,7 +11,7 @@ class ModuleDependencyNode(
 ) : DependencyNode {
 
     override val key: Key<*> = Key<ModuleDependencyNode>(name)
-    override var state: ResolutionState = ResolutionState.RESOLVED
+    override val state: ResolutionState = ResolutionState.RESOLVED
     override val messages: List<Message> = listOf()
 
     override fun toString(): String = name
