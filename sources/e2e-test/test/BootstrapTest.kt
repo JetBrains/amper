@@ -48,6 +48,7 @@ class BootstrapTest {
         println("############ gradle-integration libraries: ${TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs").toFile().list()?.toSet()}")
 
         val frontendApi = TestUtil.amperSourcesRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
+        val tomlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/toml-psi/build/libs/toml-psi-jvm-$version.jar")
         val yamlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
 
@@ -66,6 +67,7 @@ buildscript {
         classpath("org.tomlj:tomlj:1.1.0")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
+        classpath("com.jetbrains.intellij.platform:analysis-impl:232.10203.20")
         classpath("com.jetbrains.intellij.platform:core:232.10203.20")
         classpath("com.jetbrains.intellij.platform:core-impl:232.10203.20")
         classpath("com.jetbrains.intellij.platform:core-ui:232.10203.20")
@@ -78,6 +80,7 @@ buildscript {
         classpath(files("${core.pathString.replace('\\', '/')}"))
         classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
+        classpath(files("${tomlPsi.pathString.replace('\\', '/')}"))
         classpath(files("${yamlPsi.pathString.replace('\\', '/')}"))
         classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
     }
