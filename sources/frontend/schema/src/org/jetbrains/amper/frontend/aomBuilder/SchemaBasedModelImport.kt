@@ -29,7 +29,7 @@ class SchemaBasedModelImport : ModelInit {
         val pathResolver = FrontendPathResolver(project = project ?: DummyProject.instance)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
-        // Propagate parts from fragment to fragment.
+        // Propagate settings from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values)
             .resolved
             // Add additional validations for the whole model.
@@ -43,8 +43,8 @@ class SchemaBasedModelImport : ModelInit {
         val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
-        // Propagate parts from fragment to fragment.
-        return resultModules.takeIf { it.size == 1 }?.first()?.withResolvedFragments()?.asAmperSuccess()
+        // Propagate settings from fragment to fragment.
+        return resultModules.singleOrNull()?.withResolvedFragments()?.asAmperSuccess()
             ?: return amperFailure()
     }
 
