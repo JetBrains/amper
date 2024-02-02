@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FileLocation
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.LineAndColumn
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -47,11 +48,13 @@ private class TomlCatalog(
  * 1. `[versions]` and `[libraries]` sections, no `[plugins]` or `[bundles]`
  * 2. versions or version refs, no version constraints
  */
-context(ProblemReporterContext)
+context(ProblemReporterContext, FrontendPathResolver)
 fun parseGradleVersionCatalog(
     catalogPath: Path
 ): VersionCatalog? {
-    val parsed = Toml.parse(catalogPath)
+    val psiFile = path2PsiFile(catalogPath) ?: return null
+    // TODO: Switch to the PSI parser
+    val parsed = Toml.parse(psiFile.text)
 //    parsed.errors().forEach {
         // TODO Report parsing errors.
 //    }
