@@ -29,7 +29,7 @@ Fragments:
       PublicationPart(group=null, version=null)
       NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
       ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+      KoverPart(enabled=true, html=KoverHtmlPart(title=null, charset=null, onCheck=true, reportDir={{ testResources }}{{ fileSeparator }}html), xml=KoverXmlPart(onCheck=false, reportFile={{ testResources }}{{ fileSeparator }}coverage.xml))
 Artifacts:
   isTest: false
   [JVM]

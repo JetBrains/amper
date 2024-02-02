@@ -6,23 +6,8 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
-import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.processing.merge
 import org.jetbrains.amper.frontend.schema.Settings
-
-// TODO move to fragments creation (build.kt / fragments.kt)
-
-internal class ModelImpl(override val modules: List<PotatoModule>) : Model
-
-val Model.resolved: Model
-    get() = ModelImpl(
-        this@resolved.modules.map { it.withResolvedFragments() }
-    )
-
-fun PotatoModule.withResolvedFragments(): PotatoModule = object : PotatoModule by this {
-    override val fragments: List<Fragment> = this@withResolvedFragments.fragments.withPropagatedSettings()
-}
 
 /**
  * Returns new fragments with resolved settings, propagated from parents to children.

@@ -31,7 +31,6 @@ class SchemaBasedModelImport : ModelInit {
             ?: return amperFailure()
         // Propagate settings from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values)
-            .resolved
             // Add additional validations for the whole model.
             .performValidations()
             .asAmperSuccess()
@@ -44,7 +43,7 @@ class SchemaBasedModelImport : ModelInit {
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
         // Propagate settings from fragment to fragment.
-        return resultModules.singleOrNull()?.withResolvedFragments()?.asAmperSuccess()
+        return resultModules.singleOrNull()?.asAmperSuccess()
             ?: return amperFailure()
     }
 

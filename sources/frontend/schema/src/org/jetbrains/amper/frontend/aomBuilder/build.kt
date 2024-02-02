@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.aomBuilder
@@ -116,7 +116,7 @@ fun addBuiltInCatalog(
     return compositeCatalog
 }
 
-data class ModuleTriple(
+private data class ModuleTriple(
     val buildFile: Path,
     val schemaModule: Module,
     val module: DefaultModule,
@@ -133,9 +133,9 @@ internal fun Map<Path, ModuleHolder>.buildAom(
         // TODO Remove duplicating enums.
         val convertedType = ProductType.getValue(holder.module.product.type.schemaValue)
         ModuleTriple(
-            mPath,
-            holder.module,
-            DefaultModule(
+            buildFile = mPath,
+            schemaModule = holder.module,
+            module = DefaultModule(
                 mPath.parent.name,
                 convertedType,
                 PotatoModuleFileSource(mPath),
@@ -154,7 +154,7 @@ internal fun Map<Path, ModuleHolder>.buildAom(
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {
-            fragments = moduleFragments
+            fragments = moduleFragments.withPropagatedSettings()
             artifacts = createArtifacts(false, module.type, leaves) +
                     createArtifacts(true, module.type, testLeaves)
         }

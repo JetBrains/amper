@@ -5,10 +5,8 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.aomBuilder.ModelImpl
-import org.jetbrains.amper.frontend.aomBuilder.resolved
+import org.jetbrains.amper.frontend.aomBuilder.withPropagatedSettings
 import org.jetbrains.amper.frontend.schema.helper.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +15,9 @@ import kotlin.test.fail
 
 class PropagateTest {
 
-    private fun ModelImpl(vararg modules: PotatoModule) = ModelImpl(modules.toList())
+    private fun PotatoModule.withPropagatedSettings(): PotatoModule = object : PotatoModule by this {
+        override val fragments: List<Fragment> = this@withPropagatedSettings.fragments.withPropagatedSettings()
+    }
 
     @Test
     fun `basic fragment property propagation`() {
@@ -34,12 +34,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
+        val resolvedModule = module.withPropagatedSettings()
 
-        // when
-        val resultModel = model.resolved
-
-        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
         assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.languageVersion)
     }
 
@@ -62,12 +59,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
+        val resolvedModule = module.withPropagatedSettings()
 
-        // when
-        val resultModel = model.resolved
-
-        val darwinFragment = assertSingleFragment(resultModel, "darwin")
+        val darwinFragment = assertSingleFragment(resolvedModule, "darwin")
         assertEquals(KotlinVersion.Kotlin19, darwinFragment.settings.kotlin.languageVersion)
     }
 
@@ -85,10 +79,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
-        val resultModel = model.resolved
+        val resolvedModule = module.withPropagatedSettings()
 
-        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
         assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.apiVersion)
     }
 
@@ -104,10 +97,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
-        val resultModel = model.resolved
+        val resolvedModule = module.withPropagatedSettings()
 
-        val jvmFragment = assertSingleFragment(resultModel, "jvm")
+        val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
         assertEquals(JavaVersion.VERSION_17, jvmFragment.settings.jvm.target)
     }
 
@@ -125,10 +117,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
-        val resultModel = model.resolved
+        val resolvedModule = module.withPropagatedSettings()
 
-        val androidFragment = assertSingleFragment(resultModel, "android")
+        val androidFragment = assertSingleFragment(resolvedModule, "android")
         assertEquals("namespace", androidFragment.settings.android.namespace)
     }
 
@@ -151,10 +142,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
-        val resultModel = model.resolved
+        val resolvedModule = module.withPropagatedSettings()
 
-        val androidFragment = assertSingleFragment(resultModel, "android")
+        val androidFragment = assertSingleFragment(resolvedModule, "android")
         val androidSettings = androidFragment.settings.android
 
         assertEquals("com.example.applicationid", androidSettings.applicationId)
@@ -201,10 +191,9 @@ class PropagateTest {
             }
         }
 
-        val model = ModelImpl(module)
-        val resultModel = model.resolved
+        val resolvedModule = module.withPropagatedSettings()
 
-        val macosX64Fragment = assertSingleFragment(resultModel, "macosX64")
+        val macosX64Fragment = assertSingleFragment(resolvedModule, "macosX64")
         val kotlinSettings = macosX64Fragment.settings.kotlin
 
         assertEquals(listOf("kotlin.contracts.ExperimentalContracts"), kotlinSettings.optIns, "should inherit from 'common' ancestor")
@@ -213,9 +202,9 @@ class PropagateTest {
         assertTrue(kotlinSettings.allWarningsAsErrors, "should inherit from 'desktop' parent")
     }
 
-    private fun assertSingleFragment(resultModel: Model, fragmentName: String): Fragment {
-        val module = resultModel.modules.singleOrNull() ?: fail("Expected a single module")
+    private fun assertSingleFragment(module: PotatoModule, fragmentName: String): Fragment {
         return module.fragments.singleOrNull { it.name == fragmentName }
             ?: fail("Expected a single fragment named '$fragmentName'")
     }
 }
+
