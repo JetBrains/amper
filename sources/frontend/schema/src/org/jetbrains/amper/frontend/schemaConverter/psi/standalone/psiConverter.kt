@@ -16,50 +16,31 @@ import com.intellij.psi.impl.PsiManagerImpl
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.LocalTimeCounter
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.yaml.YAMLFileType
-import org.jetbrains.yaml.YAMLLanguage
 import java.io.Reader
-import javax.swing.Icon
 
-fun getPsiRawModel(reader: Reader): PsiFile {
+fun getPsiRawModel(reader: Reader, type: LanguageFileType): PsiFile {
   val project: Project = DummyProject.instance
 
   initPsiFileFactory({}, project)
 
   val psiManager = PsiManagerImpl(project)
   val text = reader.readText().replace("\r\n", "\n")
-  val psiFile = createPsiFileFromText(text, psiManager)
+  val psiFile = createPsiFileFromText(text, psiManager, type)
   PsiFileFactoryImpl.markGenerated(psiFile)
   return psiFile
 }
 
-private fun createPsiFileFromText(text: String, manager: PsiManager): PsiFile {
-  val virtualFile: @NonNls LightVirtualFile = LightVirtualFile("foo", object : LanguageFileType(YAMLLanguage.INSTANCE) {
-    override fun getDefaultExtension(): @NonNls String {
-      return ""
-    }
-
-    override fun getDescription(): @NonNls String {
-      return "fake for language" + YAMLLanguage.INSTANCE.id
-    }
-
-    override fun getIcon(): Icon {
-      return YAMLFileType.YML.icon
-    }
-
-    override fun getName(): @NonNls String {
-      return YAMLLanguage.INSTANCE.id
-    }
-  }, text, LocalTimeCounter.currentTime())
+private fun createPsiFileFromText(text: String, manager: PsiManager, type: LanguageFileType): PsiFile {
+  val virtualFile: @NonNls LightVirtualFile = LightVirtualFile("foo", type, text, LocalTimeCounter.currentTime())
 
   val viewProvider: FileViewProvider = object : SingleRootFileViewProvider(
     manager,
     virtualFile, false
   ) {
     override fun getBaseLanguage(): Language {
-      return YAMLLanguage.INSTANCE
+      return type.language
     }
   }
 
-  return viewProvider.getPsi(YAMLLanguage.INSTANCE)
+  return viewProvider.getPsi(type.language)
 }

@@ -64,7 +64,6 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.tomlj:tomlj:1.1.0")
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
         classpath("com.jetbrains.intellij.platform:analysis-impl:232.10203.20")

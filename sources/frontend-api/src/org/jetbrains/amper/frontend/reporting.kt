@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.yaml.psi.YAMLPsiElement
-import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
 
@@ -69,11 +68,6 @@ fun reportError(
     problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line, column = lineAndColumn?.column, file = node?.containingFile?.virtualFile?.toNioPathOrNull()))
     return null
 }
-
-data class FileLocation(
-    val path: Path,
-    val location: LineAndColumn,
-)
 
 fun getLineAndColumnInPsiFile(node: YAMLPsiElement, range: TextRange): LineAndColumn {
     val document: Document = node.containingFile.viewProvider.document

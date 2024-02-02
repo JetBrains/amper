@@ -4,37 +4,51 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.FileLocation
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.LineAndColumn
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.tomlj.Toml
-import org.tomlj.TomlInvalidTypeException
-import org.tomlj.TomlParseResult
-import org.tomlj.TomlPosition
-import org.tomlj.TomlTable
+import org.toml.lang.psi.TomlFile
+import org.toml.lang.psi.TomlInlineTable
+import org.toml.lang.psi.TomlKey
+import org.toml.lang.psi.TomlKeyValue
+import org.toml.lang.psi.TomlKeyValueOwner
+import org.toml.lang.psi.TomlLiteral
+import org.toml.lang.psi.TomlTable
 import java.nio.file.Path
+
+private val TomlTable.headerText: String?
+    get() = header.key?.keyText
+
+private val TomlKeyValue.keyText: String
+    get() = key.keyText
+
+private val TomlKey.keyText: String
+    get() = segments.joinToString(".") { it.text }
+
+private fun TomlKeyValueOwner.getStringValueOrNull(key: String): String? {
+    val keyValue = entries.find { it.keyText == key } ?: return null
+    return keyValue.value?.takeIf { it is TomlLiteral }?.text?.removeSurrounding("\"")
+}
+
+private fun TomlFile.findTableOrNull(headerText: String): TomlTable? =
+    childrenOfType<TomlTable>().firstOrNull { it.headerText == headerText }
 
 private data class TomlLibraryDefinition(
     val libraryString: String,
-    val position: TomlPosition,
+    val element: PsiElement,
 )
 
 private class TomlCatalog(
     private val libraries: Map<String, TomlLibraryDefinition>,
-    private val path: Path,
 ) : VersionCatalog {
     override val entries: Map<String, TraceableString>
         get() = libraries.map {
-            it.key to TraceableString(it.value.libraryString)
-                .apply {
-                    trace = FileLocation(
-                        path,
-                        LineAndColumn(it.value.position.line(), it.value.position.column(), null)
-                    )
-                }
+            val definition = it.value
+            it.key to TraceableString(definition.libraryString)
+                .apply { trace = definition.element }
         }.toMap()
 
     context(ProblemReporterContext) override fun findInCatalog(
@@ -52,24 +66,9 @@ context(ProblemReporterContext, FrontendPathResolver)
 fun parseGradleVersionCatalog(
     catalogPath: Path
 ): VersionCatalog? {
-    val psiFile = path2PsiFile(catalogPath) ?: return null
-    // TODO: Switch to the PSI parser
-    val parsed = Toml.parse(psiFile.text)
-//    parsed.errors().forEach {
-        // TODO Report parsing errors.
-//    }
-    val versions = parsed.parseCatalogVersions()
-    val libraries = parsed.parseCatalogLibraries(versions) ?: return null
-    return TomlCatalog(libraries, catalogPath)
-}
-
-context(ProblemReporterContext)
-fun TomlParseResult.parseCatalogVersions(): Map<String, String> {
-    val versionsTable = getTableOrNull("versions") ?: return emptyMap()
-    val versionKeys = versionsTable.keySet() ?: return emptyMap()
-    return versionKeys
-        .mapNotNull { key -> versionsTable.getStringOrNull(key)?.let { key to it } }
-        .toMap()
+    val psiFile = path2PsiFile(catalogPath) as? TomlFile ?: return null
+    val libraries = psiFile.parseCatalogLibraries() ?: return null
+    return TomlCatalog(libraries)
 }
 
 /**
@@ -77,57 +76,53 @@ fun TomlParseResult.parseCatalogVersions(): Map<String, String> {
  * to match "libs.my.lib" format.
  */
 context(ProblemReporterContext)
-private fun TomlParseResult.parseCatalogLibraries(
-    versions: Map<String, String>,
-): Map<String, TomlLibraryDefinition>? {
+private fun TomlFile.parseCatalogLibraries(): Map<String, TomlLibraryDefinition>? {
     fun String.normalizeLibraryKey() = "libs." + replace("-", ".").replace("_", ".")
 
-    val librariesTable = getTableOrNull("libraries") ?: return null
-    val librariesAliases = librariesTable.keySet() ?: return null
+    val librariesTable = findTableOrNull("libraries") ?: return null
+    val librariesAliases = librariesTable.entries
     return buildMap {
-        librariesAliases.forEach { alias ->
-            val position = librariesTable.inputPositionOf(alias) ?: return@forEach
-            val aliasKey = alias.normalizeLibraryKey()
+        librariesAliases.forEach { entry ->
+            val aliasKey = entry.keyText.normalizeLibraryKey()
 
             // my-lib = "com.mycompany:mylib:1.4"
-            val libraryString = librariesTable.getStringOrNull(alias)
-            if (libraryString != null) put(aliasKey, TomlLibraryDefinition(libraryString, position))
-
-            // my-lib = { module = "com.mycompany:mylib", version = "1.4" }
-            val libraryTable = librariesTable.getTableOrNull(alias)
-            if (libraryTable != null) {
-                val module = libraryTable.getStringOrNull("module")
-                val group = libraryTable.getStringOrNull("group")
-                val name = libraryTable.getStringOrNull("name")
-                val version = libraryTable.getStringOrNull("version")
-                val versionRef = libraryTable.getStringOrNull("version.ref")
-
-                val finalVersion = version ?: versionRef?.let { versions[it] }
-                val finalLibraryModule = when {
-                    module != null -> module
-                    group != null && name != null -> "$group:$name"
-                    else -> null
-                }
-                // Just skip libraries without module or version.
-                if (finalLibraryModule != null && finalVersion != null) {
-                    put(aliasKey, TomlLibraryDefinition("$finalLibraryModule:$finalVersion", position))
-                }
-            }
+            val value = getInlineNotation(entry) ?: return@forEach
+            put(aliasKey, TomlLibraryDefinition(value, entry))
         }
     }
 }
 
-fun TomlTable.getStringOrNull(dottedPath: String): String? =
-    try {
-        getString(dottedPath)
-    } catch (ex: TomlInvalidTypeException) {
-        null
+private fun getInlineNotation(catalogEntry: TomlKeyValue): String? = when (val libraryValue = catalogEntry.value) {
+    is TomlLiteral -> libraryValue.text.removeSurrounding("\"")
+    is TomlInlineTable -> {
+        val version = libraryValue.getStringValueOrNull("version")
+        val versionRef = libraryValue.getStringValueOrNull("version.ref")
+
+        val module = libraryValue.getStringValueOrNull("module")
+        val group = libraryValue.getStringValueOrNull("group")
+        val name = libraryValue.getStringValueOrNull("name")
+
+        val finalModuleName = when {
+            module != null -> module
+            group != null && name != null -> "$group:$name"
+            else -> null
+        }
+
+        val finalVersion = when {
+            version != null -> version
+            versionRef != null -> {
+                val file = catalogEntry.containingFile as TomlFile
+                val versions = file.findTableOrNull("versions")
+                versions?.getStringValueOrNull(versionRef)
+            }
+
+            else -> null
+        }
+
+        if (finalModuleName != null && finalVersion != null) {
+            "$finalModuleName:$finalVersion"
+        } else null
     }
 
-fun TomlTable.getTableOrNull(dottedPath: String): TomlTable? =
-    try {
-        getTable(dottedPath)
-    } catch (ex: TomlInvalidTypeException) {
-        null
-    }
-
+    else -> null
+}

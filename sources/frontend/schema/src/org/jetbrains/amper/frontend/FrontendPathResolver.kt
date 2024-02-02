@@ -13,9 +13,12 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.getPsiRawModel
+import org.jetbrains.yaml.YAMLFileType
+import org.toml.lang.psi.TomlFileType
 import java.io.Reader
 import java.nio.file.Path
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.reader
 
 data class FrontendPathResolver(
@@ -38,7 +41,8 @@ data class FrontendPathResolver(
                 vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
             })
         } else {
-            path2Reader(path)?.let { getPsiRawModel(it) }
+            val fileType = if (path.extension == "toml") TomlFileType else YAMLFileType.YML
+            path2Reader(path)?.let { getPsiRawModel(it, fileType) }
         }
     },
 )

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.standalone
 
+import com.intellij.lang.LanguageASTFactory
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.lang.PsiBuilderFactory
 import com.intellij.lang.impl.PsiBuilderFactoryImpl
@@ -19,6 +20,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
@@ -27,6 +29,10 @@ import com.intellij.util.pico.DefaultPicoContainer
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.YAMLParserDefinition
+import org.toml.lang.TomlLanguage
+import org.toml.lang.parse.TomlParserDefinition
+import org.toml.lang.psi.TomlFileType
+import org.toml.lang.psi.impl.TomlASTFactory
 
 fun initPsiFileFactory(rootDisposable: Disposable, project: Project) {
   if (ApplicationManager.getApplication() != null) {
@@ -48,6 +54,8 @@ fun initPsiFileFactory(rootDisposable: Disposable, project: Project) {
   application.registerApplicationService(ProgressManager::class.java, CoreProgressManager(), project)
 
   LanguageParserDefinitions.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, YAMLParserDefinition())
+  LanguageParserDefinitions.INSTANCE.addExplicitExtension(TomlLanguage, TomlParserDefinition())
+  LanguageASTFactory.INSTANCE.addExplicitExtension(TomlLanguage, TomlASTFactory())
 
   FileTypeRegistry.setInstanceSupplier {
     object: FileTypeRegistry() {
@@ -56,10 +64,11 @@ fun initPsiFileFactory(rootDisposable: Disposable, project: Project) {
       }
 
       override fun getRegisteredFileTypes(): Array<FileType> {
-        return arrayOf(YAMLFileType.YML)
+        return arrayOf(YAMLFileType.YML, TomlFileType)
       }
 
       override fun getFileTypeByFile(p0: VirtualFile): FileType {
+        if (StringUtil.equalsIgnoreCase(p0.extension, "toml")) return TomlFileType
         return YAMLFileType.YML
       }
 
