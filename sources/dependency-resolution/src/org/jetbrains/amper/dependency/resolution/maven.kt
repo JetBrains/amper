@@ -19,6 +19,19 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+/**
+ * Serves as a holder for a dependency defined by Maven coordinates, namely, group, module, and version.
+ * While each node in a graph is expected to be unique, its [dependency] can be shared across other nodes
+ * as long as their groups and modules match.
+ * A version discrepancy might occur if a conflict resolution algorithm intervenes and is expected.
+ *
+ * The node doesn't do actual work but simply delegate to the [dependency] that can change over time.
+ * This allows reusing dependency resolution results but still holding information about the origin.
+ *
+ * It's a responsibility of the caller to set a parent for this node if none was provided via the constructor.
+ *
+ * @see [ModuleDependencyNode]
+ */
 class MavenDependencyNode internal constructor(
     templateContext: Context,
     dependency: MavenDependency,
@@ -80,6 +93,9 @@ class MavenDependencyNode internal constructor(
     }
 }
 
+/**
+ * A lazy property that's recalculated if its dependency changes. Single-threaded only.
+ */
 class PropertyWithDependency<in T, out V, D>(
     private var value: V,
     private var dependency: D,
@@ -105,6 +121,13 @@ private fun createOrReuseDependency(
     MavenDependency(context.settings.fileCache, group, module, version)
 }
 
+/**
+ * An actual Maven dependency that can be resolved, that is, populated with children according to the requested
+ * [ResolutionScope] and platform.
+ * Its [resolve] method contains the resolution algorithm.
+ *
+ * @see [DependencyFile]
+ */
 class MavenDependency internal constructor(
     val fileCache: FileCache,
     val group: String,
@@ -264,6 +287,11 @@ class MavenDependency internal constructor(
         }
     }
 
+    /**
+     * Resolves a Maven project by recursively substituting references to parent projects and templates
+     * with actual values.
+     * Additionally, dependency versions are defined using dependency management.
+     */
     private fun Project.resolve(
         context: Context,
         resolutionLevel: ResolutionLevel,
