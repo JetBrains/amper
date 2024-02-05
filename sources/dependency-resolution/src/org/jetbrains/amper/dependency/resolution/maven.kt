@@ -85,7 +85,7 @@ private fun createOrReuseDependency(
     group: String,
     module: String,
     version: String
-): MavenDependency = context.cache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
+): MavenDependency = context.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
     MavenDependency(context.settings.fileCache, group, module, version)
 }
 

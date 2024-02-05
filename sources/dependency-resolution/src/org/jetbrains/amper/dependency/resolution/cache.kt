@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("UNCHECKED_CAST")
@@ -12,7 +12,7 @@ inline fun <reified T : Any> Key(name: String): Key<T> = Key(name, T::class)
 
 data class Key<T : Any>(val name: String, private val kClass: KClass<T>)
 
-class ResolutionCache(private val cache: MutableMap<Key<*>, Any> = mutableMapOf()) {
+class Cache(private val cache: MutableMap<Key<*>, Any> = mutableMapOf()) {
 
     operator fun <T : Any> get(key: Key<T>): T? = cache[key] as T?
 

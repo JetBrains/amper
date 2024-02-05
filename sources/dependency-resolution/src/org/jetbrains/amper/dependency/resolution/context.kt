@@ -6,11 +6,9 @@ package org.jetbrains.amper.dependency.resolution
 
 import java.nio.file.Path
 
-class Context(val settings: Settings) {
+class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
-
-    val cache: ResolutionCache = ResolutionCache()
 }
 
 class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
