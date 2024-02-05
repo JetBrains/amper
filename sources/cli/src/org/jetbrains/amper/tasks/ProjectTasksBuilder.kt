@@ -47,32 +47,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         for (module in sortedByPath) {
             val modulePlatforms = module.targetLeafPlatforms
             for (platform in modulePlatforms) {
-                val downloadAndroidEmulatorTaskName = if (platform == Platform.ANDROID) {
-                    val downloadAndroidEmulatorTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadAndroidEmulator"))
-                    tasks.registerTask(
-                        GetAndroidPlatformFileFromPackageTask(
-                            "emulator",
-                            executeOnChangedInputs,
-                            androidSdkPath,
-                            downloadAndroidEmulatorTaskName
-                        )
-                    )
-                    downloadAndroidEmulatorTaskName
-                } else null
-
-                val downloadPlatformTools = if (platform == Platform.ANDROID) {
-                    val downloadPlatformTools = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadPlatformTools"))
-                    tasks.registerTask(
-                        GetAndroidPlatformFileFromPackageTask(
-                            "platform-tools",
-                            executeOnChangedInputs,
-                            androidSdkPath,
-                            downloadPlatformTools
-                        )
-                    )
-                    downloadPlatformTools
-                } else null
-
                 for (isTest in listOf(false, true)) {
                     val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
@@ -100,21 +74,9 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             }
                         }
 
-                    val downloadSystemImageTaskName = setupDownloadSystemImageTask(
-                        module,
-                        isTest,
-                        executeOnChangedInputs,
-                        tasks,
-                        platform
-                    )
-                    val androidPlatformJarTaskName = setupAndroidPlatformTask(
-                        module,
-                        tasks,
-                        executeOnChangedInputs,
-                        androidSdkPath,
-                        isTest,
-                        platform
-                    )
+                    val androidCompileDependencies = createCompileDependencies(platform, module, tasks, executeOnChangedInputs, isTest)
+                    val androidPrepareDependencies = createPrepareDependencies(platform, module, tasks, executeOnChangedInputs, isTest)
+                    val androidRunDependencies = createRunDependencies(platform, module, executeOnChangedInputs, tasks, isTest)
 
                     fun createResolveTask(): Task =
                         ResolveExternalDependenciesTask(
@@ -126,11 +88,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
                             taskName = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)
                         ).also { resolveTask ->
-                            tasks.registerTask(resolveTask, dependsOn = buildList {
-                                if (platform.topmostParentNoCommon == Platform.ANDROID) {
-                                    androidPlatformJarTaskName?.let { add(it) }
-                                }
-                            })
+                            tasks.registerTask(resolveTask)
                         }
 
                     createResolveTask()
@@ -154,7 +112,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             continue // TODO shouldn't we consistently keep these tasks in the graph even if they are noops?
                         }
 
-                        val prepareAndroidBuildTaskName = setupPrepareAndroidTasks(
+                        val prepareAndroidBuildTaskName = setupPrepareAndroidTask(
                             platform,
                             module,
                             isTest,
@@ -162,10 +120,11 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             executeOnChangedInputs,
                             fragments,
                             buildType,
-                            androidSdkPath
+                            androidSdkPath,
+                            androidPrepareDependencies + androidCompileDependencies
                         )
 
-                        val androidBuildTasksName = setupAndroidBuildTasks(
+                        val androidBuildTaskName = setupAndroidBuildTasks(
                             platform,
                             module,
                             tasks,
@@ -220,8 +179,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 tasks.registerTask(it, dependsOn = buildList {
                                     add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
                                     if (top == Platform.ANDROID) {
-                                        androidPlatformJarTaskName?.let { add(it) }
                                         prepareAndroidBuildTaskName?.let { add(it) }
+                                        addAll(androidCompileDependencies)
                                     }
                                 })
                             }
@@ -271,11 +230,11 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 tasks.registerTask(
                                     it,
                                     dependsOn = buildList {
-                                        add(getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false, buildType))
-                                        androidBuildTasksName?.let { add(it) }
-                                        downloadAndroidEmulatorTaskName?.let { add(it) }
-                                        downloadPlatformTools?.let { add(it) }
-                                        downloadSystemImageTaskName?.let { add(it) }
+                                        if (platform != Platform.ANDROID) {
+                                            add(getTaskName(module, CommonTaskType.COMPILE, platform, isTest = false, buildType))
+                                        }
+                                        androidBuildTaskName?.let { add(it) }
+                                        addAll(androidRunDependencies)
                                     }
                                 )
                             }
@@ -394,6 +353,100 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         return tasks.build()
     }
 
+    private fun createRunDependencies(
+        platform: Platform,
+        module: PotatoModule,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        tasks: TaskGraphBuilder,
+        isTest: Boolean
+    ): List<TaskName> {
+        return buildList {
+            if (platform == Platform.ANDROID) {
+                val downloadSystemImageTaskName = setupDownloadSystemImageTask(
+                    module,
+                    isTest,
+                    executeOnChangedInputs,
+                    tasks
+                )
+                add(downloadSystemImageTaskName)
+                val downloadAndroidEmulatorTaskName = TaskName.fromHierarchy(
+                    listOf(
+                        module.userReadableName,
+                        "downloadAndroidEmulator${isTest.testSuffix}"
+                    )
+                )
+                tasks.registerTask(
+                    GetAndroidPlatformFileFromPackageTask(
+                        "emulator",
+                        executeOnChangedInputs,
+                        androidSdkPath,
+                        downloadAndroidEmulatorTaskName
+                    )
+                )
+                add(downloadAndroidEmulatorTaskName)
+            }
+        }
+    }
+
+    private fun createCompileDependencies(
+        platform: Platform,
+        module: PotatoModule,
+        tasks: TaskGraphBuilder,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        isTest: Boolean
+    ): List<TaskName>  {
+        return buildList {
+            if (platform == Platform.ANDROID) {
+                val androidPlatformJarTaskName = setupAndroidPlatformTask(
+                    module,
+                    tasks,
+                    executeOnChangedInputs,
+                    androidSdkPath,
+                    isTest,
+                    platform,
+                )
+                add(androidPlatformJarTaskName)
+            }
+        }
+    }
+
+    private fun createPrepareDependencies(
+        platform: Platform,
+        module: PotatoModule,
+        tasks: TaskGraphBuilder,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        isTest: Boolean
+    ): List<TaskName> {
+        return buildList {
+            if (platform == Platform.ANDROID) {
+                val androidFragment = getAndroidFragment(module, isTest)
+                val downloadBuildToolsTaskName =
+                    TaskName.fromHierarchy(listOf(module.userReadableName, "downloadBuildTools${isTest.testSuffix}"))
+                tasks.registerTask(
+                    GetAndroidPlatformFileFromPackageTask(
+                        "build-tools;${androidFragment?.settings?.android?.targetSdk?.versionNumber}.0.0",
+                        executeOnChangedInputs,
+                        androidSdkPath,
+                        downloadBuildToolsTaskName
+                    )
+                )
+                add(downloadBuildToolsTaskName)
+
+                val downloadPlatformTools =
+                    TaskName.fromHierarchy(listOf(module.userReadableName, "downloadPlatformTools${isTest.testSuffix}"))
+                tasks.registerTask(
+                    GetAndroidPlatformFileFromPackageTask(
+                        "platform-tools",
+                        executeOnChangedInputs,
+                        androidSdkPath,
+                        downloadPlatformTools
+                    )
+                )
+                add(downloadPlatformTools)
+            }
+        }
+    }
+
     private fun PotatoModuleDependency.resolveModuleDependency(): PotatoModule = with(CliProblemReporterContext()) {
         val result = model.module.get()
 
@@ -413,13 +466,12 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         isTest: Boolean,
         buildType: BuildType? = null
     ): TaskName {
-        val testSuffix = if (isTest) "Test" else ""
         val platformSuffix = platform.pretty.replaceFirstChar { it.uppercase() }
 
         val taskName = when (type) {
             // name convention <taskname><platform><buildtype><testsuffix>: example compileAndroidDebugTest
-            CommonTaskType.COMPILE -> "compile$platformSuffix${buildType?.suffix ?: ""}$testSuffix"
-            CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix$testSuffix"
+            CommonTaskType.COMPILE -> "compile$platformSuffix${buildType?.suffix ?: ""}${isTest.testSuffix}"
+            CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix${isTest.testSuffix}"
             CommonTaskType.RUN -> {
                 require(!isTest)
                 "run$platformSuffix${buildType?.suffix ?: ""}"
@@ -442,7 +494,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         return TaskOutputRoot(path = out)
     }
 
-    private fun setupPrepareAndroidTasks(
+    private fun setupPrepareAndroidTask(
         platform: Platform,
         module: PotatoModule,
         isTest: Boolean,
@@ -450,15 +502,14 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         executeOnChangedInputs: ExecuteOnChangedInputs,
         fragments: List<Fragment>,
         buildType: BuildType,
-        androidSdkPath: Path
+        androidSdkPath: Path,
+        prepareAndroidTaskDependencies: List<TaskName>,
     ) = if (platform == Platform.ANDROID) {
-        val testSuffix = if (isTest) "Test" else ""
         val prepareAndroidBuildName = TaskName.fromHierarchy(
             listOf(
-                module.userReadableName, "prepareBuildAndroid${buildType.name}${testSuffix}"
+                module.userReadableName, "prepareBuildAndroid${buildType.name}${isTest.testSuffix}"
             )
         )
-
         tasks.registerTask(
             AndroidPrepareTask(
                 module,
@@ -467,7 +518,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 androidSdkPath,
                 fragments,
                 prepareAndroidBuildName
-            )
+            ),
+            prepareAndroidTaskDependencies
         )
         prepareAndroidBuildName
     } else null
@@ -481,56 +533,46 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         fragments: List<Fragment>,
         buildType: BuildType,
         androidSdkPath: Path
-    ): TaskName? {
-        return if (platform == Platform.ANDROID) {
-            val testSuffix = if (isTest) "Test" else ""
-            val buildAndroidBuildName = TaskName.fromHierarchy(
-                listOf(
-                    module.userReadableName, "finalizeBuildAndroid${testSuffix}${buildType.suffix}"
-                )
+    ): TaskName? = if (platform == Platform.ANDROID) {
+        val buildAndroidBuildName = TaskName
+            .fromHierarchy(listOf(module.userReadableName, "finalizeBuildAndroid${isTest.testSuffix}${buildType.suffix}"))
+        tasks.registerTask(
+            AndroidBuildTask(module, buildType, executeOnChangedInputs, androidSdkPath, fragments, buildAndroidBuildName),
+            listOf(
+                getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
+                getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)
             )
-            tasks.registerTask(
-                AndroidBuildTask(module, buildType, executeOnChangedInputs, androidSdkPath, fragments, buildAndroidBuildName),
-                listOf(
-                    getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
-                    getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)
-                )
-            )
-            return buildAndroidBuildName
-        } else null
-    }
+        )
+        buildAndroidBuildName
+    } else null
 
     private fun setupDownloadSystemImageTask(
         module: PotatoModule,
         isTest: Boolean,
         executeOnChangedInputs: ExecuteOnChangedInputs,
-        tasks: TaskGraphBuilder,
-        platform: Platform
-    ): TaskName? {
-        if (platform == Platform.ANDROID) {
-            val fragments = module.fragments
-                .filterIsInstance<LeafFragment>()
-                .filter { it.isTest == isTest }
-                .filter { Platform.ANDROID in it.platforms }
-            val androidFragment = fragments.firstOrNull()
-            val testSuffix = if (isTest) "Test" else ""
+        tasks: TaskGraphBuilder
+    ): TaskName {
+        val androidFragment = getAndroidFragment(module, isTest)
+        val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
 
-            return androidFragment?.let {
-                val downloadSystemImageTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "downloadSystemImage$testSuffix"))
-                tasks.registerTask(
-                    GetAndroidPlatformFileFromPackageTask(
-                        "system-images;android-${it.settings.android.targetSdk.versionNumber};${DEFAULT_TAG.id};${Abi.ARM64_V8A}",
-                        executeOnChangedInputs,
-                        androidSdkPath,
-                        downloadSystemImageTaskName
-                    )
-                )
-
+        val downloadSystemImageTaskName =
+            TaskName.fromHierarchy(listOf(module.userReadableName, "downloadSystemImage${isTest.testSuffix}"))
+        tasks.registerTask(
+            GetAndroidPlatformFileFromPackageTask(
+                "system-images;android-$versionNumber;${DEFAULT_TAG.id};${Abi.ARM64_V8A}",
+                executeOnChangedInputs,
+                androidSdkPath,
                 downloadSystemImageTaskName
-            }
-        }
-        return null
+            )
+        )
+
+        return downloadSystemImageTaskName
     }
+
+    private fun getAndroidFragment(module: PotatoModule, isTest: Boolean): LeafFragment? = module
+        .fragments
+        .filterIsInstance<LeafFragment>()
+        .filter { it.isTest == isTest }.firstOrNull { Platform.ANDROID in it.platforms }
 
     private fun setupAndroidPlatformTask(
         module: PotatoModule,
@@ -539,32 +581,26 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         androidSdkPath: Path,
         isTest: Boolean,
         platform: Platform,
-    ): TaskName? {
-        if (platform == Platform.ANDROID) {
-            val testSuffix = if (isTest) "Test" else ""
-            return module
-                .fragments
-                .filter { Platform.ANDROID in it.platforms }
-                .firstOrNull { it.isTest == isTest }
-                ?.let { androidFragment ->
-                    val targetSdk = androidFragment.settings.android.targetSdk.versionNumber
-                    val downloadAndroidSdkTaskName =
-                        TaskName.fromHierarchy(listOf(module.userReadableName, "downloadSdkAndroid$testSuffix"))
-                    tasks.registerTask(
-                        GetAndroidPlatformJarTask(
-                            GetAndroidPlatformFileFromPackageTask(
-                                "platforms;android-$targetSdk",
-                                executeOnChangedInputs,
-                                androidSdkPath,
-                                downloadAndroidSdkTaskName
-                            )
-                        )
-                    )
+    ): TaskName {
+        val androidFragment = getAndroidFragment(module, isTest)
+        val targetSdk = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
+        val downloadAndroidSdkTaskName =
+            TaskName.fromHierarchy(listOf(module.userReadableName, "downloadSdkAndroid${isTest.testSuffix}"))
+        tasks.registerTask(
+            GetAndroidPlatformJarTask(
+                GetAndroidPlatformFileFromPackageTask(
+                    "platforms;android-$targetSdk",
+                    executeOnChangedInputs,
+                    androidSdkPath,
                     downloadAndroidSdkTaskName
-                }
-        }
-        return null
+                )
+            )
+        )
+        return downloadAndroidSdkTaskName
     }
+
+    private val Boolean.testSuffix: String
+        get() = if(this) "Test" else ""
 
     // All task binding between themselves happens here, so let's keep it private
     private enum class CommonTaskType {

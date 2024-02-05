@@ -45,7 +45,7 @@ class AndroidRunTask(
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         AndroidDebugBridge.init(true)
-        val adb = AndroidDebugBridge.getBridge() ?: AndroidDebugBridge.createBridge()
+        val adb = AndroidDebugBridge.getBridge() ?: AndroidDebugBridge.createBridge(androidSdkPath.resolve("platform-tools/adb").toString(), false)
         adb.waitForConnection()
         val androidFragment = fragments.singleOrNull() ?: error("Only one $platform fragment is expected")
 

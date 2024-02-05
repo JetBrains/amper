@@ -78,23 +78,28 @@ class KtorDownloader(private val androidSdkPath: Path) : Downloader {
     }
 }
 
+object Lock
+
 fun downloadAndExtractAndroidPlatform(
     packageName: String,
     androidSdkPath: Path = Path.of(System.getProperty("user.home") ?: error("User home must not be null"))
         .resolve(".android-sdk")
 ): Path {
-    val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
-    val consoleProgressIndicator = ConsoleProgressIndicator()
-    val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
-    val downloader = KtorDownloader(androidSdkPath)
-    val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
-    return localPackage?.location ?: run {
-        repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
-        val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
-        val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
-        installer.prepare(consoleProgressIndicator)
-        installer.complete(consoleProgressIndicator)
-        val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
-        installDir ?: error("Install dir of package $remotePackage is missing")
+    synchronized(Lock) {
+        val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
+        val consoleProgressIndicator = ConsoleProgressIndicator()
+        val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
+        val downloader = KtorDownloader(androidSdkPath)
+        val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
+        return localPackage?.location ?: run {
+            repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
+            val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
+            remotePackage?.license?.setAccepted(repoManager.localPath)
+            val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
+            installer.prepare(consoleProgressIndicator)
+            installer.complete(consoleProgressIndicator)
+            val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
+            installDir ?: error("Install dir of package $remotePackage is missing")
+        }
     }
 }

@@ -1,12 +1,11 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.downloader
 
 import com.google.common.hash.Hashing
 import io.ktor.client.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.compression.*
@@ -233,7 +232,11 @@ object Downloader {
     private val logger = LoggerFactory.getLogger(javaClass)
 }
 
-val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
+val WRITE_NEW_OPERATION: EnumSet<StandardOpenOption> = EnumSet.of(
+    StandardOpenOption.WRITE,
+    StandardOpenOption.CREATE,
+    StandardOpenOption.TRUNCATE_EXISTING,
+)
 fun CoroutineScope.writeChannel(file: Path): ByteWriteChannel {
     return reader(CoroutineName("file-writer") + Dispatchers.IO, autoFlush = true) {
         FileChannel.open(file, WRITE_NEW_OPERATION).use { fileChannel ->
