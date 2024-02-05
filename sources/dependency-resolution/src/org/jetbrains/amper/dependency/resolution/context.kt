@@ -20,7 +20,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var platform: String = "jvm"
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
-    var conflictResolutionStrategies = listOf(HighestVersionStrategy())
+    var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
 
     init {
         apply(init)
