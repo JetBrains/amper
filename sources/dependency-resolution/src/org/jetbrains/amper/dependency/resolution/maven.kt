@@ -339,13 +339,12 @@ class MavenDependency internal constructor(
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, settings)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
-                        dependencyProject.dependencyManagement?.dependencies?.dependencies ?: listOf(it)
-                    } else {
-                        listOf(it)
+                        dependencyProject.dependencyManagement?.dependencies?.dependencies?.let {
+                            return@flatMap it
+                        }
                     }
-                } else {
-                    listOf(it)
                 }
+                return@flatMap listOf(it)
             }
         val dependencies = project.dependencies
             ?.dependencies
@@ -354,10 +353,11 @@ class MavenDependency internal constructor(
                     val dependency = dependencyManagement?.find { dep ->
                         dep.groupId == it.groupId && dep.artifactId == it.artifactId
                     }
-                    dependency?.version?.let { version -> it.copy(version = version) } ?: it
-                } else {
-                    it
+                    dependency?.version
+                        ?.let { version -> it.copy(version = version) }
+                        ?.let { return@map it }
                 }
+                return@map it
             }
             ?.map { it.expandTemplates(project) }
         return project.copy(
