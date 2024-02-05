@@ -4,6 +4,15 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+/**
+ * Serves as a higher level holder for other dependency nodes.
+ * It's statically defined, thus always resolved and has NO-OP implementations of the interface methods.
+ * Its name must be unique to distinguish it from other `ModuleDependencyNode`s.
+ * 
+ * It's a responsibility of the caller to set a parent for this node if none was provided via the constructor.
+ * 
+ * @see [MavenDependencyNode]
+ */
 class ModuleDependencyNode(
     templateContext: Context,
     val name: String,
