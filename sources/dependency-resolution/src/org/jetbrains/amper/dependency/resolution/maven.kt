@@ -21,7 +21,7 @@ import kotlin.reflect.KProperty
 
 class MavenDependencyNode internal constructor(
     templateContext: Context,
-    var dependency: MavenDependency,
+    dependency: MavenDependency,
     parentNode: DependencyNode? = null,
 ) : DependencyNode {
 
@@ -36,6 +36,13 @@ class MavenDependencyNode internal constructor(
         createOrReuseDependency(templateContext, group, module, version),
         parentNode,
     )
+
+    var dependency: MavenDependency = dependency
+        set(value) {
+            assert(group == value.group) { "Groups don't match. Expected: $group, actual: ${value.group}" }
+            assert(module == value.module) { "Modules don't match. Expected: $module, actual: ${value.module}" }
+            field = value
+        }
 
     val group: String = dependency.group
     val module: String = dependency.module
