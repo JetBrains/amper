@@ -9,6 +9,12 @@ import java.nio.file.Path
 class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
+
+    val nodeCache: Cache = Cache()
+
+    fun copyWithNewNodeCache(parentNode: DependencyNode?): Context = Context(settings, resolutionCache).apply {
+        parentNode?.let { nodeCache[parentNodeKey] = it }
+    }
 }
 
 class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
@@ -74,3 +80,5 @@ data class Message(
 enum class Severity {
     INFO, WARNING, ERROR
 }
+
+val parentNodeKey: Key<DependencyNode> = Key<DependencyNode>("parentNode")

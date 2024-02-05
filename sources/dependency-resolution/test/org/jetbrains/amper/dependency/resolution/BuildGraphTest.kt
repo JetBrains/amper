@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.TestInfo
+import java.util.*
 import kotlin.io.path.extension
 import kotlin.io.path.name
 import kotlin.test.Test
@@ -603,6 +604,7 @@ class BuildGraphTest {
             this.platform = platform
             this.repositories = repositories
         })).buildGraph(ResolutionLevel.NETWORK).root
+        root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.asSequence().forEach {
                 assertTrue(
@@ -613,6 +615,15 @@ class BuildGraphTest {
         }
         assertEquals(expected, root)
         return root
+    }
+
+    private fun DependencyNode.verifyGraphConnectivity() {
+        val queue = LinkedList(listOf(this))
+        while (queue.isNotEmpty()) {
+            val node = queue.remove()
+            node.children.forEach { assertEquals(node, it.parent, "Parents don't match") }
+            queue += node.children
+        }
     }
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =

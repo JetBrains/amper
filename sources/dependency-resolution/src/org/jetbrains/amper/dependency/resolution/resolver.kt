@@ -3,6 +3,8 @@
  */
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
+import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
 
 /**
@@ -117,6 +119,7 @@ class Resolver(val root: DependencyNode) {
  */
 interface DependencyNode {
 
+    val parent: DependencyNode? get() = context.nodeCache[parentNodeKey]
     val context: Context
     val key: Key<*>
     val state: ResolutionState

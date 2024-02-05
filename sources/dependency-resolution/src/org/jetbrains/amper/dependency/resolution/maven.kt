@@ -20,19 +20,28 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class MavenDependencyNode(
-    override val context: Context,
+    templateContext: Context,
     var dependency: MavenDependency,
+    parentNode: DependencyNode? = null,
 ) : DependencyNode {
 
-    constructor(context: Context, group: String, module: String, version: String) : this(
-        context,
-        createOrReuseDependency(context, group, module, version),
+    constructor(
+        templateContext: Context,
+        group: String,
+        module: String,
+        version: String,
+        parentNode: DependencyNode? = null,
+    ) : this(
+        templateContext,
+        createOrReuseDependency(templateContext, group, module, version),
+        parentNode,
     )
 
     val group: String = dependency.group
     val module: String = dependency.module
     val version: String = dependency.version
 
+    override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
     override val key: Key<*> = Key<MavenDependency>("$group:$module")
     override val state: ResolutionState
         get() = dependency.state
@@ -40,7 +49,7 @@ class MavenDependencyNode(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
         valueProvider = { thisRef ->
-            thisRef.dependency.children.map { MavenDependencyNode(thisRef.context, it) }
+            thisRef.dependency.children.map { MavenDependencyNode(thisRef.context, it, this) }
         },
         dependencyProvider = { thisRef ->
             thisRef.dependency.children.toList()

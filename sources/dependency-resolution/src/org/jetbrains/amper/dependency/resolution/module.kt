@@ -5,11 +5,17 @@
 package org.jetbrains.amper.dependency.resolution
 
 class ModuleDependencyNode(
-    override val context: Context,
+    templateContext: Context,
     val name: String,
     override val children: List<DependencyNode>,
+    parentNode: DependencyNode? = null,
 ) : DependencyNode {
 
+    init {
+        children.forEach { it.context.nodeCache[parentNodeKey] = this }
+    }
+
+    override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
     override val key: Key<*> = Key<ModuleDependencyNode>(name)
     override val state: ResolutionState = ResolutionState.RESOLVED
     override val messages: List<Message> = listOf()
