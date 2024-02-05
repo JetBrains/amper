@@ -60,7 +60,7 @@ enum class AndroidVersion(
 class AndroidSettings : SchemaNode() {
     @SchemaDoc("Minimum API level needed to run the application. " +
             "Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var minSdk by value(AndroidVersion.VERSION_21)
+    var minSdk by value(AndroidVersion.VERSION_23)
 
     @SchemaDoc("Maximum API level on which the application can run. " +
             "Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
