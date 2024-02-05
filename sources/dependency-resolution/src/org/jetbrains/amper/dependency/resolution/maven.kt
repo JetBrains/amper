@@ -19,7 +19,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class MavenDependencyNode(
+class MavenDependencyNode internal constructor(
     templateContext: Context,
     var dependency: MavenDependency,
     parentNode: DependencyNode? = null,
