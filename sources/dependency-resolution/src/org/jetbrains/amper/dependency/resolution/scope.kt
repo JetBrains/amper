@@ -7,6 +7,10 @@ package org.jetbrains.amper.dependency.resolution
 import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 
+/**
+ * Represent an Amper dependency resolution scope.
+ * It contains rules of how it matches a Gradle usage and a Maven scope.
+ */
 enum class ResolutionScope(
     private val variantMatcher: (Variant) -> Boolean,
     private val dependencyMatcher: (Dependency) -> Boolean,
