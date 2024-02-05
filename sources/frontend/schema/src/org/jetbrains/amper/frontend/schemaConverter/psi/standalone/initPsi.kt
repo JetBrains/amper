@@ -4,28 +4,16 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.standalone
 
+import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.core.CoreProjectEnvironment
 import com.intellij.lang.LanguageASTFactory
 import com.intellij.lang.LanguageParserDefinitions
-import com.intellij.lang.PsiBuilderFactory
-import com.intellij.lang.impl.PsiBuilderFactoryImpl
-import com.intellij.mock.MockApplication
-import com.intellij.mock.MockFileDocumentManagerImpl
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.FileTypeRegistry
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.impl.CoreProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
-import com.intellij.util.messages.MessageBus
-import com.intellij.util.pico.DefaultPicoContainer
+import org.jetbrains.amper.frontend.IntelliJApplicationConfigurator
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.YAMLParserDefinition
@@ -34,81 +22,40 @@ import org.toml.lang.parse.TomlParserDefinition
 import org.toml.lang.psi.TomlFileType
 import org.toml.lang.psi.impl.TomlASTFactory
 
-fun initPsiFileFactory(rootDisposable: Disposable, project: Project) {
-  if (ApplicationManager.getApplication() != null) {
+private lateinit var ourProject: Project
+private var latestConfigurator: IntelliJApplicationConfigurator? = null
+
+fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigurator): Project {
+  if (ApplicationManager.getApplication() != null && latestConfigurator == intelliJApplicationConfigurator) {
     // Init application and factory in standalone non-IDE environment only
-    return
+    return ourProject
   }
 
-  val application = initApplication(rootDisposable)
-  val appContainer = application.picoContainer
-  appContainer.registerComponentInstance(MessageBus::class.java, application.messageBus)
-  application.registerApplicationService(FileDocumentManager::class.java,
-//    MockFileDocumentManagerImpl(null) {
-//      DocumentImpl(it, SystemInfo.isWindows, false)
-//    },
-    MockFileDocumentManagerImpl(null, ::DocumentImpl),
-    project
-  )
-  application.registerApplicationService(PsiBuilderFactory::class.java, PsiBuilderFactoryImpl(), project)
-  application.registerApplicationService(ProgressManager::class.java, CoreProgressManager(), project)
+  System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
+  val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
+  val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
+
+  appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
+
+  // Register YAML support
   LanguageParserDefinitions.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, YAMLParserDefinition())
   LanguageParserDefinitions.INSTANCE.addExplicitExtension(TomlLanguage, TomlParserDefinition())
+  appEnv.registerFileType(YAMLFileType.YML, "yaml")
+
+  // Register TOML support
   LanguageASTFactory.INSTANCE.addExplicitExtension(TomlLanguage, TomlASTFactory())
+  appEnv.registerFileType(TomlFileType, "toml")
 
-  FileTypeRegistry.setInstanceSupplier {
-    object: FileTypeRegistry() {
-      override fun isFileIgnored(p0: VirtualFile): Boolean {
-        TODO("Not yet implemented")
-      }
+  intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
+  intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
 
-      override fun getRegisteredFileTypes(): Array<FileType> {
-        return arrayOf(YAMLFileType.YML, TomlFileType)
-      }
-
-      override fun getFileTypeByFile(p0: VirtualFile): FileType {
-        if (StringUtil.equalsIgnoreCase(p0.extension, "toml")) return TomlFileType
-        return YAMLFileType.YML
-      }
-
-      override fun getFileTypeByFileName(p0: String): FileType {
-        TODO("Not yet implemented")
-      }
-
-      override fun getFileTypeByExtension(p0: String): FileType {
-        TODO("Not yet implemented")
-      }
-
-      override fun findFileTypeByName(p0: String): FileType {
-        TODO("Not yet implemented")
-      }
-    }
-  }
-}
-
-private fun <T:Any> MockApplication.registerApplicationService(aClass: Class<T>, `object`: T, project: Project) {
-  this.registerService(aClass, `object`)
-  Disposer.register(
-    project
-  ) { this.getPicoContainer().unregisterComponent(aClass.name) }
-}
-
-fun <T:Any> registerComponentInstance(container: DefaultPicoContainer, key: Class<T>?, implementation: T): T? {
-  val old = container.getComponentInstance(key!!)
-  container.unregisterComponent(key)
-  container.registerComponentInstance(key, implementation)
-  return old as T?
-}
-
-fun initApplication(rootDisposable: Disposable): MockApplication {
-  val instance = MockApplication(rootDisposable)
-  instance.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
-  ApplicationManager.setApplication(instance, rootDisposable)
-  return instance
+  latestConfigurator = intelliJApplicationConfigurator
+  return projectEnv.project.also { ourProject = it }
 }
 
 // Copy-pasted from IDEA (lack of this service causes PSI Scalar elements textValue calculation failure)
+@Suppress("UnstableApiUsage")
 private class ReadActionCacheImpl: ReadActionCache {
   private val threadProcessingContext: ThreadLocal<ProcessingContext> = ThreadLocal()
 
@@ -120,11 +67,6 @@ private class ReadActionCacheImpl: ReadActionCache {
       threadProcessingContext.set(ProcessingContext())
       return threadProcessingContext.get()
     }
-
-  fun clear() {
-    threadProcessingContext.remove()
-  }
-
 
   private var writeActionProcessingContext: ProcessingContext? = null
 

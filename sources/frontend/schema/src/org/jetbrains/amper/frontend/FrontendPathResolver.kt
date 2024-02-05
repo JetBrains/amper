@@ -5,44 +5,39 @@
 package org.jetbrains.amper.frontend
 
 import com.intellij.mock.MockApplication
+import com.intellij.mock.MockProject
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.getPsiRawModel
-import org.jetbrains.yaml.YAMLFileType
-import org.toml.lang.psi.TomlFileType
-import java.io.Reader
+import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.initMockProject
+import org.jetbrains.annotations.TestOnly
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.extension
-import kotlin.io.path.reader
 
-data class FrontendPathResolver(
-    val project: Project = DummyProject.instance,
-
-    @Deprecated("could be used directly in tests only, " +
-        "all other places should resolve file content via PsiFile, see field  path2PsiFile")
-    val path2Reader: (Path) -> Reader? = {
-        // TODO Replace default reader by something other.
-        // TODO Report non existing file.
-        if (it.exists()) it.reader() else null
-    },
-
-    val path2PsiFile: (Path) -> PsiFile? = { path ->
+class FrontendPathResolver(
+    val project: Project? = null,
+    @TestOnly
+    private val transformPsiFile: (PsiFile) -> PsiFile = { it },
+    /**
+     * Can be used to register additional extension points needed only for tests (e.g., to modify PSI).
+     */
+    @TestOnly
+    private val intelliJApplicationConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator(),
+) {
+    fun path2PsiFile(path: Path): PsiFile? {
+        val actualProject = project ?: initMockProject(intelliJApplicationConfigurator)
         val application = ApplicationManager.getApplication()
+        return application.runReadAction(Computable {
+            val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
+            vfsFile?.let { PsiManager.getInstance(actualProject).findFile(it) }?.let(transformPsiFile)
+        })
+    }
+}
 
-        if (application != null && application !is MockApplication && project != DummyProject.instance) {
-            application.runReadAction(Computable {
-                val vfsFile = VirtualFileManager.getInstance().findFileByNioPath(path)
-                vfsFile?.let { PsiManager.getInstance(project).findFile(it) }
-            })
-        } else {
-            val fileType = if (path.extension == "toml") TomlFileType else YAMLFileType.YML
-            path2Reader(path)?.let { getPsiRawModel(it, fileType) }
-        }
-    },
-)
+@TestOnly
+open class IntelliJApplicationConfigurator {
+    open fun registerApplicationExtensions(application: MockApplication) {}
+    open fun registerProjectExtensions(project: MockProject) {}
+}

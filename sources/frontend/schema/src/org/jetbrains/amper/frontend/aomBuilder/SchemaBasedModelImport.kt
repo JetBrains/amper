@@ -17,7 +17,6 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.processing.readTemplate
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.DummyProject
 import java.nio.file.Path
 
 class SchemaBasedModelImport : ModelInit {
@@ -26,7 +25,7 @@ class SchemaBasedModelImport : ModelInit {
     context(ProblemReporterContext)
     override fun getModel(root: Path, project: Project?): Result<Model> {
         val fioCtx = DefaultFioContext(root)
-        val pathResolver = FrontendPathResolver(project = project ?: DummyProject.instance)
+        val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
         // Propagate settings from fragment to fragment.

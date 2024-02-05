@@ -4,21 +4,15 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.io.File
-import java.io.StringReader
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.readText
-
 
 context(TestBase)
 fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo) =
@@ -33,21 +27,11 @@ class DiagnosticsTestRun(
     context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
-        val processPath = Path(".").absolute().normalize()
-        val testResourcesPath = processPath / base
-        val cleared = inputPath.readText().removeDiagnosticsAnnotations()
-        val readCtx = FrontendPathResolver(path2Reader = {
-            // If path is absolute - then we had read it internally within schema converter.
-            // Then we need to adjust it to the testResources directory.
-            val resolved = if (it.isAbsolute) {
-                val relative = processPath.relativize(it.absolute())
-                testResourcesPath.resolve(relative)
-            } else it.absolute()
-
-            resolved.takeIf { resolved.exists() }
-                ?.readText()?.removeDiagnosticsAnnotations()
-                ?.let { StringReader(it) }
-        })
+        val readCtx = FrontendPathResolver(
+            intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
+            transformPsiFile = PsiFile::removeDiagnosticAnnotations
+        )
+        val cleared = readCtx.path2PsiFile(inputPath)!!.text
 
         doBuild(readCtx, TestFioContext(buildDir, listOf(inputPath)) ,systemInfo)
 

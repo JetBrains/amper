@@ -4,14 +4,20 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
+import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.render
 
-fun String.removeDiagnosticsAnnotations(): String =
-    lines()
-        .filter { !it.trim().matches(DIAGNOSTIC_REGEX) }
-        .joinToString(separator = "\n")
-        .trimTrailingWhitespacesAndEmptyLines()
+fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
+    val newFile = copy() as PsiFile
+    PsiTreeUtil.findChildrenOfType(this, PsiComment::class.java)
+        .filter { it.text.matches(DIAGNOSTIC_REGEX) }
+        .map { PsiTreeUtil.findSameElementInCopy(it, newFile) }
+        .forEach { it.delete() }
+    return newFile
+}
 
 fun annotateTextWithDiagnostics(
     intoText: String,
@@ -68,7 +74,7 @@ private fun BuildProblem.renderAnnotation(sanitizeDiagnostic: (String) -> String
 private fun BuildProblem.renderWithSanitization(sanitizeDiagnostic: (String) -> String): String =
     sanitizeDiagnostic(render().replace("\n", " "))
 
-const val DIAGNOSTIC_ANNOTATION_LB = "<!"
-const val DIAGNOSTIC_ANNOTATION_RB = "!>"
-const val YAML_COMMENT_START = "#"
-val DIAGNOSTIC_REGEX = """$YAML_COMMENT_START $DIAGNOSTIC_ANNOTATION_LB[^<!>]*$DIAGNOSTIC_ANNOTATION_RB""".toRegex()
+private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
+private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
+private const val YAML_COMMENT_START = "#"
+private val DIAGNOSTIC_REGEX = """$YAML_COMMENT_START $DIAGNOSTIC_ANNOTATION_LB[^<!>]*$DIAGNOSTIC_ANNOTATION_RB""".toRegex()
