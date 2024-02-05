@@ -6,6 +6,24 @@ package org.jetbrains.amper.dependency.resolution
 
 import java.nio.file.Path
 
+/**
+ * A context holder that's passed across the nodes.
+ * It's supposed to be unique for each node as it holds its [nodeCache].
+ * As the same time, [settings] and [resolutionCache] are expected to be the same withing the resolution session.
+ * Thus, they can be copied via [copyWithNewNodeCache].
+ *
+ * The suggested way to populate the context with settings is using [SettingsBuilder].
+ *
+ * ```kotlin
+ * Context {
+ *     scope = ResolutionScope.COMPILE
+ *     platform = "jvm"
+ * }
+ * ```
+ *
+ * @see [SettingsBuilder]
+ * @see [Cache]
+ */
 class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
@@ -17,6 +35,12 @@ class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
     }
 }
 
+/**
+ * Helps to build [Settings].
+ *
+ * @see [FileCacheBuilder]
+ * @see [HighestVersionStrategy]
+ */
 class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
@@ -41,6 +65,14 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
         )
 }
 
+/**
+ * Helps to build [FileCache].
+ * When [fallbackLocalRepository] is not specified, the first location from [localRepositories] is used as a fallback.
+ *
+ * @see [SettingsBuilder]
+ * @see [GradleLocalRepository]
+ * @see [MavenLocalRepository]
+ */
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
 
     var amperCache: Path = Path.of(System.getProperty("user.home"), ".amper")
@@ -56,6 +88,13 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
     )
 }
 
+/**
+ * Intended to define a resolution session.
+ *
+ * Expected to be created using [SettingsBuilder] that provides defaults.
+ *
+ * @see [SettingsBuilder]
+ */
 data class Settings(
     val progress: Progress,
     val scope: ResolutionScope,
@@ -65,6 +104,14 @@ data class Settings(
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
 )
 
+/**
+ * Defines locations within the resolution session.
+ *
+ * Expected to be created using [FileCacheBuilder] that provides defaults.
+ *
+ * @see [FileCacheBuilder]
+ * @see [LocalRepository]
+ */
 data class FileCache(
     val amperCache: Path,
     val localRepositories: List<LocalRepository>,
