@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.aomBuilder.resolved
 import org.jetbrains.amper.frontend.schema.helper.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class PropagateTest {
@@ -162,6 +163,54 @@ class PropagateTest {
         assertEquals(AndroidVersion.VERSION_33, androidSettings.maxSdk)
         assertEquals(AndroidVersion.VERSION_33, androidSettings.compileSdk)
         assertEquals(AndroidVersion.VERSION_33, androidSettings.targetSdk)
+    }
+
+    @Test
+    fun `diamond propagation`() {
+        //     common
+        //     /    \
+        // desktop  apple
+        //     \    /
+        //    macosX64
+        val module = potatoModule("androidApp") {
+            fragment("common") {
+                dependant("desktop")
+                dependant("apple")
+                kotlin {
+                    optIns = listOf("kotlin.contracts.ExperimentalContracts")
+                }
+            }
+            fragment("apple") {
+                dependsOn("common")
+                dependant("macosX64")
+                kotlin {
+                    debug = true
+                    languageVersion = KotlinVersion.Kotlin18
+                }
+            }
+            fragment("desktop") {
+                dependsOn("common")
+                dependant("macosX64")
+                kotlin {
+                    allWarningsAsErrors = true
+                }
+            }
+            fragment("macosX64") {
+                dependsOn("apple")
+                dependsOn("desktop")
+            }
+        }
+
+        val model = ModelImpl(module)
+        val resultModel = model.resolved
+
+        val macosX64Fragment = assertSingleFragment(resultModel, "macosX64")
+        val kotlinSettings = macosX64Fragment.settings.kotlin
+
+        assertEquals(listOf("kotlin.contracts.ExperimentalContracts"), kotlinSettings.optIns, "should inherit from 'common' ancestor")
+        assertTrue(kotlinSettings.debug, "should inherit 'debug' from 'apple' parent")
+        assertEquals(KotlinVersion.Kotlin18, kotlinSettings.languageVersion, "should inherit 'languageVersion' from 'apple' parent")
+        assertTrue(kotlinSettings.allWarningsAsErrors, "should inherit from 'desktop' parent")
     }
 
     private fun assertSingleFragment(resultModel: Model, fragmentName: String): Fragment {
