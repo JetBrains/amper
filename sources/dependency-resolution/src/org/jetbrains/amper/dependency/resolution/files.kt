@@ -353,45 +353,47 @@ open class DependencyFile(
         }
 
     private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
-        try {
-            val url = repository +
-                    "/${dependency.group.replace('.', '/')}" +
-                    "/${dependency.module}" +
-                    "/${dependency.version}" +
-                    "/${getNamePart(repository, nameWithoutExtension, extension, progress)}"
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 5000
-            connection.readTimeout = 5000
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                val contentLength = connection.contentLength
-                val size = Channels.newChannel(BufferedInputStream(connection.inputStream)).use { channel ->
-                    channel.readTo(writers)
-                }
-                if (contentLength != -1 && size != contentLength) {
-                    dependency.messages += Message(
-                        "Content length doesn't match for $repository",
-                        "Expected: $contentLength, actual: $size",
-                        Severity.ERROR
+        var exception: Exception? = null
+        repeat(3) {
+            try {
+                val url = repository +
+                        "/${dependency.group.replace('.', '/')}" +
+                        "/${dependency.module}" +
+                        "/${dependency.version}" +
+                        "/${getNamePart(repository, nameWithoutExtension, extension, progress)}"
+                val connection = URL(url).openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                when (val responseCode = connection.responseCode) {
+                    HttpURLConnection.HTTP_OK -> {
+                        val contentLength = connection.contentLength
+                        val size = Channels.newChannel(BufferedInputStream(connection.inputStream)).use { channel ->
+                            channel.readTo(writers)
+                        }
+                        if (contentLength != -1 && size != contentLength) {
+                            throw IOException(
+                                "Content length doesn't match for $repository. Expected: $contentLength, actual: $size"
+                            )
+                        }
+                        return true
+                    }
+
+                    HttpURLConnection.HTTP_NOT_FOUND -> return false
+                    else -> throw IOException(
+                        "Unexpected response code for $repository. " +
+                                "Expected: ${HttpURLConnection.HTTP_OK}, actual: $responseCode"
                     )
-                    return false
                 }
-                return true
-            } else if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
-                dependency.messages += Message(
-                    "Unexpected response code for $repository",
-                    "Expected: ${HttpURLConnection.HTTP_OK}, actual: $responseCode",
-                    Severity.WARNING,
-                )
+            } catch (e: Exception) {
+                exception = e
             }
-        } catch (e: Exception) {
-            dependency.messages += Message(
-                "Unable to reach $repository",
-                e.toString(),
-                Severity.ERROR,
-            )
         }
+        dependency.messages += Message(
+            "Unable to reach $repository",
+            exception.toString(),
+            Severity.ERROR,
+        )
         return false
     }
 
