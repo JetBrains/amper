@@ -28,12 +28,45 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
+/**
+ * Provides mapping between [MavenDependency] and a location on disk.
+ * It's used to either fetch an existing file or download a new one.
+ *
+ * @see GradleLocalRepository
+ * @see MavenLocalRepository
+ */
 interface LocalRepository {
+
+    /**
+     * Returns a path for a dependency if it can be determined from the information at hand
+     * or `null` otherwise.
+     *
+     * As Gradle uses a SHA1 hash as a part of a path which might not be available without a file content,
+     * this method allows returning `null`.
+     */
     fun guessPath(dependency: MavenDependency, name: String): Path?
+
+    /**
+     * Returns a path to a temp file for a particular dependency.
+     *
+     * The file is downloaded to a temp location to be later moved to a permanent one provided by [getPath].
+     * Both paths should preferably be on the same files to allow atomic move.
+     */
     fun getTempPath(dependency: MavenDependency, name: String): Path
+
+    /**
+     * Returns a path to a file on disk.
+     * It can't return `null` as all necessary information must be available at a call site.
+     *
+     * A SHA1 hash is used by Gradle as a part of a path.
+     */
     fun getPath(dependency: MavenDependency, name: String, sha1: String): Path
 }
 
+/**
+ * Defines a `.gradle` directory structure.
+ * It accepts a path to the `files-2.1` directory or defaults to `~/.gradle/caches/modules-2/files-2.1`.
+ */
 class GradleLocalRepository(private val files: Path) : LocalRepository {
 
     constructor() : this(getRootFromUserHome())
@@ -70,6 +103,10 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
         files.resolve("${dependency.group}/${dependency.module}/${dependency.version}")
 }
 
+/**
+ * Defines an `.m2` directory structure.
+ * It accepts a path to the `repository` directory or defaults to `~/.m2/repository`.
+ */
 class MavenLocalRepository(private val repository: Path) : LocalRepository {
 
     constructor() : this(getRootFromUserHome())
