@@ -386,15 +386,16 @@ open class DependencyFile(
         }
 
     private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
+        val name = getNamePart(repository, nameWithoutExtension, extension, progress)
+        val url = repository +
+                "/${dependency.group.replace('.', '/')}" +
+                "/${dependency.module}" +
+                "/${dependency.version}" +
+                "/$name"
+
         var exception: Exception? = null
         repeat(3) {
             try {
-                val name = getNamePart(repository, nameWithoutExtension, extension, progress)
-                val url = repository +
-                        "/${dependency.group.replace('.', '/')}" +
-                        "/${dependency.module}" +
-                        "/${dependency.version}" +
-                        "/$name"
                 val connection = URL(url).openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 5000
@@ -408,7 +409,7 @@ open class DependencyFile(
                         }
                         if (expectedSize != null && size != expectedSize) {
                             throw IOException(
-                                "Content length doesn't match for $repository. Expected: $expectedSize, actual: $size"
+                                "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
                             )
                         }
                         return true
@@ -416,7 +417,7 @@ open class DependencyFile(
 
                     HttpURLConnection.HTTP_NOT_FOUND -> return false
                     else -> throw IOException(
-                        "Unexpected response code for $repository. " +
+                        "Unexpected response code for $url. " +
                                 "Expected: ${HttpURLConnection.HTTP_OK}, actual: $responseCode"
                     )
                 }
@@ -425,7 +426,7 @@ open class DependencyFile(
             }
         }
         dependency.messages += Message(
-            "Unable to reach $repository",
+            "Unable to reach $url",
             exception.toString(),
             Severity.ERROR,
         )
