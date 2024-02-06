@@ -4,232 +4,736 @@ Fragments:
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   androidTest
     External dependencies:
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
       android (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   common
     External dependencies:
       MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   commonTest
     External dependencies:
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   ios
     External dependencies:
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosArm64
     External dependencies:
     Src folder: src@iosArm64
     Fragment dependencies:
       ios (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosArm64Test
     External dependencies:
     Src folder: test@iosArm64
     Fragment dependencies:
       iosTest (REFINE)
       iosArm64 (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosSimulator
     External dependencies:
     Src folder: src@iosSimulator
     Fragment dependencies:
       ios (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosSimulatorArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9, compile=true, runtime=true, exported=false)
     Src folder: src@iosSimulatorArm64
     Fragment dependencies:
       iosSimulator (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosSimulatorArm64Test
     External dependencies:
     Src folder: test@iosSimulatorArm64
     Fragment dependencies:
       iosSimulatorTest (REFINE)
       iosSimulatorArm64 (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosSimulatorTest
     External dependencies:
     Src folder: test@iosSimulator
     Fragment dependencies:
       iosTest (REFINE)
       iosSimulator (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosTest
     External dependencies:
     Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
       ios (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosX64
     External dependencies:
     Src folder: src@iosX64
     Fragment dependencies:
       iosSimulator (REFINE)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
   iosX64Test
     External dependencies:
     Src folder: test@iosX64
     Fragment dependencies:
       iosSimulatorTest (REFINE)
       iosX64 (FRIEND)
-    Parts:
-      KotlinPart(languageVersion=1.9, apiVersion=1.9, allWarningsAsErrors=false, freeCompilerArgs=[], suppressWarnings=false, verbose=false, linkerOpts=[], debug=false, progressiveMode=false, languageFeatures=[], optIns=[], serialization=null)
-      AndroidPart(compileSdk=android-34, minSdk=21, maxSdk=34, targetSdk=34, applicationId=org.example.namespace, namespace=org.example.namespace)
-      IosPart(teamId=null)
-      JavaPart(source=null)
-      JvmPart(mainClass=null, target=17)
-      JUnitPart(version=JUNIT4)
-      PublicationPart(group=null, version=null)
-      NativeApplicationPart(entryPoint=null, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)
-      ComposePart(enabled=false)
-      KoverPart(enabled=null, html=null, xml=null)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      java: <default> {
+        source: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        target: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+    
 Artifacts:
   isTest: false
   [ANDROID]

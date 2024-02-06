@@ -217,7 +217,7 @@ abstract class SchemaValuesVisitor {
     }
 
     open fun visitNode(it: SchemaNode) {
-        it.allValues.forEach { visit(it) }
+        it.allValues.sortedBy { it.property.name }.forEach { visit(it) }
     }
 
     open fun visitValue(it: ValueBase<*>) {

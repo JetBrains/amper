@@ -46,7 +46,7 @@ open class BuildAomTestRun(
         }
 
         // Return module's textual representation.
-        return module?.prettyPrint() ?: error("Could not read and parse")
+        return module?.prettyPrintForGoldFile() ?: error("Could not read and parse")
     }
 
     context(TestBase, TestProblemReporterContext)

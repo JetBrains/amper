@@ -11,16 +11,10 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFioContext
 import org.jetbrains.amper.frontend.aomBuilder.DumbGradleModule
 import org.jetbrains.amper.frontend.aomBuilder.FioContext
 import org.jetbrains.amper.frontend.old.helper.TestBase
-import org.jetbrains.amper.frontend.schema.KoverSettings
-import org.jetbrains.amper.frontend.schema.NativeSettings
-import org.jetbrains.amper.frontend.schema.PublishingSettings
-import org.jetbrains.amper.frontend.schema.Settings
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -31,7 +25,6 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
 
@@ -40,83 +33,6 @@ class TestProblemReporter : CollectingProblemReporter() {
 
 class TestProblemReporterContext : ProblemReporterContext {
     override val problemReporter: TestProblemReporter = TestProblemReporter()
-}
-
-internal fun PotatoModule.prettyPrint(): String {
-    return buildString {
-        appendLine("Fragments:")
-        for (fragment in fragments.sortedBy { it.name }) {
-            appendLine("  ${fragment.name}")
-            appendLine("    External dependencies:")
-            for (dependency in fragment.externalDependencies.sortedBy { it.toString() }) {
-                appendLine("      $dependency")
-            }
-            appendLine("    Src folder: ${fragment.src.fileName}")
-            appendLine("    Fragment dependencies:")
-            for (dependency in fragment.fragmentDependencies) {
-                appendLine("      ${dependency.target.name} (${dependency.type})")
-            }
-            appendLine("    Parts:")
-            appendLine(fragment.settings.toLegacyPartsString().trim().prependIndent("      "))
-        }
-        appendLine("Artifacts:")
-        for (artifact in artifacts.sortedBy { it.name }) {
-            appendLine("  isTest: ${artifact.isTest}")
-            appendLine("  ${artifact.platforms}")
-            appendLine("    Fragments:")
-            for (fragment in artifact.fragments) {
-                appendLine("      ${fragment.name}")
-            }
-        }
-
-        val repositories = parts[RepositoriesModulePart::class.java]?.mavenRepositories
-        if (!repositories.isNullOrEmpty()) {
-            appendLine("Repositories:")
-            repositories.forEach {
-                appendLine("  - id: ${it.id}")
-                appendLine("    url: ${it.url}")
-                appendLine("    publish: ${it.publish}")
-                appendLine("    username: ${it.userName}")
-                appendLine("    password: ${it.password}")
-            }
-        }
-    }
-}
-
-// TODO Use a visitor to generate the real settings tree instead
-private fun Settings.toLegacyPartsString() = buildString {
-    with(kotlin) {
-        appendLine("KotlinPart(languageVersion=$languageVersion, apiVersion=$apiVersion, allWarningsAsErrors=$allWarningsAsErrors, freeCompilerArgs=${freeCompilerArgs ?: emptyList()}, suppressWarnings=$suppressWarnings, verbose=$verbose, linkerOpts=${linkerOpts ?: emptyList()}, debug=$debug, progressiveMode=$progressiveMode, languageFeatures=${languageFeatures ?: emptyList()}, optIns=${optIns ?: emptyList()}, serialization=${serialization?.format})")
-    }
-    with(android) {
-        appendLine("AndroidPart(compileSdk=android-${compileSdk.schemaValue}, minSdk=${minSdk.schemaValue}, maxSdk=${maxSdk.schemaValue}, targetSdk=${targetSdk.schemaValue}, applicationId=$applicationId, namespace=$namespace)")
-    }
-    with(ios) {
-        appendLine("IosPart(teamId=$teamId)")
-    }
-    with(java) {
-        appendLine("JavaPart(source=${source?.schemaValue})")
-    }
-    with(jvm) {
-        appendLine("JvmPart(mainClass=$mainClass, target=${target.schemaValue})")
-    }
-    with(junit) {
-        appendLine("JUnitPart(version=$this)")
-    }
-    with(publishing ?: PublishingSettings()) {
-        appendLine("PublicationPart(group=$group, version=$version)")
-    }
-    with(native ?: NativeSettings()) {
-        appendLine("NativeApplicationPart(entryPoint=$entryPoint, baseName=null, debuggable=null, optimized=null, binaryOptions={}, declaredFrameworkBasename=kotlin, frameworkParams=null)")
-    }
-    with(compose) {
-        appendLine("ComposePart(enabled=$enabled)")
-    }
-    with(kover ?: KoverSettings()) {
-        val htmlString = html?.run { "KoverHtmlPart(title=$title, charset=$charset, onCheck=$onCheck, reportDir=$reportDir)" }
-        val xmlString = xml?.run { "KoverXmlPart(onCheck=$onCheck, reportFile=$reportFile)" }
-        appendLine("KoverPart(enabled=${if (enabled) true else null}, html=$htmlString, xml=$xmlString)")
-    }
 }
 
 context(TestBase)
