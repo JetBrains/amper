@@ -24,6 +24,7 @@ Fragments:
       MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling-preview:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.ui:ui-tooling:1.5.10, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.ui:ui:1.5.10, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -75,6 +76,8 @@ Fragments:
     
   androidTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       android (FRIEND)

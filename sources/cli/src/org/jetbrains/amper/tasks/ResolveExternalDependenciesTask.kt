@@ -48,12 +48,7 @@ class ResolveExternalDependenciesTask(
             .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
             .filter { it.compile }
-            .map { it.coordinates } +
-                // TODO implicit dependencies on kotlin-stdlib ofc should be handled better
-                listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
-                )
+            .map { it.coordinates }
 
         val exportedDependencies = fragmentsCompileModuleDependencies
             .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }

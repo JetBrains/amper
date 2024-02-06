@@ -80,11 +80,12 @@ class SerializationSettings : SchemaNode() {
     var format by value("json")
 }
 
+const val serializationFormatNone = "none"
 const val serializationSettingsShortForm = """
   {
     "enum": [
       "json",
-      "none"
+      "$serializationFormatNone"
     ]
   }
 """

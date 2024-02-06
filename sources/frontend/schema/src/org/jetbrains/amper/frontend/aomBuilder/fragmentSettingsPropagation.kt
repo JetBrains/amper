@@ -15,45 +15,12 @@ import org.jetbrains.amper.frontend.schema.Settings
 internal fun List<Fragment>.withPropagatedSettings(): List<Fragment> = map { it.withMergedSettingsFromAncestors() }
 
 private fun Fragment.withMergedSettingsFromAncestors(): Fragment {
-    val ancestralPath = ancestralPath().reversed()
+    // we reverse because we want to apply the furthest settings first (e.g. common) and the specific ones later
+    val ancestralPath = ancestralPath().toList().reversed()
     // the merge operation mutates the receiver, so we need to start from a new Settings() instance,
     // otherwise we'll modify the original fragment settings and this may affect other resolutions
     val mergedSettings = ancestralPath.map { it.settings }.fold(Settings(), Settings::merge)
     return createResolvedAdapter(mergedSettings)
-}
-
-/**
- * Returns the path from this [Fragment] to its farthest ancestor (more general parents).
- *
- * Closer parents appear first, even when they're on different paths:
- * ```
- *      common
- *      /    \
- *  desktop  apple
- *      \    /
- *     macosX64
- * ```
- *
- * Yields: `[macosX64, desktop, apple, common]`
- */
-private fun Fragment.ancestralPath(): List<Fragment> {
-    val seenAncestorNames = mutableSetOf<String>()
-    val sortedAncestors = mutableListOf<Fragment>()
-
-    val queue = ArrayDeque<Fragment>()
-    queue.add(this)
-    while(queue.isNotEmpty()) {
-        val fragment = queue.removeFirst()
-        sortedAncestors.add(fragment)
-        fragment.fragmentDependencies.forEach { link ->
-            val parent = link.target
-            if (parent.name !in seenAncestorNames) {
-                queue.add(parent)
-                seenAncestorNames.add(parent.name)
-            }
-        }
-    }
-    return sortedAncestors
 }
 
 private fun Fragment.createResolvedAdapter(mergedSettings: Settings) = when (this@createResolvedAdapter) {

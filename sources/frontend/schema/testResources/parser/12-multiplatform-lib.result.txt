@@ -1,6 +1,7 @@
 Fragments:
   android
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -53,6 +54,8 @@ Fragments:
     
   androidTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -106,6 +109,7 @@ Fragments:
     
   common
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -157,6 +161,9 @@ Fragments:
     
   commonTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -209,6 +216,7 @@ Fragments:
     
   ios
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
@@ -261,6 +269,9 @@ Fragments:
     
   iosTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
@@ -314,6 +325,7 @@ Fragments:
     
   js
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
       common (REFINE)
@@ -366,6 +378,9 @@ Fragments:
     
   jsTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
       commonTest (REFINE)
@@ -419,6 +434,7 @@ Fragments:
     
   jvm
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -471,6 +487,8 @@ Fragments:
     
   jvmTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
