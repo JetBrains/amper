@@ -9,7 +9,9 @@ dependencies:
   - ../frontend/schema
   - ../core
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
-  - com.jetbrains.intellij.platform:core:232.10203.20
+
+test-dependencies:
+  - org.yaml:snakeyaml:2.2
 
 #test-dependencies:
 #  - ../frontend/schema

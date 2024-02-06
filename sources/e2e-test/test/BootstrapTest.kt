@@ -7,18 +7,16 @@ import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.schema.noModifiers
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.yaml.snakeyaml.Yaml
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.Path
+import kotlin.io.path.inputStream
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
@@ -28,21 +26,16 @@ class BootstrapTest {
     @TempDir
     lateinit var projectPath: Path
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun `amper could build itself using version from sources`() {
         // given
         val commonTemplatePath = TestUtil.amperSourcesRoot.resolve("common.module-template.yaml")
-        val reportingContext = TestProblemReporterContext()
-        val pathResolver = FrontendPathResolver()
-        val baseFile = pathResolver.loadVirtualFile(commonTemplatePath.parent)
-        val commonTemplateFile = pathResolver.loadVirtualFile(commonTemplatePath)
-        val context = ConvertCtx(baseFile, pathResolver)
-        val template = with(reportingContext) {
-            with(context) {
-                convertTemplate(commonTemplateFile)!!
-            }
-        }
-        val version = template.settings[noModifiers]?.publishing?.version
+
+        val commonTemplate = commonTemplatePath.inputStream().use { Yaml().load<Map<String, Any>>(it) }
+        val yamlSettings = commonTemplate.getValue("settings") as Map<String, Any>
+        val yamlPublishing = yamlSettings.getValue("publishing") as Map<String, String>
+        val version = yamlPublishing.getValue("version")
 
         val core = TestUtil.amperSourcesRoot.resolve("core/build/libs/core-jvm-$version.jar")
         val gradleIntegration = TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")

@@ -47,6 +47,11 @@ interface ModelInit {
         }
 
         context(ProblemReporterContext)
+        fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
+            return loadModelInitService(loader).flatMap { it.getModel(root, project = null) }
+        }
+
+        context(ProblemReporterContext)
         fun getModel(root: Path, project: Project? = null, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
             return loadModelInitService(loader).flatMap { it.getModel(root, project) }
         }
