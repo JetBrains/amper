@@ -1,9 +1,10 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.processing
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.ModelInit
@@ -14,20 +15,22 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
-import java.nio.file.Path
 
 
 context(ProblemReporterContext, FrontendPathResolver)
-fun readTemplate(fioCtx: FioContext, path: Path): ModelInit.TemplateHolder? = with(ConvertCtx(path.parent, this@FrontendPathResolver)) {
-    val nonProcessed = convertTemplate(path) ?: return@with null
-    val chosenCatalog = tryGetCatalogFor(fioCtx, path, nonProcessed)
+fun readTemplate(fioCtx: FioContext, file: VirtualFile): ModelInit.TemplateHolder? =
+    with(ConvertCtx(file.parent, this@FrontendPathResolver)) {
+        val nonProcessed = convertTemplate(file) ?: return@with null
+        val chosenCatalog = tryGetCatalogFor(fioCtx, file, nonProcessed)
     val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
     ModelInit.TemplateHolder(processed, chosenCatalog)
 }
 
 context(ProblemReporterContext, FrontendPathResolver)
 fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
-    val readTemplates = apply?.mapNotNull { readTemplate(fioCtx, it)?.template } ?: emptyList()
+    val readTemplates = apply
+        ?.mapNotNull { loadVirtualFileOrNull(it) }
+        ?.mapNotNull { readTemplate(fioCtx, it)?.template } ?: emptyList()
     val toMerge = readTemplates + this
 
     val merged = toMerge.reduce { first, second -> first.merge(second, ::Template) }

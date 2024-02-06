@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
-
 
 context(TestBase)
 fun aomTest(
@@ -34,7 +33,9 @@ open class BuildAomTestRun(
         )
 
         // Read module.
-        val fioCtx = TestFioContext(buildDir, listOf(inputPath))
+        val buildDirFile = readCtx.loadVirtualFile(buildDir)
+        val inputFile = readCtx.loadVirtualFile(inputPath)
+        val fioCtx = TestFioContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
         val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
 

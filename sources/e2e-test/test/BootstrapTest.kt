@@ -33,10 +33,13 @@ class BootstrapTest {
         // given
         val commonTemplatePath = TestUtil.amperSourcesRoot.resolve("common.module-template.yaml")
         val reportingContext = TestProblemReporterContext()
-        val context = ConvertCtx(commonTemplatePath.parent, FrontendPathResolver())
+        val pathResolver = FrontendPathResolver()
+        val baseFile = pathResolver.loadVirtualFile(commonTemplatePath.parent)
+        val commonTemplateFile = pathResolver.loadVirtualFile(commonTemplatePath)
+        val context = ConvertCtx(baseFile, pathResolver)
         val template = with(reportingContext) {
             with(context) {
-                convertTemplate(commonTemplatePath)!!
+                convertTemplate(commonTemplateFile)!!
             }
         }
         val version = template.settings[noModifiers]?.publishing?.version
@@ -70,6 +73,7 @@ buildscript {
         classpath("com.jetbrains.intellij.platform:core:232.10203.20")
         classpath("com.jetbrains.intellij.platform:core-impl:232.10203.20")
         classpath("com.jetbrains.intellij.platform:core-ui:232.10203.20")
+        classpath("com.jetbrains.intellij.platform:ide-core:232.10203.20")
         classpath("com.jetbrains.intellij.platform:util:232.10203.20")
         classpath("com.jetbrains.intellij.platform:util-base:232.10203.20")
         classpath("com.jetbrains.intellij.platform:util-ui:232.10203.20")

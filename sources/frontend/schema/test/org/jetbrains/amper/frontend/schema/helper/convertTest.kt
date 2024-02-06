@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -27,13 +27,15 @@ class ConvertTestRun(
     override fun getInputContent(inputPath: Path): String {
         val module = with(ctx) {
             val pathResolver = FrontendPathResolver()
-            with(ConvertCtx(inputPath.parent, pathResolver)) {
-                convertModule(inputPath)!!
+            val inputParentFile = pathResolver.loadVirtualFile(inputPath.parent)
+            val inputFile = pathResolver.loadVirtualFile(inputPath)
+            with(ConvertCtx(inputParentFile, pathResolver)) {
+                convertModule(inputFile)!!
             }
         }
         TestTraceValidationVisitor().visit(module)
         expectedModule?.accept(EqualsVisitor(module))
-        return ctx.problemReporter.getErrors().map { it.message }.joinToString()
+        return ctx.problemReporter.getErrors().joinToString { it.message }
     }
 
     context(TestBase, TestProblemReporterContext)

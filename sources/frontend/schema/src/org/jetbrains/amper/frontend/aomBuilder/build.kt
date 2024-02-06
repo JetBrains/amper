@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -94,8 +95,8 @@ internal fun doBuild(
  * Try to find gradle catalog and compose it with built-in catalog.
  */
 context(ProblemReporterContext, FrontendPathResolver)
-fun tryGetCatalogFor(fioCtx: FioContext, path: Path, nonProcessed: Base): VersionCatalog {
-    val gradleCatalog = fioCtx.getCatalogPathFor(path)
+fun tryGetCatalogFor(fioCtx: FioContext, file: VirtualFile, nonProcessed: Base): VersionCatalog {
+    val gradleCatalog = fioCtx.getCatalogPathFor(file)
         ?.let { parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
     return compositeCatalog
@@ -117,7 +118,7 @@ fun addBuiltInCatalog(
 }
 
 private data class ModuleTriple(
-    val buildFile: Path,
+    val buildFile: VirtualFile,
     val schemaModule: Module,
     val module: DefaultModule,
 )
@@ -126,8 +127,8 @@ private data class ModuleTriple(
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-internal fun Map<Path, ModuleHolder>.buildAom(
-    gradleModules: Map<Path, PotatoModule>,
+internal fun Map<VirtualFile, ModuleHolder>.buildAom(
+    gradleModules: Map<VirtualFile, PotatoModule>,
 ): List<PotatoModule> {
     val modules = map { (mPath, holder) ->
         // TODO Remove duplicating enums.
@@ -138,19 +139,21 @@ internal fun Map<Path, ModuleHolder>.buildAom(
             module = DefaultModule(
                 mPath.parent.name,
                 convertedType,
-                PotatoModuleFileSource(mPath),
+                PotatoModuleFileSource(mPath.toPath()),
                 holder.module,
                 holder.chosenCatalog,
             )
         )
     }
 
-    val moduleDir2module = modules
-        .associate { (path, _, module) -> path.parent to module } + gradleModules
+    val moduleDir2module = (modules
+        .associate { (path, _, module) -> path.parent to module } + gradleModules)
+        .mapKeys { (k, _) -> k.toPath() }
 
     modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
+        val moduleFragments =
+            createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {

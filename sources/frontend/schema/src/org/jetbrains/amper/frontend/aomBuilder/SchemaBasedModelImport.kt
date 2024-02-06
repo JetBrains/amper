@@ -24,8 +24,8 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModel(root: Path, project: Project?): Result<Model> {
-        val fioCtx = DefaultFioContext(root)
         val pathResolver = FrontendPathResolver(project = project)
+        val fioCtx = DefaultFioContext(pathResolver.loadVirtualFile(root))
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
         // Propagate settings from fragment to fragment.
@@ -37,7 +37,7 @@ class SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     override fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
-        val fioCtx = ModuleFioContext(modulePsiFile.virtualFile.toNioPath(), project)
+        val fioCtx = ModuleFioContext(modulePsiFile.virtualFile, project)
         val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
@@ -51,7 +51,7 @@ class SchemaBasedModelImport : ModelInit {
         templatePsiFile: PsiFile,
         project: Project
     ): ModelInit.TemplateHolder? {
-        val templatePath = templatePsiFile.virtualFile.toNioPath()
+        val templatePath = templatePsiFile.virtualFile
         val fioCtx = ModuleFioContext(templatePath, project)
         return with(FrontendPathResolver(project = project)) {
             readTemplate(fioCtx, templatePath)

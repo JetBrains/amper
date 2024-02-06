@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.util
 
+import org.jetbrains.amper.frontend.aomBuilder.toPath
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Modifiers
@@ -34,7 +35,7 @@ fun String.asAbsolutePath(): Path =
   this
     .replace("/", File.separator)
     .let {
-      basePath
+      baseFile.toPath()
         .resolve(it)
         .absolute()
         .normalize()

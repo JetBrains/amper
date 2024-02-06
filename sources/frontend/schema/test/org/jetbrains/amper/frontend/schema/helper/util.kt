@@ -4,11 +4,13 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.aomBuilder.DefaultFioContext
@@ -151,11 +153,12 @@ class TestSystemInfo(
 }
 
 open class TestFioContext(
-    override val root: Path,
-    override val amperModuleFiles: List<Path>,
+    override val root: VirtualFile,
+    override val amperModuleFiles: List<VirtualFile>,
+    val frontendPathResolver: FrontendPathResolver,
 ) : FioContext by DefaultFioContext(root) {
     override val ignorePaths: MutableList<Path> = mutableListOf()
-    override val gradleModules: MutableMap<Path, DumbGradleModule> = mutableMapOf()
-    val path2catalog: MutableMap<Path, Path> = mutableMapOf()
-    override fun getCatalogPathFor(file: Path) = path2catalog[file]
+    override val gradleModules: Map<VirtualFile, DumbGradleModule> = mutableMapOf()
+    val path2catalog: MutableMap<VirtualFile, VirtualFile> = mutableMapOf()
+    override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = path2catalog[file]
 }

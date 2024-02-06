@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
@@ -14,12 +15,11 @@ import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mapStartAware
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
-import java.nio.file.Path
 
 
 class DefaultLeafFragment(
-    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?, modulePath: Path,
-) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings, modulePath), LeafFragment {
+    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?, moduleFile: VirtualFile,
+) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings, moduleFile), LeafFragment {
     init {
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
@@ -32,7 +32,7 @@ open class DefaultFragment(
     final override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
     relevantSettings: Settings?,
-    modulePath: Path,
+    moduleFile: VirtualFile,
 ) : Fragment {
 
     private val isCommon = seed.modifiersAsStrings == setOf(Platform.COMMON.pretty)
@@ -68,7 +68,7 @@ open class DefaultFragment(
         val srcPathString =
             if (srcOnlyOwner) srcStringPrefix
             else "$srcStringPrefix$modifier"
-        modulePath.parent.resolve(srcPathString)
+        moduleFile.parent.toPath().resolve(srcPathString)
     }
 
     override val resourcesPath by lazy {
@@ -76,13 +76,13 @@ open class DefaultFragment(
         val resourcesPathString =
             if (srcOnlyOwner) resourcesStringPrefix
             else "$resourcesStringPrefix$modifier"
-        modulePath.parent.resolve(resourcesPathString)
+        moduleFile.parent.toPath().resolve(resourcesPathString)
     }
 }
 
 fun createFragments(
     seeds: Collection<FragmentSeed>,
-    modulePath: Path,
+    moduleFile: VirtualFile,
     resolveDependency: (Dependency) -> Notation?,
 ): List<DefaultFragment> {
     data class FragmentBundle(
@@ -96,14 +96,14 @@ fun createFragments(
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings,
-            modulePath
+            moduleFile
         )
         else DefaultFragment(
             this,
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings,
-            modulePath
+            moduleFile
         )
 
     // Create fragments.

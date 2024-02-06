@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.Fragment
@@ -58,10 +59,10 @@ class DefaultArtifact(
     override val platforms = fragments.flatMap { it.platforms }.toSet()
 }
 
-class DumbGradleModule(file: Path) : PotatoModule {
-    override val userReadableName = file.parent.fileName.toString()
+class DumbGradleModule(file: VirtualFile) : PotatoModule {
+    override val userReadableName = file.parent.name
     override val type = ProductType.LIB
-    override val source = PotatoModuleFileSource(file)
+    override val source = PotatoModuleFileSource(file.toPath())
     override val origin = Module()
     override val fragments = listOf<Fragment>()
     override val artifacts = listOf<Artifact>()

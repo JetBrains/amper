@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
@@ -45,23 +46,22 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
-import java.nio.file.Path
 
 // TODO Rethink.
 data class ConvertCtx(
-    val basePath: Path,
+    val baseFile: VirtualFile,
     val pathResolver: FrontendPathResolver
 )
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertModule(path: Path): Module? {
-    val psiFile = pathResolver.path2PsiFile(path)
+fun convertModule(file: VirtualFile): Module? {
+    val psiFile = pathResolver.toPsiFile(file)
     return psiFile?.let { convertModulePsi(it) }
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertTemplate(path: Path) =
-    pathResolver.path2PsiFile(path)?.let { convertTemplatePsi(it) }
+fun convertTemplate(file: VirtualFile) =
+    pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 fun convertModulePsi(file: PsiFile): Module? {

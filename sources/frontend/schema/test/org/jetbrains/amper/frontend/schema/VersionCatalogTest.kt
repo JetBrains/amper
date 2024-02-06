@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -27,7 +27,7 @@ internal class VersionCatalogTest : TestBase(Path("testResources") / "catalogs")
     fun `check simple gradle catalog`() {
         aomTest("simple-gradle-version-catalog") {
             path2catalog[amperModuleFiles.first()] =
-                baseTestResourcesPath / "simple-gradle-version-catalog.toml"
+                frontendPathResolver.loadVirtualFile(baseTestResourcesPath / "simple-gradle-version-catalog.toml")
         }
     }
 }

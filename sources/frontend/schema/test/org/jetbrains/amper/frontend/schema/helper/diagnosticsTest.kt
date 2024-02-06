@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -31,9 +31,11 @@ class DiagnosticsTestRun(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             transformPsiFile = PsiFile::removeDiagnosticAnnotations
         )
-        val cleared = readCtx.path2PsiFile(inputPath)!!.text
+        val buildDirFile = readCtx.loadVirtualFile(buildDir)
+        val inputFile = readCtx.loadVirtualFile(inputPath)
+        val cleared = readCtx.toPsiFile(inputFile)!!.text
 
-        doBuild(readCtx, TestFioContext(buildDir, listOf(inputPath)) ,systemInfo)
+        doBuild(readCtx, TestFioContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
 
         // Collect errors.
         val errors = problemReporter.getErrors()

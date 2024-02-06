@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.processing
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -64,9 +65,9 @@ private class TomlCatalog(
  */
 context(ProblemReporterContext, FrontendPathResolver)
 fun parseGradleVersionCatalog(
-    catalogPath: Path
+    catalogFile: VirtualFile
 ): VersionCatalog? {
-    val psiFile = path2PsiFile(catalogPath) as? TomlFile ?: return null
+    val psiFile = toPsiFile(catalogFile) as? TomlFile ?: return null
     val libraries = psiFile.parseCatalogLibraries() ?: return null
     return TomlCatalog(libraries)
 }
