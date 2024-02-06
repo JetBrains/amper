@@ -52,6 +52,8 @@ private class TomlCatalog(
                 .apply { trace = definition.element }
         }.toMap()
 
+    override val isPhysical: Boolean = true
+
     context(ProblemReporterContext) override fun findInCatalog(
         key: TraceableString,
         report: Boolean

@@ -51,6 +51,8 @@ fun <T: Base> T.replaceCatalogDependencies(
 open class PredefinedCatalog(
     override val entries: Map<String, TraceableString>
 ) : VersionCatalog {
+    override val isPhysical: Boolean = false
+
     constructor(builder: MutableMap<String, String>.() -> Unit) :
             this(buildMap(builder).map { it.key to TraceableString(it.value) }.toMap())
 
@@ -73,6 +75,9 @@ class CompositeVersionCatalog(
         // First catalogs have the highest priority.
         catalogs.reversed().forEach { putAll(it.entries) }
     }
+
+    override val isPhysical: Boolean
+        get() = catalogs.any { it.isPhysical }
 
     context(ProblemReporterContext)
     override fun findInCatalog(

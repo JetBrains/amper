@@ -20,6 +20,11 @@ interface VersionCatalog {
     val entries: Map<String, TraceableString>
 
     /**
+     * Whether any of the catalog entries have representation on the disk.
+     */
+    val isPhysical: Boolean
+
+    /**
      * Get dependency notation by key.
      */
     context(ProblemReporterContext)
