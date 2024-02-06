@@ -84,7 +84,7 @@ class ProcessesTest {
         assertTerminated(process, "The process should have terminated by now, because it was explicitly killed")
 
         val result = withTimeoutOrNull(200.milliseconds) { deferredResult.await() }
-        assertNotNull(result) { "The result should be returned quickly after the destruction of the process" }
+        assertNotNull(result, "The result should be returned quickly after the destruction of the process")
 
         // We don't assert anything on stderr, because the way the process is killed may lead to unpredictable stderr.
         // For example, on Windows, there seems to be races between the cleanup of the standard streams pipes and the
