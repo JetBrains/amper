@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.engine
 
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -32,13 +33,14 @@ class TaskExecutor(private val graph: TaskGraph) {
 
     // Dispatch on default dispatcher, execute on tasks dispatcher
     suspend fun run(tasks: List<TaskName>) = withContext(Dispatchers.Default) {
+        val results = mutableMapOf<TaskName, Deferred<TaskResult>>()
         for (task in tasks) {
-            runTask(task, emptyList())
+            runTask(task, emptyList(), results)
         }
     }
 
     // TODO we need to re-evaluate task order execution later
-    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>): TaskResult = withContext(Dispatchers.Default) {
+    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>, taskResults: MutableMap<TaskName, Deferred<TaskResult>>): TaskResult = withContext(Dispatchers.Default) {
         // TODO slow, we can do better for sure
         if (currentPath.contains(taskName)) {
             error("Found a cycle in task execution graph:\n" +
@@ -48,7 +50,20 @@ class TaskExecutor(private val graph: TaskGraph) {
 
         coroutineScope {
             val results = (graph.dependencies[taskName] ?: emptySet())
-                .map { dependsOn -> async { runTask(dependsOn, newPath) } }
+                .map { dependsOn ->
+                    synchronized(taskResults) {
+                        val existingResult = taskResults[dependsOn]
+                        if (existingResult != null) {
+                            existingResult
+                        } else {
+                            val newDeferred = async {
+                                runTask(dependsOn, newPath, taskResults)
+                            }
+                            taskResults[dependsOn] = newDeferred
+                            newDeferred
+                        }
+                    }
+                }
                 .map { it.await() }
 
             withContext(tasksDispatcher) {
