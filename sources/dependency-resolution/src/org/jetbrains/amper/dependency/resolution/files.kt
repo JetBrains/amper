@@ -486,7 +486,11 @@ class SnapshotDependencyFile(
         if (name != "maven-metadata" &&
             (mavenMetadata.isDownloaded() || mavenMetadata.download(listOf(repository), progress, verify = false))
         ) {
-            snapshotVersion?.let { name.replace(dependency.version, it) }?.let { return "$it.$extension" }
+            snapshotVersion
+                ?.let { name.replace(dependency.version, it) }
+                ?.let {
+                    return "$it.$extension"
+                }
         }
         return super.getNamePart(repository, name, extension, progress)
     }
