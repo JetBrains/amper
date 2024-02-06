@@ -14,6 +14,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
@@ -25,12 +26,30 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
+            val acceptedRepositories = mutableListOf<String>()
+            for (url in repositories) {
+                @Suppress("HttpUrlsUsage")
+                if (url.startsWith("http://")) {
+                    // TODO: Special --insecure-http-repositories option or some flag in project.yaml
+                    // to acknowledge http:// usage
+                    logger.warn("http:// repositories are not secure and should not be used: $url")
+                    continue
+                }
+
+                if (!url.startsWith("https://")) {
+                    logger.warn("Non-https repositories are not supported, skipping url: $url")
+                    continue
+                }
+
+                acceptedRepositories.add(url)
+            }
+
             val context = Context {
                 this.cache = {
                     amperCache = userCacheRoot.path.resolve(".amper")
                     localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
                 }
-                this.repositories = repositories.toList()
+                this.repositories = acceptedRepositories.toList()
                 this.scope = scope
             }
             val resolver = Resolver(
@@ -67,6 +86,8 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             }
             return files
         }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }
 
 class MavenResolverException(message: String) : RuntimeException(message)
