@@ -389,24 +389,26 @@ open class DependencyFile(
         var exception: Exception? = null
         repeat(3) {
             try {
+                val name = getNamePart(repository, nameWithoutExtension, extension, progress)
                 val url = repository +
                         "/${dependency.group.replace('.', '/')}" +
                         "/${dependency.module}" +
                         "/${dependency.version}" +
-                        "/${getNamePart(repository, nameWithoutExtension, extension, progress)}"
+                        "/$name"
                 val connection = URL(url).openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 5000
                 connection.readTimeout = 5000
                 when (val responseCode = connection.responseCode) {
                     HttpURLConnection.HTTP_OK -> {
-                        val contentLength = connection.contentLength
+                        val expectedSize = fileFromVariant(dependency, name)?.size
+                            ?: connection.contentLength.takeIf { it != -1 }
                         val size = Channels.newChannel(BufferedInputStream(connection.inputStream)).use { channel ->
                             channel.readTo(writers)
                         }
-                        if (contentLength != -1 && size != contentLength) {
+                        if (expectedSize != null && size != expectedSize) {
                             throw IOException(
-                                "Content length doesn't match for $repository. Expected: $contentLength, actual: $size"
+                                "Content length doesn't match for $repository. Expected: $expectedSize, actual: $size"
                             )
                         }
                         return true
