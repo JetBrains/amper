@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema.helper
@@ -37,7 +37,7 @@ open class BaseTestRun(
             val expect = base / "$caseName$expectPostfix"
             val expectContent = getExpectContent(input, expect)
 
-            assertEqualsIgnoreLineSeparator(expectContent, inputContent, input)
+            assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
         }
     }
 }
