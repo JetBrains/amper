@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
@@ -24,11 +24,11 @@ val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
 
-    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. See [repositories](#Managing Maven repositories)")
+    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. See [repositories](#managing-maven-repositories)")
     var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
-    @SchemaDoc("The list of modules and libraries necessary to build the Module. See [dependencies](#Dependencies)")
+    @SchemaDoc("The list of modules and libraries necessary to build the Module. See [dependencies](#dependencies)")
     var dependencies by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
@@ -36,7 +36,7 @@ sealed class Base : SchemaNode() {
     var settings by value(mapOf(noModifiers to Settings()))
 
     @ModifierAware
-    @SchemaDoc("The dependencies necessary to build and run tests of the Module. See [dependencies](#Dependencies)")
+    @SchemaDoc("The dependencies necessary to build and run tests of the Module. See [dependencies](#dependencies)")
     var `test-dependencies` by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
@@ -88,13 +88,13 @@ class Template : Base() {
 
 class Module : Base() {
 
-    @SchemaDoc("Defines what should be produced out of the module. See [products](#Product types)")
+    @SchemaDoc("Defines what should be produced out of the module. See [products](#product-types)")
     var product by value<ModuleProduct>()
 
-    @SchemaDoc("Defines the names for the custom code sharing groups. See [aliases](#Aliases)")
+    @SchemaDoc("Defines the names for the custom code sharing groups. See [aliases](#aliases)")
     var aliases by nullableValue<Map<String, Set<Platform>>>()
 
-    @SchemaDoc("List of templates that are applied. See [Templates](#Templates)")
+    @SchemaDoc("List of templates that are applied. See [Templates](#templates)")
     var apply by nullableValue<List<Path>>()
 
     @SchemaDoc("Non-code/product related aspects of the Module (e.g. file layout)")

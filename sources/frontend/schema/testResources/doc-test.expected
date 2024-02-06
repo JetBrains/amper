@@ -1,13 +1,13 @@
 Module
 ------
-	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups. See [aliases](#Aliases)
-	apply: List<Path> - List of templates that are applied. See [Templates](#Templates)
+	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups. See [aliases](#aliases)
+	apply: List<Path> - List of templates that are applied. See [Templates](#templates)
 	module: Meta - Non-code/product related aspects of the Module (e.g. file layout)
-	product: ModuleProduct - Defines what should be produced out of the module. See [products](#Product types)
-	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. See [dependencies](#Dependencies)
-	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. See [repositories](#Managing Maven repositories)
+	product: ModuleProduct - Defines what should be produced out of the module. See [products](#product-types)
+	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. See [dependencies](#dependencies)
+	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. See [repositories](#managing-maven-repositories)
 	settings[@modifier]: Settings - Configures the toolchains used in the build process. See [settings](#settings)
-	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. See [dependencies](#Dependencies)
+	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. See [dependencies](#dependencies)
 	test-settings[@modifier]: Settings - Controls building and running the Module tests. See [settings](#settings)
 
 Meta: Meta settings for current module
