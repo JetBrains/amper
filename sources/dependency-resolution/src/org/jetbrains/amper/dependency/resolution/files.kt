@@ -354,11 +354,11 @@ open class DependencyFile(
             "md5" -> fileFromVariant(dependency, name)?.md5
             else -> null
         }
-        if (hashFromVariant?.isNotEmpty() == true) {
+        if (hashFromVariant != null) {
             return hashFromVariant
         }
         val hashFromGradle = getHashFromGradleCacheDirectory(algorithm)
-        if (hashFromGradle?.isNotEmpty() == true) {
+        if (hashFromGradle != null) {
             return hashFromGradle
         }
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
@@ -366,7 +366,7 @@ open class DependencyFile(
                     || level == ResolutionLevel.NETWORK && it.download(listOf(repository), progress, verify = false)
         }
         val hashFromRepository = hashFile?.readText()?.toByteArray()
-        if (hashFromRepository?.isNotEmpty() == true) {
+        if (hashFromRepository != null) {
             return hashFromRepository.toString(Charsets.UTF_8).sanitize()
         }
         return null
