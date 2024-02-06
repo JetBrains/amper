@@ -7,12 +7,12 @@ package org.jetbrains.amper.frontend.aomBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
 import com.intellij.openapi.vfs.readText
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.pathString
 
 private const val amperModuleFileName = "module.yaml"
 private const val amperIgnoreFileName = ".amperignore"
@@ -22,9 +22,10 @@ private val gradleModuleFiles = setOf("build.gradle.kts", "build.gradle")
 private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
 private const val gradleDirName = "gradle"
 
-@Suppress("UnstableApiUsage")
-private fun FioContext.isIgnored(file: VirtualFile): Boolean =
-    ignorePaths.any { VfsUtil.isAncestorOrSelf(it.pathString, file) }
+private fun FioContext.isIgnored(file: VirtualFile): Boolean {
+    val nioPath = file.fileSystem.getNioPath(file)?.toFile() ?: return false
+    return ignorePaths.any { VfsUtilCore.isAncestor(it.toFile(), nioPath, false) }
+}
 
 /**
  * Files context used to parse amper modules.
