@@ -6,10 +6,20 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
+import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.CopyActionResult
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyTo
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.isDirectory
+import kotlin.io.path.name
 
+@OptIn(ExperimentalPathApi::class)
 inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     buildRequest: AndroidBuildRequest,
     debug: Boolean = false,
@@ -25,6 +35,36 @@ inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     val settingsGradle = tempDir.resolve("settings.gradle.kts")
     val settingsGradleFile = settingsGradle.toFile()
     settingsGradleFile.createNewFile()
+
+    val fromSources = AmperBuild.isSNAPSHOT
+
+    val tempDirForSources = if (fromSources) {
+        val tempDirForSources = homePath
+            .resolve(".android/build/amper-sources-copy")
+            .createDirectories()
+
+        val followLinks = false
+        val ignore = setOf(".gradle", "build", "caches", ".git")
+        sourcesPath.copyToRecursively(tempDirForSources, followLinks = followLinks) { src, dst ->
+            if (src.name in ignore) CopyActionResult.SKIP_SUBTREE
+            else {
+                val options = arrayOf(LinkOption.NOFOLLOW_LINKS)
+                val dstIsDirectory = dst.isDirectory(LinkOption.NOFOLLOW_LINKS)
+                val srcIsDirectory = src.isDirectory(*options)
+                if ((srcIsDirectory && dstIsDirectory).not()) {
+                    if (dstIsDirectory)
+                        dst.deleteRecursively()
+
+                    src.copyTo(dst, *options, StandardCopyOption.REPLACE_EXISTING)
+                }
+
+                // else: do nothing, the destination directory already exists
+                CopyActionResult.CONTINUE
+            }
+        }
+        tempDirForSources.toString().replace("\\", "\\\\")
+    } else null
+
     settingsGradleFile.writeText(
         """
 pluginManagement {
@@ -35,13 +75,13 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
         maven("https://packages.jetbrains.team/maven/p/amper/amper")
-        ${if (AmperBuild.isSNAPSHOT) "includeBuild(\"$sourcesPath\")" else ""}
+        ${if (fromSources) "includeBuild(\"$tempDirForSources\")" else ""}
     }
 }
 
 
 plugins {
-    id("org.jetbrains.amper.android.settings.plugin")${if (!AmperBuild.isSNAPSHOT) ".version(\"${AmperBuild.BuildNumber}\")" else ""}
+    id("org.jetbrains.amper.android.settings.plugin")${if (!fromSources) ".version(\"${AmperBuild.BuildNumber}\")" else ""}
 }
 
 configure<AmperAndroidIntegrationExtension> {
@@ -84,8 +124,10 @@ configure<AmperAndroidIntegrationExtension> {
         .setStandardOutput(System.out)
         .setStandardError(System.err)
 
+
+
     buildRequest.sdkDir?.let {
-        buildLauncher.withSystemProperties(mutableMapOf("sdk.dir" to it.toAbsolutePath().toString()))
+        buildLauncher.setEnvironmentVariables(mutableMapOf("ANDROID_HOME" to it.toAbsolutePath().toString()))
     }
 
     if (debug) {

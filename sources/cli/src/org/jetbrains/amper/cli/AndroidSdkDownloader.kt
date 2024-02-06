@@ -15,17 +15,19 @@ import com.android.repository.api.RemotePackage
 import com.android.repository.api.SettingsController
 import com.android.repository.impl.installer.BasicInstallerFactory
 import com.android.sdklib.repository.AndroidSdkHandler
+import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.downloader.httpClient
-import org.jetbrains.amper.downloader.writeChannel
 import java.io.InputStream
 import java.net.URL
+import java.nio.channels.Channels
+import java.nio.channels.FileChannel
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import kotlin.io.path.createParentDirectories
 
 object NoopSettingsController : SettingsController {
@@ -41,65 +43,61 @@ object NoopSettingsController : SettingsController {
 }
 
 class KtorDownloader(private val androidSdkPath: Path) : Downloader {
-    override fun downloadAndStream(url: URL, indicator: ProgressIndicator): InputStream {
-        return runBlocking {
-            val response = httpClient.get(url) {
-                onDownload { bytesSentTotal, contentLength ->
-                    indicator.fraction = (bytesSentTotal.toDouble() / contentLength.toDouble())
-                }
-            }
-            response.bodyAsChannel().toInputStream()
-        }
+    override fun downloadAndStream(url: URL, indicator: ProgressIndicator): InputStream = runBlocking {
+        httpResponse(url, indicator)
     }
 
-    override fun downloadFully(url: URL, indicator: ProgressIndicator): Path {
-        return runBlocking {
-            val target = androidSdkPath.resolve("target")
-            val response = httpClient.get(url) {
-                onDownload { bytesSentTotal, contentLength ->
-                    indicator.fraction = (bytesSentTotal.toDouble() / contentLength.toDouble())
-                }
-            }
-            response.bodyAsChannel().copyAndClose(writeChannel(target))
-            target
-        }
-    }
+    override fun downloadFully(url: URL, indicator: ProgressIndicator): Path =
+        download(url, indicator, androidSdkPath.resolve("target"))
 
     override fun downloadFully(url: URL, target: Path, checksum: Checksum, indicator: ProgressIndicator) {
-        target.createParentDirectories()
-        return runBlocking {
-            val response = httpClient.get(url) {
-                onDownload { bytesSentTotal, contentLength ->
-                    indicator.fraction = (bytesSentTotal.toDouble() / contentLength.toDouble())
-                }
-            }
-            response.bodyAsChannel().copyAndClose(writeChannel(target))
-        }
+        download(url, indicator, target)
     }
+
+    private fun download(url: URL, indicator: ProgressIndicator, target: Path): Path {
+        target.createParentDirectories()
+        val outputChannel = runBlocking {
+            Channels.newChannel(httpResponse(url, indicator))
+        }
+
+        val inputChannel: FileChannel = FileChannel.open(
+            target,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING,
+            StandardOpenOption.WRITE
+        )
+
+        inputChannel.use { ic ->
+            outputChannel.use { oc ->
+                ic.transferFrom(oc, 0, Long.MAX_VALUE)
+            }
+        }
+        return target
+    }
+
+    private suspend fun httpResponse(url: URL, indicator: ProgressIndicator): InputStream = httpClient.get(url) {
+        onDownload { bytesSentTotal, contentLength ->
+            indicator.fraction = (bytesSentTotal.toDouble() / contentLength.toDouble())
+        }
+    }.body<InputStream>()
 }
 
-object Lock
+val mutex = Mutex(false)
 
-fun downloadAndExtractAndroidPlatform(
-    packageName: String,
-    androidSdkPath: Path = Path.of(System.getProperty("user.home") ?: error("User home must not be null"))
-        .resolve(".android-sdk")
-): Path {
-    synchronized(Lock) {
-        val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
-        val consoleProgressIndicator = ConsoleProgressIndicator()
-        val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
-        val downloader = KtorDownloader(androidSdkPath)
-        val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
-        return localPackage?.location ?: run {
-            repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
-            val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
-            remotePackage?.license?.setAccepted(repoManager.localPath)
-            val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
-            installer.prepare(consoleProgressIndicator)
-            installer.complete(consoleProgressIndicator)
-            val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
-            installDir ?: error("Install dir of package $remotePackage is missing")
-        }
+suspend fun downloadAndExtractAndroidPlatform(packageName: String, androidSdkPath: Path): Path = mutex.withLock {
+    val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
+    val consoleProgressIndicator = ConsoleProgressIndicator()
+    val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
+    val downloader = KtorDownloader(androidSdkPath)
+    val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
+    return localPackage?.location ?: run {
+        repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
+        val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
+        remotePackage?.license?.setAccepted(repoManager.localPath)
+        val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
+        installer.prepare(consoleProgressIndicator)
+        installer.complete(consoleProgressIndicator)
+        val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
+        installDir ?: error("Install dir of package $remotePackage is missing")
     }
 }
