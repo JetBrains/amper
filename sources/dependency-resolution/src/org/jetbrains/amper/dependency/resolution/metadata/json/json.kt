@@ -98,7 +98,7 @@ data class Version(
 data class File(
     val name: String,
     val url: String,
-    val size: Int? = 0,
+    val size: Int? = null,
     val sha512: String? = null,
     val sha256: String? = null,
     val sha1: String? = null,

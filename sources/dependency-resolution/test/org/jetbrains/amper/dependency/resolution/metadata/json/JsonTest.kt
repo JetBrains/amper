@@ -5,11 +5,12 @@
 package org.jetbrains.amper.dependency.resolution.metadata.json
 
 import org.jetbrains.amper.dependency.resolution.nameToDependency
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInfo
-import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class JsonTest {
 
@@ -39,11 +40,27 @@ class JsonTest {
         )
     }
 
+    @Test
+    fun `absence of size is null`() {
+        // some metadata may not specify file size
+        // we need to correctly parse that, absence of size is null, not 0
+
+        // guava does not specify size and checksums
+        val text = getTestDataText("guava-33.0.0-android")
+        val module = text.parseMetadata()
+        assertTrue(module.variants.flatMap { it.files }.all {
+            it.size == null && it.md5 == null && it.sha1 == null && it.sha256 == null && it.sha512 == null
+        })
+    }
+
     private fun doTest(testInfo: TestInfo, sanitizer: (String) -> String = { it }) {
-        val text = Path.of("testData/metadata/json/${testInfo.nameToDependency()}.module").readText()
+        val text = getTestDataText(testInfo.nameToDependency())
         val module = text.parseMetadata()
         assertEquals(sanitizer(sanitize(text)), sanitizer(module.serialize()))
     }
+
+    private fun getTestDataText(name: String) =
+        TestUtil.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/${name}.module").readText()
 
     private fun sanitize(text: String) = text.replace("\\s+".toRegex(), "")
 }
