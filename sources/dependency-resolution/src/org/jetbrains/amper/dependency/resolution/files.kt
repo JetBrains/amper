@@ -130,16 +130,12 @@ class MavenLocalRepository(private val repository: Path) : LocalRepository {
         )
 }
 
-fun getDependencyFile(
-    dependency: MavenDependency,
-    nameWithoutExtension: String,
-    extension: String,
-    fileCache: FileCache = dependency.fileCache,
-) = if (dependency.version.endsWith("-SNAPSHOT")) {
-    SnapshotDependencyFile(dependency, nameWithoutExtension, extension, fileCache)
-} else {
-    DependencyFile(dependency, nameWithoutExtension, extension, fileCache)
-}
+fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String) =
+    if (dependency.version.endsWith("-SNAPSHOT")) {
+        SnapshotDependencyFile(dependency, nameWithoutExtension, extension)
+    } else {
+        DependencyFile(dependency, nameWithoutExtension, extension)
+    }
 
 open class DependencyFile(
     val dependency: MavenDependency,
