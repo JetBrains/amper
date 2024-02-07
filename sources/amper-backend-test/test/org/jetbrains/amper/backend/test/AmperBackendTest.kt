@@ -107,19 +107,15 @@ class AmperBackendTest : IntegrationTestBase() {
 
     @Test
     fun `simple multiplatform cli on jvm`() {
-        val specialCmdChars = "&()[]{}^=;!'+,`~"
-
-        val arg1 = "my arg1"
-        val arg2 = "my arg2 :\"'<>\$ && || ; \"\" $specialCmdChars ${specialCmdChars.chunked(1).joinToString(" ")}"
-        val projectContext = setupTestDataProject("simple-multiplatform-cli",
-            programArgs = listOf(arg1, arg2))
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
 
         val find = """Process exited with exit code 0
 STDOUT:
 Hello Multiplatform CLI: JVM World
-ARG0: <$arg1>
-ARG1: <$arg2>"""
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
     }
 
@@ -137,12 +133,15 @@ ARG1: <$arg2>"""
     @Test
     @MacOnly
     fun `simple multiplatform cli on mac`() {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":macos-cli:runMacosArm64"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello Multiplatform CLI: Mac World"
+        val find = """Process exited with exit code 0
+STDOUT:
+Hello Multiplatform CLI: Mac World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
     }
 
@@ -175,24 +174,37 @@ ARG1: <$arg2>"""
     @Test
     @LinuxOnly
     fun `simple multiplatform cli on linux`() {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":linux-cli:runLinuxX64"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello Multiplatform CLI: Linux World"
-        assertInfoLogStartsWith(msgPrefix = find)
+        val find = """Process exited with exit code 0
+STDOUT:
+Hello Multiplatform CLI: Linux World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
+        assertInfoLogStartsWith(find)
     }
 
     @Test
     @WindowsOnly
     fun `simple multiplatform cli on windows`() {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":windows-cli:runMingwX64"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello Multiplatform CLI: Windows (Mingw) World"
+        val find = """Process exited with exit code 0
+STDOUT:
+Hello Multiplatform CLI: Windows (Mingw) World
+ARG0: <${argumentsWithSpecialChars[0]}>
+ARG1: <${argumentsWithSpecialChars[1]}>
+ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(msgPrefix = find)
     }
+
+    private val specialCmdChars = "&()[]{}^=;!'+,`~"
+    private val argumentsWithSpecialChars = listOf(
+        "simple123",
+        "my arg2",
+        "my arg3 :\"'<>\$ && || ; \"\" $specialCmdChars ${specialCmdChars.chunked(1).joinToString(" ")}",
+    )
 }

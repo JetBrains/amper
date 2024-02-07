@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
@@ -21,6 +22,7 @@ class NativeRunTask(
     override val module: PotatoModule,
     override val platform: Platform,
     private val projectRoot: AmperProjectRoot,
+    private val commonRunSettings: CommonRunSettings,
 ) : RunTask {
     init {
         require(platform.isLeaf)
@@ -32,16 +34,21 @@ class NativeRunTask(
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val executable = compileTaskResult.artifact
+        val programArgs = commonRunSettings.programArgs
 
         return spanBuilder("native-run")
             .setAttribute("executable", executable.pathString)
+            .setListAttribute("args", programArgs)
             .useWithScope {
                 val workingDir = when (val source = module.source) {
                     is PotatoModuleFileSource -> source.buildDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 
-                val result = BuildPrimitives.runProcessAndGetOutput(listOf(executable.pathString), workingDir)
+                val result = BuildPrimitives.runProcessAndGetOutput(
+                    listOf(executable.pathString) + programArgs,
+                    workingDir
+                )
 
                 val message = "Process exited with exit code ${result.exitCode}" +
                         (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +

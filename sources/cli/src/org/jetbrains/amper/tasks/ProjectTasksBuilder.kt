@@ -223,6 +223,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                     projectRoot = context.projectRoot,
                                     taskName = runTaskName,
                                     platform = platform,
+                                    commonRunSettings = context.commonRunSettings,
                                 )
 
                                 else -> {
