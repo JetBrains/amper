@@ -42,7 +42,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             getCachedResult(stateFile, configuration, inputs)
         }
         if (existingResult != null) {
-            logger.debug("INC: up-to-date according to state file at '$stateFile' in $cacheCheckTime")
+            logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
             logger.info("INC: '$id' is up-to-date")
             return existingResult
         } else {
@@ -70,6 +70,11 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         properties["inputs"] = getPathListState(inputs, failOnMissing = false)
         properties["outputs.list"] = result.outputs.joinToString("\n")
         properties["outputs"] = getPathListState(result.outputs, failOnMissing = true)
+        for ((key, value) in result.outputProperties.entries.sortedBy { it.key }) {
+            check(key.isNotEmpty())
+            check(key.trim() == key)
+            properties[OUTPUT_PROPERTIES_MAP_PREFIX + key] = value
+        }
 
         stateFile.outputStream().buffered().use { properties.store(it, id) }
     }
@@ -100,14 +105,14 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     // TODO Probably rewrite to JSON? or a binary format?
     private fun getCachedResult(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
         if (!stateFile.isRegularFile()) {
-            logger.debug("INC: state file is missing at '$stateFile' -> rebuilding")
+            logger.debug("INC: state file is missing at '{}' -> rebuilding", stateFile)
             return null
         }
 
         val properties = Properties()
         stateFile.bufferedReader().use { properties.load(it) }
         if (properties.getProperty("version") != stateFileFormatVersion.toString()) {
-            logger.debug("INC: state file has a wrong version at '$stateFile' -> rebuilding")
+            logger.debug("INC: state file has a wrong version at '{}' -> rebuilding", stateFile)
             return null
         }
 
@@ -159,7 +164,11 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             return null
         }
 
-        return ExecutionResult(outputs = outputsList)
+        val map = properties.stringPropertyNames()
+            .filter { it.startsWith(OUTPUT_PROPERTIES_MAP_PREFIX) }
+            .associate { it.removePrefix(OUTPUT_PROPERTIES_MAP_PREFIX) to properties.getProperty(it) }
+
+        return ExecutionResult(outputs = outputsList, outputProperties = map)
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -210,13 +219,10 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         return attr
     }
 
-    class ExecutionResult(val outputs: List<Path>, outputProperties: Map<String, String> = emptyMap()) {
-        init {
-            if (outputProperties.isNotEmpty()) {
-                throw NotImplementedError("outputProperties are not yet implemented")
-            }
-        }
-    }
+    class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
 
-    private val logger = LoggerFactory.getLogger(javaClass)
+    companion object {
+        private const val OUTPUT_PROPERTIES_MAP_PREFIX = "outputs.map."
+        private val logger = LoggerFactory.getLogger(ExecuteOnChangedInputs::class.java)
+    }
 }

@@ -16,6 +16,7 @@ import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.fail
 
 class ExecuteOnChangedInputsTest {
     @TempDir
@@ -116,6 +117,21 @@ class ExecuteOnChangedInputsTest {
             assertEquals("3", output.readText())
         }
         assertEquals(2, executionsCount.get())
+    }
+
+    @Test
+    fun `output properties`() {
+        runBlocking {
+            val result1 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                ExecuteOnChangedInputs.ExecutionResult(emptyList(), mapOf("k" to "v", "e" to ""))
+            }
+            assertEquals("e:|k:v", result1.outputProperties.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
+
+            val result2 = executeOnChanged.execute("1", emptyMap(), emptyList()) {
+                fail("should not reach")
+            }
+            assertEquals("e:|k:v", result2.outputProperties.entries.sortedBy { it.key }.joinToString("|") { "${it.key}:${it.value}"})
+        }
     }
 
     @Test
