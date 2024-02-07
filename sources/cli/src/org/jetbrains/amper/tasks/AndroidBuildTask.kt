@@ -20,6 +20,9 @@ import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
 import runAndroidBuild
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createDirectories
 
 class AndroidBuildTask(
     private val module: PotatoModule,
@@ -28,8 +31,10 @@ class AndroidBuildTask(
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
     private val userCacheRootPath: Path,
+    private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
 ) : Task {
+    @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
@@ -59,7 +64,11 @@ class AndroidBuildTask(
             )
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
         }
-        logger.info("ANDROID ARTIFACTS: ${executionResult.outputs}")
+        taskOutputPath.path.createDirectories()
+        val outputs = executionResult
+            .outputs
+            .map { it.copyToRecursively(taskOutputPath.path.resolve(it.fileName), followLinks = false, overwrite = true) }
+        logger.info("ANDROID ARTIFACTS $outputs")
         return TaskResult(dependenciesResult, executionResult.outputs)
     }
 

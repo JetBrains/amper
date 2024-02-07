@@ -136,7 +136,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             fragments,
                             buildType,
                             androidSdkPath,
-                            context.userCacheRoot.path
+                            context.userCacheRoot.path,
                         )
 
                         fun createCompileTask(buildType: BuildType = BuildType.Debug): Task? {
@@ -552,6 +552,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 androidSdkPath,
                 fragments,
                 userCacheRootPath,
+                getTaskOutputPath(buildAndroidBuildName),
                 buildAndroidBuildName
             ),
             listOf(
