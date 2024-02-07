@@ -127,7 +127,7 @@ configure<AmperAndroidIntegrationExtension> {
 
 
     buildRequest.sdkDir?.let {
-        buildLauncher.setEnvironmentVariables(mutableMapOf("ANDROID_HOME" to it.toAbsolutePath().toString()))
+        buildLauncher.setEnvironmentVariables(System.getenv() + mapOf("ANDROID_HOME" to it.toAbsolutePath().toString()))
     }
 
     if (debug) {
