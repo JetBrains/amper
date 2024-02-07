@@ -38,6 +38,7 @@ class BootstrapTest {
         val version = yamlPublishing.getValue("version")
 
         val core = TestUtil.amperSourcesRoot.resolve("core/build/libs/core-jvm-$version.jar")
+        val coreIntellij = TestUtil.amperSourcesRoot.resolve("core-intellij/build/libs/core-intellij-jvm-$version.jar")
         val gradleIntegration = TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
 
         println("############ gradle-integration version: $version")
@@ -48,6 +49,7 @@ class BootstrapTest {
         val yamlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
         val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
 
+        val intellijVersion = "233.13763.11"
         // TODO: rewrite to include build approach
         val settingsContent = """
 buildscript {
@@ -62,18 +64,19 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
-        classpath("com.jetbrains.intellij.platform:analysis-impl:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:core:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:core-impl:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:core-ui:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:ide-core:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:util:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:util-base:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:util-ui:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:util-ex:232.10203.20")
-        classpath("com.jetbrains.intellij.platform:indexing:232.10203.20")
+        classpath("com.jetbrains.intellij.platform:analysis-impl:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:core:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:core-impl:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:core-ui:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:ide-core:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:util:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:util-base:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:util-ui:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:util-ex:$intellijVersion")
+        classpath("com.jetbrains.intellij.platform:indexing:$intellijVersion")
         classpath("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18")
         classpath(files("${core.pathString.replace('\\', '/')}"))
+        classpath(files("${coreIntellij.pathString.replace('\\', '/')}"))
         classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
         classpath(files("${tomlPsi.pathString.replace('\\', '/')}"))
