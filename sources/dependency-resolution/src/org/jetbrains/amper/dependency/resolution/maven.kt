@@ -275,13 +275,13 @@ class MavenDependency internal constructor(
             return
         }
         packaging = project.packaging
-        project.dependencies?.dependencies?.filter {
+        (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
-        }?.filter {
+        }.filter {
             it.version != null && it.optional != true
-        }?.map {
+        }.map {
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
-        }?.let {
+        }.let {
             children.addAll(it)
             state = level.state
         }
