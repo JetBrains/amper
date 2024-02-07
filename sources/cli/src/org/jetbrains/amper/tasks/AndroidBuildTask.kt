@@ -27,6 +27,7 @@ class AndroidBuildTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
+    private val userCacheRootPath: Path,
     override val taskName: TaskName,
 ) : Task {
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
@@ -52,7 +53,9 @@ class AndroidBuildTask(
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             val result = runAndroidBuild<ApkPathAndroidBuildResult>(
-                request, sourcesPath = Path.of("../../").toAbsolutePath().normalize()
+                request,
+                sourcesPath = Path.of("../../").toAbsolutePath().normalize(),
+                userCacheDir = userCacheRootPath
             )
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
         }

@@ -123,7 +123,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             fragments,
                             buildType,
                             androidSdkPath,
-                            androidPrepareDependencies + androidCompileDependencies
+                            androidPrepareDependencies + androidCompileDependencies,
+                            context.userCacheRoot.path
                         )
 
                         val androidBuildTaskName = setupAndroidBuildTasks(
@@ -134,7 +135,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             executeOnChangedInputs,
                             fragments,
                             buildType,
-                            androidSdkPath
+                            androidSdkPath,
+                            context.userCacheRoot.path
                         )
 
                         fun createCompileTask(buildType: BuildType = BuildType.Debug): Task? {
@@ -507,6 +509,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         buildType: BuildType,
         androidSdkPath: Path,
         prepareAndroidTaskDependencies: List<TaskName>,
+        userCacheRootPath: Path,
     ) = if (platform == Platform.ANDROID) {
         val prepareAndroidBuildName = TaskName.fromHierarchy(
             listOf(
@@ -520,6 +523,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 executeOnChangedInputs,
                 androidSdkPath,
                 fragments,
+                userCacheRootPath,
                 prepareAndroidBuildName
             ),
             prepareAndroidTaskDependencies
@@ -535,12 +539,21 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         executeOnChangedInputs: ExecuteOnChangedInputs,
         fragments: List<Fragment>,
         buildType: BuildType,
-        androidSdkPath: Path
+        androidSdkPath: Path,
+        userCacheRootPath: Path
     ): TaskName? = if (platform == Platform.ANDROID) {
         val buildAndroidBuildName = TaskName
             .fromHierarchy(listOf(module.userReadableName, "finalizeBuildAndroid${isTest.testSuffix}${buildType.suffix}"))
         tasks.registerTask(
-            AndroidBuildTask(module, buildType, executeOnChangedInputs, androidSdkPath, fragments, buildAndroidBuildName),
+            AndroidBuildTask(
+                module,
+                buildType,
+                executeOnChangedInputs,
+                androidSdkPath,
+                fragments,
+                userCacheRootPath,
+                buildAndroidBuildName
+            ),
             listOf(
                 getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest),
                 getTaskName(module, CommonTaskType.COMPILE, platform, isTest, buildType)

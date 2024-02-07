@@ -25,6 +25,7 @@ class AndroidPrepareTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
+    private val userCacheRootPath: Path,
     override val taskName: TaskName
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -43,7 +44,8 @@ class AndroidPrepareTask(
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             val result = runAndroidBuild<RClassAndroidBuildResult>(
                 request,
-                sourcesPath = Path.of("../../").toAbsolutePath().normalize()
+                sourcesPath = Path.of("../../").toAbsolutePath().normalize(),
+                userCacheDir = userCacheRootPath
             )
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) })
         }

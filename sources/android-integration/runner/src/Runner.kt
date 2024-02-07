@@ -23,13 +23,12 @@ import kotlin.io.path.name
 inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     buildRequest: AndroidBuildRequest,
     debug: Boolean = false,
-    sourcesPath: Path = Path.of("../../../../").toAbsolutePath().normalize()
+    sourcesPath: Path = Path.of("../../../../").toAbsolutePath().normalize(),
+    userCacheDir: Path
 ): R {
-    val homeDir = System.getProperty("user.home") ?: error("Cannot find user home directory")
-    val homePath = Paths.get(homeDir)
-
-    val tempDir = homePath
-        .resolve(".android/build/${buildRequest.root.toAbsolutePath().toString().sha1}")
+    val projectSha1 = buildRequest.root.toAbsolutePath().toString().sha1
+    val tempDir = userCacheDir
+        .resolve("android/build/$projectSha1")
         .createDirectories()
 
     val settingsGradle = tempDir.resolve("settings.gradle.kts")
@@ -39,6 +38,8 @@ inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     val fromSources = AmperBuild.isSNAPSHOT
 
     val tempDirForSources = if (fromSources) {
+        val homeDir = System.getProperty("user.home") ?: error("Cannot find user home directory")
+        val homePath = Paths.get(homeDir)
         val tempDirForSources = homePath
             .resolve(".android/build/amper-sources-copy")
             .createDirectories()
