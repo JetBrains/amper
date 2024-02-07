@@ -63,6 +63,8 @@ buildscript {
 
     dependencies {
         classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
+        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.20")
+        classpath("com.android.library:com.android.library.gradle.plugin:8.1.0")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
         classpath("com.jetbrains.intellij.platform:analysis-impl:$intellijVersion")
         classpath("com.jetbrains.intellij.platform:core:$intellijVersion")
