@@ -405,7 +405,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     executeOnChangedInputs,
                     androidSdkPath,
                     isTest,
-                    platform,
                 )
                 add(androidPlatformJarTaskName)
             }
@@ -583,7 +582,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         executeOnChangedInputs: ExecuteOnChangedInputs,
         androidSdkPath: Path,
         isTest: Boolean,
-        platform: Platform,
     ): TaskName {
         val androidFragment = getAndroidFragment(module, isTest)
         val targetSdk = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
