@@ -95,37 +95,40 @@ private fun TomlFile.parseCatalogLibraries(): Map<String, TomlLibraryDefinition>
     }
 }
 
-private fun getInlineNotation(catalogEntry: TomlKeyValue): String? = when (val libraryValue = catalogEntry.value) {
-    is TomlLiteral -> libraryValue.text.removeSurrounding("\"")
-    is TomlInlineTable -> {
-        val version = libraryValue.getStringValueOrNull("version")
-        val versionRef = libraryValue.getStringValueOrNull("version.ref")
+private fun getInlineNotation(catalogEntry: TomlKeyValue): String? {
+    return when (val libraryValue = catalogEntry.value) {
+        is TomlLiteral -> libraryValue.text.removeSurrounding("\"")
+        is TomlInlineTable -> {
+            val version = libraryValue.getStringValueOrNull("version")
+            val versionRef = libraryValue.getStringValueOrNull("version.ref")
 
-        val module = libraryValue.getStringValueOrNull("module")
-        val group = libraryValue.getStringValueOrNull("group")
-        val name = libraryValue.getStringValueOrNull("name")
+            val module = libraryValue.getStringValueOrNull("module")
+            val group = libraryValue.getStringValueOrNull("group")
+            val name = libraryValue.getStringValueOrNull("name")
 
-        val finalModuleName = when {
-            module != null -> module
-            group != null && name != null -> "$group:$name"
-            else -> null
-        }
+            val finalModuleName = when {
+                module != null -> module
+                group != null && name != null -> "$group:$name"
+                else -> null
+            } ?: return null
 
-        val finalVersion = when {
-            version != null -> version
-            versionRef != null -> {
-                val file = catalogEntry.containingFile as TomlFile
-                val versions = file.findTableOrNull("versions")
-                versions?.getStringValueOrNull(versionRef)
-            }
+            // The version might come from BOM (currently supported only with Gradle)
+            if (version == null && versionRef == null && module != null) return finalModuleName
 
-            else -> null
-        }
+            val finalVersion = when {
+                version != null -> version
+                versionRef != null -> {
+                    val file = catalogEntry.containingFile as TomlFile
+                    val versions = file.findTableOrNull("versions")
+                    versions?.getStringValueOrNull(versionRef)
+                }
 
-        if (finalModuleName != null && finalVersion != null) {
+                else -> null
+            } ?: return null
+
             "$finalModuleName:$finalVersion"
-        } else null
-    }
+        }
 
-    else -> null
+        else -> null
+    }
 }

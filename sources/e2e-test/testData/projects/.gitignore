@@ -1,6 +1,7 @@
 .idea
 .gradle
 gradlew*
-gradle
+**/gradle/*
 build
 local.properties
+!**/gradle/libs.versions.toml
