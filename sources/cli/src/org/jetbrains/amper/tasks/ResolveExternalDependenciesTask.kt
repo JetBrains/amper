@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
@@ -30,7 +31,8 @@ class ResolveExternalDependenciesTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val platform: Platform,
-    private val isTest: Boolean,
+    private val fragments: List<Fragment>,
+    private val fragmentsCompileModuleDependencies: List<PotatoModule>,
     override val taskName: TaskName,
 ): Task {
 
@@ -39,11 +41,10 @@ class ResolveExternalDependenciesTask(
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url }
+        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url }?.distinct()?.sorted()
             ?: listOf()).ifEmpty { defaultRepositories }
-        val fragments = module.fragments
-            .filter { it.platforms.contains(platform) && it.isTest == isTest }
-        val compileDependencies = fragments
+
+        val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
             .filter { it.compile }
@@ -54,19 +55,36 @@ class ResolveExternalDependenciesTask(
                     "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
                 )
 
-        logger.info("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")}")
+        val exportedDependencies = fragmentsCompileModuleDependencies
+            .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }
+            .flatMap { it.externalDependencies }
+            .filterIsInstance<MavenDependency>()
+            .filter { it.compile && it.exported }
+            .map { it.coordinates }
 
-        // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent)
+        val dependenciesToResolve = exportedDependencies + directCompileDependencies
+
+        if (directCompileDependencies.any { it.contains("clikt") }) {
+            println()
+        }
+
+        logger.info("resolve dependencies ${module.userReadableName} -- " +
+                    "${fragments.userReadableList()} -- " +
+                    "${directCompileDependencies.sorted().joinToString(" ")} -- " +
+                    exportedDependencies.sorted().joinToString(" "))
+
+        // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
+        // but the current implementation requires a full review of it
 
         val configuration = mapOf(
-            "dependencies" to compileDependencies.joinToString("|"),
+            "dependencies" to dependenciesToResolve.joinToString("|"),
         )
 
         val paths = executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
-            return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(compileDependencies, repositories).toList())
+            return@execute ExecuteOnChangedInputs.ExecutionResult(mavenResolver.resolve(dependenciesToResolve, repositories).toList())
         }.outputs
 
-        logger.debug("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${compileDependencies.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.debug("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${dependenciesToResolve.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${paths.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
         return TaskResult(classpath = paths, dependencies = dependenciesResult)
     }
