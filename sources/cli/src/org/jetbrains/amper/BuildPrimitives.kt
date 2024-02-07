@@ -12,6 +12,7 @@ import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.processes.withGuaranteedTermination
@@ -19,7 +20,7 @@ import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.Path
-import java.util.Scanner
+import java.util.*
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.pathString
@@ -49,7 +50,12 @@ object BuildPrimitives {
     //  do we want to offload big (and probably only big outputs) to the disk?
     suspend fun runProcessAndGetOutput(command: List<String>, workingDir: Path, environment: Map<String, String> = emptyMap()): ProcessResult =
         withContext(Dispatchers.IO) {
-            val process = ProcessBuilder(command)
+            // Why quoteCommandLineForCurrentPlatform:
+            // ProcessBuilder does not correctly escape its arguments on Windows
+            // generally, JDK developers do not think that executed command should receive the same arguments as passed to ProcessBuilder
+            // see, e.g., https://bugs.openjdk.org/browse/JDK-8131908
+            // this code is mostly tested by AmperBackendTest.simple multiplatform cli on jvm
+            val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
                 .directory(workingDir.toFile())
                 .also { it.environment().putAll(environment) }
                 .start()

@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli
 
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
+import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.OS.Type.Linux
 import org.jetbrains.amper.util.OS.Type.Mac
@@ -17,16 +18,18 @@ data class ProjectContext(
     val projectRoot: AmperProjectRoot,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
-    // in the future it'll be customizable to support out-of-tree builds, e.g. on CI
+    // in the future it'll be customizable to support out-of-tree builds, e.g., on CI
     val buildOutputRoot: AmperBuildOutputRoot,
+    val commonRunSettings: CommonRunSettings,
 ) {
     companion object {
-        fun create(projectRoot: Path): ProjectContext {
+        fun create(projectRoot: Path, commonRunSettings: CommonRunSettings): ProjectContext {
             return ProjectContext(
                 projectRoot = AmperProjectRoot(projectRoot),
                 buildOutputRoot = AmperBuildOutputRoot(projectRoot.resolve("build")),
                 projectTempRoot = AmperProjectTempRoot(projectRoot.resolve("build/temp-temp")),
                 userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
+                commonRunSettings = commonRunSettings,
             )
         }
     }

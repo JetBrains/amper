@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
@@ -23,6 +24,7 @@ import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
+import org.jetbrains.amper.tasks.CommonRunSettings
 import org.tinylog.Level
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
@@ -69,6 +71,7 @@ private class RootCommand : CliktCommand(name = "amper") {
             buildOutputRoot = AmperBuildOutputRoot(buildOutput),
             projectTempRoot = AmperProjectTempRoot(buildOutput.resolve("temp")),
             userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
+            commonRunSettings = CommonRunSettings(),
         )
         val backend = AmperBackend(context = projectContext)
         currentContext.obj = backend
@@ -92,7 +95,7 @@ private class TaskCommand : CliktCommand(name = "task", help = "Execute any task
     override fun run() = amperBackend.runTask(TaskName(name))
 }
 
-private class RunCommand : CliktCommand(name = "run", help = "Run your application") {
+private class RunCommand : CliktCommand(name = "run", help = "Run your application. Use -- to separate application's arguments from Amper options") {
     val platform by option(
         "-p",
         "--platform",
@@ -101,12 +104,15 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     ).validate { value ->
         checkPlatform(value)
     }
+    val programArguments by argument(name = "program arguments").multiple()
 
     val module by option("-m", "--module", help = "specific module to run")
     val amperBackend by requireObject<AmperBackend>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
-        amperBackend.runApplication(platform = platformToRun, moduleName = module)
+        val commonRunSettings = CommonRunSettings(programArgs = programArguments)
+        val amperBackendWithRunSettings = AmperBackend(context = amperBackend.context.copy(commonRunSettings = commonRunSettings))
+        amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module)
     }
 }
 

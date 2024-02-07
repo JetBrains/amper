@@ -208,6 +208,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                     userCacheRoot = context.userCacheRoot,
                                     projectRoot = context.projectRoot,
                                     taskName = runTaskName,
+                                    commonRunSettings = context.commonRunSettings,
                                 )
 
                                 Platform.ANDROID -> AndroidRunTask(

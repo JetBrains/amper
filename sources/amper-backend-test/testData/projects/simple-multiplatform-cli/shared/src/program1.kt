@@ -7,6 +7,9 @@ package package1
 import World
 import Utils
 
-fun main() {
+fun main(args: Array<String>) {
     println(Utils.superCommonMethod() + " Multiplatform CLI: ${World().get()}")
+    for ((index, arg) in args.withIndex()) {
+        println("ARG${index}: <$arg>")
+    }
 }

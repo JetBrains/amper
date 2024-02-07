@@ -20,8 +20,8 @@ class AmperBackendTest : IntegrationTestBase() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun setupTestDataProject(testProjectName: String): ProjectContext =
-        setupTestProject(testDataRoot.resolve(testProjectName), copyToTemp = false)
+    private fun setupTestDataProject(testProjectName: String, programArgs: List<String> = emptyList()): ProjectContext =
+        setupTestProject(testDataRoot.resolve(testProjectName), copyToTemp = false, programArgs = programArgs)
 
     @Test
     fun `jvm kotlin-test smoke test`() {
@@ -107,12 +107,19 @@ class AmperBackendTest : IntegrationTestBase() {
 
     @Test
     fun `simple multiplatform cli on jvm`() {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val specialCmdChars = "&()[]{}^=;!'+,`~"
+
+        val arg1 = "my arg1"
+        val arg2 = "my arg2 :\"'<>\$ && || ; \"\" $specialCmdChars ${specialCmdChars.chunked(1).joinToString(" ")}"
+        val projectContext = setupTestDataProject("simple-multiplatform-cli",
+            programArgs = listOf(arg1, arg2))
         AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
 
-        val find = "Process exited with exit code 0\n" +
-                "STDOUT:\n" +
-                "Hello Multiplatform CLI: JVM World"
+        val find = """Process exited with exit code 0
+STDOUT:
+Hello Multiplatform CLI: JVM World
+ARG0: <$arg1>
+ARG1: <$arg2>"""
         assertInfoLogStartsWith(find)
     }
 

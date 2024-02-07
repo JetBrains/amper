@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
@@ -16,7 +17,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
-import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.io.path.ExperimentalPathApi
@@ -32,6 +32,7 @@ class JvmRunTask(
     override val module: PotatoModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
+    private val commonRunSettings: CommonRunSettings,
 ) : RunTask {
     override val platform = Platform.JVM
 
@@ -74,11 +75,14 @@ class JvmRunTask(
                     "-cp",
                     classpath,
                     mainClassReal,
-                )
+                ) +
+                commonRunSettings.programArgs
 
         return spanBuilder("jvm-run")
             .setAttribute("java", javaExecutable.pathString)
-            .setAttribute("jvm-args", ShellQuoting.quoteArgumentsPosixShellWay(jvmArgs))
+            .setListAttribute("jvm-args", jvmArgs)
+            .setListAttribute("program-args", commonRunSettings.programArgs)
+            .setListAttribute("args", args)
             .setAttribute("classpath", classpath)
             .setAttribute("main-class", mainClassReal).useWithScope {
                 val workingDir = when (val source = module.source) {
