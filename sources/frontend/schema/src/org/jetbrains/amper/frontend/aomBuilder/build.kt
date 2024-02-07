@@ -139,7 +139,7 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
             module = DefaultModule(
                 mPath.parent.name,
                 convertedType,
-                PotatoModuleFileSource(mPath.toPath()),
+                PotatoModuleFileSource(mPath.toNioPath()),
                 holder.module,
                 holder.chosenCatalog,
             )
@@ -148,7 +148,7 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
 
     val moduleDir2module = (modules
         .associate { (path, _, module) -> path.parent to module } + gradleModules)
-        .mapKeys { (k, _) -> k.toPath() }
+        .mapKeys { (k, _) -> k.toNioPath() }
 
     modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()

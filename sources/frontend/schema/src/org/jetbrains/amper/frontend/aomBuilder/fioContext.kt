@@ -82,7 +82,7 @@ open class DefaultFioContext(
             // Ignore comments.
             .filter { !it.startsWith("#") }
             .filter { it.isNotBlank() }
-            .map { rootDir.toPath() / it }
+            .map { rootDir.toNioPath() / it }
     }
 
     override val amperModuleFiles: List<VirtualFile> by lazy {

@@ -68,7 +68,7 @@ open class DefaultFragment(
         val srcPathString =
             if (srcOnlyOwner) srcStringPrefix
             else "$srcStringPrefix$modifier"
-        moduleFile.parent.toPath().resolve(srcPathString)
+        moduleFile.parent.toNioPath().resolve(srcPathString)
     }
 
     override val resourcesPath by lazy {
@@ -76,7 +76,7 @@ open class DefaultFragment(
         val resourcesPathString =
             if (srcOnlyOwner) resourcesStringPrefix
             else "$resourcesStringPrefix$modifier"
-        moduleFile.parent.toPath().resolve(resourcesPathString)
+        moduleFile.parent.toNioPath().resolve(resourcesPathString)
     }
 }
 

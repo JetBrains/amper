@@ -19,7 +19,6 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
-import java.nio.file.Path
 
 data class DefaultModel(override val modules: List<PotatoModule>) : Model
 
@@ -62,7 +61,7 @@ class DefaultArtifact(
 class DumbGradleModule(file: VirtualFile) : PotatoModule {
     override val userReadableName = file.parent.name
     override val type = ProductType.LIB
-    override val source = PotatoModuleFileSource(file.toPath())
+    override val source = PotatoModuleFileSource(file.toNioPath())
     override val origin = Module()
     override val fragments = listOf<Fragment>()
     override val artifacts = listOf<Artifact>()

@@ -17,8 +17,3 @@ fun Modifiers.asStringSet() = map { it.value }.toSet()
 
 // Convenient function to extract modifiers.
 val ValueBase<out Map<Modifiers, *>>.modifiers get() = value.keys
-
-/**
- * [VirtualFile.toNioPath] doesn't always work well (e.g., with temporary file systems).
- */
-fun VirtualFile.toPath(): Path = VfsUtil.virtualToIoFile(this).toPath()
