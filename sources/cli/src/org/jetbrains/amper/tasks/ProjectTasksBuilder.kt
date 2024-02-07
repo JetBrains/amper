@@ -10,6 +10,8 @@ import org.jetbrains.amper.cli.CliProblemReporterContext
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.get
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
@@ -557,9 +559,10 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
         val downloadSystemImageTaskName =
             TaskName.fromHierarchy(listOf(module.userReadableName, "downloadSystemImage${isTest.testSuffix}"))
+        val abi = if(DefaultSystemInfo.detect().arch == SystemInfo.Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
         tasks.registerTask(
             GetAndroidPlatformFileFromPackageTask(
-                "system-images;android-$versionNumber;${DEFAULT_TAG.id};${Abi.ARM64_V8A}",
+                "system-images;android-$versionNumber;${DEFAULT_TAG.id};$abi",
                 executeOnChangedInputs,
                 androidSdkPath,
                 downloadSystemImageTaskName

@@ -75,8 +75,8 @@ pluginManagement {
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
         maven("https://packages.jetbrains.team/maven/p/amper/amper")
-        ${if (fromSources) "includeBuild(\"$tempDirForSources\")" else ""}
     }
+    ${if (fromSources) "includeBuild(\"$tempDirForSources\")" else ""}
 }
 
 
