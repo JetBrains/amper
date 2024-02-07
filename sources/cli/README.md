@@ -22,10 +22,10 @@ Depending on your operating system, use one of the following commands to downloa
 curl -L "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/0.2.0-dev-414/cli-0.2.0-dev-414-wrapper.sh?download=true" > amper.sh & chmod +x amper.sh
 ```
 
-### Windows
+### Windows (powershell)
 
 ```
-curl -L "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/0.2.0-dev-414/cli-0.2.0-dev-414-wrapper.bat?download=true" > amper.bat
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/0.2.0-dev-414/cli-0.2.0-dev-414-wrapper.bat?download=true -OutFile amper.bat
 ```
 
 Alternatively, you can use any other method to download the wrapper script from the Maven repository, as long as you 
@@ -44,10 +44,10 @@ To run the wrapper script, use one of the following commands, depending on your 
 ./amper.sh
 ```
 
-### Windows
+### Windows (powershell)
 
 ```
-amper.bat
+./amper.bat
 ```
 
 The first time you run the wrapper script, it will take some time to download the JDK and Amper CLI distribution. 
