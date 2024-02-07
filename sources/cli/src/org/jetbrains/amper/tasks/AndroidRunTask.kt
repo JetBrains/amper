@@ -111,7 +111,7 @@ class AndroidRunTask(
                 ?: run {
                     // create a new one
                     avdManager.createAvd(
-                        avdPath,
+                        avdPath.resolve("amper-$androidTarget.avd"),
                         "amper-$androidTarget",
                         systemImage,
                         null,
