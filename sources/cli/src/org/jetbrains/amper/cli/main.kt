@@ -19,6 +19,7 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.IntelliJPlatformInitializer
 import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
@@ -56,6 +57,8 @@ private class RootCommand : CliktCommand(name = "amper") {
         // TODO disabled jul bridge for now since it reports too much in debug mode
         //  and does not handle source class names from jul LogRecord
         // JulTinylogBridge.activate()
+
+        IntelliJPlatformInitializer.setup()
 
         val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
         provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)

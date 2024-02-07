@@ -7,6 +7,7 @@ package org.jetbrains.amper.gradle
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
+import org.jetbrains.amper.core.IntelliJPlatformInitializer
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.messages.BuildProblem
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory
 @Suppress("unused") // Is passed via implementationClass option when declaring a plugin in the Gradle script.
 class BindingSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
+        IntelliJPlatformInitializer.setup()
+
         val rootPath = settings.rootDir.toPath().toAbsolutePath()
         with(SLF4JProblemReporterContext()) {
             val model = ModelInit.getModel(rootPath)
