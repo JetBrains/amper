@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../core
+  - com.jetbrains.intellij.platform:util:233.13763.11
+  - com.jetbrains.intellij.platform:util-jdom:233.13763.11

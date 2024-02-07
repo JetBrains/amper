@@ -19,10 +19,10 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.core.IntelliJPlatformInitializer
 import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import org.tinylog.Level
 import kotlin.io.path.Path
 import kotlin.system.exitProcess

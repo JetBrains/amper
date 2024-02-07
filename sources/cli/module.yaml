@@ -9,6 +9,7 @@ repositories:
 
 dependencies:
   - ../core
+  - ../core-intellij
   - ../frontend-api: exported
   - ../frontend/schema
   - ../dependency-resolution
