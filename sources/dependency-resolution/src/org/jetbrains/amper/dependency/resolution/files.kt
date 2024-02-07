@@ -23,7 +23,11 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.security.MessageDigest
 import java.time.ZonedDateTime
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.getLastModifiedTime
+import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -183,7 +187,7 @@ open class DependencyFile(
     ): Boolean {
         val temp = cacheDirectory.getTempPath(dependency, "$nameWithoutExtension.$extension")
         try {
-            Files.createDirectories(temp.parent)
+            temp.parent.createDirectories()
             try {
                 FileChannel.open(temp, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW).use { channel ->
                     channel.lock().use {
@@ -240,7 +244,7 @@ open class DependencyFile(
             )
             return false
         } finally {
-            Files.deleteIfExists(temp)
+            temp.deleteIfExists()
         }
     }
 
@@ -278,9 +282,9 @@ open class DependencyFile(
                 hashers.find { it.algorithm == "sha1" }?.hash
                     ?: throw AmperDependencyResolutionException("sha1 must be present among hashers"),
             )
-            Files.createDirectories(target.parent)
+            target.parent.createDirectories()
             try {
-                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE)
+                temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
                 if (repositories.any {
                         shouldOverwrite(object : HashersProvider {
@@ -288,7 +292,7 @@ open class DependencyFile(
                             override fun invoke(): Collection<Hasher> = lazyHashers
                         }, it, progress, verify)
                     }) {
-                    Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                    temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             onFileDownloaded()
@@ -482,7 +486,7 @@ class SnapshotDependencyFile(
                 return false
             }
         } else {
-            return Files.getLastModifiedTime(path) > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
+            return path.getLastModifiedTime() > FileTime.from(ZonedDateTime.now().minusDays(1).toInstant())
         }
         return true
     }
