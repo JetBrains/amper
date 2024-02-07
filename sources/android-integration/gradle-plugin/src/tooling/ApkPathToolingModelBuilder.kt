@@ -31,6 +31,7 @@ class ApkPathToolingModelBuilder : ToolingModelBuilder {
                 projectPathToModule[p.path]?.let {
                     if (p.path in (project.gradle.request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
                         for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
+                            val apkSuffix = if (buildTypeValue == "release") "-unsigned" else ""
                             when (it.type) {
                                 ProductType.ANDROID_APP -> add(
                                     p
@@ -39,7 +40,7 @@ class ApkPathToolingModelBuilder : ToolingModelBuilder {
                                         .get()
                                         .asFile
                                         .toPath()
-                                        .resolve("outputs/apk/$buildTypeValue/${p.name}-$buildTypeValue.apk")
+                                        .resolve("outputs/apk/$buildTypeValue/${p.name}-$buildTypeValue$apkSuffix.apk")
                                         .toAbsolutePath()
                                         .toString()
                                 )
