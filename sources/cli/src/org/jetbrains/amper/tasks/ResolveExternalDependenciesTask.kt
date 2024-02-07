@@ -59,10 +59,6 @@ class ResolveExternalDependenciesTask(
 
         val dependenciesToResolve = exportedDependencies + directCompileDependencies
 
-        if (directCompileDependencies.any { it.contains("clikt") }) {
-            println()
-        }
-
         logger.info("resolve dependencies ${module.userReadableName} -- " +
                     "${fragments.userReadableList()} -- " +
                     "${directCompileDependencies.sorted().joinToString(" ")} -- " +
