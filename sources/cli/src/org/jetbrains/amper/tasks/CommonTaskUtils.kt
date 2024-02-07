@@ -13,16 +13,16 @@ object CommonTaskUtils {
     //  also it depends on task hierarchy, which could be different from classpath
     //  but for demo it's fine
     //  I suggest to return to this task after our own dependency resolution engine
-    fun buildClasspath(compileTaskResult: JvmCompileTask.TaskResult): List<Path> {
+    fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.TaskResult): List<Path> {
         val result = mutableListOf<Path>()
-        buildClasspath(compileTaskResult, result)
+        buildRuntimeClasspath(compileTaskResult, result)
         return result
     }
 
-    private fun buildClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
+    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
         val externalClasspath =
             compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
-                .flatMap { it.classpath }
+                .flatMap { it.runtimeClasspath }
         for (path in externalClasspath) {
             if (!result.contains(path)) {
                 result.add(path)
@@ -30,7 +30,7 @@ object CommonTaskUtils {
         }
 
         for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
-            buildClasspath(depCompileResult, result)
+            buildRuntimeClasspath(depCompileResult, result)
         }
 
         compileTaskResult.classesOutputRoot?.let { result.add(it) }

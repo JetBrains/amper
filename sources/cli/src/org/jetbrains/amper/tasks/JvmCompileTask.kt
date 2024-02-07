@@ -81,7 +81,7 @@ class JvmCompileTask(
         val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
-        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.classpath + additionalClasspath
+        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),

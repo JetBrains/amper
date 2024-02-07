@@ -44,7 +44,7 @@ class JvmTestTask(
         // test task depends on compile test task
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("JvmCompileTask result it not found in dependencies")
-        val testClasspath = CommonTaskUtils.buildClasspath(compileTask)
+        val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 

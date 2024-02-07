@@ -63,7 +63,7 @@ class JvmRunTask(
         // TODO some of them should be coming from module files, some from command line
         // ideally ./amper :cli:jvmRun --debug
 
-        val classpathList = CommonTaskUtils.buildClasspath(compileTaskResult)
+        val classpathList = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult)
         val classpath = classpathList.joinToString(File.pathSeparator)
 
         // TODO how to customize properties? -ea? -Xmx?

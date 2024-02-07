@@ -34,8 +34,9 @@ class AndroidBuildTask(
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
         val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
             .firstNotNullOfOrNull { it.classesOutputRoot } ?: error("No build classes")
-        val resolvedAndroidRuntimeDependencies =
-            dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.classpath }
+        val resolvedAndroidRuntimeDependencies = dependenciesResult
+            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .flatMap { it.compileClasspath }
         val androidModuleData = AndroidModuleData(":", classes, resolvedAndroidRuntimeDependencies.map {
             ResolvedDependency("group", "artifact", "version", it)
         })
