@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.TaskResult.Companion.walkDependenciesRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -56,6 +57,8 @@ class NativeCompileTask(
         if (fragments.isEmpty()) {
             error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
+
+        // TODO exported dependencies. It's better to supported them in unified way across JVM and Native
 
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
@@ -103,7 +106,11 @@ class NativeCompileTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifactExtension = if (module.type.isLibrary() && !isTest) ".klib" else ".kexe"
+            val artifactExtension = when {
+                module.type.isLibrary() && !isTest -> ".klib"
+                OS.isWindows -> ".exe"
+                else -> ".kexe"
+            }
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
 
             val args = mutableListOf(

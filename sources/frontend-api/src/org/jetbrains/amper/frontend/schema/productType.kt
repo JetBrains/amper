@@ -70,6 +70,13 @@ enum class ProductType(
         "linux/app",
         supportedPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64),
         defaultPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64)
+    ),
+
+    @SchemaDoc("Windows application")
+    WINDOWS_APP(
+        "windows/app",
+        supportedPlatforms = setOf(Platform.MINGW_X64),
+        defaultPlatforms = setOf(Platform.MINGW_X64),
     );
 
     fun isLibrary() = this == LIB

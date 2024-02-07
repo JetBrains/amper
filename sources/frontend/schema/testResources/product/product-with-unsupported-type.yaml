@@ -1,2 +1,2 @@
-# <![Fatal] Unknown ProductType: foo/bar. Should be one of [lib, app, jvm/app, android/app, ios/app, macos/app, linux/app]!>
+# <![Fatal] Unknown ProductType: foo/bar. Should be one of [lib, app, jvm/app, android/app, ios/app, macos/app, linux/app, windows/app]!>
 product: foo/bar

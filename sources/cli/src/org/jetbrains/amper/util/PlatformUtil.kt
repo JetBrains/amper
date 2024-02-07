@@ -22,8 +22,7 @@ object PlatformUtil {
 
             when (OS.type) {
                 Windows -> {
-                    // TODO Not yet supported
-                    // add(Platform.MINGW_X64)
+                    add(Platform.MINGW_X64)
                 }
                 Linux -> when (DefaultSystemInfo.detect().arch) {
                     SystemInfo.Arch.X64 -> add(Platform.LINUX_X64)

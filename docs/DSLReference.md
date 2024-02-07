@@ -15,6 +15,7 @@ Supported product types and platforms:
 | `lib`         | A reusable library which could be used as dependency by other modules in the codebase. | any                                                           |
 | `jvm/app`     | A JVM console or desktop application.                                                  | `jvm`                                                         |
 | `linux/app`   | A native linux application.                                                            | `linuxX86`, `linuxArm64`                                      |
+| `windows/app` | A native Windows application.                                                          | `mingwX64`                                                    |
 | `macos/app`   | A native macOS application.                                                            | `macosX64`, `macosArm64`                                      |
 | `android/app` | An Android VM application.                                                             | `android`                                                     |
 | `ios/app`     | An iOS application.                                                                    | device: `iosArm64`, simulators: `iosX64`, `iosSimulatorArm64` |

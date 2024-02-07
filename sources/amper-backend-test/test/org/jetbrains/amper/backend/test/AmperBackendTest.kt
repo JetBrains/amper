@@ -160,6 +160,19 @@ ARG1: <$arg2>"""
     }
 
     @Test
+    @WindowsOnly
+    fun `simple multiplatform cli test on windows`() {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        AmperBackend(projectContext).runTask(TaskName(":shared:testMingwX64"))
+
+        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
+
+        assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
+        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
+    }
+
+    @Test
     @LinuxOnly
     fun `simple multiplatform cli on linux`() {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
@@ -168,6 +181,18 @@ ARG1: <$arg2>"""
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello Multiplatform CLI: Linux World"
+        assertInfoLogStartsWith(msgPrefix = find)
+    }
+
+    @Test
+    @WindowsOnly
+    fun `simple multiplatform cli on windows`() {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        AmperBackend(projectContext).runTask(TaskName(":windows-cli:runMingwX64"))
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello Multiplatform CLI: Windows (Mingw) World"
         assertInfoLogStartsWith(msgPrefix = find)
     }
 }

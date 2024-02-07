@@ -124,7 +124,7 @@ settings:
 Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
 - `lib` - a reusable library which could be used as dependency by other Modules in the codebase.
 - `jvm/app` - a JVM console or desktop application
-- `windows/app` - a mingw64 app (not yet implemented)
+- `windows/app` - a mingw64 app
 - `linux/app`
 - `macos/app`
 - `android/app` - an Android VM application  
