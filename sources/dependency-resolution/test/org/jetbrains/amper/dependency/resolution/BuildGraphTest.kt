@@ -5,7 +5,10 @@
 package org.jetbrains.amper.dependency.resolution
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.util.*
 import kotlin.io.path.extension
 import kotlin.io.path.name
@@ -14,6 +17,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BuildGraphTest {
+
+    @field:TempDir
+    lateinit var temp: File
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
@@ -462,7 +468,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "org.jetbrains.kotlin:kotlin-test:1.9.20",
                 "junit:junit:4.12",
-            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(context())
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -487,7 +493,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
-            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(context())
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -521,7 +527,7 @@ class BuildGraphTest {
                 "org.jetbrains.kotlin:kotlin-test:1.9.0",
                 "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
                 "junit:junit:4.12",
-            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(context())
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -556,7 +562,7 @@ class BuildGraphTest {
                 "org.reflections:reflections:0.9.8",
                 "javax.inject:javax.inject:1",
                 "net.openhft:compiler:2.3.4",
-            ).toRootNode(Context { repositories = REDIRECTOR_MAVEN2 })
+            ).toRootNode(context())
         ).buildGraph(ResolutionLevel.NETWORK).root
         assertEquals(
             """root
@@ -599,11 +605,9 @@ class BuildGraphTest {
         verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
-        val root = Resolver(dependency.toRootNode(Context {
-            this.scope = scope
-            this.platform = platform
-            this.repositories = repositories
-        })).buildGraph(ResolutionLevel.NETWORK).root
+        val root = Resolver(
+            dependency.toRootNode(context(scope, platform, repositories))
+        ).buildGraph(ResolutionLevel.NETWORK).root
         root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.asSequence().forEach {
@@ -615,6 +619,20 @@ class BuildGraphTest {
         }
         assertEquals(expected, root)
         return root
+    }
+
+    private fun context(
+        scope: ResolutionScope = ResolutionScope.COMPILE,
+        platform: String = "jvm",
+        repositories: List<String> = REDIRECTOR_MAVEN2,
+    ) = Context {
+        this.scope = scope
+        this.platform = platform
+        this.repositories = repositories
+        this.cache = {
+            amperCache = TestUtil.userCacheRoot.resolve(".amper")
+            localRepositories = listOf(MavenLocalRepository(TestUtil.userCacheRoot.resolve(".m2.cache")))
+        }
     }
 
     private fun DependencyNode.verifyGraphConnectivity() {
