@@ -21,6 +21,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
+import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
@@ -58,6 +59,10 @@ abstract class IntegrationTestBase {
         get() = openTelemetryCollector.spansNamed("kotlin-compilation")
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
+
+    init {
+        IntelliJPlatformInitializer.setup()
+    }
 
     protected fun setupTestProject(testProjectPath: Path, copyToTemp: Boolean): ProjectContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }

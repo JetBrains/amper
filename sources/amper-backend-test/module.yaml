@@ -4,6 +4,7 @@ product:
 
 dependencies:
   - ../cli
+  - ../core-intellij
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
   - io.opentelemetry:opentelemetry-sdk:1.32.0
   - org.tinylog:tinylog-impl:2.6.2
