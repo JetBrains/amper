@@ -81,7 +81,11 @@ if not exist "%AMPER_JAVA_HOME%\bin\java.exe" (
 
 endlocal & set AMPER_JAVA_HOME=%AMPER_JAVA_HOME%
 
-call "%~dp0..\..\gradlew.bat" --quiet :sources:cli:unpackedDistribution
+pushd "%~dp0..\.."
+if errorlevel 1 goto fail
+call gradlew.bat --quiet :sources:cli:unpackedDistribution
+if errorlevel 1 goto fail
+popd
 if errorlevel 1 goto fail
 
 "%AMPER_JAVA_HOME%\bin\java.exe" -ea -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
