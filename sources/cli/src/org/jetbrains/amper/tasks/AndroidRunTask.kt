@@ -59,7 +59,7 @@ class AndroidRunTask(
 
         val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.TaskResult>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
-        device.installPackage(apk.pathString, true)
+        device.installPackage(apk.pathString, true, "--bypass-low-target-sdk-block")
 
         val activityName = findActivityToLaunch(androidFragment) ?: error("Could not find activity to launch")
 
