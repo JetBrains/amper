@@ -25,6 +25,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.util.BuildType
 import org.tinylog.Level
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
@@ -104,6 +105,20 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     ).validate { value ->
         checkPlatform(value)
     }
+
+    val buildType by option(
+        "-b",
+        "--build-type",
+        help = "Run under specified build type",
+        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings)
+    ).validate { value ->
+        checkBuildType(value)
+    }
+
+    private fun checkBuildType(value: String) {
+        BuildType.byValue(value) ?: userReadableError("Unsupported build type '$value'.\n\nPossible values: ${BuildType.buildTypeStrings}")
+    }
+
     val programArguments by argument(name = "program arguments").multiple()
 
     val module by option("-m", "--module", help = "specific module to run")
@@ -112,7 +127,8 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
         val commonRunSettings = CommonRunSettings(programArgs = programArguments)
         val amperBackendWithRunSettings = AmperBackend(context = amperBackend.context.copy(commonRunSettings = commonRunSettings))
-        amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module)
+        val buildType = buildType?.let { BuildType.byValue(it) }?: BuildType.Debug
+        amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
     }
 }
 

@@ -105,7 +105,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         }).detectSdkPath()
                     } else null
 
-                    val buildTypes = if (platform == Platform.ANDROID) listOf(BuildType.Debug, BuildType.Release) else listOf(BuildType.Default)
+                    val buildTypes = if (platform == Platform.ANDROID) listOf(BuildType.Debug, BuildType.Release) else listOf(BuildType.Debug)
 
                     for (buildType in buildTypes) {
                         if (isTest && fragments.all { !it.src.exists() }) {
@@ -216,6 +216,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 Platform.ANDROID -> AndroidRunTask(
                                     runTaskName,
                                     module,
+                                    buildType,
                                     androidSdkPath,
                                     avdPath ?: error("No avd path")
                                 )
@@ -475,16 +476,16 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
         val taskName = when (type) {
             // name convention <taskname><platform><buildtype><testsuffix>: example compileAndroidDebugTest
-            CommonTaskType.COMPILE -> "compile$platformSuffix${buildType?.suffix ?: ""}${isTest.testSuffix}"
+            CommonTaskType.COMPILE -> "compile$platformSuffix${buildType?.suffix(platform) ?: ""}${isTest.testSuffix}"
             CommonTaskType.DEPENDENCIES -> "resolveDependencies$platformSuffix${isTest.testSuffix}"
             CommonTaskType.RUN -> {
                 require(!isTest)
-                "run$platformSuffix${buildType?.suffix ?: ""}"
+                "run$platformSuffix${buildType?.suffix(platform) ?: ""}"
             }
 
             CommonTaskType.TEST -> {
                 require(isTest)
-                "test$platformSuffix${buildType?.suffix ?: ""}"
+                "test$platformSuffix${buildType?.suffix(platform) ?: ""}"
             }
         }
 
@@ -543,7 +544,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         userCacheRootPath: Path
     ): TaskName? = if (platform == Platform.ANDROID) {
         val buildAndroidBuildName = TaskName
-            .fromHierarchy(listOf(module.userReadableName, "finalizeBuildAndroid${isTest.testSuffix}${buildType.suffix}"))
+            .fromHierarchy(listOf(module.userReadableName, "finalizeBuildAndroid${isTest.testSuffix}${buildType.suffix(platform)}"))
         tasks.registerTask(
             AndroidBuildTask(
                 module,

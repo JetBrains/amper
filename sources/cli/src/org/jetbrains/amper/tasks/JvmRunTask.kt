@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.io.path.ExperimentalPathApi
@@ -35,6 +36,8 @@ class JvmRunTask(
     private val commonRunSettings: CommonRunSettings,
 ) : RunTask {
     override val platform = Platform.JVM
+    override val buildType: BuildType
+        get() = BuildType.Debug
 
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
 

@@ -74,38 +74,6 @@ object BuildPrimitives {
             }
         }
 
-    suspend fun fireProcessAndForget(
-        command: List<String>,
-        workingDir: Path,
-        environment: Map<String, String> = emptyMap(),
-        onStdoutLine: (String) -> Unit = System.out::println,
-        onStdErrLine: (String) -> Unit = System.err::println
-    ): Process {
-        val process = withContext(Dispatchers.IO) {
-             ProcessBuilder(command)
-                .directory(workingDir.toFile())
-                .also { it.environment().putAll(environment) }
-                .start()
-        }
-
-        val scope = CoroutineScope(Dispatchers.IO)
-
-        scope.launch {
-            val sc = Scanner(process.inputStream)
-            while (sc.hasNextLine() && process.isAlive) {
-                onStdoutLine(sc.nextLine())
-            }
-        }
-        scope.launch {
-            val sc = Scanner(process.errorStream)
-            while (sc.hasNextLine() && process.isAlive) {
-                onStdErrLine(sc.nextLine())
-            }
-        }
-
-        return process
-    }
-
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as

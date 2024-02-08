@@ -5,21 +5,23 @@
 package org.jetbrains.amper.util
 
 import AndroidBuildRequest
+import org.jetbrains.amper.frontend.Platform
 
-enum class BuildType {
-    Default, Debug, Release;
+enum class BuildType(val value: String) {
+    Debug("debug"),
+    Release("release");
 
-    val suffix: String get() {
-        return when(this) {
-            Default -> ""
-            Debug, Release -> name
-        }
+    fun suffix(platform: Platform): String = if (platform == Platform.ANDROID) name else ""
+
+    companion object {
+        val buildTypeStrings: Set<String> = entries.map { it.value }.toSet()
+
+        fun byValue(value: String): BuildType? = entries.associateBy { it.value }[value]
     }
 }
 
 val BuildType.toAndroidRequestBuildType
     get() = when (this) {
-        BuildType.Default -> AndroidBuildRequest.BuildType.Debug
         BuildType.Debug -> AndroidBuildRequest.BuildType.Debug
         BuildType.Release -> AndroidBuildRequest.BuildType.Release
     }

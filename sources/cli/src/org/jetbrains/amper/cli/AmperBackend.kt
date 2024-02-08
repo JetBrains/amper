@@ -19,6 +19,7 @@ import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TestTask
+import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -202,7 +203,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun runApplication(moduleName: String? = null, platform: Platform? = null) {
+    fun runApplication(moduleName: String? = null, platform: Platform? = null, buildType: BuildType? = null) {
         val moduleToRun = if (moduleName != null) {
             resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
                 ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}")
@@ -220,7 +221,9 @@ class AmperBackend(val context: ProjectContext) {
             }
         }
 
-        val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>().filter { it.module == moduleToRun }
+        val moduleRunTasks = taskGraph.tasks.filterIsInstance<RunTask>()
+            .filter { it.module == moduleToRun }
+            .filter { it.buildType == buildType }
         if (moduleRunTasks.isEmpty()) {
             userReadableError("No run tasks are available for module '${moduleToRun.userReadableName}'")
         }

@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 
@@ -28,6 +29,9 @@ class NativeRunTask(
         require(platform.isLeaf)
         require(platform.topmostParentNoCommon == Platform.NATIVE)
     }
+
+    override val buildType: BuildType
+        get() = BuildType.Debug
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val compileTaskResult = dependenciesResult.filterIsInstance<NativeCompileTask.TaskResult>().singleOrNull()
