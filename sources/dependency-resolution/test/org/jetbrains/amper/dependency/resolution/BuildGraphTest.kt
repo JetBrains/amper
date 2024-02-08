@@ -7,8 +7,6 @@ package org.jetbrains.amper.dependency.resolution
 import org.intellij.lang.annotations.Language
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.TestInfo
-import org.junit.jupiter.api.io.TempDir
-import java.io.File
 import java.util.*
 import kotlin.io.path.extension
 import kotlin.io.path.name
@@ -17,9 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BuildGraphTest {
-
-    @field:TempDir
-    lateinit var temp: File
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
