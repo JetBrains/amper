@@ -58,7 +58,7 @@ class Resolver(val root: DependencyNode) {
                 // 1.1. Check if a node with such a key was already registered.
                 val candidates = nodes.computeIfAbsent(node.key) { mutableListOf() }.also { it += node }
                 // 1.2. If it's a known or new conflict, postpone node processing for later.
-                if (node.key in conflicts || candidates.haveConflicts()) {
+                if (node.key in conflicts || candidates.firstOrNull()?.conflictsWith(node) == true) {
                     conflicts += node.key
                     continue
                 }
@@ -84,10 +84,10 @@ class Resolver(val root: DependencyNode) {
         return this
     }
 
-    private fun List<DependencyNode>.haveConflicts() =
+    private fun DependencyNode.conflictsWith(other: DependencyNode) =
         root.context.settings.conflictResolutionStrategies
-            .filter { it.isApplicableFor(this) }
-            .any { it.seesConflictsIn(this) }
+            .filter { it.isApplicableFor(listOf(this, other)) }
+            .any { it.seesConflictsIn(listOf(this, other)) }
 
     private fun List<DependencyNode>.resolveConflict() =
         root.context.settings.conflictResolutionStrategies
