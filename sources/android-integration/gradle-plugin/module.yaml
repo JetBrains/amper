@@ -8,6 +8,7 @@ apply:
 dependencies:
   - ../android-integration-core
   - ../../core
+  - ../../core-intellij
   - ../../frontend-api
   - ../../frontend/schema
   - com.android.library:com.android.library.gradle.plugin:8.2.0

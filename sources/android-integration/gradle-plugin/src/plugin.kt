@@ -24,6 +24,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import tooling.ApkPathToolingModelBuilder
 import tooling.RClassToolingModelBuilder
 import java.io.File
@@ -173,6 +174,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
 class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val toolingModelBuilderRegistry: ToolingModelBuilderRegistry) :
     Plugin<Settings> {
     override fun apply(settings: Settings) = with(SLF4JProblemReporterContext()) {
+        IntelliJPlatformInitializer.setup()
         registerToolingModelBuilders()
 
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
