@@ -27,7 +27,7 @@ COMPOSE_VERSION="1.5.10"
 GRADLE_VERSION="8.1.1-bin.zip"
 ANDROID_VERSION="8.1.0"
 
-DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
+DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
 
 # --- Replacement rules ---
 # Note: To add new rule with [add_update_rule] - add regex, that matches string inclusively right
@@ -37,7 +37,7 @@ DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/or
 add_update_rule $BOOTSTRAP_AMPER_VERSION "org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
 add_update_rule $BOOTSTRAP_AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
 
-append_to_sed_file "s#(cli\/cli\/).*(\/.*)(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2\\3#g"
+append_to_sed_file "s#(\/cli\/).*(\/.*)(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2\\3#g"
 append_to_sed_file "s#(cli-).*(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2#g"
 append_to_sed_file "s#^amper_version=.*#amper_version=$BOOTSTRAP_AMPER_VERSION#g"
 append_to_sed_file "s#^set amper_version=.*#set amper_version=$BOOTSTRAP_AMPER_VERSION#g"
