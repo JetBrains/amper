@@ -606,10 +606,8 @@ class BuildGraphTest {
         root.verifyGraphConnectivity()
         if (verifyMessages) {
             root.asSequence().forEach {
-                assertTrue(
-                    it.messages.none { "Downloaded from" !in it.text },
-                    "There must be no messages for $it: ${it.messages}"
-                )
+                val messages = it.messages.filter { "Downloaded from" !in it.text }
+                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
             }
         }
         assertEquals(expected, root)
