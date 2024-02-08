@@ -43,4 +43,22 @@ class DependencyFileTest {
         assertTrue(downloaded, "File must be downloaded as it was created above")
         assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
     }
+
+    @Test
+    fun `jackson-module-kotlin-2_15_2_jar hash`() {
+        val path = temp.toPath()
+        val context = Context {
+            cache = {
+                localRepositories = listOf(MavenLocalRepository(path))
+            }
+        }
+        val dependency = MavenDependency(
+            context.settings.fileCache,
+            "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
+        )
+        dependency.resolve(context, ResolutionLevel.NETWORK)
+        dependency.downloadDependencies(context.settings)
+        val errors = dependency.messages.filter { it.severity == Severity.ERROR }
+        assertTrue(errors.isEmpty(), "There must be no errors: $errors")
+    }
 }

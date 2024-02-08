@@ -348,10 +348,10 @@ open class DependencyFile(
     ): String? {
         val name = "$nameWithoutExtension.$extension"
         val hashFromVariant = when (algorithm) {
-            "sha512" -> fileFromVariant(dependency, name)?.sha512
-            "sha256" -> fileFromVariant(dependency, name)?.sha256
-            "sha1" -> fileFromVariant(dependency, name)?.sha1
-            "md5" -> fileFromVariant(dependency, name)?.md5
+            "sha512" -> fileFromVariant(dependency, name)?.sha512?.fixOldGradleHash(128)
+            "sha256" -> fileFromVariant(dependency, name)?.sha256?.fixOldGradleHash(64)
+            "sha1" -> fileFromVariant(dependency, name)?.sha1?.fixOldGradleHash(40)
+            "md5" -> fileFromVariant(dependency, name)?.md5?.fixOldGradleHash(32)
             else -> null
         }
         if (hashFromVariant != null) {
@@ -380,10 +380,12 @@ open class DependencyFile(
 
     private fun getHashFromGradleCacheDirectory(algorithm: String) =
         if (cacheDirectory is GradleLocalRepository && algorithm == "sha1") {
-            path?.parent?.name?.padStart(40, '0') // old Gradle compatibility
+            path?.parent?.name?.fixOldGradleHash(40)
         } else {
             null
         }
+
+    private fun String.fixOldGradleHash(hashLength: Int) = padStart(hashLength, '0')
 
     private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
         val name = getNamePart(repository, nameWithoutExtension, extension, progress)
