@@ -46,10 +46,13 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      * @return `true` if dependencies have different versions according to [ComparableVersion].
      */
     override fun seesConflictsIn(candidates: List<DependencyNode>): Boolean =
-        candidates.map { it as MavenDependencyNode }
-            .map { it.dependency }
-            .distinctBy { ComparableVersion(it.version) }
-            .size > 1
+        candidates.asSequence()
+            .map { it as MavenDependencyNode }
+            .map { it.dependency.version }
+            .distinct()
+            .distinctBy { ComparableVersion(it) }
+            .take(2)
+            .count() > 1
 
     /**
      * Sets [MavenDependency] with the highest version and state to all candidates. Never fails.
@@ -57,11 +60,12 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      * @return always `true`
      */
     override fun resolveConflictsIn(candidates: List<DependencyNode>): Boolean {
-        val mavenDependencyNodes = candidates.map { it as MavenDependencyNode }
-        val dependency = mavenDependencyNodes.map { it.dependency }.maxWith(
-            compareBy<MavenDependency> { ComparableVersion(it.version) }.thenBy { it.state }
-        )
-        mavenDependencyNodes.forEach { it.dependency = dependency }
+        val dependency = candidates.asSequence()
+            .map { it as MavenDependencyNode }
+            .map { it.dependency }
+            .distinctBy { it.version }
+            .maxBy { ComparableVersion(it.version) }
+        candidates.asSequence().map { it as MavenDependencyNode }.forEach { it.dependency = dependency }
         return true
     }
 }
