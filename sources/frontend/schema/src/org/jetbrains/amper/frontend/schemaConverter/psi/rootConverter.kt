@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -68,15 +70,19 @@ fun convertTemplate(file: VirtualFile) =
 context(ProblemReporterContext, ConvertCtx)
 fun convertModulePsi(file: PsiFile): Module? {
     // TODO Add reporting.
-    val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
-    return rootNode?.convertModule()
+    return ApplicationManager.getApplication().runReadAction(Computable {
+        val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
+        rootNode?.convertModule()
+    })
 }
 
 context(ProblemReporterContext, ConvertCtx)
 fun convertTemplatePsi(file: PsiFile): Template? {
     // TODO Add reporting.
-    val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
-    return rootNode?.convertTemplate()
+    return ApplicationManager.getApplication().runReadAction(Computable {
+        val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
+        rootNode?.convertTemplate()
+    })
 }
 
 context(ProblemReporterContext, ConvertCtx)
