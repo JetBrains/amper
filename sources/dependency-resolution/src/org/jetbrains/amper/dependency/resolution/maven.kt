@@ -138,7 +138,7 @@ class MavenDependency internal constructor(
     var state: ResolutionState = ResolutionState.INITIAL
     val children: MutableList<MavenDependency> = mutableListOf()
     var variant: Variant? = null
-    var packaging: String = "jar"
+    var packaging: String? = null
     val messages: MutableList<Message> = mutableListOf()
 
     val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
@@ -152,11 +152,17 @@ class MavenDependency internal constructor(
                     getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
                 )
             }
-            packaging.takeIf { it != "pom" }?.let {
+            packaging?.takeIf { it != "pom" }?.let {
                 val extension = if (it == "bundle") "jar" else it
                 put(
                     extension,
                     getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
+                )
+            }
+            if (isEmpty()) {
+                put(
+                    "jar",
+                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar")
                 )
             }
         }
@@ -268,7 +274,7 @@ class MavenDependency internal constructor(
             )
             return
         }
-        project.packaging?.let { packaging = it }
+        packaging = project.packaging
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
         }.filter {
