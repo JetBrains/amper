@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.util
 
+import com.android.SdkConstants
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -13,9 +16,8 @@ val AndroidSettings.repr: String
 
 class AndroidSdkDetector(
     private val suggesters: List<Suggester> = buildList {
-        add(EnvironmentVariableSuggester("ANDROID_HOME"))
-        add(EnvironmentVariableSuggester("ANDROID_SDK_ROOT"))
-        add(SystemPropertySuggester("android.home"))
+        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_HOME_ENV))
+        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_SDK_ROOT_ENV))
         add(DefaultSuggester())
     }
 ) {
@@ -29,14 +31,11 @@ class AndroidSdkDetector(
         override fun suggestSdkPath(): Path? = System.getenv(environmentVariableName)?.let { Paths.get(it) }
     }
 
-    class SystemPropertySuggester(private val propertyName: String) : Suggester {
-        override fun suggestSdkPath(): Path? = System.getProperty(propertyName)?.let { Paths.get(it) }
-    }
-
     class DefaultSuggester : Suggester {
-        override fun suggestSdkPath(): Path? = System
-            .getProperty("user.home")
-            ?.let { Paths.get(it).resolve(".android-sdk") }
-
+        override fun suggestSdkPath(): Path? = when (DefaultSystemInfo.detect().family) {
+            SystemInfo.OsFamily.Windows -> Path.of(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
+            SystemInfo.OsFamily.MacOs -> Path.of(System.getProperty("user.home")).resolve("Library/Android/sdk")
+            else -> Path.of(System.getProperty("user.home")).resolve("Android/Sdk")
+        }
     }
 }

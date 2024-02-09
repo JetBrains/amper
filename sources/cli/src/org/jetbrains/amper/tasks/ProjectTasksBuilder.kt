@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
+import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.devices.Abi
 import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
 import org.jetbrains.amper.cli.CliProblemReporterContext
@@ -95,16 +96,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
                     createResolveTask()
 
-                    val avdPath = if (platform == Platform.ANDROID) {
-                        AndroidSdkDetector(buildList {
-                            add(AndroidSdkDetector.EnvironmentVariableSuggester("ANDROID_AVD_HOME"))
-                            add(AndroidSdkDetector.SystemPropertySuggester("ANDROID_AVD_HOME"))
-                            add(object: AndroidSdkDetector.Suggester {
-                                override fun suggestSdkPath(): Path? = System.getProperty("user.home")?.let { Paths.get(it).resolve(".android/avd") }
-                            })
-                        }).detectSdkPath()
-                    } else null
-
+                    val avdPath = if (platform == Platform.ANDROID) AndroidLocationsSingleton.avdLocation else null
                     val buildTypes = if (platform == Platform.ANDROID) listOf(BuildType.Debug, BuildType.Release) else listOf(BuildType.Debug)
 
                     for (buildType in buildTypes) {
