@@ -1,5 +1,6 @@
-actual class World {
-    actual fun get(): String {
-        return "iOS World"
-    }
+class iOSWorld : World {
+    override val name: String
+        get() = "iOS World"
 }
+
+actual fun getWorld(): World = iOSWorld()

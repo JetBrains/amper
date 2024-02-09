@@ -1,3 +1,5 @@
-expect class World() {
-    fun get() : String
+interface World {
+    val name: String
 }
+
+expect fun getWorld(): World
