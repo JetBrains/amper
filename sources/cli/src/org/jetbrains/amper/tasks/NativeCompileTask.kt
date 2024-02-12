@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.diagnostics.setAmperModule
@@ -174,8 +175,10 @@ class NativeCompileTask(
                         .setAttribute("version", kotlinVersion)
                         .useWithScope { span ->
                             logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
-                            BuildPrimitives.runProcessAndAssertExitCode(jvmArgs, kotlinNativeHome, span
-                            )
+                            val result = BuildPrimitives.runProcessAndGetOutput(jvmArgs, kotlinNativeHome, span)
+                            if (result.exitCode != 0) {
+                                userReadableError("Kotlin native compilation failed (see errors above)")
+                            }
                         }
                 }
             } finally {

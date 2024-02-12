@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -98,11 +99,14 @@ class JvmTestTask(
             .setListAttribute("tests-classpath", testClasspath.map { it.pathString })
             .setListAttribute("jvm-args", jvmCommand)
             .useWithScope { span ->
-                BuildPrimitives.runProcessAndAssertExitCode(jvmCommand, workingDirectory, span)
+                val result = BuildPrimitives.runProcessAndGetOutput(jvmCommand, workingDirectory, span)
 
                 // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
                 //  + one more interesting case: if we reported some failed tests to TeamCity, exit code of Amper should be 0,
                 //  since the build will be failed anyway and it'll just have one more useless build failure about exit code
+                if (result.exitCode != 0) {
+                    userReadableError("JVM tests failed for module '${module.userReadableName}' (see errors above)")
+                }
 
                 JvmTestTaskResult(dependenciesResult)
             }

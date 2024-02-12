@@ -87,13 +87,13 @@ class JvmRunTask(
             .setListAttribute("program-args", commonRunSettings.programArgs)
             .setListAttribute("args", args)
             .setAttribute("classpath", classpath)
-            .setAttribute("main-class", mainClassReal).useWithScope {
+            .setAttribute("main-class", mainClassReal).useWithScope { span ->
                 val workingDir = when (val source = module.source) {
                     is PotatoModuleFileSource -> source.buildDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 
-                val result = BuildPrimitives.runProcessAndGetOutput(args, workingDir)
+                val result = BuildPrimitives.runProcessAndGetOutput(args, workingDir, span)
 
                 val message = "Process exited with exit code ${result.exitCode}" +
                         (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +

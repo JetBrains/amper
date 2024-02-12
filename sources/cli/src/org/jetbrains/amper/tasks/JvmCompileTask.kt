@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.tasks
@@ -107,38 +107,8 @@ class JvmCompileTask(
                     }
                 }
 
-            // Enable multi-platform support only if targeting other than JVM platforms
-            // or having a common and JVM fragments (like src and src@jvm directories)
-            // TODO This a lot of effort to prevent using -Xmulti-platform in ordinary JVM code
-            //  is it worth it? Could we always set -Xmulti-platform?
-            val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || presentSources.size > 1
-
             if (presentSources.isNotEmpty()) {
-                // TODO settings!
-                val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-                val kotlinCompilationResult = compileKotlinSources(
-                    compilerVersion = kotlinVersion,
-                    kotlinUserSettings = kotlinUserSettings,
-                    isMultiplatform = isMultiplatform,
-                    classpath = classpath,
-                    jdkHome = jdkHome,
-                    sourceFiles = presentSources,
-                )
-                if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
-                    userReadableError("Kotlin compilation failed (see errors above)")
-                }
-
-                val javaFilesToCompile = presentSources.flatMap { src ->
-                    src.walk().filter { it.extension == "java" }
-                }
-                if (javaFilesToCompile.isNotEmpty()) {
-                    val kotlinClassesPath = listOf(taskOutputRoot.path)
-                    compileJavaSources(
-                        jdkHome = jdkHome,
-                        classpath = classpath + kotlinClassesPath,
-                        javaSourceFiles = javaFilesToCompile,
-                    )
-                }
+                compileSources(presentSources, kotlinVersion, kotlinUserSettings, classpath)
             } else {
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
             }
@@ -190,6 +160,49 @@ class JvmCompileTask(
                     "together but provide several different values for 'settings.$settingFqn': $distinctValues")
         }
         return distinctValues.singleOrNull()
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    private suspend fun compileSources(
+        sourceFiles: List<Path>,
+        kotlinVersion: String,
+        kotlinUserSettings: KotlinUserSettings,
+        classpath: List<Path>
+    ) {
+        // Enable multi-platform support only if targeting other than JVM platforms
+        // or having a common and JVM fragments (like src and src@jvm directories)
+        // TODO This a lot of effort to prevent using -Xmulti-platform in ordinary JVM code
+        //  is it worth it? Could we always set -Xmulti-platform?
+        val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || sourceFiles.size > 1
+
+        // TODO settings!
+        val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
+        val kotlinCompilationResult = compileKotlinSources(
+            compilerVersion = kotlinVersion,
+            kotlinUserSettings = kotlinUserSettings,
+            isMultiplatform = isMultiplatform,
+            classpath = classpath,
+            jdkHome = jdkHome,
+            sourceFiles = sourceFiles,
+        )
+        if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
+            userReadableError("Kotlin compilation failed (see errors above)")
+        }
+
+        val javaFilesToCompile = sourceFiles.flatMap { src ->
+            src.walk().filter { it.extension == "java" }
+        }
+        if (javaFilesToCompile.isNotEmpty()) {
+            val kotlinClassesPath = listOf(taskOutputRoot.path)
+            val javacSuccess = compileJavaSources(
+                jdkHome = jdkHome,
+                classpath = classpath + kotlinClassesPath,
+                javaSourceFiles = javaFilesToCompile,
+            )
+            if (!javacSuccess) {
+                userReadableError("Java compilation failed (see errors above)")
+            }
+        }
     }
 
     private suspend fun compileKotlinSources(
@@ -246,7 +259,7 @@ class JvmCompileTask(
         jdkHome: Path,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
-    ) {
+    ): Boolean {
         val javacCommand = listOf(
             JdkDownloader.getJavacExecutable(jdkHome).pathString,
             "-classpath", classpath.joinToString(File.pathSeparator),
@@ -260,15 +273,16 @@ class JvmCompileTask(
             "-d", taskOutputRoot.path.pathString,
         ) + javaSourceFiles.map { it.pathString }
 
-        spanBuilder("javac")
+        val result = spanBuilder("javac")
             .setAmperModule(module)
             .setListAttribute("args", javacCommand)
             .setAttribute("jdk-home", jdkHome.pathString)
             // TODO get version from jdkHome/release
             // .setAttribute("version", jdkHome.)
             .useWithScope { span ->
-                BuildPrimitives.runProcessAndAssertExitCode(javacCommand, jdkHome, span)
+                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdkHome, span)
             }
+        return result.exitCode == 0
     }
 
     class TaskResult(

@@ -43,15 +43,16 @@ class NativeRunTask(
         return spanBuilder("native-run")
             .setAttribute("executable", executable.pathString)
             .setListAttribute("args", programArgs)
-            .useWithScope {
+            .useWithScope { span ->
                 val workingDir = when (val source = module.source) {
                     is PotatoModuleFileSource -> source.buildDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    listOf(executable.pathString) + programArgs,
-                    workingDir
+                    command = listOf(executable.pathString) + programArgs,
+                    workingDir = workingDir,
+                    span = span,
                 )
 
                 val message = "Process exited with exit code ${result.exitCode}" +

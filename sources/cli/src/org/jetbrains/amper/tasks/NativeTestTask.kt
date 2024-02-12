@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
@@ -35,7 +36,11 @@ class NativeTestTask(
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 
-                BuildPrimitives.runProcessAndAssertExitCode(listOf(executable.pathString), workingDir, span)
+                val command = listOf(executable.pathString)
+                val result = BuildPrimitives.runProcessAndGetOutput(command, workingDir, span)
+                if (result.exitCode != 0) {
+                    userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' (see errors above)")
+                }
 
                 object : TaskResult {
                     override val dependencies: List<TaskResult> = dependenciesResult
