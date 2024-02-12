@@ -76,16 +76,24 @@ class ResolveExternalDependenciesTask(
             "repositories" to repositories.joinToString("|"),
         )
 
-        val result = executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
-            val compileClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.COMPILE).toList()
-            val runtimeClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.RUNTIME).toList()
-            return@execute ExecuteOnChangedInputs.ExecutionResult(
-                (compileClasspath + runtimeClasspath).toSet().sorted(),
-                outputProperties = mapOf(
-                    "compile" to compileClasspath.joinToString(File.pathSeparator),
-                    "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
-                ),
-            )
+        val result = try {
+            executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
+                val compileClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.COMPILE).toList()
+                val runtimeClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.RUNTIME).toList()
+                return@execute ExecuteOnChangedInputs.ExecutionResult(
+                    (compileClasspath + runtimeClasspath).toSet().sorted(),
+                    outputProperties = mapOf(
+                        "compile" to compileClasspath.joinToString(File.pathSeparator),
+                        "runtime" to runtimeClasspath.joinToString(File.pathSeparator),
+                    ),
+                )
+            }
+        } catch (t: Throwable) {
+            throw IllegalStateException("resolve dependencies of module '${module.userReadableName}' failed\n" +
+                    "fragments: ${fragments.userReadableList()}\n" +
+                    "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
+                    "direct dependencies:\n${directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
+                    "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}", t)
         }
 
         val compileClasspath = result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
