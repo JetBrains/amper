@@ -90,11 +90,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun runTask(taskName: TaskName) {
-        runBlocking {
-            taskExecutor.run(listOf(taskName))
-        }
-    }
+    suspend fun runTask(taskName: TaskName) = taskExecutor.run(listOf(taskName))
 
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
@@ -250,7 +246,7 @@ class AmperBackend(val context: ProjectContext) {
                 """.trimIndent())
         }
 
-        runTask(task.taskName)
+        runBlocking { runTask(task.taskName) }
     }
 
     private fun availableModulesString() =

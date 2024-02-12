@@ -13,7 +13,7 @@ import com.google.common.collect.HashBiMap
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("my-app", getString(R.string.app_name))
+        Log.i("my-app", getString(R.string.app_name))
         val userId: BiMap<String, Int> = HashBiMap.create()
         userId.put("guest", 2)
         Log.d("user-id", userId.inverse()[2] ?: "none")

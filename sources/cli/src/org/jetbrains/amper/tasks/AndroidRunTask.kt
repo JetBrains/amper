@@ -18,6 +18,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
@@ -28,7 +29,9 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.util.BuildType
+import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jetbrains.amper.util.startProcessWithStdoutStderrFlows
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -68,7 +71,7 @@ class AndroidRunTask(
             NullOutputReceiver()
         )
 
-        return TaskResult(dependenciesResult)
+        return TaskResult(dependenciesResult, device)
     }
 
     /**
@@ -149,11 +152,15 @@ class AndroidRunTask(
 
     private suspend fun runAndAwaitForEmulatorToBoot(emulatorExecutable: Path, avdName: String) {
         startProcessWithStdoutStderrFlows(
-            listOf(
-                emulatorExecutable.pathString,
-                "-avd",
-                avdName
-            ),
+            buildList {
+                add(emulatorExecutable.pathString)
+                val headlessMode: String? = System.getProperty(headlessEmulatorModePropertyName)
+                if (headlessMode == "true") {
+                    add("-no-window")
+                }
+                add("-avd")
+                add(avdName)
+            },
             emulatorExecutable.parent,
             environment = mapOf(
                 "ANDROID_AVD_HOME" to avdPath.toString(),
@@ -161,6 +168,7 @@ class AndroidRunTask(
             )
         )
             .stdout
+            .map { it.also { logger.info(it) } }
             // we need to wait until the boot will be completed (not until a device becomes online) because when becomes
             // online installation service isn't available yet
             .first { (it.contains("Boot completed") || it.contains("Successfully loaded snapshot")) }
@@ -187,8 +195,10 @@ class AndroidRunTask(
         return device
     }
 
-    data class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>) :
+    data class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>, val device: IDevice) :
         org.jetbrains.amper.tasks.TaskResult
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 }
 
 internal val xml = XML {

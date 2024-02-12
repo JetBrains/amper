@@ -19,6 +19,7 @@ import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
@@ -93,7 +94,7 @@ private class CleanCommand : CliktCommand(name = "clean", help = "Remove project
 private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
     val name by argument(help = "task name to execute")
     val amperBackend by requireObject<AmperBackend>()
-    override fun run() = amperBackend.runTask(TaskName(name))
+    override fun run() = runBlocking { amperBackend.runTask(TaskName(name)) }
 }
 
 private class RunCommand : CliktCommand(name = "run", help = "Run your application. Use -- to separate application's arguments from Amper options") {

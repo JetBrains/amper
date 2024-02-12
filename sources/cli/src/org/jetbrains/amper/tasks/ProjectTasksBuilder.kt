@@ -32,7 +32,6 @@ import org.jetbrains.amper.util.targetLeafPlatforms
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.io.path.exists
 
 @Suppress("LoggingSimilarMessage")
@@ -50,6 +49,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         for (module in sortedByPath) {
             val modulePlatforms = module.targetLeafPlatforms
             for (platform in modulePlatforms) {
+                setupLogcatTask(platform, tasks, module)
                 for (isTest in listOf(false, true)) {
                     val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
@@ -350,6 +350,19 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         }
 
         return tasks.build()
+    }
+
+    private fun setupLogcatTask(
+        platform: Platform,
+        tasks: TaskGraphBuilder,
+        module: PotatoModule
+    ) {
+        if (platform == Platform.ANDROID) {
+            tasks.registerTask(
+                LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
+                getTaskName(module, CommonTaskType.RUN, platform, isTest = false, BuildType.Debug)
+            )
+        }
     }
 
     private fun createRunDependencies(

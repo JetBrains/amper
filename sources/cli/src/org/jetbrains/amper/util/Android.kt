@@ -11,6 +11,8 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import java.nio.file.Path
 import java.nio.file.Paths
 
+const val headlessEmulatorModePropertyName = "org.jetbrains.amper.android.emulator.headless"
+
 val AndroidSettings.repr: String
     get() = "AndroidSettings(minSdk=$minSdk, maxSdk=$maxSdk, targetSdk=$targetSdk, compileSdk=$compileSdk, namespace='$namespace', applicationId='$applicationId')"
 

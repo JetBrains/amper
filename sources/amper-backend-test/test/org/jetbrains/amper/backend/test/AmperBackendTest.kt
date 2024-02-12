@@ -4,6 +4,7 @@
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
@@ -15,6 +16,7 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 
 class AmperBackendTest : IntegrationTestBase() {
 
@@ -24,7 +26,7 @@ class AmperBackendTest : IntegrationTestBase() {
         setupTestProject(testDataRoot.resolve(testProjectName), copyToTemp = false, programArgs = programArgs)
 
     @Test
-    fun `jvm kotlin-test smoke test`() {
+    fun `jvm kotlin-test smoke test`() = runTest {
         val projectContext = setupTestDataProject("jvm-kotlin-test-smoke")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
@@ -44,7 +46,7 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `get jvm resource from dependency`() {
+    fun `get jvm resource from dependency`() = runTest {
         val projectContext = setupTestDataProject("jvm-resources")
         AmperBackend(projectContext).runTask(TaskName(":two:runJvm"))
 
@@ -56,7 +58,7 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `do not call kotlinc again if sources were not changed`() {
+    fun `do not call kotlinc again if sources were not changed`() = runTest {
         val projectContext = setupTestDataProject("language-version")
 
         AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
@@ -78,7 +80,7 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `kotlin compiler span`() {
+    fun `kotlin compiler span`() = runTest {
         val projectContext = setupTestDataProject("language-version")
         AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
 
@@ -95,7 +97,7 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `mixed java kotlin`() {
+    fun `mixed java kotlin`() = runTest {
         val projectContext = setupTestDataProject("java-kotlin-mixed")
         AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:runJvm"))
 
@@ -106,7 +108,7 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `simple multiplatform cli on jvm`() {
+    fun `simple multiplatform cli on jvm`() = runTest {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
 
@@ -120,7 +122,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm exported dependencies`() {
+    fun `jvm exported dependencies`() = runTest {
         val projectContext = setupTestDataProject("jvm-exported-dependencies")
         AmperBackend(projectContext).runTask(TaskName(":cli:runJvm"))
 
@@ -132,7 +134,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli on mac`() {
+    fun `simple multiplatform cli on mac`() = runTest(timeout = 1.minutes) {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":macos-cli:runMacosArm64"))
 
@@ -147,7 +149,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli test on mac`() {
+    fun `simple multiplatform cli test on mac`() = runTest(timeout = 5.minutes) {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
 
@@ -160,7 +162,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @WindowsOnly
-    fun `simple multiplatform cli test on windows`() {
+    fun `simple multiplatform cli test on windows`() = runTest {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMingwX64"))
 
@@ -173,7 +175,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @LinuxOnly
-    fun `simple multiplatform cli on linux`() {
+    fun `simple multiplatform cli on linux`() = runTest {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":linux-cli:runLinuxX64"))
 
@@ -188,7 +190,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @WindowsOnly
-    fun `simple multiplatform cli on windows`() {
+    fun `simple multiplatform cli on windows`() = runTest {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":windows-cli:runMingwX64"))
 

@@ -161,21 +161,3 @@ private val androidTestTasks = listOf(
     "compileAndroidTestDebug",
     "compileAndroidTestRelease",
 )
-
-// doesn't contain the Gradle version catalog on purpose, we want to keep it because Amper supports it
-private val knownGradleFiles = setOf(
-    "gradle-wrapper.jar",
-    "gradle-wrapper.properties",
-    "gradle.properties",
-    "gradlew",
-    "gradlew.bat",
-    "build.gradle.kts",
-    "settings.gradle.kts",
-)
-
-@OptIn(ExperimentalPathApi::class)
-private fun Path.deleteGradleFiles() {
-    walk()
-        .filter { it.name in knownGradleFiles }
-        .forEach { it.deleteExisting() }
-}
