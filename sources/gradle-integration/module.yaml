@@ -5,18 +5,23 @@ product:
 apply:
   - ../common.module-template.yaml
 
+settings:
+  publishing:
+    group: org.jetbrains.amper.settings.plugin
+    name: org.jetbrains.amper.settings.plugin.gradle.plugin
+
 dependencies:
   - ../core
   - ../core-intellij
   - ../frontend-api
   - ../frontend/schema
-  - org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20
-  - org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.20
+  - org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20
   - com.android.library:com.android.library.gradle.plugin:8.1.0
   - org.jetbrains.compose:compose-gradle-plugin:1.5.10: compile-only
+  - dev.gradleplugins:gradle-api:8.1: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.23
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4
-  - io.github.skeptick.libres:gradle-plugin:1.2.2
 
 test-dependencies:
   - com.jetbrains.intellij.platform:core:233.13763.11
+  - dev.gradleplugins:gradle-test-kit:8.1

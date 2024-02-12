@@ -13,7 +13,11 @@ dependencies:
   - ../../frontend/schema
   - com.android.library:com.android.library.gradle.plugin:8.2.0
   - com.android.application:com.android.application.gradle.plugin:8.2.0
+  - dev.gradleplugins:gradle-api:8.1: compile-only
 
 settings:
   kotlin:
     serialization: json
+  publishing:
+    group: org.jetbrains.amper.android.settings.plugin
+    name: org.jetbrains.amper.android.settings.plugin.gradle.plugin

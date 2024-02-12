@@ -12,6 +12,8 @@ dependencies:
 
 test-dependencies:
   - org.yaml:snakeyaml:2.2
+  - dev.gradleplugins:gradle-test-kit:8.1
+  - org.jetbrains.kotlin:kotlin-reflect:1.9.20
 
 apply:
   - ../common.module-template.yaml
