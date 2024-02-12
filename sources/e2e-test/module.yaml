@@ -13,10 +13,5 @@ dependencies:
 test-dependencies:
   - org.yaml:snakeyaml:2.2
 
-#test-dependencies:
-#  - ../frontend/schema
-#  - ../frontend/plain/psi
-#  - ../core
-
 apply:
   - ../common.module-template.yaml
