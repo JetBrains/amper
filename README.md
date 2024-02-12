@@ -10,7 +10,7 @@ We believe that this can be achieved by:
 - bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;
 - carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
 
-In essence, we aim to achieve a similar well-thought-out and well-tested experience as with JetBrains IDEs.
+In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
 
 We’re currently looking at various aspects, including the configuration of projects for the purpose of building, packaging, publishing, and more. At its current stage, however, the focus is primarily on configuring projects for the purpose of building.
 
