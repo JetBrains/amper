@@ -51,6 +51,7 @@ class ResolveExternalDependenciesTask(
             .filterIsInstance<MavenDependency>()
             .filter { it.compile }
             .map { it.coordinates }
+            .distinct()
 
         val exportedDependencies = fragmentsCompileModuleDependencies
             .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }
@@ -58,6 +59,7 @@ class ResolveExternalDependenciesTask(
             .filterIsInstance<MavenDependency>()
             .filter { it.compile && it.exported }
             .map { it.coordinates }
+            .distinct()
 
         val dependenciesToResolve = exportedDependencies + directCompileDependencies
 
