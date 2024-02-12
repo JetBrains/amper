@@ -1,13 +1,15 @@
 
 ### Is Amper a brand-new build tool from JetBrains?
-You can think of Amper as a tool for project configuration with a focus on usability, onboarding, and IDE support. It provides a configuration layer on top of Gradle and is implemented as a Gradle plugin. 
+
+Yes, Amper is a build and project configuration tool with a focus on the user experience and IDE support.
+The first prototype is implemented as a Gradle plugin and provides a project configuration layer.
 
 ### Do you plan to support only Kotlin?
 For now, the primary target is Kotlin and Kotlin Multiplatform projects. Since Kotlin is multiplatform, Amper also supports Java on JVM and Swift and Objective-C on iOS.
 We’ll investigate other tech stacks in the future based on the demand for them.
 
 ### Which target platforms are supported?
-Currently you can create applications for the JVM, Android, iOS, macOS, and Linux. Libraries can be created for all Kotlin Multiplatform targets.
+Currently, you can create applications for the JVM, Android, iOS, macOS, and Linux. Libraries can be created for all Kotlin Multiplatform targets.
 
 ### Does Amper support Compose Multiplatform?
 Yes, you can configure Compose for Android, iOS, and desktop.
@@ -46,15 +48,26 @@ Having said that, we believe that the declarative approach to project configurat
 
 Our final language choice will be made based on the overall UX it provides.
 
-### Why is Gradle used as the build tool?
-For now, the main focus of Amper is improving the build configuration experience and toolability. As a well-tested build engine, Gradle allowed us to start experimenting with the UX of the configuration very quickly. What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if we want to get feedback from real-world use cases.
+### Why is Gradle used as the build engine?
+
+In the initial Amper prototype, our main focus is improving the build configuration user experience and toolability.
+Gradle, as a well-tested build engine, allowed us to start experimenting with the UX of the configuration very quickly.
+What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
+we want to get feedback from real-world use cases.
 
 ### Why not simply improve Gradle?
+
 We believe there is room to improve the project configuration experience and IDE support.
-That’s why we are [working with the Gradle team](https://blog.gradle.org/declarative-gradle) to improve Gradle support in our IDEs and Gradle itself as a primary Kotlin build tool.
-At the same time we are running Amper as a separate experiment and want to show you our design and get your feedback, as this will help us to decide which direction to take the design.
+With Amper we want to show you our design and get your feedback, as it will help us to decide which direction to take
+the design.
+
+At the same time, we are also [working with the Gradle team](https://blog.gradle.org/declarative-gradle) to improve
+Gradle support in our IDEs and Gradle itself.
 
 ### What about Gradle extensibility and plugins?
-Our current focus is improving the build tooling UX and IDE support for Kotlin and Kotlin Multiplatform. We aim to support most use cases out of the box.
 
-Since Gradle is used as a build tool, there’s full interoperability, as well as the option to use existing plugins and write custom tasks using Gradle. 
+Our current focus is improving the user experience and IDE support for Kotlin and Kotlin Multiplatform.
+We aim to support most use cases out of the box.
+
+Since Gradle is used as a build engine in Amper prototype, there’s full interoperability.
+It's possible to use existing Gradle plugins and write custom tasks using Gradle. 

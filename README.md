@@ -4,9 +4,9 @@
 
 # Amper
 
-Amper is a tool for project configuration. Its goal is to improve the project configuration experience and toolability, that is, the support inside the IDE, while also providing a smooth out-of-the box experience. 
+Amper is a build and project configuration tool. Its goal is to provide a great and smooth user experience and IDE support 
 We believe that this can be achieved by:
-- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but also improve maintainability and let an IDE assist with automatic configuration reliably;
+- providing a developer - and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but also improve maintainability and let an IDE assist with automatic configuration reliably;
 - bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;
 - carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
 
@@ -14,9 +14,10 @@ In essence, we aim to achieve a similar well-thought-out and well-tested experie
 
 We’re currently looking at various aspects, including the configuration of projects for the purpose of building, packaging, publishing, and more. At its current stage, however, the focus is primarily on configuring projects for the purpose of building.
 
+Currently, Amper is implemented as a Gradle plugin and uses YAML for its project configuration format. We are working on replacing Gradle with a custom build engine and investigating YAMl alternatives.
+
 While the current use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform). However, the same approach to configuration could work for other languages and technology stacks in the future.  
 
-Amper is implemented as a Gradle plugin and uses YAML for its project configuration format. The goal right now is to validate the user experience, which is why we have chosen to build on a well-tested build tool like Gradle, providing a configuration layer on top of it.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux and macOS applications.
