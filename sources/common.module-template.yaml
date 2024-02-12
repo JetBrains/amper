@@ -8,8 +8,6 @@ repositories:
       passwordKey: scratch.password
   - id: mavenCentral
     url: https://repo.maven.apache.org/maven2/
-  - id: jitpack
-    url: https://jitpack.io
   - id: googleRepo
     url: https://dl.google.com/dl/android/maven2/
   - id: mavenLocal
