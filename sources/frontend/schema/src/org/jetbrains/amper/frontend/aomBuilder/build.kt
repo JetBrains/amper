@@ -208,7 +208,6 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
             DefaultPotatoModuleDependency(
                 // TODO Report to error module.
                 moduleDir2module[path] ?: run {
-                    println(path.pathString + " -- " + moduleDir2module.keys.joinToString { it.pathString })
                     NotResolvedModule(path.name)
                 },
                 path,
