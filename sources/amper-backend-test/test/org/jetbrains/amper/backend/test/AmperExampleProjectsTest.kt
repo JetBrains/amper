@@ -5,6 +5,7 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -12,6 +13,8 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.name
 import kotlin.io.path.walk
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class AmperExampleProjectsTest : IntegrationTestBase() {
 
@@ -70,8 +73,12 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         resetCollectors()
 
-        // FIXME fix test compilation
-//        AmperBackend(projectContext).check()
+        val exception = assertFailsWith<UserReadableError> {
+            AmperBackend(projectContext).check()
+        }
+        assertEquals("JVM tests failed for module 'jvm-with-tests' (see errors above)", exception.message)
+        assertStdoutContains("MethodSource [className = 'WorldTest', methodName = 'shouldFail', methodParameterTypes = '']")
+        assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
     }
 
     @Test
@@ -88,8 +95,8 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         resetCollectors()
 
-        // FIXME fix test compilation
-//        AmperBackend(projectContext).check()
+        AmperBackend(projectContext).check()
+        assertStdoutContains("Test run finished after")
     }
 
     @Test

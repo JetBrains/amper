@@ -99,8 +99,6 @@ abstract class IntegrationTestBase {
         }
     }
 
-    protected fun assertInfoLogContains(msgPrefix: String) = assertLogContains(msgPrefix, level = Level.INFO)
-
     protected fun assertLogContains(text: String, level: Level) {
         assertTrue("Log message with level=$level and containing '$text' was not found") {
             logCollector.entries.any { it.level == level && text in it.message }
