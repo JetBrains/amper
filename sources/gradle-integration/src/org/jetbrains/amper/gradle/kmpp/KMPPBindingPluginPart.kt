@@ -11,13 +11,25 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.FragmentDependencyType
+import org.jetbrains.amper.frontend.Layout
+import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.gradle.*
-import org.jetbrains.amper.gradle.base.*
+import org.jetbrains.amper.frontend.trySet
+import org.jetbrains.amper.gradle.EntryPointType
+import org.jetbrains.amper.gradle.FragmentWrapper
+import org.jetbrains.amper.gradle.LeafFragmentWrapper
+import org.jetbrains.amper.gradle.base.AmperNamingConventions
+import org.jetbrains.amper.gradle.base.BindingPluginPart
+import org.jetbrains.amper.gradle.base.PluginPartCtx
+import org.jetbrains.amper.gradle.closureSources
+import org.jetbrains.amper.gradle.findEntryPoint
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.compilation
@@ -25,6 +37,8 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceS
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.mostCommonNearestAmperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
+import org.jetbrains.amper.gradle.layout
+import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -35,6 +49,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.konan.target.Family
 import java.io.File
 import java.nio.file.Path
@@ -213,8 +228,9 @@ class KMPPBindingPluginPart(
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     private fun initTargets() = with(KotlinAmperNamingConvention) {
-        module.artifactPlatforms.forEach {
+        module.artifactPlatforms.filter { it.isLeaf }.forEach {
             val targetName = it.targetName
             when (it) {
                 Platform.ANDROID -> kotlinMPE.androidTarget(targetName)
@@ -227,7 +243,24 @@ class KMPPBindingPluginPart(
                 Platform.LINUX_X64 -> kotlinMPE.linuxX64(targetName)
                 Platform.LINUX_ARM64 -> kotlinMPE.linuxArm64(targetName)
                 Platform.JS -> kotlinMPE.js(targetName)
-                else -> error("Unsupported platform: $targetName")
+                Platform.WASM -> kotlinMPE.wasmJs(targetName)
+                Platform.TVOS_ARM64 -> kotlinMPE.tvosArm64(targetName)
+                Platform.TVOS_X64 -> kotlinMPE.tvosX64(targetName)
+                Platform.TVOS_SIMULATOR_ARM64 -> kotlinMPE.tvosSimulatorArm64(targetName)
+                Platform.WATCHOS_ARM64 -> kotlinMPE.watchosArm64(targetName)
+                Platform.WATCHOS_ARM32 -> kotlinMPE.watchosArm32(targetName)
+                Platform.WATCHOS_DEVICE_ARM64 -> kotlinMPE.watchosDeviceArm64(targetName)
+                Platform.WATCHOS_SIMULATOR_ARM64 -> kotlinMPE.watchosSimulatorArm64(targetName)
+                Platform.MINGW_X64 -> kotlinMPE.mingwX64(targetName)
+                Platform.ANDROID_NATIVE_ARM32 -> kotlinMPE.androidNativeArm32(targetName)
+                Platform.ANDROID_NATIVE_ARM64 -> kotlinMPE.androidNativeArm64(targetName)
+                Platform.ANDROID_NATIVE_X64 -> kotlinMPE.androidNativeX64(targetName)
+                Platform.ANDROID_NATIVE_X86 -> kotlinMPE.androidNativeX64(targetName)
+
+                // These are not leaf platforms, thus - should not get here.
+                Platform.ANDROID_NATIVE, Platform.MINGW, Platform.WATCHOS,
+                Platform.IOS, Platform.MACOS, Platform.TVOS, Platform.APPLE,
+                Platform.LINUX, Platform.NATIVE, Platform.COMMON -> Unit
             }
         }
 
