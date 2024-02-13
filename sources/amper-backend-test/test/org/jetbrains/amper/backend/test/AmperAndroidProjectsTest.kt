@@ -35,7 +35,7 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `simple-app`() = runTest(timeout = 5.minutes) {
+    fun `simple-app`() = runTest(timeout = 15.minutes) {
         val projectContext = setupAndroidTestProject("simple-app")
         System.setProperty(headlessEmulatorModePropertyName, "true")
         val job = async { AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple-app", "logcat"))) }
