@@ -10,7 +10,7 @@ See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_buildin
 
 _Note, that to use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is recommended._
 
-### Using Amper in IntelliJ IDEA and Android Studio
+### Using Amper in IntelliJ IDEA
 
 See [the setup instructions](Setup.md) to configure your IDE and the environment.
 
