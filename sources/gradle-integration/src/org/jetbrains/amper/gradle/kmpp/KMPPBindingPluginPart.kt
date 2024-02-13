@@ -394,10 +394,7 @@ class KMPPBindingPluginPart(
                             }
                         when (externalDependency) {
                             is MavenDependency -> depFunction(externalDependency.coordinates)
-                            is PotatoModuleDependency -> with(externalDependency) {
-                                model.module.map { depFunction(it.linkedProject) }
-                            }
-
+                            is PotatoModuleDependency -> depFunction(externalDependency.module.linkedProject)
                             else -> error("Unsupported dependency type: $externalDependency")
                         }
                     }

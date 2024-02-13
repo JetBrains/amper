@@ -175,16 +175,12 @@ private fun createArtifacts(
 }
 
 class DefaultPotatoModuleDependency(
-    private val myModule: PotatoModule,
+    override val module: PotatoModule,
     val path: Path,
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
 ) : PotatoModuleDependency, DefaultScopedNotation {
-    context (ProblemReporterContext)
-    override val Model.module
-        get() = myModule.asAmperSuccess()
-
     override fun toString(): String {
         return "InternalDependency(module=${path.pathString})"
     }

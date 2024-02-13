@@ -61,7 +61,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                     // runtime dependencies are not required to be in compile tasks graph
                                     if (dependency.compile) {
                                         // TODO test with non-resolved dependency on module
-                                        val resolvedDependencyModule = dependency.resolveModuleDependency()
+                                        val resolvedDependencyModule = dependency.module
 
                                         resolvedDependencyModule
                                     } else {
@@ -346,7 +346,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 .flatMap { it.externalDependencies }
                                 .filterIsInstance<PotatoModuleDependency>()
                                 .filter { it.compile && it.exported }
-                                .map { it.resolveModuleDependency() }
+                                .map { it.module }
 
                             for (exportedModuleDependency in exportedModuleDependencies) {
                                 registerCompileDependency(module, exportedModuleDependency)
@@ -451,16 +451,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 add(downloadPlatformTools)
             }
         }
-    }
-
-    private fun PotatoModuleDependency.resolveModuleDependency(): PotatoModule = with(CliProblemReporterContext()) {
-        val result = model.module.get()
-
-        if (problemReporter.wereProblemsReported()) {
-            error("failed to build tasks graph, refer to the errors above")
-        }
-
-        result
     }
 
     // All task binding between themselves happens here, so let's keep it private here

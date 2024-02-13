@@ -145,7 +145,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                             .externalDependencies
                                             .asSequence()
                                             .filterIsInstance<PotatoModuleDependency>()
-                                            .map { with(it) { model.module.get() } }
+                                            .map { it.module }
                                             .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
                                             .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
                                             .filter { it in requestedModules }

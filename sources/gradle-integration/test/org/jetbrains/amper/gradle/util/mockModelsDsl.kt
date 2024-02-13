@@ -78,11 +78,7 @@ class MockFragmentLink(
     override val type: FragmentDependencyType
 ) : FragmentLink
 
-class MockPotatoDependency(private val myModule: PotatoModule) : PotatoModuleDependency {
-    context(ProblemReporterContext)
-    override val Model.module: Result<PotatoModule>
-        get() = Result.success(myModule)
-}
+class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDependency
 
 open class MockFragment(
     override var name: String = "fragment",

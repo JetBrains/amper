@@ -69,9 +69,7 @@ interface DefaultScopedNotation : Notation {
 }
 
 interface PotatoModuleDependency : DefaultScopedNotation {
-    // A dirty hack to make module resolution lazy.
-    context (ProblemReporterContext)
-    val Model.module: Result<PotatoModule>
+    val module: PotatoModule
 }
 
 data class MavenDependency(
