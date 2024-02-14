@@ -287,4 +287,19 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         shouldSucceed = false,
         expectOutputToHave = "Currently, compose versions should be the same across all module files"
     )
+
+    @Test
+    fun `Gradle BOM support`() = test(
+        projectName = "gradle-interoperability-bom",
+        "run",
+        expectOutputToHave = "[main] INFO MyClass -- Hello, world!"
+    )
+
+    @Test
+    @EnabledOnOs(value = [OS.MAC])
+    fun `overall platforms test`() = test(
+        projectName = "overall-platforms-test",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
 }
