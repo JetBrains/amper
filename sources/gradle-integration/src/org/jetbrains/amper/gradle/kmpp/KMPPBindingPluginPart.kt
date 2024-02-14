@@ -9,7 +9,6 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.FragmentDependencyType
@@ -242,8 +241,10 @@ class KMPPBindingPluginPart(
                 Platform.MACOS_ARM64 -> kotlinMPE.macosArm64(targetName)
                 Platform.LINUX_X64 -> kotlinMPE.linuxX64(targetName)
                 Platform.LINUX_ARM64 -> kotlinMPE.linuxArm64(targetName)
-                Platform.JS -> kotlinMPE.js(targetName)
-                Platform.WASM -> kotlinMPE.wasmJs(targetName)
+                // TODO Currently no nodejs mode.
+                Platform.JS -> kotlinMPE.js(targetName) { browser() }
+                // TODO Currently no nodejs mode.
+                Platform.WASM -> kotlinMPE.wasmJs(targetName) { browser() }
                 Platform.TVOS_ARM64 -> kotlinMPE.tvosArm64(targetName)
                 Platform.TVOS_X64 -> kotlinMPE.tvosX64(targetName)
                 Platform.TVOS_SIMULATOR_ARM64 -> kotlinMPE.tvosSimulatorArm64(targetName)
@@ -255,7 +256,7 @@ class KMPPBindingPluginPart(
                 Platform.ANDROID_NATIVE_ARM32 -> kotlinMPE.androidNativeArm32(targetName)
                 Platform.ANDROID_NATIVE_ARM64 -> kotlinMPE.androidNativeArm64(targetName)
                 Platform.ANDROID_NATIVE_X64 -> kotlinMPE.androidNativeX64(targetName)
-                Platform.ANDROID_NATIVE_X86 -> kotlinMPE.androidNativeX64(targetName)
+                Platform.ANDROID_NATIVE_X86 -> kotlinMPE.androidNativeX86(targetName)
 
                 // These are not leaf platforms, thus - should not get here.
                 Platform.ANDROID_NATIVE, Platform.MINGW, Platform.WATCHOS,
