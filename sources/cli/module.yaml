@@ -46,6 +46,7 @@ dependencies:
   - com.github.ajalt.clikt:clikt:4.2.2
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.jetbrains.kotlinx:atomicfu:0.23.1
+  - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
 
 test-dependencies:
   - ../test-base

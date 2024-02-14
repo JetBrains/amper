@@ -19,9 +19,9 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
-import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -62,7 +62,7 @@ abstract class IntegrationTestBase {
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
     init {
-        IntelliJPlatformInitializer.setup()
+        CliEnvironmentInitializer.setup()
     }
 
     protected fun setupTestProject(testProjectPath: Path, copyToTemp: Boolean, programArgs: List<String> = emptyList()): ProjectContext {

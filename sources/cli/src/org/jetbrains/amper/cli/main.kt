@@ -24,7 +24,6 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.BuildType
 import org.tinylog.Level
@@ -62,7 +61,7 @@ private class RootCommand : CliktCommand(name = "amper") {
         //  and does not handle source class names from jul LogRecord
         // JulTinylogBridge.activate()
 
-        IntelliJPlatformInitializer.setup()
+        CliEnvironmentInitializer.setup()
 
         val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
         provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)
