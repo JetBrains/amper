@@ -37,11 +37,11 @@ enum class AndroidVersion(
     VERSION_18(18, outdated = true),
     VERSION_19(19, outdated = true),
     VERSION_20(20, outdated = true),
-    VERSION_21(21, outdated = true),
-    VERSION_22(22, outdated = true),
-    VERSION_23(23, outdated = true),
-    VERSION_24(24, outdated = true),
-    VERSION_25(25, outdated = true),
+    VERSION_21(21),
+    VERSION_22(22),
+    VERSION_23(23),
+    VERSION_24(24),
+    VERSION_25(25),
     VERSION_26(26),
     VERSION_27(27),
     VERSION_28(28),
@@ -50,10 +50,11 @@ enum class AndroidVersion(
     VERSION_31(31),
     VERSION_32(32),
     VERSION_33(33),
-    VERSION_34(34),;
+    VERSION_34(34),
+    ;
 
     override val schemaValue = versionNumber.toString()
-    val withPrefix = "android-$schemaValue"
+
     companion object Index : EnumMap<AndroidVersion, String>(AndroidVersion::values, AndroidVersion::schemaValue)
 }
 
