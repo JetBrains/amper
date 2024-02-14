@@ -6,3 +6,4 @@ sources/amper-backend-test/testData
 sources/e2e-test/testData
 sources/samples-jps
 android-projects
+.gradle-test-kit

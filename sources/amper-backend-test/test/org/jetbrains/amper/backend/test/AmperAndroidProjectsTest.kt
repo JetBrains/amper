@@ -4,9 +4,7 @@
 
 package org.jetbrains.amper.backend.test
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.count
@@ -20,8 +18,6 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import java.nio.file.Path
 import kotlin.test.Test
-import kotlin.test.fail
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 class AmperAndroidProjectsTest : IntegrationTestBase() {
@@ -39,16 +35,11 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         val projectContext = setupAndroidTestProject("simple-app")
         System.setProperty(headlessEmulatorModePropertyName, "true")
         val job = async { AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple-app", "logcat"))) }
-        waitForSubstringInLineOrFailAfterTimeout("My Application")
+        waitAndAssertSubstringInOutput("My Application")
         job.cancelAndJoin()
     }
 
-    @OptIn(FlowPreview::class)
-    private suspend fun waitForSubstringInLineOrFailAfterTimeout(substring: String, timeout: Duration = 5.minutes) {
-        try {
-            stdoutCollector.lines.takeWhile { !it.contains(substring) }.count()
-        } catch (e: TimeoutCancellationException) {
-            fail("'$substring' was not found in $timeout")
-        }
+    private suspend fun waitAndAssertSubstringInOutput(substring: String) {
+        stdoutCollector.lines.takeWhile { !it.contains(substring) }.count()
     }
 }
