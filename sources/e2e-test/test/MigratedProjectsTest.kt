@@ -7,7 +7,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import kotlin.test.Ignore
 
-class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/") {
+class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithPluginClasspath = false) {
     @Test
     fun `compose-multiplatform-ios-android-template (android)`() = test(
         projectName = "compose-multiplatform-ios-android-template",
@@ -53,7 +53,6 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/") {
      * 	 at com.android.tools.r8.synthesis.F.b(R8_8.1.56_756d1f50f618dd1c39c000f11defb367a21e9e866e3401b884be16c0950f6f79:27)
      */
     @Test
-    @Ignore
     fun `KaMPKit build successful`() = test(
         projectName = "KaMPKit",
         "build",

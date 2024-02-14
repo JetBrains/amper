@@ -6,7 +6,9 @@ tasks.withType<Test> {
     systemProperties["junit.jupiter.execution.parallel.enabled"] = true
     systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
 
-    dependsOn(":sources:gradle-integration:jar")
+    for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
+        dependsOn(task)
+    }
 
     useJUnitPlatform()
     val inBootstrapMode: String? by project

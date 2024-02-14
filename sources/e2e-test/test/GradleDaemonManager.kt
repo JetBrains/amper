@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.gradle.testkit.runner.GradleRunner
+import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
@@ -14,6 +14,7 @@ import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -75,9 +76,13 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
         list
     }
 
-    private val availableGradleDaemons = ArrayBlockingQueue<GradleRunner>(numberOfDaemons).apply {
+    private val availableGradleDaemons = ArrayBlockingQueue<GradleConnector>(numberOfDaemons).apply {
         repeat(numberOfDaemons) {
-            add(GradleRunner.create().withTestKitDir(createTempDir().toFile()))
+            val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome")
+                .also { it.createDirectories() }
+            add(GradleConnector.newConnector()
+                .useGradleVersion("8.1")
+                .useGradleUserHomeDir(gradleHome.toFile()))
         }
     }
 
@@ -89,7 +94,7 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
     }
 
     override fun afterTestExecution(context: ExtensionContext) {
-        val usedDaemon = context.store.remove(usedDaemonKey, GradleRunner::class.java)
+        val usedDaemon = context.store.remove(usedDaemonKey, GradleConnector::class.java)
         if (!availableGradleDaemons.offer(usedDaemon)) error("Unreachable")
     }
 

@@ -17,6 +17,7 @@ dependencies:
   - ../frontend/schema
   - org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20
   - com.android.library:com.android.library.gradle.plugin:8.1.0
+  - org.jetbrains.kotlin:kotlin-serialization:1.9.20
   - org.jetbrains.compose:compose-gradle-plugin:1.5.10: compile-only
   - dev.gradleplugins:gradle-api:8.1: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.23
@@ -24,4 +25,6 @@ dependencies:
 
 test-dependencies:
   - com.jetbrains.intellij.platform:core:233.13763.11
-  - dev.gradleplugins:gradle-test-kit:8.1
+  - org.gradle:gradle-tooling-api:8.1
+  - commons-io:commons-io:2.4
+  - ../test-base

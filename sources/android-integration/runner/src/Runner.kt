@@ -30,19 +30,18 @@ inline fun <reified R : AndroidBuildResult> runAndroidBuild(
         """
 pluginManagement {
     repositories {
+        ${if (fromSources) "mavenLocal()" else ""}
         mavenCentral()
         google()
         gradlePluginPortal()
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-        maven("https://packages.jetbrains.team/maven/p/amper/amper")
+        ${if (fromSources) "" else "maven(\"https://packages.jetbrains.team/maven/p/amper/amper\")"}
     }
-    ${if (fromSources) "includeBuild(\"${sourcesPath.toString().replace("\\", "\\\\")}\")" else ""}
 }
 
-
 plugins {
-    id("org.jetbrains.amper.android.settings.plugin")${if (!fromSources) ".version(\"${AmperBuild.BuildNumber}\")" else ""}
+    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.BuildNumber}")
 }
 
 configure<AmperAndroidIntegrationExtension> {

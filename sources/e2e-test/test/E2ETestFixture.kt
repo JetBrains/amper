@@ -5,10 +5,12 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
-import org.gradle.testkit.runner.GradleRunner
+import org.apache.commons.io.output.TeeOutputStream
+import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.downloader.extractZip
@@ -17,9 +19,10 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.Properties
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import kotlin.io.path.CopyActionResult
@@ -48,7 +51,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
     /**
      * Daemon, used to run this test.
      */
-    lateinit var gradleRunner: GradleRunner
+    lateinit var gradleRunner: GradleConnector
 
     internal fun test(
         projectName: String,
@@ -70,6 +73,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         )
     }
 
+    @OptIn(ExperimentalPathApi::class)
     internal fun test(
         projectName: String,
         vararg buildArguments: String,
@@ -84,14 +88,29 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
 
         newEnv["ANDROID_HOME"] = androidHome.pathString
         val runner = gradleRunner
-        if (runWithPluginClasspath) runner.withPluginClasspath()
-        runner
-            .withProjectDir(tempDir.toFile())
-            .withEnvironment(newEnv)
-//                .withDebug(true)
-            .withArguments(*buildArguments, "--stacktrace")
-        val buildResult = if (shouldSucceed) runner.build() else runner.buildAndFail()
-        val output = buildResult.output.replace("\r", "")
+        val projectConnector = runner
+            .forProjectDirectory(tempDir.toFile())
+            .connect()
+        val stdout = ByteArrayOutputStream()
+        val stderr = ByteArrayOutputStream()
+
+        try {
+            projectConnector.newBuild()
+                .setEnvironmentVariables(newEnv)
+                // --no-build-cache: do not get a build result from shared Gradle cache
+                .withArguments(*buildArguments, "--stacktrace", "--no-build-cache")
+                .setStandardOutput(TeeOutputStream(System.out, stdout))
+                .setStandardError(TeeOutputStream(System.err, stderr))
+//            .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
+                .run()
+        } catch (t: Throwable) {
+            if (shouldSucceed) {
+                throw t
+            } else {
+                // skip, the error will be checked by expectOutputToHave
+            }
+        }
+        val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
 
         val missingStrings = expectOutputToHave.filter { !output.contains(it) }
         assertTrue(missingStrings.isEmpty(),
@@ -130,6 +149,43 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         if (runWithPluginClasspath) {
             // we don't want to replace the entire settings.gradle.kts because its contents may be part of the test
             gradleFile.writeLines(gradleFile.readLines().filter { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" !in it })
+
+            check(!gradleFile.readText().contains("mavenLocal", ignoreCase = true)) {
+                "Gradle files in testData are not supposed to reference mavenLocal by default: " +
+                        "$gradleFile\n${gradleFile.readText().prependIndent("> ")}"
+            }
+
+            // Add actual plugin to classpath, it's published to mavenLocal before running tests
+            gradleFile.writeText(gradleFile.readText().replace(
+                "mavenCentral()",
+                """
+                    mavenCentral()
+                    mavenLocal()
+                    maven("https://www.jetbrains.com/intellij-repository/releases")
+                    maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+                """.trimIndent()
+            ))
+            check(gradleFile.readText().contains("mavenLocal")) {
+                "Gradle file must have 'mavenLocal' after replacement: $gradleFile\n${gradleFile.readText().prependIndent("> ")}"
+            }
+
+            // Add Amper plugin version
+            gradleFile.writeText(gradleFile.readText().replace(
+                Regex("id\\(\"org.jetbrains.amper.settings.plugin\"\\)[. ]version\\(\".+\"\\)", RegexOption.MULTILINE),
+                "id(\"org.jetbrains.amper.settings.plugin\")"
+            ))
+
+            check(!gradleFile.readText().contains("version(", ignoreCase = true)) {
+                "Gradle files in testData are not supposed to set plugin versions by default (or replacing regex failed): " +
+                        "$gradleFile\n${gradleFile.readText().prependIndent("> ")}"
+            }
+            gradleFile.writeText(gradleFile.readText().replace(
+                "id(\"org.jetbrains.amper.settings.plugin\")",
+                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${AmperBuild.BuildNumber}\")"
+            ))
+            check(gradleFile.readText().contains("version(")) {
+                "Gradle file must have 'version(' after replacement: $gradleFile\n${gradleFile.readText().prependIndent("> ")}"
+            }
         }
 
         // These errors can be tricky to figure out

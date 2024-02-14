@@ -4,15 +4,17 @@
 
 package org.jetbrains.amper.gradle.util
 
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.gradle.MockModelHandle
-import org.junit.jupiter.api.Assertions
+import org.apache.commons.io.output.TeeOutputStream
+import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
+import kotlin.io.path.createDirectories
 import kotlin.test.asserter
 
 
@@ -22,41 +24,65 @@ abstract class TestBase {
     lateinit var tempDir: File
 
     @BeforeEach
-    fun setUpGradleSettings() = setUpGradleProjectDir(tempDir)
-
+    fun setUpGradleSettings() {
+        setUpGradleProjectDir(tempDir)
+    }
 }
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun TestBase.doTest(model: MockModelHandle) {
     val runResult = runGradleWithModel(model)
-    val printKotlinInfo = runResult.task(":$printKotlinSourcesTask")
-    Assertions.assertEquals(TaskOutcome.SUCCESS, printKotlinInfo?.outcome)
-    val extracted = runResult.output.extractSourceInfoOutput()
+    val extracted = runResult.extractSourceInfoOutput()
     assertEqualsWithCurrentTestResource(extracted)
 }
 
-fun TestBase.runGradleWithModel(model: MockModelHandle): BuildResult = GradleRunner.create()
-    .withArguments(printKotlinSourcesTask, "--stacktrace")
-    .withPluginClasspath()
-    .withProjectDir(tempDir)
-    .withMockModel(model)
-    .withDebug(withDebug)
-    .build()
+private val gradleHome by lazy {
+    TestUtil.sharedTestCaches.resolve("gradleHome")
+        .also { it.createDirectories() }
+}
+
+fun TestBase.runGradleWithModel(model: MockModelHandle): String {
+    val stdout = ByteArrayOutputStream()
+    val stderr = ByteArrayOutputStream()
+    GradleConnector.newConnector()
+        .useGradleVersion("8.1")
+        .useGradleUserHomeDir(gradleHome.toFile())
+        .forProjectDirectory(tempDir)
+        .connect()
+        .newBuild()
+        .withArguments(printKotlinSourcesTask, "--stacktrace")
+        .withMockModel(model)
+        .setStandardError(TeeOutputStream(System.err, stderr))
+        .setStandardOutput(TeeOutputStream(System.out, stdout))
+        .run()
+    val output = (stdout.toByteArray().decodeToString() + "\n" + stderr.toByteArray().decodeToString()).replace("\r", "")
+    return output
+}
 
 fun setUpGradleProjectDir(root: File) {
     val settingsFile = root.resolve("settings.gradle.kts")
     settingsFile.createNewFile()
-    val settingsFileContent = if (withDebug) """
-            plugins {
-                id("org.jetbrains.amper.settings.plugin")
+
+    val plugins = """
+        pluginManagement {
+            repositories {
+                mavenLocal()
+                mavenCentral()
+                google()
+                gradlePluginPortal()
+                maven("https://www.jetbrains.com/intellij-repository/releases")
+                maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
             }
-        """
-    else """
+        }
+
+        plugins {
+            id("org.jetbrains.amper.settings.plugin").version("${AmperBuild.BuildNumber}")
+        }
+    """.trimIndent()
+    val settingsFileContent = if (withDebug) plugins else """
             import org.jetbrains.amper.gradle.util.PrintKotlinSpecificInfo
-            plugins {
-                id("org.jetbrains.amper.settings.plugin")
-            }
+            $plugins
             // Apply also plugin to print kotlin specific info.
             plugins.apply(PrintKotlinSpecificInfo::class.java)
         """
