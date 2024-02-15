@@ -6,10 +6,11 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
-
+@EnumOrderSensitive(reverse = true)
 enum class JavaVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
     VERSION_1_1("1.1", outdated = true),
     VERSION_1_2("1.2", outdated = true),

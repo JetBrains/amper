@@ -6,22 +6,24 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
-
+@EnumOrderSensitive(reverse = true)
 enum class KotlinVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
-    Kotlin20("2.0"),
-    Kotlin19("1.9"),
-    Kotlin18("1.8"),
-    Kotlin17("1.7"),
-    Kotlin16("1.6"),
-    Kotlin15("1.5"),
-    Kotlin14("1.4"),
-    Kotlin13("1.3"),
-    Kotlin12("1.2"),
+    Kotlin10("1.0"),
     Kotlin11("1.1"),
-    Kotlin10("1.0");
+    Kotlin12("1.2"),
+    Kotlin13("1.3"),
+    Kotlin14("1.4"),
+    Kotlin15("1.5"),
+    Kotlin16("1.6"),
+    Kotlin17("1.7"),
+    Kotlin18("1.8"),
+    Kotlin19("1.9"),
+    Kotlin20("2.0"),
+    ;
 
     override fun toString(): String = schemaValue
     companion object Index : EnumMap<KotlinVersion, String>(KotlinVersion::values, KotlinVersion::schemaValue)

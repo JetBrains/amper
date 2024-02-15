@@ -8,11 +8,12 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.FrontendApiBundle
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.reportBundleError
 
-
+@EnumOrderSensitive(reverse = true)
 enum class AndroidVersion(
     val versionNumber: Int,
     override val outdated: Boolean = false

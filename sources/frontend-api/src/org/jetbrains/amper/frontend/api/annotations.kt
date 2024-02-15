@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
@@ -41,4 +41,18 @@ annotation class CustomSchemaDef(
 annotation class AdditionalSchemaDef(
     val json: String,
     val useOneOf: Boolean = false
+)
+
+/**
+ * This annotation can be used to indicate that the order in which the enumeration constants
+ * are declared is important.
+ * This will be utilized in JSON schema by setting the meta property `x-intellij-enum-order-sensitive` to `true`.
+ *
+ * [reverse] parameter can be used to sort values in the reverse order.
+ * This is useful for versions, which should be compared in the natural order but displayed in the reversed one.
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class EnumOrderSensitive(
+    val reverse: Boolean = false,
 )
