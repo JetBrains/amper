@@ -5,24 +5,30 @@ package org.jetbrains.amper.backend.test
 
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@EnabledIfSystemProperty(named = "os.name", matches = "Mac OS.*")
+@EnabledOnOs(OS.MAC)
 annotation class MacOnly
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@EnabledIfSystemProperty(named = "os.name", matches = "Linux.*")
+@EnabledOnOs(OS.LINUX)
 annotation class LinuxOnly
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@DisabledIfEnvironmentVariable(named = "OS", matches = "Windows.*")
-annotation class UnixOnly
+@EnabledOnOs(OS.WINDOWS)
+annotation class WindowsOnly
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@EnabledIfEnvironmentVariable(named = "OS", matches = "Windows.*")
-annotation class WindowsOnly
+@EnabledIfEnvironmentVariable(named = "TEAMCITY_VERSION", matches = ".*")
+annotation class OnCI
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@DisabledIfEnvironmentVariable(named = "TEAMCITY_VERSION", matches = ".*")
+annotation class OnNonCI

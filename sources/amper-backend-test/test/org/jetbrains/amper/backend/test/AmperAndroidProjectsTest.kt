@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.backend.test
 
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.count
@@ -31,6 +30,7 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
     }
 
     @Test
+    @OnNonCI
     fun `simple-app`() = runTest(timeout = 15.minutes) {
         val projectContext = setupAndroidTestProject("simple-app")
         System.setProperty(headlessEmulatorModePropertyName, "true")
