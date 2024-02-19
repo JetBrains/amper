@@ -7,10 +7,8 @@ package org.jetbrains.amper.tasks
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.devices.Abi
 import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
-import org.jetbrains.amper.cli.CliProblemReporterContext
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
-import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.engine.Task
@@ -24,6 +22,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.util.AndroidSdkDetector
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -357,7 +356,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         tasks: TaskGraphBuilder,
         module: PotatoModule
     ) {
-        if (platform == Platform.ANDROID) {
+        if (module.type == ProductType.ANDROID_APP) {
             tasks.registerTask(
                 LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
                 getTaskName(module, CommonTaskType.RUN, platform, isTest = false, BuildType.Debug)
@@ -406,7 +405,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         tasks: TaskGraphBuilder,
         executeOnChangedInputs: ExecuteOnChangedInputs,
         isTest: Boolean
-    ): List<TaskName>  {
+    ): List<TaskName> {
         return buildList {
             if (platform == Platform.ANDROID) {
                 val androidPlatformJarTaskName = setupAndroidPlatformTask(
@@ -539,7 +538,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         userCacheRootPath: Path
     ): TaskName? = if (platform == Platform.ANDROID) {
         val buildAndroidBuildName = TaskName
-            .fromHierarchy(listOf(module.userReadableName, "finalizeBuildAndroid${isTest.testSuffix}${buildType.suffix(platform)}"))
+            .fromHierarchy(listOf(module.userReadableName, "buildAndroid${isTest.testSuffix}${buildType.suffix(platform)}"))
         tasks.registerTask(
             AndroidBuildTask(
                 module,

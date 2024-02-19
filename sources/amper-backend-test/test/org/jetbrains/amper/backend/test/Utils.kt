@@ -4,11 +4,15 @@
 
 package org.jetbrains.amper.backend.test
 
+import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.name
 import kotlin.io.path.walk
+import kotlin.time.Duration
 
 
 internal val knownGradleFiles = setOf(
@@ -27,3 +31,6 @@ internal fun Path.deleteGradleFiles() {
         .filter { it.name in knownGradleFiles }
         .forEach { it.deleteExisting() }
 }
+
+
+fun runTestInfinitely(testBody: suspend TestScope.() -> Unit): TestResult = runTest(timeout = Duration.INFINITE, testBody = testBody)
