@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
-import org.jetbrains.amper.frontend.FrontendApiBundle
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -89,7 +89,7 @@ class AndroidSettings : SchemaNode() {
         val usedVersions = listOf(::compileSdk, ::minSdk, ::maxSdk, ::targetSdk)
         val oldVersions = usedVersions.filter { it.get() < AndroidVersion.VERSION_21 }
         oldVersions.forEach {
-            FrontendApiBundle.reportBundleError(
+            SchemaBundle.reportBundleError(
                 it,
                 "too.old.android.version",
                 it.get(),
