@@ -97,6 +97,7 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
             }
             .map { extractedAarPath.relativize(it) }
             .map { it.toString() }
+            .map { it.replace("\\", "/") }
 
         assertContains(classesInJars, "classes/Lib.class")
 
