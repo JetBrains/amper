@@ -369,9 +369,9 @@ open class DependencyFile(
             it.isDownloaded()
                     || level == ResolutionLevel.NETWORK && it.download(listOf(repository), progress, verify = false)
         }
-        val hashFromRepository = hashFile?.readText()?.toByteArray()
+        val hashFromRepository = hashFile?.readText()
         if (hashFromRepository != null) {
-            return hashFromRepository.toString(Charsets.UTF_8).sanitize()
+            return hashFromRepository.sanitize()
         }
         return null
     }
