@@ -92,7 +92,7 @@ class AndroidSettings : SchemaNode() {
             SchemaBundle.reportBundleError(
                 it,
                 "too.old.android.version",
-                it.get(),
+                it.get().versionNumber,
             )
         }
     }
