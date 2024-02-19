@@ -393,7 +393,7 @@ open class DependencyFile(
 
     private fun download(writers: Collection<Writer>, repository: String, progress: Progress): Boolean {
         val name = getNamePart(repository, nameWithoutExtension, extension, progress)
-        val url = repository +
+        val url = repository.trimEnd('/') +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
                 "/${dependency.version}" +

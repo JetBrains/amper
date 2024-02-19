@@ -61,4 +61,23 @@ class DependencyFileTest {
         val errors = dependency.messages.filter { it.severity == Severity.ERROR }
         assertTrue(errors.isEmpty(), "There must be no errors: $errors")
     }
+
+    @Test
+    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
+        val path = temp.toPath()
+        val context = Context {
+            platform = "native"
+            repositories = listOf("https://repo.maven.apache.org/maven2/")
+            cache = {
+                localRepositories = listOf(MavenLocalRepository(path))
+            }
+        }
+        val dependency = MavenDependency(
+            context.settings.fileCache,
+            "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
+        )
+        dependency.resolve(context, ResolutionLevel.NETWORK)
+        val errors = dependency.messages.filter { it.severity == Severity.ERROR }
+        assertTrue(errors.isEmpty(), "There must be no errors: $errors")
+    }
 }
