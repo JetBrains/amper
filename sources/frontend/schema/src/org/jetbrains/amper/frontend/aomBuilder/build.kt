@@ -5,14 +5,12 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.core.asAmperSuccess
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.MavenDependency
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
@@ -131,13 +129,12 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
 ): List<PotatoModule> {
     val modules = map { (mPath, holder) ->
         // TODO Remove duplicating enums.
-        val convertedType = ProductType.getValue(holder.module.product.type.schemaValue)
         ModuleTriple(
             buildFile = mPath,
             schemaModule = holder.module,
             module = DefaultModule(
                 mPath.parent.name,
-                convertedType,
+                holder.module.product.type,
                 PotatoModuleFileSource(mPath.toNioPath()),
                 holder.module,
                 holder.chosenCatalog,
