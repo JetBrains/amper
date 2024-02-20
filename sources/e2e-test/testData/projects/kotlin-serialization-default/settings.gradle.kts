@@ -8,7 +8,7 @@ pluginManagement {
         google()
         gradlePluginPortal()
     }
-    includeBuild("../../../../..")
+    includeBuild("../../../../..") // <REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>
 }
 
 plugins {
