@@ -2,6 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("ConvertCallChainIntoSequence")
+
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
@@ -63,23 +65,47 @@ class ResolveExternalDependenciesTask(
 
         val dependenciesToResolve = exportedDependencies + directCompileDependencies
 
-        logger.info("resolve dependencies ${module.userReadableName} -- " +
-                    "${fragments.userReadableList()} -- " +
-                    "${directCompileDependencies.sorted().joinToString(" ")} -- " +
-                    exportedDependencies.sorted().joinToString(" "))
-
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
         // but the current implementation requires a full review of it
+
+        val (resolvePlatform,  resolveNativeTarget) = when {
+            platform == Platform.JVM || platform == Platform.ANDROID -> "jvm" to null
+            platform.topmostParentNoCommon == Platform.NATIVE -> "native" to platform.name.lowercase()
+            else -> {
+                logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
+                return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+            }
+        }
+
+        logger.info("resolve dependencies ${module.userReadableName} -- " +
+                "${fragments.userReadableList()} -- " +
+                "${directCompileDependencies.sorted().joinToString(" ")} -- " +
+                exportedDependencies.sorted().joinToString(" ") + " -- " +
+                "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget")
 
         val configuration = mapOf(
             "dependencies" to dependenciesToResolve.joinToString("|"),
             "repositories" to repositories.joinToString("|"),
+            "resolvePlatform" to resolvePlatform,
+            "resolveNativeTarget" to (resolveNativeTarget ?: ""),
         )
 
         val result = try {
             executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
-                val compileClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.COMPILE).toList()
-                val runtimeClasspath = mavenResolver.resolve(dependenciesToResolve, repositories, scope = ResolutionScope.RUNTIME).toList()
+                val compileClasspath = mavenResolver.resolve(
+                    coordinates = dependenciesToResolve,
+                    repositories = repositories,
+                    scope = ResolutionScope.COMPILE,
+                    platform = resolvePlatform,
+                    nativeTarget = resolveNativeTarget,
+                ).toList()
+                val runtimeClasspath = mavenResolver.resolve(
+                    coordinates = dependenciesToResolve,
+                    repositories = repositories,
+                    scope = ResolutionScope.RUNTIME,
+                    platform = resolvePlatform,
+                    nativeTarget = resolveNativeTarget,
+                ).toList()
                 return@execute ExecuteOnChangedInputs.ExecutionResult(
                     (compileClasspath + runtimeClasspath).toSet().sorted(),
                     outputProperties = mapOf(
@@ -93,13 +119,19 @@ class ResolveExternalDependenciesTask(
                     "fragments: ${fragments.userReadableList()}\n" +
                     "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                     "direct dependencies:\n${directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
-                    "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}", t)
+                    "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
+                    "platform: $resolvePlatform\n" +
+                    "nativeTarget: $resolveNativeTarget", t)
         }
 
         val compileClasspath = result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
         val runtimeClasspath = result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
 
-        logger.debug("resolve dependencies ${module.userReadableName} -- ${fragments.userReadableList()} -- ${dependenciesToResolve.joinToString(" ")} -- ${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+        logger.debug("resolve dependencies ${module.userReadableName} -- " +
+                "${fragments.userReadableList()} -- " +
+                "${dependenciesToResolve.joinToString(" ")} -- " +
+                "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget\n" +
+                "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
 
         return TaskResult(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)
     }

@@ -61,6 +61,12 @@ class NativeCompileTask(
 
         // TODO exported dependencies. It's better to supported them in unified way across JVM and Native
 
+        val externalDependenciesTaskResult = dependenciesResult
+            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .singleOrNull()
+            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
+        val externalDependencies = externalDependenciesTaskResult.compileClasspath
+
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
             .flatMap { it.walkDependenciesRecursively<TaskResult>() + it }
@@ -76,7 +82,7 @@ class NativeCompileTask(
         val kotlinNativeHome = kotlinCompilerDownloader.downloadAndExtractKotlinNative(kotlinVersion)
             ?: error("kotlin native compiler is not available at this platform")
 
-        val ext = if (org.jetbrains.amper.util.OS.isWindows) ".bat" else ""
+        val ext = if (OS.isWindows) ".bat" else ""
         val konancExecutable = kotlinNativeHome.resolve("bin").resolve("konanc$ext")
         if (!konancExecutable.isExecutable()) {
             error("kotlin native home does not have konanc executable at $konancExecutable")
@@ -103,7 +109,7 @@ class NativeCompileTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = fragments.map { it.src } + compiledModuleDependencies
+        val inputs = fragments.map { it.src } + compiledModuleDependencies + externalDependencies
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
@@ -135,6 +141,9 @@ class NativeCompileTask(
             }
 
             args.addAll(compiledModuleDependencies.flatMap { listOf("-l", it.pathString) })
+            args.addAll(externalDependencies
+                .filter { !it.pathString.endsWith(".jar") }
+                .flatMap { listOf("-l", it.pathString) })
 
             val tempFilesToDelete = mutableListOf<Path>()
 
