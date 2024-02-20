@@ -124,7 +124,7 @@ class ModuleProduct : SchemaNode() {
             val platformValue = platform.value
             if (platformValue !in type.supportedPlatforms)
                 SchemaBundle.reportBundleError(
-                    ::platforms,
+                    platform,
                     "product.unsupported.platform",
                     type.schemaValue,
                     platformValue.pretty,

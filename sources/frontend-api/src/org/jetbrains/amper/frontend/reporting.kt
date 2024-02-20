@@ -13,7 +13,7 @@ import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
@@ -35,18 +35,18 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = when(val trace = value?.trace) {
+): Nothing? = when (val trace = value?.trace) {
     is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
     else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
 }
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    value: TraceableString,
+    value: Traceable,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = when(val trace = value.trace) {
+): Nothing? = when (val trace = value.trace) {
     is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
     else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
 }
