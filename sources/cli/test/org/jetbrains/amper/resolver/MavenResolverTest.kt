@@ -52,6 +52,31 @@ class MavenResolverTest {
     }
 
     @Test
+    fun nativeTarget() {
+        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+
+        val result = resolver.resolve(
+            coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
+            repositories = listOf("https://repo1.maven.org/maven2"),
+            scope = ResolutionScope.COMPILE,
+            platform = "native",
+            nativeTarget = "mingw_x64",
+        )
+        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted().joinToString("\n")
+        assertEquals(
+            """
+                .m2.cache/org/jetbrains/kotlin/kotlin-stdlib-common/1.9.21/kotlin-stdlib-common-1.9.21.jar
+                .m2.cache/org/jetbrains/kotlin/kotlin-stdlib/1.9.21/kotlin-stdlib-1.9.21.jar
+                .m2.cache/org/jetbrains/kotlinx/kotlinx-datetime-mingwx64/0.5.0/kotlinx-datetime-mingwx64-0.5.0.klib
+                .m2.cache/org/jetbrains/kotlinx/kotlinx-datetime/0.5.0/kotlinx-datetime-0.5.0.jar
+                .m2.cache/org/jetbrains/kotlinx/kotlinx-serialization-core-mingwx64/1.6.2/kotlinx-serialization-core-mingwx64-1.6.2.klib
+                .m2.cache/org/jetbrains/kotlinx/kotlinx-serialization-core/1.6.2/kotlinx-serialization-core-1.6.2.jar
+            """.trimIndent(),
+            relative,
+        )
+    }
+
+    @Test
     fun respectsRuntimeScope() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 

@@ -24,6 +24,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: String = "jvm",
+        nativeTarget: String? = null,
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .startSpan().use {
@@ -53,6 +54,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.repositories = acceptedRepositories.toList()
                 this.scope = scope
                 this.platform = platform
+                this.nativeTarget = nativeTarget
             }
             val resolver = Resolver(
                 ModuleDependencyNode(
