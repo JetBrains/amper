@@ -452,6 +452,24 @@ class BuildGraphTest {
         )
     }
 
+    @Test
+    fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            platform = "native",
+            nativeTarget = "macos_arm64",
+            expected = """root
+                |\--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
+                |     \--- org.jetbrains.kotlinx:kotlinx-datetime-macosarm64:0.5.0
+                |          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2
+                |          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.6.2
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
+                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+            """.trimMargin()
+        )
+    }
+
     /**
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */
@@ -596,12 +614,13 @@ class BuildGraphTest {
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: String = "jvm",
+        nativeTarget: String? = null,
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
         val root = Resolver(
-            dependency.toRootNode(context(scope, platform, repositories))
+            dependency.toRootNode(context(scope, platform, nativeTarget, repositories))
         ).buildGraph(ResolutionLevel.NETWORK).root
         root.verifyGraphConnectivity()
         if (verifyMessages) {
@@ -617,10 +636,12 @@ class BuildGraphTest {
     private fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: String = "jvm",
+        nativeTarget: String? = null,
         repositories: List<String> = REDIRECTOR_MAVEN2,
     ) = Context {
         this.scope = scope
         this.platform = platform
+        this.nativeTarget = nativeTarget
         this.repositories = repositories
         this.cache = {
             amperCache = TestUtil.userCacheRoot.resolve(".amper")

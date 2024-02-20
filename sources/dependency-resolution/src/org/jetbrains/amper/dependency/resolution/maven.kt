@@ -216,7 +216,9 @@ class MavenDependency internal constructor(
         module.variants.filter {
             it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions(context)
         }.filter {
-            context.settings.platform.matches(it) && context.settings.scope.matches(it)
+            context.settings.platform.matches(it)
+                    && context.settings.nativeTargetMatches(it)
+                    && context.settings.scope.matches(it)
         }.also {
             if (it.size <= 1) {
                 variant = it.singleOrNull()
@@ -260,6 +262,10 @@ class MavenDependency internal constructor(
 
     private fun String.matches(variant: Variant) =
         variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
+
+    private fun Settings.nativeTargetMatches(variant: Variant) =
+        variant.attributes["org.jetbrains.kotlin.platform.type"] != "native"
+                || variant.attributes["org.jetbrains.kotlin.native.target"] == nativeTarget
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 

@@ -46,6 +46,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
     var platform: String = "jvm"
+    var nativeTarget: String? = null
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
@@ -59,6 +60,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             progress,
             scope,
             platform,
+            nativeTarget,
             repositories,
             FileCacheBuilder(cache).build(),
             conflictResolutionStrategies,
@@ -99,6 +101,7 @@ data class Settings(
     val progress: Progress,
     val scope: ResolutionScope,
     val platform: String,
+    val nativeTarget: String?,
     val repositories: List<String>,
     val fileCache: FileCache,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
