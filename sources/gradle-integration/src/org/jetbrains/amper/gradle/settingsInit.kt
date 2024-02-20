@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.gradle
 
+import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Model
@@ -44,40 +46,51 @@ class SettingsPluginRun(
 
         // Initialize plugins for each module.
         settings.gradle.beforeProject { project ->
-            /**
-             * Repositories for bundled plugins
-             */
-            project.repositories.google()
-            project.repositories.jcenter()
-            // To be able to have import using dev versions of kotlin
-            project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
-            project.repositories.gradlePluginPortal()
-            project.repositories.maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+            configureProject(project)
+        }
+    }
 
-            // Can be empty for root.
-            val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return@beforeProject
+    private fun configureProject(project: Project) {
+        // Gradle projects that are not in the map aren't Amper projects (modules) anyway
+        // so we can stop here
+        val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return
+        if (!connectedModule.hasAmperConfigFile()) {
+            // we don't want to alter non-Amper subprojects
+            return
+        }
 
-            // Disable warning about Default Kotlin Hierarchy.
-            project.extraProperties.set("kotlin.mpp.applyDefaultHierarchyTemplate", "false")
+        // /!\ This overrides any user configuration from settings.gradle.kts
+        // This is only done in modules with Amper's module.yaml config to avoid issues
+        project.repositories.addDefaultAmperRepositoriesForDependencies()
 
-            // Apply Kotlin plugins.
-            if (connectedModule.buildFile.extension == "yaml") {
-                project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
-            }
+        // Disable warning about Default Kotlin Hierarchy.
+        project.extraProperties.set("kotlin.mpp.applyDefaultHierarchyTemplate", "false")
 
-            // Apply Binding plugin if there is module.yaml file.
-            if (connectedModule.buildFile.extension == "yaml") {
-                project.plugins.apply(BindingProjectPlugin::class.java)
-            }
+        // Apply Kotlin plugins.
+        project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+        project.plugins.apply(BindingProjectPlugin::class.java)
 
-            project.afterEvaluate {
-                // W/A for XML factories mess within apple plugin classpath.
-                val hasAndroidPlugin = it.plugins.hasPlugin("com.android.application") ||
-                        it.plugins.hasPlugin("com.android.library")
-                if (hasAndroidPlugin) {
-                    adjustXmlFactories()
-                }
+        project.afterEvaluate {
+            // W/A for XML factories mess within apple plugin classpath.
+            val hasAndroidPlugin = it.plugins.hasPlugin("com.android.application") ||
+                    it.plugins.hasPlugin("com.android.library")
+            if (hasAndroidPlugin) {
+                adjustXmlFactories()
             }
         }
     }
+}
+
+private fun PotatoModuleWrapper.hasAmperConfigFile() = buildFile.extension == "yaml"
+
+private fun RepositoryHandler.addDefaultAmperRepositoriesForDependencies() {
+    mavenCentral()
+    // For the Android plugin and dependencies
+    google()
+    // For other gradle plugins
+    gradlePluginPortal()
+    // For dev versions of kotlin
+    maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
+    // For dev versions of compose plugin and dependencies
+    maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }

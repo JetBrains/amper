@@ -269,6 +269,20 @@ my.private.repository.password=...
 
 _Note: Currently only *.property files are supported._
 
+**Note on Gradle interop**
+
+If some repositories are defined in `settings.gradle.kts` using a `dependencyResolutionManagement` block, they are only
+taken into account by pure Gradle subprojects, and don't affect Amper modules configured with a `module.yaml` file.
+
+This is because, in Gradle, adding any repository at the subproject level will by default discard the repositories
+configured in the settings (unless a different Gradle
+[RepositoriesMode](https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/resolve/RepositoriesMode.html)
+is used). And, as we've seen above, Amper adds some default repositories to all modules that are configured with a
+`module.yaml` file, which is equivalent to adding a `repositories` section in the gradle project build script.
+
+If you want to define repositories in a central place for Amper modules, you can use a `repositories` list in a template
+file and apply this template to your modules (see section about templates).
+
 #### Internal dependencies
 To depend on another Module, use a relative path to the folder which contains the corresponding `module.yaml`. 
 Internal dependency should start either with `./` or `../`.

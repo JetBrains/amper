@@ -1,3 +1,7 @@
+/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 plugins {
     // Apply any plugins as usual.
     // Note: The following plugins are preconfigured and their versions can't be changed:
@@ -15,6 +19,17 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
+}
+
+// To avoid confusion, Amper doesn't automatically add repositories for Gradle
+// subprojects that are not configured using a module.yaml config file, because
+// this would potentially overwrite repositories defined in the Gradle settings
+// file (in a dependencyResolutionManagement block).
+// Therefore, you need to keep your repository declarations (either here or in
+// settings.gradle.kts) for modules that are not yet migrated to Amper.
+repositories {
+    mavenCentral()
+    google()
 }
 
 kotlin {
