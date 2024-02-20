@@ -10,6 +10,7 @@ import com.intellij.psi.util.childrenOfType
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.toml.lang.psi.TomlFile
 import org.toml.lang.psi.TomlInlineTable
@@ -18,7 +19,6 @@ import org.toml.lang.psi.TomlKeyValue
 import org.toml.lang.psi.TomlKeyValueOwner
 import org.toml.lang.psi.TomlLiteral
 import org.toml.lang.psi.TomlTable
-import java.nio.file.Path
 
 private val TomlTable.headerText: String?
     get() = header.key?.keyText
@@ -49,7 +49,7 @@ private class TomlCatalog(
         get() = libraries.map {
             val definition = it.value
             it.key to TraceableString(definition.libraryString)
-                .apply { trace = definition.element }
+                .apply { trace = PsiTrace(definition.element) }
         }.toMap()
 
     override val isPhysical: Boolean = true

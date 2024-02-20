@@ -1,22 +1,23 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.toNioPathOrNull
+import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.LineAndColumn
+import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
-import org.jetbrains.yaml.psi.YAMLPsiElement
+import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import kotlin.reflect.KProperty0
-
 
 object SchemaBundle : MessageBundle("messages.FrontendSchemaBundle")
 
@@ -35,8 +36,8 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = when(val trace = value?.trace) {
-    is YAMLPsiElement -> reportError(message(messageKey, *arguments), level, trace)
-    else -> reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
+    is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
+    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
 }
 
 context(ProblemReporterContext)
@@ -46,13 +47,13 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = when(val trace = value.trace) {
-    is YAMLPsiElement -> reportError(message(messageKey, *arguments), level, trace)
-    else -> reportError(message(messageKey, *arguments), level, null as YAMLPsiElement?)
+    is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
+    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
 }
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    node: YAMLPsiElement,
+    node: PsiElement,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
@@ -62,19 +63,22 @@ context(ProblemReporterContext)
 fun reportError(
     message: String,
     level: Level = Level.Error,
-    node: YAMLPsiElement? = null
+    node: PsiElement? = null
 ): Nothing? {
-    val lineAndColumn = node?.let { getLineAndColumnInPsiFile(it, it.textRange) }
-    problemReporter.reportMessage(BuildProblem(message, level, line = lineAndColumn?.line, column = lineAndColumn?.column, file = node?.containingFile?.virtualFile?.toNioPathOrNull()))
+    problemReporter.reportMessage(BuildProblem(message, level, source = node?.let(::PsiBuildProblemSource)))
     return null
 }
 
-fun getLineAndColumnInPsiFile(node: YAMLPsiElement, range: TextRange): LineAndColumn {
+internal fun getLineAndColumnRangeInPsiFile(node: PsiElement): LineAndColumnRange {
     val document: Document = node.containingFile.viewProvider.document
-    return offsetToLineAndColumn(document, range.startOffset)
+    val textRange = node.textRange
+    return LineAndColumnRange(
+        offsetToLineAndColumn(document, textRange.startOffset),
+        offsetToLineAndColumn(document, textRange.endOffset),
+    )
 }
 
-fun offsetToLineAndColumn(
+private fun offsetToLineAndColumn(
     document: Document?,
     offset: Int
 ): LineAndColumn {
@@ -94,33 +98,4 @@ fun offsetToLineAndColumn(
         column + 1,
         lineContent.toString()
     )
-}
-
-class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {
-    // NOTE: This method is used for presenting positions to the user
-    override fun toString(): String {
-        if (line < 0) {
-            return "(offset: $column line unknown)"
-        }
-        return "($line,$column)"
-    }
-
-    companion object {
-        val NONE: LineAndColumn = LineAndColumn(-1, -1, null)
-    }
-}
-
-class LineAndColumnRange(val start: LineAndColumn, val end: LineAndColumn) {
-    // NOTE: This method is used for presenting positions to the user
-    override fun toString(): String {
-        if (start.line == end.line) {
-            return "(" + start.line + "," + start.column + "-" + end.column + ")"
-        }
-
-        return "$start - $end"
-    }
-
-    companion object {
-        val NONE: LineAndColumnRange = LineAndColumnRange(LineAndColumn.NONE, LineAndColumn.NONE)
-    }
 }

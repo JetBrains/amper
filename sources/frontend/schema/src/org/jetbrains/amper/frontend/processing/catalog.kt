@@ -9,6 +9,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toTraceableString
 import org.jetbrains.amper.frontend.schema.Base
@@ -130,6 +131,6 @@ class BuiltInCatalog(
     }
 }) {
     init {
-        entries.forEach { it.value.trace = BuiltInCatalogTrace }
+        entries.forEach { it.value.trace = BuiltinCatalogTrace(this) }
     }
 }

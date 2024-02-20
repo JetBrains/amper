@@ -49,3 +49,10 @@ class DiagnosticsTestRun(
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
 }
+
+private fun String.trimTrailingWhitespacesAndEmptyLines(): String {
+    return lines()
+        .dropWhile { it.isBlank() }
+        .dropLastWhile { it.isBlank() }
+        .joinToString(separator = "\n") { it.trimEnd() }
+}

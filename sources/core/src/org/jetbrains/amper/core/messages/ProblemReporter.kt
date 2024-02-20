@@ -19,7 +19,7 @@ interface ProblemReporter {
      * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
      * positioning of the highlighting
      */
-    fun reportError(message: String, file: Path? = null) = reportMessage(BuildProblem(message = message, file = file, level = Level.Error))
+    fun reportError(message: String, file: Path? = null) = reportMessage(BuildProblem(message = message, source = SimpleProblemSource(file), level = Level.Error))
 }
 
 interface ProblemReporterContext {
@@ -43,9 +43,12 @@ abstract class CollectingProblemReporter : ProblemReporter {
 }
 
 fun renderMessage(problem: BuildProblem): String = buildString {
-    problem.file?.let { file ->
+    problem.source?.file?.let { file ->
         append(file.normalize())
-        problem.line?.let { line -> append(":$line") }
+        problem.source.range?.let { range ->
+            val start = range.start
+            append(":${start.line}:${start.column}")
+        }
         append(": ")
     }
     append(problem.message)

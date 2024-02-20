@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.yaml.psi.YAMLPsiElement
 
 
 /**
@@ -37,13 +37,15 @@ interface VersionCatalog {
     fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
         if (needReport) {
             when (val trace = key.trace) {
-                is YAMLPsiElement -> {
+                is PsiTrace -> {
                     SchemaBundle.reportBundleError(
-                        trace,
+                        trace.psiElement,
                         "no.catalog.value",
                         key.value
                     )
                 }
+
+                else -> {}
             }
             null
         } else null

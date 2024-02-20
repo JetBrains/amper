@@ -68,9 +68,9 @@ abstract class SchemaNode : Traceable() {
     open fun validate() {
     }
 
-    override var trace: Any? = null
+    override var trace: Trace? = null
         set(value) {
-            if (value is PsiElement) value.putUserData(linkedAmperNode, this)
+            if (value is PsiTrace) value.psiElement.putUserData(linkedAmperNode, this)
             field = value
         }
 }
@@ -141,9 +141,9 @@ sealed class ValueBase<T>(
         myValue = value
     }
 
-    override var trace: Any? = null
+    override var trace: Trace? = null
         set(value) {
-            if (value is PsiElement) value.putUserData(linkedAmperValue, this)
+            if (value is PsiTrace) value.psiElement.putUserData(linkedAmperValue, this)
             field = value
         }
 }

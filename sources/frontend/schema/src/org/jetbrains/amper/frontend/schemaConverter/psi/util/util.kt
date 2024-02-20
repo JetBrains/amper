@@ -4,13 +4,14 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.util
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
 import java.io.File
 import java.nio.file.Path
@@ -61,6 +62,6 @@ fun YAMLKeyValue.asAbsolutePath(): Path = keyText.asAbsolutePath()
 /**
  * Adjust this element trace.
  */
-fun <T : Traceable> T.adjustTrace(it: YAMLPsiElement?) = apply { trace = it }
+fun <T : Traceable> T.adjustTrace(it: PsiElement?) = apply { trace = it?.let(::PsiTrace) }
 
 

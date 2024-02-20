@@ -23,12 +23,31 @@ enum class Level {
     Warning,
 }
 
+interface BuildProblemSource {
+    val file: Path?
+    val range: LineAndColumnRange?
+    val offsetRange: IntRange?
+}
+
+/**
+ * Prefer using [org.jetbrains.amper.frontend.messages.PsiBuildProblemSource], which is more tooling-friendly.
+ */
+data class SimpleProblemSource(
+    override val file: Path?,
+    override val range: LineAndColumnRange? = null,
+    override val offsetRange: IntRange? = null
+): BuildProblemSource
+
 data class BuildProblem(
     val message: String,
     val level: Level,
-    val file: Path? = null,
-    val line: Int? = null,
-    val column: Int? = null,
+    val source: BuildProblemSource? = null,
 )
 
-fun BuildProblem.render() = "[$level] $message"
+data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {
+    companion object {
+        val NONE: LineAndColumn = LineAndColumn(-1, -1, null)
+    }
+}
+
+data class LineAndColumnRange(val start: LineAndColumn, val end: LineAndColumn)

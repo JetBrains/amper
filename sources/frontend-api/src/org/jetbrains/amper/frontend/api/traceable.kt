@@ -1,20 +1,38 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.api
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.amper.frontend.VersionCatalog
 import kotlin.reflect.KProperty0
 
 /**
- * An entity, that can persist its trace.
+ * A trace is a backreference that allows to determine the source of the model property/value.
+ * It can be a PSI element, or a synthetic trace in case the property has been constructed programmatically.
+ */
+sealed interface Trace
+
+/**
+ * Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
+ */
+class PsiTrace(val psiElement: PsiElement) : Trace
+
+/**
+ * Property with this trace originates from the version catalog provided by the toolchain.
+ */
+class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace
+
+/**
+ * An entity that can persist its trace.
  */
 abstract class Traceable {
-    open var trace: Any? = null
+    open var trace: Trace? = null
 }
 
 /**
- * A string value, that can persist its trace.
+ * A string value that can persist its trace.
  */
 class TraceableString(
     val value: String

@@ -4,9 +4,12 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
+import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.lang.ASTNode
 import com.intellij.mock.MockApplication
 import com.intellij.mock.MockProject
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.impl.DocumentWriteAccessGuard
 import com.intellij.pom.PomModel
 import com.intellij.pom.core.impl.PomModelImpl
 import com.intellij.pom.tree.TreeAspect
@@ -23,10 +26,21 @@ object ModifiablePsiIntelliJApplicationConfigurator : IntelliJApplicationConfigu
             override fun getIndent(file: PsiFile, element: ASTNode): Int = 0
             override fun getIndent(file: PsiFile, element: ASTNode, includeNonSpace: Boolean): Int = 0
         })
+        @Suppress("UnstableApiUsage")
+        CoreApplicationEnvironment.registerExtensionPoint(
+            application.extensionArea,
+            DocumentWriteAccessGuard.EP_NAME,
+            MockDocumentWriteAccessGuard::class.java
+        )
     }
 
     override fun registerProjectExtensions(project: MockProject) {
         project.registerService(TreeAspect::class.java)
         project.registerService(PomModel::class.java, PomModelImpl::class.java)
     }
+}
+
+@Suppress("UnstableApiUsage")
+private class MockDocumentWriteAccessGuard : DocumentWriteAccessGuard() {
+    override fun isWritable(document: Document): Result = success()
 }
