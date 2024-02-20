@@ -31,9 +31,12 @@ import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 
 open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath: Boolean = true) {
@@ -125,23 +128,16 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         assertTrue(gradleFile.exists(), "file not found: $gradleFile")
 
         if (runWithPluginClasspath) {
-            gradleFile.writeText(
-                """
-                pluginManagement {
-                    repositories {
-                        mavenCentral()
-                        google()
-                        gradlePluginPortal()
-                    }
-                }
-
-                plugins {
-                    id("org.jetbrains.amper.settings.plugin")
-                }
-                """.trimIndent()
-            )
+            // we don't want to replace the entire settings.gradle.kts because its contents may be part of the test
+            gradleFile.writeLines(gradleFile.readLines().filter { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" !in it })
         }
 
+        // These errors can be tricky to figure out
+        if ("includeBuild(\"." in gradleFile.readText()) {
+            fail("Example project $projectName has a relative includeBuild() call, but it's run within Amper tests " +
+                    "from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same " +
+                    "line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
+        }
         return tempDir
     }
 
