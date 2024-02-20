@@ -310,7 +310,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         projectName = "compose-version-conflict",
         "assemble",
         shouldSucceed = false,
-        expectOutputToHave = "Currently, compose versions should be the same across all module files"
+        expectOutputToHave = "Currently, Compose versions should be the same across all module files"
     )
 
     @Test
