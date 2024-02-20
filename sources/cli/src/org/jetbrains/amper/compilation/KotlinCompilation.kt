@@ -24,12 +24,14 @@ internal data class KotlinUserSettings(
     val languageFeatures: List<String>,
     val optIns: List<String>,
     val freeCompilerArgs: List<String>,
+    val serialization: String?,
 )
 
 internal fun kotlinCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
     classpath: List<Path>,
+    compilerPlugins: List<Path>,
     jdkHome: Path,
     outputPath: Path
 ): List<String> = buildList {
@@ -74,6 +76,9 @@ internal fun kotlinCompilerArgs(
     }
     kotlinUserSettings.freeCompilerArgs.forEach {
         add(it)
+    }
+    compilerPlugins.forEach {
+        add("-Xplugin=$it")
     }
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)

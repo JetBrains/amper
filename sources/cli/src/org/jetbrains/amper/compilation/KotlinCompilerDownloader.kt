@@ -46,6 +46,27 @@ class KotlinCompilerDownloader(
         }.outputs
 
     /**
+     * Downloads the kotlin serialization plugin for the given Kotlin [version].
+     *
+     * The [version] should match the Kotlin version requested by the user, the plugin will be added to
+     * the Kotlin compiler command line of version [version].
+     */
+    suspend fun downloadKotlinSerializationPlugin(version: String): Path =
+        // executeOnChangedInputs is faster now than mavenResolver on already downloaded stuff
+        executeOnChangedInputs.execute("resolve-kotlin-serialization-plugin-$version", emptyMap(), emptyList()) {
+            val resolved = mavenResolver.resolve(
+                coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-serialization-compiler-plugin-embeddable:$version"),
+                repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
+                scope = ResolutionScope.RUNTIME,
+            )
+            check(resolved.size == 1) {
+                "Only one file is expected to be resolved for a Kotlin serialization compiler plugin, but got: " +
+                        resolved.joinToString(" ")
+            }
+            return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
+        }.outputs.single()
+
+    /**
      * Downloads and extracts current system specific kotlin native.
      * Returns null if kotlin native is not supported on current system/arch.
      */

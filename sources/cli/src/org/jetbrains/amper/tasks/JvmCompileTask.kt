@@ -58,7 +58,6 @@ class JvmCompileTask(
 
     override val platform: Platform = Platform.JVM
 
-    @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         if (fragments.isEmpty()) {
             // TODO maybe this should be handled during the task graph construction.
@@ -86,7 +85,7 @@ class JvmCompileTask(
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
-            "language.version" to kotlinUserSettings.languageVersion.schemaValue,
+            "kotlin.settings" to kotlinUserSettings.toString(),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
@@ -144,6 +143,7 @@ class JvmCompileTask(
         languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures } ?: emptyList(),
         optIns = unanimousOptionalKotlinSetting("optIns") { it.optIns } ?: emptyList(),
         freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs } ?: emptyList(),
+        serialization = unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format },
     )
 
     private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
@@ -227,12 +227,19 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger())
 
+        val compilerPlugins = mutableListOf<Path>()
+        if (!kotlinUserSettings.serialization.isNullOrEmpty()) {
+            val plugin = kotlinCompilerDownloader.downloadKotlinSerializationPlugin(compilerVersion)
+            compilerPlugins.add(plugin)
+        }
+
         val compilerArgs = kotlinCompilerArgs(
             isMultiplatform = isMultiplatform,
             kotlinUserSettings = kotlinUserSettings,
             classpath = classpath,
             jdkHome = jdkHome,
-            outputPath = taskOutputRoot.path
+            outputPath = taskOutputRoot.path,
+            compilerPlugins = compilerPlugins,
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")

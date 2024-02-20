@@ -4,7 +4,6 @@
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
-import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
@@ -16,7 +15,6 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.minutes
 
 class AmperBackendTest : IntegrationTestBase() {
 
@@ -43,6 +41,18 @@ class AmperBackendTest : IntegrationTestBase() {
             .readText()
 
         assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
+    }
+
+    @Test
+    fun `jvm kotlin serialization support without explicit dependency`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("kotlin-serialization-default")
+        AmperBackend(projectContext).runTask(TaskName(":kotlin-serialization-default:runJvm"))
+
+        assertInfoLogStartsWith(
+            "Process exited with exit code 0\n" +
+                    "STDOUT:\n" +
+                    "Hello, World!"
+        )
     }
 
     @Test
