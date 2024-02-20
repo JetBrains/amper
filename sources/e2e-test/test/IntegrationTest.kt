@@ -196,6 +196,13 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `respect dependencyResolutionManagement block in non-amper subprojects`() = test(
+        projectName = "gradle-interoperability-settings-deps-management",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
     fun `compose-desktop packaging`() = test(
         projectName = "compose-desktop-packaging",
         "package",
