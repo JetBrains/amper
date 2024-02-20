@@ -27,8 +27,8 @@ class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace
 /**
  * An entity that can persist its trace.
  */
-abstract class Traceable {
-    open var trace: Trace? = null
+interface Traceable {
+    var trace: Trace?
 }
 
 /**
@@ -36,7 +36,9 @@ abstract class Traceable {
  */
 class TraceableString(
     val value: String
-) : Traceable() {
+) : Traceable {
+    override var trace: Trace? = null
+
     override fun toString(): String {
         return value
     }

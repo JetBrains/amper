@@ -27,7 +27,7 @@ val linkedAmperNode = Key.create<SchemaNode>("org.jetbrains.amper.frontend.linke
 /**
  * Class to collect all values registered within it.
  */
-abstract class SchemaNode : Traceable() {
+abstract class SchemaNode : Traceable {
     internal val allValues = mutableListOf<ValueBase<*>>()
 
     /**
@@ -110,7 +110,7 @@ internal class NullableSchemaValueProvider<T : Any>(
 sealed class ValueBase<T>(
     val property: KProperty<*>,
     val default: Default<T>?,
-) : Traceable(), ReadWriteProperty<SchemaNode, T> {
+) : Traceable, ReadWriteProperty<SchemaNode, T> {
 
     protected var myValue: T? = null
 
