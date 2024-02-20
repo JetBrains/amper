@@ -20,6 +20,11 @@ import kotlin.reflect.jvm.isAccessible
 val linkedAmperValue = Key.create<ValueBase<*>>("org.jetbrains.amper.frontend.linkedValue")
 
 /**
+ * Key, pointing to schema enum value, that was connected to [PsiElement].
+ */
+val linkedAmperEnumValue = Key.create<Enum<*>>("org.jetbrains.amper.frontend.linkedEnumValue")
+
+/**
  * Key, pointing to schema node, that was connected to [PsiElement].
  */
 val linkedAmperNode = Key.create<SchemaNode>("org.jetbrains.amper.frontend.linkedNode")
@@ -226,3 +231,21 @@ abstract class SchemaValuesVisitor {
 
     open fun visitOther(it: Any?) = Unit
 }
+
+/**
+ * When the enum value isn't wrapped into the schema value (e.g., in a collection or in AOM),
+ * it's impossible to determine the trace of that enum.
+ *
+ * This wrapper allows persisting a trace in such scenarios.
+ */
+data class TraceableEnum<T : Enum<T>>(val value: T) : Traceable {
+    override var trace: Trace? = null
+        set(value) {
+            if (value is PsiTrace) value.psiElement.putUserData(linkedAmperEnumValue, this.value)
+            field = value
+        }
+
+    override fun toString(): String = value.toString()
+}
+
+fun <T : Enum<T>> T.asTraceable(): TraceableEnum<T> = TraceableEnum(this)

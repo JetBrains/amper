@@ -1,11 +1,12 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.convertTest
 import kotlin.io.path.Path
@@ -29,7 +30,7 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
         return Module().apply {
             product = ModuleProduct().apply {
                 type = ProductType.LIB
-                platforms = listOf(Platform.JVM, Platform.ANDROID, Platform.IOS_ARM64)
+                platforms = listOf(Platform.JVM, Platform.ANDROID, Platform.IOS_ARM64).map(Platform::asTraceable)
             }
             module = Meta().apply {
                 layout = AmperLayout.GRADLE
@@ -37,7 +38,7 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
 
             //                apply(emptyList())
 
-            aliases = mapOf("jvmAndAndroid" to setOf(Platform.JVM, Platform.ANDROID))
+            aliases = mapOf("jvmAndAndroid" to setOf(Platform.JVM.asTraceable(), Platform.ANDROID.asTraceable()))
 
             //                repositories(emptyList())
             dependencies = mapOf(

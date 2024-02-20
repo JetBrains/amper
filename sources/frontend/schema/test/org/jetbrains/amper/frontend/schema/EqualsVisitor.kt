@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
 import java.nio.file.Path
@@ -44,7 +45,7 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
   }
 
   override fun visitProductType(productType: ProductType) { }
-  override fun visitProductPlatform(productPlatform: Platform) { }
+  override fun visitProductPlatform(productPlatform: TraceableEnum<Platform>) { }
 
   override fun visitModuleMeta(meta: Meta) {
     assertValueEquals(meta::layout, otherModule::module.withoutDefault?.run { ::layout },
@@ -52,7 +53,7 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
   }
   override fun visitModuleMetaLayout(layout: AmperLayout) { }
 
-  override fun visitAlias(name: String, platforms: Set<Platform>) { }
+  override fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>) { }
   override fun visitApply(path: Path) { }
 
   override fun visitRepositories(repo: List<Repository>) {

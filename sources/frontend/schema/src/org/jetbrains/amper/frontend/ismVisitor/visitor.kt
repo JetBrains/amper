@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -33,10 +34,10 @@ interface IsmVisitor {
   fun visitModule(module: Module)
   fun visitProduct(product: ModuleProduct)
   fun visitProductType(productType: ProductType)
-  fun visitProductPlatform(productPlatform: Platform)
+  fun visitProductPlatform(productPlatform: TraceableEnum<Platform>)
   fun visitModuleMeta(meta: Meta)
   fun visitModuleMetaLayout(layout: AmperLayout)
-  fun visitAlias(name: String, platforms: Set<Platform>)
+  fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>)
   fun visitApply(path: Path)
   fun visitRepositories(repo: List<Repository>)
   fun visitRepository(repo: Repository)

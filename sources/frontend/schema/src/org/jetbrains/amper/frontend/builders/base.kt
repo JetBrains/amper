@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.builders
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.builders
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
@@ -157,10 +158,11 @@ val KType.isSchemaNode get() = unwrapKClassOrNull?.isSubclassOf(SchemaNode::clas
 val KType.isEnum get() = unwrapKClassOrNull?.isSubclassOf(Enum::class) == true
 val KType.isString get() = unwrapKClassOrNull?.isSubclassOf(String::class) == true
 val KType.isTraceableString get() = unwrapKClassOrNull?.isSubclassOf(TraceableString::class) == true
+val KType.isTraceableEnum get() = unwrapKClassOrNull?.isSubclassOf(TraceableEnum::class) == true
 val KType.isBoolean get() = unwrapKClassOrNull?.isSubclassOf(Boolean::class) == true
 val KType.isInt get() = unwrapKClassOrNull?.isSubclassOf(Int::class) == true
 val KType.isPath get() = unwrapKClassOrNull?.isSubclassOf(Path::class) == true
-val KType.isScalar get() = isEnum || isString || isTraceableString || isBoolean || isInt || isPath
+val KType.isScalar get() = isEnum || isTraceableEnum || isString || isTraceableString || isBoolean || isInt || isPath
 
 // FiXME Here we assume that collection type will have only one type argument, that
 // generally is not true. Maybe need to add constraints of value<Type> methods.

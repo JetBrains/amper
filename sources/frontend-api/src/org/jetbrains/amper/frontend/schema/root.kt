@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.reportBundleError
@@ -92,7 +93,7 @@ class Module : Base() {
     var product by value<ModuleProduct>()
 
     @SchemaDoc("Defines the names for the custom code sharing groups. See [aliases](#aliases)")
-    var aliases by nullableValue<Map<String, Set<Platform>>>()
+    var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
 
     @SchemaDoc("List of templates that are applied. See [Templates](#templates)")
     var apply by nullableValue<List<Path>>()

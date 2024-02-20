@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.builders
@@ -186,6 +186,7 @@ class JsonSchemaBuilder(
 
     private fun buildScalar(type: KType) = when {
         type.isEnum -> type.enumSchema
+        type.isTraceableEnum -> type.arguments.single().type!!.enumSchema
         type.isString || type.isTraceableString -> stringSchema
         type.isBoolean -> booleanSchema
         type.isPath -> stringSchema

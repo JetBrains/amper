@@ -13,6 +13,8 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.reportBundleError
 
@@ -96,7 +98,7 @@ class ModuleProduct : SchemaNode() {
     var type by value<ProductType>()
 
     @SchemaDoc("What platforms to generate the product for")
-    var platforms by value<List<Platform>> { ::type.unsafe?.defaultPlatforms?.toList() }
+    var platforms by value<List<TraceableEnum<Platform>>> { ::type.unsafe?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
 
     context(ProblemReporterContext)
     override fun validate() {
@@ -119,12 +121,13 @@ class ModuleProduct : SchemaNode() {
 
         // Check supported platforms.
         ::platforms.unsafe.orEmpty().forEach { platform ->
-            if (platform !in type.supportedPlatforms)
+            val platformValue = platform.value
+            if (platformValue !in type.supportedPlatforms)
                 SchemaBundle.reportBundleError(
                     ::platforms,
                     "product.unsupported.platform",
                     type.schemaValue,
-                    platform.pretty,
+                    platformValue.pretty,
                     type.supportedPlatforms.joinToString { it.pretty },
                 )
         }

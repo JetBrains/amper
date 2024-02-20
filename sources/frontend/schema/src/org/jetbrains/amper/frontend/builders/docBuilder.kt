@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend.builders
@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.builders
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaDoc
+import org.jetbrains.amper.frontend.api.TraceableEnum
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -144,13 +145,20 @@ class DocBuilder private constructor(
 
     private val KType.simpleView: String
         get() = buildString {
-            append("${unwrapKClass.simpleName}")
-            if (arguments.isNotEmpty())
-                append("<${arguments.joinToString { it.type?.simpleView ?: "" }}>")
+            when {
+                isTraceableEnum -> append(arguments.single().type!!.simpleView)
+                isTraceableString -> append(String::class.simpleName)
+                else -> {
+                    append(unwrapKClass.simpleName)
+                    if (arguments.isNotEmpty()) {
+                        append("<${arguments.joinToString { it.type?.simpleView ?: "" }}>")
+                    }
+                }
+            }
         }
 
     private val Default<*>.asString get() = when(this) {
-        is Default.Static -> (value as? SchemaEnum)?.schemaValue ?: value?.toString()
+        is Default.Static -> (value as? SchemaEnum)?.schemaValue ?: ((value as? TraceableEnum<*>)?.value as? SchemaEnum)?.schemaValue ?: value?.toString()
         is Default.Lambda -> desc
     }
 }
