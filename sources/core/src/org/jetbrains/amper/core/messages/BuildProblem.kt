@@ -6,6 +6,8 @@ package org.jetbrains.amper.core.messages
 
 import java.nio.file.Path
 
+typealias BuildProblemId = String
+
 enum class Level {
     /**
      * Cannot process build or import further.
@@ -42,6 +44,8 @@ data class BuildProblem(
     val message: String,
     val level: Level,
     val source: BuildProblemSource? = null,
+    // TODO: Make it non-null
+    val buildProblemId: BuildProblemId? = null,
 )
 
 data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {

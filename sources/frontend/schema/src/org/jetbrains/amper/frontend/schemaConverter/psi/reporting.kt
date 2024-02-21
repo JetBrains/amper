@@ -5,11 +5,12 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.reportError
+import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.yaml.psi.YAMLPsiElement
 
 /**
- * Assert that node has specified type and then execute provided block,
+ * Assert that node has the specified type and then execute provided block,
  * reporting an error if the type is invalid.
  */
 context(ProblemReporterContext)
@@ -18,9 +19,13 @@ inline fun <reified NodeT, T> YAMLPsiElement.assertNodeType(
     report: Boolean = true,
     block: NodeT.() -> T
 ): T? {
-    // TODO Replace by bundle.
-    if (this !is NodeT && report) return reportError("[$fieldName] field has wrong type: " +
-            "It is ${this::class.simpleName}, but was expected to be ${NodeT::class.simpleName}", node = this)
+    if (this !is NodeT && report) return SchemaBundle.reportBundleError(
+        this,
+        "wrong.node.type",
+        fieldName,
+        this::class.simpleName,
+        NodeT::class.simpleName,
+    )
     if (this !is NodeT) return null
     return this.block()
 }

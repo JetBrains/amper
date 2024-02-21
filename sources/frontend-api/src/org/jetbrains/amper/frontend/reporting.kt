@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.LineAndColumn
 import org.jetbrains.amper.core.messages.LineAndColumnRange
@@ -14,7 +15,6 @@ import org.jetbrains.amper.core.messages.MessageBundle
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
-import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import kotlin.reflect.KProperty0
@@ -27,18 +27,7 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = reportBundleError(property.valueBase, messageKey, level = level, arguments = arguments)
-
-context(ProblemReporterContext)
-fun MessageBundle.reportBundleError(
-    value: ValueBase<*>?,
-    messageKey: String,
-    vararg arguments: Any,
-    level: Level = Level.Error,
-): Nothing? = when (val trace = value?.trace) {
-    is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
-    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
-}
+): Nothing? = reportBundleError(property.valueBase as Traceable, messageKey, *arguments, level = level)
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
@@ -47,25 +36,26 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = when (val trace = value.trace) {
-    is PsiTrace -> reportError(message(messageKey, *arguments), level, trace.psiElement)
-    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?)
+    is PsiTrace -> reportBundleError(trace.psiElement, messageKey, *arguments, level = level)
+    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?, buildProblemId = messageKey)
 }
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
     node: PsiElement,
     messageKey: String,
-    vararg arguments: Any,
+    vararg arguments: Any?,
     level: Level = Level.Error,
-): Nothing? = reportError(message(messageKey, *arguments), level, node)
+): Nothing? = reportError(message(messageKey, *arguments), level, node, buildProblemId = messageKey)
 
 context(ProblemReporterContext)
-fun reportError(
+private fun reportError(
     message: String,
     level: Level = Level.Error,
-    node: PsiElement? = null
+    node: PsiElement? = null,
+    buildProblemId: BuildProblemId,
 ): Nothing? {
-    problemReporter.reportMessage(BuildProblem(message, level, source = node?.let(::PsiBuildProblemSource)))
+    problemReporter.reportMessage(BuildProblem(message, level, source = node?.let(::PsiBuildProblemSource), buildProblemId = buildProblemId))
     return null
 }
 

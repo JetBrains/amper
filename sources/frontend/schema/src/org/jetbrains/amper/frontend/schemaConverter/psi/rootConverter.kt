@@ -9,8 +9,9 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.asTraceable
-import org.jetbrains.amper.frontend.reportError
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -124,7 +125,13 @@ private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
             ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
         }
         is YAMLScalar -> ::type.convertSelf { productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true) }
-        else -> reportError("Unexpected product node type: ${productNodeValue?.let{ it::class.simpleName }}", node = productNodeValue)
+        else -> productNodeValue?.let {
+            SchemaBundle.reportBundleError(
+                productNodeValue,
+                "unexpected.product.node.type",
+                productNodeValue::class.simpleName ?: "null",
+            )
+        }
     }
 }
 
