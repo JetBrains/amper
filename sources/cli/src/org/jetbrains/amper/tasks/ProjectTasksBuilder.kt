@@ -237,7 +237,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                         fun createTestTask() {
                             require(isTest)
 
-                            val testTaskName = getTaskName(module, CommonTaskType.TEST, platform, isTest = true)
+                            val testTaskName = getTaskName(module, CommonTaskType.TEST, platform, isTest = true, buildType)
                             if (!PlatformUtil.platformsMayRunOnCurrentSystem.contains(platform)) {
                                 logger.debug(
                                     "Skipping creating test task '{}' since it could not run on current system",
@@ -247,7 +247,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             }
 
                             when (val top = platform.topmostParentNoCommon) {
-                                Platform.JVM -> JvmTestTask(
+                                Platform.JVM, Platform.ANDROID -> JvmTestTask(
                                     module = module,
                                     userCacheRoot = context.userCacheRoot,
                                     projectRoot = context.projectRoot,
@@ -274,7 +274,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                             module,
                                             CommonTaskType.COMPILE,
                                             platform,
-                                            isTest = true
+                                            isTest = true,
+                                            buildType = buildType,
                                         )
                                     )
                                 )
