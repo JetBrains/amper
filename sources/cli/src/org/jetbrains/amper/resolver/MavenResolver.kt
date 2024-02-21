@@ -75,7 +75,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     node.dependency
                         .files
                         .mapNotNull { it.path }
-                        .filterNot { it.name.endsWith("-sources.jar") }
+                        .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
                         .filter { it.toFile().exists() }
                         .forEach { files.add(it) }
                 }
