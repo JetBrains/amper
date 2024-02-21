@@ -99,7 +99,7 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
             .map { it.toString() }
             .map { it.replace("\\", "/") }
 
-        assertContains(classesInJars, "classes/Lib.class")
+        assertContains(classesInJars, "classes/org/example/namespace/Lib.class")
 
         val valuesXml = extractedAarPath
             .walk()
