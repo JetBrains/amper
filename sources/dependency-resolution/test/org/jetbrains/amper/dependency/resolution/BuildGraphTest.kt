@@ -420,7 +420,7 @@ class BuildGraphTest {
 
     @Test
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             platform = "android",
             expected = """root
@@ -432,6 +432,17 @@ class BuildGraphTest {
                 |     +--- com.google.errorprone:error_prone_annotations:2.23.0
                 |     \--- com.google.j2objc:j2objc-annotations:2.8
             """.trimMargin()
+        )
+        assertFiles(
+            """checker-qual-3.41.0.jar
+                |error_prone_annotations-2.23.0.jar
+                |failureaccess-1.0.2.jar
+                |guava-33.0.0-android.jar
+                |j2objc-annotations-2.8.jar
+                |jsr305-3.0.2.jar
+                |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
+            """.trimMargin(),
+            root
         )
     }
 
@@ -660,6 +671,16 @@ class BuildGraphTest {
 
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         assertEquals(expected, root.prettyPrint().trimEnd())
+
+    private fun assertFiles(files: String, root: DependencyNode) {
+        root.asSequence()
+            .mapNotNull { it as? MavenDependencyNode }
+            .flatMap { it.dependency.files.values }
+            .mapNotNull { it.path?.name }
+            .sorted()
+            .toSet()
+            .let { assertEquals(files, it.joinToString("\n")) }
+    }
 
     companion object {
         private val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")

@@ -146,10 +146,11 @@ class MavenDependency internal constructor(
     val files
         get() = buildMap {
             variant?.files?.forEach {
+                val nameWithoutExtension = it.url.substringBeforeLast('.')
                 val extension = it.name.substringAfterLast('.')
                 put(
                     extension,
-                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
+                    getDependencyFile(this@MavenDependency, nameWithoutExtension, extension)
                 )
             }
             packaging?.takeIf { it != "pom" }?.let {
@@ -214,7 +215,7 @@ class MavenDependency internal constructor(
             return
         }
         module.variants.filter {
-            it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions(context)
+            it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions()
         }.filter {
             context.settings.platform.matches(it)
                     && context.settings.nativeTargetMatches(it)
@@ -239,7 +240,7 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun Variant.isOneOfExceptions(context: Context) = isKotlinException() || isGuavaException(context)
+    private fun Variant.isOneOfExceptions() = isKotlinException() || isGuavaException()
 
     private fun Variant.isKotlinException() =
         isKotlinTestJunit() && capabilities.sortedBy { it.name } == listOf(
@@ -250,11 +251,15 @@ class MavenDependency internal constructor(
     private fun isKotlinTestJunit() =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
 
-    private fun Variant.isGuavaException(context: Context) =
+    private fun Variant.isGuavaException() =
         isGuava() && capabilities.sortedBy { it.name } == listOf(
             Capability("com.google.collections", "google-collections", version),
             toCapability()
-        ) && attributes["org.gradle.jvm.environment"]?.endsWith(context.settings.platform) == true
+        ) && attributes["org.gradle.jvm.environment"] == when (version.substringAfterLast('-')) {
+            "android" -> "android"
+            "jre" -> "standard-jvm"
+            else -> null
+        }
 
     private fun isGuava() = group == "com.google.guava" && module == "guava"
 
