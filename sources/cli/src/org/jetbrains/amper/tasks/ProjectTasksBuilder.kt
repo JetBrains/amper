@@ -136,6 +136,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 type = CommonTaskType.COMPILE,
                                 platform = platform,
                                 isTest = isTest,
+                                buildType = buildType
                             )
                             val top = platform.topmostParentNoCommon
                             val jvmCompileTask = JvmCompileTask(
@@ -148,12 +149,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 executeOnChangedInputs = executeOnChangedInputs,
                             )
                             return when (top) {
-                                Platform.JVM -> jvmCompileTask
-
-                                Platform.ANDROID -> AndroidCompileTask(
-                                    jvmCompileTask = jvmCompileTask,
-                                    buildType = buildType
-                                )
+                                Platform.JVM, Platform.ANDROID -> jvmCompileTask
 
                                 Platform.NATIVE -> NativeCompileTask(
                                     module = module,
