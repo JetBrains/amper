@@ -33,9 +33,6 @@ class LogcatTask(override val taskName: TaskName) : Task {
                 deferred.complete(true)
             }
             message.header.logLevel?.let { logLevel ->
-                if (message.header.tag == "my-app") {
-                    println(message)
-                }
                 when(logLevel) {
                     Log.LogLevel.VERBOSE -> logger.debug(message.toString())
                     Log.LogLevel.DEBUG -> logger.debug(message.toString())

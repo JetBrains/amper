@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
@@ -151,7 +152,7 @@ class AndroidRunTask(
     }
 
     private suspend fun runAndAwaitForEmulatorToBoot(emulatorExecutable: Path, avdName: String) {
-        startProcessWithStdoutStderrFlows(
+        val processWrapper = startProcessWithStdoutStderrFlows(
             buildList {
                 add(emulatorExecutable.pathString)
                 val headlessMode: String? = System.getProperty(headlessEmulatorModePropertyName)
@@ -167,7 +168,7 @@ class AndroidRunTask(
                 "ANDROID_HOME" to androidSdkPath.toString(),
             )
         )
-            .stdout
+        merge(processWrapper.stdout, processWrapper.stderr)
             .map { it.also { logger.info(it) } }
             // we need to wait until the boot will be completed (not until a device becomes online) because when becomes
             // online installation service isn't available yet
