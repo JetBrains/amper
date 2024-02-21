@@ -49,6 +49,6 @@ class TraceableString(
 }
 
 // TODO Replace by traceability generalization.
-fun KProperty0<String>.toTraceableString(): TraceableString = TraceableString(get()).apply {
-    trace = this@toTraceableString.valueBase?.trace
-}
+fun KProperty0<String>.toTraceableString(): TraceableString = TraceableString(get()).withTraceFrom(this.valueBase)
+
+fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }

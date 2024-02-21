@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.frontend
 
-import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 
@@ -60,7 +60,7 @@ interface LeafFragment : Fragment {
     val platform: Platform
 }
 
-sealed interface Notation
+sealed interface Notation : Traceable
 
 interface DefaultScopedNotation : Notation {
     val compile: Boolean get() = true
@@ -77,7 +77,9 @@ data class MavenDependency(
     override val compile: Boolean = true,
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
-) : DefaultScopedNotation
+) : DefaultScopedNotation, Traceable {
+    override var trace: Trace? = null
+}
 
 enum class FragmentDependencyType {
     REFINE, FRIEND,

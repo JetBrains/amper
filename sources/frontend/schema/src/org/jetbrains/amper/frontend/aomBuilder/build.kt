@@ -15,6 +15,8 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
@@ -153,8 +155,7 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
 
     modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments =
-            createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
+        val moduleFragments = createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {
@@ -183,6 +184,8 @@ class DefaultPotatoModuleDependency(
     override val runtime: Boolean = true,
     override val exported: Boolean = false,
 ) : PotatoModuleDependency, DefaultScopedNotation {
+    override var trace: Trace? = null
+
     override fun toString(): String {
         return "InternalDependency(module=${path.pathString})"
     }
@@ -192,17 +195,17 @@ class DefaultPotatoModuleDependency(
  * Resolve internal modules against known ones by path.
  */
 context(ProblemReporterContext)
-private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, PotatoModule>) = let resolve@{
-    when (it) {
+private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, PotatoModule>): DefaultScopedNotation? =
+    when (this) {
         is ExternalMavenDependency -> MavenDependency(
             // TODO Report absence of coordinates.
-            it.coordinates,
+            coordinates,
             scope.compile,
             scope.runtime,
-            it.exported,
+            exported,
         )
 
-        is InternalDependency -> it.path?.let { path ->
+        is InternalDependency -> path?.let { path ->
             DefaultPotatoModuleDependency(
                 // TODO Report to error module.
                 moduleDir2module[path] ?: run {
@@ -211,12 +214,11 @@ private fun Dependency.resolveInternalDependency(moduleDir2module: Map<Path, Pot
                 path,
                 scope.compile,
                 scope.runtime,
-                it.exported,
+                exported,
             )
-        } ?: return@resolve null
+        }
 
         is CatalogDependency -> error("Catalog dependency must be processed earlier!")
 
-        else -> error("Unknown dependency type: ${it::class}")
-    }
-}
+        else -> error("Unknown dependency type: ${this::class}")
+    }?.withTraceFrom(this)

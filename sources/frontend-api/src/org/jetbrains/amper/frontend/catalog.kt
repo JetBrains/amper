@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 
 
 /**
- * Version catalog. Currently, supports only maven dependencies.
+ * Version catalog. Currently, it supports only maven dependencies.
  */
 interface VersionCatalog {
 

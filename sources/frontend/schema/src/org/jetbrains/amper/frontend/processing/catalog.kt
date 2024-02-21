@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.BuiltinCatalogTrace
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.toTraceableString
+import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
@@ -36,9 +37,7 @@ fun <T: Base> T.replaceCatalogDependencies(
             coordinates = catalogValue.value
             exported = it.exported
             scope = it.scope
-
-            trace = catalogValue.trace
-        }
+        }.withTraceFrom(catalogValue)
     }
 
     fun Map<Modifiers, List<Dependency>>.replaceCatalogDeps() =

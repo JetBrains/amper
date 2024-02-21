@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -78,7 +79,9 @@ class MockFragmentLink(
     override val type: FragmentDependencyType
 ) : FragmentLink
 
-class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDependency
+class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDependency {
+    override var trace: Trace? = null
+}
 
 open class MockFragment(
     override var name: String = "fragment",
