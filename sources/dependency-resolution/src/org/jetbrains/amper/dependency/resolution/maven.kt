@@ -144,27 +144,18 @@ class MavenDependency internal constructor(
     val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
-        get() = buildMap {
+        get() = buildList {
             variant?.files?.forEach {
                 val nameWithoutExtension = it.url.substringBeforeLast('.')
                 val extension = it.name.substringAfterLast('.')
-                put(
-                    extension,
-                    getDependencyFile(this@MavenDependency, nameWithoutExtension, extension)
-                )
+                add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
             }
             packaging?.takeIf { it != "pom" }?.let {
                 val extension = if (it == "bundle") "jar" else it
-                put(
-                    extension,
-                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension)
-                )
+                add(getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension))
             }
             if (isEmpty()) {
-                put(
-                    "jar",
-                    getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar")
-                )
+                add(getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar"))
             }
         }
 
@@ -381,8 +372,7 @@ class MavenDependency internal constructor(
         isDownloaded() && hasMatchingChecksum(level, settings) || level == ResolutionLevel.NETWORK && download(settings)
 
     fun downloadDependencies(settings: Settings) {
-        files.values
-            .filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, settings)) }
+        files.filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, settings)) }
             .forEach { it.download(settings) }
     }
 }

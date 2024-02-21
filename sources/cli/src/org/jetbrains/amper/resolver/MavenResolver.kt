@@ -73,7 +73,6 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 if (node is MavenDependencyNode) {
                     node.dependency
                         .files
-                        .values
                         .mapNotNull { it.path }
                         .filter { it.toFile().exists() }
                         .forEach { files.add(it) }

@@ -179,7 +179,7 @@ class BuildGraphTest {
         }
         root.asSequence()
             .mapNotNull { it as? MavenDependencyNode }
-            .flatMap { it.dependency.files.values }
+            .flatMap { it.dependency.files }
             .mapNotNull { it.path }
             .forEach {
                 assertTrue(it.extension == "jar", "Only jar files are expected, got ${it.name}")
@@ -415,7 +415,7 @@ class BuildGraphTest {
         )
         val appcompat = root.children.single() as MavenDependencyNode
         assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.toString())
-        assertEquals(listOf("aar"), appcompat.dependency.files.keys.sortedBy { it })
+        assertEquals(listOf("aar"), appcompat.dependency.files.map { it.extension }.sortedBy { it })
     }
 
     @Test
@@ -465,7 +465,7 @@ class BuildGraphTest {
 
     @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             platform = "native",
             nativeTarget = "macos_arm64",
@@ -478,6 +478,15 @@ class BuildGraphTest {
                 |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
             """.trimMargin()
+        )
+        assertFiles(
+            """kotlin-stdlib-1.9.21.jar
+                |kotlin-stdlib-common-1.9.21.jar
+                |kotlinx-datetime-0.5.0.jar
+                |kotlinx-datetime-macosarm64-0.5.0.klib
+                |kotlinx-serialization-core-1.6.2.jar
+                |kotlinx-serialization-core-macosarm64-1.6.2.klib""".trimMargin(),
+            root
         )
     }
 
@@ -675,7 +684,7 @@ class BuildGraphTest {
     private fun assertFiles(files: String, root: DependencyNode) {
         root.asSequence()
             .mapNotNull { it as? MavenDependencyNode }
-            .flatMap { it.dependency.files.values }
+            .flatMap { it.dependency.files }
             .mapNotNull { it.path?.name }
             .sorted()
             .toSet()
