@@ -87,6 +87,7 @@ interface ModelInit {
      */
     data class TemplateHolder(
         val template: Template,
+        @UsedInIdePlugin
         val chosenCatalog: VersionCatalog?,
     )
 
