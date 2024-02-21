@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -30,7 +31,7 @@ class GradleLocalRepositoryTest {
     @Test
     fun `guess path`() {
         val node = kotlinTest()
-        var path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
+        var path = runBlocking { cache.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertNull(path)
 
         val sha1 = computeHash("sha1", randomString().toByteArray())
@@ -40,7 +41,7 @@ class GradleLocalRepositoryTest {
                 "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar"
             ).mkdirs()
         )
-        path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
+        path = runBlocking { cache.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -51,22 +52,24 @@ class GradleLocalRepositoryTest {
     fun `guess path with variant`() {
         val sha1 = computeHash("sha1", randomString().toByteArray())
         val node = kotlinTest().also {
-            it.variants.asMutable() += Variant(
-                "",
-                files = listOf(
-                    org.jetbrains.amper.dependency.resolution.metadata.json.File(
-                        name = "kotlin-test-1.9.10.jar",
-                        "",
-                        0,
-                        "",
-                        "",
-                        sha1 = sha1,
-                        "",
-                    )
-                ),
+            it.variants = listOf(
+                Variant(
+                    "",
+                    files = listOf(
+                        org.jetbrains.amper.dependency.resolution.metadata.json.File(
+                            name = "kotlin-test-1.9.10.jar",
+                            "",
+                            0,
+                            "",
+                            "",
+                            sha1 = sha1,
+                            "",
+                        )
+                    ),
+                )
             )
         }
-        val path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
+        val path = runBlocking { cache.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path?.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -77,7 +80,7 @@ class GradleLocalRepositoryTest {
     fun `get path`() {
         val bytes = randomString().toByteArray()
         val sha1 = computeHash("sha1", bytes)
-        val path = cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1)
+        val path = runBlocking { cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1) }
         assertEquals(
             "org.jetbrains.kotlin/kotlin-test/1.9.10/$sha1/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

@@ -3,9 +3,16 @@
  */
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
 import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * This is the entry point to the library.
@@ -46,43 +53,66 @@ class Resolver(val root: DependencyNode) {
      * @param level whether resolution should be performed with (default) or without network access
      * @return current instance
      */
-    fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK): Resolver {
-        val nodes = mutableMapOf<Key<*>, MutableList<DependencyNode>>()
-        val conflicts = mutableSetOf<Key<*>>()
-        val queue = LinkedList(listOf(root))
+    suspend fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK) {
+        val nodes = ConcurrentHashMap<Key<*>, MutableList<DependencyNode>>()
+        val conflicts = ConcurrentHashMap.newKeySet<Key<*>>()
+        val queue = ConcurrentLinkedQueue(listOf(root))
         do {
             conflicts.clear()
-            // 1. Process queue tracking nodes and conflicts.
-            while (queue.isNotEmpty()) {
-                val node = queue.remove()
-                // 1.1. Check if a node with such a key was already registered.
-                val candidates = nodes.computeIfAbsent(node.key) { mutableListOf() }.also { it += node }
-                // 1.2. If it's a known or new conflict, postpone node processing for later.
-                if (node.key in conflicts || candidates.firstOrNull()?.conflictsWith(node) == true) {
-                    conflicts += node.key
-                    continue
+            coroutineScope {
+                queue.forEach { node ->
+                    launch {
+                        node.context.nodeCache[scopeKey] = this
+                        if (node.key !in conflicts) {
+                            node.resolve(level, nodes, conflicts)
+                        }
+                    }
                 }
-                // 1.3. If the node hasn't yet reached a state corresponding to the desired level, resolve it.
-                if (node.state < level.state) {
-                    node.resolve(level)
-                }
-                // 1.4. Process the node's children.
-                queue.addAll(node.children)
             }
-            // 2. Process nodes with conflicts.
-            for (key in conflicts) {
-                val candidates = nodes[key] ?: throw AmperDependencyResolutionException("Nodes are missing for $key")
-                // 2.1. Try resolving conflicts using a provided strategy and finish if impossible to achieve.
-                if (!candidates.resolveConflict()) {
-                    return this
+
+            queue.clear()
+            coroutineScope {
+                conflicts.forEach { key ->
+                    launch {
+                        val candidates = nodes[key]
+                            ?: throw AmperDependencyResolutionException("Nodes are missing for $key")
+                        if (!candidates.resolveConflict()) {
+                            return@launch
+                        }
+                        queue.addAll(candidates)
+                    }
                 }
-                // 2.2. Continue processing nodes as it was postponed.
-                queue.addAll(candidates)
             }
-            // 3. Repeat the cycle until there are no conflicts.
         } while (conflicts.isNotEmpty())
-        return this
     }
+
+    private suspend fun DependencyNode.resolve(
+        level: ResolutionLevel,
+        nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
+        conflicts: MutableSet<Key<*>>,
+    ) {
+        coroutineScope {
+            resolveChildren(level)
+            children.forEach { node ->
+                val similarNodes = nodes.computeIfAbsent(node.key) { CopyOnWriteArrayList() }.also { it += node }
+                if (node.key !in conflicts) {
+                    if (similarNodes.firstOrNull()?.conflictsWith(node) == true) {
+                        conflicts += node.key
+                        similarNodes.forEach { it.context.nodeCache[scopeKey]?.cancel() }
+                    } else {
+                        launch {
+                            node.context.nodeCache[scopeKey] = this
+                            if (node.key !in conflicts) {
+                                node.resolve(level, nodes, conflicts)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val scopeKey = Key<CoroutineScope>("scope")
 
     private fun DependencyNode.conflictsWith(other: DependencyNode) =
         root.context.settings.conflictResolutionStrategies
@@ -98,11 +128,7 @@ class Resolver(val root: DependencyNode) {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    fun downloadDependencies(): Resolver =
-        root.asSequence()
-            .distinctBy { it.key }
-            .forEach { it.downloadDependencies() }
-            .let { this }
+    suspend fun downloadDependencies() = root.asSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
 }
 
 /**
@@ -122,24 +148,23 @@ interface DependencyNode {
     val parent: DependencyNode? get() = context.nodeCache[parentNodeKey]
     val context: Context
     val key: Key<*>
-    val state: ResolutionState
     val children: List<DependencyNode>
     val messages: List<Message>
 
     /**
-     * Fills [children] and changes [state] taking [context] into account.
+     * Fills [children] taking [context] into account.
      * In the process, [messages] are populated with relevant information or errors.
      *
      * @see ResolutionState
      * @see Message
      * @see Severity
      */
-    fun resolve(level: ResolutionLevel)
+    suspend fun resolveChildren(level: ResolutionLevel)
 
     /**
      * Ensures that the dependency-relevant files are on disk according to settings.
      */
-    fun downloadDependencies()
+    suspend fun downloadDependencies()
 
     /**
      * Returns a sequence of nodes below the current one using BFS.

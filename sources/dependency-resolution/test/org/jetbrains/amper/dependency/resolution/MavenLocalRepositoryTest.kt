@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.util.*
@@ -27,7 +28,7 @@ class MavenLocalRepositoryTest {
     @Test
     fun `guess path`() {
         val node = kotlinTest()
-        val path = cache.guessPath(node, "${getNameWithoutExtension(node)}.jar")
+        val path = runBlocking { cache.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -37,7 +38,7 @@ class MavenLocalRepositoryTest {
     @Test
     fun `get path`() {
         val sha1 = computeHash("sha1", randomString().toByteArray())
-        val path = cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1)
+        val path = runBlocking { cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1) }
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')

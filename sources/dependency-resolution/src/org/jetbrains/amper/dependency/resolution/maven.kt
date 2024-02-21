@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.dependency.resolution.metadata.json.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.Dependency
@@ -16,6 +18,8 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -50,6 +54,7 @@ class MavenDependencyNode internal constructor(
         parentNode,
     )
 
+    @Volatile
     var dependency: MavenDependency = dependency
         set(value) {
             assert(group == value.group) { "Groups don't match. Expected: $group, actual: ${value.group}" }
@@ -63,8 +68,6 @@ class MavenDependencyNode internal constructor(
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
     override val key: Key<*> = Key<MavenDependency>("$group:$module")
-    override val state: ResolutionState
-        get() = dependency.state
     override val children: List<DependencyNode> by PropertyWithDependency(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
@@ -72,19 +75,15 @@ class MavenDependencyNode internal constructor(
             thisRef.dependency.children.map { MavenDependencyNode(thisRef.context, it, this) }
         },
         dependencyProvider = { thisRef ->
-            thisRef.dependency.children.toList()
+            thisRef.dependency.children
         }
     )
     override val messages: List<Message>
         get() = dependency.messages
 
-    override fun resolve(level: ResolutionLevel) {
-        dependency.resolve(context, level)
-    }
+    override suspend fun resolveChildren(level: ResolutionLevel) = dependency.resolveChildren(context, level)
 
-    override fun downloadDependencies() {
-        dependency.downloadDependencies(context.settings)
-    }
+    override suspend fun downloadDependencies() = dependency.downloadDependencies(context)
 
     override fun toString(): String = if (dependency.version == version) {
         dependency.toString()
@@ -94,19 +93,23 @@ class MavenDependencyNode internal constructor(
 }
 
 /**
- * A lazy property that's recalculated if its dependency changes. Single-threaded only.
+ * A lazy property that's recalculated if its dependency changes.
  */
 class PropertyWithDependency<in T, out V, D>(
-    private var value: V,
-    private var dependency: D,
+    @Volatile private var value: V,
+    @Volatile private var dependency: D,
     val valueProvider: (T) -> V,
     val dependencyProvider: (T) -> D
 ) : ReadOnlyProperty<T, V> {
     override fun getValue(thisRef: T, property: KProperty<*>): V {
         val newDependency = dependencyProvider(thisRef)
         if (dependency != newDependency) {
-            dependency = newDependency
-            value = valueProvider(thisRef)
+            synchronized(this) {
+                if (dependency != newDependency) {
+                    dependency = newDependency
+                    value = valueProvider(thisRef)
+                }
+            }
         }
         return value
     }
@@ -135,13 +138,25 @@ class MavenDependency internal constructor(
     val version: String
 ) {
 
+    @Volatile
     var state: ResolutionState = ResolutionState.INITIAL
         private set
-    val children: List<MavenDependency> = mutableListOf()
-    val variants: List<Variant> = mutableListOf()
+
+    @Volatile
+    var variants: List<Variant> = listOf()
+        internal set
+
+    @Volatile
     var packaging: String? = null
         private set
-    val messages: List<Message> = mutableListOf()
+
+    @Volatile
+    var children: List<MavenDependency> = listOf()
+        private set
+
+    val messages: List<Message> = CopyOnWriteArrayList()
+
+    private val mutex = Mutex()
 
     val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
@@ -164,10 +179,20 @@ class MavenDependency internal constructor(
 
     override fun toString(): String = "$group:$module:$version"
 
-    fun resolve(context: Context, level: ResolutionLevel) {
+    suspend fun resolveChildren(context: Context, level: ResolutionLevel) {
+        if (state < level.state) {
+            mutex.withLock {
+                if (state < level.state) {
+                    resolve(context, level)
+                }
+            }
+        }
+    }
+
+    private suspend fun resolve(context: Context, level: ResolutionLevel) {
         val settings = context.settings
         // 1. Download pom.
-        val pomText = if (pom.isDownloadedOrDownload(level, settings)) {
+        val pomText = if (pom.isDownloadedOrDownload(level, context)) {
             pom.readText()
         } else {
             messages.asMutable() += Message(
@@ -179,7 +204,7 @@ class MavenDependency internal constructor(
         }
         // 2. If pom is missing or mentions metadata, use it.
         if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
-            if (metadata.isDownloadedOrDownload(level, settings)) {
+            if (metadata.isDownloadedOrDownload(level, context)) {
                 resolveUsingMetadata(context, level)
                 return
             }
@@ -197,9 +222,11 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
+    private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
         val module = try {
             metadata.readText().parseMetadata()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             messages.asMutable() += Message(
                 "Unable to parse metadata file $metadata",
@@ -215,7 +242,7 @@ class MavenDependency internal constructor(
                     && context.settings.nativeTargetMatches(it)
                     && context.settings.scope.matches(it)
         }.also {
-            variants.asMutable() += it
+            variants = it
             if (it.filterNot { it.attributes["org.gradle.category"] == "documentation" }.size > 1) {
                 messages.asMutable() += Message(
                     "More than a single variant provided",
@@ -228,7 +255,7 @@ class MavenDependency internal constructor(
         }.map {
             createOrReuseDependency(context, it.group, it.module, it.version.requires)
         }.let {
-            children.asMutable() += it
+            children = it
             state = level.state
         }
     }
@@ -267,9 +294,11 @@ class MavenDependency internal constructor(
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
-    private fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
+    private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
         val project = try {
             text.parsePom().resolve(context, level)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             messages.asMutable() += Message(
                 "Unable to parse pom file ${this.pom}",
@@ -286,7 +315,7 @@ class MavenDependency internal constructor(
         }.map {
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
         }.let {
-            children.asMutable() += it
+            children = it
             state = level.state
         }
     }
@@ -296,7 +325,7 @@ class MavenDependency internal constructor(
      * with actual values.
      * Additionally, dependency versions are defined using dependency management.
      */
-    private fun Project.resolve(
+    private suspend fun Project.resolve(
         context: Context,
         resolutionLevel: ResolutionLevel,
         depth: Int = 0,
@@ -309,11 +338,10 @@ class MavenDependency internal constructor(
             )
             return this
         }
-        val settings = context.settings
         val parentNode = parent?.let {
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
         }
-        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, settings))) {
+        val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context))) {
             val text = parentNode.pom.readText()
             val parentProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
             copy(
@@ -340,7 +368,7 @@ class MavenDependency internal constructor(
             ?.flatMap {
                 if (it.scope == "import" && it.version != null) {
                     val dependency = createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
-                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, settings)) {
+                    if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
                         dependencyProject.dependencyManagement?.dependencies?.dependencies?.let {
@@ -370,12 +398,12 @@ class MavenDependency internal constructor(
         )
     }
 
-    private fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, settings: Settings) =
-        isDownloaded() && hasMatchingChecksum(level, settings) || level == ResolutionLevel.NETWORK && download(settings)
+    private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
+        isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
-    fun downloadDependencies(settings: Settings) {
-        files.filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, settings)) }
-            .forEach { it.download(settings) }
+    suspend fun downloadDependencies(context: Context) {
+        files.filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
+            .forEach { it.download(context) }
     }
 }
 

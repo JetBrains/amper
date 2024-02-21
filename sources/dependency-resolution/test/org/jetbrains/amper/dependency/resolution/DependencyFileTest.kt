@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -20,64 +21,72 @@ class DependencyFileTest {
     @Test
     fun `kotlin-test-1_9_20 module hash`() {
         val path = temp.toPath()
-        val settings = Context {
+        Context {
             cache = {
                 localRepositories = listOf(GradleLocalRepository(path))
             }
-        }.settings
-        val dependency = MavenDependency(settings.fileCache, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
-        val extension = "module"
-        val name = "${getNameWithoutExtension(dependency)}.$extension"
-        val target = path.resolve(
-            "${dependency.group}/${dependency.module}/${dependency.version}/3bf4b49eb37b4aca302f99bd99769f6e310bdb2/$name"
-        )
-        Files.createDirectories(target.parent)
-        Path.of("testData/metadata/json/$name").copyTo(target)
+        }.use { context ->
+            val dependency =
+                MavenDependency(context.settings.fileCache, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
+            val extension = "module"
+            val name = "${getNameWithoutExtension(dependency)}.$extension"
+            val target = path.resolve(
+                "${dependency.group}/${dependency.module}/${dependency.version}/3bf4b49eb37b4aca302f99bd99769f6e310bdb2/$name"
+            )
+            Files.createDirectories(target.parent)
+            Path.of("testData/metadata/json/$name").copyTo(target)
 
-        val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
-        assertTrue(dependencyFile.path!!.startsWith(path))
+            val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
+            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(path) })
 
-        val downloaded = dependencyFile.isDownloaded()
-        val hasMatchingChecksum = dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, settings)
-        assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
-        assertTrue(downloaded, "File must be downloaded as it was created above")
-        assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
+            val downloaded = runBlocking { dependencyFile.isDownloaded() }
+            val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
+            assertTrue(dependency.messages.isEmpty(), "There must be no messages: ${dependency.messages}")
+            assertTrue(downloaded, "File must be downloaded as it was created above")
+            assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
+        }
     }
 
     @Test
     fun `jackson-module-kotlin-2_15_2_jar hash`() {
         val path = temp.toPath()
-        val context = Context {
+        Context {
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
             }
+        }.use { context ->
+            val dependency = MavenDependency(
+                context.settings.fileCache,
+                "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
+            )
+            runBlocking {
+                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+                dependency.downloadDependencies(context)
+            }
+            val messages = dependency.messages.filter { "Downloaded from" !in it.text }
+            assertTrue(messages.isEmpty(), "There must be no messages for $dependency: $messages")
         }
-        val dependency = MavenDependency(
-            context.settings.fileCache,
-            "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
-        )
-        dependency.resolve(context, ResolutionLevel.NETWORK)
-        dependency.downloadDependencies(context.settings)
-        val errors = dependency.messages.filter { it.severity == Severity.ERROR }
-        assertTrue(errors.isEmpty(), "There must be no errors: $errors")
     }
 
     @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         val path = temp.toPath()
-        val context = Context {
+        Context {
             platform = "native"
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
             }
+        }.use { context ->
+            val dependency = MavenDependency(
+                context.settings.fileCache,
+                "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
+            )
+            runBlocking {
+                dependency.resolveChildren(context, ResolutionLevel.NETWORK)
+            }
+            val errors = dependency.messages.filter { it.severity == Severity.ERROR }
+            assertTrue(errors.isEmpty(), "There must be no errors: $errors")
         }
-        val dependency = MavenDependency(
-            context.settings.fileCache,
-            "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
-        )
-        dependency.resolve(context, ResolutionLevel.NETWORK)
-        val errors = dependency.messages.filter { it.severity == Severity.ERROR }
-        assertTrue(errors.isEmpty(), "There must be no errors: $errors")
     }
 }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.resolver
 
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.junit.jupiter.api.assertThrows
@@ -23,7 +24,12 @@ class MavenResolverTest {
         val root = tempDir.toPath()
         val resolver = MavenResolver(AmperUserCacheRoot(root))
 
-        val result = resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
+        val result = runBlocking {
+            resolver.resolve(
+                coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
+                listOf("https://repo1.maven.org/maven2")
+            )
+        }
         val relative = result.map { it.relativeTo(root).joinToString("/") }.sorted()
         assertEquals(
             listOf(
@@ -43,7 +49,12 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         // https://search.maven.org/artifact/org.tinylog/tinylog-api/2.7.0-M1/bundle
-        val result = resolver.resolve(coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"), listOf("https://repo1.maven.org/maven2"))
+        val result = runBlocking {
+            resolver.resolve(
+                coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
+                listOf("https://repo1.maven.org/maven2")
+            )
+        }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
         assertEquals(
             listOf(".m2.cache/org/tinylog/tinylog-api/2.7.0-M1/tinylog-api-2.7.0-M1.jar"),
@@ -55,13 +66,15 @@ class MavenResolverTest {
     fun nativeTarget() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
-        val result = resolver.resolve(
-            coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
-            repositories = listOf("https://repo1.maven.org/maven2"),
-            scope = ResolutionScope.COMPILE,
-            platform = "native",
-            nativeTarget = "mingw_x64",
-        )
+        val result = runBlocking {
+            resolver.resolve(
+                coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
+                repositories = listOf("https://repo1.maven.org/maven2"),
+                scope = ResolutionScope.COMPILE,
+                platform = "native",
+                nativeTarget = "mingw_x64",
+            )
+        }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted().joinToString("\n")
         assertEquals(
             """
@@ -78,11 +91,13 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
-        val result = resolver.resolve(
-            coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
-            repositories = listOf("https://repo1.maven.org/maven2"),
-            scope = ResolutionScope.RUNTIME,
-        )
+        val result = runBlocking {
+            resolver.resolve(
+                coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
+                repositories = listOf("https://repo1.maven.org/maven2"),
+                scope = ResolutionScope.RUNTIME,
+            )
+        }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
         assertEquals(
             listOf(
@@ -112,7 +127,12 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         val t = assertThrows<MavenResolverException> {
-            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999"), listOf("https://repo1.maven.org/maven2"))
+            runBlocking {
+                resolver.resolve(
+                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
+                    listOf("https://repo1.maven.org/maven2")
+                )
+            }
         }
         assertEquals(
             "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
@@ -125,7 +145,12 @@ class MavenResolverTest {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
         val t = assertThrows<MavenResolverException> {
-            resolver.resolve(coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"), listOf("https://repo1.maven.org/maven2"))
+            runBlocking {
+                resolver.resolve(
+                    coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
+                    listOf("https://repo1.maven.org/maven2")
+                )
+            }
         }
         assertEquals(
             "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",

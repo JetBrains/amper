@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import java.io.Closeable
 import java.nio.file.Path
 
 /**
@@ -11,6 +12,8 @@ import java.nio.file.Path
  * It's supposed to be unique for each node as it holds its [nodeCache].
  * As the same time, [settings] and [resolutionCache] are expected to be the same withing the resolution session.
  * Thus, they can be copied via [copyWithNewNodeCache].
+ *
+ * The context has to be closed at the end of the resolution session to free caches resources, e.g., a Ktor client.
  *
  * The suggested way to populate the context with settings is using [SettingsBuilder].
  *
@@ -24,7 +27,7 @@ import java.nio.file.Path
  * @see [SettingsBuilder]
  * @see [Cache]
  */
-class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
+class Context(val settings: Settings, val resolutionCache: Cache = Cache()) : Closeable {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
@@ -32,6 +35,10 @@ class Context(val settings: Settings, val resolutionCache: Cache = Cache()) {
 
     fun copyWithNewNodeCache(parentNode: DependencyNode?): Context = Context(settings, resolutionCache).apply {
         parentNode?.let { nodeCache[parentNodeKey] = it }
+    }
+
+    override fun close() {
+        resolutionCache.close()
     }
 }
 

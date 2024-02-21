@@ -6,13 +6,15 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import java.io.Closeable
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 inline fun <reified T : Any> Key(name: String): Key<T> = Key(name, T::class)
 
 data class Key<T : Any>(val name: String, private val kClass: KClass<T>)
 
-class Cache(private val cache: MutableMap<Key<*>, Any> = mutableMapOf()) {
+class Cache(private val cache: MutableMap<Key<*>, Any> = ConcurrentHashMap()) : Closeable {
 
     operator fun <T : Any> get(key: Key<T>): T? = cache[key] as T?
 
@@ -24,4 +26,8 @@ class Cache(private val cache: MutableMap<Key<*>, Any> = mutableMapOf()) {
 
     fun <T : Any> computeIfAbsent(key: Key<T>, mappingFunction: (Key<T>) -> T): T =
         cache.computeIfAbsent(key, mappingFunction as (Key<*>) -> Any) as T
+
+    override fun close() {
+        cache.values.mapNotNull { it as? Closeable }.forEach { it.close() }
+    }
 }

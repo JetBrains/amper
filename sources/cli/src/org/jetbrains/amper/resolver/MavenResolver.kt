@@ -20,7 +20,7 @@ import kotlin.io.path.name
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
-    fun resolve(
+    suspend fun resolve(
         coordinates: Collection<String>,
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
@@ -47,7 +47,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 acceptedRepositories.add(url)
             }
 
-            val context = Context {
+            return Context {
                 this.cache = {
                     amperCache = userCacheRoot.path.resolve(".amper")
                     localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
@@ -56,40 +56,43 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.scope = scope
                 this.platform = platform
                 this.nativeTarget = nativeTarget
-            }
-            val resolver = Resolver(
-                ModuleDependencyNode(
-                    context,
-                    "root",
-                    coordinates.map {
-                        val (group, module, version) = it.split(":")
-                        MavenDependencyNode(context, group, module, version)
-                    }
+            }.use { context ->
+                val resolver = Resolver(
+                    ModuleDependencyNode(
+                        context,
+                        "root",
+                        coordinates.map {
+                            val (group, module, version) = it.split(":")
+                            MavenDependencyNode(context, group, module, version)
+                        }
+                    )
                 )
-            ).buildGraph().downloadDependencies()
+                resolver.buildGraph()
+                resolver.downloadDependencies()
 
-            val files = mutableSetOf<Path>()
-            val errors = mutableListOf<String>()
-            for (node in resolver.root.asSequence()) {
-                if (node is MavenDependencyNode) {
-                    node.dependency
-                        .files
-                        .mapNotNull { it.path }
-                        .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
-                        .filter { it.toFile().exists() }
-                        .forEach { files.add(it) }
+                val files = mutableSetOf<Path>()
+                val errors = mutableListOf<String>()
+                for (node in resolver.root.asSequence()) {
+                    if (node is MavenDependencyNode) {
+                        node.dependency
+                            .files
+                            .mapNotNull { it.getPath() }
+                            .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
+                            .filter { it.toFile().exists() }
+                            .forEach { files.add(it) }
+                    }
+                    node.messages
+                        .filter { it.severity == Severity.ERROR }
+                        .map { "${it.text} (${it.extra})" }
+                        .toCollection(errors)
                 }
-                node.messages
-                    .filter { it.severity == Severity.ERROR }
-                    .map { "${it.text} (${it.extra})" }
-                    .toCollection(errors)
-            }
-            if (errors.isNotEmpty()) {
-                throw MavenResolverException(errors.first()).apply {
-                    errors.drop(1).map { MavenResolverException(it) }.forEach { addSuppressed(it) }
+                if (errors.isNotEmpty()) {
+                    throw MavenResolverException(errors.first()).apply {
+                        errors.drop(1).map { MavenResolverException(it) }.forEach { addSuppressed(it) }
+                    }
                 }
+                files
             }
-            return files
         }
 
     private val logger = LoggerFactory.getLogger(javaClass)

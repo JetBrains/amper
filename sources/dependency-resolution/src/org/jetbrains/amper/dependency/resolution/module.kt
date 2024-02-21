@@ -26,12 +26,11 @@ class ModuleDependencyNode(
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
     override val key: Key<*> = Key<ModuleDependencyNode>(name)
-    override val state: ResolutionState = ResolutionState.RESOLVED
     override val messages: List<Message> = listOf()
 
     override fun toString(): String = name
 
-    override fun resolve(level: ResolutionLevel) {}
+    override suspend fun resolveChildren(level: ResolutionLevel) {}
 
-    override fun downloadDependencies() {}
+    override suspend fun downloadDependencies() {}
 }
