@@ -51,7 +51,7 @@ class GradleLocalRepositoryTest {
     fun `guess path with variant`() {
         val sha1 = computeHash("sha1", randomString().toByteArray())
         val node = kotlinTest().also {
-            it.variant = Variant(
+            it.variants += Variant(
                 "",
                 files = listOf(
                     org.jetbrains.amper.dependency.resolution.metadata.json.File(

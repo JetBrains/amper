@@ -137,7 +137,7 @@ class MavenDependency internal constructor(
 
     var state: ResolutionState = ResolutionState.INITIAL
     val children: MutableList<MavenDependency> = mutableListOf()
-    var variant: Variant? = null
+    val variants: MutableList<Variant> = mutableListOf()
     var packaging: String? = null
     val messages: MutableList<Message> = mutableListOf()
 
@@ -145,14 +145,18 @@ class MavenDependency internal constructor(
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
         get() = buildList {
-            variant?.files?.forEach {
+            variants.flatMap { it.files }.forEach {
                 val nameWithoutExtension = it.url.substringBeforeLast('.')
                 val extension = it.name.substringAfterLast('.')
                 add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
             }
             packaging?.takeIf { it != "pom" }?.let {
+                val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
                 val extension = if (it == "bundle") "jar" else it
-                add(getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), extension))
+                add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
+                if (extension == "jar") {
+                    add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
+                }
             }
             if (isEmpty()) {
                 add(getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar"))
@@ -212,9 +216,8 @@ class MavenDependency internal constructor(
                     && context.settings.nativeTargetMatches(it)
                     && context.settings.scope.matches(it)
         }.also {
-            if (it.size <= 1) {
-                variant = it.singleOrNull()
-            } else {
+            variants.addAll(it)
+            if (it.filterNot { it.attributes["org.gradle.category"] == "documentation" }.size > 1) {
                 messages += Message(
                     "More than a single variant provided",
                     it.joinToString { it.name },

@@ -18,7 +18,7 @@ class BuildGraphTest {
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test:1.9.10
@@ -27,17 +27,34 @@ class BuildGraphTest {
                 |          \--- org.jetbrains:annotations:13.0
             """.trimMargin()
         )
+        assertFiles(
+            """annotations-13.0-sources.jar
+                |annotations-13.0.jar
+                |kotlin-stdlib-1.9.10.jar
+                |kotlin-stdlib-common-1.9.10.jar
+                |kotlin-test-1.9.10.jar""".trimMargin(),
+            root
+        )
     }
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_20`(testInfo: TestInfo) {
-        doTest(
+        val root = doTest(
             testInfo,
+            scope = ResolutionScope.RUNTIME,
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test:1.9.20
                 |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
                 |          \--- org.jetbrains:annotations:13.0
             """.trimMargin()
+        )
+        assertFiles(
+            """annotations-13.0-sources.jar
+                |annotations-13.0.jar
+                |kotlin-stdlib-1.9.20-sources.jar
+                |kotlin-stdlib-1.9.20.jar
+                |kotlin-test-1.9.20.jar""".trimMargin(),
+            root
         )
     }
 
@@ -436,9 +453,12 @@ class BuildGraphTest {
         assertFiles(
             """checker-qual-3.41.0.jar
                 |error_prone_annotations-2.23.0.jar
+                |failureaccess-1.0.2-sources.jar
                 |failureaccess-1.0.2.jar
                 |guava-33.0.0-android.jar
+                |j2objc-annotations-2.8-sources.jar
                 |j2objc-annotations-2.8.jar
+                |jsr305-3.0.2-sources.jar
                 |jsr305-3.0.2.jar
                 |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
             """.trimMargin(),

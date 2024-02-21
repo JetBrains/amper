@@ -522,7 +522,7 @@ class SnapshotDependencyFile(
 internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.module}-${node.version}"
 
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
-    dependency.variant?.files?.singleOrNull { it.name == name }
+    dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
 
 fun interface Writer {
     fun write(data: ByteBuffer)

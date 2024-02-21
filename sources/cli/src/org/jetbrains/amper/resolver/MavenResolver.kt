@@ -16,6 +16,7 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.name
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
@@ -74,6 +75,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     node.dependency
                         .files
                         .mapNotNull { it.path }
+                        .filterNot { it.name.endsWith("-sources.jar") }
                         .filter { it.toFile().exists() }
                         .forEach { files.add(it) }
                 }
