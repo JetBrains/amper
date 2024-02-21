@@ -158,9 +158,6 @@ class MavenDependency internal constructor(
                     add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
                 }
             }
-            if (isEmpty()) {
-                add(getDependencyFile(this@MavenDependency, getNameWithoutExtension(this@MavenDependency), "jar"))
-            }
         }
 
     override fun toString(): String = "$group:$module:$version"
@@ -279,7 +276,7 @@ class MavenDependency internal constructor(
             )
             return
         }
-        packaging = project.packaging
+        packaging = project.packaging ?: "jar"
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
         }.filter {

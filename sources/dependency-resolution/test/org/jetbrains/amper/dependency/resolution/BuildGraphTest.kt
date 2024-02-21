@@ -30,7 +30,9 @@ class BuildGraphTest {
         assertFiles(
             """annotations-13.0-sources.jar
                 |annotations-13.0.jar
+                |kotlin-stdlib-1.9.10-sources.jar
                 |kotlin-stdlib-1.9.10.jar
+                |kotlin-stdlib-common-1.9.10-sources.jar
                 |kotlin-stdlib-common-1.9.10.jar
                 |kotlin-test-1.9.10.jar""".trimMargin(),
             root
@@ -452,6 +454,7 @@ class BuildGraphTest {
         )
         assertFiles(
             """checker-qual-3.41.0.jar
+                |error_prone_annotations-2.23.0-sources.jar
                 |error_prone_annotations-2.23.0.jar
                 |failureaccess-1.0.2-sources.jar
                 |failureaccess-1.0.2.jar
@@ -460,6 +463,7 @@ class BuildGraphTest {
                 |j2objc-annotations-2.8.jar
                 |jsr305-3.0.2-sources.jar
                 |jsr305-3.0.2.jar
+                |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava-sources.jar
                 |listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
             """.trimMargin(),
             root
@@ -500,11 +504,7 @@ class BuildGraphTest {
             """.trimMargin()
         )
         assertFiles(
-            """kotlin-stdlib-1.9.21.jar
-                |kotlin-stdlib-common-1.9.21.jar
-                |kotlinx-datetime-0.5.0.jar
-                |kotlinx-datetime-macosarm64-0.5.0.klib
-                |kotlinx-serialization-core-1.6.2.jar
+            """kotlinx-datetime-macosarm64-0.5.0.klib
                 |kotlinx-serialization-core-macosarm64-1.6.2.klib""".trimMargin(),
             root
         )
