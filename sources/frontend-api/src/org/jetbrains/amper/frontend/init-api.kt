@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.frontend
@@ -29,7 +29,7 @@ interface ModelInit {
         fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
-                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"))
+                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"), "no.model.init.service.found")
                 return amperFailure()
             }
 
@@ -39,7 +39,7 @@ interface ModelInit {
 //                ?: "plain"
             val service = services[modelName]
             return if (service == null) {
-                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName))
+                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName), "model.not.found")
                 amperFailure()
             } else {
                 Result.success(service)

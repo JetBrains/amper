@@ -11,26 +11,36 @@ import kotlin.test.Test
 class ProblemReporterRenderingTest {
     @Test
     fun `reporting problem without file`() {
-        val problem = BuildProblem(message = "Test message", level = Level.Error)
+        val problem = BuildProblem(
+            buildProblemId = "test.message",
+            message = "Test message",
+            level = Level.Error
+        )
         assertEquals("Test message", renderMessage(problem))
     }
 
     @Test
     fun `reporting problem with file but no line`() {
-        val problem = BuildProblem(source = SimpleProblemSource(Path("test.txt")), message = "Test message", level = Level.Error)
+        val problem = BuildProblem(
+            buildProblemId = "test.message",
+            message = "Test message",
+            level = Level.Error,
+            source = SimpleProblemSource(Path("test.txt"))
+        )
         assertEquals("test.txt: Test message", renderMessage(problem))
     }
 
     @Test
     fun `reporting problem with file and line`() {
         val problem = BuildProblem(
+            buildProblemId = "test.message",
+            message = "Test message",
+            level = Level.Error,
             source = SimpleProblemSource(
                 Path("test.txt"), range = LineAndColumnRange(
                     LineAndColumn(10, 15, null), LineAndColumn.NONE
                 )
-            ),
-            message = "Test message",
-            level = Level.Error
+            )
         )
         assertEquals("test.txt:10:15: Test message", renderMessage(problem))
     }

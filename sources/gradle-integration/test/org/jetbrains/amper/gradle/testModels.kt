@@ -54,13 +54,13 @@ object Models : ModelInit {
     override fun getModel(root: Path, project: Project?): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {
-            problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug))
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug), "no.mock.model.name")
             return amperFailure()
         }
         Models.root = root
         val modelHandle = modelsMap[modelName]
         if (modelHandle == null) {
-            problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName))
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName), "no.mock.model.found")
             return amperFailure()
         }
         val modelBuilder = modelHandle.builder

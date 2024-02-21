@@ -19,7 +19,13 @@ interface ProblemReporter {
      * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
      * positioning of the highlighting
      */
-    fun reportError(message: String, file: Path? = null) = reportMessage(BuildProblem(message = message, source = SimpleProblemSource(file), level = Level.Error))
+    fun reportError(message: String, buildProblemId: BuildProblemId, file: Path? = null) =
+        reportMessage(BuildProblem(
+            buildProblemId = buildProblemId,
+            message = message,
+            level = Level.Error,
+            source = SimpleProblemSource(file)
+        ))
 }
 
 interface ProblemReporterContext {

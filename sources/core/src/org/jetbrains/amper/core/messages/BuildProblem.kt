@@ -41,11 +41,10 @@ data class SimpleProblemSource(
 ): BuildProblemSource
 
 data class BuildProblem(
+    val buildProblemId: BuildProblemId,
     val message: String,
     val level: Level,
     val source: BuildProblemSource? = null,
-    // TODO: Make it non-null
-    val buildProblemId: BuildProblemId? = null,
 )
 
 data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {

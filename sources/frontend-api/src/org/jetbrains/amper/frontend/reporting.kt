@@ -55,7 +55,9 @@ private fun reportError(
     node: PsiElement? = null,
     buildProblemId: BuildProblemId,
 ): Nothing? {
-    problemReporter.reportMessage(BuildProblem(message, level, source = node?.let(::PsiBuildProblemSource), buildProblemId = buildProblemId))
+    problemReporter.reportMessage(
+        BuildProblem(buildProblemId, message, level, source = node?.let(::PsiBuildProblemSource))
+    )
     return null
 }
 
