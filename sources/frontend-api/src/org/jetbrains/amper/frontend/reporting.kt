@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblemSource
 import kotlin.reflect.KProperty0
 
-object SchemaBundle : MessageBundle("messages.FrontendSchemaBundle")
+object SchemaBundle : MessageBundle("messages.SchemaBundle")
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
