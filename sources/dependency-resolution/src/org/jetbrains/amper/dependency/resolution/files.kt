@@ -237,7 +237,7 @@ open class DependencyFile(
                 }
             }
         } catch (e: IOException) {
-            dependency.messages += Message(
+            dependency.messages.asMutable() += Message(
                 "Unable to save downloaded file",
                 e.toString(),
                 Severity.ERROR,
@@ -266,7 +266,7 @@ open class DependencyFile(
                 val result = verify(hashers, repository, progress)
                 if (result > VerificationResult.PASSED) {
                     if (result == VerificationResult.UNKNOWN) {
-                        dependency.messages += Message(
+                        dependency.messages.asMutable() += Message(
                             "Unable to download checksums",
                             repository,
                             Severity.ERROR,
@@ -296,7 +296,7 @@ open class DependencyFile(
                 }
             }
             onFileDownloaded()
-            dependency.messages += Message("Downloaded from $repository")
+            dependency.messages.asMutable() += Message("Downloaded from $repository")
             return true
         }
         return false
@@ -329,7 +329,7 @@ open class DependencyFile(
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, level) ?: continue
             val actualHash = hasher.hash
             if (expectedHash != actualHash) {
-                dependency.messages += Message(
+                dependency.messages.asMutable() += Message(
                     "Hashes don't match for $algorithm",
                     "expected: $expectedHash, actual: $actualHash",
                     Severity.ERROR,
@@ -431,7 +431,7 @@ open class DependencyFile(
                 exception = e
             }
         }
-        dependency.messages += Message(
+        dependency.messages.asMutable() += Message(
             "Unable to reach $url",
             exception.toString(),
             Severity.ERROR,

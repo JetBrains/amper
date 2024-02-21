@@ -136,10 +136,12 @@ class MavenDependency internal constructor(
 ) {
 
     var state: ResolutionState = ResolutionState.INITIAL
-    val children: MutableList<MavenDependency> = mutableListOf()
-    val variants: MutableList<Variant> = mutableListOf()
+        private set
+    val children: List<MavenDependency> = mutableListOf()
+    val variants: List<Variant> = mutableListOf()
     var packaging: String? = null
-    val messages: MutableList<Message> = mutableListOf()
+        private set
+    val messages: List<Message> = mutableListOf()
 
     val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
@@ -168,7 +170,7 @@ class MavenDependency internal constructor(
         val pomText = if (pom.isDownloadedOrDownload(level, settings)) {
             pom.readText()
         } else {
-            messages += Message(
+            messages.asMutable() += Message(
                 "Pom required for $this",
                 settings.repositories.toString(),
                 if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
@@ -182,7 +184,7 @@ class MavenDependency internal constructor(
                 return
             }
             if (pomText != null) {
-                messages += Message(
+                messages.asMutable() += Message(
                     "Pom provided but metadata required for $this",
                     context.settings.repositories.toString(),
                     if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
@@ -199,7 +201,7 @@ class MavenDependency internal constructor(
         val module = try {
             metadata.readText().parseMetadata()
         } catch (e: Exception) {
-            messages += Message(
+            messages.asMutable() += Message(
                 "Unable to parse metadata file $metadata",
                 e.toString(),
                 Severity.ERROR,
@@ -213,9 +215,9 @@ class MavenDependency internal constructor(
                     && context.settings.nativeTargetMatches(it)
                     && context.settings.scope.matches(it)
         }.also {
-            variants.addAll(it)
+            variants.asMutable() += it
             if (it.filterNot { it.attributes["org.gradle.category"] == "documentation" }.size > 1) {
-                messages += Message(
+                messages.asMutable() += Message(
                     "More than a single variant provided",
                     it.joinToString { it.name },
                     Severity.WARNING,
@@ -226,7 +228,7 @@ class MavenDependency internal constructor(
         }.map {
             createOrReuseDependency(context, it.group, it.module, it.version.requires)
         }.let {
-            children.addAll(it)
+            children.asMutable() += it
             state = level.state
         }
     }
@@ -269,7 +271,7 @@ class MavenDependency internal constructor(
         val project = try {
             text.parsePom().resolve(context, level)
         } catch (e: Exception) {
-            messages += Message(
+            messages.asMutable() += Message(
                 "Unable to parse pom file ${this.pom}",
                 e.toString(),
                 Severity.ERROR,
@@ -284,7 +286,7 @@ class MavenDependency internal constructor(
         }.map {
             createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
         }.let {
-            children.addAll(it)
+            children.asMutable() += it
             state = level.state
         }
     }
@@ -301,7 +303,7 @@ class MavenDependency internal constructor(
         origin: Project = this
     ): Project {
         if (depth > 10) {
-            messages += Message(
+            messages.asMutable() += Message(
                 "Project ${origin.name} has more than ten ancestors",
                 severity = Severity.WARNING,
             )
@@ -376,3 +378,5 @@ class MavenDependency internal constructor(
             .forEach { it.download(settings) }
     }
 }
+
+internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
