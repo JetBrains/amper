@@ -36,7 +36,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
             val credPair = it.credentials?.let {
                 if (!it.file.exists()) {
                     SchemaBundle.reportBundleError(
-                        it::file.valueBase,
+                        it::file,
                         "credentials.file.does.not.exist",
                         it.file.normalize()
                     )
