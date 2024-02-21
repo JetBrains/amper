@@ -31,33 +31,33 @@ enum class Phase {
 
 interface IsmVisitor {
 //  fun visitBase(base: Base)
-  fun visitModule(module: Module)
-  fun visitProduct(product: ModuleProduct)
-  fun visitProductType(productType: ProductType)
-  fun visitProductPlatform(productPlatform: TraceableEnum<Platform>)
-  fun visitModuleMeta(meta: Meta)
-  fun visitModuleMetaLayout(layout: AmperLayout)
-  fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>)
-  fun visitApply(path: Path)
-  fun visitRepositories(repo: List<Repository>)
-  fun visitRepository(repo: Repository)
-  fun visitCredentials(credentials: Repository.Credentials)
-  fun visitDependencies(dependencies: Map<Modifiers, List<Dependency>>)
-  fun visitDependencies(modifiers: Modifiers, dependencies: List<Dependency>)
-  fun visitDependency(dependency: Dependency)
-  fun visitTestDependencies(dependencies: Map<Modifiers, List<Dependency>>)
-  fun visitTestDependencies(modifiers: Modifiers, dependencies: List<Dependency>)
-  fun visitSettings(settings: Map<Modifiers, Settings>)
-  fun visitSettings(modifiers: Modifiers, settings: Settings)
-  fun visitTestSettings(settings: Map<Modifiers, Settings>)
-  fun visitTestSettings(modifiers: Modifiers, settings: Settings)
-  fun visitSettings(settings: Settings)
-  fun visitJavaSettings(settings: JavaSettings)
-  fun visitJvmSettings(settings: JvmSettings)
-  fun visitAndroidSettings(settings: AndroidSettings)
-  fun visitKotlinSettings(settings: KotlinSettings)
-  fun visitComposeSettings(settings: ComposeSettings)
-  fun visitSerializationSettings(settings: SerializationSettings)
+  fun visitModule(module: Module) {}
+  fun visitProduct(product: ModuleProduct) {}
+  fun visitProductType(productType: ProductType) {}
+  fun visitProductPlatform(productPlatform: TraceableEnum<Platform>) {}
+  fun visitModuleMeta(meta: Meta) {}
+  fun visitModuleMetaLayout(layout: AmperLayout) {}
+  fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>) {}
+  fun visitApply(path: Path) {}
+  fun visitRepositories(repo: List<Repository>) {}
+  fun visitRepository(repo: Repository) {}
+  fun visitCredentials(credentials: Repository.Credentials) {}
+  fun visitDependencies(dependencies: Map<Modifiers, List<Dependency>>) {}
+  fun visitDependencies(modifiers: Modifiers, dependencies: List<Dependency>) {}
+  fun visitDependency(dependency: Dependency) {}
+  fun visitTestDependencies(dependencies: Map<Modifiers, List<Dependency>>) {}
+  fun visitTestDependencies(modifiers: Modifiers, dependencies: List<Dependency>) {}
+  fun visitSettings(settings: Map<Modifiers, Settings>) {}
+  fun visitSettings(modifiers: Modifiers, settings: Settings) {}
+  fun visitTestSettings(settings: Map<Modifiers, Settings>) {}
+  fun visitTestSettings(modifiers: Modifiers, settings: Settings) {}
+  fun visitSettings(settings: Settings) {}
+  fun visitJavaSettings(settings: JavaSettings) {}
+  fun visitJvmSettings(settings: JvmSettings) {}
+  fun visitAndroidSettings(settings: AndroidSettings) {}
+  fun visitKotlinSettings(settings: KotlinSettings) {}
+  fun visitComposeSettings(settings: ComposeSettings) {}
+  fun visitSerializationSettings(settings: SerializationSettings) {}
 }
 
 fun Module.accept(visitor: IsmVisitor) {

@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
@@ -74,6 +75,10 @@ internal fun doBuild(
                     .replaceCatalogDependencies(chosenCatalog)
                     .validateSchema()
                     .replaceComposeOsSpecific()
+            }
+
+            IsmDiagnosticFactories.forEach {
+                with(it) { processedModule.analyze() }
             }
 
             // Return result module.

@@ -4,14 +4,11 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
-import org.jetbrains.amper.frontend.reportBundleError
 
 @EnumOrderSensitive(reverse = true)
 enum class AndroidVersion(
@@ -83,17 +80,4 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "Read [more](https://developer.android.com/build/configure-app-module#set-namespace)")
     var applicationId by value { namespace }
-
-    context(ProblemReporterContext) override fun validate() {
-        // Check that used android versions are not too old.
-        val usedVersions = listOf(::compileSdk, ::minSdk, ::maxSdk, ::targetSdk)
-        val oldVersions = usedVersions.filter { it.get() < AndroidVersion.VERSION_21 }
-        oldVersions.forEach {
-            SchemaBundle.reportBundleError(
-                it,
-                "too.old.android.version",
-                it.get().versionNumber,
-            )
-        }
-    }
 }

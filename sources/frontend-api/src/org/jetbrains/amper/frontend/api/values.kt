@@ -70,6 +70,7 @@ abstract class SchemaNode : Traceable {
      * Register a validator for this node.
      */
     context(ProblemReporterContext)
+    @Deprecated("Prefer writing IsmDiagnosticFactory instead")
     open fun validate() {
     }
 
