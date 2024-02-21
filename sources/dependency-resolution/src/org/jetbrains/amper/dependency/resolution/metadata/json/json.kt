@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("PropertyName")
@@ -15,6 +15,9 @@ private val json = Json {
     isLenient = true
 }
 
+/**
+ * [Gradle Module Metadata specification](https://github.com/gradle/gradle/blob/master/platforms/documentation/docs/src/docs/design/gradle-module-metadata-latest-specification.md)
+ */
 internal fun String.parseMetadata(): Module = json.decodeFromString(this)
 
 internal fun Module.serialize(): String = json.encodeToString(this)
