@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.MetaModulePart
 import org.jetbrains.amper.frontend.ModulePart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
@@ -37,8 +36,8 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
             val credPair = repository.credentials?.let { credentials ->
                 if (!credentials.file.exists()) {
                     SchemaBundle.reportBundleError(
-                        credentials::file,
-                        "credentials.file.does.not.exist",
+                        property = credentials::file,
+                        messageKey = "credentials.file.does.not.exist",
                         credentials.file.normalize()
                     )
                     return@let null
@@ -48,8 +47,8 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                     fun getCredProperty(keyProperty: KProperty0<String>): String? =
                         credentialProperties.getProperty(keyProperty.get())
                             ?: SchemaBundle.reportBundleError(
-                                keyProperty,
-                                "credentials.file.does.not.have.key",
+                                property = keyProperty,
+                                messageKey = "credentials.file.does.not.have.key",
                                 credentials.file.normalize(),
                                 keyProperty.get(),
                                 credentialProperties.keys.joinToString(),

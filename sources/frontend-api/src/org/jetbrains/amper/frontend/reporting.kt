@@ -28,7 +28,12 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = reportBundleError(property.valueBase as Traceable?, messageKey, *arguments, level = level)
+): Nothing? = reportBundleError(
+    value = property.valueBase as Traceable?,
+    messageKey = messageKey,
+    *arguments,
+    level = level,
+)
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
@@ -37,8 +42,18 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = when (val trace = value?.trace) {
-    is PsiTrace -> reportBundleError(trace.psiElement, messageKey, *arguments, level = level)
-    else -> reportError(message(messageKey, *arguments), level, null as PsiElement?, buildProblemId = messageKey)
+    is PsiTrace -> reportBundleError(
+        node = trace.psiElement,
+        messageKey = messageKey,
+        *arguments,
+        level = level,
+    )
+    else -> reportError(
+        message = message(messageKey, *arguments),
+        level = level,
+        node = null as PsiElement?,
+        buildProblemId = messageKey,
+    )
 }
 
 context(ProblemReporterContext)
@@ -47,7 +62,12 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any?,
     level: Level = Level.Error,
-): Nothing? = reportError(message(messageKey, *arguments), level, node, buildProblemId = messageKey)
+): Nothing? = reportError(
+    message = message(messageKey, *arguments),
+    level = level,
+    node = node,
+    buildProblemId = messageKey,
+)
 
 context(ProblemReporterContext)
 private fun reportError(
@@ -61,7 +81,7 @@ private fun reportError(
             buildProblemId,
             source = node?.let(::PsiBuildProblemSource) ?: GlobalBuildProblemSource,
             message,
-            level
+            level,
         )
     )
     return null

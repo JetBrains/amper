@@ -28,8 +28,8 @@ object AndroidTooOldVersion : IsmDiagnosticFactory {
             val oldVersions = usedVersions.filter { it.get() < AndroidVersion.VERSION_21 }
             oldVersions.forEach { versionProp ->
                 SchemaBundle.reportBundleError(
-                    versionProp,
-                    diagnosticId,
+                    property = versionProp,
+                    messageKey = diagnosticId,
                     versionProp.get().versionNumber,
                 )
             }

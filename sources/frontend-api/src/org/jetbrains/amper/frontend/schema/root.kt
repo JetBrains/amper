@@ -56,8 +56,8 @@ sealed class Base : SchemaNode() {
 
             if (unknownPlatforms.isNotEmpty())
                 SchemaBundle.reportBundleError(
-                    unknownPlatforms.first(),
-                    "product.unknown.platforms",
+                    value = unknownPlatforms.first(),
+                    messageKey = "product.unknown.platforms",
                     unknownPlatforms.joinToString { it.value },
                 )
         }

@@ -105,16 +105,16 @@ class ModuleProduct : SchemaNode() {
         // Check empty platforms.
         if (::platforms.unsafe?.isEmpty() == true)
             SchemaBundle.reportBundleError(
-                ::platforms,
-                "product.platforms.should.not.be.empty",
+                property = ::platforms,
+                messageKey = "product.platforms.should.not.be.empty",
                 level = Level.Fatal
             )
 
         // Check no platforms for lib.
         if (::type.unsafe == ProductType.LIB && ::platforms.unsafe == null)
             SchemaBundle.reportBundleError(
-                ::type,
-                "product.type.does.not.have.default.platforms",
+                property = ::type,
+                messageKey = "product.type.does.not.have.default.platforms",
                 ProductType.LIB.schemaValue,
                 level = Level.Fatal
             )
@@ -124,8 +124,8 @@ class ModuleProduct : SchemaNode() {
             val platformValue = platform.value
             if (platformValue !in type.supportedPlatforms)
                 SchemaBundle.reportBundleError(
-                    platform,
-                    "product.unsupported.platform",
+                    value = platform,
+                    messageKey = "product.unsupported.platform",
                     type.schemaValue,
                     platformValue.pretty,
                     type.supportedPlatforms.joinToString { it.pretty },

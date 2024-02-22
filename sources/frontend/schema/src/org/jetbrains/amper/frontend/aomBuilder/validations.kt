@@ -40,8 +40,8 @@ fun Model.checkComposeVersionsConsistency() {
             // If the user set up version.
             if (it::version.withoutDefault != null && it.version != chosenComposeVersionForModel) {
                 SchemaBundle.reportBundleError(
-                    it::version,
-                    "inconsistent.compose.versions",
+                    property = it::version,
+                    messageKey = "inconsistent.compose.versions",
                     chosenComposeVersionForModel,
                     level = Level.Fatal,
                 )
@@ -50,8 +50,8 @@ fun Model.checkComposeVersionsConsistency() {
             // If the default is used.
             if (it::version.withoutDefault == null && it.version != chosenComposeVersionForModel) {
                 SchemaBundle.reportBundleError(
-                    it::enabled,
-                    "inconsistent.compose.versions",
+                    property = it::enabled,
+                    messageKey = "inconsistent.compose.versions",
                     chosenComposeVersionForModel,
                     level = Level.Fatal,
                 )

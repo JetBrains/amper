@@ -127,9 +127,9 @@ private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
         is YAMLScalar -> ::type.convertSelf { productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true) }
         else -> productNodeValue?.let {
             SchemaBundle.reportBundleError(
-                productNodeValue,
-                "unexpected.product.node.type",
-                productNodeValue::class.simpleName ?: "null",
+                node = productNodeValue,
+                messageKey = "unexpected.product.node.type",
+                productNodeValue::class.simpleName,
             )
         }
     }

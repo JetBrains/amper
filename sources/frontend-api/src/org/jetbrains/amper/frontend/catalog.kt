@@ -39,8 +39,8 @@ interface VersionCatalog {
             when (val trace = key.trace) {
                 is PsiTrace -> {
                     SchemaBundle.reportBundleError(
-                        trace.psiElement,
-                        "no.catalog.value",
+                        node = trace.psiElement,
+                        messageKey = "no.catalog.value",
                         key.value
                     )
                 }

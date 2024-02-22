@@ -27,8 +27,8 @@ object AndroidVersionShouldBeAtLeastMinSdk : IsmDiagnosticFactory {
             val smallerVersions = usedVersions.filter { it.get() < settings.minSdk }
             smallerVersions.forEach { versionProp ->
                 SchemaBundle.reportBundleError(
-                    versionProp,
-                    diagnosticId,
+                    property = versionProp,
+                    messageKey = diagnosticId,
                     versionProp.name,
                     versionProp.get().versionNumber,
                     settings.minSdk.versionNumber

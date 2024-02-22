@@ -20,8 +20,8 @@ inline fun <reified NodeT, T> YAMLPsiElement.assertNodeType(
     block: NodeT.() -> T
 ): T? {
     if (this !is NodeT && report) return SchemaBundle.reportBundleError(
-        this,
-        "wrong.node.type",
+        node = this,
+        messageKey = "wrong.node.type",
         fieldName,
         this::class.simpleName,
         NodeT::class.simpleName,

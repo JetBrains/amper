@@ -47,8 +47,8 @@ fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(
     if (receivedValue == null) {
         if (isLong) {
             SchemaBundle.reportBundleError(
-                this,
-                "unknown.property.type.long",
+                node = this,
+                messageKey = "unknown.property.type.long",
                 enumIndex.enumClass.simpleName!!,
                 it,
                 enumIndex.keys,
@@ -57,7 +57,7 @@ fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(
         } else {
             SchemaBundle.reportBundleError(
                 node = this,
-                "unknown.property.type",
+                messageKey = "unknown.property.type",
                 enumIndex.enumClass.simpleName!!,
                 it,
                 level = if (isFatal) Level.Fatal else Level.Error
