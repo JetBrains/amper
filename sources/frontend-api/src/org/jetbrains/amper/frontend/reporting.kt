@@ -28,15 +28,15 @@ fun MessageBundle.reportBundleError(
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = reportBundleError(property.valueBase as Traceable, messageKey, *arguments, level = level)
+): Nothing? = reportBundleError(property.valueBase as Traceable?, messageKey, *arguments, level = level)
 
 context(ProblemReporterContext)
 fun MessageBundle.reportBundleError(
-    value: Traceable,
+    value: Traceable?,
     messageKey: String,
     vararg arguments: Any,
     level: Level = Level.Error,
-): Nothing? = when (val trace = value.trace) {
+): Nothing? = when (val trace = value?.trace) {
     is PsiTrace -> reportBundleError(trace.psiElement, messageKey, *arguments, level = level)
     else -> reportError(message(messageKey, *arguments), level, null as PsiElement?, buildProblemId = messageKey)
 }
