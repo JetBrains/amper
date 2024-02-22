@@ -54,10 +54,7 @@ private class TomlCatalog(
 
     override val isPhysical: Boolean = true
 
-    context(ProblemReporterContext) override fun findInCatalog(
-        key: TraceableString,
-        report: Boolean
-    ) = entries[key.value] ?: tryReportCatalogKeyAbsence(key, report)
+    override fun findInCatalog(key: TraceableString) = entries[key.value]
 }
 
 /**

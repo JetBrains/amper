@@ -29,10 +29,7 @@ fun <T: Base> T.replaceCatalogDependencies(
 ) = apply {
     fun List<Dependency>.convertCatalogDeps() = mapNotNull {
         if (it !is CatalogDependency) return@mapNotNull it
-        // TODO Report absence of catalog value.
-        val catalogValue = catalog.findInCatalog(
-            it::catalogKey.toTraceableString()
-        ) ?: return@mapNotNull null
+        val catalogValue = catalog.findInCatalogWithReport(it::catalogKey.toTraceableString()) ?: return@mapNotNull null
         ExternalMavenDependency().apply {
             coordinates = catalogValue.value
             exported = it.exported
@@ -56,12 +53,7 @@ open class PredefinedCatalog(
     constructor(builder: MutableMap<String, String>.() -> Unit) :
             this(buildMap(builder).map { it.key to TraceableString(it.value) }.toMap())
 
-    // TODO Report on absence.
-    context(ProblemReporterContext)
-    override fun findInCatalog(
-        key: TraceableString,
-        report: Boolean,
-    ): TraceableString? = entries[key.value] ?: tryReportCatalogKeyAbsence(key, report)
+    override fun findInCatalog(key: TraceableString): TraceableString? = entries[key.value]
 }
 
 /**
@@ -79,12 +71,9 @@ class CompositeVersionCatalog(
     override val isPhysical: Boolean
         get() = catalogs.any { it.isPhysical }
 
-    context(ProblemReporterContext)
     override fun findInCatalog(
         key: TraceableString,
-        report: Boolean,
-    ) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key, false) }
-        ?: tryReportCatalogKeyAbsence(key, report)
+    ) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key) }
 }
 
 @Suppress("unused")

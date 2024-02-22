@@ -27,15 +27,15 @@ interface VersionCatalog {
     /**
      * Get dependency notation by key.
      */
-    context(ProblemReporterContext)
-    fun findInCatalog(
-        key: TraceableString,
-        report: Boolean = true,
-    ): TraceableString?
+    fun findInCatalog(key: TraceableString): TraceableString?
 
+    /**
+     * Get dependency notation by key. Reports on a missing value.
+     */
     context(ProblemReporterContext)
-    fun tryReportCatalogKeyAbsence(key: TraceableString, needReport: Boolean): Nothing? =
-        if (needReport) {
+    fun findInCatalogWithReport(key: TraceableString): TraceableString? {
+        val value = findInCatalog(key)
+        if (value == null) {
             when (val trace = key.trace) {
                 is PsiTrace -> {
                     SchemaBundle.reportBundleError(
@@ -47,7 +47,7 @@ interface VersionCatalog {
 
                 else -> {}
             }
-            null
-        } else null
-
+        }
+        return value
+    }
 }
