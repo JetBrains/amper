@@ -20,6 +20,7 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.downloader.cleanDirectory
+import org.jetbrains.amper.downloader.extractZip
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -36,10 +37,12 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 
@@ -80,7 +83,13 @@ class JvmCompileTask(
         val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
-        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
+        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath.map {
+            if (it.extension == "aar") {
+                val targetFolder = it.parent / it.nameWithoutExtension
+                extractZip(it, targetFolder, false)
+                targetFolder / "classes.jar"
+            } else it
+        } + additionalClasspath
 
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
