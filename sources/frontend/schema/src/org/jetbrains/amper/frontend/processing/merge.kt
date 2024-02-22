@@ -111,6 +111,7 @@ fun IosSettings.merge(overwrite: IosSettings) = mergeNode(overwrite, ::IosSettin
 fun PublishingSettings.merge(overwrite: PublishingSettings) = mergeNode(overwrite, ::PublishingSettings) {
     mergeScalar(PublishingSettings::group)
     mergeScalar(PublishingSettings::version)
+    mergeScalar(PublishingSettings::name)
 }
 
 fun NativeSettings.merge(overwrite: NativeSettings) = mergeNode(overwrite, ::NativeSettings) {

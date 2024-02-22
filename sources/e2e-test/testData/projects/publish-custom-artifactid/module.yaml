@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: 
+    - jvm
+
+settings:
+  publishing:
+    group: com.mytestgroup
+    name: myname
+    version: 111

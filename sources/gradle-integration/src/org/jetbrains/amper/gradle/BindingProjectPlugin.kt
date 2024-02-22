@@ -9,6 +9,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.schema.JUnitVersion
@@ -86,11 +87,26 @@ class BindingProjectPlugin : Plugin<Project> {
     ) {
         project.plugins.apply("maven-publish")
         val extension = project.extensions.getByType(PublishingExtension::class.java)
-        module.leafNonTestFragments.firstOrNull()?.settings?.publishing?.let {
+        module.leafNonTestFragments.firstOrNull()?.settings?.publishing?.let { settings ->
             // TODO Handle artifacts with different coordinates, or move "PublicationArtifactPart" to module part.
-            project.group = it.group ?: ""
-            project.version = it.version ?: ""
+            project.group = settings.group ?: ""
+            project.version = settings.version ?: ""
             extension.repositories.configure(module.parts.find<RepositoriesModulePart>(), all = false)
+            if (settings.name != null) {
+                /**
+                 * Currently override only -jvm part of the publication
+                 * In non-gradle implementation, we'll be most likely publishing only one GAV per jvm-only library
+                 * (i.e. without KMP)
+                 */
+                val publication = extension.publications
+                    .filterIsInstance<MavenPublication>()
+                    .singleOrNull { it.artifactId.endsWith("-jvm") }
+                check(publication != null) {
+                    "-jvm artifact publishing must exist for module ${module.userReadableName}"
+                }
+
+                publication.artifactId = settings.name
+            }
         }
     }
 

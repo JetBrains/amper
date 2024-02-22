@@ -5,6 +5,9 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
+import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.test.Ignore
@@ -98,6 +101,27 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "assemble",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
+
+    @OptIn(ExperimentalPathApi::class)
+    @Test
+    fun `publish to maven local with custom artifact id`() {
+        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val m2groupRoot = m2repository.resolve("com/mytestgroup")
+        m2groupRoot.deleteRecursively()
+
+        test(
+            projectName = "publish-custom-artifactid",
+            "publishToMavenLocal",
+            expectOutputToHave = "BUILD SUCCESSFUL",
+            additionalCheck = {
+                for (file in listOf(m2groupRoot.resolve("myname/111/myname-111.jar"), m2groupRoot.resolve("myname/111/myname-111.pom"))) {
+                    check(file.exists()) {
+                        "Does not exist: $file"
+                    }
+                }
+            }
+        )
+    }
 
     @Test
     fun `compose desktop`() = test(

@@ -132,6 +132,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertPublishingSettings() = PublishingSettings().apply {
     ::group.convertChildString()
     ::version.convertChildString()
+    ::name.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)

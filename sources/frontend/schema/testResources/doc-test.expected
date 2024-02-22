@@ -140,5 +140,6 @@ NativeSettings
 PublishingSettings
 ------------------
 	group: String - Group id of the published module
+	name: String - Name (artifactId) of the published module
 	version: String - Version of the published module
 

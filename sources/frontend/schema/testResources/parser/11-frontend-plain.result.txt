@@ -54,6 +54,7 @@ Fragments:
       native: <default> null
       publishing: {
         group: org.jetbrains.amper.frontend.without-fragments.yaml
+        name: <default> null
         version: 42-SNAPSHOT
       }
     }
@@ -115,6 +116,7 @@ Fragments:
       native: <default> null
       publishing: {
         group: org.jetbrains.amper.frontend.without-fragments.yaml
+        name: <default> null
         version: 42-SNAPSHOT
       }
     }

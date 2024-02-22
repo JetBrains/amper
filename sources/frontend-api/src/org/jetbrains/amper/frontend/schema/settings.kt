@@ -118,6 +118,9 @@ class PublishingSettings : SchemaNode() {
 
     @SchemaDoc("Version of the published module")
     var version by nullableValue<String>()
+
+    @SchemaDoc("Name (artifactId) of the published module")
+    var name by nullableValue<String>()
 }
 
 @AdditionalSchemaDef(koverSettingsShortForm)
