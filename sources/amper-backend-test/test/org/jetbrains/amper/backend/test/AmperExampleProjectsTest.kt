@@ -158,6 +158,6 @@ private val androidAppTasks = androidBaseTasks + listOf(
     "runAndroidRelease",
 )
 private val androidTestTasks = listOf(
-    "compileAndroidTestDebug",
-    "compileAndroidTestRelease",
+    "compileAndroidDebugTest",
+    "compileAndroidReleaseTest",
 )
