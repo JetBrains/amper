@@ -1,0 +1,8 @@
+product: android/app
+
+settings:
+  android:
+    namespace: io.github.singleton11.myapplication
+
+dependencies:
+  - com.github.dkharrat.nexusdialog:nexusdialog:0.4.2
