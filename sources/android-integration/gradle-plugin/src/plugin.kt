@@ -93,8 +93,11 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                         val androidSettings = androidFragment.settings.android
                         androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
                         androidExtension.defaultConfig {
+                            it.maxSdk = androidSettings.maxSdk.versionNumber
+                            it.targetSdk = androidSettings.targetSdk.versionNumber
                             it.minSdk = androidSettings.minSdk.versionNumber
                             it.versionCode = 1
+                            it.applicationId = androidSettings.applicationId
                         }
                         androidExtension.namespace = androidSettings.namespace
 
