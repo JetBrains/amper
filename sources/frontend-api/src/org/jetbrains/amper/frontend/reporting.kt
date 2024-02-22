@@ -29,7 +29,7 @@ fun MessageBundle.reportBundleError(
     vararg arguments: Any,
     level: Level = Level.Error,
 ): Nothing? = reportBundleError(
-    value = property.valueBase as Traceable?,
+    value = property.valueBase,
     messageKey = messageKey,
     *arguments,
     level = level,
