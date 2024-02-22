@@ -124,7 +124,7 @@ class AmperBackendTest : IntegrationTestBase() {
 
         val find = """Process exited with exit code 0
 STDOUT:
-Hello Multiplatform CLI: JVM World
+Hello Multiplatform CLI 12: JVM World
 ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
@@ -150,7 +150,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         val find = """Process exited with exit code 0
 STDOUT:
-Hello Multiplatform CLI: Mac World
+Hello Multiplatform CLI 12: Mac World
 ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
@@ -191,7 +191,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         val find = """Process exited with exit code 0
 STDOUT:
-Hello Multiplatform CLI: Linux World
+Hello Multiplatform CLI 12: Linux World
 ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
@@ -206,7 +206,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         val find = """Process exited with exit code 0
 STDOUT:
-Hello Multiplatform CLI: Windows (Mingw) World
+Hello Multiplatform CLI 12: Windows (Mingw) World
 ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""

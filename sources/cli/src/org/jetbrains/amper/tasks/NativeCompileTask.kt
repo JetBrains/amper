@@ -65,7 +65,14 @@ class NativeCompileTask(
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .singleOrNull()
             ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
-        val externalDependencies = externalDependenciesTaskResult.compileClasspath
+
+        // TODO Native compiler won't work without recursive dependencies, which we should correctly calculate in that case
+        val externalDependencies = (externalDependenciesTaskResult.compileClasspath +
+                dependenciesResult.flatMap {
+                    result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.compileClasspath }
+                })
+            .distinct()
+        logger.warn("native compile ${module.userReadableName} -- collected external dependencies\n${externalDependencies.sorted().joinToString("\n").prependIndent("  ")}")
 
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
