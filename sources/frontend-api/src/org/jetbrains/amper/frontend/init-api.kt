@@ -12,6 +12,7 @@ import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.flatMap
 import org.jetbrains.amper.core.getOrNull
 import org.jetbrains.amper.core.map
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Template
 import java.nio.file.Path
@@ -29,7 +30,7 @@ interface ModelInit {
         fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
-                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"), "no.model.init.service.found")
+                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"), "no.model.init.service.found", GlobalBuildProblemSource)
                 return amperFailure()
             }
 
@@ -39,7 +40,7 @@ interface ModelInit {
 //                ?: "plain"
             val service = services[modelName]
             return if (service == null) {
-                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName), "model.not.found")
+                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName), "model.not.found", GlobalBuildProblemSource)
                 amperFailure()
             } else {
                 Result.success(service)

@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.core.messages
 
-import java.nio.file.Path
-
 interface ProblemReporter {
     /**
      * Check if we reported any fatal errors.
@@ -19,12 +17,12 @@ interface ProblemReporter {
      * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
      * positioning of the highlighting
      */
-    fun reportError(message: String, buildProblemId: BuildProblemId, file: Path? = null) =
+    fun reportError(message: String, buildProblemId: BuildProblemId, source: BuildProblemSource) =
         reportMessage(BuildProblem(
             buildProblemId = buildProblemId,
+            source = source,
             message = message,
             level = Level.Error,
-            source = SimpleProblemSource(file)
         ))
 }
 
@@ -49,9 +47,10 @@ abstract class CollectingProblemReporter : ProblemReporter {
 }
 
 fun renderMessage(problem: BuildProblem): String = buildString {
-    problem.source?.file?.let { file ->
-        append(file.normalize())
-        problem.source.range?.let { range ->
+    val source = problem.source
+    if (source is FileLocatedBuildProblemSource) {
+        append(source.file.normalize())
+        source.range?.let { range ->
             val start = range.start
             append(":${start.line}:${start.column}")
         }

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
@@ -54,13 +55,13 @@ object Models : ModelInit {
     override fun getModel(root: Path, project: Project?): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {
-            problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug), "no.mock.model.name")
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.name", withDebug), "no.mock.model.name", GlobalBuildProblemSource)
             return amperFailure()
         }
         Models.root = root
         val modelHandle = modelsMap[modelName]
         if (modelHandle == null) {
-            problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName), "no.mock.model.found")
+            problemReporter.reportError(GradleTestBundle.message("no.mock.model.found", modelName), "no.mock.model.found", GlobalBuildProblemSource)
             return amperFailure()
         }
         val modelBuilder = modelHandle.builder

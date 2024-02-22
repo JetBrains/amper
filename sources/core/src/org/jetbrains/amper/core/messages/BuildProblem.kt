@@ -28,17 +28,26 @@ enum class Level {
 /**
  * Designates the place where the cause of the problem is located.
  */
-interface BuildProblemSource {
+sealed interface BuildProblemSource
+
+/**
+ * Use only when there is no way to pinpoint the cause of the problem inside the Amper files.
+ */
+data object GlobalBuildProblemSource : BuildProblemSource
+
+interface FileLocatedBuildProblemSource : BuildProblemSource {
     /**
      * Path to the file containing a problem.
      */
-    val file: Path?
+    val file: Path
+
     /**
      * Range of problematic code expressed in terms of lines and columns.
      * Can be used by clients to render the links to the exact location in the file or display an erroneous part of the
      * code.
      */
     val range: LineAndColumnRange?
+
     /**
      * Range of problematic code expressed in terms of character offsets inside the file.
      * Depending on the client, it might choose [range] or [offsetRange] for displaying an error.
@@ -47,20 +56,11 @@ interface BuildProblemSource {
     val offsetRange: IntRange?
 }
 
-/**
- * Prefer using [org.jetbrains.amper.frontend.messages.PsiBuildProblemSource], which is more tooling-friendly.
- */
-data class SimpleProblemSource(
-    override val file: Path?,
-    override val range: LineAndColumnRange? = null,
-    override val offsetRange: IntRange? = null
-): BuildProblemSource
-
 data class BuildProblem(
     val buildProblemId: BuildProblemId,
+    val source: BuildProblemSource,
     val message: String,
     val level: Level,
-    val source: BuildProblemSource? = null,
 )
 
 data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {

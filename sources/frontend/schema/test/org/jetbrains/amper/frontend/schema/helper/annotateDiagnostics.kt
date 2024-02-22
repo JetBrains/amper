@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.FileLocatedBuildProblemSource
 
 private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
 private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
@@ -25,7 +26,10 @@ fun annotateTextWithDiagnostics(
     diagnostics: List<BuildProblem>,
     sanitizeDiagnostic: (String) -> String
 ): String {
-    val (diagnosticsWithOffsets, diagnosticsWithoutOffsets) = diagnostics.partition { it.source?.range != null }
+    val (diagnosticsWithOffsets, diagnosticsWithoutOffsets) = diagnostics.partition {
+        val source = it.source
+        source is FileLocatedBuildProblemSource && source.offsetRange != null
+    }
 
     return buildString {
         appendFileDiagnostics(diagnosticsWithoutOffsets, sanitizeDiagnostic)
@@ -61,13 +65,14 @@ private fun StringBuilder.appendTextDecoratedWithDiagnostics(
     sanitizeDiagnostic: (String) -> String,
 ) {
     val sortedDiagnostics = diagnostics.sortedWith(
-        compareBy<BuildProblem> { it.source?.offsetRange?.start }
-            .then(compareBy { it.source?.offsetRange?.last })
+        compareBy<BuildProblem> { (it.source as FileLocatedBuildProblemSource).offsetRange?.start }
+            .then(compareBy { (it.source as FileLocatedBuildProblemSource).offsetRange?.last })
     )
 
     val diagnosticPoints: List<DiagnosticPoint> = sortedDiagnostics.flatMap { diagnostic ->
-        val startOffset = diagnostic.source?.offsetRange?.start ?: 0
-        val endOffset = diagnostic.source?.offsetRange?.last ?: 0
+        val source = diagnostic.source as FileLocatedBuildProblemSource
+        val startOffset = source.offsetRange?.start ?: 0
+        val endOffset = source.offsetRange?.last ?: 0
         listOf(DiagnosticPoint(startOffset, true, diagnostic), DiagnosticPoint(endOffset, false, diagnostic))
     }.sortedBy { it.offset }
 

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.LineAndColumn
 import org.jetbrains.amper.core.messages.LineAndColumnRange
@@ -56,7 +57,12 @@ private fun reportError(
     buildProblemId: BuildProblemId,
 ): Nothing? {
     problemReporter.reportMessage(
-        BuildProblem(buildProblemId, message, level, source = node?.let(::PsiBuildProblemSource))
+        BuildProblem(
+            buildProblemId,
+            source = node?.let(::PsiBuildProblemSource) ?: GlobalBuildProblemSource,
+            message,
+            level
+        )
     )
     return null
 }

@@ -4,25 +4,22 @@
 
 package org.jetbrains.amper.frontend.messages
 
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileSystemItem
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.BuildProblemSource
+import org.jetbrains.amper.core.messages.FileLocatedBuildProblemSource
 import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import java.nio.file.Path
 
-class PsiBuildProblemSource(@UsedInIdePlugin val psiElement: PsiElement) : BuildProblemSource {
-    override val file: Path? = run {
-        val virtualFile: VirtualFile? = if (psiElement is PsiFileSystemItem) {
+class PsiBuildProblemSource(@UsedInIdePlugin val psiElement: PsiElement) : FileLocatedBuildProblemSource {
+    override val file: Path
+        get() = if (psiElement is PsiFileSystemItem) {
             psiElement.virtualFile
         } else {
             psiElement.containingFile?.originalFile?.virtualFile
-        }
-        virtualFile?.toNioPathOrNull()
-    }
+        }?.toNioPathOrNull() ?: error("PSI element doesn't have real backing file")
 
     override val range: LineAndColumnRange?
         get() = if (psiElement is PsiFileSystemItem) {

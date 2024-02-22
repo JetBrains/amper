@@ -5,6 +5,7 @@
 package org.jetbrains.amper.core.messages
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.Test
 
@@ -13,8 +14,9 @@ class ProblemReporterRenderingTest {
     fun `reporting problem without file`() {
         val problem = BuildProblem(
             buildProblemId = "test.message",
+            source = GlobalBuildProblemSource,
             message = "Test message",
-            level = Level.Error
+            level = Level.Error,
         )
         assertEquals("Test message", renderMessage(problem))
     }
@@ -23,9 +25,9 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file but no line`() {
         val problem = BuildProblem(
             buildProblemId = "test.message",
+            source = SimpleFileProblemSource(Path("test.txt")),
             message = "Test message",
-            level = Level.Error,
-            source = SimpleProblemSource(Path("test.txt"))
+            level = Level.Error
         )
         assertEquals("test.txt: Test message", renderMessage(problem))
     }
@@ -34,14 +36,20 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file and line`() {
         val problem = BuildProblem(
             buildProblemId = "test.message",
-            message = "Test message",
-            level = Level.Error,
-            source = SimpleProblemSource(
+            source = SimpleFileProblemSource(
                 Path("test.txt"), range = LineAndColumnRange(
                     LineAndColumn(10, 15, null), LineAndColumn.NONE
                 )
-            )
+            ),
+            message = "Test message",
+            level = Level.Error
         )
         assertEquals("test.txt:10:15: Test message", renderMessage(problem))
     }
+
+    private data class SimpleFileProblemSource(
+        override val file: Path,
+        override val range: LineAndColumnRange? = null,
+        override val offsetRange: IntRange? = null
+    ): FileLocatedBuildProblemSource
 }
