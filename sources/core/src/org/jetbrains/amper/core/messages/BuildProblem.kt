@@ -40,6 +40,10 @@ data object GlobalBuildProblemSource : BuildProblemSource
  */
 class MultipleLocationsBuildProblemSource(val sources: List<BuildProblemSource>) : BuildProblemSource {
     constructor(vararg sources: BuildProblemSource): this(sources.toList())
+
+    init {
+        require(sources.none { it is MultipleLocationsBuildProblemSource }) { "Only non-nested sources are allowed in a MultipleLocationsBuildProblemSource" }
+    }
 }
 
 interface FileLocatedBuildProblemSource : BuildProblemSource {
