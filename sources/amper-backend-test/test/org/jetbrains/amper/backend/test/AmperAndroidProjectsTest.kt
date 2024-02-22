@@ -103,14 +103,20 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple-app:buildAndroidDebug -> :simple-app:resolveDependenciesAndroid, :simple-app:compileAndroidDebug")
-        assertStdoutContains("task :simple-app:compileAndroidDebug -> :simple-app:resolveDependenciesAndroid, :simple-app:prepareBuildAndroidDebug, :simple-app:downloadSdkAndroid")
+        assertStdoutContains("task :simple-app:compileAndroidDebug -> :simple-app:resolveDependenciesAndroid, :simple-app:transformDependencies, :simple-app:prepareBuildAndroidDebug, :simple-app:downloadSdkAndroid")
         assertStdoutContains("task :simple-app:prepareBuildAndroidDebug -> :simple-app:downloadBuildTools, :simple-app:downloadPlatformTools, :simple-app:downloadSdkAndroid")
         assertStdoutContains("task :simple-app:runAndroidDebug -> :simple-app:buildAndroidDebug, :simple-app:downloadSystemImage, :simple-app:downloadAndroidEmulator")
         // release
         assertStdoutContains("task :simple-app:buildAndroidRelease -> :simple-app:resolveDependenciesAndroid, :simple-app:compileAndroidRelease")
-        assertStdoutContains("task :simple-app:compileAndroidRelease -> :simple-app:resolveDependenciesAndroid, :simple-app:prepareBuildAndroidRelease, :simple-app:downloadSdkAndroid")
+        assertStdoutContains("task :simple-app:compileAndroidRelease -> :simple-app:resolveDependenciesAndroid, :simple-app:transformDependencies, :simple-app:prepareBuildAndroidRelease, :simple-app:downloadSdkAndroid")
         assertStdoutContains("task :simple-app:prepareBuildAndroidRelease -> :simple-app:downloadBuildTools, :simple-app:downloadPlatformTools, :simple-app:downloadSdkAndroid")
         assertStdoutContains("task :simple-app:runAndroidRelease -> :simple-app:buildAndroidRelease, :simple-app:downloadSystemImage, :simple-app:downloadAndroidEmulator")
+
+        // transform dependencies
+        // main
+        assertStdoutContains("task :simple-app:transformDependencies -> :simple-app:resolveDependenciesAndroid")
+        // test
+        assertStdoutContains("task :simple-app:transformDependenciesTest -> :simple-app:resolveDependenciesAndroidTest")
     }
 
     private fun ProjectContext.getAarPath(taskName: TaskName): Path = getTaskOutputPath(taskName)

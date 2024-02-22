@@ -79,6 +79,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     val androidCompileDependencies = createCompileDependencies(platform, module, tasks, executeOnChangedInputs, isTest)
                     val androidPrepareDependencies = createPrepareDependencies(platform, module, tasks, executeOnChangedInputs, isTest)
                     val androidRunDependencies = createRunDependencies(platform, module, executeOnChangedInputs, tasks, isTest)
+                    val transformDependenciesTaskName = setupTransformDependenciesTask(platform, module, executeOnChangedInputs, tasks, isTest)
 
                     fun createResolveTask(): Task =
                         ResolveExternalDependenciesTask(
@@ -170,6 +171,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                                 tasks.registerTask(it, dependsOn = buildList {
                                     add(getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest))
                                     if (top == Platform.ANDROID) {
+                                        transformDependenciesTaskName?.let { add(it) }
                                         prepareAndroidBuildTaskName?.let { add(it) }
                                         addAll(androidCompileDependencies)
                                     }
@@ -347,6 +349,20 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
         return tasks.build()
     }
+
+    private fun setupTransformDependenciesTask(
+        platform: Platform,
+        module: PotatoModule,
+        executeOnChangedInputs: ExecuteOnChangedInputs,
+        tasks: TaskGraphBuilder,
+        isTest: Boolean,
+    ) = if (platform == Platform.ANDROID) {
+        val transformDependenciesTaskName = TaskName.fromHierarchy(listOf(module.userReadableName, "transformDependencies${isTest.testSuffix}"))
+        val transformDependenciesTask = TransformAarExternalDependenciesTask(transformDependenciesTaskName, executeOnChangedInputs)
+        tasks.registerTask(transformDependenciesTask)
+        tasks.registerDependency(transformDependenciesTaskName, getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest))
+        transformDependenciesTaskName
+    } else null
 
     private fun setupLogcatTask(
         platform: Platform,

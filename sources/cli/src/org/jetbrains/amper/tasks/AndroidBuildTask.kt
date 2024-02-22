@@ -42,7 +42,7 @@ class AndroidBuildTask(
             .firstNotNullOfOrNull { it.classesOutputRoot } ?: error("No build classes")
         val resolvedAndroidRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
-            .flatMap { it.compileClasspath }
+            .flatMap { it.runtimeClasspath }
         val androidModuleData = AndroidModuleData(":", classes, resolvedAndroidRuntimeDependencies.map {
             ResolvedDependency("group", "artifact", "version", it)
         })
