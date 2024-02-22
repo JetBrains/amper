@@ -97,7 +97,9 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             it.targetSdk = androidSettings.targetSdk.versionNumber
                             it.minSdk = androidSettings.minSdk.versionNumber
                             it.versionCode = 1
-                            it.applicationId = androidSettings.applicationId
+                            if (module.type == ProductType.ANDROID_APP) {
+                                it.applicationId =  androidSettings.applicationId
+                            }
                         }
                         androidExtension.namespace = androidSettings.namespace
 
