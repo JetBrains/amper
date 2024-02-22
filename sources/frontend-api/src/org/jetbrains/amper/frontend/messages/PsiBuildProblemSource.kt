@@ -26,20 +26,16 @@ sealed interface PsiBuildProblemSource : FileLocatedBuildProblemSource {
     @UsedInIdePlugin
     val psiElement: PsiElement
 
-    class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource {
-        override val file: Path
-            get() = psiElement.virtualFile?.toNioPathOrNull() ?: error(NO_VIRTUAL_FILE_ERROR)
+    override val file: Path
+        get() = psiElement.containingFile?.originalFile?.virtualFile?.toNioPathOrNull() ?: error(NO_VIRTUAL_FILE_ERROR)
 
+    class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource {
         override val range: LineAndColumnRange? = null
 
         override val offsetRange: IntRange? = null
     }
 
     class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource {
-        override val file: Path
-            get() = psiElement.containingFile?.originalFile?.virtualFile?.toNioPathOrNull()
-                ?: error(NO_VIRTUAL_FILE_ERROR)
-
         override val range: LineAndColumnRange
             get() = getLineAndColumnRangeInPsiFile(psiElement)
 
