@@ -14,12 +14,6 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.slf4j.LoggerFactory
 
-// To do next:
-
-// run android emulator in headless mode using system property
-// finish test waiting a line
-// try to run it in CI
-
 class LogcatTask(override val taskName: TaskName) : Task {
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult = coroutineScope {
         val deferred = CompletableDeferred<Boolean>()
