@@ -33,13 +33,9 @@ import kotlin.time.Duration.Companion.minutes
 
 class AmperAndroidProjectsTest : IntegrationTestBase() {
     private val androidProjectsPath: Path = TestUtil.amperCheckoutRoot.resolve("android-projects")
-    private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
-    private fun setupAndroidTestProject(testProjectName: String): ProjectContext {
-        val projectContext = setupTestProject(androidProjectsPath.resolve(testProjectName), copyToTemp = true)
-        projectContext.projectRoot.path.deleteGradleFiles()
-        return projectContext
-    }
+    private fun setupAndroidTestProject(testProjectName: String): ProjectContext =
+        setupTestProject(androidProjectsPath.resolve(testProjectName), copyToTemp = true)
 
     @Test
     @OnNonCI

@@ -161,3 +161,20 @@ private val androidTestTasks = listOf(
     "compileAndroidDebugTest",
     "compileAndroidReleaseTest",
 )
+
+private val knownGradleFiles = setOf(
+    "gradle-wrapper.jar",
+    "gradle-wrapper.properties",
+    "gradle.properties",
+    "gradlew",
+    "gradlew.bat",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+)
+
+@OptIn(ExperimentalPathApi::class)
+private fun Path.deleteGradleFiles() {
+    walk()
+        .filter { it.name in knownGradleFiles }
+        .forEach { it.deleteExisting() }
+}
