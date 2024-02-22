@@ -25,9 +25,25 @@ enum class Level {
     Warning,
 }
 
+/**
+ * Designates the place where the cause of the problem is located.
+ */
 interface BuildProblemSource {
+    /**
+     * Path to the file containing a problem.
+     */
     val file: Path?
+    /**
+     * Range of problematic code expressed in terms of lines and columns.
+     * Can be used by clients to render the links to the exact location in the file or display an erroneous part of the
+     * code.
+     */
     val range: LineAndColumnRange?
+    /**
+     * Range of problematic code expressed in terms of character offsets inside the file.
+     * Depending on the client, it might choose [range] or [offsetRange] for displaying an error.
+     * The choice depends on what primitives does the client operate with.
+     */
     val offsetRange: IntRange?
 }
 
@@ -53,4 +69,8 @@ data class LineAndColumn(val line: Int, val column: Int, val lineContent: String
     }
 }
 
+/**
+ * This range should be interpreted as all the symbols between [start] and [end] inclusive.
+ * All the intermediate lines between [start] and [end] are included entirely.
+ */
 data class LineAndColumnRange(val start: LineAndColumn, val end: LineAndColumn)
