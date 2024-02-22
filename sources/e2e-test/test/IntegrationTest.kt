@@ -108,6 +108,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val m2groupRoot = m2repository.resolve("com/mytestgroup")
         m2groupRoot.deleteRecursively()
+        GradleDaemonManager.deleteFileOrDirectoryOnExit(m2groupRoot)
 
         test(
             projectName = "publish-custom-artifactid",
