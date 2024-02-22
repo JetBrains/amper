@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.doCapitalize
-import org.jetbrains.amper.frontend.mapStartAware
+import org.jetbrains.amper.core.mapStartAware
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 

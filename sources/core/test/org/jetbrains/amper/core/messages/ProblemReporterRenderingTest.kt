@@ -47,6 +47,38 @@ class ProblemReporterRenderingTest {
         assertEquals("test.txt:10:15: Test message", renderMessage(problem))
     }
 
+    @Test
+    fun `reporting problem with multiple locations`() {
+        val location1 = SimpleFileProblemSource(
+            Path("test.txt"), range = LineAndColumnRange(
+                LineAndColumn(10, 15, null), LineAndColumn.NONE
+            )
+        )
+        val location2 = SimpleFileProblemSource(
+            Path("test2.txt"), range = LineAndColumnRange(
+                LineAndColumn(9, 15, null), LineAndColumn.NONE
+            )
+        )
+        val location3 = SimpleFileProblemSource(
+            Path("test2.txt"), range = LineAndColumnRange(
+                LineAndColumn(10, 15, null), LineAndColumn.NONE
+            )
+        )
+        val problem = BuildProblem(
+            buildProblemId = "test.message",
+            source = MultipleLocationsBuildProblemSource(location1, location2, location3),
+            message = "Test message",
+            level = Level.Error
+        )
+        assertEquals(
+            """
+            test.txt:10:15: Test message
+            test2.txt:9:15: Test message
+            test2.txt:10:15: Test message
+            """.trimIndent(), renderMessage(problem)
+        )
+    }
+
     private data class SimpleFileProblemSource(
         override val file: Path,
         override val range: LineAndColumnRange? = null,

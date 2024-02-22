@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.core.messages
 
+import org.jetbrains.amper.core.forEachEndAware
+
 interface ProblemReporter {
     /**
      * Check if we reported any fatal errors.
@@ -47,14 +49,24 @@ abstract class CollectingProblemReporter : ProblemReporter {
 }
 
 fun renderMessage(problem: BuildProblem): String = buildString {
-    val source = problem.source
-    if (source is FileLocatedBuildProblemSource) {
-        append(source.file.normalize())
-        source.range?.let { range ->
-            val start = range.start
-            append(":${start.line}:${start.column}")
+    fun appendSource(source: BuildProblemSource) {
+        when (source) {
+            is FileLocatedBuildProblemSource -> {
+                append(source.file.normalize())
+                source.range?.let { range ->
+                    val start = range.start
+                    append(":${start.line}:${start.column}")
+                }
+                append(": ")
+                append(problem.message)
+            }
+            is MultipleLocationsBuildProblemSource -> source.sources.forEachEndAware { isLast, it ->
+                appendSource(it)
+                if (!isLast) appendLine()
+            }
+            GlobalBuildProblemSource -> append(problem.message)
         }
-        append(": ")
     }
-    append(problem.message)
+
+    appendSource(problem.source)
 }

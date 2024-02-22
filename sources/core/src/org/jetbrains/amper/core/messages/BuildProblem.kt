@@ -35,6 +35,13 @@ sealed interface BuildProblemSource
  */
 data object GlobalBuildProblemSource : BuildProblemSource
 
+/**
+ * Can be used to express the problem with multiple locations (e.g., conflicting declarations).
+ */
+class MultipleLocationsBuildProblemSource(val sources: List<BuildProblemSource>) : BuildProblemSource {
+    constructor(vararg sources: BuildProblemSource): this(sources.toList())
+}
+
 interface FileLocatedBuildProblemSource : BuildProblemSource {
     /**
      * Path to the file containing a problem.
