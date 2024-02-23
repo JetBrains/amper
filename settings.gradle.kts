@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-buildscript {
+pluginManagement {
     repositories {
         mavenCentral()
         google()
@@ -28,15 +28,8 @@ buildscript {
             }
         }
     }
-
-    dependencies {
-        // !!! Use syncVersions.sh to update these versions
-        classpath("org.jetbrains.amper:gradle-integration:0.3.0-dev-448")
-    }
 }
 
-plugins.apply("org.jetbrains.amper.settings.plugin")
-
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version ("0.4.0")
+    id("org.jetbrains.amper.settings.plugin") version "0.3.0-dev-449"
 }
