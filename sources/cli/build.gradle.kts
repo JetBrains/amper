@@ -66,7 +66,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
     abstract val amperDistVersion: Property<String>
 
     @get:Input
-    abstract val addCR: Property<Boolean>
+    abstract val lineSeparator: Property<String>
 
     @TaskAction
     fun processScript() {
@@ -83,12 +83,10 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
         }
 
         val newText = text
-            .split('\n')
-            .map { it.trimEnd('\r') }
+            .lineSequence()
             .map { line -> line.replace(Regex("^((set )?amper_version=).*\$"), "$1$amperVersion") }
             .map { line -> line.replace(Regex("^((set )?amper_sha256=).*\$"), "$1$amperSha256") }
-            .map { if (addCR.get()) "$it\r" else it }
-            .joinToString("\n")
+            .joinToString(lineSeparator.get())
 
         check(newText.contains(amperVersion)) {
             "Script text must contain $amperVersion after replacement:\n$newText"
@@ -109,7 +107,7 @@ val amperShellScript = tasks.register<ProcessAmperScriptTask>("amperShellScript"
     amperDistVersion = project.version.toString()
     amperDistFile = amperDist
 
-    addCR = false
+    lineSeparator = "\n"
 }
 
 val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
@@ -119,7 +117,7 @@ val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
     amperDistVersion = project.version.toString()
     amperDistFile = amperDist
 
-    addCR = true
+    lineSeparator = "\r\n"
 }
 
 configurations.create("dist")
