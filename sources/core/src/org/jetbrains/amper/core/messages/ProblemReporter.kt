@@ -51,10 +51,10 @@ abstract class CollectingProblemReporter : ProblemReporter {
 fun renderMessage(problem: BuildProblem): String = buildString {
     fun appendSource(source: BuildProblemSource) {
         when (source) {
-            is FileLocatedBuildProblemSource -> {
+            is FileBuildProblemSource -> {
                 append(source.file.normalize())
-                source.range?.let { range ->
-                    val start = range.start
+                if (source is FileWithRangesBuildProblemSource) {
+                    val start = source.range.start
                     append(":${start.line}:${start.column}")
                 }
                 append(": ")

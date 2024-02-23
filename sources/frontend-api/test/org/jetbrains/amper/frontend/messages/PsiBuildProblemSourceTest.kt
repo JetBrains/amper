@@ -48,9 +48,9 @@ class PsiBuildProblemSourceTest {
         assertNotNull(psiFile)
         val dependenciesBlock = PsiTreeUtil.findChildrenOfType(psiFile, YAMLKeyValue::class.java).find { it.keyText == "dependencies" }
         assertNotNull(dependenciesBlock)
-        val range = PsiBuildProblemSource(dependenciesBlock).range
+        val source = PsiBuildProblemSource(dependenciesBlock) as PsiBuildProblemSource.Element
         assertEquals(
-            range,
+            source.range,
             LineAndColumnRange(
                 LineAndColumn(3, 1, "dependencies:"),
                 LineAndColumn(4, 21, "  - ./bad-dependency"),

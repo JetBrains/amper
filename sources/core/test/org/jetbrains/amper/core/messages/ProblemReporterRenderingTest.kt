@@ -26,7 +26,7 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file but no line`() {
         val problem = BuildProblem(
             buildProblemId = "test.message",
-            source = SimpleFileProblemSource(Path("test.txt")),
+            source = TestFileProblemSource(Path("test.txt")),
             message = "Test message",
             level = Level.Error
         )
@@ -37,7 +37,7 @@ class ProblemReporterRenderingTest {
     fun `reporting problem with file and line`() {
         val problem = BuildProblem(
             buildProblemId = "test.message",
-            source = SimpleFileProblemSource(
+            source = TestFileWithRangesProblemSource(
                 Path("test.txt"), range = LineAndColumnRange(
                     LineAndColumn(10, 15, null), LineAndColumn.NONE
                 )
@@ -50,17 +50,17 @@ class ProblemReporterRenderingTest {
 
     @Test
     fun `reporting problem with multiple locations`() {
-        val location1 = SimpleFileProblemSource(
+        val location1 = TestFileWithRangesProblemSource(
             Path("test.txt"), range = LineAndColumnRange(
                 LineAndColumn(10, 15, null), LineAndColumn.NONE
             )
         )
-        val location2 = SimpleFileProblemSource(
+        val location2 = TestFileWithRangesProblemSource(
             Path("test2.txt"), range = LineAndColumnRange(
                 LineAndColumn(9, 15, null), LineAndColumn.NONE
             )
         )
-        val location3 = SimpleFileProblemSource(
+        val location3 = TestFileWithRangesProblemSource(
             Path("test2.txt"), range = LineAndColumnRange(
                 LineAndColumn(10, 15, null), LineAndColumn.NONE
             )
@@ -87,9 +87,12 @@ class ProblemReporterRenderingTest {
         }
     }
 
-    private data class SimpleFileProblemSource(
+    private data class TestFileProblemSource(override val file: Path) : FileBuildProblemSource
+
+    private data class TestFileWithRangesProblemSource(
         override val file: Path,
-        override val range: LineAndColumnRange? = null,
-        override val offsetRange: IntRange? = null
-    ): FileLocatedBuildProblemSource
+        override val range: LineAndColumnRange,
+    ) : FileWithRangesBuildProblemSource {
+        override val offsetRange: IntRange = IntRange.EMPTY
+    }
 }

@@ -8,7 +8,8 @@ import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileSystemItem
 import org.jetbrains.amper.core.UsedInIdePlugin
-import org.jetbrains.amper.core.messages.FileLocatedBuildProblemSource
+import org.jetbrains.amper.core.messages.FileBuildProblemSource
+import org.jetbrains.amper.core.messages.FileWithRangesBuildProblemSource
 import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.frontend.getLineAndColumnRangeInPsiFile
 import java.nio.file.Path
@@ -22,20 +23,16 @@ private const val NO_VIRTUAL_FILE_ERROR = "PSI element doesn't have real backing
  *
  * Use [PsiBuildProblemSource] factory function to construct.
  */
-sealed interface PsiBuildProblemSource : FileLocatedBuildProblemSource {
+sealed interface PsiBuildProblemSource : FileBuildProblemSource {
     @UsedInIdePlugin
     val psiElement: PsiElement
 
     override val file: Path
         get() = psiElement.containingFile?.originalFile?.virtualFile?.toNioPathOrNull() ?: error(NO_VIRTUAL_FILE_ERROR)
 
-    class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource {
-        override val range: LineAndColumnRange? = null
+    class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource
 
-        override val offsetRange: IntRange? = null
-    }
-
-    class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource {
+    class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource, FileWithRangesBuildProblemSource {
         override val range: LineAndColumnRange
             get() = getLineAndColumnRangeInPsiFile(psiElement)
 
