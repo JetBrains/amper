@@ -101,6 +101,8 @@ open class DefaultFioContext(
 
     override val gradleModules: Map<VirtualFile, DumbGradleModule> by lazy {
         buildMap {
+            // TODO This seems wrong. We should be using the included projects from settings.gradle.kts, otherwise
+            //   we may pick up Gradle projects that are unrelated to our build
             VfsUtil.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
                 override fun visitFile(file: VirtualFile): Boolean {
                     if (isIgnored(file)) return false
