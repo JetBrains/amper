@@ -26,7 +26,7 @@ fun YAMLKeyValue.extractModifiers(): Modifiers =
   keyText.substringAfter("@", "")
     .split("+")
     .filter { it.isNotBlank() }
-    .map { TraceableString(it).adjustTrace(this) }
+    .map { TraceableString(it).adjustTrace(key) }
     .toSet()
     .takeIf { it.isNotEmpty() } ?: noModifiers
 

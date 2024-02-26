@@ -10,4 +10,5 @@ val IsmDiagnosticFactories = listOf(
     LibShouldHavePlatforms,
     ProductPlatformIsUnsupported,
     ProductPlatformsShouldNotBeEmpty,
+    UnknownQualifiers,
 )

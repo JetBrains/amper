@@ -4,10 +4,8 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.ModifierAware
@@ -15,8 +13,6 @@ import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceableString
-import org.jetbrains.amper.frontend.api.withoutDefault
-import org.jetbrains.amper.frontend.reportBundleError
 import java.nio.file.Path
 
 
@@ -43,30 +39,6 @@ sealed class Base : SchemaNode() {
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests. See [settings](#settings)")
     var `test-settings` by value(mapOf(noModifiers to Settings()))
-
-    /**
-     * Check that modifiers are either known platforms, or known aliases.
-     */
-    context(ProblemReporterContext)
-    protected fun validateModifiers(knownAliases: Set<String> = emptySet()) {
-        fun Modifiers.validate() {
-            val unknownPlatforms = this
-                .filter { it.value !in knownAliases }
-                .filter { it.value !in Platform.values.map { it.schemaValue } }
-
-            if (unknownPlatforms.isNotEmpty())
-                SchemaBundle.reportBundleError(
-                    value = unknownPlatforms.first(),
-                    messageKey = "product.unknown.platforms",
-                    unknownPlatforms.joinToString { it.value },
-                )
-        }
-
-        ::dependencies.withoutDefault?.keys?.forEach { it.validate() }
-        ::settings.withoutDefault?.keys?.forEach { it.validate() }
-        ::`test-dependencies`.withoutDefault?.keys?.forEach { it.validate() }
-        ::`test-settings`.withoutDefault?.keys?.forEach { it.validate() }
-    }
 }
 
 /**
@@ -79,13 +51,7 @@ val Base.commonSettings get() = settings[noModifiers]!!
  */
 val Base.commonTestSettings get() = `test-settings`[noModifiers]!!
 
-class Template : Base() {
-    context(ProblemReporterContext)
-    override fun validate() {
-        // Check the modifiers.
-        validateModifiers()
-    }
-}
+class Template : Base()
 
 class Module : Base() {
 
@@ -100,12 +66,6 @@ class Module : Base() {
 
     @SchemaDoc("Non-code/product related aspects of the Module (e.g. file layout)")
     var module by value(::Meta)
-
-    context(ProblemReporterContext)
-    override fun validate() {
-        // Check the modifiers.
-        validateModifiers(aliases?.keys.orEmpty())
-    }
 }
 
 @AdditionalSchemaDef(repositoryShortForm, useOneOf = true)

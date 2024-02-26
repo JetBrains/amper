@@ -1,0 +1,41 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - android
+    - iosArm64
+    - iosSimulatorArm64
+
+aliases:
+  - jvmAndAndroid: [jvm, android]
+
+dependencies:
+  - test
+
+dependencies@jvmAndAndroid:
+  - test
+
+<![Error] Unknown qualifiers: [wrong, wrong2]!>dependencies@jvm+wrong+android+wrong2<!>:
+  - test
+
+test-dependencies@iosArm64+jvmAndAndroid:
+  - test
+
+<![Error] Unknown qualifiers: [wrong, wrong2]!>test-dependencies@jvm+wrong+android+wrong2<!>:
+  - test
+
+settings@ios:
+  kotlin:
+    debug: true
+
+<![Error] Unknown qualifiers: [wrong, wrong2]!>settings@ios+wrong+wrong2<!>:
+  kotlin:
+    debug: true
+
+test-settings@ios:
+  kotlin:
+    debug: true
+
+<![Error] Unknown qualifiers: [wrong, wrong2]!>test-settings@ios+wrong+wrong2<!>:
+  kotlin:
+    debug: true
