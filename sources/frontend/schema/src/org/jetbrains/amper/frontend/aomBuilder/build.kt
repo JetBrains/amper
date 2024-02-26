@@ -24,7 +24,6 @@ import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
-import org.jetbrains.amper.frontend.processing.validateSchema
 import org.jetbrains.amper.frontend.processing.withImplicitDependencies
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -75,7 +74,6 @@ internal fun doBuild(
             val processedModule = with(systemInfo) {
                 nonProcessed
                     .replaceCatalogDependencies(chosenCatalog)
-                    .validateSchema()
                     .replaceComposeOsSpecific()
             }
 

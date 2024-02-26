@@ -66,14 +66,6 @@ abstract class SchemaNode : Traceable {
      */
     internal fun <T : Any> nullableValue(default: () -> T?) = NullableSchemaValueProvider(Default.Lambda(desc = null, default))
 
-    /**
-     * Register a validator for this node.
-     */
-    context(ProblemReporterContext)
-    @Deprecated("Prefer writing IsmDiagnosticFactory instead")
-    open fun validate() {
-    }
-
     override var trace: Trace? = null
         set(value) {
             if (value is PsiTrace) value.psiElement.putUserData(linkedAmperNode, this)
