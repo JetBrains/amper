@@ -12,9 +12,8 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
-import org.jetbrains.amper.downloader.extractZip
+import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName

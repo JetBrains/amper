@@ -1,11 +1,11 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.cli
 
+import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.ExtractOptions
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import java.net.URI
 import java.nio.file.Files

@@ -11,9 +11,9 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.core.cleanDirectory
-import org.jetbrains.amper.downloader.extractZip
 import org.jetbrains.amper.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -291,7 +291,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
                     inputs = emptyList()
                 ) {
                     val root = fakeUserCacheRoot.path / "android-sdk"
-                    _root_ide_package_.org.jetbrains.amper.core.cleanDirectory(root)
+                    cleanDirectory(root)
 
                     extractZip(commandLineTools, root, true)
 

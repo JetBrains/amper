@@ -3,9 +3,10 @@ product:
   platforms: [ jvm ]
 
 dependencies:
+  - ../core
   - ../cli
   - ../core-intellij
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
   - io.opentelemetry:opentelemetry-sdk:1.32.0
   - org.tinylog:tinylog-impl:2.6.2
   - org.slf4j:slf4j-api:2.0.9

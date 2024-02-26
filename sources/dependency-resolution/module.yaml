@@ -8,7 +8,7 @@ apply:
 dependencies:
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.apache.maven:maven-artifact:3.9.6
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
   - io.ktor:ktor-client-cio:2.3.6
   - io.ktor:ktor-client:2.3.6
 

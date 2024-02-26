@@ -11,11 +11,11 @@ import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
+import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
-import org.jetbrains.amper.downloader.cleanDirectory
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule

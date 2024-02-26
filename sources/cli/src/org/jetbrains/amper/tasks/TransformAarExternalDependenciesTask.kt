@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.downloader.extractFileToLocation
+import org.jetbrains.amper.core.extract.extractFileToLocation
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.tasks.JvmCompileTask.AdditionalClasspathProviderTaskResult

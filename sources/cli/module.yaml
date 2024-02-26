@@ -36,9 +36,6 @@ dependencies:
   - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
   - com.fasterxml.jackson.core:jackson-databind:2.16.0
   # for something else
-  - org.apache.commons:commons-compress:1.24.0
-  - commons-io:commons-io:2.15.0
-  - com.google.guava:guava:33.0.0-jre
   - com.android.tools:sdklib:31.2.0
   - com.android.tools:common:31.2.0
   - com.android.tools:sdk-common:31.1.0
