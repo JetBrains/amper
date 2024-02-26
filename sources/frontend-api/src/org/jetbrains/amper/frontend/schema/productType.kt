@@ -4,11 +4,8 @@
 
 package org.jetbrains.amper.frontend.schema
 
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.SchemaDoc
@@ -16,7 +13,6 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.unsafe
-import org.jetbrains.amper.frontend.reportBundleError
 
 
 @SchemaDoc("Product type to build from the module")
@@ -99,39 +95,6 @@ class ModuleProduct : SchemaNode() {
 
     @SchemaDoc("What platforms to generate the product for")
     var platforms by value<List<TraceableEnum<Platform>>> { ::type.unsafe?.defaultPlatforms?.toList()?.map(Platform::asTraceable) }
-
-    context(ProblemReporterContext)
-    override fun validate() {
-        // Check empty platforms.
-        if (::platforms.unsafe?.isEmpty() == true)
-            SchemaBundle.reportBundleError(
-                property = ::platforms,
-                messageKey = "product.platforms.should.not.be.empty",
-                level = Level.Fatal
-            )
-
-        // Check no platforms for lib.
-        if (::type.unsafe == ProductType.LIB && ::platforms.unsafe == null)
-            SchemaBundle.reportBundleError(
-                property = ::type,
-                messageKey = "product.type.does.not.have.default.platforms",
-                ProductType.LIB.schemaValue,
-                level = Level.Fatal
-            )
-
-        // Check supported platforms.
-        ::platforms.unsafe.orEmpty().forEach { platform ->
-            val platformValue = platform.value
-            if (platformValue !in type.supportedPlatforms)
-                SchemaBundle.reportBundleError(
-                    value = platform,
-                    messageKey = "product.unsupported.platform",
-                    type.schemaValue,
-                    platformValue.pretty,
-                    type.supportedPlatforms.joinToString { it.pretty },
-                )
-        }
-    }
 }
 
 const val productShortForm = """
