@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -83,7 +84,7 @@ class NativeCompileTask(
 
         // TODO dependencies support
         // TODO kotlin version settings
-        val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
+        val kotlinVersion = UsedVersions.kotlinVersion
 
         // TODO do in separate (and cacheable) task
         val kotlinNativeHome = kotlinCompilerDownloader.downloadAndExtractKotlinNative(kotlinVersion)

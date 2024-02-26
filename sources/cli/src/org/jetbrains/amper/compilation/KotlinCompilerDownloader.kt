@@ -6,6 +6,7 @@ package org.jetbrains.amper.compilation
 
 import com.sun.jna.Platform
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.downloader.Downloader
@@ -20,8 +21,6 @@ class KotlinCompilerDownloader(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) {
     companion object {
-        const val AMPER_DEFAULT_KOTLIN_VERSION = "1.9.22"
-
         private const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
         private const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
     }
@@ -34,37 +33,59 @@ class KotlinCompilerDownloader(
      * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
      * that will be used behind the scenes.
      */
-    suspend fun downloadKotlinBuildToolsImpl(version: String): Collection<Path> =
+    suspend fun downloadKotlinBuildToolsImpl(version: String): Collection<Path> = downloadMavenArtifact(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-build-tools-impl",
+        version = version
+    )
+
+    /**
+     * Downloads the Kotlin Serialization compiler plugin for the given Kotlin [version].
+     *
+     * The [version] should match the Kotlin version requested by the user, the plugin will be added to
+     * the Kotlin compiler command line of version [version].
+     */
+    suspend fun downloadKotlinSerializationPlugin(version: String): Path = downloadKotlinCompilerPlugin(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-serialization-compiler-plugin-embeddable",
+        version = version,
+    )
+
+    /**
+     * Downloads the Kotlin Compose compiler plugin for the given [kotlinVersion] (NOT the compose library version).
+     *
+     * The [kotlinVersion] should match the Kotlin version requested by the user, the plugin will be added to
+     * the Kotlin compiler command line of version [kotlinVersion].
+     */
+    suspend fun downloadKotlinComposePlugin(kotlinVersion: String): Path = downloadKotlinCompilerPlugin(
+        groupId = "org.jetbrains.compose.compiler",
+        artifactId = "compiler",
+        // This error should be gracefully reported in the frontend, so it's OK to crash here
+        version = UsedVersions.composeCompilerVersionFor(kotlinVersion)
+            ?: error("No Compose compiler plugin version matching Kotlin version $kotlinVersion"),
+    )
+
+    suspend fun downloadKotlinCompilerPlugin(groupId: String = KOTLIN_GROUP_ID, artifactId: String, version: String): Path {
+        val artifacts = downloadMavenArtifact(
+            groupId = groupId,
+            artifactId = artifactId,
+            version = version,
+        )
+        return artifacts.singleOrNull()
+            ?: error("Only one file is expected to be resolved for a Kotlin compiler plugin, but got: "
+                    + artifacts.joinToString(" "))
+    }
+
+    suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
         // using executeOnChangedInputs because currently DR takes ~3s even when the artifact is already cached
-        executeOnChangedInputs.execute("resolve-kotlin-build-tools-impl-$version", emptyMap(), emptyList()) {
+        executeOnChangedInputs.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
             val resolved = mavenResolver.resolve(
-                coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-build-tools-impl:$version"),
+                coordinates = listOf("$groupId:$artifactId:$version"),
                 repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
                 scope = ResolutionScope.RUNTIME,
             )
             return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
         }.outputs
-
-    /**
-     * Downloads the kotlin serialization plugin for the given Kotlin [version].
-     *
-     * The [version] should match the Kotlin version requested by the user, the plugin will be added to
-     * the Kotlin compiler command line of version [version].
-     */
-    suspend fun downloadKotlinSerializationPlugin(version: String): Path =
-        // executeOnChangedInputs is faster now than mavenResolver on already downloaded stuff
-        executeOnChangedInputs.execute("resolve-kotlin-serialization-plugin-$version", emptyMap(), emptyList()) {
-            val resolved = mavenResolver.resolve(
-                coordinates = listOf("$KOTLIN_GROUP_ID:kotlin-serialization-compiler-plugin-embeddable:$version"),
-                repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
-                scope = ResolutionScope.RUNTIME,
-            )
-            check(resolved.size == 1) {
-                "Only one file is expected to be resolved for a Kotlin serialization compiler plugin, but got: " +
-                        resolved.joinToString(" ")
-            }
-            return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
-        }.outputs.single()
 
     /**
      * Downloads and extracts current system specific kotlin native.

@@ -24,14 +24,37 @@ internal data class KotlinUserSettings(
     val languageFeatures: List<String>,
     val optIns: List<String>,
     val freeCompilerArgs: List<String>,
-    val serialization: String?,
+    val serializationEnabled: Boolean,
+    val composeEnabled: Boolean,
 )
+
+internal data class CompilerPlugin(
+    /**
+     * The plugin ID used to associate arguments with the corresponding plugin.
+     * It is exposed by each plugin's implementation in their `CommandLineProcessor.pluginId` property.
+     */
+    val id: String,
+    val jarPath: Path,
+    val options: Map<String, String> = emptyMap(),
+) {
+    companion object {
+        fun serialization(jarPath: Path) = CompilerPlugin(
+            id = "org.jetbrains.kotlinx.serialization",
+            jarPath = jarPath,
+        )
+
+        fun compose(jarPath: Path) = CompilerPlugin(
+            id = "androidx.compose.compiler.plugins.kotlin",
+            jarPath = jarPath,
+        )
+    }
+}
 
 internal fun kotlinCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
     classpath: List<Path>,
-    compilerPlugins: List<Path>,
+    compilerPlugins: List<CompilerPlugin>,
     jdkHome: Path,
     outputPath: Path,
     friendlyClasspath: List<Path>,
@@ -78,8 +101,14 @@ internal fun kotlinCompilerArgs(
     kotlinUserSettings.freeCompilerArgs.forEach {
         add(it)
     }
-    compilerPlugins.forEach {
-        add("-Xplugin=$it")
+    // Switch to -Xcompiler-plugin option when it's ready (currently a prototype, and K2-only)
+    // https://jetbrains.slack.com/archives/C942U8L4R/p1708709995859629
+    compilerPlugins.forEach { plugin ->
+        add("-Xplugin=${plugin.jarPath}")
+        plugin.options.forEach { (optName, value) ->
+            add("-P")
+            add("plugin:${plugin.id}:$optName=$value")
+        }
     }
     if (friendlyClasspath.isNotEmpty()) {
         // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators

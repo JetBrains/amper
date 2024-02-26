@@ -133,6 +133,12 @@ class KotlinJvmCompilationSpanAssertions(private val span: SpanData) {
         }
     }
 
+    fun hasCompilerArgumentStartingWith(argumentPrefix: String) {
+        assertTrue("Compiler argument starting with '$argumentPrefix' is missing. Actual args: $compilerArgs") {
+            compilerArgs.any { it.startsWith(argumentPrefix) }
+        }
+    }
+
     fun hasCompilerArgument(name: String, expectedValue: String) {
         hasCompilerArgument(name)
         val actualValue = compilerArgAfter(name)

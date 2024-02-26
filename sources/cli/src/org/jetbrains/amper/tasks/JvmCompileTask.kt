@@ -9,12 +9,14 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.kotlinCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.toKotlinProjectId
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -81,7 +83,7 @@ class JvmCompileTask(
         val kotlinUserSettings = fragments.mergedKotlinSettings()
 
         // TODO Make kotlin version configurable in settings
-        val kotlinVersion = KotlinCompilerDownloader.AMPER_DEFAULT_KOTLIN_VERSION
+        val kotlinVersion = UsedVersions.kotlinVersion
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
@@ -157,7 +159,8 @@ class JvmCompileTask(
         languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures } ?: emptyList(),
         optIns = unanimousOptionalKotlinSetting("optIns") { it.optIns } ?: emptyList(),
         freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs } ?: emptyList(),
-        serialization = unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format },
+        serializationEnabled = !unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format }.isNullOrBlank(),
+        composeEnabled = unanimousSetting("compose.enabled") { it.compose.enabled } ?: false,
     )
 
     private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
@@ -255,10 +258,15 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger())
 
-        val compilerPlugins = mutableListOf<Path>()
-        if (!kotlinUserSettings.serialization.isNullOrEmpty()) {
-            val plugin = kotlinCompilerDownloader.downloadKotlinSerializationPlugin(compilerVersion)
-            compilerPlugins.add(plugin)
+        val compilerPlugins = buildList {
+            if (kotlinUserSettings.serializationEnabled) {
+                val jarPath = kotlinCompilerDownloader.downloadKotlinSerializationPlugin(compilerVersion)
+                add(CompilerPlugin.serialization(jarPath))
+            }
+            if (kotlinUserSettings.composeEnabled) {
+                val jarPath = kotlinCompilerDownloader.downloadKotlinComposePlugin(compilerVersion)
+                add(CompilerPlugin.compose(jarPath))
+            }
         }
 
         val compilerArgs = kotlinCompilerArgs(

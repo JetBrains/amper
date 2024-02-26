@@ -102,19 +102,43 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun multiplatform() {
         val projectContext = setupExampleProject("multiplatform")
-
         projectContext.assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
         projectContext.assertHasTasks(androidAppTasks, module = "android-app")
         projectContext.assertHasTasks(jvmAppTasks, module = "jvm-app")
         projectContext.assertHasTasks(iosAppTasks, module = "ios-app")
 
-        // FIXME compileAndroid task doesn't exist yet defines dependencies
+        // TODO handle Android resources. Currently it fails with this error:
+        //  AAPT: error: resource style/Theme.AppCompat.Light (aka org.example.namespace:style/Theme.AppCompat.Light) not found.
 //        AmperBackend(projectContext).compile()
 //
 //        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
 //        kotlinJvmCompilationSpans.withAmperModule("android-app").assertSingle()
 //        kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 //        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertSingle()
+    }
+
+    @Test
+    fun composeAndroid() {
+        val projectContext = setupExampleProject("compose-android")
+        projectContext.assertHasTasks(androidAppTasks)
+
+        // TODO handle Android resources. Currently it fails with this error:
+        //  AAPT: error: resource style/Theme.AppCompat.Light (aka org.example.namespace:style/Theme.AppCompat.Light) not found.
+//        AmperBackend(projectContext).compile()
+
+//        kotlinJvmCompilationSpans.assertSingle()
+    }
+
+    @Test
+    fun composeDesktop() {
+        val projectContext = setupExampleProject("compose-desktop")
+        projectContext.assertHasTasks(jvmAppTasks)
+
+        AmperBackend(projectContext).compile()
+
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgumentStartingWith("-Xplugin=")
+        }
     }
 
     private fun ProjectContext.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
