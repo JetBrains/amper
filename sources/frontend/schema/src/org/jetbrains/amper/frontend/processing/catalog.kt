@@ -76,9 +76,6 @@ class CompositeVersionCatalog(
     ) = catalogs.firstNotNullOfOrNull { it.findInCatalog(key) }
 }
 
-@Suppress("unused")
-data object BuiltInCatalogTrace
-
 class BuiltInCatalog(
     composeVersion: String?,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
