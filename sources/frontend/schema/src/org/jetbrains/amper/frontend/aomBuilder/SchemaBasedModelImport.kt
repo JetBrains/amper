@@ -28,7 +28,6 @@ class SchemaBasedModelImport : ModelInit {
         val fioCtx = DefaultFioContext(pathResolver.loadVirtualFile(root))
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
-        // Propagate settings from fragment to fragment.
         return DefaultModel(resultModules + fioCtx.gradleModules.values)
             // Add additional validations for the whole model.
             .performValidations()
