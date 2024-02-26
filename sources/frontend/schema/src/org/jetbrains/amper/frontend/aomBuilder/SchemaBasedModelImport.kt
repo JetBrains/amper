@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.diagnostics.AomDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.readTemplate
 import java.nio.file.Path
 
@@ -28,10 +29,11 @@ class SchemaBasedModelImport : ModelInit {
         val fioCtx = DefaultFioContext(pathResolver.loadVirtualFile(root))
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
-        return DefaultModel(resultModules + fioCtx.gradleModules.values)
-            // Add additional validations for the whole model.
-            .performValidations()
-            .asAmperSuccess()
+        val model = DefaultModel(resultModules + fioCtx.gradleModules.values)
+        AomDiagnosticFactories.forEach { diagnostic ->
+            with(diagnostic) { model.analyze() }
+        }
+        return model.asAmperSuccess()
     }
 
     context(ProblemReporterContext)
