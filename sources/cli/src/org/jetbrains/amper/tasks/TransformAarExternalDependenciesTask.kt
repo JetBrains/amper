@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.downloader.extractZip
+import org.jetbrains.amper.downloader.extractFileToLocation
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.tasks.JvmCompileTask.AdditionalClasspathProviderTaskResult
@@ -26,7 +26,7 @@ class TransformAarExternalDependenciesTask(
                 val outputs = resolvedAndroidRuntimeDependencies.map {
                     if (it.extension == "aar") {
                         val targetFolder = it.parent / it.nameWithoutExtension
-                        extractZip(it, targetFolder, false)
+                        extractFileToLocation(it, targetFolder)
                         targetFolder / "classes.jar"
                     } else it
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.downloader
@@ -49,19 +49,35 @@ suspend fun extractFileToCacheLocation(archiveFile: Path,
     val directoryName = "${archiveFile.fileName}.${hash}.d"
     val targetDirectory = cachePath.resolve(directoryName)
     val flagFile = cachePath.resolve("${directoryName}.flag")
+    withDoubleLock(targetDirectory, flagFile) {
+        extractFileWithFlag(archiveFile, targetDirectory, it, flagFile, options)
+    }
+    return@withContext targetDirectory
+}
 
+suspend fun extractFileToLocation(
+    archiveFile: Path,
+    targetDirectory: Path,
+    vararg options: ExtractOptions
+): Path = withContext(Dispatchers.IO) {
+    val flagFile = targetDirectory.resolve("${archiveFile.fileName}.flag")
+    withDoubleLock(targetDirectory, flagFile) {
+        extractFileWithFlag(archiveFile, targetDirectory, it, flagFile, options)
+    }
+    return@withContext targetDirectory
+}
+
+suspend fun withDoubleLock(targetDirectory: Path, on: Path, block: suspend (FileChannel) -> Unit) {
     // First lock locks the stuff inside one JVM process
     extractFileLock.getLock(targetDirectory.hashCode()).withLock {
         // Second lock locks a flagFile across all processes on the system
-        FileChannel.open(flagFile, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+        FileChannel.open(on, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
             .use { flagChannel ->
                 flagChannel.lock().use {
-                    extractFileWithFlag(archiveFile, targetDirectory, flagChannel, flagFile, options)
+                    block(flagChannel)
                 }
             }
     }
-
-    return@withContext targetDirectory
 }
 
 private suspend fun extractFileWithFlag(
