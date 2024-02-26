@@ -3,4 +3,6 @@ product:
   platforms: [ jvm ]
 
 dependencies:
+  - ../../core
   - ../../dependency-resolution
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0

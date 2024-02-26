@@ -5,7 +5,38 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import org.jetbrains.amper.core.extract.extractFileToLocation
+import java.nio.file.Path
+import kotlin.io.path.div
+import kotlin.io.path.extension
+import kotlin.io.path.nameWithoutExtension
 
-suspend fun Resolver.extractAars() {
-    root.asSequence().filterIsInstance<MavenDependencyNode>().flatMap { it.dependency.files }.filter { it.extension == "aar" }
+
+/**
+ * @return the list of paths which is pointed to extracted folders
+ */
+suspend fun Resolver.extractAars(): List<Path> = coroutineScope {
+    root
+        .asSequence()
+        .filterIsInstance<MavenDependencyNode>()
+        .flatMap { it.dependency.files }
+        .map { async { it.getPath() } }
+        .toList()
+        .awaitAll()
+        .filterNotNull()
+        .extractAars()
+}
+
+suspend fun List<Path>.extractAars(): List<Path> = coroutineScope {
+    filter { it.extension == "aar" }
+        .map {
+            async {
+                val targetFolder = it.parent / it.nameWithoutExtension
+                extractFileToLocation(it, targetFolder)
+                targetFolder
+            }
+        }.awaitAll()
 }

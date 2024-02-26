@@ -4,32 +4,24 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.core.extract.extractFileToLocation
+import org.jetbrains.amper.dependency.resolution.extractAars
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.tasks.JvmCompileTask.AdditionalClasspathProviderTaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import kotlin.io.path.div
-import kotlin.io.path.extension
-import kotlin.io.path.nameWithoutExtension
 
 class TransformAarExternalDependenciesTask(
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val resolvedAndroidRuntimeDependencies = dependenciesResult
+        val resolvedAndroidCompileDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .flatMap { it.compileClasspath }
 
-        val executionResult = executeOnChangedInputs.execute(taskName.name, mapOf(), resolvedAndroidRuntimeDependencies) {
-                val outputs = resolvedAndroidRuntimeDependencies.map {
-                    if (it.extension == "aar") {
-                        val targetFolder = it.parent / it.nameWithoutExtension
-                        extractFileToLocation(it, targetFolder)
-                        targetFolder / "classes.jar"
-                    } else it
-                }
+        val executionResult = executeOnChangedInputs.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {
+                val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
                 ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
             }
         return AdditionalClasspathProviderTaskResult(dependenciesResult, executionResult.outputs)
