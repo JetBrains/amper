@@ -37,6 +37,7 @@ fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigur
   val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
   val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
 
+  @Suppress("UnstableApiUsage")
   appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
 
   // Register YAML support
@@ -51,6 +52,8 @@ fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigur
   intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
   intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
 
+//  RegistryKeyBean.addKeysFromPlugins()
+  @Suppress("UnstableApiUsage")
   Registry.markAsLoaded()
 
   latestConfigurator = intelliJApplicationConfigurator

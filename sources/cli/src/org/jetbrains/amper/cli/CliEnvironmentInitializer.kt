@@ -4,12 +4,9 @@
 
 package org.jetbrains.amper.cli
 
-import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 
 object CliEnvironmentInitializer {
     private val init by lazy {
-        IntelliJPlatformInitializer.setup()
-
         // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
         // Temporary disabled due to unresolved issues with it AMPER-396 CLI: Provide coroutine stacktraces
         // DecoroutinatorRuntime.load()
