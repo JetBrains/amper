@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.cli
 
-import dev.reformator.stacktracedecoroutinator.runtime.DecoroutinatorRuntime
 import org.jetbrains.amper.intellij.IntelliJPlatformInitializer
 
 object CliEnvironmentInitializer {
@@ -12,7 +11,8 @@ object CliEnvironmentInitializer {
         IntelliJPlatformInitializer.setup()
 
         // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
-        DecoroutinatorRuntime.load()
+        // Temporary disabled due to unresolved issues with it AMPER-396 CLI: Provide coroutine stacktraces
+        // DecoroutinatorRuntime.load()
     }
 
     fun setup() = init

@@ -7,6 +7,7 @@ package org.jetbrains.amper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -17,6 +18,7 @@ class CoroutineStacktraceTest {
     }
 
     @Test
+    @Ignore(value = "AMPER-396 CLI: Provide coroutine stacktraces")
     fun smoke() {
         try {
             runBlocking {
