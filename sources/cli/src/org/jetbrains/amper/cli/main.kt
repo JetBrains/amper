@@ -35,8 +35,8 @@ private class RootCommand : CliktCommand(name = "amper") {
         versionOption(version = AmperBuild.BuildNumber)
         subcommands(
             CleanCommand(),
-            CheckCommand(),
-            CompileCommand(),
+            TestCommand(),
+            BuildCommand(),
             NewCommand(),
             RunCommand(),
             TaskCommand(),
@@ -137,7 +137,7 @@ private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks in 
     override fun run() = amperBackend.showTasks()
 }
 
-private class CheckCommand : CliktCommand(name = "check", help = "Run tests in the project") {
+private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
     val platform by platformOption()
     val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
     val module by option("-m", "--module", help = "specific module to check, the option could be repeated to check several modules")
@@ -154,7 +154,7 @@ private class CheckCommand : CliktCommand(name = "check", help = "Run tests in t
     }
 }
 
-private class CompileCommand : CliktCommand(name = "compile", help = "Compile and link all code in the project") {
+private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
     val platform by platformOption()
     val amperBackend by requireObject<AmperBackend>()
     override fun run() = amperBackend.compile(platforms = if (platform.isEmpty()) null else platform.toSet())
