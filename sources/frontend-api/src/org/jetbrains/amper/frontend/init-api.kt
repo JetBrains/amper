@@ -12,7 +12,9 @@ import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.flatMap
 import org.jetbrains.amper.core.getOrNull
 import org.jetbrains.amper.core.map
+import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Template
@@ -31,7 +33,14 @@ interface ModelInit {
         fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
-                problemReporter.reportError(FrontendApiBundle.message("no.model.init.service.found"), "no.model.init.service.found", GlobalBuildProblemSource)
+                problemReporter.reportMessage(
+                    BuildProblem(
+                        buildProblemId = "no.model.init.service.found",
+                        source = GlobalBuildProblemSource,
+                        message = FrontendApiBundle.message("no.model.init.service.found"),
+                        level = Level.Fatal,
+                    )
+                )
                 return amperFailure()
             }
 
@@ -41,7 +50,14 @@ interface ModelInit {
 //                ?: "plain"
             val service = services[modelName]
             return if (service == null) {
-                problemReporter.reportError(FrontendApiBundle.message("model.not.found", modelName), "model.not.found", GlobalBuildProblemSource)
+                problemReporter.reportMessage(
+                    BuildProblem(
+                        buildProblemId = "model.not.found",
+                        source = GlobalBuildProblemSource,
+                        message = FrontendApiBundle.message("model.not.found", modelName),
+                        level = Level.Fatal,
+                    )
+                )
                 amperFailure()
             } else {
                 Result.success(service)

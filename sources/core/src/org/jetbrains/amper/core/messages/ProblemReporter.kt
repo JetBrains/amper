@@ -13,14 +13,6 @@ interface ProblemReporter {
     val hasFatal: Boolean
 
     fun reportMessage(message: BuildProblem)
-
-    fun reportError(message: String, buildProblemId: BuildProblemId, source: BuildProblemSource) =
-        reportMessage(BuildProblem(
-            buildProblemId = buildProblemId,
-            source = source,
-            message = message,
-            level = Level.Error,
-        ))
 }
 
 interface ProblemReporterContext {
