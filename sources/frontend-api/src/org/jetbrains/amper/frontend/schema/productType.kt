@@ -133,6 +133,6 @@ class ModuleProduct : SchemaNode() {
 
 const val productShortForm = """
   {
-    "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app"]
+    "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
   }
 """
