@@ -14,7 +14,7 @@ dependencies:
   - ../frontend/schema
   - ../dependency-resolution
   - ../android-integration/runner
-  - ../android-integration/dependency-resolution
+  - ../android-integration/android-dependency-resolution
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - org.jetbrains.kotlin:kotlin-build-tools-api:1.9.22
   - org.slf4j:slf4j-api:2.0.9
