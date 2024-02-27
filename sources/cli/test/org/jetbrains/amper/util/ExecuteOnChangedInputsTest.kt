@@ -55,6 +55,35 @@ class ExecuteOnChangedInputsTest {
     }
 
     @Test
+    fun changeAmperBuildNumber() {
+        val file = tempDir.resolve("file.txt").also { it.writeText("a") }
+
+        fun call(amperBuild: String) = runBlocking {
+            ExecuteOnChangedInputs(AmperBuildOutputRoot(tempDir), currentAmperBuildNumber = amperBuild).execute(
+                "1", emptyMap(), listOf(file)) {
+                executionsCount.incrementAndGet()
+                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+            }
+        }
+
+        // initial
+        call("1")
+        assertEquals(executionsCount.get(), 1)
+
+        // up-to-date
+        call("1")
+        assertEquals(executionsCount.get(), 1)
+
+        // changed
+        call("2")
+        assertEquals(executionsCount.get(), 2)
+
+        // up-to-date
+        call("2")
+        assertEquals(executionsCount.get(), 2)
+    }
+
+    @Test
     fun trackingFileInSubdirectory() {
         val dir = tempDir.resolve("dir").also { it.createDirectories() }
         val file = dir.resolve("file.txt")
@@ -76,6 +105,36 @@ class ExecuteOnChangedInputsTest {
 
         // changed
         file.writeText("1")
+        call()
+        assertEquals(executionsCount.get(), 2)
+
+        // up-to-date
+        call()
+        assertEquals(executionsCount.get(), 2)
+    }
+
+    @Test
+    fun trackingEmptyDirectories() {
+        val dir = tempDir.resolve("dir").also { it.createDirectories() }
+        val subdir = dir.resolve("subdir")
+
+        fun call() = runBlocking {
+            executeOnChanged.execute("1", emptyMap(), listOf(dir)) {
+                executionsCount.incrementAndGet()
+                ExecuteOnChangedInputs.ExecutionResult(emptyList())
+            }
+        }
+
+        // initial, MISSING state
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // up-to-date, subdir is still MISSING
+        call()
+        assertEquals(executionsCount.get(), 1)
+
+        // changed
+        subdir.createDirectories()
         call()
         assertEquals(executionsCount.get(), 2)
 

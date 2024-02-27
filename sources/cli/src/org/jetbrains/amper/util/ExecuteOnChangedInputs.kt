@@ -2,30 +2,46 @@
  * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("BlockingMethodInNonBlockingContext")
+@file:Suppress("BlockingMethodInNonBlockingContext", "LoggingStringTemplateAsArgument")
 
 package org.jetbrains.amper.util
 
 import com.google.common.hash.Hashing
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.core.AmperBuild
 import org.slf4j.LoggerFactory
+import java.io.IOException
+import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFileAttributes
-import java.util.*
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.bufferedReader
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.outputStream
+import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
-import kotlin.io.path.walk
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import kotlin.time.measureTimedValue
 
-class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
+class ExecuteOnChangedInputs(
+    buildOutputRoot: AmperBuildOutputRoot,
+    private val currentAmperBuildNumber: String = AmperBuild.BuildNumber,
+) {
     private val stateRoot = buildOutputRoot.path.resolve("incremental.state")
-    private val stateFileFormatVersion = 1
+
+    // increment this counter if you change the state file format
+    private val stateFileFormatVersion = 2
 
     suspend fun execute(
         id: String,
@@ -34,9 +50,11 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         block: suspend () -> ExecutionResult
     ): ExecutionResult {
         Files.createDirectories(stateRoot)
+
+        // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
         val stateFile = stateRoot.resolve(
             id.replace(Regex("[^a-zA-Z0-9]"), "_") +
-                    "-" + Hashing.sha256().hashString(id, Charsets.UTF_8).toString().take(10))
+                    "-" + Hashing.sha256().hashString("$id\nstate format version: $stateFileFormatVersion", Charsets.UTF_8).toString().take(10))
 
         val (existingResult, cacheCheckTime) = measureTimedValue {
             getCachedResult(stateFile, configuration, inputs)
@@ -53,7 +71,7 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
 
         logger.info("INC: built '$id' in $buildTime")
 
-        writeStateFile(id, stateFile, configuration, inputs, result)
+        writeStateFile(stateFile, configuration, inputs, result)
 
         // TODO remove this check later or hide under debug/assert mode
         ensureStateFileIsConsistent(stateFile, configuration, inputs, result)
@@ -61,23 +79,48 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
         return result
     }
 
-    private fun writeStateFile(id: String, stateFile: Path, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
-        val properties = Properties()
+    private fun writeStateFile(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
+        val state = State(
+            amperBuild = currentAmperBuildNumber,
+            configuration = configuration,
+            inputs = inputs.map { it.pathString }.toSet(),
+            inputsState = getPathListState(inputs, failOnMissing = false),
+            outputs = result.outputs.map { it.pathString }.toSet(),
+            outputsState = getPathListState(result.outputs, failOnMissing = true),
+            outputProperties = result.outputProperties,
+        )
 
-        properties["version"] = stateFileFormatVersion.toString()
-        properties["configuration"] = configuration.entries.sortedBy { it.key }.joinToString("\n") { "${it.key}=${it.value}" }
-        properties["inputs.list"] = inputs.sorted().joinToString("\n")
-        properties["inputs"] = getPathListState(inputs, failOnMissing = false)
-        properties["outputs.list"] = result.outputs.joinToString("\n")
-        properties["outputs"] = getPathListState(result.outputs, failOnMissing = true)
-        for ((key, value) in result.outputProperties.entries.sortedBy { it.key }) {
-            check(key.isNotEmpty())
-            check(key.trim() == key)
-            properties[OUTPUT_PROPERTIES_MAP_PREFIX + key] = value
+        stateFile.writeText(jsonSerializer.encodeToString(state))
+    }
+
+    object SortedMapSerializer: KSerializer<Map<String, String>> {
+        private val mapSerializer = MapSerializer(String.serializer(), String.serializer())
+
+        override val descriptor: SerialDescriptor = mapSerializer.descriptor
+
+        override fun serialize(encoder: Encoder, value: Map<String, String>) {
+            mapSerializer.serialize(encoder, value.toSortedMap())
         }
 
-        stateFile.outputStream().buffered().use { properties.store(it, id) }
+        override fun deserialize(decoder: Decoder): Map<String, String> {
+            return mapSerializer.deserialize(decoder)
+        }
     }
+
+    @Serializable
+    private data class State(
+        val amperBuild: String,
+        @Serializable(with = SortedMapSerializer::class)
+        val configuration: Map<String, String>,
+        val inputs: Set<String>,
+        @Serializable(with = SortedMapSerializer::class)
+        val inputsState: Map<String, String>,
+        val outputs: Set<String>,
+        @Serializable(with = SortedMapSerializer::class)
+        val outputsState: Map<String, String>,
+        @Serializable(with = SortedMapSerializer::class)
+        val outputProperties: Map<String, String>,
+    )
 
     private fun ensureStateFileIsConsistent(
         stateFile: Path,
@@ -87,7 +130,10 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     ) {
         try {
             val r = getCachedResult(stateFile, configuration, inputs)
-                ?: error("Not up-to-date after successfully writing a state file: $stateFile")
+                ?: error("Not up-to-date after successfully writing a state file: $stateFile\n" +
+                         "--- BEGIN $stateFile\n" +
+                         stateFile.readText().ensureEndsWith("\n") +
+                         "--- END $stateFile")
 
             if (r.outputs != result.outputs) {
                 error(
@@ -109,100 +155,143 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
             return null
         }
 
-        val properties = Properties()
-        stateFile.bufferedReader().use { properties.load(it) }
-        if (properties.getProperty("version") != stateFileFormatVersion.toString()) {
-            logger.debug("INC: state file has a wrong version at '{}' -> rebuilding", stateFile)
+        val stateText = try {
+            stateFile.readText()
+        } catch (t: Throwable) {
+            logger.warn("INC: Unable to read state file '$stateFile' -> rebuilding", t)
             return null
         }
 
-        val oldConfiguration = properties.getProperty("configuration")
-        val newConfiguration = configuration.entries.sortedBy { it.key }.joinToString("\n") { "${it.key}=${it.value}" }
-        if (oldConfiguration != newConfiguration) {
+        val state = try {
+            jsonSerializer.decodeFromString<State>(stateText)
+        } catch (t: Throwable) {
+            logger.warn("INC: Unable to deserialize state file '$stateFile' -> rebuilding", t)
+            return null
+        }
+
+        if (state.amperBuild != currentAmperBuildNumber) {
+            logger.info(
+                "INC: State file '$stateFile' has a different Amper build number -> rebuilding\n" +
+                        "old: ${state.amperBuild}\n" +
+                        "current: $currentAmperBuildNumber"
+            )
+            return null
+        }
+
+        if (state.configuration != configuration) {
+            // TODO better reporting what was exactly changed
             logger.debug(
                 "INC: state file has a wrong configuration at '$stateFile' -> rebuilding\n" +
-                        "  old: ${oldConfiguration}\n" +
-                        "  new: $newConfiguration"
+                        "  old: ${state.configuration}\n" +
+                        "  new: $configuration"
             )
             return null
         }
 
-        val oldInputsList = properties.getProperty("inputs.list")
-        val newInputsList = inputs.sorted().joinToString("\n")
-        if (oldInputsList != newInputsList) {
+        val inputPaths = inputs.map { it.pathString }.toSet()
+        if (state.inputs != inputPaths) {
             logger.debug(
                 "INC: state file has a wrong inputs list at '$stateFile' -> rebuilding\n" +
-                        "  old: ${oldInputsList}\n" +
-                        "  new: $newInputsList"
+                        "  old: ${state.inputs.sorted()}\n" +
+                        "  new: ${inputPaths.sorted()}"
             )
             return null
         }
 
-        val oldInputs = properties.getProperty("inputs")
-        val newInputs = getPathListState(inputs, failOnMissing = false)
-        if (oldInputs != newInputs) {
+        val currentInputsState = getPathListState(inputs, failOnMissing = false)
+        if (state.inputsState != currentInputsState) {
             logger.debug(
                 "INC: state file has a wrong inputs at '$stateFile' -> rebuilding\n" +
-                        "  old: ${oldInputs}\n" +
-                        "  new: $newInputs"
+                        "  old: ${state.inputsState}\n" +
+                        "  new: $currentInputsState"
             )
             return null
         }
 
-        val outputsListString = properties.getProperty("outputs.list") ?: ""
-        val outputsList = if (outputsListString.isEmpty()) emptyList() else outputsListString
-            .split("\n")
-            .map { Path.of(it) }
-        val oldOutputs = properties.getProperty("outputs")
-        val newOutputs = getPathListState(outputsList, failOnMissing = false)
-        if (oldOutputs != newOutputs) {
+        val outputsList = state.outputs.map { Path.of(it) }
+        val currentOutputsState = getPathListState(outputsList, failOnMissing = false)
+        if (state.outputsState != currentOutputsState) {
             logger.debug(
                 "INC: state file has a wrong outputs at '$stateFile' -> rebuilding\n" +
-                        "  old: ${oldOutputs}\n" +
-                        "  new: $newOutputs"
+                        "  old: ${state.outputsState}\n" +
+                        "  new: $currentOutputsState"
             )
             return null
         }
 
-        val map = properties.stringPropertyNames()
-            .filter { it.startsWith(OUTPUT_PROPERTIES_MAP_PREFIX) }
-            .associate { it.removePrefix(OUTPUT_PROPERTIES_MAP_PREFIX) to properties.getProperty(it) }
-
-        return ExecutionResult(outputs = outputsList, outputProperties = map)
+        return ExecutionResult(outputs = outputsList, outputProperties = state.outputProperties)
     }
 
-    @OptIn(ExperimentalPathApi::class)
-    private fun getPathListState(paths: List<Path>, failOnMissing: Boolean): String {
-        val lines = mutableListOf<String>()
+    private fun getPathListState(paths: List<Path>, failOnMissing: Boolean): Map<String, String> {
+        val files = mutableMapOf<String, String>()
 
         fun addFile(path: Path, attr: BasicFileAttributes?) {
             if (attr == null) {
                 if (failOnMissing) {
                     throw NoSuchFileException(file = path.toFile(), reason = "path from outputs is not found")
                 } else {
-                    lines.add("$path MISSING")
+                    files[path.pathString] = "MISSING"
                 }
             } else {
                 val posixPart = if (attr is PosixFileAttributes) {
                     " mode ${PosixUtil.toUnixMode(attr.permissions())} owner ${attr.owner().name} group ${attr.group().name}"
                 } else ""
-                lines.add("$path size ${attr.size()} mtime ${attr.lastModifiedTime()}$posixPart")
+                files[path.pathString] = "size ${attr.size()} mtime ${attr.lastModifiedTime()}$posixPart"
             }
         }
 
         for (path in paths) {
+            check(path.isAbsolute) {
+                "Path must be absolute: $path"
+            }
+
             val attr: BasicFileAttributes? = getAttributes(path)
             if (attr?.isDirectory == true) {
                 // TODO this walk could be multi-threaded, it's trivial to implement with coroutines
-                for (sub in path.walk()) {
-                    addFile(sub, getAttributes(sub))
+
+                fun processDirectory(current: Path) {
+                    var childrenCount = 0
+
+                    // Use Files.walkFileTree to get both file name AND file attributes at the same time
+                    // This will be much faster on OSes where you can get both, e.g., Windows
+                    Files.walkFileTree(current, emptySet(), Int.MAX_VALUE, object : SimpleFileVisitor<Path>() {
+                        override fun preVisitDirectory(subdir: Path, attrs: BasicFileAttributes): FileVisitResult {
+                            if (current == subdir) return FileVisitResult.CONTINUE
+
+                            childrenCount += 1
+                            processDirectory(subdir)
+                            return FileVisitResult.SKIP_SUBTREE
+                        }
+
+                        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                            childrenCount += 1
+
+                            addFile(file, attrs)
+
+                            return FileVisitResult.CONTINUE
+                        }
+
+                        override fun postVisitDirectory(dir: Path?, exc: IOException?): FileVisitResult {
+                            if (exc != null) {
+                                throw exc
+                            }
+
+                            return FileVisitResult.CONTINUE
+                        }
+                    })
+
+                    if (childrenCount == 0) {
+                        files[current.pathString] = "EMPTY DIR"
+                    }
                 }
+
+                processDirectory(path)
             } else {
                 addFile(path, attr)
             }
         }
 
-        return lines.sorted().joinToString("\n")
+        return files
     }
 
     private fun getAttributes(path: Path): BasicFileAttributes? {
@@ -222,7 +311,10 @@ class ExecuteOnChangedInputs(buildOutputRoot: AmperBuildOutputRoot) {
     class ExecutionResult(val outputs: List<Path>, val outputProperties: Map<String, String> = emptyMap())
 
     companion object {
-        private const val OUTPUT_PROPERTIES_MAP_PREFIX = "outputs.map."
         private val logger = LoggerFactory.getLogger(ExecuteOnChangedInputs::class.java)
+
+        private val jsonSerializer = Json {
+            prettyPrint = true
+        }
     }
 }
