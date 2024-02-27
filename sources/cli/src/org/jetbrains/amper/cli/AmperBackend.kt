@@ -15,6 +15,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.RunTask
@@ -48,6 +49,13 @@ class AmperBackend(val context: ProjectContext) {
 
             if (problemReporter.wereProblemsReported()) {
                 userReadableError("failed to build tasks graph, refer to the errors above")
+            }
+
+            for ((moduleUserReadableName, moduleList) in model.modules.groupBy { it.userReadableName }) {
+                if (moduleList.size > 1) {
+                    userReadableError("Module name '${moduleUserReadableName}' is not unique, it's declared in " +
+                    moduleList.joinToString(" ") { (it.source as? PotatoModuleFileSource)?.buildFile?.toString() ?: "" })
+                }
             }
 
             model
