@@ -32,7 +32,7 @@ class AmperBackendTest : IntegrationTestBase() {
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
-        assertTrue(stdout.contains("Hello from test method"), stdout)
+        assertTrue(stdout.contains("Hello from test method, JavaString"), stdout)
 
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
         assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)

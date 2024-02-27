@@ -33,7 +33,8 @@ internal fun kotlinCompilerArgs(
     classpath: List<Path>,
     compilerPlugins: List<Path>,
     jdkHome: Path,
-    outputPath: Path
+    outputPath: Path,
+    friendlyClasspath: List<Path>,
 ): List<String> = buildList {
     if (isMultiplatform) {
         add("-Xmulti-platform")
@@ -79,6 +80,11 @@ internal fun kotlinCompilerArgs(
     }
     compilerPlugins.forEach {
         add("-Xplugin=$it")
+    }
+    if (friendlyClasspath.isNotEmpty()) {
+        // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators
+        // https://github.com/JetBrains/kotlin/blob/4964ee12a994bc846ecdb4810486aaf659be00db/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L531
+        add("-Xfriend-paths=${friendlyClasspath.joinToString(",")}")
     }
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)

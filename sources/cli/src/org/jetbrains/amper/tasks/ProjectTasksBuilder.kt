@@ -147,6 +147,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             val top = platform.topmostParentNoCommon
                             val jvmCompileTask = JvmCompileTask(
                                 module = module,
+                                isTest = isTest,
                                 fragments = fragments,
                                 userCacheRoot = context.userCacheRoot,
                                 projectRoot = context.projectRoot,

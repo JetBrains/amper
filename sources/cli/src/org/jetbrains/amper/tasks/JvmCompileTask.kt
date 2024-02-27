@@ -46,6 +46,7 @@ import kotlin.io.path.walk
 @OptIn(ExperimentalBuildToolsApi::class)
 class JvmCompileTask(
     private val module: PotatoModule,
+    private val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
@@ -59,12 +60,10 @@ class JvmCompileTask(
     override val platform: Platform = Platform.JVM
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        if (fragments.isEmpty()) {
-            // TODO maybe this should be handled during the task graph construction.
-            //  (e.g. should we really add a useless task to the graph?)
-            logger.warn("Module '${module.userReadableName}' has no JVM fragments to compile, skipping JVM compilation")
-            return TaskResult(classesOutputRoot = taskOutputRoot.path, dependencies = dependenciesResult)
+        require(fragments.isNotEmpty()) {
+            "fragments list is empty for jvm compile task, module=${module.userReadableName}"
         }
+
         logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
 
         val mavenDependencies = dependenciesResult
@@ -73,6 +72,11 @@ class JvmCompileTask(
             ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
         val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
+
+        val productionJvmCompileResult = if (isTest) {
+            immediateDependencies.firstOrNull { it.module == module && !it.isTest }
+                ?: error("jvm compilation result from production compilation result was not found for module=${module.userReadableName}, task=$taskName")
+        } else null
 
         val kotlinUserSettings = fragments.mergedKotlinSettings()
 
@@ -107,7 +111,13 @@ class JvmCompileTask(
                 }
 
             if (presentSources.isNotEmpty()) {
-                compileSources(presentSources, kotlinVersion, kotlinUserSettings, classpath)
+                compileSources(
+                    sourceDirectories = presentSources,
+                    kotlinVersion = kotlinVersion,
+                    kotlinUserSettings = kotlinUserSettings,
+                    classpath = classpath,
+                    friendlyClasspath = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
+                )
             } else {
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
             }
@@ -127,6 +137,8 @@ class JvmCompileTask(
         return TaskResult(
             classesOutputRoot = taskOutputRoot.path,
             dependencies = dependenciesResult,
+            module = module,
+            isTest = isTest,
         )
     }
 
@@ -167,8 +179,16 @@ class JvmCompileTask(
         sourceDirectories: List<Path>,
         kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
-        classpath: List<Path>
+        classpath: List<Path>,
+        friendlyClasspath: List<Path>,
     ) {
+        for (friendlyClasspathElement in friendlyClasspath) {
+            require(classpath.contains(friendlyClasspathElement)) {
+                "Classpath must contain all friendly classpath element. " +
+                        "'$friendlyClasspathElement' is not in '${classpath.joinToString(File.pathSeparator)}'"
+            }
+        }
+
         val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
 
         val sourcesFiles = sourceDirectories.flatMap { it.walk() }
@@ -189,6 +209,7 @@ class JvmCompileTask(
                 classpath = classpath,
                 jdkHome = jdkHome,
                 sourceFiles = sourceDirectories,
+                friendlyClasspath = friendlyClasspath,
             )
             if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
                 userReadableError("Kotlin compilation failed (see errors above)")
@@ -216,6 +237,7 @@ class JvmCompileTask(
         classpath: List<Path>,
         jdkHome: Path,
         sourceFiles: List<Path>,
+        friendlyClasspath: List<Path>,
     ): CompilationResult {
         // TODO should we download this in a separate task?
         val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinCompilerDownloader)
@@ -244,6 +266,7 @@ class JvmCompileTask(
             jdkHome = jdkHome,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
+            friendlyClasspath = friendlyClasspath,
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
@@ -299,6 +322,8 @@ class JvmCompileTask(
     class TaskResult(
         override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
         val classesOutputRoot: Path?,
+        val module: PotatoModule,
+        val isTest: Boolean,
     ) : org.jetbrains.amper.tasks.TaskResult
 
     class AdditionalClasspathProviderTaskResult(
