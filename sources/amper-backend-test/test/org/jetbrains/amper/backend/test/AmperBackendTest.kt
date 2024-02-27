@@ -37,10 +37,10 @@ class AmperBackendTest : IntegrationTestBase() {
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
         assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
 
-        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-kotlin-test-smoke_testJvm/reports/TEST-junit-jupiter.xml")
+        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-kotlin-test-smoke_testJvm/reports/TEST-junit-vintage.xml")
             .readText()
 
-        assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
+        assertTrue(xmlReport.contains("<testcase name=\"smoke\" classname=\"apkg.ATest\""), xmlReport)
     }
 
     @Test
