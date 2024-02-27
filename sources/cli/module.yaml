@@ -45,6 +45,7 @@ dependencies:
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.jetbrains.kotlinx:atomicfu:0.23.1
   - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
+  - org.jetbrains.intellij.deps:async-profiler:3.0-1
 
 test-dependencies:
   - ../test-base

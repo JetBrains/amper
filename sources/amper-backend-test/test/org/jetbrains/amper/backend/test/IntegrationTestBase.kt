@@ -16,8 +16,6 @@ import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
@@ -69,11 +67,10 @@ abstract class IntegrationTestBase {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
-        return ProjectContext(
-            projectRoot = AmperProjectRoot(projectRoot),
-            projectTempRoot = AmperProjectTempRoot(tempRoot.resolve("projectTemp")),
+        return ProjectContext.create(
+            projectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("buildOutput")),
+            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("build")),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
         )
     }

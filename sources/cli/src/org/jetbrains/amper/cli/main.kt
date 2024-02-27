@@ -50,6 +50,8 @@ private class RootCommand : CliktCommand(name = "amper") {
 
     val debug by option(help = "Enable debug output").flag(default = false)
 
+    val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
+
     val buildOutputRoot by option(
         "--build-output",
         help = "Build output root. 'build' directory under project root by default"
@@ -66,14 +68,15 @@ private class RootCommand : CliktCommand(name = "amper") {
         val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
         provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)
 
-        val buildOutput = buildOutputRoot ?: root.resolve("build")
-        val projectContext = ProjectContext(
-            projectRoot = AmperProjectRoot(root),
-            buildOutputRoot = AmperBuildOutputRoot(buildOutput),
-            projectTempRoot = AmperProjectTempRoot(buildOutput.resolve("temp")),
-            userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
-            commonRunSettings = CommonRunSettings(),
+        val projectContext = ProjectContext.create(
+            projectRoot = root,
+            buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it) },
         )
+
+        if (asyncProfiler) {
+            AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
+        }
+
         val backend = AmperBackend(context = projectContext)
         currentContext.obj = backend
     }
@@ -126,7 +129,9 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
         val commonRunSettings = CommonRunSettings(programArgs = programArguments)
-        val amperBackendWithRunSettings = AmperBackend(context = amperBackend.context.copy(commonRunSettings = commonRunSettings))
+        val amperBackendWithRunSettings = AmperBackend(
+            context = amperBackend.context.withCommonRunSettings(commonRunSettings),
+        )
         val buildType = buildType?.let { BuildType.byValue(it) }?: BuildType.Debug
         amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
     }

@@ -14,25 +14,43 @@ import org.jetbrains.amper.util.OS.Type.Windows
 import java.nio.file.Path
 import kotlin.io.path.div
 
-data class ProjectContext(
+class ProjectContext(
     val projectRoot: AmperProjectRoot,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
     // in the future it'll be customizable to support out-of-tree builds, e.g., on CI
     val buildOutputRoot: AmperBuildOutputRoot,
+    val buildLogsRoot: AmperBuildLogsRoot,
     val commonRunSettings: CommonRunSettings,
 ) {
     companion object {
-        fun create(projectRoot: Path, commonRunSettings: CommonRunSettings): ProjectContext {
+        fun create(
+            projectRoot: Path,
+            commonRunSettings: CommonRunSettings = CommonRunSettings(),
+            buildOutputRoot: AmperBuildOutputRoot? = null,
+            userCacheRoot: AmperUserCacheRoot? = null,
+        ): ProjectContext {
+            val buildOutputRootNotNull = buildOutputRoot ?: AmperBuildOutputRoot(projectRoot.resolve("build"))
+            val userCacheRootNotNull = userCacheRoot ?: AmperUserCacheRoot.fromCurrentUser()
             return ProjectContext(
                 projectRoot = AmperProjectRoot(projectRoot),
-                buildOutputRoot = AmperBuildOutputRoot(projectRoot.resolve("build")),
-                projectTempRoot = AmperProjectTempRoot(projectRoot.resolve("build/temp-temp")),
-                userCacheRoot = AmperUserCacheRoot.fromCurrentUser(),
+                buildOutputRoot = buildOutputRootNotNull,
+                projectTempRoot = AmperProjectTempRoot(buildOutputRootNotNull.path.resolve("temp")),
+                buildLogsRoot = AmperBuildLogsRoot(buildOutputRootNotNull.path.resolve("logs")),
+                userCacheRoot = userCacheRootNotNull,
                 commonRunSettings = commonRunSettings,
             )
         }
     }
+
+    fun withCommonRunSettings(commonRunSettings: CommonRunSettings) = ProjectContext(
+        projectRoot = projectRoot,
+        userCacheRoot = userCacheRoot,
+        projectTempRoot = projectTempRoot,
+        buildOutputRoot = buildOutputRoot,
+        buildLogsRoot = buildLogsRoot,
+        commonRunSettings = commonRunSettings,
+    )
 }
 
 data class AmperUserCacheRoot(val path: Path) {
@@ -57,5 +75,6 @@ data class AmperUserCacheRoot(val path: Path) {
 }
 
 data class AmperBuildOutputRoot(val path: Path)
+data class AmperBuildLogsRoot(val path: Path)
 data class AmperProjectTempRoot(val path: Path)
 data class AmperProjectRoot(val path: Path)
