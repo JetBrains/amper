@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.io.path.fileSize
 import kotlin.io.path.relativeTo
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -137,6 +138,32 @@ class MavenResolverTest {
         assertEquals(
             "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
             t.message
+        )
+    }
+
+    @Test
+    @Ignore
+    // AMPER-395 DR: Unable to resolve gradle-tooling-api
+    fun unableToResolveGradleToolingApiInCompileScope() {
+        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+
+        // TODO find a smaller example of maven central artifact with runtime-scoped dependencies
+        val result = runBlocking {
+            resolver.resolve(
+                coordinates = listOf("org.gradle:gradle-tooling-api:8.4"),
+                repositories = listOf(
+                    "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2",
+                    "https://repo.gradle.org/gradle/libs-releases",
+                ),
+                scope = ResolutionScope.COMPILE,
+            )
+        }
+        val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
+        assertEquals(
+            """
+                whatever
+            """.trimIndent(),
+            relative.joinToString("\n")
         )
     }
 
