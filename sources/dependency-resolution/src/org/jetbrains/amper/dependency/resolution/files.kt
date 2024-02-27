@@ -240,6 +240,7 @@ open class DependencyFile(
                 "Unable to save downloaded file",
                 e.toString(),
                 Severity.ERROR,
+                e,
             )
             return@withContext false
         } finally {
@@ -494,6 +495,7 @@ open class DependencyFile(
                 "Unable to reach $url",
                 e.toString(),
                 Severity.ERROR,
+                e,
             )
         }
         return false

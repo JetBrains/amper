@@ -132,6 +132,7 @@ data class Message(
     val text: String,
     val extra: String = "",
     val severity: Severity = Severity.INFO,
+    val exception: Throwable? = null,
 )
 
 enum class Severity {

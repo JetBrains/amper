@@ -232,6 +232,7 @@ class MavenDependency internal constructor(
                 "Unable to parse metadata file $metadata",
                 e.toString(),
                 Severity.ERROR,
+                e,
             )
             return
         }
@@ -304,6 +305,7 @@ class MavenDependency internal constructor(
                 "Unable to parse pom file ${this.pom}",
                 e.toString(),
                 Severity.ERROR,
+                e,
             )
             return
         }

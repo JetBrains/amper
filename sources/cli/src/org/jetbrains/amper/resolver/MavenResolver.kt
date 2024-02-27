@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
+import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
@@ -71,7 +72,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 resolver.downloadDependencies()
 
                 val files = mutableSetOf<Path>()
-                val errors = mutableListOf<String>()
+                val errors = mutableListOf<Message>()
                 for (node in resolver.root.asSequence()) {
                     if (node is MavenDependencyNode) {
                         node.dependency
@@ -83,19 +84,24 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     }
                     node.messages
                         .filter { it.severity == Severity.ERROR }
-                        .map { "${it.text} (${it.extra})" }
                         .toCollection(errors)
                 }
                 if (errors.isNotEmpty()) {
-                    throw MavenResolverException(errors.first()).apply {
-                        errors.drop(1).map { MavenResolverException(it) }.forEach { addSuppressed(it) }
+                    val first = errors.first()
+                    throw MavenResolverException(first.message, first.exception).apply {
+                        errors.drop(1).map {
+                            MavenResolverException(it.message, it.exception)
+                        }.forEach { addSuppressed(it) }
                     }
                 }
                 files
             }
         }
 
+    private val Message.message: String
+        get() = "$text ($extra)"
+
     private val logger = LoggerFactory.getLogger(javaClass)
 }
 
-class MavenResolverException(message: String) : RuntimeException(message)
+class MavenResolverException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
