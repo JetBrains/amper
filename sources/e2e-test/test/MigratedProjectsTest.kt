@@ -51,8 +51,11 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithP
      *
      * Caused by: java.lang.AssertionError
      * 	 at com.android.tools.r8.synthesis.F.b(R8_8.1.56_756d1f50f618dd1c39c000f11defb367a21e9e866e3401b884be16c0950f6f79:27)
+     *
+     * Flaky on CI: org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':shared:testReleaseUnitTest'.
      */
     @Test
+    @Ignore
     fun `KaMPKit build successful`() = test(
         projectName = "KaMPKit",
         "build",
