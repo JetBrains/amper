@@ -11,6 +11,7 @@ import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
 import org.jetbrains.amper.frontend.IntelliJApplicationConfigurator
@@ -49,6 +50,8 @@ fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigur
 
   intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
   intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
+
+  Registry.markAsLoaded()
 
   latestConfigurator = intelliJApplicationConfigurator
   return projectEnv.project.also { ourProject = it }
