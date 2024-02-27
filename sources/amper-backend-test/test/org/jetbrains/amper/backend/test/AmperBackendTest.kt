@@ -68,6 +68,17 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `jvm test fragment dependencies`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("jvm-test-fragment-dependencies")
+        AmperBackend(projectContext).runTask(TaskName(":root:testJvm"))
+
+        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
+
+        assertTrue(stdout.contains("FromExternalDependencies:OneTwo FromProject:MyUtil"), stdout)
+    }
+
+    @Test
     fun `do not call kotlinc again if sources were not changed`() = runTestInfinitely {
         val projectContext = setupTestDataProject("language-version")
 

@@ -52,7 +52,11 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 for (isTest in listOf(false, true)) {
                     val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
-                    val fragmentsCompileModuleDependencies = fragments
+                    // in case of production code only production fragments
+                    // in case of tests both production and test fragments
+                    val fragmentsIncludeProduction = module.fragments.filter { (isTest || !it.isTest) && it.platforms.contains(platform) }
+
+                    val fragmentsCompileModuleDependencies = fragmentsIncludeProduction
                         .flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }
                         .mapNotNull { (fragment, dependency) ->
                             when (dependency) {
@@ -87,7 +91,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             context.userCacheRoot,
                             executeOnChangedInputs,
                             platform = platform,
-                            fragments = fragments,
+                            // for test code, we resolve dependencies on union of test and prod dependencies
+                            fragments = fragmentsIncludeProduction,
                             fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
                             taskName = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest = isTest)
                         ).also { resolveTask ->

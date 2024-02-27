@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+dependencies:
+  - ../utils
+  - org.apache.commons:commons-text:1.11.0
+
