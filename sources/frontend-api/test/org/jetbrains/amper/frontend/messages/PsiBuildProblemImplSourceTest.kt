@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class PsiBuildProblemSourceTest {
+class PsiBuildProblemImplSourceTest {
     private lateinit var project: Project
 
     @BeforeEach

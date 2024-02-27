@@ -14,7 +14,7 @@ import kotlin.test.Test
 class ProblemReporterRenderingTest {
     @Test
     fun `reporting problem without file`() {
-        val problem = BuildProblem(
+        val problem = BuildProblemImpl(
             buildProblemId = "test.message",
             source = GlobalBuildProblemSource,
             message = "Test message",
@@ -25,7 +25,7 @@ class ProblemReporterRenderingTest {
 
     @Test
     fun `reporting problem with file but no line`() {
-        val problem = BuildProblem(
+        val problem = BuildProblemImpl(
             buildProblemId = "test.message",
             source = TestFileProblemSource(Path("test.txt")),
             message = "Test message",
@@ -36,7 +36,7 @@ class ProblemReporterRenderingTest {
 
     @Test
     fun `reporting problem with file and line`() {
-        val problem = BuildProblem(
+        val problem = BuildProblemImpl(
             buildProblemId = "test.message",
             source = TestFileWithRangesProblemSource(
                 Path("test.txt"), range = LineAndColumnRange(
@@ -66,7 +66,7 @@ class ProblemReporterRenderingTest {
                 LineAndColumn(10, 15, null), LineAndColumn.NONE
             )
         )
-        val problem = BuildProblem(
+        val problem = BuildProblemImpl(
             buildProblemId = "test.message",
             source = MultipleLocationsBuildProblemSource(location1, location2, location3),
             message = "Test message",

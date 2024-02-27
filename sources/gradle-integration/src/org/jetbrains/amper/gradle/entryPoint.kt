@@ -9,8 +9,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.get
-import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.CollectingProblemReporter
+import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext

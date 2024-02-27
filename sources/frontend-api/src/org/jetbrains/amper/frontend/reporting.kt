@@ -6,7 +6,7 @@ package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
@@ -79,7 +79,7 @@ private fun reportError(
     buildProblemId: BuildProblemId,
 ): Nothing? {
     problemReporter.reportMessage(
-        BuildProblem(
+        BuildProblemImpl(
             buildProblemId,
             source = node?.let(::PsiBuildProblemSource) ?: GlobalBuildProblemSource,
             message,

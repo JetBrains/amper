@@ -4,16 +4,43 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
 import org.jetbrains.amper.frontend.ismVisitor.accept
-import org.jetbrains.amper.frontend.reportBundleError
+import org.jetbrains.amper.frontend.messages.PsiBuildProblem
+import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.Module
+import kotlin.reflect.KProperty0
 
-object AndroidVersionShouldBeAtLeastMinSdk : IsmDiagnosticFactory {
+class AndroidVersionShouldBeAtLeastMinSdk(
+    @UsedInIdePlugin
+    val versionProp: KProperty0<AndroidVersion>,
+    @UsedInIdePlugin
+    val minSdkVersion: AndroidVersion
+) : PsiBuildProblem(Level.Error) {
+    override val element: PsiElement
+        get() = versionProp.extractPsiElement()
+
+    override val buildProblemId: BuildProblemId =
+        AndroidVersionShouldBeAtLeastMinSdkFactory.diagnosticId
+
+    override val message: String
+        get() = SchemaBundle.message(
+            messageKey = buildProblemId,
+            versionProp.name,
+            versionProp.get().versionNumber,
+            minSdkVersion.versionNumber
+        )
+}
+
+object AndroidVersionShouldBeAtLeastMinSdkFactory : IsmDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
 
     context(ProblemReporterContext) override fun Module.analyze() {
@@ -26,12 +53,11 @@ object AndroidVersionShouldBeAtLeastMinSdk : IsmDiagnosticFactory {
             val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk)
             val smallerVersions = usedVersions.filter { it.get() < settings.minSdk }
             smallerVersions.forEach { versionProp ->
-                SchemaBundle.reportBundleError(
-                    property = versionProp,
-                    messageKey = diagnosticId,
-                    versionProp.name,
-                    versionProp.get().versionNumber,
-                    settings.minSdk.versionNumber
+                problemReporter.reportMessage(
+                    AndroidVersionShouldBeAtLeastMinSdk(
+                        versionProp,
+                        minSdkVersion = settings.minSdk,
+                    )
                 )
             }
         }

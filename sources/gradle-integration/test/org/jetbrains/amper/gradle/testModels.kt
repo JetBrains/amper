@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
-import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
@@ -60,7 +60,7 @@ object Models : ModelInit {
         val modelName = getMockModelName()
         if (modelName == null) {
             problemReporter.reportMessage(
-                BuildProblem(
+                BuildProblemImpl(
                     buildProblemId = "no.mock.model.name",
                     source = GlobalBuildProblemSource,
                     message = GradleTestBundle.message("no.mock.model.name", withDebug),
@@ -73,7 +73,7 @@ object Models : ModelInit {
         val modelHandle = modelsMap[modelName]
         if (modelHandle == null) {
             problemReporter.reportMessage(
-                BuildProblem(
+                BuildProblemImpl(
                     buildProblemId = "no.mock.model.found",
                     source = GlobalBuildProblemSource,
                     message = GradleTestBundle.message("no.mock.model.found", modelName),

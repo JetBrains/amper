@@ -12,7 +12,7 @@ import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.flatMap
 import org.jetbrains.amper.core.getOrNull
 import org.jetbrains.amper.core.map
-import org.jetbrains.amper.core.messages.BuildProblem
+import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
@@ -34,7 +34,7 @@ interface ModelInit {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportMessage(
-                    BuildProblem(
+                    BuildProblemImpl(
                         buildProblemId = "no.model.init.service.found",
                         source = GlobalBuildProblemSource,
                         message = FrontendApiBundle.message("no.model.init.service.found"),
@@ -51,7 +51,7 @@ interface ModelInit {
             val service = services[modelName]
             return if (service == null) {
                 problemReporter.reportMessage(
-                    BuildProblem(
+                    BuildProblemImpl(
                         buildProblemId = "model.not.found",
                         source = GlobalBuildProblemSource,
                         message = FrontendApiBundle.message("model.not.found", modelName),

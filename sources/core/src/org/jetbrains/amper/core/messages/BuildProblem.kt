@@ -70,12 +70,19 @@ interface FileWithRangesBuildProblemSource : FileBuildProblemSource {
     val offsetRange: IntRange
 }
 
-data class BuildProblem(
-    val buildProblemId: BuildProblemId,
-    val source: BuildProblemSource,
-    val message: String,
-    val level: Level,
-)
+interface BuildProblem {
+    val buildProblemId: BuildProblemId
+    val source: BuildProblemSource
+    val message: String
+    val level: Level
+}
+
+data class BuildProblemImpl(
+    override val buildProblemId: BuildProblemId,
+    override val source: BuildProblemSource,
+    override val message: String,
+    override val level: Level,
+) : BuildProblem
 
 data class LineAndColumn(val line: Int, val column: Int, val lineContent: String?) {
     companion object {
