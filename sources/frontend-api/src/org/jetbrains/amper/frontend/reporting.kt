@@ -13,6 +13,7 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.LineAndColumn
 import org.jetbrains.amper.core.messages.LineAndColumnRange
 import org.jetbrains.amper.core.messages.MessageBundle
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
@@ -70,6 +71,7 @@ fun MessageBundle.reportBundleError(
 )
 
 context(ProblemReporterContext)
+@OptIn(NonIdealDiagnostic::class)
 private fun reportError(
     message: String,
     level: Level = Level.Error,

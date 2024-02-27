@@ -9,6 +9,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
+import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
@@ -52,6 +53,7 @@ object Models : ModelInit {
     override val name = "test"
 
     context(ProblemReporterContext)
+    @OptIn(NonIdealDiagnostic::class)
     override fun getModel(root: Path, project: Project?): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {

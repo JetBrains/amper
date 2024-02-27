@@ -33,6 +33,7 @@ sealed interface BuildProblemSource
 /**
  * Use only when there is no way to pinpoint the cause of the problem inside the Amper files.
  */
+@NonIdealDiagnostic
 data object GlobalBuildProblemSource : BuildProblemSource
 
 /**

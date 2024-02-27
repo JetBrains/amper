@@ -10,6 +10,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.Test
 
+@OptIn(NonIdealDiagnostic::class)
 class ProblemReporterRenderingTest {
     @Test
     fun `reporting problem without file`() {

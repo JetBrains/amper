@@ -14,11 +14,6 @@ interface ProblemReporter {
 
     fun reportMessage(message: BuildProblem)
 
-    /**
-     * This method reports a diagnostic that doesn't point to a location in file. It is displayed in IDE as a bar
-     * on top of the file. Where possible, reportNodeError should be preferred, because it allows much more precise
-     * positioning of the highlighting
-     */
     fun reportError(message: String, buildProblemId: BuildProblemId, source: BuildProblemSource) =
         reportMessage(BuildProblem(
             buildProblemId = buildProblemId,
@@ -48,6 +43,7 @@ abstract class CollectingProblemReporter : ProblemReporter {
     }
 }
 
+@OptIn(NonIdealDiagnostic::class)
 fun renderMessage(problem: BuildProblem): String = buildString {
     fun appendSource(source: BuildProblemSource) {
         when (source) {
