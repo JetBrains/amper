@@ -17,6 +17,7 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.name
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
@@ -79,8 +80,12 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                             .files
                             .mapNotNull { it.getPath() }
                             .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
-                            .filter { it.toFile().exists() }
-                            .forEach { files.add(it) }
+                            .forEach { file ->
+                                check(file.exists()) {
+                                    "File '$file' was returned from dependency resolution, but is missing on disk"
+                                }
+                                files.add(file)
+                            }
                     }
                     node.messages
                         .filter { it.severity == Severity.ERROR }
