@@ -83,7 +83,7 @@ endlocal & set AMPER_JAVA_HOME=%AMPER_JAVA_HOME%
 
 pushd "%~dp0..\.."
 if errorlevel 1 goto fail
-call gradlew.bat --quiet :sources:cli:unpackedDistribution
+call gradlew.bat --stacktrace --quiet :sources:cli:unpackedDistribution
 if errorlevel 1 goto fail
 popd
 if errorlevel 1 goto fail

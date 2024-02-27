@@ -42,7 +42,7 @@ current_state() {
 up_to_date_file="$script_dir/build/up-to-date-from-sources-wrapper.txt"
 current="$(current_state)"
 if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ]; then
-  (cd "$script_dir/../.." && ./gradlew --quiet :sources:cli:unpackedDistribution)
+  (cd "$script_dir/../.." && ./gradlew --stacktrace --quiet :sources:cli:unpackedDistribution)
   current_state >"$up_to_date_file"
 fi
 
