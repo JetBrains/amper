@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-val IsmDiagnosticFactories = listOf(
+val IsmDiagnosticFactories: List<IsmDiagnosticFactory> = listOf(
     AndroidTooOldVersionFactory,
     AndroidVersionShouldBeAtLeastMinSdkFactory,
     LibShouldHavePlatforms,
