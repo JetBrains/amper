@@ -9,14 +9,13 @@ import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
-import org.jetbrains.amper.frontend.ismVisitor.accept
+import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
-import org.jetbrains.amper.frontend.schema.Module
 import kotlin.reflect.KProperty0
 
 class AndroidVersionShouldBeAtLeastMinSdk(
@@ -40,23 +39,23 @@ class AndroidVersionShouldBeAtLeastMinSdk(
         )
 }
 
-object AndroidVersionShouldBeAtLeastMinSdkFactory : IsmDiagnosticFactory {
+object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
 
-    context(ProblemReporterContext) override fun Module.analyze() {
-        accept(MyVisitor())
-    }
-
-    context(ProblemReporterContext)
-    private class MyVisitor : IsmVisitor {
-        override fun visitAndroidSettings(settings: AndroidSettings) {
+    context(ProblemReporterContext) override fun PotatoModule.analyze() {
+        val reportedPlaces = mutableSetOf<Trace?>()
+        fragments.forEach { fragment ->
+            val settings = fragment.settings.android
             val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk)
-            val smallerVersions = usedVersions.filter { it.get() < settings.minSdk }
-            smallerVersions.forEach { versionProp ->
+            val minSdkVersion = settings.minSdk
+            for (versionProp in usedVersions) {
+                if (versionProp.get() >= minSdkVersion) continue
+                if (!reportedPlaces.add(versionProp.valueBase?.trace)) continue
+
                 problemReporter.reportMessage(
                     AndroidVersionShouldBeAtLeastMinSdk(
                         versionProp,
-                        minSdkVersion = settings.minSdk,
+                        minSdkVersion = minSdkVersion,
                     )
                 )
             }

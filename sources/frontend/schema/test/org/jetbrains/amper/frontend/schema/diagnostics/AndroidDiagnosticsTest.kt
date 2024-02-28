@@ -20,4 +20,9 @@ class AndroidDiagnosticsTest : TestBase(Path("testResources") / "diagnostics" / 
     fun `test Android all versions are at least minSdk`() {
         diagnosticsTest("at-least-min-sdk")
     }
+
+    @Test
+    fun `test Android version is at least minSdk from different context`() {
+        diagnosticsTest("at-least-min-sdk-from-context")
+    }
 }
