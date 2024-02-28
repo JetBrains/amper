@@ -26,7 +26,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.core.util.StripedMutex
+import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.slf4j.LoggerFactory

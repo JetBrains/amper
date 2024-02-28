@@ -8,6 +8,7 @@ repositories:
     url: https://repo.gradle.org/gradle/libs-releases
 
 dependencies:
+  - ../concurrency
   - ../core
   - ../core-intellij
   - ../frontend-api: exported

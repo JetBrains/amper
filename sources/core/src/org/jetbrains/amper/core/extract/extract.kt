@@ -14,7 +14,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.input.CloseShieldInputStream
-import org.jetbrains.amper.core.util.StripedMutex
+import org.jetbrains.amper.concurrency.StripedMutex
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -127,7 +127,7 @@ suspend fun extractFileWithFlag(
 
 private suspend fun StripedMutex.withDoubleLock(hash: Int, flagFile: Path, block: suspend (FileChannel) -> Unit) {
     // First lock locks the stuff inside one JVM process
-    extractFileLock.getLock(hash).withLock {
+    getLock(hash).withLock {
         // Second lock locks a flagFile across all processes on the system
         FileChannel.open(flagFile, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
             .use { flagChannel ->

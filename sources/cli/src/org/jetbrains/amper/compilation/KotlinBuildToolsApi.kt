@@ -6,7 +6,7 @@ package org.jetbrains.amper.compilation
 
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.core.util.StripedMutex
+import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
