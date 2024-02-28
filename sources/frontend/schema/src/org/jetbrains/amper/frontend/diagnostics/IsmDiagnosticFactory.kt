@@ -8,6 +8,16 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.Module
 
+/**
+ * Factory for providing diagnostics on an ISM [Module].
+ *
+ * Note that if you need to analyze several properties at once, it's better to use [AomSingleModuleDiagnosticFactory]
+ * as the property values might propagate into the fragments after AOM is built.
+ *
+ * Thus, use this factory for non-scoped properties or diagnostics that are performed only over a single property.
+ *
+ * Register instances of the factory in [IsmDiagnosticFactories].
+ */
 interface IsmDiagnosticFactory {
     val diagnosticId: BuildProblemId
 

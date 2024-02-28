@@ -77,6 +77,11 @@ interface BuildProblem {
     val level: Level
 }
 
+/**
+ * Prefer writing strongly typed build problems
+ * (see inheritors of [PsiBuildProblem][org.jetbrains.amper.frontend.messages.PsiBuildProblem] for a reference).
+ * They can incorporate additional properties for the IDE to simplify quick-fixes implementation.
+ */
 data class BuildProblemImpl(
     override val buildProblemId: BuildProblemId,
     override val source: BuildProblemSource,

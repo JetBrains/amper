@@ -8,6 +8,16 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.PotatoModule
 
+/**
+ * Factory to provide diagnostics on an AOM [PotatoModule].
+ *
+ * Use this factory to analyze built AOM modules with propagated properties and resolved internal dependencies.
+ *
+ * For simpler cases where you don't need to check propagation use [IsmDiagnosticFactory].
+ * For more complex cases where you need to analyze several modules at once use [AomModelDiagnosticFactory].
+ *
+ * Register instances of factory in [AomSingleModuleDiagnosticFactory].
+ */
 interface AomSingleModuleDiagnosticFactory {
     val diagnosticId: BuildProblemId
 
