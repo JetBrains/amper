@@ -81,7 +81,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
                 val files = mutableSetOf<Path>()
                 val errors = mutableListOf<Message>()
-                for (node in resolver.root.asSequence()) {
+                for (node in resolver.root.distinctBfsSequence()) {
                     if (node is MavenDependencyNode) {
                         node.dependency
                             .files

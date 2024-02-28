@@ -99,7 +99,7 @@ class BuildGraphTest {
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
             """.trimMargin()
         )
-        root.asSequence().forEach {
+        root.distinctBfsSequence().forEach {
             assertTrue(
                 it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
                 "There should be no messages for $it: ${it.messages}"
@@ -191,13 +191,13 @@ class BuildGraphTest {
                 |                         \--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
             """.trimMargin()
         )
-        root.asSequence().forEach {
+        root.distinctBfsSequence().forEach {
             assertTrue(
                 it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
                 "There should be no messages for $it: ${it.messages}"
             )
         }
-        root.asSequence()
+        root.distinctBfsSequence()
             .mapNotNull { it as? MavenDependencyNode }
             .flatMap { it.dependency.files }
             .mapNotNull { runBlocking { it.getPath() } }
@@ -929,7 +929,7 @@ class BuildGraphTest {
             runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
             root.verifyGraphConnectivity()
             if (verifyMessages) {
-                root.asSequence().forEach {
+                root.distinctBfsSequence().forEach {
                     val messages = it.messages.filter { "Downloaded from" !in it.text }
                     assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
                 }
@@ -970,7 +970,7 @@ class BuildGraphTest {
         assertEquals(expected, root.prettyPrint().trimEnd())
 
     private fun assertFiles(files: String, root: DependencyNode) {
-        root.asSequence()
+        root.distinctBfsSequence()
             .mapNotNull { it as? MavenDependencyNode }
             .flatMap { it.dependency.files }
             .mapNotNull { runBlocking { it.getPath()?.name } }

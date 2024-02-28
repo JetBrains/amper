@@ -20,7 +20,7 @@ import kotlin.io.path.nameWithoutExtension
  */
 suspend fun Resolver.extractAars(): List<Path> = coroutineScope {
     root
-        .asSequence()
+        .distinctBfsSequence()
         .filterIsInstance<MavenDependencyNode>()
         .flatMap { it.dependency.files }
         .map { async { it.getPath() } }

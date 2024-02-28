@@ -160,7 +160,7 @@ class Resolver(val root: DependencyNode) {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies() = root.asSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
+    suspend fun downloadDependencies() = root.distinctBfsSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
 }
 
 /**
@@ -201,14 +201,22 @@ interface DependencyNode {
     suspend fun downloadDependencies()
 
     /**
-     * Returns a sequence of nodes below the current one using BFS.
+     * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
+     *
+     * The nodes are distinct in terms of referential identity, which is enough to eliminate duplicate "requested"
+     * dependency triplets. This does NOT eliminate nodes that requested the same dependency in different versions,
+     * even though conflict resolution should make them point to the same dependency version internally eventually.
+     *
+     * This sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
      */
-    fun asSequence(): Sequence<DependencyNode> = sequence {
+    fun distinctBfsSequence(): Sequence<DependencyNode> = sequence {
         val queue = LinkedList(listOf(this@DependencyNode))
+        val visited = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
             val node = queue.remove()
             yield(node)
-            queue.addAll(node.children)
+            visited.add(node)
+            queue.addAll(node.children.filter { it !in visited })
         }
     }
 
