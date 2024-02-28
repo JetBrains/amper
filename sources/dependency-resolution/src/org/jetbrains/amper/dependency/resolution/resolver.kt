@@ -4,7 +4,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
@@ -61,12 +61,7 @@ class Resolver(val root: DependencyNode) {
             conflicts.clear()
             coroutineScope {
                 queue.forEach { node ->
-                    launch {
-                        node.context.nodeCache[scopeKey] = this
-                        if (node.key !in conflicts) {
-                            node.resolve(level, nodes, conflicts)
-                        }
-                    }
+                    node.launchRecursiveResolution(level, nodes, conflicts)
                 }
             }
 
@@ -86,7 +81,29 @@ class Resolver(val root: DependencyNode) {
         } while (conflicts.isNotEmpty())
     }
 
-    private suspend fun DependencyNode.resolve(
+    /**
+     * Launches a new coroutine to resolve this [DependencyNode], keeping track of the resolution job in the node cache.
+     */
+    context(CoroutineScope)
+    private fun DependencyNode.launchRecursiveResolution(
+        level: ResolutionLevel,
+        nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
+        conflicts: MutableSet<Key<*>>,
+    ) {
+        context.nodeCache[resolutionJobKey] = launch {
+            if (key !in conflicts) {
+                resolveRecursively(level, nodes, conflicts)
+            }
+        }.apply {
+            // This ensures the job is removed from the map upon completion even in cases where it is cancelled
+            // before it even starts. We can't achieve this with a try-finally inside the launch.
+            invokeOnCompletion {
+                context.nodeCache.remove(resolutionJobKey)
+            }
+        }
+    }
+
+    private suspend fun DependencyNode.resolveRecursively(
         level: ResolutionLevel,
         nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
         conflicts: MutableSet<Key<*>>,
@@ -98,21 +115,16 @@ class Resolver(val root: DependencyNode) {
                 if (node.key !in conflicts) {
                     if (similarNodes.firstOrNull()?.conflictsWith(node) == true) {
                         conflicts += node.key
-                        similarNodes.forEach { it.context.nodeCache[scopeKey]?.cancel() }
+                        similarNodes.forEach { it.context.nodeCache[resolutionJobKey]?.cancel() }
                     } else {
-                        launch {
-                            node.context.nodeCache[scopeKey] = this
-                            if (node.key !in conflicts) {
-                                node.resolve(level, nodes, conflicts)
-                            }
-                        }
+                        node.launchRecursiveResolution(level, nodes, conflicts)
                     }
                 }
             }
         }
     }
 
-    private val scopeKey = Key<CoroutineScope>("scope")
+    private val resolutionJobKey = Key<Job>("resolutionJob")
 
     private fun DependencyNode.conflictsWith(other: DependencyNode) =
         root.context.settings.conflictResolutionStrategies
