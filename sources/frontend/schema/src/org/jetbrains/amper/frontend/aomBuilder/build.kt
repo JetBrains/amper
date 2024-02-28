@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.withTraceFrom
+import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
@@ -90,7 +91,10 @@ internal fun doBuild(
     if (problemReporter.hasFatal) return null
 
     // Build AOM from ISM.
-    return path2SchemaModule.buildAom(fioCtx.gradleModules).map { it.withImplicitDependencies() }
+    return path2SchemaModule
+        .buildAom(fioCtx.gradleModules)
+        .map { it.withImplicitDependencies() }
+        .onEach { module -> AomSingleModuleDiagnosticFactories.forEach { with(it) { module.analyze() } } }
 }
 
 /**

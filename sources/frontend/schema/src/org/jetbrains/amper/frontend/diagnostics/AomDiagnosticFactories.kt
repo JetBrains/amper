@@ -7,3 +7,7 @@ package org.jetbrains.amper.frontend.diagnostics
 val AomModelDiagnosticFactories: List<AomModelDiagnosticFactory> = listOf(
     InconsistentComposeVersion,
 )
+
+val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> = listOf(
+    JavaSourceShouldBeAtMostJvmTargetFactory
+)
