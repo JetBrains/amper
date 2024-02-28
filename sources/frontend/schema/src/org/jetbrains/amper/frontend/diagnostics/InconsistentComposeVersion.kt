@@ -14,7 +14,7 @@ import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.commonSettings
 
-object InconsistentComposeVersion : AomDiagnosticFactory {
+object InconsistentComposeVersion : AomModelDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "inconsistent.compose.versions"
 
     context(ProblemReporterContext) override fun Model.analyze() {

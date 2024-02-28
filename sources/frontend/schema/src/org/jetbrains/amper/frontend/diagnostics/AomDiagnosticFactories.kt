@@ -4,6 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-val AomDiagnosticFactories = listOf(
+val AomModelDiagnosticFactories: List<AomModelDiagnosticFactory> = listOf(
     InconsistentComposeVersion,
 )

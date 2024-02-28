@@ -8,7 +8,7 @@ import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Model
 
-interface AomDiagnosticFactory {
+interface AomModelDiagnosticFactory {
     val diagnosticId: BuildProblemId
 
     context(ProblemReporterContext)
