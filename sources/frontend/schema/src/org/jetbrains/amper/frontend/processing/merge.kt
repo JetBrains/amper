@@ -199,9 +199,14 @@ fun <T : Any, V> MergeCtx<T>.mergeScalar(
     prop: KProperty1<T, V>
 ) {
     val targetProp = prop.valueBase(target) ?: return
-    val baseValue = prop.valueBase(base)?.withoutDefault
-    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
-    targetProp(overwriteValue ?: baseValue)
+    val baseProp = prop.valueBase(base)
+    val baseValue = baseProp?.withoutDefault
+    val overwriteProp = prop.valueBase(overwrite)
+    val overwriteValue = overwriteProp?.withoutDefault
+    when {
+        overwriteValue != null -> targetProp(overwriteValue).also { it.trace = overwriteProp.trace }
+        baseValue != null -> targetProp(baseValue).also { it.trace = baseProp.trace }
+    }
 }
 
 fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
@@ -209,12 +214,14 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
     doMerge: (V & Any).(V & Any) -> V,
 ) = apply {
     val targetProp = prop.valueBase(target) ?: return@apply
-    val baseValue = prop.valueBase(base)?.withoutDefault
-    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
+    val baseProp = prop.valueBase(base)
+    val baseValue = baseProp?.withoutDefault
+    val overwriteProp = prop.valueBase(overwrite)
+    val overwriteValue = overwriteProp?.withoutDefault
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
-        baseValue != null && overwriteValue == null -> targetProp(baseValue)
-        baseValue == null && overwriteValue != null -> targetProp(overwriteValue)
+        baseValue != null && overwriteValue == null -> targetProp(baseValue).also { it.trace = baseProp.trace }
+        baseValue == null && overwriteValue != null -> targetProp(overwriteValue).also { it.trace = overwriteProp.trace }
         else -> Unit
     }
 }
