@@ -1,0 +1,23 @@
+module:
+  layout: gradle-kmp
+product:
+  type: android/app
+  platforms: [ android ]
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+  - androidx.appcompat:appcompat:1.6.1 # we need special type of activity
+  - androidx.core:core-ktx:1.12.0
+  - androidx.lifecycle:lifecycle-runtime-ktx:2.7.0
+  - androidx.activity:activity-compose:1.8.2
+  - androidx.compose.ui:ui
+  - androidx.compose.ui:ui-graphics
+  - androidx.compose.ui:ui-tooling-preview
+  - androidx.compose.material3:material3
+  - junit:junit:4.13.2
+  - androidx.compose.ui:ui-test-junit4
+  - androidx.test.espresso:espresso-core:3.5.1
+
+settings:
+  compose: enabled

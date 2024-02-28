@@ -10,6 +10,10 @@ tasks.withType<Test> {
         dependsOn(task)
     }
 
+    filter {
+        excludeTestsMatching(".*EmulatorTests.*")
+    }
+
     useJUnitPlatform()
     val inBootstrapMode: String? by project
     inBootstrapMode?.let {
@@ -18,6 +22,17 @@ tasks.withType<Test> {
                 excludeTestsMatching("*BootstrapTest*")
             }
         }
+    }
+    maxHeapSize = "4g"
+}
+
+tasks.register("runEmulatorTests", Test::class) {
+    group = "verification"
+    description = "Runs special tests from EmulatorTests.kt"
+    useJUnitPlatform()
+
+    filter {
+        includeTestsMatching(".*EmulatorTests.*")
     }
     maxHeapSize = "4g"
 }
