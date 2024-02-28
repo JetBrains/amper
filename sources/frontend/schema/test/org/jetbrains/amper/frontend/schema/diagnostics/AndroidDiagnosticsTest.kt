@@ -13,11 +13,11 @@ import kotlin.test.Test
 class AndroidDiagnosticsTest : TestBase(Path("testResources") / "diagnostics" / "android") {
     @Test
     fun `test Android too old version`() {
-        diagnosticsTest("tooOldVersion")
+        diagnosticsTest("too-old-version")
     }
 
     @Test
     fun `test Android all versions are at least minSdk`() {
-        diagnosticsTest("atLeastMinSdk")
+        diagnosticsTest("at-least-min-sdk")
     }
 }
