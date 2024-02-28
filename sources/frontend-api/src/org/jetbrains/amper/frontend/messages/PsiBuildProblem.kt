@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.messages
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.BuildProblem
 import org.jetbrains.amper.core.messages.Level
@@ -24,8 +25,17 @@ fun KProperty0<*>.extractPsiElement(): PsiElement {
     return valueBase.extractPsiElement()
 }
 
+@UsedInIdePlugin
+fun KProperty0<*>.extractPsiElementOrNull(): PsiElement? {
+    return valueBase?.extractPsiElementOrNull()
+}
+
 fun Traceable.extractPsiElement(): PsiElement {
     val trace = trace
     check(trace is PsiTrace) { "Can't extract PSI element from traceable ${this}. Expected to have PSI trace, but has ${trace?.javaClass}" }
     return trace.psiElement
+}
+
+fun Traceable.extractPsiElementOrNull(): PsiElement? {
+    return (trace as? PsiTrace)?.psiElement
 }
