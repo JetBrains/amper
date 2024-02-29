@@ -4,10 +4,12 @@
 
 package tooling
 
+import AndroidBuildResult
 import ApkPathAndroidBuildResult
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Project
 import org.gradle.tooling.provider.model.ToolingModelBuilder
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -17,51 +19,12 @@ import request
 
 data class AndroidBuildResultImpl(override val paths: List<String>) : ApkPathAndroidBuildResult
 
-class ApkPathToolingModelBuilder : ToolingModelBuilder {
+class ApkPathToolingModelBuilder : BaseAndroidToolingModelBuilder() {
     override fun canBuild(modelName: String): Boolean = ApkPathAndroidBuildResult::class.java.name == modelName
 
-    override fun buildAll(modelName: String, project: Project): ApkPathAndroidBuildResult {
-        val projectPathToModule = project.gradle.projectPathToModule
-        val request = project.gradle.request
-        val stack = ArrayDeque<Project>()
-        stack.add(project)
-        val alreadyTraversed = mutableSetOf<Project>()
+    override fun List<BaseVariant>.getArtifactsFromVariants(): List<String> = flatMap { it.outputs }
+        .map { it.outputFile }
+        .map { it.toString() }
 
-        val paths = buildList {
-            while (stack.isNotEmpty()) {
-                val p = stack.removeFirst()
-                if (p.path !in (request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
-                    continue
-                }
-                val module = projectPathToModule[p.path] ?: continue
-
-                val androidExtension = project
-                    .extensions
-                    .findByType(BaseExtension::class.java) ?: error("Android extension not found in project $project")
-
-                val variants = when (androidExtension) {
-                    is AppExtension -> androidExtension.applicationVariants
-                    is LibraryExtension -> androidExtension.libraryVariants
-                    else -> error("Unsupported Android extension type")
-                }
-
-                val buildTypesChosen = request?.buildTypes?.map { it.value }?.toSet() ?: emptySet()
-                val chosenVariants = variants.filter { variant -> buildTypesChosen.any { variant.name.startsWith(it) } }
-
-                chosenVariants
-                    .flatMap { it.outputs }
-                    .map { it.outputFile }
-                    .map { it.toString() }
-                    .forEach { add(it) }
-
-                for (subproject in p.subprojects) {
-                    if (subproject !in alreadyTraversed) {
-                        stack.add(subproject)
-                        alreadyTraversed.add(subproject)
-                    }
-                }
-            }
-        }
-        return AndroidBuildResultImpl(paths)
-    }
+    override fun buildResult(paths: List<String>): AndroidBuildResult = AndroidBuildResultImpl(paths)
 }
