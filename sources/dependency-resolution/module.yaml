@@ -6,6 +6,7 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
+  - ../concurrency
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.apache.maven:maven-artifact:3.9.6
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0

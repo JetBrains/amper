@@ -5,13 +5,16 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
+import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
 import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -54,41 +57,29 @@ class Resolver(val root: DependencyNode) {
      * @return current instance
      */
     suspend fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK) {
-        val nodes = ConcurrentHashMap<Key<*>, MutableList<DependencyNode>>()
-        val conflicts = ConcurrentHashMap.newKeySet<Key<*>>()
-        val queue = ConcurrentLinkedQueue(listOf(root))
+        val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies)
+
         // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
         // all child nodes resolutions have either completed or been cancelled. The cancelled descendant nodes are
         // tracked by the conflict resolution structures, so they won't be forgotten anyway, but they don't require a
         // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
         val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
-        do {
-            conflicts.clear()
+
+        var nodesToResolve = listOf(root)
+        while(nodesToResolve.isNotEmpty()) {
             coroutineScope {
-                queue.forEach { node ->
-                    node.launchRecursiveResolution(level, nodes, conflicts, resolvedNodes)
+                nodesToResolve.forEach { node ->
+                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
                 }
             }
 
-            queue.clear()
-            coroutineScope {
-                conflicts.forEach { key ->
-                    launch {
-                        val candidates = nodes[key]
-                            ?: throw AmperDependencyResolutionException("Nodes are missing for $key")
-                        if (!candidates.resolveConflict()) {
-                            return@launch
-                        }
-                        queue.addAll(candidates)
+            nodesToResolve = conflictResolver.resolveConflicts()
 
-                        // Some candidates may have been resolved entirely before the conflict was detected,
-                        // so we need to "unmark" them as resolved because their dependency may have changed
-                        // after conflict resolution (requiring a new resolution).
-                        resolvedNodes.removeAll(candidates)
-                    }
-                }
-            }
-        } while (conflicts.isNotEmpty())
+            // Some candidates may have been resolved entirely before the conflict was detected and the resolution
+            // cancelled, so we need to "unmark" them as resolved because their dependency may have changed after
+            // conflict resolution (requiring a new resolution).
+            resolvedNodes.removeAll(nodesToResolve)
+        }
     }
 
     /**
@@ -97,15 +88,14 @@ class Resolver(val root: DependencyNode) {
     context(CoroutineScope)
     private fun DependencyNode.launchRecursiveResolution(
         level: ResolutionLevel,
-        nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
-        conflicts: MutableSet<Key<*>>,
+        conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
     ) {
         // If a conflict causes the cancellation of all jobs, and this cancellation happens between the moment when the new
         // job is launched and the moment it is registered for tracking, we could miss the cancellation.
         // This is ok because the launched job will then check for conflicts and end almost immediately.
         val job = launch {
-            resolveRecursively(level, nodes, conflicts, resolvedNodes)
+            resolveRecursively(level, conflictResolver, resolvedNodes)
         }
         // This ensures the job is removed from the list upon completion even in cases where it is cancelled
         // before it even starts. We can't achieve this with a try-finally inside the coroutine itself.
@@ -117,50 +107,102 @@ class Resolver(val root: DependencyNode) {
 
     private suspend fun DependencyNode.resolveRecursively(
         level: ResolutionLevel,
-        nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
-        conflicts: MutableSet<Key<*>>,
+        conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
     ) {
         if (this in resolvedNodes) {
             return // skipping already resolved node
         }
 
-        val similarNodes = nodes.computeIfAbsent(key) { CopyOnWriteArrayList() }
-        similarNodes.add(this) // register for potential future conflict resolution
-        if (key in conflicts) {
+        val conflictDetected = conflictResolver.registerAndDetectConflicts(this)
+        if (conflictDetected) {
             return // we don't want to resolve conflicted candidates in this wave
         }
-        if (similarNodes.size > 1 && similarNodes.any { it !== this && it.conflictsWith(this) }) {
-            conflicts += key
-            similarNodes.forEach { it.resolutionJobs.forEach(Job::cancel) }
-            return // we don't want to resolve conflicted candidates in this wave
-        }
+
         resolveChildren(level)
         coroutineScope {
             children.forEach { node ->
-                node.launchRecursiveResolution(level, nodes, conflicts, resolvedNodes)
+                node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
             }
         }
+        // We track that we finished resolving this node, because some resolutions can be cancelled half-way through
+        // in case of conflicts
         resolvedNodes.add(this)
     }
-
-    private val resolutionJobKey = Key<Job>("resolutionJob")
-
-    private fun DependencyNode.conflictsWith(other: DependencyNode) =
-        root.context.settings.conflictResolutionStrategies
-            .filter { it.isApplicableFor(listOf(this, other)) }
-            .any { it.seesConflictsIn(listOf(this, other)) }
-
-    private fun List<DependencyNode>.resolveConflict() =
-        root.context.settings.conflictResolutionStrategies
-            .filter { it.isApplicableFor(this) }
-            .find { it.seesConflictsIn(this) }
-            ?.resolveConflictsIn(this) ?: true
 
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
     suspend fun downloadDependencies() = root.distinctBfsSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
+}
+
+private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
+    /**
+     * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
+     * sources of dependency conflicts.
+     * The map needs to be thread-safe because we only protect with a mutex per dependency key (2 dependencies with
+     * different keys can access the map at the same time).
+     * The list values, however, aren't thread-safe, but they are key-specific.
+     */
+    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableList<DependencyNode>>()
+    private val conflictedKeys = ConcurrentHashMap.newKeySet<Key<*>>()
+    private val conflictDetectionMutexByKey = StripedMutex(64)
+
+    /**
+     * Registers this node for potential conflict resolution, and returns whether it already conflicts with a previously
+     * seen node. Can be called concurrently with any node, including those sharing the same key.
+     */
+    suspend fun registerAndDetectConflicts(node: DependencyNode): Boolean =
+        conflictDetectionMutexByKey.getLock(node.key.hashCode()).withLock {
+            val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableListOf() }
+            similarNodes.add(node) // register the node for potential future conflict resolution
+            if (node.key in conflictedKeys) {
+                return true
+            }
+            if (similarNodes.size > 1 && similarNodes.containsConflicts()) {
+                conflictedKeys += node.key
+                // We don't want to keep resolving conflicting nodes, because it's potentially pointless.
+                // They will be resolved in the next wave.
+                similarNodes.forEach { it.resolutionJobs.forEach(Job::cancel) }
+                return true
+            }
+            return false
+        }
+
+    private fun List<DependencyNode>.containsConflicts() = conflictResolutionStrategies.any {
+        it.isApplicableFor(this) && it.seesConflictsIn(this)
+    }
+
+    /**
+     * Resolves conflicts and returns the nodes that must be resolved as a result.
+     * Must not be called concurrently with [registerAndDetectConflicts].
+     */
+    suspend fun resolveConflicts(): List<DependencyNode> = coroutineScope {
+        conflictingNodes()
+            .map { candidates ->
+                async {
+                    val resolved = candidates.resolveConflict()
+                    if (resolved) {
+                        candidates
+                    } else {
+                        emptyList()
+                    }
+                }
+            }
+            .awaitAll()
+            .flatten()
+            .also { conflictedKeys.clear() }
+    }
+
+    private fun conflictingNodes(): List<List<DependencyNode>> = conflictedKeys.map { key ->
+        similarNodesByKey[key] ?: throw AmperDependencyResolutionException("Nodes are missing for ${key.name}")
+    }
+
+    private fun List<DependencyNode>.resolveConflict(): Boolean {
+        val strategy = conflictResolutionStrategies.find { it.isApplicableFor(this) && it.seesConflictsIn(this) }
+            ?: return true // if no strategy sees the conflict, there is no conflict so it is considered resolved
+        return strategy.resolveConflictsIn(this)
+    }
 }
 
 /**
@@ -187,7 +229,8 @@ interface DependencyNode {
      * Fills [children], taking [context] into account.
      * In the process, [messages] are populated with relevant information or errors.
      *
-     * Does nothing if this node was already resolved to at least the same [level].
+     * @return true if the new child nodes need to be resolved themselves recursively, or false if the node was already
+     * resolved and the children should be skipped.
      *
      * @see ResolutionState
      * @see Message
