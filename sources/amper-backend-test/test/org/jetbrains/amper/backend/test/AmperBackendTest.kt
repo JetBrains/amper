@@ -1,6 +1,8 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalPathApi::class)
+
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
@@ -12,7 +14,10 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
 import org.tinylog.Level
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.name
 import kotlin.io.path.readText
+import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -140,6 +145,16 @@ ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
+    }
+
+    @Test
+    fun `simple multiplatform cli should compile windows on any platform`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
+        AmperBackend(projectContext).runTask(TaskName(":windows-cli:compileMingwX64"))
+
+        assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
+            projectContext.buildOutputRoot.path.walk().any { it.name == "windows-cli.exe" }
+        }
     }
 
     @Test

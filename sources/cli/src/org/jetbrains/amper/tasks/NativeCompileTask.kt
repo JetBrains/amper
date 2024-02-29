@@ -122,7 +122,7 @@ class NativeCompileTask(
 
             val artifactExtension = when {
                 module.type.isLibrary() && !isTest -> ".klib"
-                OS.isWindows -> ".exe"
+                platform.parent == Platform.MINGW -> ".exe"
                 else -> ".kexe"
             }
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
