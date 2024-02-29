@@ -53,6 +53,7 @@ class NativeCompileTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
+    private val isFramework: Boolean = false,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
@@ -134,6 +135,7 @@ class NativeCompileTask(
 
             val artifactExtension = when {
                 module.type.isLibrary() && !isTest -> ".klib"
+                isFramework && !isTest -> ".framework"
                 platform.isDescendantOf(Platform.MINGW) -> ".exe"
                 else -> ".kexe"
             }

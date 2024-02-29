@@ -15,6 +15,11 @@ dependencies:
   - ../frontend/schema
   - ../dependency-resolution
   - ../android-integration/runner
+  # For xcode projects modifications
+  - com.jetbrains.intellij.platform:core:232.1175
+  - com.jetbrains.intellij.platform:core-impl:232.1175
+  # Here 232 version is set by intention, since there is no newer one.
+  - com.jetbrains.intellij.cidr:cidr-xcode-model-core:232.1175
   - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - org.jetbrains.kotlin:kotlin-build-tools-api:1.9.22

@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend
 
-import com.intellij.mock.MockApplication
-import com.intellij.mock.MockProject
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
@@ -13,7 +11,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import org.jetbrains.amper.frontend.schemaConverter.psi.standalone.initMockProject
+import org.jetbrains.amper.intellij.IntelliJApplicationConfigurator
+import org.jetbrains.amper.intellij.MockProjectInitializer
 import org.jetbrains.annotations.TestOnly
 import java.nio.file.Path
 
@@ -27,7 +26,11 @@ class FrontendPathResolver(
     @TestOnly
     private val intelliJApplicationConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator(),
 ) {
-    val project: Project by lazy { project ?: initMockProject(intelliJApplicationConfigurator) }
+
+    val project: Project by lazy {
+        MockProjectInitializer.chosenConfigurator = intelliJApplicationConfigurator
+        project ?: MockProjectInitializer.mockProject
+    }
 
     fun toPsiFile(file: VirtualFile): PsiFile? {
         val actualProject = project
@@ -54,10 +57,4 @@ class FrontendPathResolver(
             VirtualFileManager.getInstance().findFileByNioPath(path)
         })
     }
-}
-
-@TestOnly
-open class IntelliJApplicationConfigurator {
-    open fun registerApplicationExtensions(application: MockApplication) {}
-    open fun registerProjectExtensions(project: MockProject) {}
 }

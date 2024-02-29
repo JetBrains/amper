@@ -86,4 +86,6 @@ interface PotatoModule {
 
     @UsedInIdePlugin
     val usedCatalog: VersionCatalog?
+
+    val leafFragments get() = fragments.filterIsInstance<LeafFragment>()
 }

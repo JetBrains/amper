@@ -1,10 +1,16 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
 
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentDependencyType
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 
 /**
  * A class, that caches [modules] and also, adds
@@ -35,7 +41,7 @@ class PotatoModuleWrapper(
     val fragmentsByName by lazy { fragments.associateBy { it.name } }
     override val artifacts = passedModule.artifacts.map { it.wrap(this) }
     override val fragments = passedModule.fragments.map { it.wrapped }
-    val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
+    override val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
     val leafNonTestFragments = leafFragments
         .filter { !it.isTest }
     val leafTestFragments = leafFragments

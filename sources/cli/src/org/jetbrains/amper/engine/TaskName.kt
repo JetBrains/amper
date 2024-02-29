@@ -11,5 +11,6 @@ data class TaskName(val name: String) {
 
     companion object {
         fun fromHierarchy(path: List<String>) = TaskName(path.joinToString(":", prefix = ":"))
+        fun fromHierarchy(vararg path: String) = fromHierarchy(path.toList())
     }
 }
