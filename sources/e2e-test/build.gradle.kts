@@ -10,10 +10,6 @@ tasks.withType<Test> {
         dependsOn(task)
     }
 
-    filter {
-        excludeTestsMatching(".*EmulatorTests.*")
-    }
-
     useJUnitPlatform()
     val inBootstrapMode: String? by project
     inBootstrapMode?.let {
@@ -24,6 +20,10 @@ tasks.withType<Test> {
         }
     }
     maxHeapSize = "4g"
+
+    exclude { include ->
+        include.file.name.contains("EmulatorTests")
+    }
 }
 
 tasks.register("runEmulatorTests", Test::class) {
