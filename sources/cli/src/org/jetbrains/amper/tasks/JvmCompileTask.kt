@@ -94,7 +94,9 @@ class JvmCompileTask(
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
-        val inputs = fragments.map { it.src } + fragments.map { it.resourcesPath } + classpath
+        val sources = fragments.map { it.src.toAbsolutePath() }
+        val resources = fragments.map { it.resourcesPath.toAbsolutePath() }
+        val inputs = sources + resources + classpath
 
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
@@ -131,11 +133,11 @@ class JvmCompileTask(
                 )
             }
 
-            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path))
+            return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
         }
 
         return TaskResult(
-            classesOutputRoot = taskOutputRoot.path,
+            classesOutputRoot = taskOutputRoot.path.toAbsolutePath(),
             dependencies = dependenciesResult,
             module = module,
             isTest = isTest,

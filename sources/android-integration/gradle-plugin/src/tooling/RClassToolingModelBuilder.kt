@@ -5,6 +5,9 @@
 package tooling
 
 import RClassAndroidBuildResult
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
 import org.gradle.tooling.provider.model.ToolingModelBuilder
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -27,37 +30,29 @@ class RClassToolingModelBuilder : ToolingModelBuilder {
         val paths = buildList {
             while (stack.isNotEmpty()) {
                 val p = stack.removeFirst()
-
-                projectPathToModule[p.path]?.let {
-                    if (p.path in (project.gradle.request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
-                        for(buildTypeValue in request?.buildTypes?.map { it.value } ?: setOf()) {
-                            when (it.type) {
-                                ProductType.LIB -> add(
-                                    p
-                                        .layout
-                                        .buildDirectory
-                                        .get()
-                                        .asFile
-                                        .toPath()
-                                        .resolve("intermediates/compile_r_class_jar/$buildTypeValue/R.jar")
-                                        .toAbsolutePath()
-                                        .toString()
-                                )
-                                else -> add(
-                                    p
-                                        .layout
-                                        .buildDirectory
-                                        .get()
-                                        .asFile
-                                        .toPath()
-                                        .resolve("intermediates/compile_and_runtime_not_namespaced_r_class_jar/$buildTypeValue/R.jar")
-                                        .toAbsolutePath()
-                                        .toString()
-                                )
-                            }
-                        }
-                    }
+                if (p.path !in (request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
+                    continue
                 }
+                val module = projectPathToModule[p.path] ?: continue
+
+                val androidExtension = project
+                    .extensions
+                    .findByType(BaseExtension::class.java) ?: error("Android extension not found in project $project")
+
+                val variants = when (androidExtension) {
+                    is AppExtension -> androidExtension.applicationVariants
+                    is LibraryExtension -> androidExtension.libraryVariants
+                    else -> error("Unsupported Android extension type")
+                }
+
+                val buildTypesChosen = request?.buildTypes?.map { it.value }?.toSet() ?: emptySet()
+                val chosenVariants = variants.filter { variant -> buildTypesChosen.any { variant.name.startsWith(it) } }
+
+                chosenVariants
+                    .flatMap { it.outputs }
+                    .flatMap { it.processResourcesProvider.get().outputs.files.toList() }
+                    .map { it.toString() }
+                    .forEach { add(it) }
 
                 for (subproject in p.subprojects) {
                     if (subproject !in alreadyTraversed) {

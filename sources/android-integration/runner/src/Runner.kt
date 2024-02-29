@@ -59,7 +59,7 @@ configure<AmperAndroidIntegrationExtension> {
         for (buildType in buildRequest.buildTypes) {
             val taskPrefix = when (buildRequest.phase) {
                 AndroidBuildRequest.Phase.Prepare -> "prepare"
-                AndroidBuildRequest.Phase.Build -> "assemble"
+                AndroidBuildRequest.Phase.Build -> "build"
             }
             val taskBuildType = buildType.name
             val taskName = "$taskPrefix$taskBuildType"

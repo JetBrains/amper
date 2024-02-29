@@ -18,6 +18,7 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import runAndroidBuild
 import java.nio.file.Path
+import kotlin.io.path.extension
 
 class AndroidPrepareTask(
     private val module: PotatoModule,
@@ -38,7 +39,7 @@ class AndroidPrepareTask(
             setOf(buildType.toAndroidRequestBuildType),
             sdkDir = androidSdkPath
         )
-        val inputs = listOf((module.source as PotatoModuleFileSource).buildFile.parent.resolve("res"))
+        val inputs = listOf((module.source as PotatoModuleFileSource).buildFile.parent.resolve("res").toAbsolutePath())
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
@@ -47,7 +48,8 @@ class AndroidPrepareTask(
                 sourcesPath = Path.of("../../").toAbsolutePath().normalize(),
                 userCacheDir = userCacheRootPath
             )
-            ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) })
+            val outputs = result.paths.map { Path.of(it) }.filter { it.extension.lowercase() == "jar" }
+            ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
 
         return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, result.outputs)

@@ -5,6 +5,8 @@
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.ApkVariant
+import com.android.build.gradle.api.LibraryVariant
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -98,6 +100,10 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             if (module.type == ProductType.ANDROID_APP) {
                                 it.applicationId =  androidSettings.applicationId
                             }
+
+//                            if (module.type == ProductType.ANDROID_INSTRUMENTATION_TESTS) {
+//                                it.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//                            }
                         }
                         androidExtension.namespace = androidSettings.namespace
 
@@ -116,19 +122,33 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             // get variants
                             val variants = when (module.type) {
                                 ProductType.ANDROID_APP -> (androidExtension as AppExtension).applicationVariants
+//                                ProductType.ANDROID_INSTRUMENTATION_TESTS -> (androidExtension as AppExtension).testVariants
                                 else -> (androidExtension as LibraryExtension).libraryVariants
                             }
                             // choose variant
 
-                            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }.toSet()
+                            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }
 
-                            val chosenVariants = variants.filter { it.name in buildTypes }
+                            val chosenVariants =  variants
+                                .mapNotNull {
+                                    variant -> buildTypes
+                                        .firstOrNull { variant.name.startsWith(it) }
+                                        ?.let { it to variant }
+                                }
+                                .toMap()
 
-                            for (variant in chosenVariants) {
+                            for((buildType, variant) in chosenVariants) {
 
-                                project.tasks.create("prepare${variant.name}") {
+                                project.tasks.create("prepare$buildType") {
                                     for (output in variant.outputs) {
                                         it.dependsOn(output.processResourcesProvider)
+                                    }
+                                }
+
+                                project.tasks.create("build$buildType") {
+                                    when (variant) {
+                                        is ApkVariant -> it.dependsOn(variant.packageApplicationProvider)
+                                        is LibraryVariant -> it.dependsOn(variant.packageLibraryProvider)
                                     }
                                 }
 
