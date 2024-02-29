@@ -11,8 +11,8 @@ pluginManagement {
         // For dev versions of KMP Gradle plugins
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
 
-        // For locally published plugin versions
-        mavenLocal()
+        // For locally published plugin versions. Please enable it manually
+        // mavenLocal()
 
         // For published version
         maven("https://packages.jetbrains.team/maven/p/amper/amper")
