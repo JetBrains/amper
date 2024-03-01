@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
@@ -113,21 +114,27 @@ class Resolver(val root: DependencyNode) {
         if (this in resolvedNodes) {
             return // skipping already resolved node
         }
-
-        val conflictDetected = conflictResolver.registerAndDetectConflicts(this)
-        if (conflictDetected) {
-            return // we don't want to resolve conflicted candidates in this wave
-        }
-
-        resolveChildren(level)
-        coroutineScope {
-            children.forEach { node ->
-                node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
+        resolutionMutex.withLock {
+            // maybe a concurrent job has resolved this node already
+            if (this in resolvedNodes) {
+                return
             }
+
+            val conflictDetected = conflictResolver.registerAndDetectConflicts(this)
+            if (conflictDetected) {
+                return // we don't want to resolve conflicted candidates in this wave
+            }
+
+            resolveChildren(level)
+            coroutineScope {
+                children.forEach { node ->
+                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
+                }
+            }
+            // We track that we finished resolving this node, because some resolutions can be cancelled half-way through
+            // in case of conflicts
+            resolvedNodes.add(this)
         }
-        // We track that we finished resolving this node, because some resolutions can be cancelled half-way through
-        // in case of conflicts
-        resolvedNodes.add(this)
     }
 
     /**
@@ -306,6 +313,18 @@ interface DependencyNode {
         }
     }
 }
+
+/**
+ * A mutex to protect the resolution of a node. This prevents 2 jobs from resolving the same node (and children), while
+ * still allowing to spawn multiple jobs for the same node (which happens in case of diamonds).
+ *
+ * Why multiple jobs per node? Why not reuse a single job? The nodes are a graph, while structured concurrency is a tree
+ * of jobs. We want to be able to cancel a subgraph of jobs without caring about whether another non-cancelled parent
+ * requires one of the child dependencies: this parent just launches its own job for the node, and that one is not cancelled.
+ */
+// TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
+private val DependencyNode.resolutionMutex: Mutex
+    get() = context.nodeCache.computeIfAbsent(Key<Mutex>("resolutionMutex")) { Mutex() }
 
 /**
  * The thread-safe list of coroutine [Job]s currently resolving this node.
