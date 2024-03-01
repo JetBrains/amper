@@ -10,5 +10,5 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-457")
+    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-458")
 }
