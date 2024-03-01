@@ -57,11 +57,16 @@ class Resolver(val root: DependencyNode) {
         val nodes = ConcurrentHashMap<Key<*>, MutableList<DependencyNode>>()
         val conflicts = ConcurrentHashMap.newKeySet<Key<*>>()
         val queue = ConcurrentLinkedQueue(listOf(root))
+        // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
+        // all child nodes resolutions have either completed or been cancelled. The cancelled descendant nodes are
+        // tracked by the conflict resolution structures, so they won't be forgotten anyway, but they don't require a
+        // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
+        val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
         do {
             conflicts.clear()
             coroutineScope {
                 queue.forEach { node ->
-                    node.launchRecursiveResolution(level, nodes, conflicts)
+                    node.launchRecursiveResolution(level, nodes, conflicts, resolvedNodes)
                 }
             }
 
@@ -75,6 +80,11 @@ class Resolver(val root: DependencyNode) {
                             return@launch
                         }
                         queue.addAll(candidates)
+
+                        // Some candidates may have been resolved entirely before the conflict was detected,
+                        // so we need to "unmark" them as resolved because their dependency may have changed
+                        // after conflict resolution (requiring a new resolution).
+                        resolvedNodes.removeAll(candidates)
                     }
                 }
             }
@@ -89,39 +99,49 @@ class Resolver(val root: DependencyNode) {
         level: ResolutionLevel,
         nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
         conflicts: MutableSet<Key<*>>,
+        resolvedNodes: MutableSet<DependencyNode>,
     ) {
-        context.nodeCache[resolutionJobKey] = launch {
-            if (key !in conflicts) {
-                resolveRecursively(level, nodes, conflicts)
-            }
-        }.apply {
-            // This ensures the job is removed from the map upon completion even in cases where it is cancelled
-            // before it even starts. We can't achieve this with a try-finally inside the launch.
-            invokeOnCompletion {
-                context.nodeCache.remove(resolutionJobKey)
-            }
+        // If a conflict causes the cancellation of all jobs, and this cancellation happens between the moment when the new
+        // job is launched and the moment it is registered for tracking, we could miss the cancellation.
+        // This is ok because the launched job will then check for conflicts and end almost immediately.
+        val job = launch {
+            resolveRecursively(level, nodes, conflicts, resolvedNodes)
         }
+        // This ensures the job is removed from the list upon completion even in cases where it is cancelled
+        // before it even starts. We can't achieve this with a try-finally inside the coroutine itself.
+        job.invokeOnCompletion {
+            resolutionJobs.remove(job)
+        }
+        resolutionJobs.add(job)
     }
 
     private suspend fun DependencyNode.resolveRecursively(
         level: ResolutionLevel,
         nodes: MutableMap<Key<*>, MutableList<DependencyNode>>,
         conflicts: MutableSet<Key<*>>,
+        resolvedNodes: MutableSet<DependencyNode>,
     ) {
+        if (this in resolvedNodes) {
+            return // skipping already resolved node
+        }
+
+        val similarNodes = nodes.computeIfAbsent(key) { CopyOnWriteArrayList() }
+        similarNodes.add(this) // register for potential future conflict resolution
+        if (key in conflicts) {
+            return // we don't want to resolve conflicted candidates in this wave
+        }
+        if (similarNodes.size > 1 && similarNodes.any { it !== this && it.conflictsWith(this) }) {
+            conflicts += key
+            similarNodes.forEach { it.resolutionJobs.forEach(Job::cancel) }
+            return // we don't want to resolve conflicted candidates in this wave
+        }
+        resolveChildren(level)
         coroutineScope {
-            resolveChildren(level)
             children.forEach { node ->
-                val similarNodes = nodes.computeIfAbsent(node.key) { CopyOnWriteArrayList() }.also { it += node }
-                if (node.key !in conflicts) {
-                    if (similarNodes.firstOrNull()?.conflictsWith(node) == true) {
-                        conflicts += node.key
-                        similarNodes.forEach { it.context.nodeCache[resolutionJobKey]?.cancel() }
-                    } else {
-                        node.launchRecursiveResolution(level, nodes, conflicts)
-                    }
-                }
+                node.launchRecursiveResolution(level, nodes, conflicts, resolvedNodes)
             }
         }
+        resolvedNodes.add(this)
     }
 
     private val resolutionJobKey = Key<Job>("resolutionJob")
@@ -157,15 +177,17 @@ class Resolver(val root: DependencyNode) {
  */
 interface DependencyNode {
 
-    val parent: DependencyNode? get() = context.nodeCache[parentNodeKey]
+    val parents: List<DependencyNode> get() = context.nodeParents
     val context: Context
     val key: Key<*>
     val children: List<DependencyNode>
     val messages: List<Message>
 
     /**
-     * Fills [children] taking [context] into account.
+     * Fills [children], taking [context] into account.
      * In the process, [messages] are populated with relevant information or errors.
+     *
+     * Does nothing if this node was already resolved to at least the same [level].
      *
      * @see ResolutionState
      * @see Message
@@ -233,6 +255,16 @@ interface DependencyNode {
         }
     }
 }
+
+/**
+ * The thread-safe list of coroutine [Job]s currently resolving this node.
+ *
+ * We use a copy-on-write array list here, so that we can iterate it safely for cancellation despite the fact that the
+ * cancellation itself ultimately modifies the list (removes terminated jobs).
+ */
+// TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
+private val DependencyNode.resolutionJobs: MutableList<Job>
+    get() = context.nodeCache.computeIfAbsent(Key<MutableList<Job>>("resolutionJobs")) { CopyOnWriteArrayList() }
 
 /**
  * Describes a state of the dependency resolution process.

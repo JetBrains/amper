@@ -17,14 +17,14 @@ class ModuleDependencyNode(
     templateContext: Context,
     val name: String,
     override val children: List<DependencyNode>,
-    parentNode: DependencyNode? = null,
+    parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNode {
 
     init {
-        children.forEach { it.context.nodeCache[parentNodeKey] = this }
+        children.forEach { it.context.nodeParents.add(this) }
     }
 
-    override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
+    override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<ModuleDependencyNode>(name)
     override val messages: List<Message> = listOf()
 

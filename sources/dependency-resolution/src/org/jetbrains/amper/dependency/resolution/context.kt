@@ -6,6 +6,8 @@ package org.jetbrains.amper.dependency.resolution
 
 import java.io.Closeable
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * A context holder that's passed across the nodes.
@@ -27,15 +29,43 @@ import java.nio.file.Path
  * @see [SettingsBuilder]
  * @see [Cache]
  */
-class Context(val settings: Settings, val resolutionCache: Cache = Cache()) : Closeable {
+class Context(
+    val settings: Settings,
+    val resolutionCache: Cache = Cache(),
+    /**
+     * Contains a map of all already created [MavenDependencyNode]s by their original maven dependency.
+     *
+     * For keys, we are only really interested in the original dependency coordinates, but we can rely on referentia
+     * equality here because `MavenDependency` instances are reused just like nodes.
+     *
+     * Note: if conflict resolution occurs, the key is untouched, and we still consider nodes based on their "desired"
+     * version. This way, whenever another node would be created for the exact same version, it will also benefit from
+     * the conflict resolution.
+     */
+    private val nodesByMavenDependency: MutableMap<MavenDependency, MavenDependencyNode> = ConcurrentHashMap(),
+) : Closeable {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNode: DependencyNode?): Context = Context(settings, resolutionCache).apply {
-        parentNode?.let { nodeCache[parentNodeKey] = it }
+    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>): Context = Context(settings, resolutionCache, nodesByMavenDependency).apply {
+        nodeParents.addAll(parentNodes)
     }
+
+    /**
+     * Creates a new [MavenDependencyNode] corresponding to the given Maven [dependency] (in its desired version), or
+     * reuses an existing node that was requesting the exact same dependency.
+     *
+     * In case of reuse, the returned node is guaranteed to have the same requested version as [dependency]. This means
+     * that, if conflict resolution has already occurred for the returned node, its internal [MavenDependency.version]
+     * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.version] is
+     * guaranteed to match.
+     */
+    internal fun getOrCreateNode(dependency: MavenDependency, parentNode: DependencyNode): MavenDependencyNode =
+        nodesByMavenDependency
+            .computeIfAbsent(dependency) { MavenDependencyNode(templateContext = this, dependency) }
+            .apply { context.nodeParents.add(parentNode) }
 
     override fun close() {
         resolutionCache.close()
@@ -139,4 +169,11 @@ enum class Severity {
     INFO, WARNING, ERROR
 }
 
-val parentNodeKey: Key<DependencyNode> = Key<DependencyNode>("parentNode")
+/**
+ * The parents of the node holding this context.
+ */
+// TODO this should probably be an internal property of the dependency node instead of stored in the nodeCache
+internal val Context.nodeParents: MutableList<DependencyNode>
+    get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
+        CopyOnWriteArrayList()
+    }

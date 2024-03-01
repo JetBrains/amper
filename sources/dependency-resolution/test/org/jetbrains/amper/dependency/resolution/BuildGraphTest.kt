@@ -666,6 +666,251 @@ class BuildGraphTest {
         }
     }
 
+    @Test
+    fun `huge dependency graph with reused subgraphs`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            dependency = "org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10",
+            expected = """
+                root
+                \--- org.jetbrains.compose.desktop:desktop-jvm-windows-x64:1.5.10
+                     +--- org.jetbrains.compose.desktop:desktop:1.5.10
+                     |    +--- org.jetbrains.compose.desktop:desktop-jvm:1.5.10
+                     |    |    +--- org.jetbrains.compose.foundation:foundation:1.5.10
+                     |    |    |    +--- org.jetbrains.compose.foundation:foundation-desktop:1.5.10
+                     |    |    |    |    +--- org.jetbrains.compose.animation:animation:1.5.10
+                     |    |    |    |    |    +--- org.jetbrains.compose.animation:animation-desktop:1.5.10
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.animation:animation-core:1.5.10
+                     |    |    |    |    |    |    |    +--- org.jetbrains.compose.animation:animation-core-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10
+                     |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains:annotations:13.0 -> 23.0.0
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.17.0
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlinx:atomicfu-jvm:0.17.0
+                     |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.8.21
+                     |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.3
+                     |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3
+                     |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains:annotations:23.0.0
+                     |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3
+                     |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 1.8.21
+                     |    |    |    |    |    |    |    |    |    |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21
+                     |    |    |    |    |    |    |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+                     |    |    |    |    |    |    |    |    |    |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.runtime:runtime-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10
+                     |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.runtime:runtime-saveable-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-util-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-geometry-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-unit-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.skiko:skiko:0.7.85
+                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-android:0.7.85
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-android:0.7.85 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-awt:0.7.85
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         \--- org.jetbrains.skiko:skiko-awt:0.7.85 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-graphics-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-text-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime-saveable:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-graphics:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.17.0 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-text-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlinx:atomicfu:0.17.0 (*)
+                     |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+                     |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-unit:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.3 (*)
+                     |    |    |    |    |    |    |    \--- org.jetbrains.compose.animation:animation-core-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.foundation:foundation-layout:1.5.10
+                     |    |    |    |    |    |    |    +--- org.jetbrains.compose.foundation:foundation-layout-desktop:1.5.10
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    |    |    \--- org.jetbrains.compose.foundation:foundation-layout-desktop:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-geometry:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    \--- org.jetbrains.compose.animation:animation-desktop:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.foundation:foundation-layout:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    \--- org.jetbrains.skiko:skiko:0.7.85 (*)
+                     |    |    |    \--- org.jetbrains.compose.foundation:foundation-desktop:1.5.10 (*)
+                     |    |    +--- org.jetbrains.compose.material:material:1.5.10
+                     |    |    |    +--- org.jetbrains.compose.material:material-desktop:1.5.10
+                     |    |    |    |    +--- org.jetbrains.compose.animation:animation:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.animation:animation-core:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.foundation:foundation:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.foundation:foundation-layout:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.material:material-icons-core:1.5.10
+                     |    |    |    |    |    +--- org.jetbrains.compose.material:material-icons-core-desktop:1.5.10
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    \--- org.jetbrains.compose.material:material-icons-core-desktop:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.material:material-ripple:1.5.10
+                     |    |    |    |    |    +--- org.jetbrains.compose.material:material-ripple-desktop:1.5.10
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.animation:animation:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.foundation:foundation:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    |    |    \--- org.jetbrains.compose.material:material-ripple-desktop:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    \--- org.jetbrains.compose.material:material-desktop:1.5.10 (*)
+                     |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    +--- org.jetbrains.compose.ui:ui:1.5.10 (*)
+                     |    |    +--- org.jetbrains.compose.ui:ui-tooling-preview:1.5.10
+                     |    |    |    +--- org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.5.10
+                     |    |    |    |    +--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
+                     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    |    \--- org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.5.10 (*)
+                     |    |    +--- org.jetbrains.compose.ui:ui-util:1.5.10 (*)
+                     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 (*)
+                     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+                     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
+                     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 -> 1.7.3 (*)
+                     |    \--- org.jetbrains.compose.desktop:desktop-jvm:1.5.10 (*)
+                     \--- org.jetbrains.skiko:skiko-awt-runtime-windows-x64:0.7.85
+                          \--- org.jetbrains.skiko:skiko-awt:0.7.85 (*)
+            """.trimIndent(),
+            scope = ResolutionScope.RUNTIME,
+            verifyMessages = false,
+        )
+
+        assertFiles("""
+            animation-core-desktop-1.5.10-sources.jar
+            animation-core-desktop-1.5.10.jar
+            animation-desktop-1.5.10-sources.jar
+            animation-desktop-1.5.10.jar
+            annotations-23.0.0-sources.jar
+            annotations-23.0.0.jar
+            atomicfu-jvm-0.17.0.jar
+            desktop-jvm-1.5.10-sources.jar
+            desktop-jvm-1.5.10.jar
+            foundation-desktop-1.5.10-sources.jar
+            foundation-desktop-1.5.10.jar
+            foundation-layout-desktop-1.5.10-sources.jar
+            foundation-layout-desktop-1.5.10.jar
+            kotlin-stdlib-1.8.21-sources.jar
+            kotlin-stdlib-1.8.21.jar
+            kotlin-stdlib-common-1.8.21-sources.jar
+            kotlin-stdlib-common-1.8.21.jar
+            kotlin-stdlib-jdk7-1.8.21-sources.jar
+            kotlin-stdlib-jdk7-1.8.21.jar
+            kotlin-stdlib-jdk8-1.8.21-sources.jar
+            kotlin-stdlib-jdk8-1.8.21.jar
+            kotlinx-coroutines-android-1.7.3.jar
+            kotlinx-coroutines-core-jvm-1.7.3-sources.jar
+            kotlinx-coroutines-core-jvm-1.7.3.jar
+            material-desktop-1.5.10-sources.jar
+            material-desktop-1.5.10.jar
+            material-icons-core-desktop-1.5.10-sources.jar
+            material-icons-core-desktop-1.5.10.jar
+            material-ripple-desktop-1.5.10-sources.jar
+            material-ripple-desktop-1.5.10.jar
+            runtime-desktop-1.5.10-sources.jar
+            runtime-desktop-1.5.10.jar
+            runtime-saveable-desktop-1.5.10-sources.jar
+            runtime-saveable-desktop-1.5.10.jar
+            skiko-android-0.7.85-sources.jar
+            skiko-android-0.7.85.jar
+            skiko-awt-0.7.85-sources.jar
+            skiko-awt-0.7.85.jar
+            skiko-awt-runtime-windows-x64-0.7.85-sources.jar
+            skiko-awt-runtime-windows-x64-0.7.85.jar
+            ui-desktop-1.5.10-sources.jar
+            ui-desktop-1.5.10.jar
+            ui-geometry-desktop-1.5.10-sources.jar
+            ui-geometry-desktop-1.5.10.jar
+            ui-graphics-desktop-1.5.10-sources.jar
+            ui-graphics-desktop-1.5.10.jar
+            ui-text-desktop-1.5.10-sources.jar
+            ui-text-desktop-1.5.10.jar
+            ui-tooling-preview-desktop-1.5.10-sources.jar
+            ui-tooling-preview-desktop-1.5.10.jar
+            ui-unit-desktop-1.5.10-sources.jar
+            ui-unit-desktop-1.5.10.jar
+            ui-util-desktop-1.5.10-sources.jar
+            ui-util-desktop-1.5.10.jar
+        """.trimIndent(), root)
+    }
+
     private fun doTest(
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
@@ -712,10 +957,12 @@ class BuildGraphTest {
 
     private fun DependencyNode.verifyGraphConnectivity() {
         val queue = LinkedList(listOf(this))
+        val verified = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
             val node = queue.remove()
-            node.children.forEach { assertEquals(node, it.parent, "Parents don't match") }
-            queue += node.children
+            node.children.forEach { assertTrue(node in it.parents, "Parents don't match") }
+            verified.add(node)
+            queue += node.children.filter { it !in verified }
         }
     }
 

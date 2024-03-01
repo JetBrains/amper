@@ -39,7 +39,7 @@ import kotlin.reflect.KProperty
 class MavenDependencyNode internal constructor(
     templateContext: Context,
     dependency: MavenDependency,
-    parentNode: DependencyNode? = null,
+    parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNode {
 
     constructor(
@@ -47,11 +47,11 @@ class MavenDependencyNode internal constructor(
         group: String,
         module: String,
         version: String,
-        parentNode: DependencyNode? = null,
+        parentNodes: List<DependencyNode> = emptyList(),
     ) : this(
         templateContext,
         createOrReuseDependency(templateContext, group, module, version),
-        parentNode,
+        parentNodes,
     )
 
     @Volatile
@@ -66,13 +66,13 @@ class MavenDependencyNode internal constructor(
     val module: String = dependency.module
     val version: String = dependency.version
 
-    override val context: Context = templateContext.copyWithNewNodeCache(parentNode)
+    override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<MavenDependency>("$group:$module")
     override val children: List<DependencyNode> by PropertyWithDependency(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
         valueProvider = { thisRef ->
-            thisRef.dependency.children.map { MavenDependencyNode(thisRef.context, it, this) }
+            thisRef.dependency.children.map { thisRef.context.getOrCreateNode(it, this) }
         },
         dependencyProvider = { thisRef ->
             thisRef.dependency.children

@@ -27,8 +27,6 @@ class Cache(private val cache: MutableMap<Key<*>, Any> = ConcurrentHashMap()) : 
     fun <T : Any> computeIfAbsent(key: Key<T>, mappingFunction: (Key<T>) -> T): T =
         cache.computeIfAbsent(key, mappingFunction as (Key<*>) -> Any) as T
 
-    fun <T : Any> remove(key: Key<T>): T? = cache.remove(key) as T?
-
     override fun close() {
         cache.values.mapNotNull { it as? Closeable }.forEach { it.close() }
     }
