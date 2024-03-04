@@ -6,7 +6,10 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 
 interface CompileTask : Task {
+    val module: PotatoModule
+    val isTest: Boolean
     val platform: Platform
 }

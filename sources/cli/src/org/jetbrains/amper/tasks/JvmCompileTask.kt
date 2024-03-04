@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.tasks
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
@@ -13,8 +15,9 @@ import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.asKotlinLogger
-import org.jetbrains.amper.compilation.kotlinCompilerArgs
+import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
+import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -26,8 +29,6 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.schema.KotlinSettings
-import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
@@ -47,8 +48,8 @@ import kotlin.io.path.walk
 
 @OptIn(ExperimentalBuildToolsApi::class)
 class JvmCompileTask(
-    private val module: PotatoModule,
-    private val isTest: Boolean,
+    override val module: PotatoModule,
+    override val isTest: Boolean,
     private val fragments: List<Fragment>,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
@@ -91,7 +92,7 @@ class JvmCompileTask(
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
-            "kotlin.settings" to kotlinUserSettings.toString(),
+            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
@@ -144,39 +145,6 @@ class JvmCompileTask(
             module = module,
             isTest = isTest,
         )
-    }
-
-    // TODO Consider for which Kotlin settings we should enforce consistency between fragments.
-    //  Currently we compile all related fragments together (we don't do klib for common separately), so we have to use
-    //  consistent compiler arguments. This is why we forbid configurations where some fragments diverge.
-    private fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
-        languageVersion = unanimousKotlinSetting("languageVersion") { it.languageVersion },
-        apiVersion = unanimousKotlinSetting("apiVersion") { it.apiVersion },
-        allWarningsAsErrors = unanimousKotlinSetting("allWarningsAsErrors") { it.allWarningsAsErrors },
-        suppressWarnings = unanimousKotlinSetting("suppressWarnings") { it.suppressWarnings },
-        verbose = unanimousKotlinSetting("verbose") { it.verbose },
-        progressiveMode = unanimousKotlinSetting("progressiveMode") { it.progressiveMode },
-        languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures } ?: emptyList(),
-        optIns = unanimousOptionalKotlinSetting("optIns") { it.optIns } ?: emptyList(),
-        freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs } ?: emptyList(),
-        serializationEnabled = !unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format }.isNullOrBlank(),
-        composeEnabled = unanimousSetting("compose.enabled") { it.compose.enabled } ?: false,
-    )
-
-    private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
-        unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) }
-
-    private fun <T : Any> List<Fragment>.unanimousKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T): T =
-        unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) } ?:
-            error("Module '${module.userReadableName}' has no fragments, cannot merge Kotlin setting '$settingFqn'")
-
-    private fun <T> List<Fragment>.unanimousSetting(settingFqn: String, selector: (Settings) -> T): T? {
-        val distinctValues = mapNotNull { selector(it.settings) }.distinct()
-        if (distinctValues.size > 1) {
-            error("The fragments ${userReadableList()} of module '${module.userReadableName}' are compiled " +
-                    "together but provide several different values for 'settings.$settingFqn': $distinctValues")
-        }
-        return distinctValues.singleOrNull()
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -269,14 +237,14 @@ class JvmCompileTask(
             }
         }
 
-        val compilerArgs = kotlinCompilerArgs(
+        val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,
             kotlinUserSettings = kotlinUserSettings,
             classpath = classpath,
             jdkHome = jdkHome,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
-            friendlyClasspath = friendlyClasspath,
+            friendPaths = friendlyClasspath,
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")

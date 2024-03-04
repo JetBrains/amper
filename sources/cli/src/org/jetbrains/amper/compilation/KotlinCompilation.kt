@@ -5,7 +5,7 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.frontend.schema.KotlinVersion
+import org.jetbrains.amper.tasks.CompileTask
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -13,20 +13,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
-
-internal data class KotlinUserSettings(
-    val languageVersion: KotlinVersion,
-    val apiVersion: KotlinVersion,
-    val allWarningsAsErrors: Boolean,
-    val suppressWarnings: Boolean,
-    val verbose: Boolean,
-    val progressiveMode: Boolean,
-    val languageFeatures: List<String>,
-    val optIns: List<String>,
-    val freeCompilerArgs: List<String>,
-    val serializationEnabled: Boolean,
-    val composeEnabled: Boolean,
-)
 
 internal data class CompilerPlugin(
     /**
@@ -50,28 +36,14 @@ internal data class CompilerPlugin(
     }
 }
 
-internal fun kotlinCompilerArgs(
+private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
-    classpath: List<Path>,
     compilerPlugins: List<CompilerPlugin>,
-    jdkHome: Path,
-    outputPath: Path,
-    friendlyClasspath: List<Path>,
 ): List<String> = buildList {
     if (isMultiplatform) {
         add("-Xmulti-platform")
     }
-    add("-jvm-target")
-    add("17")
-
-    add("-jdk-home")
-    add(jdkHome.pathString)
-
-    add("-classpath")
-    add(classpath.joinToString(File.pathSeparator))
-
-    add("-no-stdlib")
 
     add("-language-version")
     add(kotlinUserSettings.languageVersion.schemaValue)
@@ -98,9 +70,6 @@ internal fun kotlinCompilerArgs(
     kotlinUserSettings.languageFeatures.forEach {
         add("-XXLanguage:+$it")
     }
-    kotlinUserSettings.freeCompilerArgs.forEach {
-        add(it)
-    }
     // Switch to -Xcompiler-plugin option when it's ready (currently a prototype, and K2-only)
     // https://jetbrains.slack.com/archives/C942U8L4R/p1708709995859629
     compilerPlugins.forEach { plugin ->
@@ -110,17 +79,95 @@ internal fun kotlinCompilerArgs(
             add("plugin:${plugin.id}:$optName=$value")
         }
     }
-    if (friendlyClasspath.isNotEmpty()) {
+    kotlinUserSettings.freeCompilerArgs.forEach {
+        add(it)
+    }
+}
+
+internal fun kotlinJvmCompilerArgs(
+    isMultiplatform: Boolean,
+    kotlinUserSettings: KotlinUserSettings,
+    classpath: List<Path>,
+    compilerPlugins: List<CompilerPlugin>,
+    jdkHome: Path,
+    outputPath: Path,
+    friendPaths: List<Path>,
+): List<String> = buildList {
+    add("-jvm-target")
+    add("17")
+
+    add("-jdk-home")
+    add(jdkHome.pathString)
+
+    add("-classpath")
+    add(classpath.joinToString(File.pathSeparator))
+
+    add("-no-stdlib") // that is specifically for the JVM
+
+    if (friendPaths.isNotEmpty()) {
         // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators
         // https://github.com/JetBrains/kotlin/blob/4964ee12a994bc846ecdb4810486aaf659be00db/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L531
-        add("-Xfriend-paths=${friendlyClasspath.joinToString(",")}")
+        add("-Xfriend-paths=${friendPaths.joinToString(",")}")
     }
+
+    // Common args last, because they contain free compiler args
+    addAll(kotlinCommonCompilerArgs(isMultiplatform, kotlinUserSettings, compilerPlugins))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
     // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
     add("-d")
     add(outputPath.pathString)
+}
+
+context(CompileTask)
+internal fun kotlinNativeCompilerArgs(
+    kotlinUserSettings: KotlinUserSettings,
+    compilerPlugins: List<CompilerPlugin>,
+    entryPoint: String?,
+    libraryPaths: List<Path>,
+    sourceFiles: List<Path>,
+    outputPath: Path,
+): List<String> = buildList {
+    if (kotlinUserSettings.debug) {
+        add("-g")
+    }
+
+    add("-ea")
+
+    add("-produce")
+    add(if (module.type.isLibrary() && !isTest) "library" else "program")
+
+    // TODO full module path including entire hierarchy? -Xshort-module-name)
+    add("-module-name")
+    add(module.userReadableName)
+
+    add("-target")
+    add(platform.name.lowercase())
+
+    if (isTest) {
+        add("-generate-test-runner")
+    }
+
+    if (entryPoint != null) {
+        add("-entry")
+        add(entryPoint)
+    }
+
+    libraryPaths.forEach {
+        add("-library")
+        add(it.pathString)
+    }
+
+    // Common args last, because they contain free compiler args
+    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, compilerPlugins))
+
+    // -output is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
+    // TODO forbid -output in freeCompilerArgs in the frontend, so it's clearer for the users
+    add("-output")
+    add(outputPath.pathString)
+
+    addAll(sourceFiles.map { it.pathString })
 }
 
 inline fun <R> withKotlinCompilerArgFile(args: List<String>, tempRoot: AmperProjectTempRoot, block: (Path) -> R): R {

@@ -4,12 +4,16 @@
 
 package org.jetbrains.amper.tasks
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
+import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
+import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -36,14 +40,14 @@ import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
 class NativeCompileTask(
-    private val module: PotatoModule,
+    override val module: PotatoModule,
     override val platform: Platform,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
-    private val isTest: Boolean,
+    override val isTest: Boolean,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
@@ -85,6 +89,7 @@ class NativeCompileTask(
         // TODO dependencies support
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
+        val kotlinUserSettings = fragments.mergedKotlinSettings()
 
         // TODO do in separate (and cacheable) task
         val kotlinNativeHome = kotlinCompilerDownloader.downloadAndExtractKotlinNative(kotlinVersion)
@@ -113,6 +118,7 @@ class NativeCompileTask(
         val configuration: Map<String, String> = mapOf(
             "konanc.jre.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
+            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "entry.point" to (entryPoint ?: ""),
             "task.output.root" to taskOutputRoot.path.pathString,
         )
@@ -128,30 +134,7 @@ class NativeCompileTask(
             }
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
 
-            val args = mutableListOf(
-                "-g",
-                "-ea",
-                "-produce", if (module.type.isLibrary() && !isTest) "library" else "program",
-                // TODO full module path including entire hierarchy? -Xshort-module-name?
-                "-module-name", module.userReadableName,
-                "-output", artifact.pathString,
-                "-target", platform.name.lowercase(),
-                "-Xmulti-platform",
-            )
-
-            if (isTest) {
-                args.add("-generate-test-runner")
-            }
-
-            if (entryPoint != null) {
-                args.add("-entry")
-                args.add(entryPoint)
-            }
-
-            args.addAll(compiledModuleDependencies.flatMap { listOf("-l", it.pathString) })
-            args.addAll(externalDependencies
-                .filter { !it.pathString.endsWith(".jar") }
-                .flatMap { listOf("-l", it.pathString) })
+            val libraryPaths = compiledModuleDependencies + externalDependencies.filter { !it.pathString.endsWith(".jar") }
 
             val tempFilesToDelete = mutableListOf<Path>()
 
@@ -165,7 +148,14 @@ class NativeCompileTask(
                     listOf(emptyKotlinFile)
                 }
 
-                args.addAll(rootsToCompile.map { it.pathString })
+                val args = kotlinNativeCompilerArgs(
+                    kotlinUserSettings = kotlinUserSettings,
+                    compilerPlugins = emptyList(),
+                    entryPoint = entryPoint,
+                    libraryPaths = libraryPaths,
+                    sourceFiles = rootsToCompile,
+                    outputPath = artifact,
+                )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
                     // todo in the future we'll switch to kotlin tooling api and remove this awful code
