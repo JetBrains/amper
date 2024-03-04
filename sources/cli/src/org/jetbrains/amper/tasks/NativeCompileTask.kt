@@ -12,6 +12,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
+import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
 import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.compilation.withKotlinCompilerArgFile
@@ -138,6 +139,7 @@ class NativeCompileTask(
 
             val tempFilesToDelete = mutableListOf<Path>()
 
+            val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
             try {
                 val existingSourceRoots = fragments.map { it.src }.filter { it.exists() }
                 val rootsToCompile = existingSourceRoots.ifEmpty {
@@ -150,7 +152,7 @@ class NativeCompileTask(
 
                 val args = kotlinNativeCompilerArgs(
                     kotlinUserSettings = kotlinUserSettings,
-                    compilerPlugins = emptyList(),
+                    compilerPlugins = compilerPlugins,
                     entryPoint = entryPoint,
                     libraryPaths = libraryPaths,
                     sourceFiles = rootsToCompile,

@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.compilation
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.tasks.CompileTask
 import java.io.File
@@ -34,6 +37,26 @@ internal data class CompilerPlugin(
             jarPath = jarPath,
         )
     }
+}
+
+internal suspend fun KotlinCompilerDownloader.downloadCompilerPlugins(
+    kotlinVersion: String,
+    kotlinUserSettings: KotlinUserSettings,
+): List<CompilerPlugin> = coroutineScope {
+    buildList {
+        if (kotlinUserSettings.serializationEnabled) {
+            val plugin = async {
+                CompilerPlugin.serialization(downloadKotlinSerializationPlugin(kotlinVersion))
+            }
+            add(plugin)
+        }
+        if (kotlinUserSettings.composeEnabled) {
+            val plugin = async {
+                CompilerPlugin.compose(downloadKotlinComposePlugin(kotlinVersion))
+            }
+            add(plugin)
+        }
+    }.awaitAll()
 }
 
 private fun kotlinCommonCompilerArgs(

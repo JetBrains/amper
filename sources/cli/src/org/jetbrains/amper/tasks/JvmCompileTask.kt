@@ -11,10 +11,10 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.compilation.CompilerPlugin
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.asKotlinLogger
+import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.mergedKotlinSettings
@@ -226,16 +226,7 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger())
 
-        val compilerPlugins = buildList {
-            if (kotlinUserSettings.serializationEnabled) {
-                val jarPath = kotlinCompilerDownloader.downloadKotlinSerializationPlugin(compilerVersion)
-                add(CompilerPlugin.serialization(jarPath))
-            }
-            if (kotlinUserSettings.composeEnabled) {
-                val jarPath = kotlinCompilerDownloader.downloadKotlinComposePlugin(compilerVersion)
-                add(CompilerPlugin.compose(jarPath))
-            }
-        }
+        val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(compilerVersion, kotlinUserSettings)
 
         val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,
