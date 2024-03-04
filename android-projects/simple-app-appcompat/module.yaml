@@ -1,0 +1,4 @@
+product: android/app
+
+dependencies:
+  - androidx.appcompat:appcompat:1.6.1

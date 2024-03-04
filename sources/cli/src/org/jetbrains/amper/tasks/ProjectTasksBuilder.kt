@@ -111,6 +111,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             continue // TODO shouldn't we consistently keep these tasks in the graph even if they are noops?
                         }
 
+                        val dependenciesTaskName = getTaskName(module, CommonTaskType.DEPENDENCIES, platform, isTest, buildType)
                         val prepareAndroidBuildTaskName = setupPrepareAndroidTask(
                             platform,
                             module,
@@ -120,7 +121,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                             fragments,
                             buildType,
                             androidSdkPath,
-                            androidPrepareDependencies + androidCompileDependencies,
+                            androidPrepareDependencies + androidCompileDependencies + dependenciesTaskName,
                             context.userCacheRoot.path
                         )
 

@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks
 import AndroidBuildRequest
 import AndroidModuleData
 import RClassAndroidBuildResult
+import ResolvedDependency
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
@@ -32,10 +33,18 @@ class AndroidPrepareTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
+
+        val resolvedAndroidRuntimeDependencies = dependenciesResult
+            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .flatMap { it.runtimeClasspath }
+        val androidModuleData = AndroidModuleData(":", null, resolvedAndroidRuntimeDependencies.map {
+            ResolvedDependency("group", "artifact", "version", it)
+        })
+
         val request = AndroidBuildRequest(
             rootPath,
             AndroidBuildRequest.Phase.Prepare,
-            setOf(AndroidModuleData(":")),
+            setOf(androidModuleData),
             setOf(buildType.toAndroidRequestBuildType),
             sdkDir = androidSdkPath
         )
