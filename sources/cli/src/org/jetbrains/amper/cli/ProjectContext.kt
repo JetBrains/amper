@@ -60,14 +60,14 @@ data class AmperUserCacheRoot(val path: Path) {
 
             val localAppData = when (OS.type) {
                 Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path.of(it) } ?: (userHome / "AppData/Local")
-                Mac -> userHome / "Library/Application Support"
+                Mac -> userHome / "Library/Caches"
                 Linux -> {
-                    val xdgDataHome = System.getenv("XDG_DATA_HOME")
-                    if (xdgDataHome.isNullOrBlank()) userHome.resolve(".local/share") else Path.of(xdgDataHome)
+                    val xdgCacheHome = System.getenv("XDG_CACHE_HOME")
+                    if (xdgCacheHome.isNullOrBlank()) userHome.resolve(".cache") else Path.of(xdgCacheHome)
                 }
             }
 
-            val localAppDataAmper = localAppData.resolve("Amper").resolve("caches")
+            val localAppDataAmper = localAppData.resolve("Amper")
 
             return AmperUserCacheRoot(localAppDataAmper)
         }
