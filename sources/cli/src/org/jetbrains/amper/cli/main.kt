@@ -25,6 +25,8 @@ import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.tools.JaegerTool
+import org.jetbrains.amper.tools.Tool
 import org.jetbrains.amper.util.BuildType
 import org.tinylog.Level
 import kotlin.io.path.Path
@@ -41,6 +43,7 @@ private class RootCommand : CliktCommand(name = "amper") {
             RunCommand(),
             TaskCommand(),
             TasksCommand(),
+            ToolCommand(),
         )
     }
 
@@ -72,6 +75,8 @@ private class RootCommand : CliktCommand(name = "amper") {
             projectRoot = root,
             buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it) },
         )
+
+        CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
 
         if (asyncProfiler) {
             AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
@@ -156,6 +161,21 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
             platforms = platform.ifEmpty { null }?.toSet(),
             moduleName = module,
         )
+    }
+}
+
+private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
+    val tool by argument(name = "tool", help = "available: ${tools.joinToString(" ") { it.name }}")
+    val toolArguments by argument(name = "tool arguments").multiple()
+    val amperBackend by requireObject<AmperBackend>()
+    override fun run() {
+        val toolObj = tools.firstOrNull { it.name == tool }
+            ?: userReadableError("Tool '$tool' was not found. Available tools: ${tools.joinToString(" ") { it.name }}")
+        toolObj.run(toolArguments, userCacheRoot = amperBackend.context.userCacheRoot)
+    }
+
+    companion object {
+        private val tools = listOf<Tool>(JaegerTool)
     }
 }
 
