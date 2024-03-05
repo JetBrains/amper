@@ -15,6 +15,8 @@ import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.serializationFormatNone
 
 private val kotlinStdlib = kotlinDependencyOf("kotlin-stdlib")
+private val kotlinStdlibJdk8 = kotlinDependencyOf("kotlin-stdlib-jdk8")
+private val kotlinStdlibJdk7 = kotlinDependencyOf("kotlin-stdlib-jdk7")
 
 private val kotlinTest = kotlinDependencyOf("kotlin-test")
 private val kotlinTestAnnotationsCommon = kotlinDependencyOf("kotlin-test-annotations-common")
@@ -77,6 +79,14 @@ private fun Fragment.allExternalMavenDependencies() = ancestralPath()
 
 private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = buildList {
     add(kotlinStdlib)
+
+    // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
+    // Gradle module metadata
+    if (Platform.ANDROID in platforms) {
+        add(kotlinStdlibJdk7)
+        add(kotlinStdlibJdk8)
+    }
+
     if (isTest) {
         addAll(inferredTestDependencies())
     }
