@@ -6,6 +6,7 @@ package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.Context
+import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
@@ -66,22 +67,21 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 this.platform = platform
                 this.nativeTarget = nativeTarget
             }.use { context ->
-                val resolver = Resolver(
-                    ModuleDependencyNode(
-                        context,
-                        "root",
-                        coordinates.map {
-                            val (group, module, version) = it.split(":")
-                            MavenDependencyNode(context, group, module, version)
-                        }
-                    )
+                val root = ModuleDependencyNode(
+                    context,
+                    "root",
+                    coordinates.map {
+                        val (group, module, version) = it.split(":")
+                        MavenDependencyNode(context, group, module, version)
+                    }
                 )
-                resolver.buildGraph()
-                resolver.downloadDependencies()
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
 
                 val files = mutableSetOf<Path>()
-                val errors = mutableListOf<Message>()
-                for (node in resolver.root.distinctBfsSequence()) {
+                val errorNodes = mutableListOf<DependencyNode>()
+                for (node in root.distinctBfsSequence()) {
                     if (node is MavenDependencyNode) {
                         node.dependency
                             .files
@@ -94,16 +94,18 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                                 files.add(file)
                             }
                     }
-                    node.messages
-                        .filter { it.severity == Severity.ERROR }
-                        .toCollection(errors)
+                    if (node.messages.any { it.severity == Severity.ERROR }) {
+                        errorNodes.add(node)
+                    }
                 }
-                if (errors.isNotEmpty()) {
-                    val first = errors.first()
+                if (errorNodes.isNotEmpty()) {
+                    val first = errorNodes.first().messages.first { it.severity == Severity.ERROR }
                     throw MavenResolverException(first.message, first.exception).apply {
-                        errors.drop(1).map {
-                            MavenResolverException(it.message, it.exception)
-                        }.forEach { addSuppressed(it) }
+                        errorNodes.flatMap { dependency ->
+                            dependency.messages.filter { it.severity == Severity.ERROR }.map {
+                                MavenResolverException(it.message, it.exception)
+                            }
+                        }.drop(1).forEach { addSuppressed(it) }
                     }
                 }
                 files

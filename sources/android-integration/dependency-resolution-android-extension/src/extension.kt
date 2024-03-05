@@ -18,9 +18,8 @@ import kotlin.io.path.nameWithoutExtension
 /**
  * @return the list of paths which is pointed to extracted folders
  */
-suspend fun Resolver.extractAars(): List<Path> = coroutineScope {
-    root
-        .distinctBfsSequence()
+suspend fun DependencyNode.extractAars(): List<Path> = coroutineScope {
+    distinctBfsSequence()
         .filterIsInstance<MavenDependencyNode>()
         .flatMap { it.dependency.files }
         .map { async { it.getPath() } }

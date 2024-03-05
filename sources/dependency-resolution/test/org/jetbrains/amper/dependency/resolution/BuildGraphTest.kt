@@ -517,16 +517,15 @@ class BuildGraphTest {
     @Test
     fun `kotlin test with junit`() {
         context().use { context ->
-            val resolver = Resolver(
-                listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
-                    "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
-                    "org.jetbrains.kotlin:kotlin-test:1.9.20",
-                    "junit:junit:4.12",
-                ).toRootNode(context)
-            )
-            val root = resolver.root
-            runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
+            val rootNode = listOf(
+                "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
+                "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
+                "org.jetbrains.kotlin:kotlin-test:1.9.20",
+                "junit:junit:4.12",
+            ).toRootNode(context)
+            val resolver = Resolver()
+            val root = rootNode
+            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
@@ -547,15 +546,13 @@ class BuildGraphTest {
     @Test
     fun `kotlin test with junit5`() {
         context().use { context ->
-            val resolver = Resolver(
-                listOf(
-                    "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
-                    "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
-                ).toRootNode(context)
-            )
-            val root = resolver.root
-            runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
+            val root = listOf(
+                "org.jetbrains.kotlin:kotlin-test-junit5:1.9.20",
+                "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
+                "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20",
+            ).toRootNode(context)
+            val resolver = Resolver()
+            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
             |+--- org.jetbrains.kotlin:kotlin-test-junit5:1.9.20
@@ -583,17 +580,15 @@ class BuildGraphTest {
     @Test
     fun `datetime and kotlin test with junit`() {
         context().use { context ->
-            val resolver = Resolver(
-                listOf(
-                    "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
-                    "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0",
-                    "org.jetbrains.kotlin:kotlin-test:1.9.0",
-                    "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
-                    "junit:junit:4.12",
-                ).toRootNode(context)
-            )
-            val root = resolver.root
-            runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
+            val root = listOf(
+                "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
+                "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0",
+                "org.jetbrains.kotlin:kotlin-test:1.9.0",
+                "org.jetbrains.kotlin:kotlin-test-junit:1.9.20",
+                "junit:junit:4.12",
+            ).toRootNode(context)
+            val resolver = Resolver()
+            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
@@ -618,21 +613,19 @@ class BuildGraphTest {
     @Test
     fun `jackson and guava`() {
         context().use { context ->
-            val resolver = Resolver(
-                listOf(
-                    "org.antlr:antlr4-runtime:4.7.1",
-                    "org.abego.treelayout:org.abego.treelayout.core:1.0.3",
-                    "com.fasterxml.jackson.core:jackson-core:2.9.9",
-                    "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.9",
-                    "org.apache.commons:commons-lang3:3.9",
-                    "commons-io:commons-io:2.6",
-                    "org.reflections:reflections:0.9.8",
-                    "javax.inject:javax.inject:1",
-                    "net.openhft:compiler:2.3.4",
-                ).toRootNode(context)
-            )
-            val root = resolver.root
-            runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
+            val root = listOf(
+                "org.antlr:antlr4-runtime:4.7.1",
+                "org.abego.treelayout:org.abego.treelayout.core:1.0.3",
+                "com.fasterxml.jackson.core:jackson-core:2.9.9",
+                "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.9",
+                "org.apache.commons:commons-lang3:3.9",
+                "commons-io:commons-io:2.6",
+                "org.reflections:reflections:0.9.8",
+                "javax.inject:javax.inject:1",
+                "net.openhft:compiler:2.3.4",
+            ).toRootNode(context)
+            val resolver = Resolver()
+            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             assertEquals(
                 """root
             |+--- org.antlr:antlr4-runtime:4.7.1
@@ -922,11 +915,9 @@ class BuildGraphTest {
         @Language("text") expected: String
     ): DependencyNode {
         context(scope, platform, nativeTarget, repositories).use { context ->
-            val resolver = Resolver(
-                dependency.toRootNode(context)
-            )
-            val root = resolver.root
-            runBlocking { resolver.buildGraph(ResolutionLevel.NETWORK) }
+            val root = dependency.toRootNode(context)
+            val resolver = Resolver()
+            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
             root.verifyGraphConnectivity()
             if (verifyMessages) {
                 root.distinctBfsSequence().forEach {

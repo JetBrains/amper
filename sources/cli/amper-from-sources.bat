@@ -88,7 +88,10 @@ if errorlevel 1 goto fail
 popd
 if errorlevel 1 goto fail
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
+@REM set JAVA_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+set JAVA_OPTIONS=
+
+"%AMPER_JAVA_HOME%\bin\java.exe" %JAVA_OPTIONS% -ea -cp "%~dp0build\unpackedDistribution\lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /b %ERRORLEVEL%
 
 :fail

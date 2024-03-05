@@ -18,7 +18,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.concurrency.holdsLock
+import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -42,6 +45,9 @@ import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+
+
+private val logger = LoggerFactory.getLogger("files.kt")
 
 /**
  * Provides mapping between [MavenDependency] and a location on disk.
@@ -101,8 +107,8 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
         val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
         if (pathFromVariant != null) return pathFromVariant
         if (!location.exists()) return null
-        return Files.walk(location, 2).use {
-            it.filter { it.name == name }.findAny().orElse(null)
+        return Files.walk(location, 2).use { stream ->
+            stream.filter { it.name == name }.findAny().orElse(null)
         }
     }
 
@@ -201,7 +207,7 @@ open class DependencyFile(
         val path = getPath() ?: return false
         val hashers = computeHash(path)
         for (repository in repositories) {
-            val result = verify(hashers, repository, progress, cache, level)
+            val result = verify(hashers, repository, progress, cache, requestedLevel = level)
             return when (result) {
                 VerificationResult.PASSED -> true
                 VerificationResult.FAILED -> false
@@ -214,6 +220,7 @@ open class DependencyFile(
     suspend fun readText(): String = withContext(Dispatchers.IO) { getPath()?.readText() }
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
+
     suspend fun download(context: Context): Boolean =
         download(context.settings.repositories, context.settings.progress, context.resolutionCache)
 
@@ -223,17 +230,38 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean = true,
     ): Boolean = withContext(Dispatchers.IO) {
-        val temp = getCacheDirectory().getTempPath(dependency, "$nameWithoutExtension.$extension")
+        val temp = getTempFilePath()
+        return@withContext if (!temp.holdsLock(dependency)) {
+            temp.withLock(dependency) {
+                downloadUnderFileLock(repositories, progress, cache, verify)
+            }
+        } else
+            downloadUnderFileLock(repositories, progress, cache, verify)
+    }
+
+    private suspend fun downloadUnderFileLock(
+        repositories: List<String>,
+        progress: Progress,
+        cache: Cache,
+        verify: Boolean = true,
+    ): Boolean {
+        val temp = getTempFilePath()
         try {
             temp.parent.createDirectories()
             try {
-                return@withContext downloadUnderFileLock(
-                    temp, repositories, progress, cache, verify, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW
+                return downloadUnderFileLock(
+                    temp,
+                    repositories,
+                    progress,
+                    cache,
+                    verify,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE_NEW
                 )
             } catch (e: FileAlreadyExistsException) {
-                return@withContext waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
+                return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
             } catch (e: OverlappingFileLockException) {
-                return@withContext waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
+                return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
             }
         } catch (e: IOException) {
             dependency.messages.asMutable() += Message(
@@ -242,11 +270,14 @@ open class DependencyFile(
                 Severity.ERROR,
                 e,
             )
-            return@withContext false
+            return false
         } finally {
             temp.deleteIfExists()
         }
     }
+
+    private suspend fun DependencyFile.getTempFilePath() =
+        getCacheDirectory().getTempPath(dependency, "$nameWithoutExtension.$extension")
 
     private suspend fun waitForFileLockReleaseAndCheckResult(
         temp: Path,
@@ -259,8 +290,8 @@ open class DependencyFile(
         var wait = 10L
         while (true) {
             return try {
-                // Another thread has created a file, but this thread was faster to acquire a lock.
-                downloadUnderFileLock(temp, repositories, progress, cache, verify, StandardOpenOption.WRITE)
+                // Another process has created a file, but this process was faster to acquire a lock.
+                downloadUnderFileLock(temp, repositories, progress, cache, verify = verify, StandardOpenOption.WRITE)
             } catch (e: OverlappingFileLockException) {
                 // The file is still being downloaded.
                 delay(wait)
@@ -268,11 +299,18 @@ open class DependencyFile(
                 continue
             } catch (e: NoSuchFileException) {
                 // The file has been released and moved.
-                isDownloaded() && (!verify
-                        || hasMatchingChecksum(ResolutionLevel.NETWORK, repositories, progress, cache))
+                isDownloadWithVerification(verify, repositories, progress, cache)
             }
         }
     }
+
+    private suspend fun DependencyFile.isDownloadWithVerification(
+        verify: Boolean,
+        repositories: List<String>,
+        progress: Progress,
+        cache: Cache
+    ) = isDownloaded() && (!verify
+            || hasMatchingChecksum(ResolutionLevel.NETWORK, repositories, progress, cache))
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun downloadUnderFileLock(
@@ -282,14 +320,20 @@ open class DependencyFile(
         cache: Cache,
         verify: Boolean,
         vararg options: OpenOption,
-    ) = FileChannel.open(temp, *options).use { channel ->
-        channel.lock().use {
-            download(channel, temp, repositories, progress, cache, verify)
-        }
-    }
+    ) =
+        FileChannel.open(temp, *options)
+            .use { fileChannel ->
+                fileChannel.lock().use {
+                    if (isDownloadWithVerification(verify, repositories, progress, cache)) {
+                        true
+                    } else {
+                        downloadUnderFileLock(fileChannel, temp, repositories, progress, cache, verify)
+                    }
+                }
+            }
 
     @Suppress("BlockingMethodInNonBlockingContext") // the whole method is called with Dispatchers.IO
-    private suspend fun download(
+    private suspend fun downloadUnderFileLock(
         channel: FileChannel,
         temp: Path,
         repositories: List<String>,
@@ -298,7 +342,8 @@ open class DependencyFile(
         verify: Boolean,
     ): Boolean {
         for (repository in repositories) {
-            val hashers = createHashers().filter { verify || it.algorithm == "sha1" }
+            logger.trace("download: Trying to download $nameWithoutExtension from $repository")
+            val hashers = createHashers().filter { verify || it.algorithm == "sha1" }.filterWellKnownBrokenHashes(repository)
             val writers = hashers.map { it.writer } + Writer(channel::write)
             if (!download(writers, repository, progress, cache)) {
                 channel.truncate(0)
@@ -338,6 +383,14 @@ open class DependencyFile(
                 }
             }
             onFileDownloaded(target)
+            logger.info(
+                "Downloaded {}:{}:{} from {} and stored to {} ",
+                dependency.group,
+                dependency.module,
+                dependency.version,
+                repository,
+                target
+            )
             dependency.messages.asMutable() += Message("Downloaded from $repository")
             return true
         }
@@ -368,7 +421,7 @@ open class DependencyFile(
     ): VerificationResult {
         // Let's first check hashes available on disk.
         val levelToHasher = setOf(ResolutionLevel.LOCAL, requestedLevel)
-            .flatMap { level -> hashers.map { level to it } }
+            .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository).map { level to it } }
         for ((level, hasher) in levelToHasher) {
             val algorithm = hasher.algorithm
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, level) ?: continue
@@ -386,6 +439,12 @@ open class DependencyFile(
         }
         return VerificationResult.UNKNOWN
     }
+
+    private fun Collection<Hasher>.filterWellKnownBrokenHashes(repository: String) =
+        when {
+            repository == "https://plugins.gradle.org/m2/" -> filter { it.algorithm != "sha512" && it.algorithm != "sha256" }
+            else -> this
+        }
 
     enum class VerificationResult { PASSED, UNKNOWN, FAILED }
 
@@ -447,7 +506,7 @@ open class DependencyFile(
         val client = cache.computeIfAbsent(httpClientKey) {
             HttpClient(CIO) {
                 engine {
-                    requestTimeout = 5000
+                    requestTimeout = 60000
                 }
                 install(HttpRequestRetry) {
                     retryOnServerErrors(maxRetries = 3)
@@ -455,9 +514,9 @@ open class DependencyFile(
                     exponentialDelay()
                 }
                 install(HttpTimeout) {
-                    connectTimeoutMillis = 5000
-                    requestTimeoutMillis = 5000
-                    socketTimeoutMillis = 5000
+                    connectTimeoutMillis = 10000
+                    requestTimeoutMillis = 60000
+                    socketTimeoutMillis = 10000
                 }
             }
         }
@@ -491,6 +550,7 @@ open class DependencyFile(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            logger.warn("$repository: Failed to download", e)
             dependency.messages.asMutable() += Message(
                 "Unable to reach $url",
                 e.toString(),

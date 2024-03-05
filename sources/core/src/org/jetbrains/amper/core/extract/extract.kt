@@ -7,14 +7,13 @@ package org.jetbrains.amper.core.extract
 import com.google.common.io.MoreFiles
 import com.google.common.io.RecursiveDeleteOption
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.input.CloseShieldInputStream
-import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.withDoubleLock
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -26,7 +25,6 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
@@ -56,7 +54,7 @@ suspend fun extractFileWithFlag(
     flagFile: Path,
     vararg options: ExtractOptions
 ): Path = withContext(Dispatchers.IO) {
-    extractFileLock.withDoubleLock(targetDirectory.hashCode(), flagFile) {
+    withDoubleLock(targetDirectory.hashCode(), flagFile) {
         extractFileWithFlag(archiveFile, targetDirectory, it, flagFile, options)
     }
     return@withContext targetDirectory
@@ -125,18 +123,7 @@ suspend fun extractFileWithFlag(
     }
 }
 
-private suspend fun StripedMutex.withDoubleLock(hash: Int, flagFile: Path, block: suspend (FileChannel) -> Unit) {
-    // First lock locks the stuff inside one JVM process
-    getLock(hash).withLock {
-        // Second lock locks a flagFile across all processes on the system
-        FileChannel.open(flagFile, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
-            .use { flagChannel ->
-                flagChannel.lock().use {
-                    block(flagChannel)
-                }
-            }
-    }
-}
+
 
 private fun FileChannel.writeFully(bb: ByteBuffer) {
     while (bb.remaining() > 0) {
@@ -181,8 +168,6 @@ fun extractZip(archiveFile: Path, target: Path, stripRoot: Boolean) {
         }, target, stripRoot)
     }
 }
-
-private val extractFileLock = StripedMutex()
 
 private val octal_0111 = "111".toInt(8)
 
@@ -390,7 +375,7 @@ private fun checkFlagFile(
     )
 }
 
-private fun FileChannel.readEntireFileToByteArray(): ByteArray {
+fun FileChannel.readEntireFileToByteArray(): ByteArray {
     position(0)
 
     val size = Math.toIntExact(size())

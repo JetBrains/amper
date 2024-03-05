@@ -46,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @see MavenDependencyNode
  * @see Context
  */
-class Resolver(val root: DependencyNode) {
+class Resolver() {
 
     /**
      * Builds a dependency graph starting from [root].
@@ -57,7 +57,7 @@ class Resolver(val root: DependencyNode) {
      * @param level whether resolution should be performed with (default) or without network access
      * @return current instance
      */
-    suspend fun buildGraph(level: ResolutionLevel = ResolutionLevel.NETWORK) {
+    suspend fun buildGraph(root: DependencyNode, level: ResolutionLevel = ResolutionLevel.NETWORK) {
         val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies)
 
         // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
@@ -140,7 +140,7 @@ class Resolver(val root: DependencyNode) {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies() = root.distinctBfsSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
+    suspend fun downloadDependencies(node: DependencyNode) = node.distinctBfsSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
 }
 
 private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
@@ -166,7 +166,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             if (node.key in conflictedKeys) {
                 return true
             }
-            if (similarNodes.size > 1 && similarNodes.containsConflicts()) {
+            if (similarNodes.size > 1 && similarNodes.containsConflicts(node.context)) {
                 conflictedKeys += node.key
                 // We don't want to keep resolving conflicting nodes, because it's potentially pointless.
                 // They will be resolved in the next wave.
@@ -176,7 +176,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             return false
         }
 
-    private fun List<DependencyNode>.containsConflicts() = conflictResolutionStrategies.any {
+    private fun List<DependencyNode>.containsConflicts(context: Context) = conflictResolutionStrategies.any {
         it.isApplicableFor(this) && it.seesConflictsIn(this)
     }
 
