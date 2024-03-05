@@ -32,6 +32,7 @@ object DeadLockMonitor {
 
         GlobalScope.launch {
             try {
+                var timesToReport = numberOfTimesToReport
                 while (true) {
                     delay(checkInterval.toKotlinDuration())
 
@@ -52,8 +53,8 @@ object DeadLockMonitor {
                             println(PublishArtifacts(dumpFile.pathString).asString())
                         }
 
-                        numberOfTimesToReport -= 1
-                        if (numberOfTimesToReport <= 0) {
+                        timesToReport -= 1
+                        if (timesToReport <= 0) {
                             break
                         }
                     }
@@ -66,5 +67,5 @@ object DeadLockMonitor {
 
     private val considerDeadInterval = Duration.ofMinutes(1)
     private val checkInterval = considerDeadInterval.dividedBy(2)
-    private var numberOfTimesToReport = 10
+    private const val numberOfTimesToReport = 10
 }
