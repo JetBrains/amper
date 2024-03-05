@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString
-import kotlin.io.path.relativeTo
+import kotlin.io.path.relativeToOrSelf
 
 val defaultRepositories = listOf(
     "https://repo1.maven.org/maven2",
@@ -84,6 +84,7 @@ class ResolveExternalDependenciesTask(
                 "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget")
 
         val configuration = mapOf(
+            "userCacheRoot" to userCacheRoot.path.pathString,
             "dependencies" to dependenciesToResolve.joinToString("|"),
             "repositories" to repositories.joinToString("|"),
             "resolvePlatform" to resolvePlatform,
@@ -131,7 +132,7 @@ class ResolveExternalDependenciesTask(
                 "${fragments.userReadableList()} -- " +
                 "${dependenciesToResolve.joinToString(" ")} -- " +
                 "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget\n" +
-                "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeTo(userCacheRoot.path).pathString }}")
+                "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeToOrSelf(userCacheRoot.path).pathString }}")
 
         return TaskResult(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)
     }
