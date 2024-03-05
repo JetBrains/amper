@@ -29,7 +29,10 @@ import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerTool
 import org.jetbrains.amper.tools.Tool
 import org.jetbrains.amper.util.BuildType
+import org.slf4j.LoggerFactory
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
+import kotlin.io.path.deleteRecursively
 import kotlin.system.exitProcess
 
 private class RootCommand : CliktCommand(name = "amper") {
@@ -37,6 +40,7 @@ private class RootCommand : CliktCommand(name = "amper") {
         versionOption(version = AmperBuild.BuildNumber)
         subcommands(
             CleanCommand(),
+            CleanSharedCachesCommand(),
             TestCommand(),
             BuildCommand(),
             NewCommand(),
@@ -107,6 +111,17 @@ private class NewCommand : CliktCommand(name = "new", help = "New Amper project"
 private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
     val amperBackend by requireObject<AmperBackend>()
     override fun run() = amperBackend.clean()
+}
+
+private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches", help = "Remove shared caches") {
+    val amperBackend by requireObject<AmperBackend>()
+
+    @OptIn(ExperimentalPathApi::class)
+    override fun run() {
+        val root = amperBackend.context.userCacheRoot
+        LoggerFactory.getLogger(javaClass).info("Deleting ${root.path}")
+        root.path.deleteRecursively()
+    }
 }
 
 private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
