@@ -203,11 +203,12 @@ open class DependencyFile(
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
+        isLockAcquired: Boolean = false,
     ): Boolean {
         val path = getPath() ?: return false
         val hashers = computeHash(path)
         for (repository in repositories) {
-            val result = verify(hashers, repository, progress, cache, requestedLevel = level)
+            val result = verify(hashers, repository, progress, cache, isLockAcquired = isLockAcquired, requestedLevel = level)
             return when (result) {
                 VerificationResult.PASSED -> true
                 VerificationResult.FAILED -> false
@@ -228,11 +229,12 @@ open class DependencyFile(
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
+        isLockAcquired: Boolean = false,
         verify: Boolean = true,
     ): Boolean = withContext(Dispatchers.IO) {
         val temp = getTempFilePath()
-        return@withContext if (!temp.holdsLock(dependency)) {
-            temp.withLock(dependency) {
+        return@withContext if (!isLockAcquired) {
+            temp.withLock {
                 downloadUnderFileLock(repositories, progress, cache, verify)
             }
         } else
@@ -310,7 +312,7 @@ open class DependencyFile(
         progress: Progress,
         cache: Cache
     ) = isDownloaded() && (!verify
-            || hasMatchingChecksum(ResolutionLevel.NETWORK, repositories, progress, cache))
+            || hasMatchingChecksum(ResolutionLevel.NETWORK, repositories, progress, cache, isLockAcquired = true))
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun downloadUnderFileLock(
@@ -350,7 +352,7 @@ open class DependencyFile(
                 continue
             }
             if (verify) {
-                val result = verify(hashers, repository, progress, cache)
+                val result = verify(hashers, repository, progress, cache, isLockAcquired = true)
                 if (result > VerificationResult.PASSED) {
                     if (result == VerificationResult.UNKNOWN) {
                         dependency.messages.asMutable() += Message(
@@ -410,6 +412,7 @@ open class DependencyFile(
         repository,
         progress,
         cache,
+        isLockAcquired = true
     ) > VerificationResult.PASSED
 
     private suspend fun verify(
@@ -417,6 +420,7 @@ open class DependencyFile(
         repository: String,
         progress: Progress,
         cache: Cache,
+        isLockAcquired: Boolean = false,
         requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
     ): VerificationResult {
         // Let's first check hashes available on disk.
@@ -424,7 +428,8 @@ open class DependencyFile(
             .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository).map { level to it } }
         for ((level, hasher) in levelToHasher) {
             val algorithm = hasher.algorithm
-            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, level) ?: continue
+            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, isLockAcquired = isLockAcquired, level)
+                ?: continue
             val actualHash = hasher.hash
             if (expectedHash != actualHash) {
                 dependency.messages.asMutable() += Message(
@@ -453,6 +458,7 @@ open class DependencyFile(
         repository: String,
         progress: Progress,
         cache: Cache,
+        isLockAcquired: Boolean = false,
         level: ResolutionLevel = ResolutionLevel.NETWORK
     ): String? {
         val name = "$nameWithoutExtension.$extension"
@@ -473,7 +479,7 @@ open class DependencyFile(
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
             it.isDownloaded()
                     || level == ResolutionLevel.NETWORK
-                    && it.download(listOf(repository), progress, cache, verify = false)
+                    && it.download(listOf(repository), progress, cache, isLockAcquired = isLockAcquired, verify = false)
         }
         val hashFromRepository = hashFile?.readText()
         if (hashFromRepository != null) {
@@ -645,7 +651,7 @@ class SnapshotDependencyFile(
     ): String {
         if (name != "maven-metadata" &&
             (mavenMetadata.isDownloaded()
-                    || mavenMetadata.download(listOf(repository), progress, cache, verify = false))
+                    || mavenMetadata.download(listOf(repository), progress, cache, isLockAcquired = true, verify = false))
         ) {
             getSnapshotVersion()
                 ?.let { name.replace(dependency.version, it) }
