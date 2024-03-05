@@ -2,6 +2,8 @@ Fragments:
   android
     External dependencies:
       MavenDependency(coordinates=androidx.compose.animation:animation-graphics:1.4.3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
@@ -71,6 +73,8 @@ Fragments:
     
   androidTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:

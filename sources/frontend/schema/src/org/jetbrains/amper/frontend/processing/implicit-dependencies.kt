@@ -82,7 +82,7 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
 
     // hack for avoiding classpath clashes in android dependencies, until DR support dependency constraints from
     // Gradle module metadata
-    if (Platform.ANDROID in platforms) {
+    if (platforms == setOf(Platform.ANDROID)) {
         add(kotlinStdlibJdk7)
         add(kotlinStdlibJdk8)
     }

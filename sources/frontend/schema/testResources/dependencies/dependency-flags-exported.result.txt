@@ -4,6 +4,8 @@ Fragments:
       MavenDependency(coordinates=androidx.activity:activity-compose:1.6.1, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=true)
       MavenDependency(coordinates=androidx.core:core-ktx:1.9.0, compile=true, runtime=true, exported=true)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
@@ -56,6 +58,8 @@ Fragments:
     
   androidTest
     External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:1.9.20, compile=true, runtime=true, exported=false)
     Src folder: test
