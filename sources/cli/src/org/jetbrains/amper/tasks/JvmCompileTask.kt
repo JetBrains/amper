@@ -121,7 +121,7 @@ class JvmCompileTask(
                     kotlinVersion = kotlinVersion,
                     kotlinUserSettings = kotlinUserSettings,
                     classpath = classpath,
-                    friendlyClasspath = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
+                    friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
                 )
             } else {
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
@@ -153,12 +153,11 @@ class JvmCompileTask(
         kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
         classpath: List<Path>,
-        friendlyClasspath: List<Path>,
+        friendPaths: List<Path>,
     ) {
-        for (friendlyClasspathElement in friendlyClasspath) {
-            require(classpath.contains(friendlyClasspathElement)) {
-                "Classpath must contain all friendly classpath element. " +
-                        "'$friendlyClasspathElement' is not in '${classpath.joinToString(File.pathSeparator)}'"
+        for (friendPath in friendPaths) {
+            require(classpath.contains(friendPath)) {
+                "The classpath must contain all friend paths, but '$friendPath' is not in '${classpath.joinToString(File.pathSeparator)}'"
             }
         }
 
@@ -182,7 +181,7 @@ class JvmCompileTask(
                 classpath = classpath,
                 jdkHome = jdkHome,
                 sourceFiles = sourceDirectories,
-                friendlyClasspath = friendlyClasspath,
+                friendPaths = friendPaths,
             )
             if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
                 userReadableError("Kotlin compilation failed (see errors above)")
@@ -210,7 +209,7 @@ class JvmCompileTask(
         classpath: List<Path>,
         jdkHome: Path,
         sourceFiles: List<Path>,
-        friendlyClasspath: List<Path>,
+        friendPaths: List<Path>,
     ): CompilationResult {
         // TODO should we download this in a separate task?
         val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinCompilerDownloader)
@@ -235,7 +234,7 @@ class JvmCompileTask(
             jdkHome = jdkHome,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
-            friendPaths = friendlyClasspath,
+            friendPaths = friendPaths,
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
