@@ -334,6 +334,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
+            platform = "androidJvm",
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
                 |     +--- androidx.activity:activity:1.6.0
@@ -436,6 +437,49 @@ class BuildGraphTest {
         val appcompat = root.children.single() as MavenDependencyNode
         assertEquals("androidx.appcompat:appcompat:1.6.1", appcompat.toString())
         assertEquals(listOf("aar"), appcompat.dependency.files.map { it.extension }.sortedBy { it })
+        assertFiles("""
+            activity-1.6.0.aar
+            annotation-1.3.0.jar
+            annotation-experimental-1.3.0.aar
+            annotations-13.0-sources.jar
+            annotations-13.0.jar
+            appcompat-1.6.1.aar
+            appcompat-resources-1.6.1.aar
+            collection-1.1.0-sources.jar
+            collection-1.1.0.jar
+            core-1.9.0.aar
+            core-common-2.1.0-sources.jar
+            core-common-2.1.0.jar
+            core-ktx-1.2.0.aar
+            core-runtime-2.0.0.aar
+            cursoradapter-1.0.0.aar
+            customview-1.0.0.aar
+            drawerlayout-1.0.0.aar
+            fragment-1.3.6.aar
+            interpolator-1.0.0.aar
+            kotlin-stdlib-1.7.10-sources.jar
+            kotlin-stdlib-1.7.10.jar
+            kotlin-stdlib-common-1.7.10-sources.jar
+            kotlin-stdlib-common-1.7.10.jar
+            kotlin-stdlib-jdk7-1.6.0-sources.jar
+            kotlin-stdlib-jdk7-1.6.0.jar
+            kotlin-stdlib-jdk8-1.6.0-sources.jar
+            kotlin-stdlib-jdk8-1.6.0.jar
+            kotlinx-coroutines-android-1.6.1.jar
+            kotlinx-coroutines-core-jvm-1.6.1.jar
+            lifecycle-common-2.5.1.jar
+            lifecycle-livedata-2.0.0.aar
+            lifecycle-livedata-core-2.5.1.aar
+            lifecycle-runtime-2.5.1.aar
+            lifecycle-viewmodel-2.5.1.aar
+            lifecycle-viewmodel-savedstate-2.5.1.aar
+            loader-1.0.0.aar
+            savedstate-1.2.0.aar
+            vectordrawable-1.1.0.aar
+            vectordrawable-animated-1.1.0.aar
+            versionedparcelable-1.1.1.aar
+            viewpager-1.0.0.aar
+        """.trimIndent(), root)
     }
 
     @Test

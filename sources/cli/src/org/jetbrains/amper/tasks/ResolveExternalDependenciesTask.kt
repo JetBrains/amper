@@ -69,7 +69,8 @@ class ResolveExternalDependenciesTask(
         // but the current implementation requires a full review of it
 
         val (resolvePlatform,  resolveNativeTarget) = when {
-            platform == Platform.JVM || platform == Platform.ANDROID -> "jvm" to null
+            platform == Platform.JVM -> "jvm" to null
+            platform == Platform.ANDROID -> "androidJvm" to null
             platform.topmostParentNoCommon == Platform.NATIVE -> "native" to platform.name.lowercase()
             else -> {
                 logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")

@@ -237,15 +237,21 @@ class MavenDependency internal constructor(
             )
             return
         }
-        module.variants.filter {
-            it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions()
-        }.filter {
-            context.settings.platform.matches(it)
-                    && context.settings.nativeTargetMatches(it)
-                    && context.settings.scope.matches(it)
-        }.also {
+
+        val initiallyFilteredVariants = module
+            .variants
+            .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
+            .filter { context.settings.nativeTargetMatches(it) }
+            .filter { context.settings.scope.matches(it) }
+
+        val validVariants = initiallyFilteredVariants
+            .filter { context.settings.platform.matches(it) }
+            .takeIf { it.withoutDocumentation.isNotEmpty() || context.settings.platform != "androidJvm" }
+            ?: initiallyFilteredVariants.filter { "jvm".matches(it) }
+
+        return validVariants.also {
             variants = it
-            if (it.filterNot { it.attributes["org.gradle.category"] == "documentation" }.size > 1) {
+            if (it.withoutDocumentation.size > 1) {
                 messages.asMutable() += Message(
                     "More than a single variant provided",
                     it.joinToString { it.name },
@@ -403,6 +409,9 @@ class MavenDependency internal constructor(
 
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
+
+    private val Collection<Variant>.withoutDocumentation: Collection<Variant> get() =
+        filterNot { it.attributes["org.gradle.category"] == "documentation" }
 
     suspend fun downloadDependencies(context: Context) {
         files
