@@ -21,14 +21,12 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.diagnostics.DynamicLevelLoggingProvider
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerTool
 import org.jetbrains.amper.tools.Tool
 import org.jetbrains.amper.util.BuildType
-import org.tinylog.Level
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
@@ -68,15 +66,13 @@ private class RootCommand : CliktCommand(name = "amper") {
 
         CliEnvironmentInitializer.setup()
 
-        val provider = org.tinylog.provider.ProviderRegistry.getLoggingProvider() as DynamicLevelLoggingProvider
-        provider.setActiveLevel(if (debug) Level.DEBUG else Level.INFO)
-
         val projectContext = ProjectContext.create(
             projectRoot = root,
             buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it) },
         )
 
         CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
+        CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, enableConsoleDebugLogging = debug)
 
         if (asyncProfiler) {
             AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)

@@ -16,14 +16,19 @@ import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.opentelemetry.sdk.trace.export.SpanExporter
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.DynamicFileWriter
+import org.jetbrains.amper.diagnostics.DynamicLevelConsoleWriter
 import org.jetbrains.amper.diagnostics.JaegerJsonSpanExporter
 import org.slf4j.LoggerFactory
+import org.tinylog.Level
+import org.tinylog.core.TinylogLoggingProvider
+import org.tinylog.provider.ProviderRegistry
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
-
+import kotlin.io.path.createDirectories
 
 object CliEnvironmentInitializer {
     private val init by lazy {
@@ -34,10 +39,25 @@ object CliEnvironmentInitializer {
 
     fun setup() = init
 
+    fun setupLogging(logsRoot: AmperBuildLogsRoot, enableConsoleDebugLogging: Boolean) {
+        logsRoot.path.createDirectories()
+
+        val loggingProvider = ProviderRegistry.getLoggingProvider() as TinylogLoggingProvider
+
+        loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single()
+            .setLevel(if (enableConsoleDebugLogging) Level.DEBUG else Level.INFO)
+
+        loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.DEBUG }
+            .setFile(logsRoot.path.resolve("${logFilePrefix}-debug.log"))
+
+        loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.INFO }
+            .setFile(logsRoot.path.resolve("${logFilePrefix}-info.log"))
+    }
+
     fun setupTelemetry(logsRoot: AmperBuildLogsRoot) {
         // TODO: Implement some kind of background batch processing like in intellij
-        val datetime = SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())
-        val spansFile = logsRoot.path.resolve("amper-$datetime-${AmperBuild.BuildNumber}.jaeger.json")
+
+        val spansFile = logsRoot.path.resolve("${logFilePrefix}-jaeger.json")
 
         val jaegerJsonSpanExporter = JaegerJsonSpanExporter(
             file = spansFile,
@@ -83,6 +103,10 @@ object CliEnvironmentInitializer {
                 LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${t.message}", t)
             }
         })
+    }
+
+    val logFilePrefix by lazy {
+        "amper-${SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())}-${AmperBuild.BuildNumber}"
     }
 
     private val resource: Resource = Resource.create(

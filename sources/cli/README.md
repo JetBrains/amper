@@ -19,7 +19,7 @@ Depending on your operating system, use one of the following commands to downloa
 ### Linux/mac
 
 ```
-curl -L "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-460/cli-0.3.0-dev-460-wrapper.sh?download=true" > amper.sh & chmod +x amper.sh
+curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-460/cli-0.3.0-dev-460-wrapper.sh?download=true" && chmod +x amper.sh
 ```
 
 ### Windows (powershell)
@@ -63,10 +63,52 @@ This will show you the available options and parameters for the Amper CLI comman
 
 ## Troubleshooting
 
+### Debug logs
+
+Please refer to `amper-*-debug.log` and `amper-*-info.log` files under `build/logs` directory
+
+### OpenTelemetry traces
+
+Amper provides information what exactly was executed and when.
+Corresponding logs are written to `amper-*-jaeger.json` files under `build/logs` directory.
+
+Traces format is very useful to understand exact compiler options or how tasks run in parallel.
+
+To open and analyze traces, run [jaeger](https://www.jaegertracing.io) service,
+navigate to [http://localhost:16686](http://localhost:16686),
+go to `Search -> Upload` section to upload and explore `amper-*-jaeger.json` files.
+
+Execute the following command to run [jaeger](https://www.jaegertracing.io):
+
+```
+./amper.sh tool jaeger
+```
+
+### Profiling
+
+Amper has embedded profiling feature, so you can [async-profiler](https://github.com/async-profiler/async-profiler)
+right from command line and collect .jfr profiling snapshot.
+Drag and drop .jfr file to IntelliJ Ultimate window to analyze the snapshot.
+
+```
+./amper.sh --async-profiler build
+```
+
+### Reporting issues
 Please report issues to our [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) tracker. Provide as much information 
 as possible, such as:
 - Your operating system and architecture
 - The Amper version
 - The Amper project files
 - The console output and error messages
+- (optional, but advised) logs from `build/logs` directory
 - The steps to reproduce the issue
+
+## Running Amper CLI from sources
+
+It is possible to use Amper CLI built from sources, please check out the Amper project
+and use the following instead of `amper.sh` or `amper.bat`:
+
+```
+/path/to/amper/checkout/sources/cli/amper-from-sources.sh
+```

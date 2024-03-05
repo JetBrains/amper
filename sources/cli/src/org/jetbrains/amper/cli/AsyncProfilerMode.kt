@@ -7,12 +7,9 @@ package org.jetbrains.amper.cli
 import com.google.common.hash.Hashing
 import com.sun.jna.Platform
 import one.profiler.AsyncProfiler
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.util.OS
 import org.slf4j.LoggerFactory
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
@@ -43,8 +40,7 @@ object AsyncProfilerMode {
             libFile.writeBytes(libBytes)
         }
 
-        val datetime = SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())
-        val snapshotFile = logsDir.path.resolve("amper-$datetime-${AmperBuild.BuildNumber}.jfr")
+        val snapshotFile = logsDir.path.resolve("${CliEnvironmentInitializer.logFilePrefix}.jfr")
             .also { it.parent.createDirectories() }
         val startCommand = "start,file=$snapshotFile,event=wall,interval=10ms,jfr,jfrsync=profile"
 
