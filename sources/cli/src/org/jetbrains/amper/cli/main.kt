@@ -21,6 +21,8 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.path
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
@@ -51,6 +53,18 @@ private class RootCommand : CliktCommand(name = "amper") {
 
     val debug by option(help = "Enable debug output").flag(default = false)
 
+    val sharedCachesRoot by option(
+        "--shared-caches-root",
+        help = "Custom shared caches root " +
+                // see org.jetbrains.amper.cli.AmperUserCacheRoot.Companion.fromCurrentUser
+                when (DefaultSystemInfo.detect().family) {
+                    SystemInfo.OsFamily.Windows -> "(default: %LOCALAPPDATA%/Amper)"
+                    SystemInfo.OsFamily.Linux -> "(default: ~/.cache/Amper)"
+                    SystemInfo.OsFamily.MacOs -> "(default: ~/Library/Caches/Amper)"
+                    else -> ""
+                })
+        .path(canBeFile = false)
+
     val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
     val buildOutputRoot by option(
@@ -68,7 +82,8 @@ private class RootCommand : CliktCommand(name = "amper") {
 
         val projectContext = ProjectContext.create(
             projectRoot = root,
-            buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it) },
+            buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it.toAbsolutePath()) },
+            userCacheRoot = sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) } ,
         )
 
         CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
