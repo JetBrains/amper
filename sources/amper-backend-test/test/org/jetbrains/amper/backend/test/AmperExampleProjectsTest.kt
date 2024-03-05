@@ -134,12 +134,11 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         val projectContext = setupExampleProject("compose-desktop")
         projectContext.assertHasTasks(jvmAppTasks)
 
-        // TODO enable once DR performance fix is merged
-//        AmperBackend(projectContext).compile()
-//
-//        assertKotlinJvmCompilationSpan {
-//            hasCompilerArgumentStartingWith("-Xplugin=")
-//        }
+        AmperBackend(projectContext).compile()
+
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgumentStartingWith("-Xplugin=")
+        }
     }
 
     private fun ProjectContext.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
