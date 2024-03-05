@@ -18,6 +18,7 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
 import kotlin.io.path.name
 
@@ -38,12 +39,22 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 if (url.startsWith("http://")) {
                     // TODO: Special --insecure-http-repositories option or some flag in project.yaml
                     // to acknowledge http:// usage
-                    logger.warn("http:// repositories are not secure and should not be used: $url")
+
+                    // report only once per `url`
+                    if (alreadyReportedHttpRepositories.put(url, true) == null) {
+                        logger.warn("http:// repositories are not secure and should not be used: $url")
+                    }
+
                     continue
                 }
 
                 if (!url.startsWith("https://")) {
-                    logger.warn("Non-https repositories are not supported, skipping url: $url")
+
+                    // report only once per `url`
+                    if (alreadyReportedNonHttpsRepositories.put(url, true) == null) {
+                        logger.warn("Non-https repositories are not supported, skipping url: $url")
+                    }
+
                     continue
                 }
 
@@ -116,6 +127,9 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         get() = "$text ($extra)"
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
+    private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
 }
 
 class MavenResolverException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
