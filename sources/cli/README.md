@@ -67,6 +67,11 @@ This will show you the available options and parameters for the Amper CLI comman
 
 Please refer to `amper-*-debug.log` and `amper-*-info.log` files under `build/logs` directory
 
+### Deadlocks
+
+If Amper does not write anything to DEBUG log for a minute, it will report current threads stacktrace and
+current kotlin coroutines to `thread-dump-*.txt` files under `build/logs` directory
+
 ### OpenTelemetry traces
 
 Amper provides information what exactly was executed and when.
