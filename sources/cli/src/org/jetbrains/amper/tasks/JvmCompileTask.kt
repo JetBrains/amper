@@ -162,6 +162,7 @@ class JvmCompileTask(
             }
         }
 
+        // TODO settings!
         val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
 
         val sourcesFiles = sourceDirectories.flatMap { it.walk() }
@@ -174,7 +175,6 @@ class JvmCompileTask(
             //  is it worth it? Could we always set -Xmulti-platform?
             val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
 
-            // TODO settings!
             val kotlinCompilationResult = compileKotlinSources(
                 compilerVersion = kotlinVersion,
                 kotlinUserSettings = kotlinUserSettings,
