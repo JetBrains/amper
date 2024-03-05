@@ -20,6 +20,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.name
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -404,7 +405,13 @@ class MavenDependency internal constructor(
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
     suspend fun downloadDependencies(context: Context) {
-        files.filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
+        files
+            .filter {
+                // filter out sources/javadocs if those are not requested in settings
+                context.settings.downloadSources
+                        || (!"${it.nameWithoutExtension}.${it.extension}".let { name -> name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar") } )
+            }
+            .filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
             .forEach { it.download(context) }
     }
 }

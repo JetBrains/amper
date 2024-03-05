@@ -87,6 +87,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
+    var downloadSources: Boolean = false
 
     init {
         apply(init)
@@ -101,6 +102,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             repositories,
             FileCacheBuilder(cache).build(),
             conflictResolutionStrategies,
+            downloadSources
         )
 }
 
@@ -142,6 +144,7 @@ data class Settings(
     val repositories: List<String>,
     val fileCache: FileCache,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
+    val downloadSources: Boolean
 )
 
 /**

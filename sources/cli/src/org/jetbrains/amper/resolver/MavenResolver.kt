@@ -77,6 +77,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
                 this.platform = platform
                 this.nativeTarget = nativeTarget
+                this.downloadSources = false
             }.use { context ->
                 val root = ModuleDependencyNode(
                     context,
