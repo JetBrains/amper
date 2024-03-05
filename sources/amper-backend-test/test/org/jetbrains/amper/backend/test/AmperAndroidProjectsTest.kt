@@ -6,6 +6,11 @@
 
 package org.jetbrains.amper.backend.test
 
+import com.android.tools.apk.analyzer.BinaryXmlParser
+import com.google.devrel.gmscore.tools.apk.arsc.ArscBlamer
+import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceFile
+import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceIdentifier
+import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.count
@@ -19,16 +24,19 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.div
 import kotlin.io.path.extension
 import kotlin.io.path.name
+import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
@@ -86,14 +94,16 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         assertStringContainsInResources("My Library", aarPath)
     }
 
-    private fun assertStringContainsInResources(value: String, aarPath: Path) {
-        val extractedAarPath = aarPath.parent.resolve("extractedAar")
-        val valuesXml = extractedAarPath
-            .walk()
-            .filter { it.extension == "xml" }
-            .filter { "values" in it.name }
-            .firstOrNull() ?: fail("There is no values.xml in AAR")
-        assertContains(valuesXml.readText(), value)
+    @Test
+    fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple-app-appcompat")
+        val taskName = TaskName.fromHierarchy(listOf("simple-app-appcompat", "buildAndroidDebug"))
+        AmperBackend(projectContext).runTask(taskName)
+        val apkPath = projectContext.getApkPath(taskName)
+        val extractedApkPath = apkPath.parent.resolve("extractedApk")
+        extractZip(apkPath, extractedApkPath, false)
+        val themeReference = getThemeReferenceFromAndroidManifest(extractedApkPath)
+        assertThemeContainsInResources(extractedApkPath / "resources.arsc", themeReference)
     }
 
     @Test
@@ -116,6 +126,37 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         assertStdoutContains("task :simple-app:transformDependencies -> :simple-app:resolveDependenciesAndroid")
         // test
         assertStdoutContains("task :simple-app:transformDependenciesTest -> :simple-app:resolveDependenciesAndroidTest")
+    }
+
+    private fun assertThemeContainsInResources(resourcesPath: Path, themeReference: Int) {
+        val res = BinaryResourceFile((resourcesPath).readBytes())
+        val chunk = res.chunks[0] as ResourceTableChunk
+        val blamer = ArscBlamer(chunk)
+        blamer.blame()
+        val a: BinaryResourceIdentifier = BinaryResourceIdentifier.create(themeReference)
+        assertTrue(blamer.resourceEntries.entries().any { it.value.parent().containsResource(a) })
+    }
+
+    private fun getThemeReferenceFromAndroidManifest(extractedApkPath: Path): Int {
+        val decodedXml = BinaryXmlParser.decodeXml(
+            "AndroidManifest.xml",
+            Files.readAllBytes(extractedApkPath / "AndroidManifest.xml")
+        )
+        val decodedXmlString = decodedXml.decodeToString()
+        val groups = "android:theme=\"@ref/(.*)\"".toRegex().find(decodedXmlString)
+        val hex = groups?.groupValues?.get(1) ?: fail("There is no android theme reference in AndroidManifest.xml")
+        val themeReference = hex.removePrefix("0x").toInt(16)
+        return themeReference
+    }
+
+    private fun assertStringContainsInResources(value: String, aarPath: Path) {
+        val extractedAarPath = aarPath.parent.resolve("extractedAar")
+        val valuesXml = extractedAarPath
+            .walk()
+            .filter { it.extension == "xml" }
+            .filter { "values" in it.name }
+            .firstOrNull() ?: fail("There is no values.xml in AAR")
+        assertContains(valuesXml.readText(), value)
     }
 
     private fun ProjectContext.getAarPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
