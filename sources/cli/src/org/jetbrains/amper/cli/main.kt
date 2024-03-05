@@ -90,6 +90,7 @@ private class RootCommand : CliktCommand(name = "amper") {
             userCacheRoot = sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) } ,
         )
 
+        CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
         CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
         CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, enableConsoleDebugLogging = debug)
 

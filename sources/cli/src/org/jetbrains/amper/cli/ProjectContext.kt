@@ -32,6 +32,13 @@ class ProjectContext(
         ): ProjectContext {
             val buildOutputRootNotNull = buildOutputRoot ?: AmperBuildOutputRoot(projectRoot.resolve("build"))
             val userCacheRootNotNull = userCacheRoot ?: AmperUserCacheRoot.fromCurrentUser()
+
+            for (path in listOf(userCacheRootNotNull.path, buildOutputRootNotNull.path, projectRoot)) {
+                require(path.isAbsolute) {
+                    "Path must be absolute: $path"
+                }
+            }
+
             return ProjectContext(
                 projectRoot = AmperProjectRoot(projectRoot),
                 buildOutputRoot = buildOutputRootNotNull,

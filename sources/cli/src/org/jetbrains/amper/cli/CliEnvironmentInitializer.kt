@@ -14,8 +14,11 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.opentelemetry.sdk.trace.export.SpanExporter
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.DynamicFileWriter
 import org.jetbrains.amper.diagnostics.DynamicLevelConsoleWriter
 import org.jetbrains.amper.diagnostics.JaegerJsonSpanExporter
@@ -31,13 +34,22 @@ import kotlin.concurrent.thread
 import kotlin.io.path.createDirectories
 
 object CliEnvironmentInitializer {
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val init by lazy {
         // see https://github.com/Anamorphosee/stacktrace-decoroutinator#motivation
         // Temporary disabled due to unresolved issues with it AMPER-396 CLI: Provide coroutine stacktraces
         // DecoroutinatorRuntime.load()
+
+        // coroutines debug probes, required to dump coroutines
+        DebugProbes.enableCreationStackTraces = false
+        DebugProbes.install()
     }
 
     fun setup() = init
+
+    fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot) {
+        DeadLockMonitor.install(logsRoot)
+    }
 
     fun setupLogging(logsRoot: AmperBuildLogsRoot, enableConsoleDebugLogging: Boolean) {
         logsRoot.path.createDirectories()
@@ -106,8 +118,10 @@ object CliEnvironmentInitializer {
     }
 
     val logFilePrefix by lazy {
-        "amper-${SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())}-${AmperBuild.BuildNumber}"
+        "amper-${currentTimestamp()}-${AmperBuild.BuildNumber}"
     }
+
+    fun currentTimestamp() = SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())
 
     private val resource: Resource = Resource.create(
         Attributes.builder()

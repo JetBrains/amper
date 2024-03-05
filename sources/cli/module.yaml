@@ -47,6 +47,8 @@ dependencies:
   - org.jetbrains.kotlinx:atomicfu:0.23.1
   - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
   - org.jetbrains.intellij.deps:async-profiler:3.0-1
+  - org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.8.0
+  - org.jetbrains.teamcity:serviceMessages:2023.11.1
 
 test-dependencies:
   - ../test-base
