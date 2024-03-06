@@ -24,6 +24,13 @@ import kotlin.io.path.pathString
 import kotlin.time.toKotlinDuration
 
 object DeadLockMonitor {
+    // we probably need to think of better mechanism of deadlock detection disabled
+    // since adding this call to any task that calls user code is unfeasible in the long run,
+    // or we may change a way of detecting deadlocks in coroutines
+    fun disable() {
+        disabled = true
+    }
+
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun install(logsRoot: AmperBuildLogsRoot) {
         require(DebugProbes.isInstalled) {
@@ -32,8 +39,8 @@ object DeadLockMonitor {
 
         GlobalScope.launch {
             try {
-                var timesToReport = numberOfTimesToReport
-                while (true) {
+                var timesToReport = MAX_NUMBER_OF_TIMES_TO_REPORT
+                while (!disabled) {
                     delay(checkInterval.toKotlinDuration())
 
                     val lastLog = LastLogMonitoringWriter.lastLogEntryTimestamp
@@ -65,7 +72,10 @@ object DeadLockMonitor {
         }
     }
 
+    @Volatile
+    private var disabled = false
+
     private val considerDeadInterval = Duration.ofMinutes(1)
     private val checkInterval = considerDeadInterval.dividedBy(2)
-    private const val numberOfTimesToReport = 10
+    private const val MAX_NUMBER_OF_TIMES_TO_REPORT = 10
 }

@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -33,6 +34,8 @@ class JvmTestTask(
     override val platform: Platform = Platform.JVM
 
     override suspend fun run(dependenciesResult: List<TaskResult>): JvmTestTaskResult {
+        DeadLockMonitor.disable()
+
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar
         val junitConsoleUrl = Downloader.getUriForMavenArtifact(
             mavenRepository = "https://repo1.maven.org/maven2",

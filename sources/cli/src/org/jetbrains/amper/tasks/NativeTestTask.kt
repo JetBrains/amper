@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
@@ -23,6 +24,8 @@ class NativeTestTask(
     override val platform: Platform,
 ) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+        DeadLockMonitor.disable()
+
         val compileTaskResult = dependenciesResult.filterIsInstance<NativeCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 

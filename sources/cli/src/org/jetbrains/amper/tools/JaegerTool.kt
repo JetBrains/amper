@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.intellij.CommandLineUtils
@@ -40,6 +41,8 @@ object JaegerTool: Tool {
 
             val executable = root.resolve("jaeger-all-in-one${if (os.family == SystemInfo.OsFamily.Windows) ".exe" else ""}")
             val cmd = listOf(executable.pathString) + args
+
+            DeadLockMonitor.disable()
 
             val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
                 .inheritIO()

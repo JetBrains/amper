@@ -8,6 +8,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
@@ -45,6 +46,8 @@ class JvmRunTask(
     private val mainClassName = fragments.firstNotNullOfOrNull { it.settings.jvm.mainClass }
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+        DeadLockMonitor.disable()
+
         val mainClassReal = if (mainClassName != null) {
             // explicitly defined in module files
             mainClassName
