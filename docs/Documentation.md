@@ -500,6 +500,14 @@ android.useAndroidX=true
 org.gradle.jvmargs=-Xmx4g
 ```
 
+Also, you can specify the exact version of the Compose plugin to use:
+```yaml
+...
+settings: 
+  compose:
+    version: 1.5.10
+```
+
 #### Configuring entry points
 
 ##### JVM
