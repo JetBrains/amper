@@ -14,6 +14,8 @@ import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.processes.withGuaranteedTermination
+import org.jetbrains.amper.util.ShellQuoting
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.Path
@@ -26,6 +28,22 @@ import kotlin.io.path.pathString
  * a comprehensive support in a build system to make it observable
  */
 object BuildPrimitives {
+
+    /**
+     * Convenient shortcut for [runProcessAndGetOutput].
+     */
+    suspend inline fun runProcessAndGetOutput(
+        workingDir: Path,
+        vararg command: String,
+        span: Span? = null,
+        logCall: Logger? = null,
+        environment: Map<String, String> = emptyMap(),
+        hideOutput: Boolean = false,
+    ): ProcessResult {
+        logCall?.logProcessCall(command.toList())
+        return runProcessAndGetOutput(command.toList(), workingDir, span, environment, hideOutput)
+    }
+
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
@@ -51,6 +69,8 @@ object BuildPrimitives {
         workingDir: Path,
         span: Span? = null,
         environment: Map<String, String> = emptyMap(),
+        /** If should print out to the main process also */
+        hideOutput: Boolean = false,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -73,8 +93,8 @@ object BuildPrimitives {
                     logger.warn("Unable to close process stdin: ${t.message}", t)
                 }
                 process.awaitAndGetAllOutput(
-                    onStdoutLine = System.out::println,
-                    onStderrLine = System.err::println,
+                    onStdoutLine = if (hideOutput) { { } } else System.out::println,
+                    onStderrLine = if (hideOutput) { { } } else System.err::println,
                 )
             }
         }
@@ -103,4 +123,7 @@ object BuildPrimitives {
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    fun Logger.logProcessCall(command: List<String>) =
+        info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
 }

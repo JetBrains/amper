@@ -16,25 +16,34 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 /**
  * Setup apple related tasks.
  */
-fun TaskGraphBuilder.setupAppleTask(
-    name: TaskName,
+fun TaskGraphBuilder.setupAppleTasks(
+    buildTaskName: TaskName,
+    runTaskName: TaskName,
     module: PotatoModule,
+    platform: Platform,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     dependsOn: List<TaskName>,
-    taskOutput: TaskOutputRoot,
+    taskOutput: (TaskName) -> TaskOutputRoot,
 ): TaskName {
     registerTask(
         task = BuildAppleTask(
-            Platform.IOS_SIMULATOR_ARM64,
+            platform,
             module,
             buildType,
             executeOnChangedInputs,
-            taskOutput,
-            name,
+            taskOutput(buildTaskName),
+            buildTaskName,
         ),
         dependsOn = dependsOn
     )
 
-    return name
+    registerTask(
+        task = RunAppleTask(
+            runTaskName,
+            taskOutput(runTaskName),
+        ),
+        dependsOn = listOf(buildTaskName)
+    )
+    return buildTaskName
 }

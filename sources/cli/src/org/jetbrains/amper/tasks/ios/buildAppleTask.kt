@@ -11,13 +11,13 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.forClosure
+import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.intellij.MockProjectInitializer
 import org.jetbrains.amper.tasks.NativeCompileTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -38,8 +38,9 @@ class BuildAppleTask(
 
         val project = MockProjectInitializer.mockProject
         val leafAppleFragment = module.leafFragments.first { it.platform == targetPlatform }
-        val targetName = "${targetPlatform.pretty}App"
+        val targetName = targetPlatform.pretty
         val productName = module.userReadableName
+        val productBundleIdentifier = getQualifiedName(leafAppleFragment.settings, targetName, productName)
 
         // Define required apple sources.
         val currentPlatformFamily = targetPlatform.parent?.let { it.leaves + it } ?: emptySet()
@@ -64,21 +65,25 @@ class BuildAppleTask(
             )
 
             executeOnChangedInputs.execute(
-                "build-${targetPlatform.pretty}-app",
+                "build-${targetPlatform.pretty}",
                 config,
                 appleSources.map { it.toPath() } + nativeCompileTasksResults,
             ) {
+                logger.info("Generating xcode project")
                 doGenerateBuildableXcodeproj(
                     module,
                     leafAppleFragment,
                     targetName,
                     productName,
+                    productBundleIdentifier,
                     buildType,
                     appleSources,
                     nativeCompileTasksResults.map { it.toFile() },
                 )
 
-                val command = listOf(
+                // TODO Maybe we dont need output here?
+                BuildPrimitives.runProcessAndGetOutput(
+                    baseDir.toPath(),
                     "xcrun",
                     "xcodebuild",
                     "-project", projectDir.path,
@@ -90,27 +95,36 @@ class BuildAppleTask(
                     "-derivedDataPath", derivedDataPathString,
                     "-sdk", targetPlatform.platform,
                     "build",
-                )
-
-                logger.info("Calling xcode build: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
-                BuildPrimitives.runProcessAndGetOutput(
-                    command,
-                    baseDir.toPath(),
+                    logCall = logger,
+                    hideOutput = true,
                 )
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))
             }
 
-            Result(appPath.toPath())
+            Result(
+                productBundleIdentifier,
+                appPath.toPath()
+            )
         }
     }
 
     class Result(
+        val bundleId: String,
         val appPath: Path,
     ) : TaskResult {
         override val dependencies = emptyList<TaskResult>()
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
 }
+
+private fun getQualifiedName(
+    settings: Settings,
+    targetName: String,
+    productName: String,
+): String = listOfNotNull(
+    settings.publishing?.group?.takeIf { it.isNotBlank() },
+    targetName,
+    productName.takeIf { it.isNotBlank() }
+).joinToString(".")

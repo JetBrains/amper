@@ -24,7 +24,6 @@ import com.jetbrains.cidr.xcode.plist.XMLPlistDriver
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.util.BuildType
 import java.io.BufferedOutputStream
 import java.io.File
@@ -37,6 +36,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     fragment: LeafFragment,
     targetName: String,
     productName: String,
+    productBundleIdentifier: String,
     buildType: BuildType,
     appleSources: Set<File>,
     frameworkDependencies: List<File>,
@@ -67,7 +67,6 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         addFile(infoPlistFile.path, emptyArray(), mainGroup, false)
 
         // Prepare settings.
-        val productBundleIdentifier = getQualifiedName(fragment.settings, targetName, productName)
         val settings = mutableMapOf<String, Any?>(
             BuildSettingNames.INFOPLIST_FILE to infoPlistFile.relativeToBase().path,
             BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER to productBundleIdentifier,
@@ -209,16 +208,6 @@ private fun FileConventions.addFrameworksStages(
         ), pbxTarget
     )
 }
-
-private fun getQualifiedName(
-    settings: Settings,
-    targetName: String,
-    productName: String,
-): String = listOfNotNull(
-    settings.publishing?.group?.takeIf { it.isNotBlank() },
-    targetName,
-    productName.takeIf { it.isNotBlank() }
-).joinToString(".")
 
 private fun writePlist(
     baseDir: File,
