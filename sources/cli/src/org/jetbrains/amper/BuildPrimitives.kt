@@ -32,15 +32,15 @@ object BuildPrimitives {
     /**
      * Convenient shortcut for [runProcessAndGetOutput].
      */
-    suspend inline fun runProcessAndGetOutput(
+    suspend fun runProcessAndGetOutput(
         workingDir: Path,
         vararg command: String,
         span: Span? = null,
-        logCall: Logger? = null,
+        logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
         hideOutput: Boolean = false,
     ): ProcessResult {
-        logCall?.logProcessCall(command.toList())
+        if (logCall) logger.logProcessCall(command.toList())
         return runProcessAndGetOutput(command.toList(), workingDir, span, environment, hideOutput)
     }
 
@@ -124,6 +124,6 @@ object BuildPrimitives {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun Logger.logProcessCall(command: List<String>) =
-        info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
+    private fun Logger.logProcessCall(command: List<String>) =
+        this.info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")
 }

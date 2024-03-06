@@ -83,7 +83,11 @@ class NativeCompileTask(
                     result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.compileClasspath }
                 })
             .distinct()
-        logger.warn("native compile ${module.userReadableName} -- collected external dependencies\n${externalDependencies.sorted().joinToString("\n").prependIndent("  ")}")
+        logger.warn("" +
+                "native compile ${module.userReadableName} -- collected external dependencies" +
+                if (externalDependencies.isNotEmpty()) "\n" else "" +
+                externalDependencies.sorted().joinToString("\n").prependIndent("  ")
+        )
 
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
@@ -163,6 +167,7 @@ class NativeCompileTask(
                     libraryPaths = libraryPaths,
                     sourceFiles = rootsToCompile,
                     outputPath = artifact,
+                    isFramework = isFramework,
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->

@@ -31,13 +31,13 @@ class RunAppleTask(
             .filterIsInstance<BuildAppleTask.Result>()
             .firstOrNull() ?: error("Expected to have \"BuildAppleTask\" as a dependency")
 
-        val chosenDevice = queryDevices("available").firstOrNull()
+        val chosenDevice = queryDevices().firstOrNull()
             ?: error("No available device")
 
         BuildPrimitives.runProcessAndGetOutput(
             taskOutputPath.path,
             "open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", chosenDevice.deviceId,
-            logCall = logger,
+            logCall = true,
         )
 
         // Wait for booting.
@@ -55,13 +55,13 @@ class RunAppleTask(
         BuildPrimitives.runProcessAndGetOutput(
             taskOutputPath.path,
             "xcrun", "simctl", "install", chosenDevice.deviceId, builtApp.appPath.pathString,
-            logCall = logger,
+            logCall = true,
         )
 
         BuildPrimitives.runProcessAndGetOutput(
             taskOutputPath.path,
             "xcrun", "simctl", "launch", chosenDevice.deviceId, builtApp.bundleId,
-            logCall = logger,
+            logCall = true,
         )
 
         return Result()
@@ -69,11 +69,11 @@ class RunAppleTask(
 
     data class Device(val deviceId: String, val status: String)
 
-    private suspend fun queryDevices(filter: String): List<Device> {
+    private suspend fun queryDevices(filter: String = "available"): List<Device> {
         val simcltListOut = BuildPrimitives.runProcessAndGetOutput(
             taskOutputPath.path,
             "xcrun", "simctl", "list", "-v", "devices", filter,
-            logCall = logger,
+            logCall = filter == "available",
             hideOutput = true,
         ).stdout.lines()
 

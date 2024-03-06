@@ -95,7 +95,7 @@ class BuildAppleTask(
                     "-derivedDataPath", derivedDataPathString,
                     "-sdk", targetPlatform.platform,
                     "build",
-                    logCall = logger,
+                    logCall = true,
                     hideOutput = true,
                 )
 
