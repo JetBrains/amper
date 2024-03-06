@@ -10,7 +10,7 @@ import org.tinylog.writers.Writer
 import java.time.Instant
 import kotlin.concurrent.Volatile
 
-class LastLogMonitoringWriter: Writer {
+class LastLogMonitoringWriter(@Suppress("UNUSED_PARAMETER") properties: Map<String, String>): Writer {
     override fun write(logEntry: LogEntry) {
         lastLogEntryTimestamp = Instant.now()
     }
