@@ -353,9 +353,10 @@ settings:
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 framework. Read more about [Compose configuration](Documentation.md#configuring-compose-multiplatform).
 
-| Attribute          | Description                                                    | Default |
-|--------------------|----------------------------------------------------------------|---------|
-| `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins. | `false` |
+| Attribute          | Description                                                    | Default  |
+|--------------------|----------------------------------------------------------------|----------|
+| `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins. | `false`  |
+| `version: string`  | Choose the Compose plugin version                              | `1.5.10` |
 
 Examples:
 
