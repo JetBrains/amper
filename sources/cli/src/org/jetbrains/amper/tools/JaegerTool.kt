@@ -52,5 +52,5 @@ object JaegerTool: Tool {
         }
     }
 
-    private const val VERSION = "1.54.0"
+    private const val VERSION = "1.55.0"
 }
