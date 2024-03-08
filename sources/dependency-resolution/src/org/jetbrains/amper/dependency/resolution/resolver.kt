@@ -215,7 +215,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
 /**
  * A dependency node is a graph element.
  *
- * It has the following preporties.
+ * It has the following properties.
  *
  * - Holds a context relevant for it and its children.
  * - Can be compared by a [Key] that's the same for all nodes with equal coordinates but different versions.

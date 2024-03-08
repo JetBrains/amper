@@ -6,6 +6,7 @@ package org.jetbrains.amper.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
@@ -72,7 +73,7 @@ class MavenResolverTest {
                 coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
                 repositories = listOf("https://repo1.maven.org/maven2"),
                 scope = ResolutionScope.COMPILE,
-                platform = "native",
+                platform = PlatformType.NATIVE,
                 nativeTarget = "mingw_x64",
             )
         }

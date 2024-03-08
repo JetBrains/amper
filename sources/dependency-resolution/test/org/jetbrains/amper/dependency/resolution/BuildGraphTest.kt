@@ -225,7 +225,7 @@ class BuildGraphTest {
     fun `androidx_activity activity-compose 1_7_2`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            platform = "android",
+            platform = PlatformType.ANDROID_JVM,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
             expected = """root
                 |\--- androidx.activity:activity-compose:1.7.2
@@ -240,9 +240,22 @@ class BuildGraphTest {
                 |     |    |    |    |    +--- androidx.arch.core:core-common:2.2.0
                 |     |    |    |    |    |    \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1
-                |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10
-                |     |    |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10
-                |     |    |    |    |         \--- org.jetbrains:annotations:13.0
+                |     |    |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
+                |     |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10
+                |     |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10
+                |     |    |    |    |    |    |    \--- org.jetbrains:annotations:13.0
+                |     |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
+                |     |    |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+                |     |    |    |    |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+                |     |    |    |    |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                |     |    |    |    |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+                |     |    |    |    |    |         |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.10 (*)
+                |     |    |    |    |    |         |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+                |     |    |    |    |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.8.10 (*)
+                |     |    |    |    |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21 -> 1.8.10
+                |     |    |    |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                |     |    |    |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+                |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    \--- androidx.versionedparcelable:versionedparcelable:1.1.1
                 |     |    |    |         +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |         \--- androidx.collection:collection:1.0.0
@@ -258,14 +271,14 @@ class BuildGraphTest {
                 |     |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    \--- androidx.core:core:1.2.0 -> 1.8.0 (*)
                 |     |    |    |    +--- androidx.lifecycle:lifecycle-livedata-core:2.6.1
-                |     |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1
+                |     |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1 (*)
                 |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
                 |     |    |    |    +--- androidx.savedstate:savedstate:1.2.1
                 |     |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.2.0
                 |     |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
-                |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
+                |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 (*)
                 |     |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
                 |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    +--- androidx.core:core-ktx:1.1.0 -> 1.2.0 (*)
@@ -273,17 +286,17 @@ class BuildGraphTest {
                 |     |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.2.0
                 |     |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 (*)
                 |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
-                |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
+                |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 (*)
                 |     |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1
                 |     |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
                 |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
-                |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4
+                |     |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 (*)
                 |     |    +--- androidx.savedstate:savedstate-ktx:1.2.1
                 |     |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
                 |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 (*)
                 |     +--- androidx.compose.runtime:runtime:1.0.1
-                |     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0 -> 1.6.4
+                |     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0 -> 1.6.4 (*)
                 |     +--- androidx.compose.runtime:runtime-saveable:1.0.1
                 |     |    +--- androidx.compose.runtime:runtime:1.0.1 (*)
                 |     |    \--- androidx.annotation:annotation:1.1.0 -> 1.2.0
@@ -334,7 +347,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
-            platform = "androidJvm",
+            platform = PlatformType.ANDROID_JVM,
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
                 |     +--- androidx.activity:activity:1.6.0
@@ -486,7 +499,7 @@ class BuildGraphTest {
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = "android",
+            platform = PlatformType.ANDROID_JVM,
             expected = """root
                 |\--- com.google.guava:guava:33.0.0-android
                 |     +--- com.google.guava:failureaccess:1.0.2
@@ -536,7 +549,7 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = "native",
+            platform = PlatformType.NATIVE,
             nativeTarget = "macos_arm64",
             expected = """root
                 |\--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
@@ -952,7 +965,7 @@ class BuildGraphTest {
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: String = "jvm",
+        platform: PlatformType = PlatformType.JVM,
         nativeTarget: String? = null,
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
@@ -976,7 +989,7 @@ class BuildGraphTest {
 
     private fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: String = "jvm",
+        platform: PlatformType = PlatformType.JVM,
         nativeTarget: String? = null,
         repositories: List<String> = REDIRECTOR_MAVEN2,
     ) = Context {

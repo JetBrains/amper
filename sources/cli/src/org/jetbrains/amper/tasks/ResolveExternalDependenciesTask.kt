@@ -7,6 +7,7 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
@@ -51,6 +52,8 @@ class ResolveExternalDependenciesTask(
         val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
+            // todo (AB) : Why compile deps only? what if there is a runtime direct depemdency?
+            // todo (AB) : It should be passed to DR.resolve for runtime scopr
             .filter { it.compile }
             .map { it.coordinates }
             .distinct()
@@ -69,9 +72,9 @@ class ResolveExternalDependenciesTask(
         // but the current implementation requires a full review of it
 
         val (resolvePlatform,  resolveNativeTarget) = when {
-            platform == Platform.JVM -> "jvm" to null
-            platform == Platform.ANDROID -> "androidJvm" to null
-            platform.topmostParentNoCommon == Platform.NATIVE -> "native" to platform.name.lowercase()
+            platform == Platform.JVM -> PlatformType.JVM to null
+            platform == Platform.ANDROID -> PlatformType.ANDROID_JVM to null
+            platform.topmostParentNoCommon == Platform.NATIVE -> PlatformType.NATIVE to platform.name.lowercase()
             else -> {
                 logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
                 return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
@@ -82,13 +85,13 @@ class ResolveExternalDependenciesTask(
                 "${fragments.userReadableList()} -- " +
                 "${directCompileDependencies.sorted().joinToString(" ")} -- " +
                 exportedDependencies.sorted().joinToString(" ") + " -- " +
-                "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget")
+                "resolvePlatform=${resolvePlatform.value} nativeTarget=$resolveNativeTarget")
 
         val configuration = mapOf(
             "userCacheRoot" to userCacheRoot.path.pathString,
             "dependencies" to dependenciesToResolve.joinToString("|"),
             "repositories" to repositories.joinToString("|"),
-            "resolvePlatform" to resolvePlatform,
+            "resolvePlatform" to resolvePlatform.value,
             "resolveNativeTarget" to (resolveNativeTarget ?: ""),
         )
 

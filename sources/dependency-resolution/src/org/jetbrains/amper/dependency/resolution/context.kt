@@ -75,6 +75,11 @@ class Context(
 /**
  * Helps to build [Settings].
  *
+ * todo (AB) : Design choice for DR: https://jetbrains.team/p/amper/repositories/amper-design/files/06-Dependencies.md#design-choice-4
+ * todo (AB) : Algorithm below follows option B, while document suggests to choose option A
+ * todo (AB) : Common fragments could be compiled against different library version for different leaf fragments =>
+ * todo (AB) : There is no API surface in common fragment.
+ *
  * @see [FileCacheBuilder]
  * @see [HighestVersionStrategy]
  */
@@ -82,7 +87,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
-    var platform: String = "jvm"
+    var platform: PlatformType = PlatformType.JVM
     var nativeTarget: String? = null
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
@@ -139,7 +144,7 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
 data class Settings(
     val progress: Progress,
     val scope: ResolutionScope,
-    val platform: String,
+    val platform: PlatformType,
     val nativeTarget: String?,
     val repositories: List<String>,
     val fileCache: FileCache,

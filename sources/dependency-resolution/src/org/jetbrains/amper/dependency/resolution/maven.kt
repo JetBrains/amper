@@ -240,14 +240,17 @@ class MavenDependency internal constructor(
 
         val initiallyFilteredVariants = module
             .variants
+            // todo (AB) : Why filtering against capabilities?
             .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
             .filter { context.settings.nativeTargetMatches(it) }
             .filter { context.settings.scope.matches(it) }
 
-        val validVariants = initiallyFilteredVariants
-            .filter { context.settings.platform.matches(it) }
-            .takeIf { it.withoutDocumentation.isNotEmpty() || context.settings.platform != "androidJvm" }
-            ?: initiallyFilteredVariants.filter { "jvm".matches(it) }
+        val platformVariants = initiallyFilteredVariants.filter { context.settings.platform.matches(it) }
+        val validVariants = when {
+            platformVariants.withoutDocumentation.isNotEmpty()
+                    || context.settings.platform.fallback == null -> platformVariants
+            else -> initiallyFilteredVariants.filter { context.settings.platform.fallback.matches(it) }
+        }
 
         return validVariants.also {
             variants = it
@@ -297,7 +300,7 @@ class MavenDependency internal constructor(
         variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
 
     private fun Settings.nativeTargetMatches(variant: Variant) =
-        variant.attributes["org.jetbrains.kotlin.platform.type"] != "native"
+        variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == nativeTarget
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))

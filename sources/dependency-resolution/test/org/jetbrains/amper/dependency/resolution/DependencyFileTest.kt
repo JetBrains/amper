@@ -72,7 +72,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         val path = temp.toPath()
         Context {
-            platform = "native"
+            platform = PlatformType.NATIVE
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))

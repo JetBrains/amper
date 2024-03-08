@@ -11,6 +11,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
+import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
@@ -28,7 +29,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         coordinates: Collection<String>,
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: String = "jvm",
+        platform: PlatformType = PlatformType.JVM,
         nativeTarget: String? = null,
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
