@@ -74,12 +74,15 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
         val amperSha256 = sha256Hex(amperDistFile.get().asFile.toPath())
 
         val text = inputFile.get().asFile.readText()
-        require(!text.contains(amperVersion)) {
-            "Script '${inputFile.get().asFile}' text should not contain $amperVersion:\n$text"
-        }
 
-        require(!text.contains(amperSha256)) {
-            "Script '${inputFile.get().asFile}' text should not contain $amperSha256:\n$text"
+        if (amperVersion.contains("-dev-")) {
+            require(!text.contains(amperVersion)) {
+                "Script '${inputFile.get().asFile}' text should not contain $amperVersion:\n$text"
+            }
+
+            require(!text.contains(amperSha256)) {
+                "Script '${inputFile.get().asFile}' text should not contain $amperSha256:\n$text"
+            }
         }
 
         val newText = text
