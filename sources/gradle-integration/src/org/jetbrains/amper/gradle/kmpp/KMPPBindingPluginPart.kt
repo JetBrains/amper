@@ -9,6 +9,7 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
+import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.FragmentDependencyType
