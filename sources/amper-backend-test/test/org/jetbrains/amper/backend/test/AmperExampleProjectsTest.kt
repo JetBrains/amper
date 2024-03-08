@@ -168,13 +168,13 @@ private val iosTestTasks = listOf(
 private val androidBaseTasks = listOf(
     "compileAndroidDebug",
     "compileAndroidRelease",
-    "downloadAndroidEmulator",
-    "downloadSdkAndroid",
-    "downloadPlatformTools",
+    "installEmulatorAndroid",
+    "installPlatformAndroid",
+    "installPlatformToolsAndroid",
     "buildAndroidDebug",
     "buildAndroidRelease",
-    "prepareBuildAndroidDebug",
-    "prepareBuildAndroidRelease",
+    "prepareAndroidDebug",
+    "prepareAndroidRelease",
     "resolveDependenciesAndroid",
 )
 private val androidAppTasks = androidBaseTasks + listOf(
@@ -182,8 +182,8 @@ private val androidAppTasks = androidBaseTasks + listOf(
     "runAndroidRelease",
 )
 private val androidTestTasks = listOf(
-    "compileAndroidDebugTest",
-    "compileAndroidReleaseTest",
+    "compileAndroidTestDebug",
+    "compileAndroidTestRelease",
 )
 
 private val knownGradleFiles = setOf(

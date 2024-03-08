@@ -112,20 +112,20 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple-app:buildAndroidDebug -> :simple-app:resolveDependenciesAndroid, :simple-app:compileAndroidDebug")
-        assertStdoutContains("task :simple-app:compileAndroidDebug -> :simple-app:resolveDependenciesAndroid, :simple-app:transformDependencies, :simple-app:prepareBuildAndroidDebug, :simple-app:downloadSdkAndroid")
-        assertStdoutContains("task :simple-app:prepareBuildAndroidDebug -> :simple-app:downloadBuildTools, :simple-app:downloadPlatformTools, :simple-app:downloadSdkAndroid")
-        assertStdoutContains("task :simple-app:runAndroidDebug -> :simple-app:buildAndroidDebug, :simple-app:downloadSystemImage, :simple-app:downloadAndroidEmulator")
+        assertStdoutContains("task :simple-app:compileAndroidDebug -> :simple-app:transformDependenciesAndroid, :simple-app:installPlatformAndroid, :simple-app:prepareAndroidDebug, :simple-app:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple-app:prepareAndroidDebug -> :simple-app:installBuildToolsAndroid, :simple-app:installPlatformToolsAndroid, :simple-app:installPlatformAndroid, :simple-app:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple-app:runAndroidDebug -> :simple-app:installSystemImageAndroid, :simple-app:installEmulatorAndroid, :simple-app:buildAndroidDebug")
         // release
         assertStdoutContains("task :simple-app:buildAndroidRelease -> :simple-app:resolveDependenciesAndroid, :simple-app:compileAndroidRelease")
-        assertStdoutContains("task :simple-app:compileAndroidRelease -> :simple-app:resolveDependenciesAndroid, :simple-app:transformDependencies, :simple-app:prepareBuildAndroidRelease, :simple-app:downloadSdkAndroid")
-        assertStdoutContains("task :simple-app:prepareBuildAndroidRelease -> :simple-app:downloadBuildTools, :simple-app:downloadPlatformTools, :simple-app:downloadSdkAndroid")
-        assertStdoutContains("task :simple-app:runAndroidRelease -> :simple-app:buildAndroidRelease, :simple-app:downloadSystemImage, :simple-app:downloadAndroidEmulator")
+        assertStdoutContains("task :simple-app:compileAndroidRelease -> :simple-app:transformDependenciesAndroid, :simple-app:installPlatformAndroid, :simple-app:prepareAndroidRelease, :simple-app:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple-app:prepareAndroidRelease -> :simple-app:installBuildToolsAndroid, :simple-app:installPlatformToolsAndroid, :simple-app:installPlatformAndroid, :simple-app:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple-app:runAndroidRelease -> :simple-app:installSystemImageAndroid, :simple-app:installEmulatorAndroid, :simple-app:buildAndroidRelease")
 
         // transform dependencies
         // main
-        assertStdoutContains("task :simple-app:transformDependencies -> :simple-app:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple-app:transformDependenciesAndroid -> :simple-app:resolveDependenciesAndroid")
         // test
-        assertStdoutContains("task :simple-app:transformDependenciesTest -> :simple-app:resolveDependenciesAndroidTest")
+        assertStdoutContains("task :simple-app:transformDependenciesAndroidTest -> :simple-app:resolveDependenciesAndroidTest")
     }
 
     private fun assertThemeContainsInResources(resourcesPath: Path, themeReference: Int) {
