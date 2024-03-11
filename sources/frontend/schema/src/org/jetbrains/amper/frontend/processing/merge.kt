@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
-import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
@@ -46,7 +45,6 @@ fun Base.merge(overwrite: Base, target: () -> Base): Base = mergeNode(overwrite,
 }
 
 fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
-    mergeNodeProperty(Settings::java, JavaSettings::merge)
     mergeNodeProperty(Settings::jvm, JvmSettings::merge)
     mergeNodeProperty(Settings::android, AndroidSettings::merge)
     mergeNodeProperty(Settings::kotlin, KotlinSettings::merge)
@@ -59,12 +57,8 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeScalar(Settings::junit)
 }
 
-fun JavaSettings.merge(overwrite: JavaSettings) = mergeNode(overwrite, ::JavaSettings) {
-    mergeScalar(JavaSettings::source)
-}
-
 fun JvmSettings.merge(overwrite: JvmSettings) = mergeNode(overwrite, ::JvmSettings) {
-    mergeScalar(JvmSettings::target)
+    mergeScalar(JvmSettings::release)
     mergeScalar(JvmSettings::mainClass)
 }
 

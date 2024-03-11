@@ -8,7 +8,5 @@ dependencies:
 settings:
   kotlin:
     languageVersion: 1.8
-  java:
-    source: 17
   jvm:
-    target: 17
+    release: 17

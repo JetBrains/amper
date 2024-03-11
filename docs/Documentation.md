@@ -1312,7 +1312,7 @@ settings:
   kotlin:
     languageVersion: 1.9
   jvm:
-    target: 1.8
+    release: 8
 ```
 
 After template application the resulting effective Module is:
@@ -1329,7 +1329,7 @@ settings:  # objects merged
     languageVersion: 1.9  # module.yaml overwrites value
   compose: enabled        # from the template
   jvm:
-    target: 1.8   # from the module.yaml
+    release: 8   # from the module.yaml
 ```
 
 ## Extensibility

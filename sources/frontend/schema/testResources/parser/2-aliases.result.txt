@@ -27,13 +27,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -84,13 +81,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -137,13 +131,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -192,13 +183,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -245,13 +233,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -298,13 +283,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -354,13 +336,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -407,13 +386,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -461,13 +437,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -517,13 +490,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -573,13 +543,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -629,13 +596,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -682,13 +646,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
@@ -738,13 +699,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: <default> JUNIT4
       jvm: <default> {
         mainClass: <default> null
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false

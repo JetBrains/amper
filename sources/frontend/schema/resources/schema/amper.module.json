@@ -293,9 +293,6 @@
         "ios": {
           "$ref": "#/$defs/IosSettings"
         },
-        "java": {
-          "$ref": "#/$defs/JavaSettings"
-        },
         "junit": {
           "enum": ["junit-4","junit-5","none"]
         },
@@ -390,24 +387,14 @@
       },
       "additionalProperties": false
     },
-    "JavaSettings": {
-      "type": "object",
-      "properties": {
-        "source": {
-          "enum": ["25","24","23","22","21","17","11","1.8"],
-          "x-intellij-enum-order-sensitive": true
-        }
-      },
-      "additionalProperties": false
-    },
     "JvmSettings": {
       "type": "object",
       "properties": {
         "mainClass": {
           "type": "string"
         },
-        "target": {
-          "enum": ["25","24","23","22","21","17","11","1.8"],
+        "release": {
+          "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
         }
       },

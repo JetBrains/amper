@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.Dependency
-import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.Meta
@@ -52,7 +51,6 @@ interface IsmVisitor {
   fun visitTestSettings(settings: Map<Modifiers, Settings>) {}
   fun visitTestSettings(modifiers: Modifiers, settings: Settings) {}
   fun visitSettings(settings: Settings) {}
-  fun visitJavaSettings(settings: JavaSettings) {}
   fun visitJvmSettings(settings: JvmSettings) {}
   fun visitAndroidSettings(settings: AndroidSettings) {}
   fun visitKotlinSettings(settings: KotlinSettings) {}
@@ -168,16 +166,10 @@ private fun Map<Modifiers, Settings>.visitTestSettings(visitor: IsmVisitor) {
 
 fun Settings.accept(visitor: IsmVisitor) {
   visitor.visitSettings(this)
-  ::java.withoutDefault?.accept(visitor)
   ::jvm.withoutDefault?.accept(visitor)
   ::android.withoutDefault?.accept(visitor)
   ::kotlin.withoutDefault?.accept(visitor)
   ::compose.withoutDefault?.accept(visitor)
-//  java.withoutDefault?.accept(visitor)
-}
-
-fun JavaSettings.accept(visitor: IsmVisitor) {
-  visitor.visitJavaSettings(this)
 }
 
 fun JvmSettings.accept(visitor: IsmVisitor) {

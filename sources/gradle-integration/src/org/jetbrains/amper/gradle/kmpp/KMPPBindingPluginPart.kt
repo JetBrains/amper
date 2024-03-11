@@ -36,10 +36,9 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceS
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.mostCommonNearestAmperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
+import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
@@ -193,14 +192,9 @@ class KMPPBindingPluginPart(
                             }
 
                             // Set jvm target for all jvm like compilations.
-                            val selectedJvmTarget = fragment.settings.jvm?.target
-                            if (selectedJvmTarget != null) {
-                                compileTaskProvider.configure {
-                                    it.compilerOptions.apply {
-                                        if (this !is KotlinJvmCompilerOptions) return@apply
-                                        this.jvmTarget.set(JvmTarget.fromTarget(selectedJvmTarget.schemaValue))
-                                    }
-                                }
+                            val selectedJvmRelease = fragment.settings.jvm.release
+                            if (selectedJvmRelease != null) {
+                                compileTaskProvider.configureJvmTargetRelease(selectedJvmRelease)
                             }
 
                             patchedCompilations.add(this)
@@ -212,15 +206,8 @@ class KMPPBindingPluginPart(
                         val nearestFragment = compilation.defaultSourceSet
                             .mostCommonNearestAmperFragment
 
-                        val foundJvmTarget = nearestFragment
-                            ?.settings?.jvm?.target ?: return@loop
-
-                        compilation.compileTaskProvider.configure {
-                            it.compilerOptions.apply {
-                                if (this !is KotlinJvmCompilerOptions) return@apply
-                                this.jvmTarget.set(JvmTarget.fromTarget(foundJvmTarget.schemaValue))
-                            }
-                        }
+                        val foundJvmRelease = nearestFragment?.settings?.jvm?.release ?: return@loop
+                        compilation.compileTaskProvider.configureJvmTargetRelease(foundJvmRelease)
                     }
                 }
             }

@@ -303,22 +303,14 @@ settings:
     serialization: json
 ```
 
-#### Java
-
-`settings:java:` configures the Java language and the compiler for the JVM platform.
-
-| Attribute               | Description                                                                                                                         | Default |
-|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `source: enum`          | A Java language version of the source files.                                                                                        | 17      |
-
 #### JVM
 
 `settings:jvm:` configures the JVM platform specific settings.
 
-| Attribute           | Description                                                                                                                         | Default                               |
-|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
-| `target: enum`      | A bytecode version of generated jvm bytecode (by java or kotlin compiler).                                                          | 17                                    |
-| `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types) A fully-qualified name of the class used to run the application. | [auto-detected](Documentation.md#jvm) |
+| Attribute           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default                               |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `release: enum`     | The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used. | 17                                    |
+| `mainClass: string` | (Only for `jvm/app` [product type](Documentation.md#product-types)) The fully-qualified name of the class used to run the application.                                                                                                                                                                                                                                                                                                                         | [auto-detected](Documentation.md#jvm) |
 
 #### Android
 

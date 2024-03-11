@@ -1,7 +1,0 @@
-product: jvm/app
-
-settings:
-  jvm:
-    target: 11
-  java:
-    <![Error] Java source version (17) should be at most JVM target (11)!>source: 17<!>

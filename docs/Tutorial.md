@@ -128,9 +128,7 @@ settings:
   kotlin:
     languageVersion: 1.8
   jvm:
-    target: 17
-  java:
-    source: 17
+    release: 17
 ```
 
 Documentation:

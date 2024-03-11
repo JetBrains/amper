@@ -2,4 +2,4 @@ product: jvm/app
 
 settings:
   jvm:
-    target: 17
+    release: 11

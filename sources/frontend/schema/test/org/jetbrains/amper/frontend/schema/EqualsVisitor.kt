@@ -195,18 +195,12 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
       val otherSettings = otherSettingsMap.orEmpty()[settingsKey]
       assertNotNull(otherSettings, "settings with key $settingsKey is missing")
 
-      settings::java.withoutDefault?.let { javaSettings ->
-        assertNotNull(otherSettings::java.withoutDefault, "java settings with key $settingsKey is missing")
-        assertValueEquals(javaSettings::source, otherSettings::java.withoutDefault?.run { ::source },
-          "source of java settings with key $settingsKey differs")
-      } ?: assertNull(otherSettings::java.withoutDefault, "java settings with key $settingsKey are presented")
-
       settings::jvm.withoutDefault?.let { jvmSettings ->
         assertNotNull(otherSettings::jvm.withoutDefault, "jvm settings with key $settingsKey is missing")
+        assertValueEquals(jvmSettings::release, otherSettings::jvm.withoutDefault?.run { ::release },
+          "release of jvm settings with key $settingsKey differs")
         assertValueEquals(jvmSettings::mainClass, otherSettings::jvm.withoutDefault?.run { ::mainClass },
           "mainClass of jvm settings with key $settingsKey differs")
-        assertValueEquals(jvmSettings::target, otherSettings::jvm.withoutDefault?.run { ::target },
-          "target of jvm settings with key $settingsKey differs")
       } ?: assertNull(otherSettings::jvm.withoutDefault, "jvm settings with key $settingsKey are presented")
 
       settings::kotlin.withoutDefault?.let { kotlinSettings ->
@@ -333,7 +327,6 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
 
   override fun visitSettings(modifiers: Modifiers, settings: Settings) { }
   override fun visitSettings(settings: Settings) { }
-  override fun visitJavaSettings(settings: JavaSettings) { }
   override fun visitJvmSettings(settings: JvmSettings) { }
   override fun visitAndroidSettings(settings: AndroidSettings) { }
   override fun visitKotlinSettings(settings: KotlinSettings) { }

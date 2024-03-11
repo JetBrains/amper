@@ -37,7 +37,6 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         assertKotlinJvmCompilationSpan {
             hasCompilerArgument("-language-version", "1.9")
             hasCompilerArgument("-api-version", "1.9")
-            hasCompilerArgument("-jvm-target", "17")
         }
         assertStdoutContains("Hello, World!")
     }

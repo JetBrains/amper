@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
-import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -45,7 +44,6 @@ internal fun YAMLKeyValue.convertSettings() =
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.doConvertSettings() = Settings().apply {
-    ::java.convertChildValue { asMappingNode()?.convertJavaSettings() }
     ::jvm.convertChildValue { asMappingNode()?.convertJvmSettings() }
     ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
     ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
@@ -59,13 +57,8 @@ internal fun YAMLMapping.doConvertSettings() = Settings().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun YAMLMapping.convertJavaSettings() = JavaSettings().apply {
-    ::source.convertChildEnum(JavaVersion.Index)
-}
-
-context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertJvmSettings() = JvmSettings().apply {
-    ::target.convertChildEnum(JavaVersion.Index)
+    ::release.convertChildEnum(JavaVersion.Index)
     ::mainClass.convertChildString()
 }
 

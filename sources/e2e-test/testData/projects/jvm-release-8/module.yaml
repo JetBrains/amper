@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  jvm:
+    release: 8

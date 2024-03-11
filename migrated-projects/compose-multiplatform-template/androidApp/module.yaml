@@ -11,5 +11,5 @@ settings:
         minSdk: 34
         targetSdk: 34
     jvm: 
-        target: 17
+        release: 17
     compose: enabled

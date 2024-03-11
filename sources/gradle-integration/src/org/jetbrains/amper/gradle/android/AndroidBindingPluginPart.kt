@@ -1,10 +1,11 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.android
 
 import com.android.build.gradle.BaseExtension
+import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -16,11 +17,9 @@ import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.doDependsOn
+import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
 import org.jetbrains.amper.gradle.layout
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
 
 @Suppress("LeakingThis")
@@ -130,19 +129,12 @@ class AndroidBindingPluginPart(
                 } else {
                     androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
                 }
-                compilations.configureEach {
-                    fragment.settings.jvm.let { jvmSettings ->
-                        it.compileTaskProvider.configure {
-                            jvmSettings?.target.let { target ->
-                                it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                                it.compilerOptions.jvmTarget.set(target?.schemaValue?.let {
-                                    JvmTarget.fromTarget(it)
-                                })
-                            }
-                        }
+                compilations.configureEach { compilation ->
+                    fragment.settings.jvm.release?.let { release ->
+                        compilation.compileTaskProvider.configureJvmTargetRelease(release)
                     }
 
-                    it.kotlinSourceSets.forEach { compilationSourceSet ->
+                    compilation.kotlinSourceSets.forEach { compilationSourceSet ->
                         if (compilationSourceSet != fragment.kotlinSourceSet) {
                             compilationSourceSet.doDependsOn(fragment)
                         }
@@ -154,12 +146,15 @@ class AndroidBindingPluginPart(
 
     private fun applySettings() {
         val firstAndroidFragment = leafPlatformFragments.first()
-        androidPE?.compileOptions {
-            val compileOptions = it
-            val jvmTarget = firstAndroidFragment.settings.jvm?.target
-            val javaSource = firstAndroidFragment.settings.java?.source ?: jvmTarget
-            jvmTarget?.schemaValue?.let { compileOptions.setTargetCompatibility(it) }
-            javaSource?.schemaValue?.let { compileOptions.setSourceCompatibility(it) }
+        firstAndroidFragment.settings.jvm.release?.let { release ->
+            androidPE?.compileOptions {
+                val compileOptions = it
+                compileOptions.targetCompatibility(release.legacyNotation)
+                compileOptions.sourceCompatibility(release.legacyNotation)
+            }
+            project.tasks.withType(JavaCompile::class.java).configureEach {
+                it.options.release.set(release.releaseNumber)
+            }
         }
         leafPlatformFragments.forEach { fragment ->
             val androidSettings = fragment.settings.android

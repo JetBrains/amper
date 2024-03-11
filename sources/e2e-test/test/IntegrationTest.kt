@@ -29,6 +29,29 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `jvm-release-8`() = test(
+        projectName = "jvm-release-8",
+        "run",
+        expectOutputToHave = "I'm JDK 8 compliant",
+    )
+
+    @Test
+    fun `jvm-release-8-using-9-apis`() = test(
+        projectName = "jvm-release-8-using-9-apis",
+        "assemble",
+        expectOutputToHave = "Unresolved reference: of", // for List.of()
+        shouldSucceed = false,
+    )
+
+    @Test
+    fun `jvm-release-11-using-17-apis`() = test(
+        projectName = "jvm-release-11-using-17-apis",
+        "assemble",
+        expectOutputToHave = "Unresolved reference: InstantSource",
+        shouldSucceed = false,
+    )
+
+    @Test
     fun `configuring native macos`() = test(
         projectName = "native-macos",
         "build",

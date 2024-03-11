@@ -24,9 +24,6 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 @SchemaDoc("Configures the toolchains used in the build process. See [settings](#settings).")
 class Settings : SchemaNode() {
 
-    @SchemaDoc("Java language and the compiler for the JVM platform settings")
-    var java by value(::JavaSettings)
-
     @SchemaDoc("JVM platform specific settings")
     var jvm by value(::JvmSettings)
 

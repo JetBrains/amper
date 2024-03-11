@@ -4,8 +4,8 @@ product:
 
 settings:
   jvm:
-    target: 1.8
+    release: 8
 
 settings@android:
   jvm:
-    target: 17
+    release: 17

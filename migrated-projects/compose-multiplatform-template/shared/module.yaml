@@ -23,7 +23,7 @@ settings:
         targetSdk: 33
         minSdk: 33
     jvm:
-        target: 17
+        release: 17
     ios:
         framework:
             isStatic: true

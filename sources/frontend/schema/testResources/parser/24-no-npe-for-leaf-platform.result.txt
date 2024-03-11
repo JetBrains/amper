@@ -28,13 +28,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -100,13 +97,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -169,13 +163,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -240,13 +231,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -309,13 +297,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -380,13 +365,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -451,13 +433,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -520,13 +499,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -590,13 +566,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false
@@ -660,13 +633,10 @@ Fragments:
         }
         teamId: <default> null
       }
-      java: <default> {
-        source: <default> null
-      }
       junit: NONE
       jvm: {
         mainClass: MainKt
-        target: <default> VERSION_17
+        release: <default> VERSION_17
       }
       kotlin: {
         allWarningsAsErrors: <default> false

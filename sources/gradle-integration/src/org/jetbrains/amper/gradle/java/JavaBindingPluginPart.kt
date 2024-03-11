@@ -1,14 +1,14 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.java
 
-import org.gradle.api.JavaVersion
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
@@ -25,14 +25,12 @@ import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
+import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -78,11 +76,8 @@ class JavaBindingPluginPart(
     private fun applyJavaTargetForKotlin() = with(KotlinAmperNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
             with(fragment.target!!) {
-                fragment.settings.jvm?.target.let { jvmTarget ->
-                    fragment.compilation?.compileTaskProvider?.configure {
-                        it as KotlinCompilationTask<KotlinJvmCompilerOptions>
-                        it.compilerOptions.jvmTarget.set(jvmTarget?.schemaValue?.let { JvmTarget.fromTarget(it) })
-                    }
+                fragment.settings.jvm.release?.let { release ->
+                    fragment.compilation?.compileTaskProvider?.configureJvmTargetRelease(release)
                 }
             }
         }
@@ -102,12 +97,10 @@ class JavaBindingPluginPart(
         }
 
         val jvmSettings = fragment.settings.jvm
-        val javaSource = fragment.settings.java?.source ?: jvmSettings?.target
-        jvmSettings?.target?.let {
-            javaPE.targetCompatibility = JavaVersion.toVersion(it.schemaValue)
-        }
-        javaSource?.let {
-            javaPE.sourceCompatibility = JavaVersion.toVersion(it.schemaValue)
+        jvmSettings.release?.let { release ->
+            project.tasks.withType(JavaCompile::class.java).configureEach {
+                it.options.release.set(release.releaseNumber)
+            }
         }
 
         // Do when layout is known.

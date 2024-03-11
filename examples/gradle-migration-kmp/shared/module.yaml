@@ -18,7 +18,7 @@ dependencies@jvm:
 
 settings:
   jvm:
-    target: 17
+    release: 17
   android:
     compileSdk: 34
     targetSdk: 34
