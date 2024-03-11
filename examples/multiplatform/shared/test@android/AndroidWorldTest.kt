@@ -5,6 +5,6 @@ import kotlin.test.assertEquals
 class AndroidWorldTest {
     @Test
     fun doTest() {
-        assertEquals("Android World", World().get())
+        assertEquals("Android World", AndroidWorld().name)
     }
 }

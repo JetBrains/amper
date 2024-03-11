@@ -1,5 +1,6 @@
-actual class World {
-    actual fun get(): String {
-        return "JVM World"
-    }
+class JvmWorld : World {
+    override val name: String
+        get() = "JVM World"
 }
+
+actual fun getWorld(): World = JvmWorld()

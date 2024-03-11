@@ -1,6 +1,5 @@
 package hello.world
 
-import World
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import getWorld
 
 
 @Composable
@@ -22,7 +22,7 @@ fun Screen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BasicText("Hello, ${World().get()}!")
+            BasicText("Hello, ${getWorld().name}!")
         }
     }
 }

@@ -15,7 +15,7 @@ fun Screen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BasicText("Hello, ${World().get()}!")
+            BasicText("Hello, ${getWorld().name}!")
         }
     }
 }

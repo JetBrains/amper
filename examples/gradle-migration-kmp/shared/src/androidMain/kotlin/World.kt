@@ -1,8 +1,6 @@
-
-class Foo()
-
-actual class World {
-    actual fun get(): String {
-        return "Android World"
-    }
+class AndroidWorld : World {
+    override val name: String
+        get() = "Android World"
 }
+
+actual fun getWorld(): World = AndroidWorld()
