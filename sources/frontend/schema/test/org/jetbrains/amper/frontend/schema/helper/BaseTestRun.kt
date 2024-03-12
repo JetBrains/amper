@@ -18,8 +18,7 @@ open class BaseTestRun(
     protected val caseName: String,
 ) {
     open val base: Path get() = Path("testResources")
-    private val defaultExpectPostfix = ".result.txt"
-    open val expectPostfix: String = defaultExpectPostfix
+    open val expectPostfix: String = ".result.txt"
     open val inputPostfix: String = ".yaml"
     private val inputAmperPostfix: String = ".amper"
 
@@ -43,10 +42,10 @@ open class BaseTestRun(
             assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
 
             val inputAmper = base / "$caseName$inputAmperPostfix"
-            if (inputAmper.exists() && expectPostfix == defaultExpectPostfix) {
+            if (inputAmper.exists()) {
                 val inputAmperContent = getInputContent(inputAmper)
 
-                val expectAmper = base / "$caseName.result.amper.txt"
+                val expectAmper = base / "$caseName$expectPostfix"
                 val expectAmperContent = getExpectContent(input, expectAmper)
 
                 assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, expect)

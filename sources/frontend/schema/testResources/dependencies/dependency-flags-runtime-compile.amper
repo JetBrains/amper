@@ -1,0 +1,10 @@
+product = "jvm/app"
+
+dependencies {
+  a = "runtime-only"
+  b = "compile-only"
+  c {
+      scope = "compile-only"
+      exported = true
+  }
+}
