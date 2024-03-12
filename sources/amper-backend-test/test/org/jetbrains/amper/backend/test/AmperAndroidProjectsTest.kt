@@ -13,7 +13,7 @@ import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceIdentifier
 import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperBackend
@@ -171,7 +171,7 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         .firstOrNull() ?: fail("Apk not found")
 
     private suspend fun waitAndAssertSubstringInOutput(substring: String) {
-        stdoutCollector.lines.takeWhile { !it.contains(substring) }.count()
+        stdoutCollector.lines.takeWhile { substring !in it }.collect()
     }
 
     private fun ProjectContext.getTaskOutputPath(taskName: TaskName): Path =
