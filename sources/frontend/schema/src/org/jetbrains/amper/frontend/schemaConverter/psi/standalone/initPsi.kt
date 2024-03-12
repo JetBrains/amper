@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.standalone
 
+import com.intellij.amper.lang.AmperFileType
+import com.intellij.amper.lang.AmperLanguage
+import com.intellij.amper.lang.AmperParserDefinition
 import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreProjectEnvironment
 import com.intellij.lang.LanguageASTFactory
@@ -42,8 +45,10 @@ fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigur
 
   // Register YAML support
   LanguageParserDefinitions.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, YAMLParserDefinition())
+  LanguageParserDefinitions.INSTANCE.addExplicitExtension(AmperLanguage.INSTANCE, AmperParserDefinition())
   LanguageParserDefinitions.INSTANCE.addExplicitExtension(TomlLanguage, TomlParserDefinition())
   appEnv.registerFileType(YAMLFileType.YML, "yaml")
+  appEnv.registerFileType(AmperFileType.INSTANCE, "amper")
 
   // Register TOML support
   LanguageASTFactory.INSTANCE.addExplicitExtension(TomlLanguage, TomlASTFactory())

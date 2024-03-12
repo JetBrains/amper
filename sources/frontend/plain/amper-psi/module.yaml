@@ -1,0 +1,30 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../../common.module-template.yaml
+
+repositories:
+  - https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases
+  - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
+
+dependencies:
+  - com.jetbrains.intellij.platform:core-ui:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:core-impl:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:core:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:util:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:util-base:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:util-ui:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:util-ex:233.13763.11:
+      exported: true
+  - com.jetbrains.intellij.platform:indexing:233.13763.11:
+      exported: true
+  - org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18:
+      exported: true
