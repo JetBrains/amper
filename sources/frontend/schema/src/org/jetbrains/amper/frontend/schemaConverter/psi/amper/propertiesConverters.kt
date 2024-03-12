@@ -2,33 +2,35 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi.util
+package org.jetbrains.amper.frontend.schemaConverter.psi.amper
 
+import com.intellij.amper.lang.AmperElement
+import com.intellij.amper.lang.AmperLiteral
+import com.intellij.amper.lang.AmperObject
+import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.AmperValue
+import com.intellij.amper.lang.impl.collectionItems
+import com.intellij.amper.lang.impl.propertyList
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLPsiElement
-import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLValue
 import kotlin.reflect.KProperty0
 
 
 /**
  * Try to set property value, provided by lambda and also set trace based on context.
  */
-context(YAMLPsiElement, ProblemReporterContext)
+context(AmperElement, ProblemReporterContext)
 fun <T> KProperty0<T>.convertSelf(
     newValue: () -> T?
 ) {
     val calculated = newValue()
     valueBase?.invoke(calculated)
-    valueBase?.adjustTrace(this@YAMLPsiElement)
-    if (calculated is Traceable) calculated.adjustTrace(this@YAMLPsiElement)
+    valueBase?.adjustTrace(this@AmperElement)
+    if (calculated is Traceable) calculated.adjustTrace(this@AmperElement)
 }
 
 
@@ -36,11 +38,11 @@ fun <T> KProperty0<T>.convertSelf(
  * Try to set property value by searching node child with name
  * same as property name and converting it.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChild(
-    convertValue: YAMLKeyValue.() -> T?
+    convertValue: AmperProperty.() -> T?
 ) {
-    tryGetChildNode(name)?.let { child ->
+    findProperty(name)?.let { child ->
         val newValue = convertValue(child)
         valueBase?.invoke(newValue)
         valueBase?.adjustTrace(child)
@@ -52,11 +54,11 @@ fun <T> KProperty0<T>.convertChild(
  * Try to set property value by searching node child with name
  * same as property name and converting it.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChildValue(
-    convertValue: YAMLKeyValue.() -> T?
+    convertValue: AmperProperty.() -> T?
 ) {
-    tryGetChildNode(name)?.let { childValue ->
+    findProperty(name)?.let { childValue ->
         val newValue = convertValue(childValue)
         valueBase?.invoke(newValue)
         valueBase?.adjustTrace(childValue)
@@ -68,18 +70,18 @@ fun <T> KProperty0<T>.convertChildValue(
  * Try to set property value by searching scalar node child with name
  * same as property name and converting it.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChildScalar(
-    convertValue: YAMLScalar.() -> T?,
+    convertValue: AmperLiteral.() -> T?,
 ) = convertChild {
-    asScalarNode()?.let(convertValue)
+    (this as? AmperLiteral)?.let(convertValue)
 }
 
 /**
  * Try to set string property value by searching scalar node child with name
  * same as property name.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun KProperty0<String?>.convertChildString() =
     convertChildScalar { textValue }
 
@@ -87,7 +89,7 @@ fun KProperty0<String?>.convertChildString() =
  * Try to set boolean property value by searching scalar node child with name
  * same as property name.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun KProperty0<Boolean?>.convertChildBoolean() =
     convertChildScalar { textValue.toBooleanStrictOrNull() }
 
@@ -95,7 +97,7 @@ fun KProperty0<Boolean?>.convertChildBoolean() =
  * Try to set enum property value by searching scalar node child with name
  * same as property name.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T : Enum<T>> KProperty0<T?>.convertChildEnum(
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,
@@ -108,37 +110,37 @@ fun <T : Enum<T>> KProperty0<T?>.convertChildEnum(
  * Try to set collection property value by searching sequence node child with name
  * same as property name and converting its children.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<List<T>?>.convertChildCollection(
-    convertValue: YAMLValue.() -> T?,
+    convertValue: AmperValue.() -> T?,
 ) = convertChild {
-    val sequence = value?.asSequenceNode()
-    sequence?.items?.mapNotNull { it.value }?.mapNotNull(convertValue)
+    val sequence = value as? AmperObject
+    sequence?.collectionItems?.mapNotNull(convertValue)
 }
 
 /**
  * Try to set collection property value by searching scalar sequence node child with name
  * same as property name and converting its children.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<List<T>?>.convertChildScalarCollection(
-    convertValue: YAMLScalar.() -> T?,
+    convertValue: AmperLiteral.() -> T?,
 ) = convertChildCollection {
-    asScalarNode()?.let(convertValue)
+    (this as? AmperLiteral)?.let(convertValue)
 }
 
 /**
  * Try to find all matching child nodes and then map their values.
  */
-context(YAMLMapping, ProblemReporterContext)
+context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
     noModifiersEntry: T? = null,
-    convertValue: YAMLKeyValue.() -> T?,
+    convertValue: AmperProperty.() -> T?,
 ) {
     val newValue = buildMap {
         if (noModifiersEntry != null) put(noModifiers, noModifiersEntry)
-        keyValues
-            .filter { it.keyText.startsWith(name) }
+        propertyList
+            .filter { it.name?.startsWith(name) == true }
             .forEach {
                 val modifiers = it.extractModifiers()
                 // Skip those, that we failed to convert.

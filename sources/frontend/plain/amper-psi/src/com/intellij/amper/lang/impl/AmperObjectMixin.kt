@@ -2,6 +2,7 @@ package com.intellij.amper.lang.impl
 
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.AmperValue
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.CachedValueProvider
@@ -26,3 +27,4 @@ abstract class AmperObjectMixin(node: ASTNode): AmperObject, AmperElementImpl(no
 }
 
 val AmperObject.propertyList get() = this.objectElementList.filterIsInstance<AmperProperty>()
+val AmperObject.collectionItems get() = this.objectElementList.filterIsInstance<AmperValue>()

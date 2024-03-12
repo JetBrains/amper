@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.reportBundleError
@@ -14,7 +15,7 @@ import org.jetbrains.yaml.psi.YAMLPsiElement
  * reporting an error if the type is invalid.
  */
 context(ProblemReporterContext)
-inline fun <reified NodeT, T> YAMLPsiElement.assertNodeType(
+inline fun <reified NodeT, T> PsiElement.assertNodeType(
     fieldName: String,
     report: Boolean = true,
     block: NodeT.() -> T

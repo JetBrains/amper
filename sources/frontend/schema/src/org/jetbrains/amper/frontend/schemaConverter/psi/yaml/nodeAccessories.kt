@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi.util
+package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.yaml.psi.YAMLKeyValue

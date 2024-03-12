@@ -2,14 +2,9 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi
+package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.asTraceable
@@ -28,21 +23,8 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.adjustTrace
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.asAbsolutePath
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.asMappingNode
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.asScalarSequenceNode
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.asSequenceNode
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChild
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildBoolean
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildEnum
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalar
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildScalarCollection
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertChildString
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertEnum
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertModifierAware
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertScalarKeyedMap
-import org.jetbrains.amper.frontend.schemaConverter.psi.util.convertSelf
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
@@ -50,40 +32,6 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
-
-// TODO Rethink.
-data class ConvertCtx(
-    val baseFile: VirtualFile,
-    val pathResolver: FrontendPathResolver
-)
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertModule(file: VirtualFile): Module? {
-    val psiFile = pathResolver.toPsiFile(file)
-    return psiFile?.let { convertModulePsi(it) }
-}
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertTemplate(file: VirtualFile) =
-    pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertModulePsi(file: PsiFile): Module? {
-    // TODO Add reporting.
-    return ApplicationManager.getApplication().runReadAction(Computable {
-        val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
-        rootNode?.convertModule()
-    })
-}
-
-context(ProblemReporterContext, ConvertCtx)
-fun convertTemplatePsi(file: PsiFile): Template? {
-    // TODO Add reporting.
-    return ApplicationManager.getApplication().runReadAction(Computable {
-        val rootNode = file.children.filterIsInstance<YAMLDocument>().firstOrNull()
-        rootNode?.convertTemplate()
-    })
-}
 
 context(ProblemReporterContext, ConvertCtx)
 fun YAMLDocument.convertTemplate() = Template().apply {
@@ -94,7 +42,7 @@ fun YAMLDocument.convertTemplate() = Template().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-public fun YAMLDocument.convertModule() = Module().apply {
+fun YAMLDocument.convertModule() = Module().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
