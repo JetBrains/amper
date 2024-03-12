@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.core.extract
 
-import com.google.common.io.MoreFiles
-import com.google.common.io.RecursiveDeleteOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
@@ -28,7 +26,10 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
 import java.util.logging.Logger
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.listDirectoryEntries
 
 
@@ -346,13 +347,12 @@ options:${getExtractOptionsShortString(options)}
 """.toByteArray(StandardCharsets.UTF_8)
 }
 
-private fun deleteFileOrFolder(file: Path) {
-    MoreFiles.deleteRecursively(file, RecursiveDeleteOption.ALLOW_INSECURE)
-}
-
+@OptIn(ExperimentalPathApi::class)
 fun cleanDirectory(directory: Path) {
-    Files.createDirectories(directory)
-    directory.listDirectoryEntries().forEach { deleteFileOrFolder(it) }
+    directory.createDirectories()
+    directory.listDirectoryEntries().forEach {
+        it.deleteRecursively()
+    }
 }
 
 private fun checkFlagFile(
