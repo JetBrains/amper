@@ -5,8 +5,8 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi.amper
 
 import com.intellij.amper.lang.AmperContextBlock
-import com.intellij.amper.lang.AmperContextStatement
 import com.intellij.amper.lang.AmperContextualElement
+import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.openapi.util.text.StringUtil
@@ -34,7 +34,7 @@ fun AmperProperty.extractModifiers(): Modifiers {
   while (parentContext != null) {
     modifiers.addAll(when (parentContext) {
       is AmperContextBlock -> parentContext.contextNameList
-      is AmperContextStatement -> parentContext.contextNameList
+      is AmperContextualStatement -> parentContext.contextNameList
       else -> emptyList()
     }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).adjustTrace(name) } })
     parentContext = PsiTreeUtil.getParentOfType(parentContext, AmperContextualElement::class.java, true)
@@ -63,7 +63,7 @@ fun String.asAbsolutePath(): Path =
  * Same as [String.asAbsolutePath], but accepts [YAMLScalar].
  */
 context(ConvertCtx)
-fun AmperLiteral.asAbsolutePath(): Path = text.asAbsolutePath()
+fun AmperLiteral.asAbsolutePath(): Path = textValue.asAbsolutePath()
 
 /**
  * Same as [String.asAbsolutePath], but accepts [YAMLKeyValue].

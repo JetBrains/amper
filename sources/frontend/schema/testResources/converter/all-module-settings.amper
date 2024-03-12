@@ -1,0 +1,129 @@
+product = {
+  type = "lib"
+  platforms {
+    "jvm"
+    "android"
+    "iosArm64"
+  }
+}
+
+module {
+  layout = "gradle-kmp"
+}
+
+aliases {
+  jvmAndAndroid { "jvm", "android" }
+}
+
+@jvmAndAndroid
+dependencies {
+  "org.jetbrains.compose.runtime:runtime:1.4.1"
+}
+
+@jvm
+dependencies {
+  "io.ktor:ktor-server-core:2.3.2"
+  "org.jetbrains.compose.material3:material3:1.4.1"
+  "some.dep" = "compile-only"
+  "other.dep" {
+      scope = "compile-only"
+      exported = true
+  }
+  "$kotlin-stdlib" {
+      exported = true
+      scope = "runtime-only"
+   }
+ }
+
+@android
+dependencies {
+  "androidx.compose.animation:animation-graphics:1.4.3"
+}
+
+settings {
+  android {
+    compileSdk= 33
+    minSdk= 30
+    applicationId= "my-application"
+    namespace= "com.example.namespace"
+    maxSdk= 33
+    targetSdk= 33
+  }
+  compose {
+    enabled= true
+  }
+  jvm {
+    mainClass= "MainKt"
+  }
+  junit= "none"
+  kotlin{
+    apiVersion="1.8"
+    languageVersion="1.8"
+    allWarningsAsErrors= false
+    debug= false
+    progressiveMode= false
+    suppressWarnings= false
+    verbose= true
+    freeCompilerArgs{
+      "-Xinline-classes"
+      "-Xxxx"
+    }
+    optIns{
+      "kotlinx.Experimental"
+    }
+  }
+  ios{
+    teamId= "iosTeam"
+    framework{
+      basename= "iosBasename"
+      isStatic= true
+    }
+  }
+  publishing{
+    group="org.jetbrains.amper.frontend.without-fragments.yaml"
+    version="42-SNAPSHOT"
+  }
+  kover{
+    enabled= true
+    html {
+      title= "koverHtmlReportTitle"
+      onCheck= true
+      reportDir= "html"
+      charset= "UTF8"
+    }
+    xml {
+      onCheck= false
+      reportFile= "coverage.xml"
+    }
+  }
+  native{
+    entryPoint= "entrypoint-native"
+  }
+}
+
+// test-setting uses shortcut form of syntax
+"test-settings" {
+  compose= "enabled"
+}
+
+// test-dependencies uses shortcut form of syntax
+"test-dependencies" {
+  "androidx.activity:activity-compose:1.6.1"= "exported"
+  "androidx.activity:activity-compose:1.6.2"= "compile-only"
+  "androidx.activity:activity-compose:1.6.3"= "runtime-only"
+  "$kotlin-test"
+}
+
+repositories {
+  repository {
+   id= "scratch"
+    url= "https://packages.jetbrains.team/maven/p/amper/amper"
+    publish= true
+    credentials {
+      file= "local.properties"
+      usernameKey= "tName"
+      passwordKey= "tPass"
+    }
+  }
+  "https://packages.jetbrains.team/maven/p/deft/deft"
+}

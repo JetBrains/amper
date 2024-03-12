@@ -1,10 +1,12 @@
 package com.intellij.amper.lang.impl
 
+import com.intellij.amper.lang.AmperContextBlock
+import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperObject
+import com.intellij.amper.lang.AmperObjectElement
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.AmperValue
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 
@@ -26,5 +28,38 @@ abstract class AmperObjectMixin(node: ASTNode): AmperObject, AmperElementImpl(no
   }
 }
 
-val AmperObject.propertyList get() = this.objectElementList.filterIsInstance<AmperProperty>()
-val AmperObject.collectionItems get() = this.objectElementList.filterIsInstance<AmperValue>()
+val AmperObject.propertyList get() = this.objectElementList.propertyList()
+val AmperObject.collectionItems get() = this.objectElementList.collectionItems()
+val AmperObject.allObjectElements get() = this.objectElementList.allElementsRecursively()
+
+private fun List<AmperObjectElement>.allElementsRecursively(): List<AmperObjectElement> {
+  return flatMap {
+    when (it) {
+      is AmperContextualStatement -> listOfNotNull(it.objectElement).allElementsRecursively()
+      is AmperContextBlock -> it.objectElementList.allElementsRecursively()
+      else -> listOf(it)
+    }
+  }
+}
+
+private fun List<AmperObjectElement>.propertyList(): List<AmperProperty> {
+  return this.flatMap {
+    when (it) {
+      is AmperProperty -> listOfNotNull(it.takeIf { it.value != null })
+      is AmperContextualStatement -> listOfNotNull(it.objectElement).propertyList()
+      is AmperContextBlock -> it.objectElementList.propertyList()
+      else -> emptyList()
+    }
+  }
+}
+
+private fun List<AmperObjectElement>.collectionItems(): List<AmperValue> {
+  return this.flatMap {
+    when (it) {
+      is AmperProperty -> listOfNotNull(it.takeIf { it.value == null }?.nameElement as? AmperValue)
+      is AmperContextualStatement -> listOfNotNull(it.objectElement).collectionItems()
+      is AmperContextBlock -> it.objectElementList.collectionItems()
+      else -> emptyList()
+    }
+  }
+}

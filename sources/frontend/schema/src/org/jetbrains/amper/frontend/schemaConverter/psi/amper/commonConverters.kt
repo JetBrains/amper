@@ -25,7 +25,7 @@ fun <T> AmperObject.convertScalarKeyedMap(
     convert: AmperValue.(String) -> T?
 ): Map<String, T> = collectionItems.mapNotNull {
     // TODO Report entries with multiple keys.
-    val asMapping = it.asMappingNode() ?: return@mapNotNull null
+    val asMapping = it as? AmperObject ?: return@mapNotNull null
     val singleKey = asMapping.propertyList.firstOrNull() ?: return@mapNotNull null
     // TODO Report non scalars.
     // Skip non scalar keys.

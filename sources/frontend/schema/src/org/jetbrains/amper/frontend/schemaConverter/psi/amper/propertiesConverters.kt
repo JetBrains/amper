@@ -74,7 +74,7 @@ context(AmperObject, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChildScalar(
     convertValue: AmperLiteral.() -> T?,
 ) = convertChild {
-    (this as? AmperLiteral)?.let(convertValue)
+    (this.value as? AmperLiteral)?.let(convertValue)
 }
 
 /**

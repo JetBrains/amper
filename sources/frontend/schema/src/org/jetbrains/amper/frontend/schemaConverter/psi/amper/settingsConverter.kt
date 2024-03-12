@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.amper
 
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
+import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.AmperValue
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -30,19 +31,19 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertSettings() =
-    asMappingNode()?.doConvertSettings()?.adjustTrace(this)
+    doConvertSettings().adjustTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.doConvertSettings() = Settings().apply {
-    ::java.convertChildValue { asMappingNode()?.convertJavaSettings() }
-    ::jvm.convertChildValue { asMappingNode()?.convertJvmSettings() }
-    ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
-    ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
-    ::compose.convertChildValue { value?.convertComposeSettings() }
-    ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
-    ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }
-    ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }
-    ::native.convertChildValue { asMappingNode()?.convertNativeSettings() }
+    ::java.convertChildValue { (value as? AmperObject)?.convertJavaSettings() }
+    ::jvm.convertChildValue { (value as? AmperObject)?.convertJvmSettings() }
+    ::android.convertChildValue { (value as? AmperObject)?.convertAndroidSettings() }
+    ::kotlin.convertChildValue { (value as? AmperObject)?.convertKotlinSettings() }
+    ::compose.convertChildValue { convertComposeSettings() }
+    ::ios.convertChildValue { (value as? AmperObject)?.convertIosSettings() }
+    ::publishing.convertChildValue { (value as? AmperObject)?.convertPublishingSettings() }
+    ::kover.convertChildValue { (value as? AmperObject)?.convertKoverSettings() }
+    ::native.convertChildValue { (value as? AmperObject)?.convertNativeSettings() }
 
     ::junit.convertChildEnum(JUnitVersion)
 }
@@ -89,25 +90,27 @@ internal fun AmperObject.convertKotlinSettings() = KotlinSettings().apply {
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperValue.convertSerializationSettings() = when (this) {
-    is AmperLiteral -> SerializationSettings().apply { ::format.convertSelf { text } }
+    is AmperLiteral -> SerializationSettings().apply { ::format.convertSelf { textValue } }
     is AmperObject -> SerializationSettings().apply { ::format.convertChildString() }
     else -> null
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun AmperValue.convertComposeSettings() = when (this) {
-    is AmperLiteral -> ComposeSettings().apply { ::enabled.convertSelf { (text == "enabled") } }
-    is AmperObject -> ComposeSettings().apply {
-        ::enabled.convertChildBoolean()
-        ::version.convertChildString()
-    }
-    else -> null
+internal fun AmperProperty.convertComposeSettings() = when (value) {
+    is AmperLiteral -> (value as? AmperLiteral)?.run { ComposeSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } } }
+    else -> (value as? AmperObject)?.convertComposeSettingsObject()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperObject.convertComposeSettingsObject() = ComposeSettings().apply {
+    ::enabled.convertChildBoolean()
+    ::version.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertIosSettings() = IosSettings().apply {
     ::teamId.convertChildString()
-    ::framework.convertChildValue { asMappingNode()?.convertIosFrameworkSettings() }
+    ::framework.convertChildValue { (value as? AmperObject)?.convertIosFrameworkSettings() }
 }
 
 context(ProblemReporterContext, ConvertCtx)
@@ -127,8 +130,8 @@ internal fun AmperObject.convertPublishingSettings() = PublishingSettings().appl
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertKoverSettings() = KoverSettings().apply {
     ::enabled.convertChildBoolean()
-    ::xml.convertChildValue { asMappingNode()?.convertKoverXmlSettings() }
-    ::html.convertChildValue { asMappingNode()?.convertKoverHtmlSettings() }
+    ::xml.convertChildValue { (value as? AmperObject)?.convertKoverXmlSettings() }
+    ::html.convertChildValue { (value as? AmperObject)?.convertKoverHtmlSettings() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

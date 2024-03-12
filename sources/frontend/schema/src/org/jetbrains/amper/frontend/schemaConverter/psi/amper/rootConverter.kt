@@ -9,14 +9,10 @@ import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperObjectElement
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.AmperValue
+import com.intellij.amper.lang.impl.allObjectElements
 import com.intellij.amper.lang.impl.collectionItems
 import com.intellij.amper.lang.impl.propertyList
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.asTraceable
@@ -45,21 +41,21 @@ fun AmperObject.convertTemplate() = Template().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-public fun AmperObject.convertModule() = Module().apply {
+fun AmperObject.convertModule() = Module().apply {
     val documentMapping = this
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
         this@apply::apply.convertChildScalarCollection { asAbsolutePath() }
         ::aliases.convertChild {
-            asSequenceNode()?.convertScalarKeyedMap {
-                asSequenceNode()
+            (this.value as? AmperObject)?.propertyList?.associate {
+                it.name to (it.value as? AmperObject)
                     ?.collectionItems
                     ?.filterIsInstance<AmperLiteral>()
                     ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
                     ?.toSet()
-            }
+            }.orEmpty()
         }
-        ::module.convertChild { asMappingNode()?.convertMeta() }
+        ::module.convertChild { (value as? AmperObject)?.convertMeta() }
         convertBase(this@apply)
     }
 }
@@ -71,8 +67,8 @@ internal fun <T : Base> AmperObject.convertBase(base: T) = base.apply {
     ::dependencies.convertModifierAware { value?.convertDependencies() }
     ::`test-dependencies`.convertModifierAware { value?.convertDependencies() }
 
-    ::settings.convertModifierAware(Settings()) { convertSettings() }
-    ::`test-settings`.convertModifierAware(Settings()) { convertSettings() }
+    ::settings.convertModifierAware(Settings()) { (value as? AmperObject)?.convertSettings() }
+    ::`test-settings`.convertModifierAware(Settings()) { (value as? AmperObject)?.convertSettings() }
 }
 
 context(ProblemReporterContext, ConvertCtx)
@@ -101,16 +97,16 @@ private fun AmperObject.convertMeta() = Meta().apply {
 context(ProblemReporterContext, ConvertCtx)
 private fun AmperProperty.convertRepositories(): List<Repository>? {
     (this.value as? AmperObject)?.let {
-        return it.collectionItems.mapNotNull { it.convertRepository() }
+        return it.objectElementList.mapNotNull { it.convertRepository() }
     }
     // TODO Report wrong type.
     return null
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun AmperValue.convertRepository(): Repository? = when (val value = this) {
-    is AmperLiteral -> value.convertRepositoryShort()
-    is AmperObject -> value.convertRepositoryFull()
+private fun AmperObjectElement.convertRepository(): Repository? = when (val value = this) {
+    is AmperProperty -> (value.value as? AmperObject)?.convertRepositoryFull() ?: (
+            (value.nameElement as? AmperLiteral)?.convertRepositoryShort())
     else -> null
 }?.adjustTrace(this)
 
@@ -126,7 +122,7 @@ private fun AmperObject.convertRepositoryFull(): Repository = Repository().apply
     ::id.convertChildString()
     ::publish.convertChildBoolean()
     ::credentials.convertChild {
-        asMappingNode()?.run {
+        (value as? AmperObject)?.run {
             Repository.Credentials().apply {
                 // TODO Report non existent path.
                 ::file.convertChildScalar { asAbsolutePath() }
@@ -140,15 +136,14 @@ private fun AmperObject.convertRepositoryFull(): Repository = Repository().apply
 context(ProblemReporterContext, ConvertCtx)
 private fun AmperValue.convertDependencies() =
     assertNodeType<AmperObject, List<Dependency>>("dependencies") {
-        collectionItems.mapNotNull { it.convertDependency() }
+        allObjectElements.mapNotNull {
+            when {
+                it is AmperProperty && it.value == null -> (it.nameElement as? AmperLiteral)?.convertDependencyShort()
+                it is AmperProperty -> it.convertDependencyFull()
+                else -> null
+            }
+        }
     }
-
-context(ProblemReporterContext, ConvertCtx)
-private fun AmperValue.convertDependency(): Dependency? = when (val value = this) {
-    is AmperLiteral -> value.convertDependencyShort()
-    is AmperObject -> value.convertDependencyFull()
-    else -> null // Report wrong type
-}
 
 context(ProblemReporterContext, ConvertCtx)
 private fun AmperLiteral.convertDependencyShort(): Dependency {
@@ -163,11 +158,11 @@ private fun AmperLiteral.convertDependencyShort(): Dependency {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun AmperObject.convertDependencyFull(): Dependency? = when {
-    propertyList.first()?.name?.startsWith("$") == true -> propertyList.first().convertCatalogDep()
-    propertyList.first()?.name?.startsWith(".") == true -> propertyList.first().convertInternalDep()
-    else -> propertyList.first().convertExternalMavenDep()
-}?.adjustTrace(this)
+private fun AmperProperty.convertDependencyFull(): Dependency = when {
+    name?.startsWith("$") == true -> convertCatalogDep()
+    name?.startsWith(".") == true -> convertInternalDep()
+    else -> convertExternalMavenDep()
+}.adjustTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun AmperProperty.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {

@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 /**
@@ -17,8 +18,10 @@ open class BaseTestRun(
     protected val caseName: String,
 ) {
     open val base: Path get() = Path("testResources")
-    open val expectPostfix: String = ".result.txt"
+    private val defaultExpectPostfix = ".result.txt"
+    open val expectPostfix: String = defaultExpectPostfix
     open val inputPostfix: String = ".yaml"
+    private val inputAmperPostfix: String = ".amper"
 
     protected val ctx = TestProblemReporterContext()
 
@@ -38,6 +41,16 @@ open class BaseTestRun(
             val expectContent = getExpectContent(input, expect)
 
             assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
+
+            val inputAmper = base / "$caseName$inputAmperPostfix"
+            if (inputAmper.exists() && expectPostfix == defaultExpectPostfix) {
+                val inputAmperContent = getInputContent(inputAmper)
+
+                val expectAmper = base / "$caseName.result.amper.txt"
+                val expectAmperContent = getExpectContent(input, expectAmper)
+
+                assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, expect)
+            }
         }
     }
 }
