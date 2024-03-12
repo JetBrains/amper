@@ -50,6 +50,7 @@ class BootstrapTest {
         val frontendApi = TestUtil.amperSourcesRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
         val tomlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/toml-psi/build/libs/toml-psi-jvm-$version.jar")
         val yamlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
+        val amperPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/amper-psi/build/libs/amper-psi-jvm-$version.jar")
         val parserStub = TestUtil.amperSourcesRoot.resolve("frontend/plain/parserutil-stub/build/libs/parserutil-stub-jvm-$version.jar")
         val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
 
@@ -87,6 +88,7 @@ buildscript {
         classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
         classpath(files("${tomlPsi.pathString.replace('\\', '/')}"))
         classpath(files("${yamlPsi.pathString.replace('\\', '/')}"))
+        classpath(files("${amperPsi.pathString.replace('\\', '/')}"))
         classpath(files("${parserStub.pathString.replace('\\', '/')}"))
         classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
     }
