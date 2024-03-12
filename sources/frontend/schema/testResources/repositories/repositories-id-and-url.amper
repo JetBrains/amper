@@ -1,0 +1,16 @@
+product = {
+  type= "app"
+  platforms = { "iosArm64" }
+}
+
+repositories {
+  "https://a.b"
+  repository {
+    url = "https://c.d"
+  }
+  repository {
+    id = "x"
+    url = "https://x.y"
+  }
+}
+

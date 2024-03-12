@@ -45,8 +45,9 @@ open class BaseTestRun(
             if (inputAmper.exists()) {
                 val inputAmperContent = getInputContent(inputAmper)
 
-                val expectAmper = base / "$caseName$expectPostfix"
-                val expectAmperContent = getExpectContent(input, expectAmper)
+                val expectAmper = (base / "$caseName.result.amper.txt").takeIf { it.exists() }
+                    ?: (base / "$caseName$expectPostfix")
+                val expectAmperContent = getExpectContent(inputAmper, expectAmper)
 
                 assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, expect)
             }
