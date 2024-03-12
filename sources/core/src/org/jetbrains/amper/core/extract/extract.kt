@@ -12,7 +12,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import org.apache.commons.io.input.CloseShieldInputStream
 import org.jetbrains.amper.concurrency.withDoubleLock
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -208,7 +207,7 @@ private fun extractTarBasedArchive(
                         override val linkTarget: String?
                             get() = entry.linkName
                         override val inputStream: InputStream
-                            get() = CloseShieldInputStream.wrap(archive)
+                            get() = CloseShieldInputStream(archive)
                     }
                 }
         }, target, stripRoot)
