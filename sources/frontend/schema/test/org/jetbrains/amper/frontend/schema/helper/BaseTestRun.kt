@@ -43,6 +43,7 @@ open class BaseTestRun(
 
             val inputAmper = base / "$caseName$inputAmperPostfix"
             if (inputAmper.exists()) {
+                problemReporter.clearAll()
                 val inputAmperContent = getInputContent(inputAmper)
 
                 val expectAmper = (base / "$caseName.result.amper.txt").takeIf { it.exists() }

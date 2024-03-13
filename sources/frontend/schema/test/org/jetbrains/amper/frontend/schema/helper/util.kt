@@ -28,6 +28,8 @@ import kotlin.io.path.readText
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
 
+    fun clearAll() = problems.clear()
+
     fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error || it.level == Level.Fatal }
 }
 
