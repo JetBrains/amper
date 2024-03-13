@@ -11,13 +11,13 @@ import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
-import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
-import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.compilation.mergedCompilationSettings
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
@@ -81,7 +81,7 @@ class JvmCompileTask(
                 ?: error("jvm compilation result from production compilation result was not found for module=${module.userReadableName}, task=$taskName")
         } else null
 
-        val kotlinUserSettings = fragments.mergedKotlinSettings()
+        val userSettings = fragments.mergedCompilationSettings()
 
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion
@@ -92,7 +92,7 @@ class JvmCompileTask(
         val configuration: Map<String, String> = mapOf(
             "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
             "kotlin.version" to kotlinVersion,
-            "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
+            "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
@@ -119,7 +119,7 @@ class JvmCompileTask(
                 compileSources(
                     sourceDirectories = presentSources,
                     kotlinVersion = kotlinVersion,
-                    kotlinUserSettings = kotlinUserSettings,
+                    userSettings = userSettings,
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
                 )
@@ -151,7 +151,7 @@ class JvmCompileTask(
     private suspend fun compileSources(
         sourceDirectories: List<Path>,
         kotlinVersion: String,
-        kotlinUserSettings: KotlinUserSettings,
+        userSettings: CompilationUserSettings,
         classpath: List<Path>,
         friendPaths: List<Path>,
     ) {
@@ -176,7 +176,7 @@ class JvmCompileTask(
 
             val kotlinCompilationResult = compileKotlinSources(
                 compilerVersion = kotlinVersion,
-                kotlinUserSettings = kotlinUserSettings,
+                userSettings = userSettings,
                 isMultiplatform = isMultiplatform,
                 classpath = classpath,
                 jdkHome = jdkHome,
@@ -193,6 +193,7 @@ class JvmCompileTask(
             val kotlinClassesPath = listOf(taskOutputRoot.path)
             val javacSuccess = compileJavaSources(
                 jdkHome = jdkHome,
+                userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
             )
@@ -204,7 +205,7 @@ class JvmCompileTask(
 
     private suspend fun compileKotlinSources(
         compilerVersion: String,
-        kotlinUserSettings: KotlinUserSettings,
+        userSettings: CompilationUserSettings,
         isMultiplatform: Boolean,
         classpath: List<Path>,
         jdkHome: Path,
@@ -225,11 +226,11 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(logger.asKotlinLogger())
 
-        val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(compilerVersion, kotlinUserSettings)
+        val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
 
         val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,
-            kotlinUserSettings = kotlinUserSettings,
+            userSettings = userSettings,
             classpath = classpath,
             jdkHome = jdkHome,
             outputPath = taskOutputRoot.path,
@@ -239,9 +240,9 @@ class JvmCompileTask(
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAmperModule(module)
-            .setListAttribute("source-files", sourceFiles.map { it.toString() })
+            .setListAttribute("source-files", sourceFiles.map { it.pathString })
             .setListAttribute("compiler-args", compilerArgs)
-            .setAttribute("version", compilerVersion)
+            .setAttribute("compiler-version", compilerVersion)
             .useWithScope {
                 logger.info("Calling Kotlin compiler...")
 
@@ -259,25 +260,42 @@ class JvmCompileTask(
 
     private suspend fun compileJavaSources(
         jdkHome: Path,
+        userSettings: CompilationUserSettings,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
     ): Boolean {
-        val javacCommand = listOf(
-            JdkDownloader.getJavacExecutable(jdkHome).pathString,
-            "-classpath", classpath.joinToString(File.pathSeparator),
+        val javacArgs = buildList {
+            if (userSettings.jvmRelease != null) {
+                add("--release")
+                add(userSettings.jvmRelease.releaseNumber.toString())
+            }
+
+            add("-classpath")
+            add(classpath.joinToString(File.pathSeparator))
+
             // TODO ok by default?
-            "-encoding", "utf-8",
-            // TODO settings
-            "-g",
+            add("-encoding")
+            add("utf-8")
+
+            // TODO Should we move settings.kotlin.debug to settings.jvm.debug and use it here?
+            add("-g")
+
             // https://blog.ltgt.net/most-build-tools-misuse-javac/
             // we compile module by module, so we don't need javac lookup into other modules
-            "-sourcepath", "", "-implicit:none",
-            "-d", taskOutputRoot.path.pathString,
-        ) + javaSourceFiles.map { it.pathString }
+            add("-sourcepath")
+            add("")
+            add("-implicit:none")
+
+            add("-d")
+            add(taskOutputRoot.path.pathString)
+
+            addAll(javaSourceFiles.map { it.pathString })
+        }
+        val javacCommand = listOf(JdkDownloader.getJavacExecutable(jdkHome).pathString) + javacArgs
 
         val result = spanBuilder("javac")
             .setAmperModule(module)
-            .setListAttribute("args", javacCommand)
+            .setListAttribute("args", javacArgs)
             .setAttribute("jdk-home", jdkHome.pathString)
             // TODO get version from jdkHome/release
             // .setAttribute("version", jdkHome.)

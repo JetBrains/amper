@@ -109,15 +109,16 @@ private fun kotlinCommonCompilerArgs(
 
 internal fun kotlinJvmCompilerArgs(
     isMultiplatform: Boolean,
-    kotlinUserSettings: KotlinUserSettings,
+    userSettings: CompilationUserSettings,
     classpath: List<Path>,
     compilerPlugins: List<CompilerPlugin>,
     jdkHome: Path,
     outputPath: Path,
     friendPaths: List<Path>,
 ): List<String> = buildList {
-    add("-jvm-target")
-    add("17")
+    if (userSettings.jvmRelease != null) {
+        add("-Xjdk-release=${userSettings.jvmRelease.releaseNumber}")
+    }
 
     add("-jdk-home")
     add(jdkHome.pathString)
@@ -134,7 +135,7 @@ internal fun kotlinJvmCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform, kotlinUserSettings, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(isMultiplatform, userSettings.kotlin, compilerPlugins))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)

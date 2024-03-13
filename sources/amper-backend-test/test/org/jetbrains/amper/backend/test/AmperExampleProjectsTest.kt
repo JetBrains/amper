@@ -37,6 +37,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         assertKotlinJvmCompilationSpan {
             hasCompilerArgument("-language-version", "1.9")
             hasCompilerArgument("-api-version", "1.9")
+            hasCompilerArgument("-Xjdk-release=17")
         }
         assertStdoutContains("Hello, World!")
     }
@@ -50,14 +51,12 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         assertKotlinJvmCompilationSpan {
             hasCompilerArgument("-language-version", "1.8") // explicit
-            hasCompilerArgument("-jvm-target", "17") // explicit
+            hasCompilerArgument("-Xjdk-release=17") // explicit
+        }
+        assertJavaCompilationSpan {
+            hasCompilerArgument("--release", "17")
         }
         assertStdoutContains("Hello, World")
-        // TODO add support for Java settings
-//        with(javacSpans.single()) {
-//            assertJavaCompilerArgument("-source", "17")
-//            assertJavaCompilerArgument("-target", "17")
-//        }
     }
 
     @Test

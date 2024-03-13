@@ -57,6 +57,9 @@ abstract class IntegrationTestBase {
     protected val kotlinJvmCompilationSpans: FilteredSpans
         get() = openTelemetryCollector.spansNamed("kotlin-compilation")
 
+    protected val javaCompilationSpans: FilteredSpans
+        get() = openTelemetryCollector.spansNamed("javac")
+
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
     init {
@@ -108,20 +111,27 @@ abstract class IntegrationTestBase {
         }
     }
 
-    protected fun assertKotlinJvmCompilationSpan(assertions: KotlinJvmCompilationSpanAssertions.() -> Unit = {}) {
+    protected fun assertKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         val kotlinSpan = kotlinJvmCompilationSpans.assertSingle()
-        KotlinJvmCompilationSpanAssertions(kotlinSpan).assertions()
+        CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
+    }
+
+    protected fun assertJavaCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+        val javacSpan = javaCompilationSpans.assertSingle()
+        CompilationSpanAssertions(javacSpan, "args").assertions()
     }
 }
 
 private val amperModuleKey = AttributeKey.stringKey("amper-module")
-private val compilerArgsKey = AttributeKey.stringArrayKey("compiler-args")
 
 fun FilteredSpans.withAmperModule(name: String) = withAttribute(amperModuleKey, name)
 
-class KotlinJvmCompilationSpanAssertions(private val span: SpanData) {
+class CompilationSpanAssertions(
+    private val span: SpanData,
+    private val compilerArgsAttributeKeyName: String,
+) {
     private val compilerArgs: List<String>
-        get() = span.getAttribute(compilerArgsKey)
+        get() = span.getAttribute(AttributeKey.stringArrayKey(compilerArgsAttributeKeyName))
 
     fun hasAmperModule(name: String) {
         span.assertHasAttribute(amperModuleKey, name)
