@@ -1,0 +1,13 @@
+product {
+  type = "app"
+  platforms =  { "iosArm64" }
+}
+
+apply {
+  "./inner-dir/inner-template.amper"
+}
+
+dependencies {
+  "org.yaml:snakeyaml:2.0"
+  "./some-dep"
+}

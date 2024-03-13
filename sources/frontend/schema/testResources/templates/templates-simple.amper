@@ -1,0 +1,23 @@
+product {
+  type = "app"
+  platforms = { "iosArm64" }
+}
+
+apply {
+  "./templates-simple.module-template.amper"
+}
+
+dependencies {
+  "org.jetbrains.kotlin:kotlin-reflect:1.8.10"
+}
+
+settings {
+  kotlin {
+    sdk {
+      version = "1.9.0"
+    }
+    features {
+      "contextReceivers"
+    }
+  }
+}
