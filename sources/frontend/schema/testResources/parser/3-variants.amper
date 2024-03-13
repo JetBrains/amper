@@ -1,0 +1,25 @@
+variants {
+  variant { "debug", "release" }
+  variant { "free", "paid" }
+}
+
+dependencies {
+  "org.apache.commons:commons-math3:3.6.1"
+}
+
+@ios @release
+settings {
+  kotlin {
+    languageVersion = 1.9
+  }
+}
+
+product {
+  type = "app"
+  platforms {
+    "jvm"
+    "iosSimulatorArm64"
+    "iosArm64"
+    "iosX64"
+  }
+}

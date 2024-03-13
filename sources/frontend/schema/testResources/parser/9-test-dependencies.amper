@@ -1,0 +1,8 @@
+product {
+  type = "app"
+  platforms = { jvm }
+}
+
+"test-dependencies" {
+  "org.jetbrains.kotlin:kotlin-test:1.8.10"
+}

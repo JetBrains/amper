@@ -1,0 +1,17 @@
+product {
+  type = "app"
+  platforms = { "jvm", "android" }
+}
+
+settings {
+  jvm {
+    target = 1.8
+  }
+}
+
+@android
+settings {
+  jvm {
+    target = 17
+  }
+}

@@ -1,0 +1,12 @@
+product {
+  type = "app"
+  platforms {
+    "jvm"
+  }
+}
+
+settings {
+  java {
+    mainClass = "MainKt"
+  }
+}
