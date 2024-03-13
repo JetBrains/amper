@@ -1,0 +1,6 @@
+product {
+  type = "lib"
+  platforms {
+    "iosArm64"
+  }
+}
