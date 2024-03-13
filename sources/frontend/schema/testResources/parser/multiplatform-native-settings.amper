@@ -1,6 +1,6 @@
 product {
   type = "linux/app"
-  platforms = { linuxArm64 }
+  platforms = { "linuxArm64" }
 }
 
 settings {

@@ -1,6 +1,6 @@
 product {
   type = "app"
-  platforms = { jvm }
+  platforms = { "jvm" }
 }
 
 "test-dependencies" {
