@@ -123,6 +123,20 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
+    onCompileModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
+        registerDependency(
+            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
+            CommonTaskType.Compile.getTaskName(dependsOn, platform, false, buildType)
+        )
+    }
+
+    onRuntimeModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
+        registerDependency(
+            AndroidTaskType.Build.getTaskName(module, platform, isTest, buildType),
+            CommonTaskType.Compile.getTaskName(dependsOn, platform, false, buildType)
+        )
+    }
+
     onMain(Platform.ANDROID) { module, _, platform, isTest, buildType ->
         // run
         val runTaskName = CommonTaskType.Run.getTaskName(module, platform, isTest, buildType)

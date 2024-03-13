@@ -107,8 +107,8 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         projectContext.assertHasTasks(jvmAppTasks, module = "jvm-app")
         projectContext.assertHasTasks(iosAppTasks, module = "ios-app")
 
-        // TODO handle Android resources. Currently it fails with this error:
-        //  AAPT: error: resource style/Theme.AppCompat.Light (aka org.example.namespace:style/Theme.AppCompat.Light) not found.
+        // TODO handle ios app compilation, currently it fails with this error:
+        //   error: could not find 'main' in '<root>' package.
 //        AmperBackend(projectContext).compile()
 //
 //        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
@@ -121,12 +121,9 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     fun composeAndroid() {
         val projectContext = setupExampleProject("compose-android")
         projectContext.assertHasTasks(androidAppTasks)
-
-        // TODO handle Android resources. Currently it fails with this error:
-        //  AAPT: error: resource style/Theme.AppCompat.Light (aka org.example.namespace:style/Theme.AppCompat.Light) not found.
-//        AmperBackend(projectContext).compile()
-
-//        kotlinJvmCompilationSpans.assertSingle()
+        AmperBackend(projectContext).compile()
+        // debug + release
+        kotlinJvmCompilationSpans.assertTimes(2)
     }
 
     @Test

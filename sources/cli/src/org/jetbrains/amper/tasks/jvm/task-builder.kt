@@ -31,6 +31,13 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         )
     }
 
+    onCompileModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
+        registerDependency(
+            CommonTaskType.Compile.getTaskName(module, platform, isTest),
+            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+        )
+    }
+
     onMain(Platform.JVM) { module, _, platform, _ ->
         if (!module.type.isLibrary()) {
             registerTask(

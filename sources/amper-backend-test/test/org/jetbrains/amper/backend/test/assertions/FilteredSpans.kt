@@ -7,6 +7,7 @@ package org.jetbrains.amper.backend.test.assertions
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
 import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtension
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -25,6 +26,12 @@ data class FilteredSpans(
         assertFalse(matchingSpans.isEmpty(), "No span matching the filters: $filtersDescription")
         assertFalse(matchingSpans.size > 1, "More than 1 span matching the filters: $filtersDescription")
         return matchingSpans.single()
+    }
+
+    fun assertTimes(times: Int): List<SpanData> {
+        assertFalse(matchingSpans.isEmpty(), "No span matching the filters: $filtersDescription")
+        assertEquals(matchingSpans.size, times, "Not exactly $times spans matching the filters: $filtersDescription")
+        return matchingSpans
     }
 
     fun assertNone() {

@@ -44,31 +44,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
     private fun ProjectTaskRegistrar.setupCommonTasks() {
         onTaskType { module, executeOnChangedInputs, platform, isTest ->
-            val fragmentsIncludeProduction = module.fragments.filter { (isTest || !it.isTest) && it.platforms.contains(platform) }
-            val fragmentsCompileModuleDependencies = fragmentsIncludeProduction
-                .flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }
-                .mapNotNull { (fragment, dependency) ->
-                    when (dependency) {
-                        is MavenDependency -> null
-                        is PotatoModuleDependency -> {
-                            // runtime dependencies are not required to be in compile tasks graph
-                            if (dependency.compile) {
-                                // TODO test with non-resolved dependency on module
-                                val resolvedDependencyModule = dependency.module
-
-                                resolvedDependencyModule
-                            } else {
-                                null
-                            }
-                        }
-
-                        else -> error(
-                            "Unsupported dependency type: '$dependency' " +
-                                    "at module '${module.source}' fragment '${fragment.name}'"
-                        )
-                    }
-                }
-
+            val fragmentsIncludeProduction = module.fragmentsIncludeProduction(isTest, platform)
+            val fragmentsCompileModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
             registerTask(
                 ResolveExternalDependenciesTask(
                     module,
@@ -81,35 +58,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
                 )
             )
-
-            for (compileModuleDependency in fragmentsCompileModuleDependencies) {
-                // direct dependencies
-                registerCompileDependency(module, compileModuleDependency, platform, isTest)
-
-                // exported dependencies
-                val exportedModuleDependencies = compileModuleDependency.fragments
-                    .asSequence()
-                    .filter { it.platforms.contains(platform) && !it.isTest }
-                    .flatMap { it.externalDependencies }
-                    .filterIsInstance<PotatoModuleDependency>()
-                    .filter { it.compile && it.exported }
-                    .map { it.module }
-                    .toList()
-
-                for (exportedModuleDependency in exportedModuleDependencies) {
-                    registerCompileDependency(module, exportedModuleDependency, platform, isTest)
-                }
-            }
         }
-    }
-
-    private fun TaskGraphBuilder.registerCompileDependency(module: PotatoModule,
-                                                           dependsOn: PotatoModule,
-                                                           platform: Platform, isTest: Boolean) {
-        registerDependency(
-            CommonTaskType.Compile.getTaskName(module, platform, isTest),
-            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
-        )
     }
 
     companion object {

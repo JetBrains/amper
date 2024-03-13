@@ -30,6 +30,13 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         )
     }
 
+    onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
+        registerDependency(
+            CommonTaskType.Compile.getTaskName(module, platform, isTest),
+            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+        )
+    }
+
     onMain(Platform.NATIVE) { module, _, platform, isTest ->
         val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
         registerTask(
