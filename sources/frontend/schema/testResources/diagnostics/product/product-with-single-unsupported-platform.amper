@@ -1,0 +1,4 @@
+product {
+  type = "lib"
+  platforms = { "jvm", <![Error] Unknown Platform: foo!>"foo"<!> }
+}

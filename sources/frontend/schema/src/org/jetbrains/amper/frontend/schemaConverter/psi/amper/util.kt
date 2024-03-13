@@ -28,7 +28,6 @@ import kotlin.io.path.exists
  * Extract all modifiers that are present within this scalar node.
  */
 fun AmperProperty.extractModifiers(): Modifiers {
-  val name = nameElement ?: return noModifiers
   val modifiers = mutableSetOf<TraceableString>()
   var parentContext = PsiTreeUtil.getParentOfType(this, AmperContextualElement::class.java, true)
   while (parentContext != null) {

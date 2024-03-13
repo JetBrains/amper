@@ -1,0 +1,7 @@
+product = "jvm/app"
+
+settings {
+  java {
+    <![Error] Java source version (21) should be at most JVM target (17)!>source = 21<!>
+  }
+}

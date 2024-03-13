@@ -1,0 +1,34 @@
+product {
+  type = "lib"
+  platforms = {"jvm", "android", "iosArm64"}
+}
+
+settings {
+  jvm {
+    target = 11
+  }
+}
+
+@jvm @android
+settings {
+  java {
+    <![Error] Java source version (21) should be at most JVM target (11)!>source = 21<!>
+  }
+}
+
+@jvm
+settings {
+  java {
+    <![Error] Java source version (17) should be at most JVM target (11)!>source = 17<!>
+  }
+}
+
+@android
+settings {
+  jvm {
+    target = 17
+  }
+  java {
+    source = 17
+  }
+}

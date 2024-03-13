@@ -1,0 +1,7 @@
+product = "jvm/app"
+
+settings {
+  jvm {
+    target = 17
+  }
+}

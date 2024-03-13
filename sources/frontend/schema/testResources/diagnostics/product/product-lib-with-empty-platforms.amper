@@ -1,0 +1,4 @@
+product {
+  type = "lib"
+  <![Fatal] Product platforms list should not be empty.!>platforms = {}<!>
+}

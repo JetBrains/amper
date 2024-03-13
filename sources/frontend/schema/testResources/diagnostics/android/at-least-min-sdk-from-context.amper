@@ -1,0 +1,14 @@
+product = "android/app"
+
+settings {
+  android {
+    minSdk = 30
+  }
+}
+
+"test-settings" {
+  android {
+    <![Error] Version for compileSdk (29) should be at least minSdk version (30)!>compileSdk = 29<!>
+    targetSdk = 31
+  }
+}
