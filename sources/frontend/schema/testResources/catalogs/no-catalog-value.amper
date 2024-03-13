@@ -1,0 +1,5 @@
+product = "android/app"
+
+dependencies {
+  <![Error] No catalog value for the key absent.catalog.key!>"$absent.catalog.key"<!>
+}
