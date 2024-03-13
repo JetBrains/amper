@@ -36,7 +36,7 @@ fun AmperProperty.extractModifiers(): Modifiers {
       is AmperContextBlock -> parentContext.contextNameList
       is AmperContextualStatement -> parentContext.contextNameList
       else -> emptyList()
-    }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).adjustTrace(name) } })
+    }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).adjustTrace(it) } })
     parentContext = PsiTreeUtil.getParentOfType(parentContext, AmperContextualElement::class.java, true)
   }
   return modifiers
