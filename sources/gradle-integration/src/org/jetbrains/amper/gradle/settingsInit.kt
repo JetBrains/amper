@@ -17,7 +17,7 @@ import kotlin.io.path.extension
 
 /**
  * Gradle setting plugin, that is responsible for:
- * 1. Initializing gradle projects, based on model.
+ * 1. Initializing gradle projects, based on a model.
  * 2. Applying kotlin or KMP plugins.
  * 3. Associate gradle projects with modules.
  */
@@ -51,9 +51,15 @@ class SettingsPluginRun(
     }
 
     private fun configureProject(project: Project) {
-        // Gradle projects that are not in the map aren't Amper projects (modules) anyway
+        // Gradle projects that are not in the map aren't Amper projects (modules) anyway,
         // so we can stop here
-        val connectedModule = settings.gradle.projectPathToModule[project.path] ?: return
+        val connectedModule = settings.gradle.projectPathToModule[project.path] ?: run {
+            if (project.path == project.rootProject.path) {
+                // Add default repositories to the root project, it is required for further applying kmp plugin
+                project.repositories.addDefaultAmperRepositoriesForDependencies()
+            }
+            return
+        }
         if (!connectedModule.hasAmperConfigFile()) {
             // we don't want to alter non-Amper subprojects
             return
@@ -87,7 +93,7 @@ private fun RepositoryHandler.addDefaultAmperRepositoriesForDependencies() {
     mavenCentral()
     // For the Android plugin and dependencies
     google()
-    // For other gradle plugins
+    // For other Gradle plugins
     gradlePluginPortal()
     // For dev versions of kotlin
     maven { it.setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev") }
