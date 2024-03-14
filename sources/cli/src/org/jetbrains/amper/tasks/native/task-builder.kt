@@ -13,7 +13,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
 fun ProjectTaskRegistrar.setupNativeTasks() {
-    onTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
+    onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
         registerTask(
             NativeCompileTask(

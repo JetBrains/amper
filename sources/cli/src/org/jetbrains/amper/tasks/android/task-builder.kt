@@ -45,7 +45,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onTaskType(Platform.ANDROID) { module, executeOnChangedInputs, _, isTest ->
+    onEachTaskType(Platform.ANDROID) { module, executeOnChangedInputs, _, isTest ->
         registerTask(
             TransformAarExternalDependenciesTask(
                 AndroidTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
@@ -68,7 +68,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onBuildType(Platform.ANDROID) { module, executeOnChangedInputs, platform, isTest, buildType ->
+    onEachBuildType(Platform.ANDROID) { module, executeOnChangedInputs, platform, isTest, buildType ->
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
         setupPrepareAndroidTask(
             platform,

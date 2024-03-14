@@ -13,7 +13,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
 fun ProjectTaskRegistrar.setupJvmTasks() {
-    onTaskType(Platform.JVM) { module, executeOnChangedInputs, platform, isTest ->
+    onEachTaskType(Platform.JVM) { module, executeOnChangedInputs, platform, isTest ->
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
         registerTask(

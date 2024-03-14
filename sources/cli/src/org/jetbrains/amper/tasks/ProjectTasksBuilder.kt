@@ -5,14 +5,11 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.ProjectContext
-import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
@@ -43,7 +40,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
     }
 
     private fun ProjectTaskRegistrar.setupCommonTasks() {
-        onTaskType { module, executeOnChangedInputs, platform, isTest ->
+        onEachTaskType { module, executeOnChangedInputs, platform, isTest ->
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
             registerTask(
