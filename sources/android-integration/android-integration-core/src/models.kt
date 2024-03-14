@@ -3,6 +3,7 @@
  */
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import java.nio.file.Path
 
 
@@ -18,8 +19,7 @@ data class ResolvedDependency(
 @Serializable
 data class AndroidModuleData(
     val modulePath: String, // relative module path from root in Gradle format ":path:to:module"
-    @Serializable(with = PathAsStringSerializer::class)
-    val moduleClasses: Path? = null,
+    val moduleClasses: List<@Serializable(with = PathAsStringSerializer::class)Path> = emptyList(),
     val resolvedAndroidRuntimeDependencies: List<ResolvedDependency> = listOf()
 )
 

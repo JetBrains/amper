@@ -39,7 +39,7 @@ class AndroidBuildTask(
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
         val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
-            .firstNotNullOfOrNull { it.classesOutputRoot } ?: error("No build classes")
+            .mapNotNull { it.classesOutputRoot }
         val resolvedAndroidRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .flatMap { it.runtimeClasspath }
@@ -53,7 +53,7 @@ class AndroidBuildTask(
             setOf(buildType.toAndroidRequestBuildType),
             sdkDir = androidSdkPath
         )
-        val inputs = listOf(classes) + resolvedAndroidRuntimeDependencies
+        val inputs = classes + resolvedAndroidRuntimeDependencies
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {

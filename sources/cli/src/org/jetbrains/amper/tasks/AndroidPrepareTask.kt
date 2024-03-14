@@ -37,7 +37,7 @@ class AndroidPrepareTask(
         val resolvedAndroidRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .flatMap { it.runtimeClasspath }
-        val androidModuleData = AndroidModuleData(":", null, resolvedAndroidRuntimeDependencies.map {
+        val androidModuleData = AndroidModuleData(":", listOf(), resolvedAndroidRuntimeDependencies.map {
             ResolvedDependency("group", "artifact", "version", it)
         })
 

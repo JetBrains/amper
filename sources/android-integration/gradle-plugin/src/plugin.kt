@@ -100,10 +100,6 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                             if (module.type == ProductType.ANDROID_APP) {
                                 it.applicationId =  androidSettings.applicationId
                             }
-
-//                            if (module.type == ProductType.ANDROID_INSTRUMENTATION_TESTS) {
-//                                it.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-//                            }
                         }
                         androidExtension.namespace = androidSettings.namespace
 
@@ -181,8 +177,7 @@ class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
                                     }
 
                                     // set classes
-
-                                    requestedModule.moduleClasses?.let {
+                                    requestedModule.moduleClasses.forEach {
                                         variant.registerPostJavacGeneratedBytecode(project.files(it))
                                     }
                                 }
