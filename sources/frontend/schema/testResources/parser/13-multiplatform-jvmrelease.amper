@@ -5,13 +5,13 @@ product {
 
 settings {
   jvm {
-    target = 1.8
+    release = 8
   }
 }
 
 @android
 settings {
   jvm {
-    target = 17
+    release = 17
   }
 }

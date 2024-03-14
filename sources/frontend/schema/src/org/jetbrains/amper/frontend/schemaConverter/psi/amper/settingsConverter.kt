@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
-import org.jetbrains.amper.frontend.schema.JavaSettings
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -35,7 +34,6 @@ internal fun AmperObject.convertSettings() =
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.doConvertSettings() = Settings().apply {
-    ::java.convertChildValue { (value as? AmperObject)?.convertJavaSettings() }
     ::jvm.convertChildValue { (value as? AmperObject)?.convertJvmSettings() }
     ::android.convertChildValue { (value as? AmperObject)?.convertAndroidSettings() }
     ::kotlin.convertChildValue { (value as? AmperObject)?.convertKotlinSettings() }
@@ -49,13 +47,8 @@ internal fun AmperObject.doConvertSettings() = Settings().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun AmperObject.convertJavaSettings() = JavaSettings().apply {
-    ::source.convertChildEnum(JavaVersion.Index)
-}
-
-context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertJvmSettings() = JvmSettings().apply {
-    ::target.convertChildEnum(JavaVersion.Index)
+    ::release.convertChildEnum(JavaVersion.Index)
     ::mainClass.convertChildString()
 }
 
