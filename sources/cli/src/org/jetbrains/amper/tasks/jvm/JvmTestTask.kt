@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks
+package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
@@ -20,6 +20,10 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.tasks.CommonTaskUtils
+import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.TestTask
 import java.io.File
 import kotlin.io.path.pathString
 

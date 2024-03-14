@@ -5,9 +5,6 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.tasks.JvmCompileTask
-import org.jetbrains.amper.tasks.JvmRunTask
-import org.jetbrains.amper.tasks.JvmTestTask
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath

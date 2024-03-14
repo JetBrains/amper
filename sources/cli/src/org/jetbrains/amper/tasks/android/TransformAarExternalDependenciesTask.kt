@@ -2,12 +2,14 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks
+package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.dependency.resolution.extractAars
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.tasks.JvmCompileTask.AdditionalClasspathProviderTaskResult
+import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask.AdditionalClasspathProviderTaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import kotlin.io.path.div
 

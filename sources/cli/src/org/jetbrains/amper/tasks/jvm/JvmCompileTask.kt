@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks
+package org.jetbrains.amper.tasks.jvm
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -30,6 +30,9 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult

@@ -5,9 +5,6 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.tasks.NativeCompileTask
-import org.jetbrains.amper.tasks.NativeRunTask
-import org.jetbrains.amper.tasks.NativeTestTask
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath

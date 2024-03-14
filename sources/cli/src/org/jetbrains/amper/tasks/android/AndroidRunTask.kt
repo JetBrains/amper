@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.tasks
+package org.jetbrains.amper.tasks.android
 
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
@@ -29,6 +29,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jetbrains.amper.util.startProcessWithStdoutStderrFlows
