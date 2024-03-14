@@ -203,19 +203,19 @@ class AndroidRunTask(
     private val logger = LoggerFactory.getLogger(javaClass)
 }
 
-internal val xml = XML {
+private val xml = XML {
     defaultPolicy {
         ignoreUnknownChildren()
         repairNamespaces = false
     }
 }
 
-internal const val namespace = "http://schemas.android.com/apk/res/android"
-internal const val prefix = "android"
+private const val namespace = "http://schemas.android.com/apk/res/android"
+private const val prefix = "android"
 
 @Serializable
 @XmlSerialName("manifest")
-data class AndroidManifest(@XmlElement(true) val application: Application) {
+private data class AndroidManifest(@XmlElement(true) val application: Application) {
     @Serializable
     @XmlSerialName("application")
     data class Application(
