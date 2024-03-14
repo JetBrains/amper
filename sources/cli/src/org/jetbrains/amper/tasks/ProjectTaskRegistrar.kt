@@ -239,7 +239,7 @@ fun PotatoModule.fragmentsModuleDependencies(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: DependencyReason,
-) = fragmentsIncludeProduction(isTest, platform)
+) = fragmentsTargeting(platform, includeTestFragments = isTest)
     .flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }
     .mapNotNull { (fragment, dependency) ->
         when (dependency) {
@@ -266,7 +266,9 @@ fun PotatoModule.fragmentsModuleDependencies(
         }
     }
 
-fun PotatoModule.fragmentsIncludeProduction(
-    isTest: Boolean,
-    platform: Platform
-) = fragments.filter { (isTest || !it.isTest) && it.platforms.contains(platform) }
+/**
+ * Returns all fragments in this module that target the given [platform].
+ * If [includeTestFragments] is false, only production fragments are returned.
+ */
+fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
+    fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }

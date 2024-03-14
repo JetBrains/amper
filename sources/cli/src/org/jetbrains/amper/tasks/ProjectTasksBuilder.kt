@@ -44,7 +44,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
 
     private fun ProjectTaskRegistrar.setupCommonTasks() {
         onTaskType { module, executeOnChangedInputs, platform, isTest ->
-            val fragmentsIncludeProduction = module.fragmentsIncludeProduction(isTest, platform)
+            val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
             registerTask(
                 ResolveExternalDependenciesTask(
