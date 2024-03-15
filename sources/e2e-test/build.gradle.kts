@@ -63,8 +63,9 @@ fun getOrCreateAdbRemoteSession(): String {
 }
 
 fun connectDeviceOverSpace(adbCompanion: String) {
+    val adbPath = "${System.getenv("ANDROID_HOME")}/platform-tools/adb"
     project.exec {
-        commandLine = listOf("adb", "connect", adbCompanion)
+        commandLine = listOf(adbPath, "connect", adbCompanion)
     }
 }
 
