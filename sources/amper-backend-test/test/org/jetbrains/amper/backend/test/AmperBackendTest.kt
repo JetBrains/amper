@@ -14,11 +14,17 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
 import org.tinylog.Level
 import java.nio.file.Path
+import java.util.jar.Attributes
+import java.util.jar.JarFile
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
+import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AmperBackendTest : IntegrationTestBase() {
@@ -46,6 +52,31 @@ class AmperBackendTest : IntegrationTestBase() {
             .readText()
 
         assertTrue(xmlReport.contains("<testcase name=\"smoke\" classname=\"apkg.ATest\""), xmlReport)
+    }
+
+    @Test
+    fun `jvm jar task with main class`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("java-kotlin-mixed")
+        AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:jarJvm"))
+
+        val jarPath = projectContext.buildOutputRoot.path.resolve("tasks/_java-kotlin-mixed_jarJvm/java-kotlin-mixed-jvm.jar")
+        assertTrue(jarPath.isRegularFile(), "${jarPath.pathString} should exist and be a file")
+
+        JarFile(jarPath.toFile()).use { jar ->
+            val mainClass = jar.manifest.mainAttributes[Attributes.Name.MAIN_CLASS] as? String
+            assertNotNull(mainClass, "The ${Attributes.Name.MAIN_CLASS} attribute should be present")
+            assertEquals("bpkg.MainKt", mainClass)
+
+            val entryNames = jar.entries().asSequence().map { it.name }.toList()
+            val expectedEntriesInOrder = listOf(
+                "META-INF/MANIFEST.MF",
+                "META-INF/main.kotlin_module",
+                "apkg/AClass.class",
+                "bpkg/BClass.class",
+                "bpkg/MainKt.class",
+            )
+            assertEquals(expectedEntriesInOrder, entryNames)
+        }
     }
 
     @Test

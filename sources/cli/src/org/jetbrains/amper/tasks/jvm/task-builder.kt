@@ -35,8 +35,8 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         )
     }
 
-    onMain(Platform.JVM) { module, _, platform, _ ->
-        if (!module.type.isLibrary()) {
+    onMain(Platform.JVM) { module, executeOnChangedInputs, platform, _ ->
+        if (module.type.isApplication()) {
             registerTask(
                 JvmRunTask(
                     module = module,
@@ -48,6 +48,16 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 CommonTaskType.Compile.getTaskName(module, platform)
             )
         }
+        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform)
+        registerTask(
+            JvmJarTask(
+                taskName = jarTaskName,
+                module = module,
+                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                executeOnChangedInputs = executeOnChangedInputs,
+            ),
+            CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+        )
     }
 
     onTest(Platform.JVM) { module, _, platform, _ ->

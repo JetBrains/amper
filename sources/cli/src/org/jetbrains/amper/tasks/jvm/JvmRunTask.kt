@@ -13,11 +13,11 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.RunTask
@@ -25,13 +25,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.io.File
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.PathWalkOption
-import kotlin.io.path.isDirectory
-import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.io.path.walk
 
 class JvmRunTask(
     override val taskName: TaskName,
@@ -46,22 +40,12 @@ class JvmRunTask(
 
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.JVM) }
 
-    // TODO what if several fragments have a main class?
-    private val mainClassName = fragments.firstNotNullOfOrNull { it.settings.jvm.mainClass }
-
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         DeadLockMonitor.disable()
 
-        val mainClassReal = if (mainClassName != null) {
-            // explicitly defined in module files
-            mainClassName
-        } else {
-            // TODO what if several fragments have main.kt?
-            val discoveredMainClass = fragments.firstNotNullOfOrNull { findEntryPoint(it) }
-                ?: error("Main Class is not found for ${module.userReadableName} at: " +
-                        fragments.joinToString(" ") { it.src.pathString })
-            discoveredMainClass
-        }
+        val effectiveMainClassFqn = fragments.findEffectiveJvmMainClass()
+            ?: error("Main Class was not found for ${module.userReadableName} in any of the following source directories:\n" +
+                    fragments.joinToString("\n") { it.src.pathString })
 
         val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
@@ -84,7 +68,7 @@ class JvmRunTask(
                 listOf(
                     "-cp",
                     classpath,
-                    mainClassReal,
+                    effectiveMainClassFqn,
                 ) +
                 commonRunSettings.programArgs
 
@@ -94,7 +78,7 @@ class JvmRunTask(
             .setListAttribute("program-args", commonRunSettings.programArgs)
             .setListAttribute("args", args)
             .setAttribute("classpath", classpath)
-            .setAttribute("main-class", mainClassReal).useWithScope { span ->
+            .setAttribute("main-class", effectiveMainClassFqn).useWithScope { span ->
                 val workingDir = when (val source = module.source) {
                     is PotatoModuleFileSource -> source.buildDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
@@ -117,31 +101,6 @@ class JvmRunTask(
                     override val dependencies: List<TaskResult> = dependenciesResult
                 }
             }
-    }
-
-    // TODO this not how an entry point should be discovered, but whatever for now
-    @OptIn(ExperimentalPathApi::class)
-    private fun findEntryPoint(fragment: Fragment): String? {
-        if (!fragment.src.isDirectory()) {
-            return null
-        }
-
-        val implicitMainFile = fragment.src.walk(PathWalkOption.BREADTH_FIRST)
-            .find { it.name.equals("main.kt", ignoreCase = true) }
-            ?.normalize()
-            ?.toAbsolutePath()
-
-        if (implicitMainFile == null) {
-            return null
-        }
-
-        val packageRegex = "^package\\s+([\\w.]+)".toRegex(RegexOption.MULTILINE)
-        val pkg = packageRegex.find(implicitMainFile.readText())?.let { it.groupValues[1].trim() }
-
-        val prefix = if (pkg != null) "${pkg}." else ""
-        val result = "${prefix}MainKt"
-
-        return result
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

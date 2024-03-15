@@ -65,6 +65,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         internal enum class CommonTaskType(override val prefix: String) : TaskType {
             Compile("compile"),
             Dependencies("resolveDependencies"),
+            Jar("jar"),
             Run("run"),
             Test("test"),
         }

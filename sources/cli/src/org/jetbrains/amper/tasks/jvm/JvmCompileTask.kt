@@ -276,7 +276,7 @@ class JvmCompileTask(
             add("-classpath")
             add(classpath.joinToString(File.pathSeparator))
 
-            // TODO ok by default?
+            // necessary for reproducible source jars across OS-es
             add("-encoding")
             add("utf-8")
 
