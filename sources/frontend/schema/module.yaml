@@ -12,7 +12,8 @@ dependencies:
   - ../../frontend/plain/yaml-psi
   - org.jetbrains.kotlin:kotlin-reflect:1.9.20
   - org.apache.maven:maven-artifact:3.9.6
-  - com.jetbrains.intellij.platform:ide-core:233.13763.11
+  - com.jetbrains.intellij.platform:core-impl:233.13763.11
+  - com.jetbrains.intellij.platform:util:233.13763.11
 
 test-dependencies:
   - ../../test-base

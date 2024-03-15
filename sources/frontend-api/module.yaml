@@ -10,7 +10,10 @@ repositories:
   - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
 
 dependencies:
-  - ../frontend/plain/yaml-psi
   - org.jetbrains.kotlin:kotlin-reflect:1.9.20
   - ../core
   - com.jetbrains.intellij.platform:core:233.13763.11
+
+test-dependencies:
+  - ../frontend/plain/yaml-psi
+  - com.jetbrains.intellij.platform:core-impl:233.13763.11

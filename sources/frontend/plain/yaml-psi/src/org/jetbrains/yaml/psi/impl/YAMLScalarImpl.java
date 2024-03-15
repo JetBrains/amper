@@ -1,7 +1,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.yaml.psi.impl;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.icons.EmptyIcon;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.util.Pair;
@@ -209,7 +209,7 @@ public abstract class YAMLScalarImpl extends YAMLValueImpl implements YAMLScalar
 
       @Override
       public @NotNull Icon getIcon(boolean unused) {
-        return AllIcons.Nodes.Variable;
+        return EmptyIcon.INSTANCE;
       }
     };
   }

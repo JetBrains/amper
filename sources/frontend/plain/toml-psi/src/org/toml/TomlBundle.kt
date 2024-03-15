@@ -5,13 +5,13 @@
 package org.toml
 
 import com.intellij.DynamicBundle
-import com.intellij.core.CoreBundle.BUNDLE
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.PropertyKey
 import java.util.function.Supplier
 
-object TomlBundle : DynamicBundle(BUNDLE) {
+private const val BUNDLE = "messages.TomlBundle"
 
+object TomlBundle : DynamicBundle(BUNDLE) {
   @Nls
   fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any): String {
     return getMessage(key, *params)

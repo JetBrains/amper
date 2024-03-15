@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.yaml.psi.impl;
 
+import com.intellij.icons.EmptyIcon;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.ItemPresentationProviders;
@@ -14,20 +15,19 @@ import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.ObjectUtils;
-import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLElementGenerator;
 import org.jetbrains.yaml.YAMLElementTypes;
-import org.jetbrains.yaml.YAMLTokenTypes;
 import org.jetbrains.yaml.YAMLParserUtil;
+import org.jetbrains.yaml.YAMLTokenTypes;
 import org.jetbrains.yaml.psi.*;
 
 import javax.swing.*;
 
 public class YAMLKeyValueImpl extends YAMLPsiElementImpl implements YAMLKeyValue, PsiDeclaredTarget {
-  public static final Icon YAML_KEY_ICON = PlatformIcons.PROPERTY_ICON;
+  public static final Icon YAML_KEY_ICON = EmptyIcon.INSTANCE;
 
   public YAMLKeyValueImpl(@NotNull final ASTNode node) {
     super(node);

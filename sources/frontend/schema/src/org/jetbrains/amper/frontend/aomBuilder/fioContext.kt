@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
@@ -15,8 +14,9 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 private const val amperModuleFileName = "module.yaml"
+private const val moduleAmperFileName = "module.amper"
 private const val amperIgnoreFileName = ".amperignore"
-private fun VirtualFile.isModuleYaml() = name == amperModuleFileName
+private fun VirtualFile.isModuleYaml() = name == amperModuleFileName || name == moduleAmperFileName
 
 private val gradleModuleFiles = setOf("build.gradle.kts", "build.gradle")
 private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
@@ -87,7 +87,7 @@ open class DefaultFioContext(
 
     override val amperModuleFiles: List<VirtualFile> by lazy {
         buildList {
-            VfsUtil.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
+            VfsUtilCore.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
                 override fun visitFile(file: VirtualFile): Boolean {
                     if (isIgnored(file)) return false
                     if (file.isModuleYaml()) add(file)
@@ -103,7 +103,7 @@ open class DefaultFioContext(
         buildMap {
             // TODO This seems wrong. We should be using the included projects from settings.gradle.kts, otherwise
             //   we may pick up Gradle projects that are unrelated to our build
-            VfsUtil.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
+            VfsUtilCore.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
                 override fun visitFile(file: VirtualFile): Boolean {
                     if (isIgnored(file)) return false
                     if (file.parent in amperModuleDirs) return true
@@ -127,7 +127,7 @@ open class DefaultFioContext(
      * with deeper files being the first.
      */
     private fun VirtualFile.findGradleCatalog(): VirtualFile? {
-        assert(VfsUtil.isAncestor(rootDir, this, true)) {
+        assert(VfsUtilCore.isAncestor(rootDir, this, true)) {
             "Cannot call with the file $this that is outside of $rootDir)"
         }
         val currentDir = takeIf { it.isDirectory } ?: parent

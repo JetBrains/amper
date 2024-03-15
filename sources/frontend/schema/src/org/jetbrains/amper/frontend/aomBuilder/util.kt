@@ -4,11 +4,8 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.schema.Modifiers
-import java.nio.file.Path
 
 fun <T> ValueBase<Map<Modifiers, T>>.simplifyModifiers() =
     value.entries.associate { it.key.map { it.value }.toSet() to it.value }

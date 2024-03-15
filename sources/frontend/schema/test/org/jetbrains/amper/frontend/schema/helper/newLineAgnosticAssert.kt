@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import com.intellij.util.io.delete
+import com.intellij.openapi.util.io.NioFiles
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
@@ -16,7 +16,7 @@ fun assertEqualsIgnoreLineSeparator(expectedContent: String, actualContent: Stri
         originalFile.parent.resolve(originalFile.name + ".tmp").writeText(actualContent)
         asserter.assertEquals("Comparison failed, original file: ${originalFile.absolutePathString()}", expectedContent, actualContent)
     } else {
-        originalFile.parent.resolve(originalFile.name + ".tmp").delete()
+        NioFiles.deleteRecursively(originalFile.parent.resolve(originalFile.name + ".tmp"))
     }
 }
 
