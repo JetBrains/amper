@@ -62,6 +62,19 @@ fun getOrCreateAdbRemoteSession(): String {
     return adbCompanion
 }
 
+fun connectDeviceOverSpace(adbCompanion: String) {
+    project.exec {
+        commandLine = listOf("adb", "connect", adbCompanion)
+    }
+}
+
+tasks.register("createAndConnectAndroidRemoteSession") {
+    doLast {
+        val adbCompanion = getOrCreateAdbRemoteSession()
+        connectDeviceOverSpace(adbCompanion)
+    }
+}
+
 fun createAdbRemoteSession() {
     val stdout = ByteArrayOutputStream()
     project.exec {
