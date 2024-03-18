@@ -30,7 +30,7 @@ class JvmJarTask(
         return compileTaskResults.mapNotNull { it.classesOutputRoot }
     }
 
-    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar"
+    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar" // TODO add version here?
 
     override fun jarConfig(): JarConfig = JarConfig(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null
