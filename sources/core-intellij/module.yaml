@@ -13,5 +13,4 @@ dependencies:
   - com.jetbrains.intellij.platform:util-jdom:233.13763.11
   - com.jetbrains.intellij.platform:core:233.13763.11
   - com.jetbrains.intellij.platform:core-impl:233.13763.11
-  - com.jetbrains.intellij.cidr:cidr-xcode-model-core:232.1175
-  - com.jetbrains.intellij.apple:apple-sdk:232.1175
+  - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14667
