@@ -25,6 +25,7 @@ import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -133,7 +134,7 @@ class NativeCompileTask(
 
             val artifactExtension = when {
                 module.type.isLibrary() && !isTest -> ".klib"
-                platform.parent == Platform.MINGW -> ".exe"
+                platform.isDescendantOf(Platform.MINGW) -> ".exe"
                 else -> ".kexe"
             }
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
