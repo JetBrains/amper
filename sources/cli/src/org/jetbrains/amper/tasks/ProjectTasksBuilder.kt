@@ -56,6 +56,18 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 )
             )
         }
+        onEachPlatform { module, executeOnChangedInputs, platform ->
+            val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
+            registerTask(
+                SourcesJarTask(
+                    taskName = sourcesJarTaskName,
+                    module = module,
+                    platform = platform,
+                    taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                )
+            )
+        }
     }
 
     companion object {
@@ -66,6 +78,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             Compile("compile"),
             Dependencies("resolveDependencies"),
             Jar("jar"),
+            SourcesJar("sourcesJar"),
             Run("run"),
             Test("test"),
         }

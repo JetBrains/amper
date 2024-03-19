@@ -50,7 +50,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         }
         val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform)
         registerTask(
-            JvmJarTask(
+            JvmClassesJarTask(
                 taskName = jarTaskName,
                 module = module,
                 taskOutputRoot = context.getTaskOutputPath(jarTaskName),

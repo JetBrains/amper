@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.writeJar
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -20,7 +21,7 @@ abstract class JarTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
 
-    protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<Path>
+    protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir>
 
     protected abstract fun outputJarPath(): Path
 
@@ -34,9 +35,10 @@ abstract class JarTask(
 
         val configuration: Map<String, String> = mapOf(
             "jarConfig" to Json.encodeToString(jarConfig),
+            "inputDirsDestPaths" to inputDirs.map { it.destPathInJar }.toString(),
             "outputJarPath" to outputJarPath.pathString,
         )
-        executeOnChangedInputs.execute(taskName.name, configuration, inputDirs) {
+        executeOnChangedInputs.execute(taskName.name, configuration, inputDirs.map { it.path }) {
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputJarPath))
         }

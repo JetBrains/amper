@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.tasks.JarTask
@@ -13,24 +14,31 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class JvmJarTask(
+/**
+ * Creates a jar file containing all the JVM classes produced by task dependencies of type [JvmCompileTask].
+ */
+class JvmClassesJarTask(
     override val taskName: TaskName,
     private val module: PotatoModule,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : JarTask(taskName, executeOnChangedInputs) {
 
-    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<Path> {
+    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> {
         val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
         require(compileTaskResults.isNotEmpty()) {
             "Call Jar task without any compilation dependency"
         }
-        return compileTaskResults.mapNotNull { it.classesOutputRoot }
+        return compileTaskResults
+            .mapNotNull { it.classesOutputRoot }
+            .map { JarInputDir(path = it, destPathInJar = Path(".")) }
     }
 
-    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar" // TODO add version here?
+    // TODO add version here?
+    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar" 
 
     override fun jarConfig(): JarConfig = JarConfig(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null

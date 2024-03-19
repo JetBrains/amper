@@ -12,7 +12,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
 import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.createParentDirectories
+import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
@@ -30,8 +30,8 @@ data class JarConfig(
      */
     val mainClassFqn: String? = null,
     /**
-     * Ensures the files are written to the jar in an consistent order that's independent of the file system or OS,
-     * typically by sorting the file paths 
+     * Ensures the files are written to the jar in a consistent order that's independent of the file system or OS,
+     * typically by sorting the file paths alphabetically.
      * This must be enabled in order to get reproducible jars.
      */
     val reproducibleFileOrder: Boolean = true,
@@ -43,10 +43,33 @@ data class JarConfig(
 )
 
 /**
+ * An input directory for a jar creation.
+ */
+data class JarInputDir(
+    /**
+     * The path to this input directory (where the input files are located).
+     */
+    val path: Path,
+    /**
+     * The path where the files should be placed in the jar, relative to the root of the jar.
+     */
+    val destPathInJar: Path,
+) {
+    init {
+        require(!destPathInJar.isAbsolute) {
+            "destPathInJar must be a relative path (relative to the root of the jar), got '$destPathInJar'"
+        }
+    }
+}
+
+/**
  * Creates a jar file at this [Path] and writes all files from the given [inputDirs] into that jar.
  * Parts of this process can be configured using the given [config].
+ * 
+ * The input directories are added to the jar in the order of the given [inputDirs] list.
+ * Files within an input directory are added to the jar in an order that depends on tbe given [config].
  */
-fun Path.writeJar(inputDirs: List<Path>, config: JarConfig) {
+fun Path.writeJar(inputDirs: List<JarInputDir>, config: JarConfig) {
     val manifest = createManifest(config)
     JarOutputStream(outputStream(), manifest).use { out ->
         inputDirs.forEach { dir ->
@@ -67,9 +90,11 @@ private fun createManifest(config: JarConfig): Manifest = Manifest().apply {
  * The path of the files within the jar is their original path relative to [directory].
  */
 @OptIn(ExperimentalPathApi::class)
-private fun JarOutputStream.writeDirContents(directory: Path, config: JarConfig) {
-    directory.walk().sortedIf(config.reproducibleFileOrder).forEach {
-        val entryName = it.relativeTo(directory).joinToString("/") // ensures / is used even on Windows
+private fun JarOutputStream.writeDirContents(directory: JarInputDir, config: JarConfig) {
+    directory.path.walk().sortedIf(config.reproducibleFileOrder).forEach {
+        val relativePathInInputDir = it.relativeTo(directory.path)
+        val entryPathInJar = directory.destPathInJar / relativePathInInputDir
+        val entryName = entryPathInJar.normalize().joinToString("/") // ensures / is used even on Windows
         writeJarEntry(entryName = entryName, file = it, config)
     }
 }
