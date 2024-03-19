@@ -3,8 +3,8 @@
   "builds": [
     {
       "teamcity": {
-        "configuration": "Amper_Build_aggregator",
-        "url": "https://amper.teamcity.com/",
+        "configuration": "Amper_main_Build_aggregator",
+        "url": "https://buildserver.labs.intellij.net/",
         "token": "${teamcity-access-token}"
       }
     }
