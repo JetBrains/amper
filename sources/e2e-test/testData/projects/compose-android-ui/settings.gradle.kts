@@ -8,7 +8,7 @@ pluginManagement {
         google()
         gradlePluginPortal()
     }
-    includeBuild(rootDir.resolve("build"))
+    includeBuild("../../../../../..")
 }
 
 plugins {
