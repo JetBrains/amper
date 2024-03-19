@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         applicationId = "com.jetbrains.compose_android_ui_test"
-        minSdk = 28
+        minSdk = 27
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -59,6 +59,7 @@ android {
     }
 
 }
+
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))

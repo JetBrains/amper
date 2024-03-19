@@ -34,16 +34,7 @@ tasks.withType<Test>().configureEach {
     }
 }
 
-val runEmulatorTests by tasks.registering(Test::class) {
-    group = "verification"
-    description = "Runs special tests from EmulatorTests.kt"
 
-    useJUnitPlatform()
-    include { include ->
-        include.file.name.contains("EmulatorTests")
-    }
-    maxHeapSize = "4g"
-}
 
 fun getOrCreateAdbRemoteSession(): String {
     val stdout = ByteArrayOutputStream()
@@ -62,17 +53,9 @@ fun getOrCreateAdbRemoteSession(): String {
     return adbCompanion
 }
 
-fun connectDeviceOverSpace(adbCompanion: String) {
-    val adbPath = "${System.getenv("ANDROID_HOME")}/platform-tools/adb"
-    project.exec {
-        commandLine = listOf(adbPath, "connect", adbCompanion)
-    }
-}
-
 tasks.register("createAndConnectAndroidRemoteSession") {
     doLast {
         val adbCompanion = getOrCreateAdbRemoteSession()
-        connectDeviceOverSpace(adbCompanion)
     }
 }
 
@@ -154,10 +137,52 @@ tasks.register("uninstallPackages") {
     dependsOn("createAndroidRemoteSession")
     doLast {
         adb("shell", "pm", "list", "packages", "-3")
-            .toString().lines().filter { it.contains("jetbrains") && !it.contains("mocksharing") }
+            .toString().lines().filter { it.contains("jetbrains") }
             .forEach {
                 adb("uninstall", it.replace("package:", "")).toString()
             }
     }
     mustRunAfter("createAndroidRemoteSession")
+}
+
+tasks.register("installDebugApp") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/compose-android-ui/build/outputs/apk/debug/compose-android-ui-debug.apk"
+        )
+    }
+}
+
+tasks.register("installAndroidTestApp") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/compose-android-ui/build/outputs/apk/androidTest/debug/compose-android-ui-debug-androidTest.apk"
+        )
+    }
+}
+
+tasks.register("runTestsViaAdb"){
+    dependsOn("installDebugApp")
+    dependsOn("installAndroidTestApp")
+    doFirst {
+
+        adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
+        adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
+
+        adb(
+            "shell",
+            "am",
+            "instrument",
+            "-w",
+            "-r",
+            "-e",
+            "class",
+            "com.jetbrains.compose_android_ui_test.InstrumentedTests",
+            "com.jetbrains.compose_android_ui_test.test/androidx.test.runner.AndroidJUnitRunner"
+        )
+    }
 }
