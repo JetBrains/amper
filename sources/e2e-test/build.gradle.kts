@@ -188,5 +188,11 @@ tasks.register("runTestsViaAdb"){
 }
 val assembleDebugAndTestAPK by tasks.registering(Exec::class) {
     workingDir = file("testData/projects/compose-android-ui")
-    commandLine("./gradlew", "assembleDebugAndTest")
+    commandLine("gradle", "assembleDebugAndTest")
 }
+
+
+
+
+
+
