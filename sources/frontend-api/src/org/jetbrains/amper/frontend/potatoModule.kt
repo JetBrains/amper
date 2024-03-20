@@ -14,7 +14,11 @@ sealed interface PotatoModuleSource
 object PotatoModuleProgrammaticSource : PotatoModuleSource
 
 data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
-    val buildDir get() = buildFile.parent
+    /**
+     * The directory containing the `module.yaml` or Gradle build file of the module.
+     */
+    val moduleDir: Path
+        get() = buildFile.parent
 }
 
 sealed interface ModulePart<SelfT>

@@ -95,7 +95,7 @@ class JvmTestTask(
         // TODO should be customizable?
         val workingDirectory = when (val source = module.source) {
             // same directory as module.yaml
-            is PotatoModuleFileSource -> source.buildDir
+            is PotatoModuleFileSource -> source.moduleDir
             // no way of knowing, default to a safe choice
             PotatoModuleProgrammaticSource -> projectRoot.path
         }

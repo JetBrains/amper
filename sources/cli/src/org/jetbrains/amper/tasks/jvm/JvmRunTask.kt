@@ -80,7 +80,7 @@ class JvmRunTask(
             .setAttribute("classpath", classpath)
             .setAttribute("main-class", effectiveMainClassFqn).useWithScope { span ->
                 val workingDir = when (val source = module.source) {
-                    is PotatoModuleFileSource -> source.buildDir
+                    is PotatoModuleFileSource -> source.moduleDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 

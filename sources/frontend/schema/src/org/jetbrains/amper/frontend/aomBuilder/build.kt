@@ -142,11 +142,11 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
             buildFile = mPath,
             schemaModule = holder.module,
             module = DefaultModule(
-                mPath.parent.name,
-                holder.module.product.type,
-                PotatoModuleFileSource(mPath.toNioPath()),
-                holder.module,
-                holder.chosenCatalog,
+                userReadableName = mPath.parent.name,
+                type = holder.module.product.type,
+                source = PotatoModuleFileSource(mPath.toNioPath()),
+                origin = holder.module,
+                usedCatalog = holder.chosenCatalog,
             )
         )
     }

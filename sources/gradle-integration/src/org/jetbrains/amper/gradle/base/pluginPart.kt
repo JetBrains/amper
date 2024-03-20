@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.base
@@ -11,7 +11,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.gradle.ArtifactWrapper
 import org.jetbrains.amper.gradle.PlatformAware
 import org.jetbrains.amper.gradle.PotatoModuleWrapper
-import org.jetbrains.amper.gradle.buildDir
+import org.jetbrains.amper.gradle.moduleDir
 import java.nio.file.Path
 
 /**
@@ -25,7 +25,7 @@ interface BindingPluginPart {
 
     val PotatoModule.linkedProject
         get() = project.project(
-            moduleToProject[buildDir]
+            moduleToProject[moduleDir]
                 ?: error("No linked Gradle project found for module $userReadableName")
         )
 

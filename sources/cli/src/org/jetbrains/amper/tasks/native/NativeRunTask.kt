@@ -51,7 +51,7 @@ class NativeRunTask(
             .setListAttribute("args", programArgs)
             .useWithScope { span ->
                 val workingDir = when (val source = module.source) {
-                    is PotatoModuleFileSource -> source.buildDir
+                    is PotatoModuleFileSource -> source.moduleDir
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 

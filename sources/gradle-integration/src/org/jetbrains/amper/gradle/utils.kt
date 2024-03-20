@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -18,9 +18,17 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
-val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
+/**
+ * The `module.yaml` or Gradle build file of this module.
+ */
+val PotatoModule.buildFile
+    get() = (source as PotatoModuleFileSource).buildFile
 
-val PotatoModule.buildDir get() = buildFile.parent
+/**
+ * The directory containing the `module.yaml` or Gradle build file of this module.
+ */
+val PotatoModule.moduleDir: Path
+    get() = buildFile.parent
 
 val BindingPluginPart.layout
     get() = (module.parts.find<MetaModulePart>()
@@ -70,7 +78,7 @@ val BindingPluginPart.hasGradleScripts
     get() = module.hasGradleScripts
 
 val PotatoModule.hasGradleScripts
-    get() = buildDir.run {
+    get() = moduleDir.run {
         resolve("build.gradle.kts").exists() || resolve("build.gradle").exists()
     }
 

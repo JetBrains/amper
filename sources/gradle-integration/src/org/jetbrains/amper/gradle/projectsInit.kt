@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle
@@ -50,18 +50,19 @@ private fun doInitProjects(
     // Fallback if no modules.
     if (sortedByPath.isEmpty()) return
 
-    // Need to create root project if no module reside in root.
-    if (!sortedByPath[0].buildDir.isSameFileAs(rootPath)) {
+    // Need to create root project if no module reside in root. // TODO why?
+    if (!sortedByPath[0].moduleDir.isSameFileAs(rootPath)) {
         createdGradlePaths.add(":")
         settings.include(":")
         settings.project(":").projectDir = rootPath.toFile()
+        // TODO why do we not add this one to the projectPathToModule map?
     }
 
     fun Path.toGradlePath() = ":" + relativeTo(rootPath).toString().replace(File.separator, ":")
 
     // Go by ascending path length and generate projects.
     sortedByPath.forEach {
-        val currentPath = it.buildDir.normalize().toAbsolutePath()
+        val currentPath = it.moduleDir.normalize().toAbsolutePath()
         val projectPath = if (currentPath.isSameFileAs(rootPath)) {
             createdGradlePaths.add(":")
             ":"
@@ -77,8 +78,8 @@ private fun doInitProjects(
 
         settings.include(projectPath)
         val project = settings.project(projectPath)
-        project.projectDir = it.buildDir.toFile()
+        project.projectDir = it.moduleDir.toFile()
         settings.gradle.projectPathToModule[projectPath] = PotatoModuleWrapper(it)
-        settings.gradle.moduleFilePathToProject[it.buildDir] = projectPath
+        settings.gradle.moduleFilePathToProject[it.moduleDir] = projectPath
     }
 }

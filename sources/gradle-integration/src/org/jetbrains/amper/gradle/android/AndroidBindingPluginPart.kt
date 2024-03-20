@@ -12,7 +12,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.amper.gradle.buildDir
+import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
@@ -84,8 +84,8 @@ class AndroidBindingPluginPart(
                     sourceSet.manifest.srcFile(fragment.src.resolve("AndroidManifest.xml"))
 
                     if (!fragment.isTest && shouldAddAndroidRes) {
-                        sourceSet.assets.setSrcDirs(listOf(module.buildDir.resolve("assets")))
-                        sourceSet.res.setSrcDirs(listOf(module.buildDir.resolve("res")))
+                        sourceSet.assets.setSrcDirs(listOf(module.moduleDir.resolve("assets")))
+                        sourceSet.res.setSrcDirs(listOf(module.moduleDir.resolve("res")))
                     }
 
                     // Also add all resources from dependants.
