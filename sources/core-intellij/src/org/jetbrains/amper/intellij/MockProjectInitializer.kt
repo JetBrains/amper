@@ -4,7 +4,11 @@
 
 package org.jetbrains.amper.intellij
 
+import com.intellij.amper.lang.AmperFileType
+import com.intellij.amper.lang.AmperLanguage
+import com.intellij.amper.lang.AmperParserDefinition
 import com.intellij.core.CoreApplicationEnvironment
+import com.intellij.core.CoreProjectEnvironment
 import com.intellij.lang.LanguageASTFactory
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.mock.MockApplication
@@ -12,14 +16,19 @@ import com.intellij.mock.MockProject
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
 import com.jetbrains.apple.sdk.AppleSdkManagerBase
-import com.jetbrains.cidr.xcode.CoreXcodeProjectEnvironment
 import com.jetbrains.cidr.xcode.XcodeBase
+import com.jetbrains.cidr.xcode.XcodeComponentManager
+import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.XcodeSettingsBase
+import com.jetbrains.cidr.xcode.cache.CachedValuesManagerImpl
+import com.jetbrains.cidr.xcode.frameworks.AppleFileTypeManager
 import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
-import com.jetbrains.cidr.xcode.model.PBXReferenceBuildSettingProvider
+import com.jetbrains.cidr.xcode.model.CoreXcodeWorkspace
+import com.jetbrains.cidr.xcode.model.XcodeProjectTrackers
 import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
@@ -61,26 +70,15 @@ object MockProjectInitializer {
 
         System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
-        // Set up app env.
         val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
-
-        CoreApplicationEnvironment.registerApplicationExtensionPoint(
-            PBXReferenceBuildSettingProvider.EP_NAME,
-            PBXReferenceBuildSettingProvider::class.java
-        )
-        appEnv.application.registerService(XcodeSettingsBase::class.java)
-        appEnv.application.registerService(XcodeBase::class.java)
-        appEnv.application.registerService(XcodeExtensionsManager::class.java)
-        appEnv.application.registerService(AppleSdkManagerBase::class.java, AppleSdkManager::class.java)
-
         appEnv.registerLangAppServices()
         appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
-        XcodeSettingsBase.INSTANCE.setSelectedXcodePath(detectXcodeInstallation())
         intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
 
-        // Set up project env.
-        val projectEnv = CoreXcodeProjectEnvironment(appEnv.parentDisposable, appEnv)
+        val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
         intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
+
+        StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
 
         latestConfigurator = intelliJApplicationConfigurator
         return projectEnv.project.also { ourProject = it }
@@ -95,6 +93,9 @@ object MockProjectInitializer {
         // Register TOML support
         LanguageASTFactory.INSTANCE.addExplicitExtension(TomlLanguage, TomlASTFactory())
         registerFileType(TomlFileType, "toml")
+
+        LanguageParserDefinitions.INSTANCE.addExplicitExtension(AmperLanguage.INSTANCE, AmperParserDefinition())
+        registerFileType(AmperFileType.INSTANCE, "amper")
     }
 
     // Copy-pasted from IDEA (lack of this service causes PSI Scalar elements textValue calculation failure)
@@ -130,5 +131,50 @@ object MockProjectInitializer {
             allowInWriteAction(runnable::run)
         }
     }
+}
 
+class StandaloneXcodeComponentManager(private val xcodePath: String, private val unitTestMode: Boolean) :
+    XcodeComponentManager {
+    override fun isUnitTestMode(): Boolean = unitTestMode
+
+    private val services = mutableMapOf<Class<*>, Any>()
+
+    override fun <T : Any> getService(clazz: Class<T>): T {
+        return services.getOrPut(clazz) {
+            when {
+                XcodeExtensionsManager::class.java.isAssignableFrom(clazz) -> XcodeExtensionsManager()
+                XcodeProjectTrackers::class.java.isAssignableFrom(clazz) -> XcodeProjectTrackers()
+                CoreXcodeWorkspace::class.java.isAssignableFrom(clazz) -> CoreXcodeWorkspace.EMPTY()
+                AppleFileTypeManager::class.java.isAssignableFrom(clazz) -> AppleFileTypeManager()
+                AppleSdkManagerBase::class.java.isAssignableFrom(clazz) -> AppleSdkManager()
+                CachedValuesManager::class.java.isAssignableFrom(clazz) -> CachedValuesManagerImpl()
+                XcodeSettingsBase::class.java.isAssignableFrom(clazz) -> XcodeSettingsBase().also { settings ->
+                    settings.setSelectedXcodeBasePath(xcodePath)
+                }
+
+                XcodeBase::class.java.isAssignableFrom(clazz) -> XcodeBase()
+                else -> throw RuntimeException(":(")
+            }
+        } as T
+    }
+
+    override fun <T : Any> getExtensions(ep: XcodeComponentManager.EP<T>): List<T> {
+        return emptyList()
+    }
+
+    companion object {
+        fun registerManager(xcodePath: String, unitTestMode: Boolean = false) {
+            XcodeComponentManager.registerImpl(object : XcodeComponentManager.Initializer {
+                private val appMan = StandaloneXcodeComponentManager(xcodePath, unitTestMode)
+                private val proMan = StandaloneXcodeComponentManager(xcodePath, unitTestMode)
+
+                override val applicationManager: XcodeComponentManager
+                    get() = appMan
+
+                override fun getProjectManager(projectId: XcodeProjectId): XcodeComponentManager {
+                    return proMan
+                }
+            })
+        }
+    }
 }

@@ -32,7 +32,7 @@ internal val Platform.platform
         else -> error("Cannot determine apple platform for $this")
     }
 
-internal fun MutableMap<String, Any?>.mergeListSetting(setting: String, searchPaths: List<String>) {
+internal fun MutableMap<String, Any>.mergeListSetting(setting: String, searchPaths: List<String>) {
     compute(setting) { _, oldValue ->
         when (oldValue) {
             null -> listOf("$(inherited)")
@@ -97,7 +97,7 @@ fun PBXProjectFileManipulator.addTargetFiles(
         val addResult = addFile(file.path, targetMemberships, parentGroup, !referenceOnly)
         val createdGroup = addResult.reference as? PBXGroup
 
-        if (!addResult.areChildrenProcessed() && createdGroup != null) {
+        if (!addResult.childrenProcessed && createdGroup != null) {
             groupStack.push(createdGroup)
             fileStack.push(FictionFile())
             addChildrenToFileStack(file)

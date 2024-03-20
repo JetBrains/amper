@@ -5,22 +5,20 @@
 package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.isParent
-import org.jetbrains.amper.tasks.NativeCompileTask
-import org.jetbrains.amper.tasks.OnBuildTypePrecondition
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskType
-
-
-val isIosFamily: OnBuildTypePrecondition = { _, platform, _, _ -> platform.isParent(Platform.IOS) }
+import org.jetbrains.amper.tasks.native.NativeCompileTask
 
 /**
  * Setup apple related tasks.
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
-    onBuildType(isIosFamily) { module, eoci, platform, _, buildType ->
+    onEachBuildType { module, eoci, platform, _, buildType ->
+        if (!platform.isDescendantOf(Platform.IOS)) return@onEachBuildType
+
         val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform)
         registerTask(
             NativeCompileTask(

@@ -12,10 +12,9 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.forClosure
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.intellij.MockProjectInitializer
-import org.jetbrains.amper.tasks.NativeCompileTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.native.NativeCompileTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -36,7 +35,6 @@ class BuildAppleTask(
             .filterIsInstance<NativeCompileTask.TaskResult>()
             .map { it.artifact }
 
-        val project = MockProjectInitializer.mockProject
         val leafAppleFragment = module.leafFragments.first { it.platform == targetPlatform }
         val targetName = targetPlatform.pretty
         val productName = module.userReadableName
@@ -51,8 +49,7 @@ class BuildAppleTask(
         }
 
         // TODO Add Assertion for apple platform.
-
-        return with(FileConventions(project, module, taskOutputPath.path.toFile())) {
+        return with(FileConventions(module, taskOutputPath.path.toFile())) {
             val appPath = symRoot
                 .resolve("${buildType.variantName}-${targetPlatform.platform}")
                 .resolve("${productName}.app")

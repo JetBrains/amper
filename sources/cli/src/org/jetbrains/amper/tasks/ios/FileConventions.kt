@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import com.intellij.openapi.project.Project
 import org.jetbrains.amper.frontend.PotatoModule
 import java.io.File
 
@@ -13,7 +12,6 @@ import java.io.File
  * Class to aggregate file naming conventions.
  */
 class FileConventions(
-    val intellijProject: Project,
     module: PotatoModule,
     taskDir: File,
 ) {

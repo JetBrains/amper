@@ -5,9 +5,7 @@
 package org.jetbrains.amper.tasks.ios
 
 import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.openapi.vfs.local.CoreLocalFileSystem
-import com.intellij.openapi.vfs.local.CoreLocalVirtualFile
+import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
 import com.jetbrains.cidr.xcode.frameworks.AppleProductType
 import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
@@ -21,15 +19,17 @@ import com.jetbrains.cidr.xcode.model.PBXReference
 import com.jetbrains.cidr.xcode.model.PBXTarget
 import com.jetbrains.cidr.xcode.plist.Plist
 import com.jetbrains.cidr.xcode.plist.XMLPlistDriver
+import com.jetbrains.cidr.xcode.util.XcodeUserDataHolder
+import fleet.com.intellij.openapi.util.UserDataHolderEx
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.util.BuildType
-import java.io.BufferedOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.nio.file.Path
 
+
+class XcodeProject : XcodeProjectId, UserDataHolderEx by XcodeUserDataHolder()
 
 fun FileConventions.doGenerateBuildableXcodeproj(
     module: PotatoModule,
@@ -49,9 +49,9 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     val commonSourceDir = appleSources.minBy { it.path.length }
 
     val pbxProjectFile = PBXProjectFileManipulator.createNewProject(
-        intellijProject,
-        vBaseDir,
-        vPbxProjectFile,
+        XcodeProject(),
+        baseDir.toPath(),
+        projectDir.resolve("project.pbxproj").toPath(),
         null,
         null
     )
@@ -67,7 +67,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         addFile(infoPlistFile.path, emptyArray(), mainGroup, false)
 
         // Prepare settings.
-        val settings = mutableMapOf<String, Any?>(
+        val settings = mutableMapOf<String, Any>(
             BuildSettingNames.INFOPLIST_FILE to infoPlistFile.relativeToBase().path,
             BuildSettingNames.PRODUCT_BUNDLE_IDENTIFIER to productBundleIdentifier,
             BuildSettingNames.ASSETCATALOG_COMPILER_APPICON_NAME to "AppIcon",
@@ -132,7 +132,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
 
     pbxProjectFile.save()
 
-    return pbxProjectFile.xcodeProjFile.let { it.fileSystem.getNioPath(it) }
+    return pbxProjectFile.xcodeProjFile
 }
 
 /**
@@ -248,20 +248,6 @@ private fun createPlist(
  */
 val FileConventions.vBaseDir
     get() = StandardFileSystems.local().refreshAndFindFileByPath(baseDir.path) ?: error("No vBaseDir")
-
-/**
- * Virtual file referring to "project.pbxproj" file.
- */
-val FileConventions.vPbxProjectFile
-    get() = run {
-        val projectFile = projectDir.resolve("project.pbxproj")
-        projectFile.createNewFile()
-        object : CoreLocalVirtualFile(StandardFileSystems.local() as CoreLocalFileSystem, projectFile) {
-            override fun isWritable() = true
-            override fun getOutputStream(requestor: Any?, newModificationStamp: Long, newTimeStamp: Long) =
-                VfsUtilCore.outputStreamAddingBOM(BufferedOutputStream(FileOutputStream(projectFile)), this)
-        }
-    }
 
 fun AppleSdkManager.findPlatformByType(platform: Platform) = when (platform) {
     Platform.TVOS_ARM64,
