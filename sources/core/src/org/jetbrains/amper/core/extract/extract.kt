@@ -43,7 +43,7 @@ suspend fun extractFileToLocation(
     targetDirectory: Path,
     vararg options: ExtractOptions
 ): Path = withContext(Dispatchers.IO) {
-    val flagFile = targetDirectory.resolve("${archiveFile.fileName}.flag")
+    val flagFile = targetDirectory.parent.resolve("${archiveFile.fileName}.flag")
     flagFile.createParentDirectories()
     extractFileWithFlag(archiveFile, targetDirectory, flagFile, *options)
 }
