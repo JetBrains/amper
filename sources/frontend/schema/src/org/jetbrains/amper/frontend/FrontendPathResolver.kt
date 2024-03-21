@@ -28,8 +28,7 @@ class FrontendPathResolver(
 ) {
 
     val project: Project by lazy {
-        MockProjectInitializer.chosenConfigurator = intelliJApplicationConfigurator
-        project ?: MockProjectInitializer.mockProject
+        project ?: MockProjectInitializer.initMockProject(intelliJApplicationConfigurator)
     }
 
     fun toPsiFile(file: VirtualFile): PsiFile? {

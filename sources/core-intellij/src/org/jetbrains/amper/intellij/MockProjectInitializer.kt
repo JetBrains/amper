@@ -48,16 +48,6 @@ open class IntelliJApplicationConfigurator {
 
 object MockProjectInitializer {
 
-    @TestOnly
-    var chosenConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator()
-
-    /**
-     * Initialized lazily on demand.
-     */
-    val mockProject: Project by lazy {
-        initMockProject(chosenConfigurator)
-    }
-
     private lateinit var ourProject: Project
 
     private var latestConfigurator: IntelliJApplicationConfigurator? = null
