@@ -30,6 +30,8 @@ import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
 import com.jetbrains.cidr.xcode.model.CoreXcodeWorkspace
 import com.jetbrains.cidr.xcode.model.XcodeProjectTrackers
 import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
@@ -68,7 +70,9 @@ object MockProjectInitializer {
         val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
         intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
 
-        StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
+        if (DefaultSystemInfo.detect().family == SystemInfo.OsFamily.MacOs) {
+            StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
+        }
 
         latestConfigurator = intelliJApplicationConfigurator
         return projectEnv.project.also { ourProject = it }
