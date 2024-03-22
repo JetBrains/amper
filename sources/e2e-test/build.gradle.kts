@@ -1,10 +1,16 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree.Companion.main
 import java.io.ByteArrayOutputStream
+import org.jetbrains.amper.core.AmperBuild
+
 
 
 val sessionInfoPath by extra { "$buildDir/device.session.json" }
+
+val amperBuildNumber = AmperBuild.BuildNumber // Assume AmperBuild.BuildNumber is accessible and holds a value
+
 
 
 tasks.withType<Test>().configureEach {
@@ -191,8 +197,60 @@ val assembleDebugAndTestAPK by tasks.registering(Exec::class) {
     commandLine("gradle", "assembleDebugAndTest")
 }
 
+val prepareProjects = tasks.register("prepareProjectsAndroid") {
+    doLast {
+        val projectName: String = "compose-android-ui"
+        val runWithPluginClasspath: Boolean = true
+        val pathToProjects: String = "testData/projects/compose-android-ui"
+
+        val implementationDir = file("../../sources").absoluteFile
+        val originalDir = file(pathToProjects).absoluteFile
+
+        require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
+        require(originalDir.exists()) { "Test project not found at $originalDir" }
+
+        val gradleFile = originalDir.resolve("settings.gradle.kts")
+        require(gradleFile.exists()) { "file not found: $gradleFile" }
+
+        if (runWithPluginClasspath) {
+            val lines = gradleFile.readLines().filterNot { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" in it }
+            gradleFile.writeText(lines.joinToString("\n"))
+
+            val gradleFileText = gradleFile.readText()
 
 
+            // Replace mavenCentral with additional repositories
+            val newText = gradleFileText.replace("mavenCentral()",
+                """
+                mavenCentral()
+                mavenLocal()
+                maven("https://www.jetbrains.com/intellij-repository/releases")
+                maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+                """.trimIndent()
+            )
+            if (!gradleFileText.contains("mavenLocal()")) { gradleFile.writeText(newText)}
+
+            require(gradleFile.readText().contains("mavenLocal")) {
+                "Gradle file must have 'mavenLocal' after replacement: $gradleFile"
+            }
+
+            // Dynamically add Amper plugin version
+            val updatedText = gradleFile.readText().replace(
+                "id(\"org.jetbrains.amper.settings.plugin\")",
+                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${amperBuildNumber}\")"
+            )
+            if (!gradleFileText.contains(amperBuildNumber)) {
+                gradleFile.writeText(updatedText)
+            }
 
 
+            require(gradleFile.readText().contains("version(")) {
+                "Gradle file must have 'version(' after replacement: $gradleFile"
+            }
+        }
 
+        if (gradleFile.readText().contains("includeBuild(\".\"")) {
+            throw GradleException("Example project $projectName has a relative includeBuild() call, but it's run within Amper tests from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
+        }
+    }
+}
