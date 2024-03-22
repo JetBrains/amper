@@ -15,7 +15,7 @@ import com.intellij.pom.core.impl.PomModelImpl
 import com.intellij.pom.tree.TreeAspect
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.codeStyle.IndentHelper
-import org.jetbrains.amper.intellij.IntelliJApplicationConfigurator
+import org.jetbrains.amper.frontend.IntelliJApplicationConfigurator
 
 /**
  * Registers extensions needed for PSI modification.

@@ -11,7 +11,7 @@ enum class BuildType(val value: String) {
     Debug("debug"),
     Release("release");
 
-    fun suffix(platform: Platform?): String = if (platform == Platform.ANDROID) name else ""
+    fun suffix(platform: Platform): String = if (platform == Platform.ANDROID) name else ""
 
     companion object {
         val buildTypeStrings: Set<String> = entries.map { it.value }.toSet()

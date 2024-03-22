@@ -41,7 +41,6 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.*
-import kotlin.io.path.pathString
 
 // initially from intellij:community/platform/build-scripts/downloader/src/ktor.kt
 
@@ -79,7 +78,7 @@ object Downloader {
                 return target
             }
 
-            logger.info("Downloading $url to ${target.pathString}")
+            logger.info("Downloading $url")
 
             return spanBuilder("download").setAttribute("url", url).setAttribute("target", targetPath).useWithScope {
                 suspendingRetryWithExponentialBackOff {
@@ -87,8 +86,6 @@ object Downloader {
                     val tempFile = target.parent
                         .resolve("${target.fileName}-${(Instant.now().epochSecond - 1634886185).toString(36)}-${Instant.now().nano.toString(36)}".take(255))
                     Files.deleteIfExists(tempFile)
-                    // Add a hook, so interruption won't leave garbage files.
-                    tempFile.toFile().deleteOnExit()
                     Files.createDirectories(target.parent)
                     try {
                         // each io.ktor.client.HttpClient.config call creates a new client
