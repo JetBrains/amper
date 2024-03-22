@@ -237,7 +237,7 @@ val prepareProjects = tasks.register("prepareProjectsAndroid") {
             // Dynamically add Amper plugin version
             val updatedText = gradleFile.readText().replace(
                 "id(\"org.jetbrains.amper.settings.plugin\")",
-                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${amperBuildNumber}\")"
+                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${"+"}\")"
             )
             if (!gradleFileText.contains(amperBuildNumber)) {
                 gradleFile.writeText(updatedText)
