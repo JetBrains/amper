@@ -72,7 +72,7 @@ class ShellScriptsTest {
     @Test
     fun `custom java home`() {
         val fakeUserCacheRoot = AmperUserCacheRoot(TestUtil.sharedTestCaches)
-        val jdkHome = runBlocking { JdkDownloader.getJdkHome(fakeUserCacheRoot) }
+        val jdkHome = runBlocking { JdkDownloader.getJdk(fakeUserCacheRoot).homeDir }
 
         val expectedAmperVersion = cliScript
             .readLines()

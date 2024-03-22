@@ -57,9 +57,7 @@ class JvmTestTask(
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 
         // TODO settings!
-        val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-
-        val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
+        val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
         cleanDirectory(taskOutputRoot.path)
         val reportsDir = taskOutputRoot.path.resolve("reports")

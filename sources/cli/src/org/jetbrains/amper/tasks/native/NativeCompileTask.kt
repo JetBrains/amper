@@ -108,9 +108,8 @@ class NativeCompileTask(
 
         logger.info("native compile ${module.userReadableName} -- ${fragments.joinToString(" ") { it.name }}")
 
-        // TODO this is JDK to run konanc, what are the requirements?
-        val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-        val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
+        // TODO this the is JDK to run konanc, what are the requirements?
+        val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()

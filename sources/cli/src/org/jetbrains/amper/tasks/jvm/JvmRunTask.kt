@@ -50,8 +50,7 @@ class JvmRunTask(
         val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
-        val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-        val javaExecutable = JdkDownloader.getJavaExecutable(jdkHome)
+        val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
         // TODO how to support options like debugging, xmx etc?
         // TODO some of them should be coming from module files, some from command line

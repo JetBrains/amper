@@ -8,43 +8,45 @@ import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import java.net.URI
-import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 // TODO so far, no version selection, need to design it a little
 
-object JdkDownloader {
-    suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot): Path {
-        return getJdkHome(userCacheRoot, currentSystemFixedJdkUrl)
+class Jdk(
+    val homeDir: Path,
+) {
+    // not lazy so we immediately validate that the java executable is present
+    val javaExecutable: Path = bin("java")
+    val javacExecutable: Path by lazy { bin("javac") }
+
+    private fun bin(executableName: String): Path {
+        val plain = homeDir.resolve("bin/$executableName")
+        if (plain.exists()) return plain
+        
+        val exe = homeDir.resolve("bin/$executableName.exe")
+        if (exe.exists()) return exe
+
+        error("No $executableName executables were found under $homeDir")
     }
+}
 
-    internal suspend fun getJdkHome(userCacheRoot: AmperUserCacheRoot, jdkUrl: URI): Path {
+object JdkDownloader {
+
+    suspend fun getJdk(userCacheRoot: AmperUserCacheRoot): Jdk = getJdk(userCacheRoot, currentSystemFixedJdkUrl)
+
+    // internal for tests
+    internal suspend fun getJdk(userCacheRoot: AmperUserCacheRoot, jdkUrl: URI): Jdk {
         val jdkArchive = Downloader.downloadFileToCacheLocation(jdkUrl.toString(), userCacheRoot)
-        val jdkExtracted = extractFileToCacheLocation(
-            jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
+        val jdkExtracted = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
 
+        // Corretto archives for macOS contain the JDK under amazon-corretto-X.jdk/Contents/Home
         val contentsHome = jdkExtracted.resolve("Contents").resolve("Home")
         val jdkHome: Path = if (contentsHome.isDirectory()) contentsHome else jdkExtracted
 
-        // assert that executable could be indeed found under jdkHome
-        getJavaExecutable(jdkHome)
-
-        return jdkHome
+        return Jdk(jdkHome)
     }
-
-    private fun getExecutable(jdkHome: Path, executableName: String): Path {
-        for (candidateRelative in mutableListOf("bin/$executableName", "bin/$executableName.exe")) {
-            val candidate = jdkHome.resolve(candidateRelative)
-            if (Files.exists(candidate)) {
-                return candidate
-            }
-        }
-        throw IllegalStateException("No $executableName executables were found under $jdkHome")
-    }
-
-    fun getJavaExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "java")
-    fun getJavacExecutable(jdkHome: Path): Path = getExecutable(jdkHome, "javac")
 
     val currentSystemFixedJdkUrl: URI by lazy {
         getUrl(OS.current, Arch.current)

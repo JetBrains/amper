@@ -10,6 +10,7 @@ import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
@@ -165,7 +166,7 @@ class JvmCompileTask(
         }
 
         // TODO settings!
-        val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
+        val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val sourcesFiles = sourceDirectories.flatMap { it.walk() }
 
@@ -182,7 +183,7 @@ class JvmCompileTask(
                 userSettings = userSettings,
                 isMultiplatform = isMultiplatform,
                 classpath = classpath,
-                jdkHome = jdkHome,
+                jdk = jdk,
                 sourceFiles = sourceDirectories,
                 friendPaths = friendPaths,
             )
@@ -195,7 +196,7 @@ class JvmCompileTask(
         if (javaFilesToCompile.isNotEmpty()) {
             val kotlinClassesPath = listOf(taskOutputRoot.path)
             val javacSuccess = compileJavaSources(
-                jdkHome = jdkHome,
+                jdk = jdk,
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
@@ -211,7 +212,7 @@ class JvmCompileTask(
         userSettings: CompilationUserSettings,
         isMultiplatform: Boolean,
         classpath: List<Path>,
-        jdkHome: Path,
+        jdk: Jdk,
         sourceFiles: List<Path>,
         friendPaths: List<Path>,
     ): CompilationResult {
@@ -235,7 +236,7 @@ class JvmCompileTask(
             isMultiplatform = isMultiplatform,
             userSettings = userSettings,
             classpath = classpath,
-            jdkHome = jdkHome,
+            jdkHome = jdk.homeDir,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
             friendPaths = friendPaths,
@@ -262,7 +263,7 @@ class JvmCompileTask(
     }
 
     private suspend fun compileJavaSources(
-        jdkHome: Path,
+        jdk: Jdk,
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
@@ -294,16 +295,16 @@ class JvmCompileTask(
 
             addAll(javaSourceFiles.map { it.pathString })
         }
-        val javacCommand = listOf(JdkDownloader.getJavacExecutable(jdkHome).pathString) + javacArgs
+        val javacCommand = listOf(jdk.javacExecutable.pathString) + javacArgs
 
         val result = spanBuilder("javac")
             .setAmperModule(module)
             .setListAttribute("args", javacArgs)
-            .setAttribute("jdk-home", jdkHome.pathString)
+            .setAttribute("jdk-home", jdk.homeDir.pathString)
             // TODO get version from jdkHome/release
             // .setAttribute("version", jdkHome.)
             .useWithScope { span ->
-                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdkHome, span)
+                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdk.homeDir, span)
             }
         return result.exitCode == 0
     }

@@ -208,8 +208,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         }
 
         private suspend fun installToolIfMissing(home: Path, pack: String, userCacheRoot: AmperUserCacheRoot) {
-            val jdkHome = JdkDownloader.getJdkHome(userCacheRoot)
-            val java = JdkDownloader.getJavaExecutable(jdkHome)
+            val java = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
             val sdkManagerJar = home / "lib" / "sdkmanager-classpath.jar"
 

@@ -21,7 +21,7 @@ class JdkDownloaderTest {
                         val url = JdkDownloader.getUrl(os, arch)
                         launch(Dispatchers.IO) {
                             println("Checking $url")
-                            JdkDownloader.getJdkHome(AmperUserCacheRoot(TestUtil.userCacheRoot), url)
+                            JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot), url)
                         }
                     }
                 }
