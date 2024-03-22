@@ -1,4 +1,8 @@
 product: android/app
 
+settings:
+  android:
+    namespace: hello.world
+
 dependencies:
   - androidx.appcompat:appcompat:1.6.1
