@@ -162,6 +162,11 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             ),
             CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
         )
+
+        registerDependency(
+            taskName = CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
+            dependsOn = CommonTaskType.Compile.getTaskName(module, platform, false, buildType),
+        )
     }
 }
 

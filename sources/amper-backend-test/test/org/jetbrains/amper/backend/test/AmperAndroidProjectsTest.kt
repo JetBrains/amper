@@ -67,6 +67,20 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `simple-app tests debug`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple-app")
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple-app", "testAndroidTestDebug")))
+        assertStdoutContains("1 tests successful")
+    }
+
+    @Test
+    fun `simple-app tests release`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple-app")
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple-app", "testAndroidTestRelease")))
+        assertStdoutContains("1 tests successful")
+    }
+
+    @Test
     fun `apk contains dependencies`() = runTestInfinitely {
         val projectContext = setupAndroidTestProject("simple-app")
         val taskName = TaskName.fromHierarchy(listOf("simple-app", "buildAndroidDebug"))
