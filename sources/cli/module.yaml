@@ -15,6 +15,10 @@ dependencies:
   - ../frontend/schema
   - ../dependency-resolution
   - ../android-integration/runner
+  - org.jetbrains:ij-parsing-core:0.3.154
+  - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980
+  - com.jetbrains.intellij.platform:core:233.13763.11
+  - com.jetbrains.intellij.platform:core-impl:233.13763.11
   - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - org.jetbrains.kotlin:kotlin-build-tools-api:1.9.22

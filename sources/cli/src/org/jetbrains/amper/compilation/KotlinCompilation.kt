@@ -152,6 +152,7 @@ internal fun kotlinNativeCompilerArgs(
     libraryPaths: List<Path>,
     sourceFiles: List<Path>,
     outputPath: Path,
+    isFramework: Boolean,
 ): List<String> = buildList {
     if (kotlinUserSettings.debug) {
         add("-g")
@@ -160,7 +161,9 @@ internal fun kotlinNativeCompilerArgs(
     add("-ea")
 
     add("-produce")
-    add(if (module.type.isLibrary() && !isTest) "library" else "program")
+    if (module.type.isLibrary() && !isTest) add("library")
+    else if (!isTest && isFramework) add("framework")
+    else add("program")
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
     add("-module-name")

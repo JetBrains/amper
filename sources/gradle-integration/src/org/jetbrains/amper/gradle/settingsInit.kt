@@ -33,6 +33,9 @@ class SettingsPluginRun(
         // Adjust compose plugin dynamically.
         val chosenComposeVersion = chooseComposeVersion(model)
         if (chosenComposeVersion != null) {
+            settings.pluginManagement {
+                it.plugins.id("")
+            }
             settings.setupDynamicPlugins(
                 "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion"
             ) {

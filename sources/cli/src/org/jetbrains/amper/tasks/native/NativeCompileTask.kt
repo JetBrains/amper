@@ -53,6 +53,7 @@ class NativeCompileTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
+    private val isFramework: Boolean = false,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
@@ -82,7 +83,11 @@ class NativeCompileTask(
                     result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.compileClasspath }
                 })
             .distinct()
-        logger.warn("native compile ${module.userReadableName} -- collected external dependencies\n${externalDependencies.sorted().joinToString("\n").prependIndent("  ")}")
+        logger.warn("" +
+                "native compile ${module.userReadableName} -- collected external dependencies" +
+                if (externalDependencies.isNotEmpty()) "\n" else "" +
+                externalDependencies.sorted().joinToString("\n").prependIndent("  ")
+        )
 
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
@@ -133,6 +138,7 @@ class NativeCompileTask(
 
             val artifactExtension = when {
                 module.type.isLibrary() && !isTest -> ".klib"
+                isFramework && !isTest -> ".framework"
                 platform.isDescendantOf(Platform.MINGW) -> ".exe"
                 else -> ".kexe"
             }
@@ -160,6 +166,7 @@ class NativeCompileTask(
                     libraryPaths = libraryPaths,
                     sourceFiles = rootsToCompile,
                     outputPath = artifact,
+                    isFramework = isFramework,
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->

@@ -7,5 +7,11 @@ apply:
 
 dependencies:
   - ../core
+  - ../frontend/plain/toml-psi
+  - ../frontend/plain/yaml-psi
+  - ../frontend/plain/amper-psi
   - com.jetbrains.intellij.platform:util:233.13763.11
   - com.jetbrains.intellij.platform:util-jdom:233.13763.11
+  - com.jetbrains.intellij.platform:core:233.13763.11
+  - com.jetbrains.intellij.platform:core-impl:233.13763.11
+  - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980

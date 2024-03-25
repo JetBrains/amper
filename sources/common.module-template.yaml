@@ -21,6 +21,7 @@ repositories:
     url: https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
   - id: libs-releases
     url: https://repo.gradle.org/gradle/libs-releases
+  - https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:462092291/artifacts/content/maven-artifacts/
   - id: teamcity-repository
     url: https://cache-redirector.jetbrains.com/download.jetbrains.com/teamcity-repository
 
