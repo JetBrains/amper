@@ -55,6 +55,7 @@ class BootstrapTest {
         val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
 
         val intellijVersion = "233.13763.11"
+        val xcodeModelSquashedVersion = "241.14980"
         // TODO: rewrite to include build approach
         val settingsContent = """
 buildscript {
@@ -81,6 +82,7 @@ buildscript {
         classpath("com.jetbrains.intellij.platform:util-ui:$intellijVersion")
         classpath("com.jetbrains.intellij.platform:util-ex:$intellijVersion")
         classpath("com.jetbrains.intellij.platform:indexing:$intellijVersion")
+        classpath("com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:$xcodeModelSquashedVersion")
         classpath("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18")
         classpath(files("${core.pathString.replace('\\', '/')}"))
         classpath(files("${coreIntellij.pathString.replace('\\', '/')}"))
