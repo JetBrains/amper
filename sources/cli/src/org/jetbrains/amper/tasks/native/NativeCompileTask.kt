@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.native
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
@@ -26,6 +25,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -35,7 +35,6 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.deleteExisting
@@ -170,31 +169,33 @@ class NativeCompileTask(
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
-                    // todo in the future we'll switch to kotlin tooling api and remove this awful code
-
-                    val konanLib = kotlinNativeHome / "konan" / "lib"
-                    val jvmArgs = listOf(
-                        jdk.javaExecutable.pathString,
-                        // from bin/run_konan
-                        "-ea",
-                        "-XX:TieredStopAtLevel=1",
-                        "-Dfile.encoding=UTF-8",
-                        "-Dkonan.home=$kotlinNativeHome",
-                        "-cp",
-                        listOf(konanLib / "kotlin-native-compiler-embeddable.jar",
-                            konanLib / "trove4j.jar").joinToString(File.pathSeparator) { it.pathString },
-                        "org.jetbrains.kotlin.cli.utilities.MainKt",
-                        "konanc",
-                        "@${argFile}",
-                    )
 
                     spanBuilder("konanc")
                         .setAmperModule(module)
                         .setListAttribute("args", args)
                         .setAttribute("version", kotlinVersion)
-                        .useWithScope { span ->
+                        .useWithScope {
                             logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
-                            val result = BuildPrimitives.runProcessAndGetOutput(jvmArgs, kotlinNativeHome, span)
+
+                            val konanLib = kotlinNativeHome / "konan" / "lib"
+
+                            // todo in the future we'll switch to kotlin tooling api and remove this raw java exec
+                            val result = jdk.runJava(
+                                workingDir = kotlinNativeHome,
+                                mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
+                                classpath = listOf(
+                                    konanLib / "kotlin-native-compiler-embeddable.jar",
+                                    konanLib / "trove4j.jar",
+                                ),
+                                programArgs = listOf("konanc", "@${argFile}"),
+                                // JVM args partially copied from <kotlinNativeHome>/bin/run_konan
+                                jvmArgs = listOf(
+                                    "-ea",
+                                    "-XX:TieredStopAtLevel=1",
+                                    "-Dfile.encoding=UTF-8",
+                                    "-Dkonan.home=$kotlinNativeHome",
+                                ),
+                            )
                             if (result.exitCode != 0) {
                                 userReadableError("Kotlin native compilation failed (see errors above)")
                             }
