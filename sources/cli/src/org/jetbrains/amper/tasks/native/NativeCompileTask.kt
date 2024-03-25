@@ -114,7 +114,7 @@ class NativeCompileTask(
         logger.info("native compile ${module.userReadableName} -- ${fragments.joinToString(" ") { it.name }}")
 
         // TODO this the is JDK to run konanc, what are the requirements?
-        val javaExecutable = JdkDownloader.getJdk(userCacheRoot).javaExecutable
+        val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
@@ -125,7 +125,7 @@ class NativeCompileTask(
         val entryPoint = entryPoints.singleOrNull()
 
         val configuration: Map<String, String> = mapOf(
-            "konanc.jre.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
+            "konanc.jre.url" to jdk.downloadUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "kotlin.settings" to Json.encodeToString(kotlinUserSettings),
             "entry.point" to (entryPoint ?: ""),
@@ -174,7 +174,7 @@ class NativeCompileTask(
 
                     val konanLib = kotlinNativeHome / "konan" / "lib"
                     val jvmArgs = listOf(
-                        javaExecutable.pathString,
+                        jdk.javaExecutable.pathString,
                         // from bin/run_konan
                         "-ea",
                         "-XX:TieredStopAtLevel=1",

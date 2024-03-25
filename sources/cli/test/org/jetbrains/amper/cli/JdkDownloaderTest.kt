@@ -18,10 +18,9 @@ class JdkDownloaderTest {
             coroutineScope {
                 for (os in JdkDownloader.OS.entries) {
                     for (arch in JdkDownloader.Arch.entries) {
-                        val url = JdkDownloader.getUrl(os, arch)
                         launch(Dispatchers.IO) {
-                            println("Checking $url")
-                            JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot), url)
+                            println("Checking $os / $arch")
+                            JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot), os, arch)
                         }
                     }
                 }

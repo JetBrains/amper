@@ -93,8 +93,11 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
+        // TODO settings
+        val jdk = JdkDownloader.getJdk(userCacheRoot)
+
         val configuration: Map<String, String> = mapOf(
-            "jdk.url" to JdkDownloader.currentSystemFixedJdkUrl.toString(),
+            "jdk.url" to jdk.downloadUrl.toString(),
             "kotlin.version" to kotlinVersion,
             "user.settings" to Json.encodeToString(userSettings),
             "task.output.root" to taskOutputRoot.path.pathString,
@@ -121,6 +124,7 @@ class JvmCompileTask(
 
             if (presentSources.isNotEmpty()) {
                 compileSources(
+                    jdk = jdk,
                     sourceDirectories = presentSources,
                     kotlinVersion = kotlinVersion,
                     userSettings = userSettings,
@@ -153,6 +157,7 @@ class JvmCompileTask(
 
     @OptIn(ExperimentalPathApi::class)
     private suspend fun compileSources(
+        jdk: Jdk,
         sourceDirectories: List<Path>,
         kotlinVersion: String,
         userSettings: CompilationUserSettings,
@@ -164,9 +169,6 @@ class JvmCompileTask(
                 "The classpath must contain all friend paths, but '$friendPath' is not in '${classpath.joinToString(File.pathSeparator)}'"
             }
         }
-
-        // TODO settings!
-        val jdk = JdkDownloader.getJdk(userCacheRoot)
 
         val sourcesFiles = sourceDirectories.flatMap { it.walk() }
 
@@ -301,8 +303,7 @@ class JvmCompileTask(
             .setAmperModule(module)
             .setListAttribute("args", javacArgs)
             .setAttribute("jdk-home", jdk.homeDir.pathString)
-            // TODO get version from jdkHome/release
-            // .setAttribute("version", jdkHome.)
+            .setAttribute("version", jdk.version)
             .useWithScope { span ->
                 BuildPrimitives.runProcessAndGetOutput(javacCommand, jdk.homeDir, span)
             }
