@@ -33,6 +33,10 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         nativeTarget: String? = null,
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
+        .setAttribute("repositories", repositories.joinToString(" "))
+        .setAttribute("scope", scope.toString())
+        .setAttribute("platform", platform.toString())
+        .also { if (nativeTarget != null) it.setAttribute("nativeTarget", nativeTarget) }
         .startSpan().use {
             val acceptedRepositories = mutableListOf<String>()
             for (url in repositories) {

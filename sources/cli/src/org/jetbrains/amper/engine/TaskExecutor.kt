@@ -10,6 +10,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.diagnostics.spanBuilder
+import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
 
 class TaskExecutor(private val graph: TaskGraph) {
@@ -68,7 +70,11 @@ class TaskExecutor(private val graph: TaskGraph) {
 
             withContext(tasksDispatcher) {
                 val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
-                task.run(results)
+                spanBuilder(taskName.name)
+                    .setAttribute("type", "task")
+                    .useWithScope {
+                        task.run(results)
+                    }
             }
         }
     }
