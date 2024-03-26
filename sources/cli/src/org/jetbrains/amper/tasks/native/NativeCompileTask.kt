@@ -179,7 +179,9 @@ class NativeCompileTask(
 
                             val konanLib = kotlinNativeHome / "konan" / "lib"
 
-                            // todo in the future we'll switch to kotlin tooling api and remove this raw java exec
+                            // We call konanc via java because the konanc command line doesn't support spaces in paths:
+                            // https://youtrack.jetbrains.com/issue/KT-66952
+                            // TODO in the future we'll switch to kotlin tooling api and remove this raw java exec anyway
                             val result = jdk.runJava(
                                 workingDir = kotlinNativeHome,
                                 mainClass = "org.jetbrains.kotlin.cli.utilities.MainKt",
