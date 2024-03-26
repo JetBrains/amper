@@ -4,9 +4,6 @@
 
 package org.jetbrains.amper.compilation
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.tasks.CompileTask
 import java.io.File
@@ -16,48 +13,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
-
-internal data class CompilerPlugin(
-    /**
-     * The plugin ID used to associate arguments with the corresponding plugin.
-     * It is exposed by each plugin's implementation in their `CommandLineProcessor.pluginId` property.
-     */
-    val id: String,
-    val jarPath: Path,
-    val options: Map<String, String> = emptyMap(),
-) {
-    companion object {
-        fun serialization(jarPath: Path) = CompilerPlugin(
-            id = "org.jetbrains.kotlinx.serialization",
-            jarPath = jarPath,
-        )
-
-        fun compose(jarPath: Path) = CompilerPlugin(
-            id = "androidx.compose.compiler.plugins.kotlin",
-            jarPath = jarPath,
-        )
-    }
-}
-
-internal suspend fun KotlinCompilerDownloader.downloadCompilerPlugins(
-    kotlinVersion: String,
-    kotlinUserSettings: KotlinUserSettings,
-): List<CompilerPlugin> = coroutineScope {
-    buildList {
-        if (kotlinUserSettings.serializationEnabled) {
-            val plugin = async {
-                CompilerPlugin.serialization(downloadKotlinSerializationPlugin(kotlinVersion))
-            }
-            add(plugin)
-        }
-        if (kotlinUserSettings.composeEnabled) {
-            val plugin = async {
-                CompilerPlugin.compose(downloadKotlinComposePlugin(kotlinVersion))
-            }
-            add(plugin)
-        }
-    }.awaitAll()
-}
 
 private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
