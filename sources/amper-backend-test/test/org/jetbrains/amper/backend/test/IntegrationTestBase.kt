@@ -26,10 +26,13 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
 import java.nio.file.Path
+import java.util.UUID
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -86,7 +89,7 @@ abstract class IntegrationTestBase {
     }
 
     @OptIn(ExperimentalPathApi::class)
-    private fun Path.copyToTempRoot(): Path = tempRoot.resolve(fileName).also { dir ->
+    private fun Path.copyToTempRoot(): Path = (tempRoot / UUID.randomUUID().toString() / fileName.name).also { dir ->
         dir.createDirectories()
         copyToRecursively(target = dir, followLinks = true, overwrite = false)
     }
