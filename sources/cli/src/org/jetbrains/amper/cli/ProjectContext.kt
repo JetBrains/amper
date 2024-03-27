@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli
 
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
+import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.OS.Type.Linux
@@ -22,10 +23,12 @@ class ProjectContext(
     val buildOutputRoot: AmperBuildOutputRoot,
     val buildLogsRoot: AmperBuildLogsRoot,
     val commonRunSettings: CommonRunSettings,
+    val taskExecutionMode: TaskExecutor.Mode,
 ) {
     companion object {
         fun create(
             projectRoot: Path,
+            taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
             commonRunSettings: CommonRunSettings = CommonRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot? = null,
@@ -46,6 +49,7 @@ class ProjectContext(
                 buildLogsRoot = AmperBuildLogsRoot(buildOutputRootNotNull.path.resolve("logs")),
                 userCacheRoot = userCacheRootNotNull,
                 commonRunSettings = commonRunSettings,
+                taskExecutionMode = taskExecutionMode,
             )
         }
     }
@@ -57,6 +61,17 @@ class ProjectContext(
         buildOutputRoot = buildOutputRoot,
         buildLogsRoot = buildLogsRoot,
         commonRunSettings = commonRunSettings,
+        taskExecutionMode = taskExecutionMode,
+    )
+
+    fun withTaskExecutionMode(taskExecutionMode: TaskExecutor.Mode) = ProjectContext(
+        projectRoot = projectRoot,
+        userCacheRoot = userCacheRoot,
+        projectTempRoot = projectTempRoot,
+        buildOutputRoot = buildOutputRoot,
+        buildLogsRoot = buildLogsRoot,
+        commonRunSettings = commonRunSettings,
+        taskExecutionMode = taskExecutionMode,
     )
 }
 

@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.engine
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,7 +16,7 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
 
-class TaskExecutor(private val graph: TaskGraph) {
+class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
     init {
         // verify all dependencies are resolved
         for ((taskName, dependsOn) in graph.dependencies) {
@@ -34,15 +36,31 @@ class TaskExecutor(private val graph: TaskGraph) {
     private val tasksDispatcher = Dispatchers.IO.limitedParallelism(5)
 
     // Dispatch on default dispatcher, execute on tasks dispatcher
-    suspend fun run(tasks: List<TaskName>) = withContext(Dispatchers.Default) {
-        val results = mutableMapOf<TaskName, Deferred<TaskResult>>()
-        for (task in tasks) {
-            runTask(task, emptyList(), results)
+    // Task failures do not throw, instead all exceptions are returned as a map
+    suspend fun run(tasks: List<TaskName>): Map<TaskName, Result<TaskResult>> = withContext(Dispatchers.Default) {
+        val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
+        try {
+            coroutineScope {
+                for (task in tasks) {
+                    val result = try {
+                        runTask(task, emptyList(), results)
+                    } catch (e: CancellationException) {
+                        Result.failure(e)
+                    }
+
+                    synchronized(results) {
+                        results[task] = CompletableDeferred(result)
+                    }
+                }
+                results.mapValues { it.value.await() }
+            }
+        } catch (e: CancellationException) {
+            results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
         }
     }
 
     // TODO we need to re-evaluate task order execution later
-    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>, taskResults: MutableMap<TaskName, Deferred<TaskResult>>): TaskResult = withContext(Dispatchers.Default) {
+    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>, taskResults: MutableMap<TaskName, Deferred<Result<TaskResult>>>): Result<TaskResult> = withContext(Dispatchers.Default) {
         // TODO slow, we can do better for sure
         if (currentPath.contains(taskName)) {
             error("Found a cycle in task execution graph:\n" +
@@ -53,7 +71,7 @@ class TaskExecutor(private val graph: TaskGraph) {
         coroutineScope {
             val results = (graph.dependencies[taskName] ?: emptySet())
                 .map { dependsOn ->
-                    synchronized(taskResults) {
+                    dependsOn to synchronized(taskResults) {
                         val existingResult = taskResults[dependsOn]
                         if (existingResult != null) {
                             existingResult
@@ -66,16 +84,44 @@ class TaskExecutor(private val graph: TaskGraph) {
                         }
                     }
                 }
-                .map { it.await() }
+                .map { (dependsOn, deferredResult) -> dependsOn to deferredResult.await() }
+                .map { (dependsOn, result) ->
+                    result.getOrElse { ex ->
+                        // terminate task execution since dependency failed
+                        return@coroutineScope Result.failure(CancellationException("task dependency '$dependsOn' failed", ex))
+                    }
+                }
 
             withContext(tasksDispatcher) {
                 val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
                 spanBuilder(taskName.name)
                     .setAttribute("type", "task")
                     .useWithScope {
-                        task.run(results)
+                        val result = runCatching {
+                            task.run(results)
+                        }
+
+                        when (mode) {
+                            Mode.GREEDY -> result
+                            Mode.FAIL_FAST -> if (result.isFailure) {
+                                throw CancellationException("Task '$taskName' failed: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
+                            } else result
+                        }
                     }
             }
         }
+    }
+
+    enum class Mode {
+        /**
+         * Upon task failure continue execution of all other tasks,
+         * that are independent of the failed task in the task graph
+         */
+        GREEDY,
+
+        /**
+         * Fail on a first failed task, cancel all running and queued tasks upon failure
+         */
+        FAIL_FAST,
     }
 }

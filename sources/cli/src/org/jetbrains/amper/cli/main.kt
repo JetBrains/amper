@@ -23,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
@@ -128,7 +129,9 @@ private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-cache
 private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
     val name by argument(help = "task name to execute")
     val amperBackend by requireObject<AmperBackend>()
-    override fun run() = runBlocking { amperBackend.runTask(TaskName(name)) }
+    override fun run() {
+        return runBlocking { amperBackend.runTask(TaskName(name)) }
+    }
 }
 
 private class RunCommand : CliktCommand(name = "run", help = "Run your application. Use -- to separate application's arguments from Amper options") {
@@ -184,7 +187,12 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
             userReadableError("Filters are not implemented yet")
         }
 
-        amperBackend.check(
+        // try to execution as many tests as possible
+        val amperBackendWithExecutionMode = AmperBackend(
+            context = amperBackend.context.withTaskExecutionMode(TaskExecutor.Mode.GREEDY),
+        )
+
+        amperBackendWithExecutionMode.check(
             platforms = platform.ifEmpty { null }?.toSet(),
             moduleName = module,
         )

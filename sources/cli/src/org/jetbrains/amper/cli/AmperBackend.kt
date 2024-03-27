@@ -12,6 +12,7 @@ import org.jetbrains.amper.diagnostics.use
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
@@ -67,7 +68,7 @@ class AmperBackend(val context: ProjectContext) {
     }
 
     private val taskExecutor: TaskExecutor by lazy {
-        TaskExecutor(taskGraph)
+        TaskExecutor(taskGraph, TaskExecutor.Mode.GREEDY)
     }
 
     fun clean() {
@@ -94,11 +95,11 @@ class AmperBackend(val context: ProjectContext) {
                 .map { it.taskName }
                 .sortedBy { it.name }
             logger.info("Selected tasks to compile: ${taskNames.joinToString(" ") { it.name }}")
-            taskExecutor.run(taskNames)
+            taskExecutor.runTasksAndReportOnFailure(taskNames)
         }
     }
 
-    suspend fun runTask(taskName: TaskName) = taskExecutor.run(listOf(taskName))
+    suspend fun runTask(taskName: TaskName) = taskExecutor.runTasksAndReportOnFailure(listOf(taskName))
 
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
@@ -203,7 +204,7 @@ class AmperBackend(val context: ProjectContext) {
         }
 
         runBlocking {
-            taskExecutor.run(testTasks.map { it.taskName })
+            taskExecutor.runTasksAndReportOnFailure(testTasks.map { it.taskName })
         }
     }
 
