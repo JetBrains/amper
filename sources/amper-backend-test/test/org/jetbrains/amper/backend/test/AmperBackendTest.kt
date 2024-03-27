@@ -59,6 +59,25 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `jvm run tests only from test fragment`() = runTestInfinitely {
+        // asserts that ATest.smoke is run, but SrcTest.smoke isn't
+
+        val projectContext = setupTestDataProject("jvm-test-classpath")
+        AmperBackend(projectContext).runTask(TaskName(":jvm-test-classpath:testJvm"))
+
+        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
+
+        assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
+        assertTrue(stdout.contains("[         0 tests failed          ]"), stdout)
+
+        val xmlReport = projectContext.buildOutputRoot.path.resolve("tasks/_jvm-test-classpath_testJvm/reports/TEST-junit-jupiter.xml")
+            .readText()
+
+        assertTrue(xmlReport.contains("<testcase name=\"smoke()\" classname=\"apkg.ATest\""), xmlReport)
+    }
+
+    @Test
     fun `jvm jar task with main class`() = runTestInfinitely {
         val projectContext = setupTestDataProject("java-kotlin-mixed")
         AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:jarJvm"))
@@ -296,7 +315,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         backend.runTask(sourcesJarMingwX64Task)
         val sourcesJarMacosArm64Task = TaskName(":shared:sourcesJarMacosArm64")
         backend.runTask(sourcesJarMacosArm64Task)
-        
+
         assertJarFileEntries(
             jarPath = backend.context.taskOutputPath(sourcesJarJvm) / "shared-jvm-sources.jar",
             expectedEntries = listOf(

@@ -53,6 +53,8 @@ class JvmTestTask(
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("JvmCompileTask result it not found in dependencies")
         val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
+        val testModuleClasspath = compileTask.classesOutputRoot ?:
+            userReadableError("Can't run tests: empty compilation result for module '${module.userReadableName}'")
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 
@@ -72,23 +74,10 @@ class JvmTestTask(
             // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
             //  but probably there should be an option to disable it
             "--fail-if-no-tests",
-            "--scan-class-path",
+            "--scan-class-path=$testModuleClasspath",
             "--class-path=${testClasspath.joinToString(File.pathSeparator)}",
             "--reports-dir=${reportsDir}",
         )
-//        val jvmCommand = listOf(
-//            javaExecutable.pathString,
-//            // TODO more jvm options? which options should be here?
-//            "-ea",
-//            "-cp",
-//            (listOf(junitConsole.pathString) + testClasspath).joinToString(File.pathSeparator),
-//            "execute",
-//            // TODO I certainly want to have it here by default (too many real life errors when tests are skipped for a some reason)
-//            //  but probably there should be an option to disable it
-//            "--fail-if-no-tests",
-//            "--scan-class-path",
-//            "--reports-dir=${reportsDir}",
-//        )
 
         // TODO should be customizable?
         val workingDirectory = when (val source = module.source) {
