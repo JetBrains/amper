@@ -186,7 +186,7 @@ class JvmCompileTask(
                 isMultiplatform = isMultiplatform,
                 classpath = classpath,
                 jdk = jdk,
-                sourceFiles = sourceDirectories,
+                sourceDirectories = sourceDirectories,
                 friendPaths = friendPaths,
             )
             if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
@@ -215,7 +215,7 @@ class JvmCompileTask(
         isMultiplatform: Boolean,
         classpath: List<Path>,
         jdk: Jdk,
-        sourceFiles: List<Path>,
+        sourceDirectories: List<Path>,
         friendPaths: List<Path>,
     ): CompilationResult {
         // TODO should we download this in a separate task?
@@ -246,7 +246,7 @@ class JvmCompileTask(
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAmperModule(module)
-            .setListAttribute("source-files", sourceFiles.map { it.pathString })
+            .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .useWithScope {
@@ -257,7 +257,7 @@ class JvmCompileTask(
                     projectId = projectRoot.toKotlinProjectId(),
                     strategyConfig = executionConfig,
                     compilationConfig = compilationConfig,
-                    sources = sourceFiles.map { it.toFile() },
+                    sources = sourceDirectories.map { it.toFile() },
                     arguments = compilerArgs,
                 )
             }
