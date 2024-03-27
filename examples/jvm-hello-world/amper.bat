@@ -6,7 +6,7 @@
 
 setlocal
 
-set amper_version=0.3.0-dev-471
+set amper_version=0.3.0-dev-479
 set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 set amper_sha256=6fbb8d60b4b37dcb765776f5dad7bccc03876867e3b20bc63fcc419e0dc55920
 
