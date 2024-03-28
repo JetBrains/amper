@@ -119,7 +119,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         standardOutput = stdout
     }
     val cmdOutput = stdout.toString()
-    print(cmdOutput)
+    println(cmdOutput)
     return stdout
 }
 
@@ -160,12 +160,24 @@ tasks.register("installDebugApp") {
     }
 }
 
-tasks.register("installAndroidTestApp") {
+tasks.register("InstallPureAPKSampleApp") {
     doLast {
-        adb(
-            "install",
-            "testData/projects/compose-android-ui/build/outputs/apk/androidTest/debug/compose-android-ui-debug-androidTest.apk"
-        )
+        // Define the directory where the APK files are located relative to the project root
+        val apkDirectory = project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
+
+        // Find the APK file that ends with '-debug.apk'
+        val apkFiles = apkDirectory.listFiles { dir, name ->
+            println(name)
+            name.endsWith("-debug.apk")
+        } ?: arrayOf() // Provide an empty array if null to avoid null pointer exception
+
+        // Check if an APK file was found
+        if (apkFiles.isNotEmpty()) {
+            val apkFile = apkFiles.first() // Take the first matching APK
+            adb("install", apkFile.absolutePath)
+        } else {
+            println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+        }
     }
 }
 
@@ -192,9 +204,37 @@ tasks.register("runTestsViaAdb"){
         )
     }
 }
+
+tasks.register("runPureSampleAPK"){
+    dependsOn("InstallPureAPKSampleApp")
+    doFirst {
+
+        adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
+        adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
+
+        adb(
+            "shell",
+            "am",
+            "start",
+            "-n",
+            "io.github.singleton11.myapplication/io.github.singleton11.myapplication.MainActivity"
+        )
+    }
+}
 val assembleDebugAndTestAPK by tasks.registering(Exec::class) {
     workingDir = file("testData/projects/compose-android-ui")
     commandLine("gradle", "assembleDebugAndTest")
+}
+
+tasks.register("installAndroidTestApp") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/compose-android-ui/build/outputs/apk/androidTest/debug/compose-android-ui-debug-androidTest.apk"
+        )
+    }
 }
 
 val prepareProjects = tasks.register("prepareProjectsAndroid") {

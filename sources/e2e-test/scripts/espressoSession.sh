@@ -3,7 +3,7 @@
 WD_HUB_URL=${WD_HUB_URL:-"http://circlet:circlet@10.21.0.104:4444/wd/hub"}
 SESSION_URL="$WD_HUB_URL/session"
 SESSION_NAME="Android espresso tests"
-ANDROID_VERSION=${ANDROID_VERSION:-"8.1"}
+ANDROID_VERSION=${ANDROID_VERSION:-"0.8.1"}
 CAPABILITIES='{"desiredCapabilities": {"version": "__ANDROID_VERSION__", "platformName": "Android", "deviceName": "android", "name": "__SESSION_NAME__", "newCommandTimeout": 0, "sessionTimeout": "80m", "enableVNC": true, "portBindings": { "5037": "50001-50010" }}}'
 SESSION_INFO_FILE=".device.session.json"
 
