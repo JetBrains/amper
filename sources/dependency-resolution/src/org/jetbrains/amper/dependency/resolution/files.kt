@@ -18,7 +18,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.jetbrains.amper.concurrency.holdsLock
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
@@ -356,7 +355,7 @@ open class DependencyFile(
                 if (result > VerificationResult.PASSED) {
                     if (result == VerificationResult.UNKNOWN) {
                         dependency.messages.asMutable() += Message(
-                            "Unable to download checksums",
+                            "Unable to download checksums for $dependency",
                             repository,
                             Severity.ERROR,
                         )
