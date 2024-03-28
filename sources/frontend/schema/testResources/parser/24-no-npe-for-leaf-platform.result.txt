@@ -67,7 +67,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   androidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
@@ -136,7 +136,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   common
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}subModule)
@@ -202,7 +202,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -270,7 +270,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   ios
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -336,7 +336,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -404,7 +404,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   jvm
     External dependencies:
       MavenDependency(coordinates=io.ktor:ktor-server-core:2.3.2, compile=true, runtime=true, exported=false)
@@ -472,7 +472,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   jvmAndAndroid
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -538,7 +538,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   jvmAndAndroidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -605,7 +605,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   jvmTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -672,7 +672,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
 Artifacts:
   isTest: false
   [IOS_ARM64, JVM, ANDROID]

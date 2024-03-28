@@ -53,7 +53,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   androidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
@@ -106,7 +106,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
 Artifacts:
   isTest: false
   [ANDROID]

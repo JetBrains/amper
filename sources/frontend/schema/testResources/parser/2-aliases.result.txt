@@ -50,7 +50,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   androidTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
@@ -104,7 +104,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   common
     External dependencies:
       MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1, compile=true, runtime=true, exported=false)
@@ -154,7 +154,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   commonTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -206,7 +206,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   ios
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -256,7 +256,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -306,7 +306,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosArm64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -359,7 +359,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosSimulator
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -409,7 +409,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosSimulatorArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -460,7 +460,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosSimulatorArm64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -513,7 +513,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosSimulatorTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -566,7 +566,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -619,7 +619,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosX64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -669,7 +669,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   iosX64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -722,7 +722,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
 Artifacts:
   isTest: false
   [ANDROID]

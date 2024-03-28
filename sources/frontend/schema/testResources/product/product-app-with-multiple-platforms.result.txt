@@ -47,7 +47,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   macosArm64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -97,7 +97,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   macosArm64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -150,7 +150,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   macosTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -202,7 +202,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   macosX64
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -252,7 +252,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
   macosX64Test
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -305,7 +305,7 @@ Fragments:
       native: <default> null
       publishing: <default> null
     }
-    
+
 Artifacts:
   isTest: false
   [MACOS_ARM64]

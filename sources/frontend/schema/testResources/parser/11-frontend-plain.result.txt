@@ -55,7 +55,7 @@ Fragments:
         version: 42-SNAPSHOT
       }
     }
-    
+
   jvmTest
     External dependencies:
       MavenDependency(coordinates=com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+, compile=true, runtime=true, exported=false)
@@ -114,7 +114,7 @@ Fragments:
         version: 42-SNAPSHOT
       }
     }
-    
+
 Artifacts:
   isTest: false
   [JVM]

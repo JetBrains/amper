@@ -37,7 +37,8 @@ internal fun PotatoModule.prettyPrintForGoldFile(): String = buildString {
             appendLine("      ${dependency.target.name} (${dependency.type})")
         }
         append("    Settings: ")
-        appendLine(prettyPrintForGoldFile(fragment.settings).prependIndent("    ").trimStart())
+        appendLine(prettyPrintForGoldFile(fragment.settings).prependIndent("    ").trim())
+        appendLine()
     }
     appendLine("Artifacts:")
     for (artifact in artifacts.sortedBy { it.name }) {

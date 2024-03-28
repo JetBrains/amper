@@ -2,5 +2,8 @@ product:
   type: lib
   platforms: [ jvm ]
 
+dependencies:
+  - io.github.java-diff-utils:java-diff-utils:4.12: exported
+
 apply:
   - ../common.module-template.yaml

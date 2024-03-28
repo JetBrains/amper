@@ -49,7 +49,7 @@ Fragments:
       }
       publishing: <default> null
     }
-    
+
   linuxTest
     External dependencies:
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
@@ -103,7 +103,7 @@ Fragments:
       }
       publishing: <default> null
     }
-    
+
 Artifacts:
   isTest: false
   [LINUX_ARM64]
