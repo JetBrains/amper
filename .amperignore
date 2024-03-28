@@ -1,6 +1,7 @@
 build
 buildSrc
 examples
+examples.pure
 migrated-projects
 sources/amper-backend-test/testData
 sources/e2e-test/testData
