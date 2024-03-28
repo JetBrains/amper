@@ -16,6 +16,7 @@ import com.intellij.mock.MockProject
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
@@ -73,6 +74,9 @@ object MockProjectInitializer {
         if (DefaultSystemInfo.detect().family == SystemInfo.OsFamily.MacOs) {
             StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
         }
+
+        @Suppress("UnstableApiUsage")
+        Registry.markAsLoaded()
 
         latestConfigurator = intelliJApplicationConfigurator
         return projectEnv.project.also { ourProject = it }
