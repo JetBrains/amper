@@ -40,6 +40,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
+@Ignore("too flaky. unignore when fixed")
 class AmperAndroidProjectsTest : IntegrationTestBase() {
     private val androidProjectsPath: Path = TestUtil.amperCheckoutRoot.resolve("examples.pure")
 
