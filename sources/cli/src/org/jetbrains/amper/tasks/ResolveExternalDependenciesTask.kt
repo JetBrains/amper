@@ -25,12 +25,6 @@ import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
-val defaultRepositories = listOf(
-    "https://repo1.maven.org/maven2",
-    "https://maven.google.com/",
-    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-)
-
 class ResolveExternalDependenciesTask(
     private val module: PotatoModule,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -46,8 +40,8 @@ class ResolveExternalDependenciesTask(
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url }?.distinct()?.sorted()
-            ?: listOf()).ifEmpty { defaultRepositories }
+        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url } ?: emptyList())
+            .distinct()
 
         val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }
@@ -125,8 +119,8 @@ class ResolveExternalDependenciesTask(
                     "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                     "direct dependencies:\n${directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
                     "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
-                    "platform: $resolvePlatform\n" +
-                    "nativeTarget: $resolveNativeTarget", t)
+                    "platform: $resolvePlatform" +
+                    if (resolveNativeTarget != null) "\nnativeTarget: $resolveNativeTarget" else "", t)
         }
 
         val compileClasspath = result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
