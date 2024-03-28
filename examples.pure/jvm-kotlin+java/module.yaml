@@ -1,0 +1,12 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product: jvm/app
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+settings:
+  kotlin:
+    languageVersion: 1.8
+  jvm:
+    release: 17
