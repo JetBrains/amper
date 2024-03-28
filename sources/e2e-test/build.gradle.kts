@@ -36,7 +36,6 @@ tasks.withType<Test>().configureEach {
 
         exclude { include ->
             include.file.name.contains("EmulatorTests")
-            include.file.path.contains("examples.pure")
         }
     }
 }
