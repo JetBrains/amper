@@ -1,0 +1,14 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product: jvm/app
+
+settings:
+  kover:
+    enabled: true
+    html:
+      title: "Tests using Kover with Amper"
+      reportDir: "report/coverage-report"
+      onCheck: true
+    xml:
+      onCheck: true
+      reportFile: "report/coverage-report.xml"

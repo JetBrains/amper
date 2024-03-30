@@ -1,0 +1,6 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product: jvm/app
+
+dependencies:
+  - ../shared
