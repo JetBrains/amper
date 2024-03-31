@@ -2,7 +2,7 @@ product: android/app
 
 settings:
   android:
-    namespace: io.github.singleton11.myapplication
+    namespace: com.jetbrains.sample.app
 
 dependencies:
   - com.google.guava:guava:33.0.0-android

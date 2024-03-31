@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package io.github.singleton11.myapplication
+package com.jetbrains.sample.app
 
 import com.github.dkharrat.nexusdialog.FormActivity
 import com.github.dkharrat.nexusdialog.FormController

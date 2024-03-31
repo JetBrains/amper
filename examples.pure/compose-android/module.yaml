@@ -9,4 +9,6 @@ dependencies:
   - androidx.appcompat:appcompat:1.6.1 # we need special type of activity
 
 settings:
+  android:
+    namespace: "com.jetbrains.sample.app"
   compose: enabled
