@@ -6,9 +6,9 @@
 
 setlocal
 
-set amper_version=0.3.0-dev-481
+set amper_version=0.3.0-dev-483
 set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
-set amper_sha256=a3f9d189e363ef7886b9c465cb9b21d6fbd067ad8bfc523cb4eb2a0878155afe
+set amper_sha256=26684a756c0b3b99408fc1caec241a23cffc6e54d434b3a36dbec9d28a588dd5
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=https://aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
