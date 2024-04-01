@@ -20,6 +20,7 @@ import java.nio.file.StandardOpenOption
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
+import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
@@ -130,10 +131,12 @@ plugins.apply("org.jetbrains.amper.settings.plugin")
 }
 
 // TODO Replace by copyRecursively.
-fun copyDirectory(source: Path, target: Path) {
+private fun copyDirectory(source: Path, target: Path) {
     Files.walk(source).use { paths ->
         paths.forEach { sourcePath ->
             if (sourcePath.any { it.pathString == "build" || it.pathString == ".gradle" }) return@forEach
+            // could be present to attach a java agent to the process. Not relevant for this test
+            if (sourcePath.name.startsWith(".attach_pid")) return@forEach
 
             val targetPath = target.resolve(source.relativize(sourcePath))
             if (Files.isDirectory(sourcePath)) {
