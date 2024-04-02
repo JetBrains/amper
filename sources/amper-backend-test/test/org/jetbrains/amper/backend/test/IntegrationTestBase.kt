@@ -2,6 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("SameParameterValue")
+
 package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
@@ -15,6 +17,7 @@ import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtensi
 import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
+import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
@@ -23,10 +26,9 @@ import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.junit.jupiter.api.io.TempDir
 import org.tinylog.Level
 import java.nio.file.Path
-import java.util.UUID
+import java.util.*
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
@@ -36,13 +38,14 @@ import kotlin.io.path.name
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class IntegrationTestBase {
-    @TempDir
-    private lateinit var tempDir: Path
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
 
     protected val tempRoot: Path by lazy {
         // Always run tests in a directory with space, tests quoting in a lot of places
-        tempDir.resolve("space test")
+        tempDirExtension.path.resolve("space test").also { it.createDirectories() }
     }
 
     @RegisterExtension
