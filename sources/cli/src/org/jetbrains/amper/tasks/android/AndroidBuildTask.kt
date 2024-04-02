@@ -4,36 +4,36 @@
 
 package org.jetbrains.amper.tasks.android
 
-import AndroidBuildRequest
-import AndroidModuleData
-import ApkPathAndroidBuildResult
-import ResolvedDependency
+import org.jetbrains.amper.android.AndroidBuildRequest
+import org.jetbrains.amper.android.AndroidModuleData
+import org.jetbrains.amper.android.ApkPathAndroidBuildResult
+import org.jetbrains.amper.android.ResolvedDependency
+import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
-import runAndroidBuild
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 
 class AndroidBuildTask(
-    private val module: PotatoModule,
+    val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    private val userCacheRootPath: Path,
     private val taskOutputPath: TaskOutputRoot,
     override val taskName: TaskName,
 ) : Task {
@@ -59,11 +59,7 @@ class AndroidBuildTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val result = runAndroidBuild<ApkPathAndroidBuildResult>(
-                request,
-                sourcesPath = Path.of("../../").toAbsolutePath().normalize(),
-                userCacheDir = userCacheRootPath
-            )
+            val result = runAndroidBuild<ApkPathAndroidBuildResult>(request, taskOutputPath.path / "gradle-project")
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
         }
         taskOutputPath.path.createDirectories()

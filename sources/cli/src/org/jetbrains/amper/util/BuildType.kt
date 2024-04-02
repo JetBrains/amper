@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.util
 
-import AndroidBuildRequest
+import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.frontend.Platform
 
 enum class BuildType(val value: String) {

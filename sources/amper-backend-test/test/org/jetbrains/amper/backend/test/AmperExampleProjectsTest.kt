@@ -3,6 +3,7 @@
  */
 package org.jetbrains.amper.backend.test
 
+import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.UserReadableError
@@ -122,6 +123,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         AmperBackend(projectContext).compile()
         // debug + release
         kotlinJvmCompilationSpans.assertTimes(2)
+        ConnectorServices.reset()
     }
 
     @Test

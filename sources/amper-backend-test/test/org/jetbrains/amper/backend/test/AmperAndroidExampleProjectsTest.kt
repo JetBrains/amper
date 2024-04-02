@@ -16,6 +16,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.test.runTest
+import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.core.extract.extractZip
@@ -24,6 +25,7 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
+import org.junit.jupiter.api.AfterEach
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -40,12 +42,11 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
-@Ignore("too flaky. unignore when fixed")
-class AmperAndroidProjectsTest : IntegrationTestBase() {
+class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     private val androidProjectsPath: Path = TestUtil.amperCheckoutRoot.resolve("examples.pure")
 
     private fun setupAndroidTestProject(testProjectName: String): ProjectContext =
-        setupTestProject(androidProjectsPath.resolve(testProjectName), copyToTemp = true)
+        setupTestProject(androidProjectsPath.resolve(testProjectName), copyToTemp = false)
 
     /**
      * When the emulator already is in working state, app install and launch activity occurring so fast that logcat
@@ -141,6 +142,11 @@ class AmperAndroidProjectsTest : IntegrationTestBase() {
         assertStdoutContains("task :android-simple:transformDependenciesAndroid -> :android-simple:resolveDependenciesAndroid")
         // test
         assertStdoutContains("task :android-simple:transformDependenciesAndroidTest -> :android-simple:resolveDependenciesAndroidTest")
+    }
+
+    @AfterEach
+    fun tearDown() {
+        ConnectorServices.reset()
     }
 
     private fun assertThemeContainsInResources(resourcesPath: Path, themeReference: Int) {

@@ -20,6 +20,7 @@ test-dependencies:
   - com.google.guava:guava:33.0.0-jre
 
   - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3
+  - org.gradle:gradle-tooling-api:8.4: compile-only
 
 apply:
   - ../common.module-template.yaml

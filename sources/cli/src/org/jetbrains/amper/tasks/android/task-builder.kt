@@ -21,6 +21,7 @@ import org.jetbrains.amper.tasks.jvm.JvmTestTask
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskType
 import org.jetbrains.amper.util.AndroidSdkDetector
 import org.jetbrains.amper.util.BuildType
@@ -31,7 +32,7 @@ private val androidSdkPath by lazy { AndroidSdkDetector().detectSdkPath() ?: err
 
 fun ProjectTaskRegistrar.setupAndroidTasks() {
 
-    onEachDescendantPlatformOf(Platform.ANDROID) { module, executeOnChangedInputs, _ ->
+    onEachDescendantPlatformOf(Platform.ANDROID) { module, _, _ ->
         registerTask(
             LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
             CommonTaskType.Run.getTaskName(module, Platform.ANDROID, isTest = false, BuildType.Debug)
@@ -77,7 +78,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
                 CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
             ),
-            context.userCacheRoot.path
+            context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
         )
 
         // compile
@@ -251,17 +252,17 @@ private fun TaskGraphBuilder.setupPrepareAndroidTask(
     buildType: BuildType,
     androidSdkPath: Path,
     prepareAndroidTaskDependencies: List<TaskName>,
-    userCacheRootPath: Path,
+    taskOutputPath: TaskOutputRoot,
 ) {
     registerTask(
         AndroidPrepareTask(
+            AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType),
             module,
             buildType,
             executeOnChangedInputs,
             androidSdkPath,
             fragments,
-            userCacheRootPath,
-            AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType)
+            taskOutputPath
         ),
         prepareAndroidTaskDependencies
     )
@@ -286,7 +287,6 @@ private fun TaskGraphBuilder.setupAndroidBuildTasks(
             executeOnChangedInputs,
             androidSdkPath,
             fragments,
-            context.userCacheRoot.path,
             context.getTaskOutputPath(buildAndroidTaskName),
             buildAndroidTaskName,
         ),

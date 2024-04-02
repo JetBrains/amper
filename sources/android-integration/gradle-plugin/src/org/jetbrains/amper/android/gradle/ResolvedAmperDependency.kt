@@ -2,6 +2,10 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+package org.jetbrains.amper.android.gradle/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.FileCollectionDependency
@@ -11,6 +15,7 @@ import org.gradle.api.internal.artifacts.dependencies.SelfResolvingDependencyInt
 import org.gradle.api.internal.tasks.DefaultTaskDependencyFactory
 import org.gradle.api.tasks.TaskDependency
 import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifier
+import org.jetbrains.amper.android.ResolvedDependency
 import java.io.File
 
 class ResolvedAmperDependency(private val project: Project, private val flatDependency: ResolvedDependency) : FileCollectionDependency, SelfResolvingDependencyInternal {

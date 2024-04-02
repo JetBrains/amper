@@ -2,6 +2,10 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+package org.jetbrains.amper.android.gradle/*
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
@@ -16,6 +20,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
+import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -25,8 +30,8 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.schema.ProductType
-import tooling.ApkPathToolingModelBuilder
-import tooling.RClassToolingModelBuilder
+import org.jetbrains.amper.android.gradle.tooling.ApkPathToolingModelBuilder
+import org.jetbrains.amper.android.gradle.tooling.RClassToolingModelBuilder
 import java.io.File
 import java.nio.file.Path
 import javax.inject.Inject

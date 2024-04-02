@@ -54,8 +54,8 @@ suspend fun extractFileWithFlag(
     flagFile: Path,
     vararg options: ExtractOptions
 ): Path = withContext(Dispatchers.IO) {
-    withDoubleLock(targetDirectory.hashCode(), flagFile) {
-        extractFileWithFlag(archiveFile, targetDirectory, it, flagFile, options)
+    withDoubleLock(targetDirectory.hashCode(), flagFile) { fileChannel ->
+        extractFileWithFlag(archiveFile, targetDirectory, fileChannel, flagFile, options)
     }
     return@withContext targetDirectory
 }

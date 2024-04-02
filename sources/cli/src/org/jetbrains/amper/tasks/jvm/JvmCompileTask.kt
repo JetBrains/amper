@@ -251,15 +251,19 @@ class JvmCompileTask(
             .setAttribute("compiler-version", compilerVersion)
             .useWithScope {
                 logger.info("Calling Kotlin compiler...")
-
                 // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
-                compilationService.compileJvm(
-                    projectId = projectRoot.toKotlinProjectId(),
+                val projectId = projectRoot.toKotlinProjectId()
+                val compilationResult = compilationService.compileJvm(
+                    projectId = projectId,
                     strategyConfig = executionConfig,
                     compilationConfig = compilationConfig,
                     sources = sourceDirectories.map { it.toFile() },
                     arguments = compilerArgs,
                 )
+
+                logger.info("Kotlin compiler finalization...")
+                compilationService.finishProjectCompilation(projectId)
+                compilationResult
             }
         return kotlinCompilationResult
     }

@@ -3,12 +3,14 @@
  */
 
 
-package org.jetbrains.amper.dependency.resolution
+package org.jetbrains.amper.dependency.resolution.org.jetbrains.amper.android
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.amper.core.extract.extractFileToLocation
+import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.extension

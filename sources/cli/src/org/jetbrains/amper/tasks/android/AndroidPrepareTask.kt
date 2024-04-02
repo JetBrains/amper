@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.tasks.android
 
-import AndroidBuildRequest
-import AndroidModuleData
-import RClassAndroidBuildResult
-import ResolvedDependency
+import org.jetbrains.amper.android.AndroidBuildRequest
+import org.jetbrains.amper.android.AndroidModuleData
+import org.jetbrains.amper.android.RClassAndroidBuildResult
+import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
@@ -15,23 +15,25 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
-import runAndroidBuild
+import org.jetbrains.amper.android.runAndroidBuild
 import java.nio.file.Path
+import kotlin.io.path.div
 import kotlin.io.path.extension
 
 class AndroidPrepareTask(
+    override val taskName: TaskName,
     private val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    private val userCacheRootPath: Path,
-    override val taskName: TaskName
+    private val taskOutputRoot: TaskOutputRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val rootPath =
@@ -55,11 +57,7 @@ class AndroidPrepareTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val result = runAndroidBuild<RClassAndroidBuildResult>(
-                request,
-                sourcesPath = Path.of("../../").toAbsolutePath().normalize(),
-                userCacheDir = userCacheRootPath
-            )
+            val result = runAndroidBuild<RClassAndroidBuildResult>(request, taskOutputRoot.path / "gradle-project")
             val outputs = result.paths.map { Path.of(it) }.filter { it.extension.lowercase() == "jar" }
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
