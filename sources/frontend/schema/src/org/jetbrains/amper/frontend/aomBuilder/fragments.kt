@@ -13,13 +13,18 @@ import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.core.mapStartAware
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 
-
 class DefaultLeafFragment(
-    seed: FragmentSeed, isTest: Boolean, externalDependencies: List<Notation>, relevantSettings: Settings?, moduleFile: VirtualFile,
-) : DefaultFragment(seed, isTest, externalDependencies, relevantSettings, moduleFile), LeafFragment {
+    seed: FragmentSeed,
+    module: PotatoModule,
+    isTest: Boolean,
+    externalDependencies: List<Notation>,
+    relevantSettings: Settings?,
+    moduleFile: VirtualFile,
+) : DefaultFragment(seed, module, isTest, externalDependencies, relevantSettings, moduleFile), LeafFragment {
     init {
         assert(seed.isLeaf) { "Should be created only for leaf platforms!" }
     }
@@ -29,6 +34,7 @@ class DefaultLeafFragment(
 
 open class DefaultFragment(
     seed: FragmentSeed,
+    final override val module: PotatoModule,
     final override val isTest: Boolean,
     override val externalDependencies: List<Notation>,
     relevantSettings: Settings?,
@@ -83,6 +89,7 @@ open class DefaultFragment(
 fun createFragments(
     seeds: Collection<FragmentSeed>,
     moduleFile: VirtualFile,
+    module: PotatoModule,
     resolveDependency: (Dependency) -> Notation?,
 ): List<DefaultFragment> {
     data class FragmentBundle(
@@ -93,6 +100,7 @@ fun createFragments(
     fun FragmentSeed.toFragment(isTest: Boolean, externalDependencies: List<Notation>) =
         if (isLeaf) DefaultLeafFragment(
             this,
+            module,
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings,
@@ -100,6 +108,7 @@ fun createFragments(
         )
         else DefaultFragment(
             this,
+            module,
             isTest,
             externalDependencies,
             if (isTest) relevantTestSettings else relevantSettings,

@@ -84,7 +84,7 @@ open class ArtifactWrapper(
 }
 
 open class FragmentWrapper(
-    private val module: PotatoModuleWrapper,
+    override val module: PotatoModuleWrapper,
     private val fragment: Fragment
 ) : Fragment by fragment, PlatformAware {
     override fun toString(): String = "FragmentWrapper(fragment=${fragment.name})"
@@ -98,6 +98,6 @@ open class FragmentWrapper(
 
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 class LeafFragmentWrapper(
-    module: PotatoModuleWrapper,
+    override val module: PotatoModuleWrapper,
     fragment: LeafFragment,
 ) : FragmentWrapper(module, fragment), LeafFragment by fragment, PlatformAware

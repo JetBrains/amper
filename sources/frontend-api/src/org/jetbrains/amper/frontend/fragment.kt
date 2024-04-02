@@ -21,6 +21,11 @@ interface Fragment {
     val name: String
 
     /**
+     * The module this fragment belongs to.
+     */
+    val module: PotatoModule
+
+    /**
      * Fragments (within the same module) that this fragment depends on.
      */
     val fragmentDependencies: List<FragmentLink>

@@ -58,6 +58,8 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.platforms.single()
             override val name: String
                 get() = this@FragmentBuilder.name
+            override val module: PotatoModule
+                get() = module
             override val fragmentDependencies: List<FragmentLink> by lazy { 
                 this@FragmentBuilder.fragmentDependencies.resolveIn(module)
             }

@@ -157,7 +157,7 @@ internal fun Map<VirtualFile, ModuleHolder>.buildAom(
 
     modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds, modulePath) { it.resolveInternalDependency(moduleDir2module) }
+        val moduleFragments = createFragments(seeds, modulePath, module) { it.resolveInternalDependency(moduleDir2module) }
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
         module.apply {

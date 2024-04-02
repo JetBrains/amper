@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.gradle.util
 
-import org.jetbrains.amper.core.Result
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Fragment
@@ -54,12 +52,12 @@ class MockPotatoModule(
     }
 
     fun fragment(name: String = "common", builder: MockFragment.() -> Unit = {}) =
-        MockFragment(name).apply(builder).apply { fragments.add(this) }
+        MockFragment(name, this).apply(builder).apply { fragments.add(this) }
 
     fun leafFragment(
         name: String = "common",
         builder: LeafMockFragment.() -> Unit = {}
-    ) = LeafMockFragment(name).apply(builder).apply { fragments.add(this) }
+    ) = LeafMockFragment(name, this).apply(builder).apply { fragments.add(this) }
 
     fun artifact(
         name: String,
@@ -85,6 +83,7 @@ class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDepe
 
 open class MockFragment(
     override var name: String = "fragment",
+    override val module: PotatoModule,
     override val settings: Settings = Settings(),
 ) : Fragment {
     override val fragmentDependencies = mutableListOf<FragmentLink>()
@@ -111,7 +110,8 @@ open class MockFragment(
 
 class LeafMockFragment(
     name: String = "fragment",
-) : MockFragment(name), LeafFragment {
+    module: PotatoModule,
+) : MockFragment(name, module), LeafFragment {
     override val platform get() = platforms.single()
 }
 
