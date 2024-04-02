@@ -396,7 +396,7 @@ tasks.register("installAndRunPureApps") {
                 println("Uninstalling $packageName")
                 adb("uninstall", packageName)
             } else {
-                throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+                throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory ${apkDirectory.listFiles()}")
             }
         }
     }
