@@ -374,9 +374,10 @@ tasks.register("installAndRunPureApps") {
             println("Processing project in directory: ${projectDir.name}")
 
             val apkDirectory = File(projectDir, "build/tasks/_${projectDir.name}_buildAndroidDebug/")
+            println(projectDir.listFiles())
 
             val apkFiles = apkDirectory.listFiles { _, name ->
-                name.endsWith("-debug.apk")
+                name.endsWith(".apk")
             } ?: arrayOf()
 
             if (apkFiles.isNotEmpty()) {
