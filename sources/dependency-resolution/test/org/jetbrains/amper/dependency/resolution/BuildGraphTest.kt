@@ -41,6 +41,30 @@ class BuildGraphTest {
     }
 
     @Test
+    fun `org_jetbrains_kotlinx atomicfu 0_23_2`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            platform = PlatformType.JVM,
+            expected = """root
+                |\--- org.jetbrains.kotlinx:atomicfu:0.23.2
+                |     \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
+            """.trimMargin()
+        )
+        assertFiles(
+            """atomicfu-jvm-0.23.2.jar""".trimMargin(),
+            root
+        )
+
+        root.distinctBfsSequence().forEach {
+            assertTrue(
+                it.messages.none { it.severity == Severity.ERROR },
+                "There should be no messages for $it: ${it.messages.filter{ it.severity == Severity.ERROR} }"
+            )
+        }
+
+    }
+
+    @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_20`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,

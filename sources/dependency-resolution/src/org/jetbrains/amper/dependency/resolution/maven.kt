@@ -268,7 +268,7 @@ class MavenDependency internal constructor(
             // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
             val version = dependency.version.strictly ?: dependency.version.requires ?: dependency.version.prefers
             if (version == null) {
-                reportDependencyVersionResolutionFailure(module)
+                reportDependencyVersionResolutionFailure(dependency, module)
                 return@mapNotNull null
             }
             createOrReuseDependency(context, dependency.group, dependency.module, version)
@@ -278,10 +278,10 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun reportDependencyVersionResolutionFailure(module: Module) {
+    private fun reportDependencyVersionResolutionFailure(dependency: Dependency, module: Module) {
         messages.asMutable() += Message(
             "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
-                    "depends on ${group}:${module}, but version of the dependency could not be resolved: " +
+                    "depends on ${dependency.group}:${dependency.module}, but version of the dependency could not be resolved: " +
                     "neither 'requires' nor 'prefers' attributes are defined",
             severity = Severity.ERROR
         )
