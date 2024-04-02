@@ -59,7 +59,7 @@ function delete_session() {
         SESSION_ID=$(get_session_id)
 
         echo "Deleting session: $SESSION_ID"
-        curl -fsSL -X DELETE -o /dev/null "$SESSION_URL/074c47cf73e647bd21bb1ef7835ce86f09655bef-1a56-4b74-b458-e2812f925d5f"
+        curl -fsSL -X DELETE -o /dev/null "$SESSION_URL/$SESSION_ID"
         echo "Session deleted: $SESSION_ID"
         rm "$SESSION_INFO_FILE"
     fi
