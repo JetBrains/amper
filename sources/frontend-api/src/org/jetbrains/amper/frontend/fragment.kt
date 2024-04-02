@@ -15,18 +15,40 @@ import java.nio.file.Path
  * every source and resource file that is included.
  */
 interface Fragment {
+    /**
+     * The name of this fragment.
+     */
     val name: String
 
+    /**
+     * Fragments (within the same module) that this fragment depends on.
+     */
     val fragmentDependencies: List<FragmentLink>
 
+    /**
+     * Fragments (within the same module) that depend on this fragment.
+     */
     val fragmentDependants: List<FragmentLink>
 
+    /**
+     * Dependencies of this fragment. They can be Maven modules or other source modules in the project.
+     */
     val externalDependencies: List<Notation>
 
+    /**
+     * The settings of this fragment, including inherited settings from parent fragments.
+     * For instance, the settings of the iosArm64 fragment contain merged settings from iosArm64, ios, native, and common.
+     */
     val settings: Settings
 
+    /**
+     * Leaf platforms that this fragment is compiled to.
+     */
     val platforms: Set<Platform>
 
+    /**
+     * Whether this fragment contains test-only sources.
+     */
     val isTest: Boolean
 
     /**
