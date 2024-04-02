@@ -53,6 +53,8 @@ dependencies:
   - org.jetbrains.intellij.deps:async-profiler:3.0-1
   - org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.8.0
   - org.jetbrains.teamcity:serviceMessages:2023.11.1
+  - org.apache.maven:maven-core:3.9.6
+  - org.apache.maven.plugins:maven-deploy-plugin:3.1.1
 
 test-dependencies:
   - ../test-base

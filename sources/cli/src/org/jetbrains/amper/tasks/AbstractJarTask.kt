@@ -8,24 +8,24 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.JarConfig
+import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.writeJar
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.pathString
 
-abstract class JarTask(
+abstract class AbstractJarTask(
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
 
     protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir>
-
     protected abstract fun outputJarPath(): Path
-
     protected abstract fun jarConfig(): JarConfig
+
+    protected abstract fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val inputDirs = getInputDirs(dependenciesResult)
@@ -42,10 +42,10 @@ abstract class JarTask(
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputJarPath))
         }
-        return Result(dependenciesResult, outputJarPath)
+        return createResult(dependenciesResult, outputJarPath)
     }
 
-    class Result(
+    abstract class AbstractJarTaskResult(
         override val dependencies: List<TaskResult>,
         val jarPath: Path,
     ) : TaskResult

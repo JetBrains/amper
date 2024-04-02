@@ -6,10 +6,10 @@ package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.JarConfig
+import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
-import org.jetbrains.amper.tasks.JarTask
+import org.jetbrains.amper.tasks.AbstractJarTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -25,7 +25,7 @@ class JvmClassesJarTask(
     private val module: PotatoModule,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
-) : JarTask(taskName, executeOnChangedInputs) {
+) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
     override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> {
         val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
@@ -43,4 +43,10 @@ class JvmClassesJarTask(
     override fun jarConfig(): JarConfig = JarConfig(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null
     )
+
+    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult =
+        JvmClassesJarTaskResult(dependenciesResult, jarPath)
+
+    class JvmClassesJarTaskResult(dependencies: List<TaskResult>, jarPath: Path) :
+        AbstractJarTaskResult(dependencies, jarPath)
 }

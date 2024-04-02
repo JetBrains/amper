@@ -127,7 +127,7 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
  * Defines an `.m2` directory structure.
  * It accepts a path to the `repository` directory or defaults to `~/.m2/repository`.
  */
-class MavenLocalRepository(private val repository: Path) : LocalRepository {
+class MavenLocalRepository(val repository: Path) : LocalRepository {
 
     constructor() : this(getRootFromUserHome())
 

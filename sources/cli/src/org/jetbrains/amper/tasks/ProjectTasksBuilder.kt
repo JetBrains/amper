@@ -20,11 +20,11 @@ import kotlin.io.path.div
 internal interface TaskType {
     val prefix: String
 
-    fun getTaskName(module: PotatoModule, platform: Platform, isTest: Boolean = false, buildType: BuildType? = null): TaskName =
+    fun getTaskName(module: PotatoModule, platform: Platform, isTest: Boolean = false, buildType: BuildType? = null, suffix: String = ""): TaskName =
         TaskName.fromHierarchy(
             listOf(
                 module.userReadableName,
-                "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}"
+                "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}$suffix"
             )
         )
 }
@@ -79,6 +79,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             Dependencies("resolveDependencies"),
             Jar("jar"),
             SourcesJar("sourcesJar"),
+            Publish("publish"),
             Run("run"),
             Test("test"),
         }

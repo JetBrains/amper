@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+repositories:
+  - id: mavenLocal
+    url: mavenLocal
+    publish: true
+
+settings:
+  publishing:
+    group: "amper.test"
+    version: "2.2"
+    name: artifactName

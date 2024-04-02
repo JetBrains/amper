@@ -5,9 +5,12 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.PublishTask
 
 fun ProjectTaskRegistrar.setupJvmTasks() {
     onEachTaskType(Platform.JVM) { module, executeOnChangedInputs, platform, isTest ->
@@ -58,6 +61,26 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             ),
             CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
         )
+
+        val publishRepositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList())
+            .filter { it.publish }
+        for (repository in publishRepositories) {
+            val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = "To${repository.id.doCapitalize()}")
+            registerTask(
+                PublishTask(
+                    taskName = publishTaskName,
+                    module = module,
+                    targetRepository = repository,
+                    tempRoot = context.projectTempRoot,
+                    mavenLocalRepository = context.mavenLocalRepository,
+                ),
+                jarTaskName,
+            )
+
+            // TODO It should be optional to publish or not to publish sources
+            val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
+            registerDependency(publishTaskName, sourcesJarTaskName)
+        }
     }
 
     onTest(Platform.JVM) { module, _, platform, _ ->

@@ -19,12 +19,15 @@ import java.util.jar.Attributes
 import java.util.jar.JarFile
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.absolute
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
+import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -267,7 +270,9 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     @LinuxOnly
     fun `simple multiplatform cli on linux`() = runTestInfinitely {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
-        AmperBackend(projectContext).runTask(TaskName(":linux-cli:runLinuxX64"))
+        val backend = AmperBackend(projectContext)
+        backend.showTasks()
+        backend.runTask(TaskName(":linux-cli:runLinuxX64"))
 
         val find = """Process exited with exit code 0
 STDOUT:
@@ -276,6 +281,36 @@ ARG0: <${argumentsWithSpecialChars[0]}>
 ARG1: <${argumentsWithSpecialChars[1]}>
 ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
+    }
+
+    @Test
+    fun `jvm publish to maven local`() = runTestInfinitely {
+        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val groupDir = m2repository.resolve("amper").resolve("test")
+        groupDir.deleteRecursively()
+
+        val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars)
+        val backend = AmperBackend(projectContext)
+        backend.runTask(TaskName(":jvm-publish:publishJvmToMavenLocal"))
+
+        val files = groupDir.walk()
+            .map {
+                check(it.fileSize() > 0) {
+                    "File should not be empty: $it"
+                }
+                it
+            }
+            .map { it.relativeTo(groupDir).pathString }
+            .sorted()
+        assertEquals(
+            """
+                artifactName\2.2\_remote.repositories
+                artifactName\2.2\artifactName-2.2-sources.jar
+                artifactName\2.2\artifactName-2.2.jar
+                artifactName\2.2\artifactName-2.2.pom
+                artifactName\maven-metadata-local.xml
+            """.trimIndent(), files.joinToString("\n")
+        )
     }
 
     @Test

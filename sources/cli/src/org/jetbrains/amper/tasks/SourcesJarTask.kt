@@ -7,8 +7,8 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.JarConfig
+import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -24,7 +24,7 @@ class SourcesJarTask(
     private val platform: Platform,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
-) : JarTask(taskName, executeOnChangedInputs) {
+) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
     override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> =
         module.fragments
@@ -42,4 +42,10 @@ class SourcesJarTask(
     override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-${platform.schemaValue.lowercase()}-sources.jar"
 
     override fun jarConfig(): JarConfig = JarConfig()
+
+    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult =
+        SourcesJarTaskResult(dependenciesResult, jarPath)
+
+    class SourcesJarTaskResult(dependencies: List<TaskResult>, jarPath: Path) :
+        AbstractJarTaskResult(dependencies, jarPath)
 }
