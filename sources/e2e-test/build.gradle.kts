@@ -206,7 +206,7 @@ tasks.register("InstallPureAPKSampleApp") {
             val apkFile = apkFiles.first()
             adb("install", apkFile.absolutePath)
         } else {
-            println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+            throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
         }
     }
 }
@@ -362,11 +362,13 @@ tasks.register("installAndroidTestAppForPureTests") {
 
 //TEMPORARY FOR FAST CHECK WILL BE REFACTOR SOON BECAUSE WE WILL BE RUN APPS OTHER WAY
 tasks.register("installAndRunPureApps") {
+
     group = "android_Pure_Emulator_Tests"
     doLast {
-        val rootDirectory = File(project.projectDir, "../../androidTestProjects").absoluteFile
-
-
+        val rootDirectory = project.file("../../androidTestProjects")
+        if (rootDirectory.listFiles() == null || rootDirectory.listFiles()!!.isEmpty()) {
+            throw GradleException("No projects was found in $rootDirectory")
+        }
 
         rootDirectory.listFiles()?.filter { it.isDirectory }?.forEach { projectDir ->
             println("Processing project in directory: ${projectDir.name}")
@@ -378,8 +380,10 @@ tasks.register("installAndRunPureApps") {
             } ?: arrayOf()
 
             if (apkFiles.isNotEmpty()) {
+
                 val apkFile = apkFiles.first()
                 println("Installing APK: ${apkFile.name}")
+
                 adb("install", apkFile.absolutePath)
                 val packageName = "com.jetbrains.sample.app"
 
@@ -392,9 +396,17 @@ tasks.register("installAndRunPureApps") {
                 println("Uninstalling $packageName")
                 adb("uninstall", packageName)
             } else {
-                println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+                throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
             }
         }
+    }
+}
+
+tasks.register("TestFailTask") {
+    group = "android_Pure_Emulator_Tests"
+
+    doLast {
+        throw GradleException("Forced failure.")
     }
 }
 
