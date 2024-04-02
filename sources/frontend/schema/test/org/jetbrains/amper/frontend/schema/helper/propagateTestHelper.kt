@@ -14,42 +14,6 @@ import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-context (PotatoModuleBuilder) class FragmentLinkProvider(
-        override val type: FragmentDependencyType,
-        private val fragmentName: String
-) : FragmentLink {
-    override val target: Fragment
-        get() = fragments.firstOrNull { it.name == fragmentName }?.build()
-            ?: error("There is no such fragment with name: $fragmentName")
-
-    data class FragmentLinkProviderBuilder(
-            val sourceFragment: FragmentBuilder,
-            var name: String = "",
-            var type: FragmentDependencyType = FragmentDependencyType.REFINE
-    )
-
-    companion object {
-        context (PotatoModuleBuilder, FragmentBuilder) operator fun invoke(init: FragmentLinkProviderBuilder.() -> Unit): FragmentLinkProvider {
-            val builder = FragmentLinkProviderBuilder(this@FragmentBuilder)
-            builder.init()
-            return FragmentLinkProvider(builder.type, builder.name)
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as FragmentLinkProvider
-
-        return fragmentName == other.fragmentName
-    }
-
-    override fun hashCode(): Int {
-        return fragmentName.hashCode()
-    }
-}
-
 fun potatoModule(name: String, init: PotatoModuleBuilder.() -> Unit): PotatoModule {
     val builder = PotatoModuleBuilder(name)
     builder.init()
@@ -57,30 +21,20 @@ fun potatoModule(name: String, init: PotatoModuleBuilder.() -> Unit): PotatoModu
 }
 
 class FragmentBuilder(var name: String) {
-    private val fragmentDependencies: MutableList<FragmentLink> = mutableListOf()
-    private val fragmentDependants: MutableSet<FragmentLink> = mutableSetOf()
+    private val fragmentDependencies: MutableList<NamedFragmentLink> = mutableListOf()
+    private val fragmentDependants: MutableList<NamedFragmentLink> = mutableListOf()
     private val externalDependencies: MutableList<Notation> = mutableListOf()
     private val settings = Settings()
     private val platforms: MutableSet<Platform> = mutableSetOf()
 
     private val variants: MutableList<String> = mutableListOf()
 
-    context (PotatoModuleBuilder) fun dependsOn(
-        to: String, init: FragmentLinkProvider.FragmentLinkProviderBuilder.() -> Unit = {}
-    ) {
-        fragmentDependencies.add(FragmentLinkProvider {
-            name = to
-            init()
-        })
+    context (PotatoModuleBuilder) fun dependsOn(to: String) {
+        fragmentDependencies.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 
-    context (PotatoModuleBuilder) fun dependant(
-        to: String, init: FragmentLinkProvider.FragmentLinkProviderBuilder.() -> Unit = {}
-    ) {
-        fragmentDependants.add(FragmentLinkProvider {
-            name = to
-            init()
-        })
+    context (PotatoModuleBuilder) fun dependant(to: String) {
+        fragmentDependants.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 
     fun kotlin(init: KotlinSettings.() -> Unit) {
@@ -98,16 +52,18 @@ class FragmentBuilder(var name: String) {
         settings.android = AndroidSettings().apply(init)
     }
 
-    fun build(): LeafFragment {
+    fun build(module: PotatoModule): LeafFragment {
         return object : LeafFragment {
             override val platform: Platform
                 get() = this@FragmentBuilder.platforms.single()
             override val name: String
                 get() = this@FragmentBuilder.name
-            override val fragmentDependencies: List<FragmentLink>
-                get() = this@FragmentBuilder.fragmentDependencies
-            override val fragmentDependants: List<FragmentLink>
-                get() = this@FragmentBuilder.fragmentDependants.toList()
+            override val fragmentDependencies: List<FragmentLink> by lazy { 
+                this@FragmentBuilder.fragmentDependencies.resolveIn(module)
+            }
+            override val fragmentDependants: List<FragmentLink> by lazy {
+                this@FragmentBuilder.fragmentDependants.resolveIn(module)
+            }
             override val externalDependencies: List<Notation>
                 get() = this@FragmentBuilder.externalDependencies
             override val settings: Settings
@@ -124,6 +80,22 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.variants
         }
     }
+}
+
+private data class NamedFragmentLink(
+    val targetName: String,
+    val type: FragmentDependencyType,
+)
+
+private fun List<NamedFragmentLink>.resolveIn(module: PotatoModule) =
+    map { namedLink -> namedLink.resolveIn(module) }
+
+private fun NamedFragmentLink.resolveIn(module: PotatoModule) =
+    FragmentLink(module.fragments.first { it.name == targetName }, type)
+
+private fun FragmentLink(target: Fragment, type: FragmentDependencyType) = object : FragmentLink {
+    override val target: Fragment = target
+    override val type: FragmentDependencyType = type
 }
 
 class PotatoModuleBuilder(var name: String) {
@@ -151,7 +123,7 @@ class PotatoModuleBuilder(var name: String) {
             override val origin: Module
                 get() = Module()
             override val fragments: List<Fragment>
-                get() = this@PotatoModuleBuilder.fragments.map { it.build() }
+                get() = this@PotatoModuleBuilder.fragments.map { it.build(this) }
             override val artifacts: List<Artifact>
                 get() = this@PotatoModuleBuilder.artifacts
             override val parts: ClassBasedSet<ModulePart<*>>
