@@ -94,7 +94,9 @@ data class Capability(
 
 @Serializable
 data class Version(
-    val requires: String,
+    val strictly: String? = null,
+    val requires: String? = null,
+    val prefers: String? = null,
 )
 
 @Serializable

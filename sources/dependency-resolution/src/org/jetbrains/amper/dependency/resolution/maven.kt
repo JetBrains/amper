@@ -9,6 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.dependency.resolution.metadata.json.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.Dependency
+import org.jetbrains.amper.dependency.resolution.metadata.json.Module
 import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.json.Version
 import org.jetbrains.amper.dependency.resolution.metadata.json.parseMetadata
@@ -263,12 +264,27 @@ class MavenDependency internal constructor(
             }
         }.flatMap {
             it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
-        }.map {
-            createOrReuseDependency(context, it.group, it.module, it.version.requires)
+        }.mapNotNull { dependency ->
+            // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
+            val version = dependency.version.strictly ?: dependency.version.requires ?: dependency.version.prefers
+            if (version == null) {
+                reportDependencyVersionResolutionFailure(module)
+                return@mapNotNull null
+            }
+            createOrReuseDependency(context, dependency.group, dependency.module, version)
         }.let {
             children = it
             state = level.state
         }
+    }
+
+    private fun reportDependencyVersionResolutionFailure(module: Module) {
+        messages.asMutable() += Message(
+            "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
+                    "depends on ${group}:${module}, but version of the dependency could not be resolved: " +
+                    "neither 'requires' nor 'prefers' attributes are defined",
+            severity = Severity.ERROR
+        )
     }
 
     private fun Variant.isOneOfExceptions() = isKotlinException() || isGuavaException()

@@ -41,6 +41,9 @@ class JsonTest {
     }
 
     @Test
+    fun `atomicfu-0_23_2`(testInfo: TestInfo) = doTest(testInfo)
+
+    @Test
     fun `absence of size is null`() {
         // some metadata may not specify file size
         // we need to correctly parse that, absence of size is null, not 0
