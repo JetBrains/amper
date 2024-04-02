@@ -6,10 +6,10 @@ package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskType
 import org.jetbrains.amper.tasks.native.NativeCompileTask
 import org.jetbrains.amper.util.BuildType
 
@@ -61,7 +61,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
     }
 }
 
-internal enum class IosTaskType(override val prefix: String) : TaskType {
+internal enum class IosTaskType(override val prefix: String) : PlatformTaskType {
     Framework("framework"),
     BuildIosApp("buildIosApp"),
     RunIosApp("runIosApp"),

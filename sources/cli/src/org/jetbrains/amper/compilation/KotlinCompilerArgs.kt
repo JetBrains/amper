@@ -152,6 +152,46 @@ internal fun kotlinNativeCompilerArgs(
     addAll(sourceFiles.map { it.pathString })
 }
 
+// https://github.com/JetBrains/kotlin/blob/v1.9.23/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2MetadataCompilerArguments.kt
+internal fun kotlinMetadataCompilerArgs(
+    kotlinUserSettings: KotlinUserSettings,
+    moduleName: String,
+    classpath: List<Path>,
+    compilerPlugins: List<CompilerPlugin>,
+    outputPath: Path,
+    friendPaths: List<Path>,
+    refinesPaths: List<Path>,
+    sourceFiles: List<Path>,
+): List<String> = buildList {
+    // TODO full module path including entire hierarchy? -Xshort-module-name)
+    add("-module-name")
+    add(moduleName)
+
+    add("-classpath")
+    add(classpath.joinToString(File.pathSeparator))
+
+    if (friendPaths.isNotEmpty()) {
+        // KT-34277 Kotlinc processes -Xfriend-paths differently for Javascript vs. JVM, using different list separators
+        // https://github.com/JetBrains/kotlin/blob/4964ee12a994bc846ecdb4810486aaf659be00db/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L531
+        add("-Xfriend-paths=${friendPaths.joinToString(",")}")
+    }
+
+    if (refinesPaths.isNotEmpty()) {
+        add("-Xrefines-paths=${friendPaths.joinToString(",")}")
+    }
+
+    // Common args last, because they contain free compiler args
+    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, compilerPlugins))
+
+    // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
+    // (specifying -d multiple times generates a warning, and only the last value is used)
+    // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
+    add("-d")
+    add(outputPath.pathString)
+    
+    addAll(sourceFiles.map { it.pathString })
+}
+
 inline fun <R> withKotlinCompilerArgFile(args: List<String>, tempRoot: AmperProjectTempRoot, block: (Path) -> R): R {
     // escaping rules from https://github.com/JetBrains/kotlin/blob/6161f44d91e235750077e1aaa5faff7047316190/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/preprocessCommandLineArguments.kt#L83
     val argString = args.joinToString(" ") { arg ->

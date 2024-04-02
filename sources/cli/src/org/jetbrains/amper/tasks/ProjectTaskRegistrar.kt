@@ -21,6 +21,7 @@ import org.jetbrains.amper.util.targetLeafPlatforms
 import kotlin.io.path.exists
 
 typealias OnModuleBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
+typealias OnFragmentBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, fragment: Fragment) -> Unit
 typealias OnPlatformBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform) -> Unit
 typealias OnTaskTypeBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform, isTest: Boolean) -> Unit
 typealias OnBuildTypeBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform, isTest: Boolean, buildType: BuildType) -> Unit
@@ -35,6 +36,7 @@ enum class DependencyReason {
 
 class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model) {
     private val onModule: MutableList<OnModuleBlock> = mutableListOf()
+    private val onFragment: MutableList<OnFragmentBlock> = mutableListOf()
     private val onPlatform: MutableList<OnPlatformBlock> = mutableListOf()
     private val onTaskType: MutableList<OnTaskTypeBlock> = mutableListOf()
     private val onBuildType: MutableList<OnBuildTypeBlock> = mutableListOf()
@@ -45,7 +47,11 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
         for (module in sortedByPath) {
             onModule.forEach { it(tasks, module, executeOnChangedInputs) }
-
+            
+            for (fragment in module.fragments) {
+                onFragment.forEach{ it(tasks, module, executeOnChangedInputs, fragment) }
+            }
+            
             for (platform in module.targetLeafPlatforms) {
                 onPlatform.forEach { it(tasks, module, executeOnChangedInputs, platform) }
 
@@ -66,6 +72,13 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
      */
     fun onEachModule(block: OnModuleBlock) {
         onModule.add(block)
+    }
+
+    /**
+     * Called once for each fragment in each module.
+     */
+    fun onEachFragment(block: OnFragmentBlock) {
+        onFragment.add(block)
     }
 
     /**

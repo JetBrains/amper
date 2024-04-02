@@ -16,13 +16,13 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.jvm.JvmTestTask
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.TaskType
 import org.jetbrains.amper.util.AndroidSdkDetector
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -302,7 +302,7 @@ private fun getAndroidFragment(module: PotatoModule, isTest: Boolean): LeafFragm
     .filterIsInstance<LeafFragment>()
     .filter { it.isTest == isTest }.firstOrNull { Platform.ANDROID in it.platforms }
 
-private enum class AndroidTaskType(override val prefix: String) : TaskType {
+private enum class AndroidTaskType(override val prefix: String) : PlatformTaskType {
     InstallBuildTools("installBuildTools"),
     InstallPlatformTools("installPlatformTools"),
     InstallPlatform("installPlatform"),

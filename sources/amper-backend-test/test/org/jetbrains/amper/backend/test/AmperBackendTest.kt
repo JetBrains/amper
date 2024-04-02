@@ -16,6 +16,7 @@ import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
 import java.net.InetAddress
@@ -826,6 +827,16 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         } finally {
             httpServer.stop(0)
         }
+    }
+
+    @Disabled("Metadata compilation doesn't 100% work at the moment, because we need DR to support multi-platform dependencies")
+    @Test
+    fun `simple multiplatform cli metadata`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
+        val backend = AmperBackend(projectContext)
+
+        val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")
+        backend.runTask(compileMetadataJvmMain)
     }
 }
 

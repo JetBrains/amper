@@ -76,6 +76,46 @@ interface Fragment {
 }
 
 /**
+ * Fragments (within the same module) that this fragment depends on with the FRIEND relationship.
+ * Internal declarations from these fragments will be visible despite the independent compilation.
+ */
+val Fragment.friends: List<Fragment>
+    get() = fragmentDependencies.filter { it.type == FragmentDependencyType.FRIEND }.map { it.target }
+
+/**
+ * Fragments (within the same module) that this fragment depends on with the REFINE relationship.
+ * Expect declarations from these fragments will be visible despite a possible independent compilation (for instance,
+ * this is useful for metadata compilation).
+ */
+val Fragment.refinedFragments: List<Fragment>
+    get() = fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.map { it.target }
+
+private val Fragment.directModuleCompileDependencies: List<PotatoModule>
+    get() = externalDependencies.filterIsInstance<PotatoModuleDependency>().filter { it.compile }.map { it.module }
+
+/**
+ * Source fragments (not Maven) that this fragment depends on with compile scope.
+ *
+ * This includes fragment dependencies from the same module, but also fragments from "external" source module
+ * dependencies that support a superset of the platforms.
+ *
+ * For example, if the `nativeMain` fragment of Module A depends on Module B, [allSourceFragmentCompileDependencies]
+ * contains the `commonMain` fragment of Module A, and the `nativeMain` and `commonMain` fragments of Module B.
+ */
+// TODO this will eventually be more complicated: we need to support other dimensions than target platforms
+//  (some sort of attribute matching supporting variants and the likes).
+//  It is worth sharing the complete algorithm with dependency resolution (the same thing will be implemented for
+//  modules that are downloaded from Maven, using their metadata artifacts).
+val Fragment.allSourceFragmentCompileDependencies: List<Fragment>
+    get() {
+        val fragmentsFromThisModule = fragmentDependencies.map { it.target }
+        val fragmentsFromOtherModules = directModuleCompileDependencies.flatMap { module ->
+            module.fragments.filter { it.platforms.containsAll(platforms) }
+        }
+        return fragmentsFromThisModule + fragmentsFromOtherModules
+    }
+
+/**
  * Leaf fragment must have only one platform.
  * Also, it should contain parts, that are specific
  * for concrete artifacts.

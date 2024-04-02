@@ -7,9 +7,11 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.ios.setupIosTasks
@@ -20,6 +22,9 @@ import kotlin.io.path.div
 
 internal interface TaskType {
     val prefix: String
+}
+
+internal interface PlatformTaskType : TaskType {
 
     fun getTaskName(module: PotatoModule, platform: Platform, isTest: Boolean = false, buildType: BuildType? = null, suffix: String = ""): TaskName =
         TaskName.fromHierarchy(
@@ -28,6 +33,12 @@ internal interface TaskType {
                 "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}$suffix"
             )
         )
+}
+
+internal interface FragmentTaskType : TaskType {
+    
+    fun getTaskName(fragment: Fragment): TaskName =
+        TaskName.fromHierarchy(fragment.module.userReadableName, "$prefix${fragment.name.replaceFirstChar { it.uppercase() }}")
 }
 
 class ProjectTasksBuilder(private val context: ProjectContext, private val model: Model) {
@@ -58,6 +69,33 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 )
             )
         }
+        onEachFragment { module, executeOnChangedInputs, fragment ->
+            val taskName = CommonFragmentTaskType.CompileMetadata.getTaskName(fragment)
+            registerTask(
+                MetadataCompileTask(
+                    taskName = taskName,
+                    module = module,
+                    fragment = fragment,
+                    userCacheRoot = context.userCacheRoot,
+                    taskOutputRoot = context.getTaskOutputPath(taskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                )
+            )
+            // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)
+            fragment.platforms.forEach { leafPlatform ->
+                registerDependency(
+                    taskName = taskName,
+                    dependsOn = CommonTaskType.Dependencies.getTaskName(module, leafPlatform)
+                )
+            }
+            
+            fragment.allSourceFragmentCompileDependencies.forEach { otherFragment ->
+                registerDependency(
+                    taskName = taskName,
+                    dependsOn = CommonFragmentTaskType.CompileMetadata.getTaskName(otherFragment)
+                )
+            }
+        }
         onEachLeafPlatform { module, executeOnChangedInputs, platform ->
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
             registerTask(
@@ -76,7 +114,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         internal val Boolean.testSuffix: String
             get() = if (this) "Test" else ""
 
-        internal enum class CommonTaskType(override val prefix: String) : TaskType {
+        internal enum class CommonTaskType(override val prefix: String) : PlatformTaskType {
             Compile("compile"),
             Dependencies("resolveDependencies"),
             Jar("jar"),
@@ -84,6 +122,10 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             Publish("publish"),
             Run("run"),
             Test("test"),
+        }
+
+        internal enum class CommonFragmentTaskType(override val prefix: String) : FragmentTaskType {
+            CompileMetadata("compileMetadata"),
         }
 
         internal fun ProjectContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =

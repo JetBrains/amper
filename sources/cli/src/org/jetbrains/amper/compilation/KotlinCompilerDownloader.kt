@@ -36,7 +36,19 @@ class KotlinCompilerDownloader(
     suspend fun downloadKotlinBuildToolsImpl(version: String): Collection<Path> = downloadMavenArtifact(
         groupId = KOTLIN_GROUP_ID,
         artifactId = "kotlin-build-tools-impl",
-        version = version
+        version = version,
+    )
+
+    /**
+     * Downloads the implementation of the embeddable Kotlin compiler in the given [version].
+     *
+     * The [version] should match the Kotlin version requested by the user, it is the version of the Kotlin compiler
+     * that will be used behind the scenes.
+     */
+    suspend fun downloadKotlinCompilerEmbeddable(version: String): List<Path> = downloadMavenArtifact(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-compiler-embeddable",
+        version = version,
     )
 
     /**
