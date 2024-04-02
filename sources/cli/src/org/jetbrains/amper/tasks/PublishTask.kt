@@ -23,7 +23,9 @@ import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.deployment.DeployRequest
 import org.eclipse.aether.installation.InstallRequest
+import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory
 import org.eclipse.aether.repository.RemoteRepository
+import org.eclipse.aether.util.repository.AuthenticationBuilder
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.Task
@@ -58,6 +60,7 @@ class PublishTask(
         val localRepository = mavenRepositorySystem.createLocalRepository(request, localRepositoryPath)
         request.setLocalRepository(localRepository)
         val repositorySession = defaultRepositorySystemSessionFactory.newRepositorySession(request)
+        repositorySession.setConfigProperty(Maven2RepositoryLayoutFactory.CONFIG_PROP_CHECKSUMS_ALGORITHMS, "MD5,SHA-1,SHA-256,SHA-512")
 
         val artifacts = createArtifactsToDeploy(dependenciesResult)
 
@@ -82,9 +85,19 @@ class PublishTask(
         } else {
             val deployRequest = DeployRequest()
 
-            val remoteRepository = RemoteRepository.Builder(targetRepository.id, null, targetRepository.url).build()
+            val builder = RemoteRepository.Builder(targetRepository.id, "default", targetRepository.url)
+            if (targetRepository.userName != null && targetRepository.password != null) {
+                val authBuilder = AuthenticationBuilder()
+                authBuilder.addUsername(targetRepository.userName)
+                authBuilder.addPassword(targetRepository.password)
+                builder.setAuthentication(authBuilder.build())
+            }
+            val remoteRepository = builder.build()
+
             logger.info("Deploying artifacts of '${module.userReadableName}' to " +
-                    "remote maven repository at ${remoteRepository.url} (id: '${remoteRepository.id}'")
+                    "remote maven repository at ${remoteRepository.url} (id: '${remoteRepository.id}')")
+
+            deployRequest.repository = remoteRepository
 
             for (artifact in artifacts) {
                 deployRequest.addArtifact(artifact)

@@ -40,7 +40,7 @@ abstract class IntegrationTestBase {
     @TempDir
     private lateinit var tempDir: Path
 
-    private val tempRoot: Path by lazy {
+    protected val tempRoot: Path by lazy {
         // Always run tests in a directory with space, tests quoting in a lot of places
         tempDir.resolve("space test")
     }

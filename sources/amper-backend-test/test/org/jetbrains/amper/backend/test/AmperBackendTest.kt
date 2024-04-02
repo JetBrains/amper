@@ -5,20 +5,28 @@
 
 package org.jetbrains.amper.backend.test
 
+import com.sun.net.httpserver.Authenticator
+import com.sun.net.httpserver.BasicAuthenticator
+import com.sun.net.httpserver.HttpServer
 import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.backend.test.assertions.spansNamed
+import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.absolute
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -26,9 +34,12 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
+import kotlin.io.path.writeBytes
+import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -38,8 +49,14 @@ class AmperBackendTest : IntegrationTestBase() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun setupTestDataProject(testProjectName: String, programArgs: List<String> = emptyList()): ProjectContext =
-        setupTestProject(testDataRoot.resolve(testProjectName), copyToTemp = false, programArgs = programArgs)
+    @RegisterExtension
+    private val errorCollectorExtension = ErrorCollectorExtension()
+
+    private fun setupTestDataProject(
+        testProjectName: String,
+        programArgs: List<String> = emptyList(),
+        copyToTemp: Boolean = false,
+    ): ProjectContext = setupTestProject(testDataRoot.resolve(testProjectName), copyToTemp = copyToTemp, programArgs = programArgs)
 
     @Test
     fun `jvm kotlin-test smoke test`() = runTestInfinitely {
@@ -300,17 +317,122 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 }
                 it
             }
-            .map { it.relativeTo(groupDir).pathString }
+            .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
             .sorted()
         assertEquals(
             """
-                artifactName\2.2\_remote.repositories
-                artifactName\2.2\artifactName-2.2-sources.jar
-                artifactName\2.2\artifactName-2.2.jar
-                artifactName\2.2\artifactName-2.2.pom
-                artifactName\maven-metadata-local.xml
+                artifactName/2.2/_remote.repositories
+                artifactName/2.2/artifactName-2.2-sources.jar
+                artifactName/2.2/artifactName-2.2.jar
+                artifactName/2.2/artifactName-2.2.pom
+                artifactName/maven-metadata-local.xml
             """.trimIndent(), files.joinToString("\n")
         )
+    }
+
+    @Test
+    fun `jvm publish to http no authentication`() = runTestInfinitely {
+        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
+
+        withFileServer(www) { baseUrl ->
+            val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+
+            val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
+            moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
+
+            val backend = AmperBackend(projectContext)
+            backend.runTask(TaskName(":jvm-publish:publishJvmToRepoNoCredentialsId"))
+
+            val groupDir = www.resolve("amper").resolve("test")
+            val files = groupDir.walk()
+                .map {
+                    check(it.fileSize() > 0) {
+                        "File should not be empty: $it"
+                    }
+                    it
+                }
+                .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
+                .sorted()
+            assertEquals(
+                """
+                    artifactName/2.2/artifactName-2.2-sources.jar
+                    artifactName/2.2/artifactName-2.2-sources.jar.md5
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha1
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha256
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha512
+                    artifactName/2.2/artifactName-2.2.jar
+                    artifactName/2.2/artifactName-2.2.jar.md5
+                    artifactName/2.2/artifactName-2.2.jar.sha1
+                    artifactName/2.2/artifactName-2.2.jar.sha256
+                    artifactName/2.2/artifactName-2.2.jar.sha512
+                    artifactName/2.2/artifactName-2.2.pom
+                    artifactName/2.2/artifactName-2.2.pom.md5
+                    artifactName/2.2/artifactName-2.2.pom.sha1
+                    artifactName/2.2/artifactName-2.2.pom.sha256
+                    artifactName/2.2/artifactName-2.2.pom.sha512
+                    artifactName/maven-metadata.xml
+                    artifactName/maven-metadata.xml.md5
+                    artifactName/maven-metadata.xml.sha1
+                    artifactName/maven-metadata.xml.sha256
+                    artifactName/maven-metadata.xml.sha512
+            """.trimIndent(), files.joinToString("\n")
+            )
+        }
+    }
+
+    @Test
+    fun `jvm publish to http password authentication`() = runTestInfinitely {
+        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
+        val authenticator = object : BasicAuthenticator("www-realm") {
+            override fun checkCredentials(username: String, password: String): Boolean {
+                return username == "http-user" && password == "http-password"
+            }
+        }
+
+        withFileServer(www, authenticator) { baseUrl ->
+            val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+
+            val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
+            moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
+
+            val backend = AmperBackend(projectContext)
+            backend.runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
+
+            val groupDir = www.resolve("amper").resolve("test")
+            val files = groupDir.walk()
+                .map {
+                    check(it.fileSize() > 0) {
+                        "File should not be empty: $it"
+                    }
+                    it
+                }
+                .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
+                .sorted()
+            assertEquals(
+                """
+                    artifactName/2.2/artifactName-2.2-sources.jar
+                    artifactName/2.2/artifactName-2.2-sources.jar.md5
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha1
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha256
+                    artifactName/2.2/artifactName-2.2-sources.jar.sha512
+                    artifactName/2.2/artifactName-2.2.jar
+                    artifactName/2.2/artifactName-2.2.jar.md5
+                    artifactName/2.2/artifactName-2.2.jar.sha1
+                    artifactName/2.2/artifactName-2.2.jar.sha256
+                    artifactName/2.2/artifactName-2.2.jar.sha512
+                    artifactName/2.2/artifactName-2.2.pom
+                    artifactName/2.2/artifactName-2.2.pom.md5
+                    artifactName/2.2/artifactName-2.2.pom.sha1
+                    artifactName/2.2/artifactName-2.2.pom.sha256
+                    artifactName/2.2/artifactName-2.2.pom.sha512
+                    artifactName/maven-metadata.xml
+                    artifactName/maven-metadata.xml.md5
+                    artifactName/maven-metadata.xml.sha1
+                    artifactName/maven-metadata.xml.sha256
+                    artifactName/maven-metadata.xml.sha512
+            """.trimIndent(), files.joinToString("\n")
+            )
+        }
     }
 
     @Test
@@ -402,6 +524,66 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 "macosMain/World.kt",
             )
         )
+    }
+
+    private suspend fun withFileServer(wwwRoot: Path, authenticator: Authenticator? = null, block: suspend (baseUrl: String) -> Unit) {
+        val httpServer = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 10)
+        try {
+            val context = httpServer.createContext("/") { exchange ->
+                fun respond(code: Int, content: ByteArray = ByteArray(0)) {
+                    exchange.sendResponseHeaders(code, content.size.toLong())
+                    exchange.responseBody.use { it.write(content) }
+                }
+
+                try {
+
+                    val fsPath = wwwRoot.resolve(exchange.requestURI.path.trim('/')).normalize()
+                    require(fsPath.startsWith(wwwRoot)) {
+                        "'$fsPath' must start with '$wwwRoot'"
+                    }
+
+                    println("WWW: ${exchange.requestMethod} ${exchange.requestURI}")
+
+                    when (exchange.requestMethod) {
+                        "GET" -> if (fsPath.isRegularFile()) {
+                            respond(200, fsPath.readBytes())
+                        } else {
+                            respond(404)
+                        }
+
+                        "PUT" -> {
+                            fsPath.parent.createDirectories()
+                            val bytes = exchange.requestBody.use { it.readBytes() }
+                            val contentLength = exchange.requestHeaders.getFirst("Content-Length").toInt()
+                            check(bytes.size == contentLength) {
+                                "PUT $fsPath: body size '${bytes.size}' content-length '$contentLength'"
+                            }
+
+                            fsPath.writeBytes(bytes)
+
+                            respond(200)
+                        }
+
+                        else -> respond(405)
+                    }
+
+                } catch (t: Throwable) {
+                    errorCollectorExtension.addException(t)
+                    t.printStackTrace()
+                    throw t
+                }
+            }
+
+            if (authenticator != null) {
+                context.setAuthenticator(authenticator)
+            }
+
+            httpServer.start()
+
+            block("http://127.0.0.1:${httpServer.address.port}")
+        } finally {
+            httpServer.stop(0)
+        }
     }
 }
 

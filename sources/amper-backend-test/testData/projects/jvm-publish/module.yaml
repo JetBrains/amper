@@ -7,6 +7,16 @@ repositories:
   - id: mavenLocal
     url: mavenLocal
     publish: true
+  - id: repoNoCredentialsId
+    url: REPO_URL
+    publish: true
+  - id: repoId
+    url: REPO_URL
+    publish: true
+    credentials:
+      file: p.properties
+      usernameKey: scratch.username
+      passwordKey: scratch.password
 
 settings:
   publishing:
