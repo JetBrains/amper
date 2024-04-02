@@ -32,6 +32,7 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.fileSize
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.readBytes
@@ -482,6 +483,95 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
             """.trimIndent(), mavenMetadataXml.readText()
                 .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
+        }
+    }
+
+    @Test
+    fun `jvm publish handles snapshot versioning`() = runTestInfinitely {
+        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
+        val authenticator = object : BasicAuthenticator("www-realm") {
+            override fun checkCredentials(username: String, password: String): Boolean {
+                return username == "http-user" && password == "http-password"
+            }
+        }
+
+        withFileServer(www, authenticator) { baseUrl ->
+            suspend fun deployVersion(version: String) {
+                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+
+                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
+                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", version))
+
+                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
+            }
+
+            deployVersion("1.0")
+            deployVersion("2.0-SNAPSHOT")
+            deployVersion("2.0-SNAPSHOT")
+
+            assertEquals("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <metadata>
+                  <groupId>amper.test</groupId>
+                  <artifactId>artifactName</artifactId>
+                  <versioning>
+                    <release>1.0</release>
+                    <versions>
+                      <version>1.0</version>
+                      <version>2.0-SNAPSHOT</version>
+                    </versions>
+                    <lastUpdated>TIMESTAMP</lastUpdated>
+                  </versioning>
+                </metadata>
+
+            """.trimIndent(), www.resolve("amper/test/artifactName/maven-metadata.xml").readText()
+                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
+
+            val lastVersion = www.resolve("amper/test/artifactName/2.0-SNAPSHOT").listDirectoryEntries()
+                .map { it.name }
+                .sorted()
+                .last { it.startsWith("artifactName-") && it.endsWith(".jar") }
+                .removePrefix("artifactName-")
+                .removeSuffix(".jar")
+
+            assertEquals("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <metadata modelVersion="1.1.0">
+                  <groupId>amper.test</groupId>
+                  <artifactId>artifactName</artifactId>
+                  <versioning>
+                    <lastUpdated>TIMESTAMP</lastUpdated>
+                    <snapshot>
+                      <timestamp>TIMESTAMP</timestamp>
+                      <buildNumber>2</buildNumber>
+                    </snapshot>
+                    <snapshotVersions>
+                      <snapshotVersion>
+                        <extension>jar</extension>
+                        <value>$lastVersion</value>
+                        <updated>TIMESTAMP</updated>
+                      </snapshotVersion>
+                      <snapshotVersion>
+                        <classifier>sources</classifier>
+                        <extension>jar</extension>
+                        <value>$lastVersion</value>
+                        <updated>TIMESTAMP</updated>
+                      </snapshotVersion>
+                      <snapshotVersion>
+                        <extension>pom</extension>
+                        <value>$lastVersion</value>
+                        <updated>TIMESTAMP</updated>
+                      </snapshotVersion>
+                    </snapshotVersions>
+                  </versioning>
+                  <version>2.0-SNAPSHOT</version>
+                </metadata>
+
+            """.trimIndent(), www.resolve("amper/test/artifactName/2.0-SNAPSHOT/maven-metadata.xml").readText()
+                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>")
+                .replace(Regex("<updated>\\d+</updated>"), "<updated>TIMESTAMP</updated>")
+                .replace(Regex("<timestamp>[\\d.]+</timestamp>"), "<timestamp>TIMESTAMP</timestamp>")
+            )
         }
     }
 
