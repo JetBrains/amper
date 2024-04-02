@@ -347,7 +347,6 @@ tasks.register("build_apks_for_ui_tests") {
             println("The path '$basePath' does not exist or is not a directory.")
         }
     }
-    finalizedBy("copyAndroidTestProjects")
 }
 
 tasks.register("installAndroidTestAppForPureTests") {
@@ -400,14 +399,6 @@ tasks.register("installAndRunPureApps") {
                 throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory ${apkDirectory.listFiles()}")
             }
         }
-    }
-}
-
-tasks.register("TestFailTask") {
-    group = "android_Pure_Emulator_Tests"
-
-    doLast {
-        throw GradleException("Forced failure.")
     }
 }
 
