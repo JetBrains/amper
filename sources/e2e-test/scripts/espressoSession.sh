@@ -4,7 +4,7 @@ WD_HUB_URL=${WD_HUB_URL:-"http://circlet:circlet@10.21.0.104:4444/wd/hub"}
 SESSION_URL="$WD_HUB_URL/session"
 SESSION_NAME="Android espresso tests"
 ANDROID_VERSION=${ANDROID_VERSION:-"0.8.1"}
-CAPABILITIES='{"desiredCapabilities": {"version": "__ANDROID_VERSION__", "platformName": "Android", "deviceName": "android", "name": "__SESSION_NAME__", "newCommandTimeout": 0, "sessionTimeout": "80m", "enableVNC": true, "portBindings": { "5037": "50001-50010" }}}'
+CAPABILITIES='{"desiredCapabilities": {"version": "__ANDROID_VERSION__", "platformName": "Android", "deviceName": "android", "name": "__SESSION_NAME__", "newCommandTimeout": 0, "sessionTimeout": "15m", "enableVNC": true, "portBindings": { "5037": "50001-50010" }}}'
 SESSION_INFO_FILE=".device.session.json"
 
 function get_session_id() {
@@ -59,7 +59,7 @@ function delete_session() {
         SESSION_ID=$(get_session_id)
 
         echo "Deleting session: $SESSION_ID"
-        curl -fsSL -X DELETE -o /dev/null "$SESSION_URL/$SESSION_ID"
+        curl -fsSL -X DELETE -o /dev/null "$SESSION_URL/074c47cf73e647bd21bb1ef7835ce86f09655bef-1a56-4b74-b458-e2812f925d5f"
         echo "Session deleted: $SESSION_ID"
         rm "$SESSION_INFO_FILE"
     fi
