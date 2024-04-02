@@ -7,12 +7,13 @@ package org.jetbrains.amper.diagnostics
 import org.tinylog.core.LogEntry
 import org.tinylog.core.LogEntryValue
 import org.tinylog.writers.Writer
-import java.time.Instant
 import kotlin.concurrent.Volatile
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 class LastLogMonitoringWriter(@Suppress("UNUSED_PARAMETER") properties: Map<String, String>): Writer {
     override fun write(logEntry: LogEntry) {
-        lastLogEntryTimestamp = Instant.now()
+        lastLogEntryTimeMark = TimeSource.Monotonic.markNow()
     }
 
     override fun getRequiredLogEntryValues(): Collection<LogEntryValue> = emptyList()
@@ -21,6 +22,6 @@ class LastLogMonitoringWriter(@Suppress("UNUSED_PARAMETER") properties: Map<Stri
 
     companion object {
         @Volatile
-        var lastLogEntryTimestamp: Instant = Instant.now()
+        var lastLogEntryTimeMark: TimeMark = TimeSource.Monotonic.markNow()
     }
 }

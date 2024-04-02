@@ -17,11 +17,9 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.intellij.ThreadDumper
 import org.jetbrains.amper.util.isUnderTeamCity
 import java.io.PrintStream
-import java.time.Duration
-import java.time.Instant
 import kotlin.io.path.createDirectories
 import kotlin.io.path.pathString
-import kotlin.time.toKotlinDuration
+import kotlin.time.Duration.Companion.minutes
 
 object DeadLockMonitor {
     // we probably need to think of better mechanism of deadlock detection disabled
@@ -41,13 +39,13 @@ object DeadLockMonitor {
             try {
                 var timesToReport = MAX_NUMBER_OF_TIMES_TO_REPORT
                 while (!disabled) {
-                    delay(checkInterval.toKotlinDuration())
+                    delay(checkInterval)
 
-                    val lastLog = LastLogMonitoringWriter.lastLogEntryTimestamp
-                    val lastLogDuration = Duration.between(lastLog, Instant.now())
-                    if (lastLogDuration > considerDeadInterval) {
-                        val dumpFile = logsRoot.path.resolve("thread-dump-${CliEnvironmentInitializer.currentTimestamp()}-${AmperBuild.BuildNumber}.txt")
-                        System.err.println("Amper has not logged anything at DEBUG log level for $lastLogDuration, possible deadlock, dumping current state to $dumpFile")
+                    val elapsedSinceLastLog = LastLogMonitoringWriter.lastLogEntryTimeMark.elapsedNow()
+                    if (elapsedSinceLastLog > considerDeadInterval) {
+                        val dumpFile =
+                            logsRoot.path.resolve("thread-dump-${CliEnvironmentInitializer.currentTimestamp()}-${AmperBuild.BuildNumber}.txt")
+                        System.err.println("Amper has not logged anything at DEBUG log level for $elapsedSinceLastLog, possible deadlock, dumping current state to $dumpFile")
 
                         dumpFile.parent.createDirectories()
                         PrintStream(dumpFile.toFile(), Charsets.UTF_8).use { printStream ->
@@ -75,7 +73,7 @@ object DeadLockMonitor {
     @Volatile
     private var disabled = false
 
-    private val considerDeadInterval = Duration.ofMinutes(1)
-    private val checkInterval = considerDeadInterval.dividedBy(2)
+    private val considerDeadInterval = 1.minutes
+    private val checkInterval = considerDeadInterval / 2
     private const val MAX_NUMBER_OF_TIMES_TO_REPORT = 10
 }
