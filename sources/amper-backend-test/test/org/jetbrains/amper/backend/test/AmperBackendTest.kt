@@ -224,7 +224,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `simple multiplatform cli should compile windows on any platform`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":windows-cli:compileMingwX64"))
 
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
@@ -307,7 +307,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
-        val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars)
+        val projectContext = setupTestDataProject("jvm-publish")
         val backend = AmperBackend(projectContext)
         backend.runTask(TaskName(":jvm-publish:publishJvmToMavenLocal"))
 
@@ -336,7 +336,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
         withFileServer(www) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
             val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
             moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -391,7 +391,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         }
 
         withFileServer(www, authenticator) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
             val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
             moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -448,7 +448,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         withFileServer(www, authenticator) { baseUrl ->
             // deploy version 2.2
             run {
-                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -457,7 +457,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             }
             // deploy version 2.3
             run {
-                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", "2.3"))
@@ -497,7 +497,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         withFileServer(www, authenticator) { baseUrl ->
             suspend fun deployVersion(version: String) {
-                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", version))
