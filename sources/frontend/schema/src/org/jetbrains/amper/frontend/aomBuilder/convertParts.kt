@@ -56,7 +56,11 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                         )
                         return@let null
                     } else {
-                        val credentialProperties = Properties().apply { load(credentials.file.reader()) }
+                        val credentialProperties = Properties().apply {
+                            credentials.file.reader().use { reader ->
+                                load(reader)
+                            }
+                        }
 
                         fun getCredProperty(keyProperty: KProperty0<String>): String? =
                             credentialProperties.getProperty(keyProperty.get())
