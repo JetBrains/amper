@@ -224,6 +224,40 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun List<Variant>.filterWithFallbackPlatform(context: Context) : List<Variant> {
+        val platformVariants = this.filter { context.settings.platform.matches(it) }
+        return when {
+            platformVariants.withoutDocumentation.isNotEmpty()
+                    || context.settings.platform.fallback == null -> platformVariants
+            else -> this.filter { context.settings.platform.fallback.matches(it) }
+        }
+    }
+
+    private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(context: Context) : List<Variant> {
+        return when {
+            (this.withoutDocumentation.size == 1) -> this
+            else -> {
+                val usedAttributes = setOf(
+                  "org.gradle.category",
+                  "org.gradle.usage",
+                  "org.jetbrains.kotlin.native.target",
+                  "org.jetbrains.kotlin.platform.type",
+                )
+                val minUnusedAttrsCount = minOfOrNull { v ->
+                    v.attributes.count { it.key !in usedAttributes }
+                }
+                this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount }
+                    .let {
+                        if (it.withoutDocumentation.size == 1) {
+                            it
+                        } else {
+                            this
+                        }
+                    }
+            }
+        }
+    }
+
     private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
         val module = try {
             metadata.readText().parseMetadata()
@@ -246,12 +280,9 @@ class MavenDependency internal constructor(
             .filter { context.settings.nativeTargetMatches(it) }
             .filter { context.settings.scope.matches(it) }
 
-        val platformVariants = initiallyFilteredVariants.filter { context.settings.platform.matches(it) }
-        val validVariants = when {
-            platformVariants.withoutDocumentation.isNotEmpty()
-                    || context.settings.platform.fallback == null -> platformVariants
-            else -> initiallyFilteredVariants.filter { context.settings.platform.fallback.matches(it) }
-        }
+        val validVariants = initiallyFilteredVariants
+            .filterWithFallbackPlatform(context)
+            .filterMultipleVariantsByUnusedAttributes(context)
 
         return validVariants.also {
             variants = it

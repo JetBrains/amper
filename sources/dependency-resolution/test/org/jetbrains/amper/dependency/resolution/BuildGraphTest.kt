@@ -112,15 +112,13 @@ class BuildGraphTest {
             verifyMessages = false,
             expected = """root
                 |\--- org.jetbrains.skiko:skiko:0.7.85
-                |     +--- org.jetbrains.skiko:skiko-android:0.7.85
-                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20
-                |     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20
-                |     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
-                |     |         |    \--- org.jetbrains:annotations:13.0
-                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20
-                |     |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
                 |     \--- org.jetbrains.skiko:skiko-awt:0.7.85
-                |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20
+                |               +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20
+                |               |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20
+                |               |    \--- org.jetbrains:annotations:13.0
+                |               \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20
+                |                    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
             """.trimMargin()
         )
         root.distinctBfsSequence().forEach {
@@ -177,8 +175,6 @@ class BuildGraphTest {
                 |               |         |         |                   |         |    \--- org.jetbrains.compose.ui:ui-unit-desktop:1.5.10
                 |               |         |         |                   |         |         \--- org.jetbrains.compose.ui:ui-geometry:1.5.10 (*)
                 |               |         |         |                   |         \--- org.jetbrains.skiko:skiko:0.7.85
-                |               |         |         |                   |              +--- org.jetbrains.skiko:skiko-android:0.7.85
-                |               |         |         |                   |              |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
                 |               |         |         |                   |              \--- org.jetbrains.skiko:skiko-awt:0.7.85
                 |               |         |         |                   |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 (*)
                 |               |         |         |                   +--- org.jetbrains.compose.ui:ui-text:1.5.10
@@ -812,22 +808,11 @@ class BuildGraphTest {
                      |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
                      |    |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
                      |    |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.skiko:skiko:0.7.85
-                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-android:0.7.85
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 -> 1.8.21 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-android:0.7.85 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         +--- org.jetbrains.skiko:skiko-awt:0.7.85
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 -> 1.8.21 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
-                     |    |    |    |    |    |    |    |    |    |    |    |         \--- org.jetbrains.skiko:skiko-awt:0.7.85 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |         \--- org.jetbrains.skiko:skiko-awt:0.7.85
+                     |    |    |    |    |    |    |    |    |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |              +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 -> 1.8.21 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |              +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 (*)
+                     |    |    |    |    |    |    |    |    |    |    |    |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3 (*)
                      |    |    |    |    |    |    |    |    |    |    |    \--- org.jetbrains.compose.ui:ui-graphics-desktop:1.5.10 (*)
                      |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-text:1.5.10
                      |    |    |    |    |    |    |    |    |    |    |    +--- org.jetbrains.compose.ui:ui-text-desktop:1.5.10
@@ -949,7 +934,6 @@ class BuildGraphTest {
             kotlin-stdlib-jdk7-1.8.21.jar
             kotlin-stdlib-jdk8-1.8.21-sources.jar
             kotlin-stdlib-jdk8-1.8.21.jar
-            kotlinx-coroutines-android-1.7.3.jar
             kotlinx-coroutines-core-jvm-1.7.3-sources.jar
             kotlinx-coroutines-core-jvm-1.7.3.jar
             material-desktop-1.5.10-sources.jar
@@ -962,8 +946,6 @@ class BuildGraphTest {
             runtime-desktop-1.5.10.jar
             runtime-saveable-desktop-1.5.10-sources.jar
             runtime-saveable-desktop-1.5.10.jar
-            skiko-android-0.7.85-sources.jar
-            skiko-android-0.7.85.jar
             skiko-awt-0.7.85-sources.jar
             skiko-awt-0.7.85.jar
             skiko-awt-runtime-windows-x64-0.7.85-sources.jar
