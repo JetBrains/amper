@@ -436,6 +436,56 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
+    fun `jvm publish adds to maven-metadata xml`() = runTestInfinitely {
+        val www = tempRoot.resolve("www-root").also { it.createDirectories() }
+        val authenticator = object : BasicAuthenticator("www-realm") {
+            override fun checkCredentials(username: String, password: String): Boolean {
+                return username == "http-user" && password == "http-password"
+            }
+        }
+
+        withFileServer(www, authenticator) { baseUrl ->
+            // deploy version 2.2
+            run {
+                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+
+                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
+                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
+
+                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
+            }
+            // deploy version 2.3
+            run {
+                val projectContext = setupTestDataProject("jvm-publish", programArgs = argumentsWithSpecialChars, copyToTemp = true)
+
+                val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
+                moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", "2.3"))
+
+                AmperBackend(projectContext).runTask(TaskName(":jvm-publish:publishJvmToRepoId"))
+            }
+
+            val mavenMetadataXml = www.resolve("amper/test/artifactName/maven-metadata.xml")
+            assertEquals("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <metadata>
+                  <groupId>amper.test</groupId>
+                  <artifactId>artifactName</artifactId>
+                  <versioning>
+                    <release>2.3</release>
+                    <versions>
+                      <version>2.2</version>
+                      <version>2.3</version>
+                    </versions>
+                    <lastUpdated>TIMESTAMP</lastUpdated>
+                  </versioning>
+                </metadata>
+
+            """.trimIndent(), mavenMetadataXml.readText()
+                .replace(Regex("<lastUpdated>\\d+</lastUpdated>"), "<lastUpdated>TIMESTAMP</lastUpdated>"))
+        }
+    }
+
+    @Test
     @WindowsOnly
     fun `simple multiplatform cli on windows`() = runTestInfinitely {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
