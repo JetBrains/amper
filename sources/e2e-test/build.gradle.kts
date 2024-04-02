@@ -103,6 +103,7 @@ fun getAdbRemoteSession(): String {
 fun adb(vararg params: String): ByteArrayOutputStream {
     val stdout = ByteArrayOutputStream()
     val adbCompanion = getAdbRemoteSession()
+    val stderr = ByteArrayOutputStream()
     val host = adbCompanion.split(':')
     val cmd = mutableListOf<String>().apply {
         add("${System.getenv("ANDROID_HOME")}/platform-tools/adb")
@@ -117,8 +118,13 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     project.exec {
         commandLine = cmd
         standardOutput = stdout
+        errorOutput = stderr
     }
     val cmdOutput = stdout.toString()
+    val cmdError = stderr.toString()
+    if (cmdError.contains("Error: Activity class") || cmdOutput.contains("Error: Activity class")) {
+        throw RuntimeException("Error launching MainActivity. Failing the task.")
+    }
     println(cmdOutput)
     return stdout
 }
@@ -160,26 +166,7 @@ tasks.register("installDebugApp") {
     }
 }
 
-tasks.register("InstallPureAPKSampleApp") {
-    doLast {
-        // Define the directory where the APK files are located relative to the project root
-        val apkDirectory = project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
 
-        // Find the APK file that ends with '-debug.apk'
-        val apkFiles = apkDirectory.listFiles { dir, name ->
-            println(name)
-            name.endsWith("-debug.apk")
-        } ?: arrayOf() // Provide an empty array if null to avoid null pointer exception
-
-        // Check if an APK file was found
-        if (apkFiles.isNotEmpty()) {
-            val apkFile = apkFiles.first() // Take the first matching APK
-            adb("install", apkFile.absolutePath)
-        } else {
-            println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
-        }
-    }
-}
 
 tasks.register("runTestsViaAdb"){
     dependsOn("installDebugApp")
@@ -205,6 +192,25 @@ tasks.register("runTestsViaAdb"){
     }
 }
 
+tasks.register("InstallPureAPKSampleApp") {
+    doLast {
+        val apkDirectory = project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
+
+        val apkFiles = apkDirectory.listFiles { dir, name ->
+            println(name)
+            name.endsWith("-debug.apk")
+        } ?: arrayOf()
+
+
+        if (apkFiles.isNotEmpty()) {
+            val apkFile = apkFiles.first()
+            adb("install", apkFile.absolutePath)
+        } else {
+            println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+        }
+    }
+}
+
 tasks.register("runPureSampleAPK"){
     dependsOn("InstallPureAPKSampleApp")
     doFirst {
@@ -219,7 +225,7 @@ tasks.register("runPureSampleAPK"){
             "am",
             "start",
             "-n",
-            "io.github.singleton11.myapplication/io.github.singleton11.myapplication.MainActivity"
+            "com.jetbrains.sample.app/com.jetbrains.sample.app.MainActivity"
         )
     }
 }
@@ -294,3 +300,103 @@ val prepareProjects = tasks.register("prepareProjectsAndroid") {
         }
     }
 }
+
+tasks.register<Copy>("copyAndroidTestProjects") {
+    group = "android_Pure_Emulator_Tests"
+    into(project.file("../../androidTestProjects"))
+
+    arrayOf("android-aar", "android-simple", "compose-android", "android-appcompat").forEach { dirName ->
+        val sourcePath = "../../examples.pure/$dirName"
+        from(sourcePath) {
+            into(dirName)
+        }
+    }
+}
+
+tasks.register("cleanAndroidTestProjects") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        val folderPath = project.file("../../androidTestProjects")
+
+        if (folderPath.exists()) {
+            folderPath.listFiles()?.forEach { file ->
+                delete(file)
+            }
+        }
+    }
+}
+
+
+tasks.register("build_apks_for_ui_tests") {
+    group = "android_Pure_Emulator_Tests"
+
+    doLast {
+        val basePath = project.file("../../androidTestProjects")
+
+        if (basePath.exists() && basePath.isDirectory) {
+            basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
+                val command = " bash ./amper.sh task :${dir.name}:buildAndroidDebug"
+
+                project.exec {
+                    workingDir(dir)
+                    commandLine("bash", "-c", command)
+
+                }
+            }
+        } else {
+            println("The path '$basePath' does not exist or is not a directory.")
+        }
+    }
+    finalizedBy("copyAndroidTestProjects")
+}
+
+tasks.register("installAndroidTestAppForPureTests") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        adb(
+            "install",
+            "androidTestAssets/app-debug-androidTest.apk"
+        )
+    }
+}
+
+//TEMPORARY FOR FAST CHECK WILL BE REFACTOR SOON BECAUSE WE WILL BE RUN APPS OTHER WAY
+tasks.register("installAndRunPureApps") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        val rootDirectory = File(project.projectDir, "../../androidTestProjects").absoluteFile
+
+
+
+        rootDirectory.listFiles()?.filter { it.isDirectory }?.forEach { projectDir ->
+            println("Processing project in directory: ${projectDir.name}")
+
+            val apkDirectory = File(projectDir, "build/tasks/_${projectDir.name}_buildAndroidDebug/")
+
+            val apkFiles = apkDirectory.listFiles { _, name ->
+                name.endsWith("-debug.apk")
+            } ?: arrayOf()
+
+            if (apkFiles.isNotEmpty()) {
+                val apkFile = apkFiles.first()
+                println("Installing APK: ${apkFile.name}")
+                adb("install", apkFile.absolutePath)
+                val packageName = "com.jetbrains.sample.app"
+
+                println("Running task: runPureSampleAPK")
+                val runPureSampleAPKTask = project.tasks.findByName("runPureSampleAPK")
+                runPureSampleAPKTask?.actions?.forEach { action ->
+                    action.execute(runPureSampleAPKTask)
+                }
+
+                println("Uninstalling $packageName")
+                adb("uninstall", packageName)
+            } else {
+                println("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+            }
+        }
+    }
+}
+
+
+
