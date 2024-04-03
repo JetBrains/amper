@@ -174,7 +174,7 @@ class NativeCompileTask(
                         .setAmperModule(module)
                         .setListAttribute("args", args)
                         .setAttribute("version", kotlinVersion)
-                        .useWithScope {
+                        .useWithScope { span ->
                             logger.info("Calling konanc ${ShellQuoting.quoteArgumentsPosixShellWay(args)}")
 
                             val konanLib = kotlinNativeHome / "konan" / "lib"
@@ -198,6 +198,13 @@ class NativeCompileTask(
                                     "-Dkonan.home=$kotlinNativeHome",
                                 ),
                             )
+                            
+                            // TODO this is redundant with the java span of the external process run. Ideally, we
+                            //  should extract higher-level information from the raw output and use that in this span.
+                            span.setAttribute("exit-code", result.exitCode.toLong())
+                            span.setAttribute("stdout", result.stdout)
+                            span.setAttribute("stderr", result.stderr)
+                            
                             if (result.exitCode != 0) {
                                 userReadableError("Kotlin native compilation failed (see errors above)")
                             }
