@@ -17,7 +17,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.ReadActionCache
 import com.intellij.util.ProcessingContext
 import com.jetbrains.apple.sdk.AppleSdkManagerBase
@@ -145,13 +144,13 @@ class StandaloneXcodeComponentManager(private val xcodePath: String, private val
                 CoreXcodeWorkspace::class.java.isAssignableFrom(clazz) -> CoreXcodeWorkspace.EMPTY()
                 AppleFileTypeManager::class.java.isAssignableFrom(clazz) -> AppleFileTypeManager()
                 AppleSdkManagerBase::class.java.isAssignableFrom(clazz) -> AppleSdkManager()
-                CachedValuesManager::class.java.isAssignableFrom(clazz) -> CachedValuesManagerImpl()
+                com.jetbrains.cidr.xcode.cache.CachedValuesManager::class.java.isAssignableFrom(clazz) -> CachedValuesManagerImpl()
                 XcodeSettingsBase::class.java.isAssignableFrom(clazz) -> XcodeSettingsBase().also { settings ->
                     settings.setSelectedXcodeBasePath(xcodePath)
                 }
 
                 XcodeBase::class.java.isAssignableFrom(clazz) -> XcodeBase()
-                else -> throw RuntimeException(":(")
+                else -> throw RuntimeException("Unknown clazz: ${clazz.name}")
             }
         } as T
     }

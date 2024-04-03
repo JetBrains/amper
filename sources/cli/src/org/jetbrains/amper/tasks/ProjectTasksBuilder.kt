@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
+import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.util.BuildType
@@ -36,6 +37,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         builder.setupJvmTasks()
         builder.setupAndroidTasks()
         builder.setupNativeTasks()
+        builder.setupIosTasks()
         return builder.build()
     }
 

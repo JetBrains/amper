@@ -11,15 +11,17 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskType
 import org.jetbrains.amper.tasks.native.NativeCompileTask
+import org.jetbrains.amper.util.BuildType
 
 /**
  * Setup apple related tasks.
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
-    onEachBuildType { module, eoci, platform, _, buildType ->
+    onEachBuildType { module, eoci, platform, isTest, buildType ->
         if (!platform.isDescendantOf(Platform.IOS)) return@onEachBuildType
+        if (isTest || buildType == BuildType.Release) return@onEachBuildType
 
-        val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform)
+        val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
         registerTask(
             NativeCompileTask(
                 module = module,

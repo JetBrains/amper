@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import com.intellij.openapi.util.io.findOrCreateFile
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
@@ -51,7 +52,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     val pbxProjectFile = PBXProjectFileManipulator.createNewProject(
         XcodeProject(),
         baseDir.toPath(),
-        projectDir.resolve("project.pbxproj").toPath(),
+        projectDir.resolve("project.pbxproj").toPath().apply { this.findOrCreateFile() },
         null,
         null
     )
