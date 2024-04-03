@@ -17,6 +17,8 @@ import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * This is the entry point to the library.
@@ -140,7 +142,19 @@ class Resolver() {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies(node: DependencyNode) = node.distinctBfsSequence().distinctBy { it.key }.forEach { it.downloadDependencies() }
+    suspend fun downloadDependencies(node: DependencyNode) {
+        coroutineScope {
+            node
+                .distinctBfsSequence()
+                .distinctBy { it.key }
+                .forEach { launch(downloadDispatcher) { it.downloadDependencies() } }
+        }
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private val downloadDispatcher by lazy {
+    Dispatchers.IO.limitedParallelism(50)
 }
 
 private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
