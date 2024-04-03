@@ -13,6 +13,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -47,6 +48,11 @@ import kotlin.io.path.writeText
 
 
 private val logger = LoggerFactory.getLogger("files.kt")
+
+@OptIn(ExperimentalCoroutinesApi::class)
+internal val downloadDispatcher by lazy {
+    Dispatchers.IO.limitedParallelism(10)
+}
 
 /**
  * Provides mapping between [MavenDependency] and a location on disk.
