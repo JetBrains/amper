@@ -19,13 +19,13 @@ Depending on your operating system, use one of the following commands to downloa
 ### Linux/mac
 
 ```
-curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-484/cli-0.3.0-dev-484-wrapper.sh?download=true" && chmod +x amper.sh
+curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-485/cli-0.3.0-dev-485-wrapper.sh?download=true" && chmod +x amper.sh
 ```
 
 ### Windows (powershell)
 
 ```
-Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-484/cli-0.3.0-dev-484-wrapper.bat?download=true -OutFile amper.bat
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-485/cli-0.3.0-dev-485-wrapper.bat?download=true -OutFile amper.bat
 ```
 
 Alternatively, you can use any other method to download the wrapper script from the Maven repository, as long as you 
