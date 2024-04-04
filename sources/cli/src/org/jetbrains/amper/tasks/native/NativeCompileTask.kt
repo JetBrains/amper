@@ -58,7 +58,7 @@ class NativeCompileTask(
 ): CompileTask {
     init {
         require(platform.isLeaf)
-        require(platform.topmostParentNoCommon == Platform.NATIVE)
+        require(platform.isDescendantOf(Platform.NATIVE))
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): TaskResult {

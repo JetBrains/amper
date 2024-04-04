@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -68,7 +69,7 @@ class ResolveExternalDependenciesTask(
         val (resolvePlatform,  resolveNativeTarget) = when {
             platform == Platform.JVM -> PlatformType.JVM to null
             platform == Platform.ANDROID -> PlatformType.ANDROID_JVM to null
-            platform.topmostParentNoCommon == Platform.NATIVE -> PlatformType.NATIVE to platform.name.lowercase()
+            platform.isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE to platform.name.lowercase()
             else -> {
                 logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
                 return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)

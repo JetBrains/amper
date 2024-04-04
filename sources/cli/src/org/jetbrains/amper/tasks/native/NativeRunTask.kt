@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -31,7 +32,7 @@ class NativeRunTask(
 ) : RunTask {
     init {
         require(platform.isLeaf)
-        require(platform.topmostParentNoCommon == Platform.NATIVE)
+        require(platform.isDescendantOf(Platform.NATIVE))
     }
 
     override val buildType: BuildType

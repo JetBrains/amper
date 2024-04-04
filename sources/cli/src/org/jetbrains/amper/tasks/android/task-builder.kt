@@ -31,7 +31,7 @@ private val androidSdkPath by lazy { AndroidSdkDetector().detectSdkPath() ?: err
 
 fun ProjectTaskRegistrar.setupAndroidTasks() {
 
-    onPlatform(Platform.ANDROID) { module, executeOnChangedInputs, _ ->
+    onEachDescendantPlatformOf(Platform.ANDROID) { module, executeOnChangedInputs, _ ->
         registerTask(
             LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
             CommonTaskType.Run.getTaskName(module, Platform.ANDROID, isTest = false, BuildType.Debug)

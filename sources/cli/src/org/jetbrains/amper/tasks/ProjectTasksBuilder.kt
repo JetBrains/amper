@@ -58,7 +58,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                 )
             )
         }
-        onEachPlatform { module, executeOnChangedInputs, platform ->
+        onEachLeafPlatform { module, executeOnChangedInputs, platform ->
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
             registerTask(
                 SourcesJarTask(

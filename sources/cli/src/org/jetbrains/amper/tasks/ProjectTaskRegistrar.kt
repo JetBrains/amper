@@ -14,6 +14,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
@@ -44,13 +45,13 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
         for (module in sortedByPath) {
             onModule.forEach { it(tasks, module, executeOnChangedInputs) }
-            
+
             for (platform in module.targetLeafPlatforms) {
                 onPlatform.forEach { it(tasks, module, executeOnChangedInputs, platform) }
 
                 for (isTest in listOf(false, true)) {
                     onTaskType.forEach { it(tasks, module, executeOnChangedInputs, platform, isTest) }
-                    
+
                     for (buildType in listOf(BuildType.Debug, BuildType.Release)) {
                         onBuildType.forEach { it(tasks, module, executeOnChangedInputs, platform, isTest, buildType) }
                     }
@@ -68,25 +69,27 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     }
 
     /**
-     * Called once for each platform in each module.
+     * Called once for each leaf platform in each module.
      */
-    fun onEachPlatform(block: OnPlatformBlock) {
+    fun onEachLeafPlatform(block: OnPlatformBlock) {
         onPlatform.add(block)
     }
 
     /**
-     * Called once for the given [platform] in each module that targets it.
+     * Called once for each leaf platform that is a descendant of the given [parentPlatform] in each module.
+     * 
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onPlatform(platform: Platform, block: OnPlatformBlock) {
-        onEachPlatform { module, executeOnChangedInputs, plat ->
-            if (plat.topmostParentNoCommon == platform) {
+    fun onEachDescendantPlatformOf(parentPlatform: Platform, block: OnPlatformBlock) {
+        onEachLeafPlatform { module, executeOnChangedInputs, plat ->
+            if (plat.isDescendantOf(parentPlatform)) {
                 block(module, executeOnChangedInputs, plat)
             }
         }
     }
 
     /**
-     * Called once for each task type (main/test), platform, and module combination.
+     * Called once for each task type (main/test), leaf platform, and module combination.
      */
     fun onEachTaskType(block: OnTaskTypeBlock) {
         onTaskType.add { module, executeOnChangedInputs, platform, isTest ->
@@ -97,29 +100,35 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     }
 
     /**
-     * Called once for each task type (main/test) of the given [platform], in each module that targets that platform.
+     * Called once for each task type (main/test) of each leaf platform that is a descendant of the given
+     * [parentPlatform], in each module.
+     * 
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onEachTaskType(platform: Platform, block: OnTaskTypeBlock) {
-        onEachTaskType { module, executeOnChangedInputs, plat, isTest ->
-            if (plat.topmostParentNoCommon == platform) {
-                block(module, executeOnChangedInputs, plat, isTest)
+    fun onEachTaskType(parentPlatform: Platform, block: OnTaskTypeBlock) {
+        onEachTaskType { module, executeOnChangedInputs, platform, isTest ->
+            if (platform.isDescendantOf(parentPlatform)) {
+                block(module, executeOnChangedInputs, platform, isTest)
             }
         }
     }
 
     /**
-     * Called once for the given task type (main/test) in the given [platform], in each module that targets that platform.
+     * Called once for each leaf platform that is a descendant of the given [parentPlatform] in each module, but only
+     * for the given task type (main/test).
+     * 
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onTaskType(platform: Platform, isTest: Boolean, block: OnTaskTypeBlock) {
-        onEachTaskType(platform) { module, executeOnChangedInputs, plat, test ->
+    fun onTaskType(parentPlatform: Platform, isTest: Boolean, block: OnTaskTypeBlock) {
+        onEachTaskType(parentPlatform) { module, executeOnChangedInputs, platform, test ->
             if (test == isTest) {
-                block(module, executeOnChangedInputs, plat, test)
+                block(module, executeOnChangedInputs, platform, test)
             }
         }
     }
 
     /**
-     * Called once for each build type, task type (main/test), platform, and module combination.
+     * Called once for each build type, task type (main/test), leaf platform, and module combination.
      */
     fun onEachBuildType(block: OnBuildTypeBlock) {
         onBuildType.add { module, execOnChangedInputs, platform, isTest, buildType ->
@@ -130,53 +139,69 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     }
 
     /**
-     * Called once for each build type and task type (main/test), but only for the given [platform], in each module that targets that platform.
+     * Called once for each build type, task type (main/test), and leaf platform that is a descendant of the given
+     * [parentPlatform] in each module.
+     * 
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onEachBuildType(platform: Platform, block: OnBuildTypeBlock) {
-        onEachBuildType { module, execOnChangedInputs, plat, isTest, buildType ->
-            if (plat.topmostParentNoCommon == platform) {
-                block(module, execOnChangedInputs, plat, isTest, buildType)
+    fun onEachBuildType(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (platform.isDescendantOf(parentPlatform)) {
+                block(module, execOnChangedInputs, platform, isTest, buildType)
             }
         }
     }
 
     /**
-     * Called once for each build type, but only for the given task type and [platform], in each module that targets that platform.
+     * Called once for each build type and each leaf platform that is a descendant of the given [parentPlatform] in each
+     * module, but only for the given task type (main/test).
      */
-    fun onEachBuildType(platform: Platform, isTest: Boolean, block: OnBuildTypeBlock) {
-        onEachBuildType(platform) { module, execOnChangedInputs, plat, test, buildType ->
+    fun onEachBuildType(parentPlatform: Platform, isTest: Boolean, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform) { module, execOnChangedInputs, platform, test, buildType ->
             if (test == isTest) {
-                block(module, execOnChangedInputs, plat, test, buildType)
+                block(module, execOnChangedInputs, platform, test, buildType)
             }
         }
     }
 
     /**
-     * Called once for each build type, but only for the main task type in the given [platform], in each module that targets that platform.
+     * Called once for each build type and each leaf platform that is a descendant of the given [parentPlatform] in each
+     * module, but only for the 'main' task type.
+     *
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onMain(platform: Platform, block: OnBuildTypeBlock) {
-        onEachBuildType(platform, isTest = false, block)
+    fun onMain(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform, isTest = false, block)
     }
 
     /**
-     * Called once for each build type, but only for the test task type in the given [platform], in each module that targets that platform.
+     * Called once for each build type and each leaf platform that is a descendant of the given [parentPlatform] in each
+     * module, but only for the 'test' task type.
+     *
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onTest(platform: Platform, block: OnBuildTypeBlock) {
-        onEachBuildType(platform, isTest = true, block)
+    fun onTest(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform, isTest = true, block)
     }
 
     /**
-     * Called once for the main task type of the given [platform], in each module that targets that platform.
+     * Called once for each descendant platform of the given [parentPlatform] in each module, but only for the 'main'
+     * task type.
+     * 
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onMain(platform: Platform, block: OnTaskTypeBlock) {
-        onTaskType(platform, isTest = false, block)
+    fun onMain(parentPlatform: Platform, block: OnTaskTypeBlock) {
+        onTaskType(parentPlatform, isTest = false, block)
     }
 
     /**
-     * Called once for the test task type of the given [platform], in each module that targets that platform.
+     * Called once for each descendant platform of the given [parentPlatform] in each module, but only for the 'test'
+     * task type.
+     *
+     * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
-    fun onTest(platform: Platform, block: OnTaskTypeBlock) {
-        onTaskType(platform, isTest = true, block)
+    fun onTest(parentPlatform: Platform, block: OnTaskTypeBlock) {
+        onTaskType(parentPlatform, isTest = true, block)
     }
 
     fun onModuleDependency(
