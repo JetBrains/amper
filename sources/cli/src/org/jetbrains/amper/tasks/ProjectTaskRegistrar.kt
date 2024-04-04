@@ -93,9 +93,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
      */
     fun onEachTaskType(block: OnTaskTypeBlock) {
         onTaskType.add { module, executeOnChangedInputs, platform, isTest ->
-            if (!isTest || module.testSourcesExistFor(platform)) {
-                block(module, executeOnChangedInputs, platform, isTest)
-            }
+            block(module, executeOnChangedInputs, platform, isTest)
         }
     }
 
@@ -132,9 +130,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
      */
     fun onEachBuildType(block: OnBuildTypeBlock) {
         onBuildType.add { module, execOnChangedInputs, platform, isTest, buildType ->
-            if (!isTest || module.testSourcesExistFor(platform)) {
-                block(module, execOnChangedInputs, platform, isTest, buildType)
-            }
+            block(module, execOnChangedInputs, platform, isTest, buildType)
         }
     }
 
@@ -295,9 +291,6 @@ private fun PotatoModuleDependency.dependencyReasonMatches(dependencyReason: Dep
     DependencyReason.Compile -> compile
     DependencyReason.Runtime -> runtime
 }
-
-private fun PotatoModule.testSourcesExistFor(platform: Platform): Boolean =
-    fragments.any { it.isTest && it.platforms.contains(platform) && it.src.exists() }
 
 fun PotatoModule.fragmentsModuleDependencies(
     isTest: Boolean,
