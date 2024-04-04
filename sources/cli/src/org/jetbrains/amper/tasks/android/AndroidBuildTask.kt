@@ -41,8 +41,7 @@ class AndroidBuildTask(
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
-        val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
-            .mapNotNull { it.classesOutputRoot }
+        val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().map { it.classesOutputRoot }
         val resolvedAndroidRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
             .flatMap { it.runtimeClasspath }

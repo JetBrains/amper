@@ -34,7 +34,7 @@ object CommonTaskUtils {
             buildRuntimeClasspath(depCompileResult, result)
         }
 
-        compileTaskResult.classesOutputRoot?.let { result.add(it) }
+        result.add(compileTaskResult.classesOutputRoot)
     }
 
     fun Iterable<Fragment>.userReadableList() = map { it.name }.sorted().joinToString(" ")

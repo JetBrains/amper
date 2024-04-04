@@ -32,9 +32,7 @@ class JvmClassesJarTask(
         require(compileTaskResults.isNotEmpty()) {
             "Call Jar task without any compilation dependency"
         }
-        return compileTaskResults
-            .mapNotNull { it.classesOutputRoot }
-            .map { JarInputDir(path = it, destPathInJar = Path(".")) }
+        return compileTaskResults.map { JarInputDir(path = it.classesOutputRoot, destPathInJar = Path(".")) }
     }
 
     // TODO add version here?

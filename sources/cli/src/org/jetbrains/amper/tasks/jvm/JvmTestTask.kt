@@ -53,8 +53,7 @@ class JvmTestTask(
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("JvmCompileTask result it not found in dependencies")
         val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
-        val testModuleClasspath = compileTask.classesOutputRoot ?:
-            userReadableError("Can't run tests: empty compilation result for module '${module.userReadableName}'")
+        val testModuleClasspath = compileTask.classesOutputRoot
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 

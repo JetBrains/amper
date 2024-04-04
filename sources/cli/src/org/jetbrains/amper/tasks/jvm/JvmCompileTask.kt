@@ -91,7 +91,7 @@ class JvmCompileTask(
         val kotlinVersion = UsedVersions.kotlinVersion
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
-        val classpath = immediateDependencies.mapNotNull { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
+        val classpath = immediateDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
@@ -312,7 +312,7 @@ class JvmCompileTask(
 
     class TaskResult(
         override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
-        val classesOutputRoot: Path?,
+        val classesOutputRoot: Path,
         val module: PotatoModule,
         val isTest: Boolean,
     ) : org.jetbrains.amper.tasks.TaskResult
