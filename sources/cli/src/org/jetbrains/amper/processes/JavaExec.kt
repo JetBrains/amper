@@ -27,8 +27,10 @@ suspend fun Jdk.runJava(
     val command = buildList {
         add(javaExecutable.pathString)
         
-        add("-cp")
-        add(classpathStr)
+        if (classpath.isNotEmpty()) {
+            add("-cp")
+            add(classpathStr)
+        }
         
         addAll(jvmArgs)
         add(mainClass)
