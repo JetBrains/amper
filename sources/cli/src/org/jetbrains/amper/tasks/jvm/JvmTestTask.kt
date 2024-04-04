@@ -24,7 +24,9 @@ import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
+import org.slf4j.LoggerFactory
 import java.io.File
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 
 class JvmTestTask(
@@ -34,6 +36,8 @@ class JvmTestTask(
     override val module: PotatoModule,
     override val taskName: TaskName,
 ): TestTask {
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override val platform: Platform = Platform.JVM
 
@@ -52,6 +56,11 @@ class JvmTestTask(
         // test task depends on compile test task
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
             ?: error("JvmCompileTask result it not found in dependencies")
+        if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
+            logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
+            return JvmTestTaskResult(dependenciesResult)
+        }
+        
         val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
         val testModuleClasspath = compileTask.classesOutputRoot
 
