@@ -56,3 +56,16 @@ annotation class AdditionalSchemaDef(
 annotation class EnumOrderSensitive(
     val reverse: Boolean = false,
 )
+
+/**
+ * This annotation can be used to filter enum values that are propagated into the generated JSON schema
+ *
+ * [filterPropertyName] property name of the enum class that acts as a filter for values.
+ * This property must exist and must be boolean for the filtering to work.
+ * 'True' means the value is accepted, and 'false' means that the value is not included in the JSON schema
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class EnumValueFilter(
+    val filterPropertyName: String
+)

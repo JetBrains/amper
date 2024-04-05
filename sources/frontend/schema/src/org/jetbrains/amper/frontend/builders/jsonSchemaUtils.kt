@@ -4,12 +4,14 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
-import org.jetbrains.amper.core.forEachEndAware
+import org.jetbrains.amper.frontend.api.EnumValueFilter
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 
 fun String.addIdentButFirst(ident: String) =
     lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
@@ -91,10 +93,13 @@ val KType.enumSchema
         val enumClass = unwrapKClassOrNull!!
         val enumValues = enumClass.java.enumConstants
         val orderSensitive = enumClass.findAnnotation<EnumOrderSensitive>()
+        val valueFilter = enumClass.findAnnotation<EnumValueFilter>()
+        val propertyToFilter = valueFilter?.let { f -> enumClass.memberProperties.firstOrNull { it.name == f.filterPropertyName } }
         enumValues
             .toList()
             .run { if (orderSensitive?.reverse == true) asReversed() else this  }
             .filter { it !is SchemaEnum || !it.outdated }
+            .filter { propertyToFilter == null || propertyToFilter.getter.call(it) != false }
             .forEachEndAware<Any> { isEnd, it ->
                 append("\"${(it as? SchemaEnum)?.schemaValue ?: it}\"")
                 if (!isEnd) append(",")

@@ -4,12 +4,15 @@
 
 package org.jetbrains.amper.frontend
 
+import org.jetbrains.amper.frontend.api.EnumValueFilter
+
 /**
  * Enum, that describes the concrete platform the sources are built for.
  *
  * [parent] — Parent of the platform in natural KMP hierarchy.
  * [isLeaf] — Helper flag to indicate that the platform is a leaf in the hierarchy.
  */
+@EnumValueFilter("isLeaf")
 enum class Platform(
     val parent: Platform? = null, val isLeaf: Boolean = false, override val outdated: Boolean = false
 ) : SchemaEnum {
