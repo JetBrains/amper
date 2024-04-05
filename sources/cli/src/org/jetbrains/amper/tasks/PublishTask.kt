@@ -7,8 +7,6 @@ package org.jetbrains.amper.tasks
 import org.apache.maven.bridge.MavenRepositorySystem
 import org.apache.maven.execution.DefaultMavenExecutionRequest
 import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory
-import org.apache.maven.model.Model
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer
 import org.codehaus.plexus.DefaultContainerConfiguration
 import org.codehaus.plexus.DefaultPlexusContainer
 import org.codehaus.plexus.PlexusConstants
@@ -17,10 +15,8 @@ import org.codehaus.plexus.classworlds.ClassWorld
 import org.codehaus.plexus.logging.AbstractLogger
 import org.codehaus.plexus.logging.BaseLoggerManager
 import org.codehaus.plexus.logging.Logger
-import org.codehaus.plexus.util.WriterFactory
 import org.eclipse.aether.RepositorySystem
 import org.eclipse.aether.artifact.Artifact
-import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.deployment.DeployRequest
 import org.eclipse.aether.installation.InstallRequest
 import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory
@@ -33,12 +29,16 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
+import org.jetbrains.amper.maven.MavenCoordinates
+import org.jetbrains.amper.maven.toMavenArtifact
+import org.jetbrains.amper.maven.publicationCoordinates
+import org.jetbrains.amper.maven.writePomFor
 import org.jetbrains.amper.tasks.SourcesJarTask.SourcesJarTaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask.JvmClassesJarTaskResult
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempFile
 
 class PublishTask(
     override val taskName: TaskName,
@@ -113,71 +113,29 @@ class PublishTask(
     }
 
     private fun createArtifactsToDeploy(dependenciesResult: List<TaskResult>): List<Artifact> {
-        val jvmFragment = module.leafFragments.single { !it.isTest && it.platforms.contains(Platform.JVM) }
+        // we only publish JVM for now
+        val coords = module.publicationCoordinates(Platform.JVM)
+        val pomPath = generatePomFile(module, Platform.JVM)
 
-        val groupId = jvmFragment.settings.publishing?.group ?: error("group must be specified")
-        // TODO It's clashing with KMP artifacts naming scheme.
-        //  In KMP JVM artifacts should have -jvm suffix
-        //  but for pure JVM projects it is unexpected and unwanted
-        val artifactId = jvmFragment.settings.publishing?.name ?: module.userReadableName
-        val version = jvmFragment.settings.publishing?.version ?: error("version must be specified")
-
-        val pomArtifact = DefaultArtifact(groupId, artifactId, "", "pom", version).setFile(
-            generateFakePom(
-                groupId,
-                artifactId,
-                version
-            )
-        )
-
-        val artifacts = dependenciesResult.map { taskResult ->
-            when (taskResult) {
-                is JvmClassesJarTaskResult -> {
-                    DefaultArtifact(
-                        groupId,
-                        artifactId,
-                        "",
-                        "jar",
-                        version
-                    ).setFile(taskResult.jarPath.toFile())
-                }
-
-                is SourcesJarTaskResult -> {
-                    DefaultArtifact(
-                        groupId,
-                        artifactId,
-                        "sources",
-                        "jar",
-                        version
-                    ).setFile(taskResult.jarPath.toFile())
-                }
-
-                else -> error("Unsupported dependency result: ${taskResult.javaClass.name}")
-            }
-        } + pomArtifact
-
-        return artifacts
+        // Note: this will break if we have multiple dependency tasks with the same type, because we'll try to publish
+        //  different files with identical artifact coordinates (including classifier).
+        return dependenciesResult.map { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
     }
 
-    private fun generateFakePom(groupId: String, artifactId: String, version: String): File {
-        val model = Model()
-
-        model.modelVersion = "4.0.0"
-
-        model.groupId = groupId
-        model.artifactId = artifactId
-        model.version = version
-
+    private fun generatePomFile(module: PotatoModule, platform: Platform): Path {
         tempRoot.path.createDirectories()
-        val tempPath = Files.createTempFile(tempRoot.path, "maven-deploy", ".pom")
-        val tempFile = tempPath.toFile()
-        tempFile.deleteOnExit()
+        val tempPath = createTempFile(tempRoot.path, "maven-deploy", ".pom")
+        tempPath.toFile().deleteOnExit() // FIXME delete the file when done with upload instead of deleteOnExit
 
-        WriterFactory.newXmlWriter(tempFile).use { writer ->
-            MavenXpp3Writer().write(writer, model)
-        }
+        // TODO publish Gradle metadata
+        tempPath.writePomFor(module, platform, gradleMetadataComment = false)
+        return tempPath
+    }
 
-        return tempFile
+    private fun TaskResult.toMavenArtifact(coords: MavenCoordinates) = when (this) {
+        is JvmClassesJarTaskResult -> jarPath.toMavenArtifact(coords)
+        is SourcesJarTaskResult -> jarPath.toMavenArtifact(coords, classifier = "sources")
+        else -> error("Unsupported dependency result: ${javaClass.name}")
     }
 
     companion object {

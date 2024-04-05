@@ -1,0 +1,9 @@
+repositories:
+  - id: mavenLocal
+    url: mavenLocal
+    publish: true
+
+settings:
+  publishing:
+    group: "amper.test"
+    version: "1.2.3"

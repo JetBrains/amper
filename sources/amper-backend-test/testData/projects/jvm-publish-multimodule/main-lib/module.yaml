@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+apply:
+  - ../common-template.module.yaml
+
+dependencies:
+  - ../jvm-lib: exported
+  - ../kmp-lib

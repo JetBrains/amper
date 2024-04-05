@@ -17,6 +17,25 @@ repositories:
       file: p.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
+      
+dependencies:
+  # Gradle's api
+  - io.ktor:ktor-client-core:2.3.9: exported
+  # Gradle's runtimeOnly
+  - io.ktor:ktor-client-java:2.3.9:
+      scope: runtime-only
+  # Gradle's implementation
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+  # Gradle's implementation (but explicit scope=all)
+  - org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3:
+      scope: all
+  # Gradle's compileOnly
+  - org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3:
+      scope: compile-only
+  # Gradle's compileOnlyApi (this is not expressible in Maven, so we use 'compile')
+  - org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.6.3:
+      exported: true
+      scope: compile-only
 
 settings:
   publishing:

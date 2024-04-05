@@ -312,11 +312,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         backend.runTask(TaskName(":jvm-publish:publishJvmToMavenLocal"))
 
         val files = groupDir.walk()
-            .map {
-                check(it.fileSize() > 0) {
-                    "File should not be empty: $it"
-                }
-                it
+            .onEach {
+                check(it.fileSize() > 0) { "File should not be empty: $it" }
             }
             .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
             .sorted()
@@ -329,6 +326,111 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 artifactName/maven-metadata-local.xml
             """.trimIndent(), files.joinToString("\n")
         )
+        
+        val pom = groupDir / "artifactName/2.2/artifactName-2.2.pom"
+        assertEquals(expected = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>amper.test</groupId>
+              <artifactId>artifactName</artifactId>
+              <version>2.2</version>
+              <name>jvm-publish</name>
+              <dependencies>
+                <dependency>
+                  <groupId>io.ktor</groupId>
+                  <artifactId>ktor-client-core</artifactId>
+                  <version>2.3.9</version>
+                  <scope>compile</scope>
+                </dependency>
+                <dependency>
+                  <groupId>io.ktor</groupId>
+                  <artifactId>ktor-client-java</artifactId>
+                  <version>2.3.9</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlinx</groupId>
+                  <artifactId>kotlinx-coroutines-core</artifactId>
+                  <version>1.6.0</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlinx</groupId>
+                  <artifactId>kotlinx-serialization-core</artifactId>
+                  <version>1.6.3</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlinx</groupId>
+                  <artifactId>kotlinx-serialization-json</artifactId>
+                  <version>1.6.3</version>
+                  <scope>provided</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlinx</groupId>
+                  <artifactId>kotlinx-serialization-cbor</artifactId>
+                  <version>1.6.3</version>
+                  <scope>compile</scope>
+                </dependency>
+              </dependencies>
+            </project>
+        """.trimIndent(), pom.readText().trim())
+    }
+
+    @Test
+    fun `jvm publish multi-module to maven local`() = runTestInfinitely {
+        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val groupDir = m2repository.resolve("amper").resolve("test")
+        groupDir.deleteRecursively()
+
+        val projectContext = setupTestDataProject("jvm-publish-multimodule")
+        val backend = AmperBackend(projectContext)
+        backend.runTask(TaskName(":main-lib:publishJvmToMavenLocal"))
+
+        val files = groupDir.walk()
+            .onEach {
+                check(it.fileSize() > 0) { "File should not be empty: $it" }
+            }
+            .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
+            .sorted()
+        assertEquals(
+            """
+                main-lib/1.2.3/_remote.repositories
+                main-lib/1.2.3/main-lib-1.2.3-sources.jar
+                main-lib/1.2.3/main-lib-1.2.3.jar
+                main-lib/1.2.3/main-lib-1.2.3.pom
+                main-lib/maven-metadata-local.xml
+            """.trimIndent(), files.joinToString("\n")
+        )
+        
+        val pom = groupDir / "main-lib/1.2.3/main-lib-1.2.3.pom"
+        assertEquals(expected = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>amper.test</groupId>
+              <artifactId>main-lib</artifactId>
+              <version>1.2.3</version>
+              <name>main-lib</name>
+              <dependencies>
+                <dependency>
+                  <groupId>amper.test</groupId>
+                  <artifactId>jvm-lib</artifactId>
+                  <version>1.2.3</version>
+                  <scope>compile</scope>
+                </dependency>
+                <dependency>
+                  <groupId>amper.test</groupId>
+                  <artifactId>kmp-lib-jvm</artifactId>
+                  <version>1.2.3</version>
+                  <scope>runtime</scope>
+                </dependency>
+              </dependencies>
+            </project>
+        """.trimIndent(), pom.readText().trim())
     }
 
     @Test

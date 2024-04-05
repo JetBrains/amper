@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+    - linuxX64
+
+apply:
+  - ../common-template.module.yaml
