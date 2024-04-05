@@ -1,3 +1,32 @@
+## Project file
+
+### Modules
+
+`modules:` section lists all the modules in the project. You can use the `*` symbol
+as [Glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)) to include multiple directories.
+
+| Notation                   | Description                                                                            |
+|----------------------------|----------------------------------------------------------------------------------------|
+| `- ./<relative path>`      | Include the specified module directory. The directory must contain `module.yaml` file. |
+| `- ./<relative path>/*` or | Include all directories under the `<relative path>` that contain `module.yaml` file.   |
+
+Examples:
+
+```yaml
+# include the `lib` and the `app` modules explicitly:
+modules:
+  - ../lib
+  - ../app 
+```
+
+```yaml
+# include all direct subfolders in the `plugins` dir that contain `module.yaml` files:
+modules:
+  - ../plugins/*
+```
+
+## Module file
+
 ### Product
 
 `product:` section defines what should be produced out of the module.
@@ -364,6 +393,7 @@ settings:
 settings:
   compose:
     enabled: true
+    version: 1.5.10
 ```
 
 #### JUnit

@@ -4,36 +4,88 @@ Check the [setup instructions](Setup.md), and open [a new project template](../e
 
 ## Basics
 
-A **module** is a directory with a `module.yaml` configurarion file, sources, and resources that are used to build a
-certain product. A *module configuration file* describes _what_ to produce: either a reusable library or a
-platform-specific application. _How_ to produce the desired artifact is the responsibility of the build engine and
-extensions (see more on [Gradle-based](Documentation.md#gradle-interop)).
+Amper exists as a standalone build tool, and also as a Gradle plugin.
+The [Gradle-based Amper](#gradle-based-projects) supports full Gradle interop and can be used in existing Gradle
+projects. Certain functionality and behavior might differ between the standalone Amper and the Gradle-based amper.
 
-Sources and resources can't be shared by several modules.
+An Amper **project** in is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
+configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the
+project root. If there is only one module in the project, `project.yaml` file is not required.
 
-Amper supports Kotlin Multiplatform as a core concept and offers a special syntax to deal with multi-platform configuration. There is a dedicated **@platform-qualifier** used to mark platform-specific code, dependencies, settings, etc. You'll see it in the examples below.
+An Amper **module** is a directory with a `module.yaml` configuration file, module sources and resources.
+A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
+Each module describes a single product. Several modules can't share same sources or resources.
+
+> Amper currently users YAML as a configuration language, here is a [brief intro YAML](#brief-yaml-reference).
+> YAML is not the final language choice, and we are working on an alternative option._
+
+_How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine
+and [extensions](#extensibility).
+In a Gradle-based Amper it's possible to use [plugins](Documentation.md#using-gradle-plugins) and
+write [custom Gradle tasks](#writing-custom-gradle-tasks).
+
+Amper supports Kotlin Multiplatform as a core concept and offers a special syntax to deal with multi-platform
+configuration. There is a dedicated [**@platform-qualifier**](#platform-qualifier) used to mark platform-specific code,
+dependencies, settings, etc. You'll see it in the examples below.
 
 ## Project layout
 
-The basic module layout looks like this:
+Basic single-module Amper project looks like this:
+
 ```
 |-src/             
 |  |-main.kt      
-|-resources/       
-|  |-...
 |-test/       
 |  |-MainTest.kt 
 |-module.yaml
 ```
 
-By convention a single `main.kt` file is a default entry point for the application ([read more](#configuring-entry-point)).
+If there are multiple modules, the `project.yaml` file specifies the list of modules:
 
-_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root:_
 ```
-|-...
+|-app/
+|  |-src/             
+|  |  |-main.kt
+|  |-...      
+|  |-module.yaml
+|-lib/
+|  |-src/             
+|  |  |-util.kt      
+|  |-module.yaml
+|-project.jaml
+```
+
+The `project.yaml` file:
+
+```yaml
+modules:
+  - ./app
+  - ./lib
+```
+
+In a Gradle-based project the `settings.gradle.kts` is expected instead of a `project.yaml` file.
+And it is always required. Read more in the [Gradle-based projects](Documentation.md#gradle-based-projects) section.
+```
+|-src/             
+|  |-main.kt      
+|-test/       
+|  |-MainTest.kt 
 |-module.yaml
 |-settings.gradle.kts
 ```
+
+### Source code
+
+Source files are located in the `src` folder:
+
+```
+|-src/             
+|  |-main.kt      
+|-module.yaml
+```
+
+By convention a `main.kt` file if present is a default entry point for the application.
+Read more on [configuring the application entry points](#configuring-entry-points).
 
 In a JVM module you can mix Kotlin and Java code:
 ```
@@ -43,7 +95,8 @@ In a JVM module you can mix Kotlin and Java code:
 |-module.yaml
 ```
 
-In a multi-platform module platform-specific code is located in the folders with `@platform`-qualifier:
+In a [multi-platform module](#multi-platform-projects) platform-specific code is located in the folders
+with [`@platform`-qualifier](#platform-qualifier):
 ```
 |-src/             # common code
 |  |-main.kt      
@@ -55,8 +108,7 @@ In a multi-platform module platform-specific code is located in the folders with
 |-module.yaml
 ```
 
-_NOTE: In the future we plan to also support a more light-weight multi-platform layout like the one below.
-It requires some investment in the IntelliJ platform, so we haven't yet done it._ 
+> In the future, we plan to also support a more light-weight multi-platform layout like the one below:
  
 ```
 |-src/             # common and platform-specific code
@@ -67,12 +119,13 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |-module.yaml
 ```
 
-_NOTE: Sources and resources can't be shared by several modules._
-This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
+Several modules can't share sources and resources. This ensures that the IDE always knows how to analyze and
+refactor the code, as it always exists in the scope of a single module, has a well-defined list of dependencies, etc.
 
 See also info on [resource management](#resources).
 
-For the existing JVM and Kotlin Multiplatform [Gradle-based](#gradle-based-projects) projects, Amper also supports layout like: 
+Amper also supports Gradle-compatible layouts for [Gradle-based](#gradle-based-projects) projects:
+
 ```
 |-src/
 |  |-main/
@@ -86,18 +139,13 @@ For the existing JVM and Kotlin Multiplatform [Gradle-based](#gradle-based-proje
 |  |  |-resources
 |  |  |  |-...
 |-module.yaml
-|-build.gradle.kts
 ```
 Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-interop).
 
 ## Module file anatomy
 
-`module.yaml` is a module configuration file and is declared using YAML (here is
-a [brief intro YAML](#brief-yaml-reference)).
-
-_NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
-
-A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`.  A module could produce a single reusable library or multiple native platform-specific applications.
+A `module.yaml` file has several main sections: `product:`, `dependencies:` and `settings:`. A module could produce a
+single product, such as a reusable library or an application. Read more on the [supported product types](#product-types)
 
 Here is an example of a JVM console application with a single dependency and a specified Kotlin language version:
 ```yaml
@@ -124,52 +172,56 @@ settings:
 
 ### Product types
 
-Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
-- `lib` - a reusable library which could be used as dependency by other modules in the codebase.
+Product type describes the target platform and the type of the project at the same time. Below is the list of supported
+product types:
+
+- `lib` - a reusable Amper library which could be used as dependency by other modules in the Amper project.
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 app
-- `linux/app`
-- `macos/app`
+- `linux/app` - a native linux application
+- `macos/app` - a native macOS application
 - `android/app` - an Android VM application  
 - `ios/app` - an iOS/iPadOS application
-- `watchos/app` - an Apple Watch application (not yet implemented)
 
 Other product types what we plan to support in the future:
+
+- `watchos/app` - an Apple Watch application (not yet implemented)
 - `windows/dll`
 - `linux/so`
 - `macos/framework`
 - etc.
 
-The product types is supposed to be [extensible](#extensibility), so the following types could also be possible in the future:
-- `jvm/war`
-- `jvm/intellij-plugin`
-
 ### Packaging
 
-Each product type has corresponding packaging, dictated by OS or environment. E.g. `macos/app` are packaged as so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
-By default, packages are generated according to platform and build tool conventions. When custom configuration is needed, Amper offer a separate `packaging:` section.
+Each product has an associated packaging, defined by the target OS and product type. E.g. `macos/app` are packaged as
+so-called bundles, `android/app` as APKs, and `jvm/app` as jars.
+By default, packages are generated according to platform conventions. For custom packaging configuration Amper will
+offer a separate `packaging:` section.
 
-_NOTE: Packaging configuration is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for packaging._
+> Packaging configuration is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for
+> custom packaging.
 
 ```yaml
 product: jvm/app
 
 packaging:
-  - type: fatJar            # specify type of the package 
-    resources:              # specify how to lay out the final artifact
+  - type: fatJar            # specify a type of the package 
+    content: # specify how to lay out the final artifact
       include: licenses/**    
 ```
 
 ### Publishing
 
-_NOTE: Publishing configuration is not yet designed or implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for publishing._
-
-Publishing means preparing the resulting [package](#packaging) for external use, and actually uploading or deploying it.
+Publishing means preparing the resulting [package](#packaging) for external use, and optionally uploading or deploying
+it.
 Here are a few examples of publishing:
 - Preparing a JVM jar or a KLIB with sources and docs and uploading them Maven Central or to another Maven repository.
 - Creating a CocoaPods package and publishing it for use in Xcode projects.
 - Preparing Android AABs or Apple IPAs for publishing into App Stores. 
 - Preparing and signing an MSI, DMG, or DEB distributions
+
+> Publishing configuration is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop)
+> for custom publishing.
 
 Here is a very rough approximation, how publishing could look like in Amper:
 
@@ -235,62 +287,23 @@ See [details on multi-platform configuration](#multi-platform-configuration) for
 
 #### External Maven dependencies
 
-For Maven dependencies simply specify their coordinates:
+For Maven dependencies, simply specify their coordinates:
 ```yaml
 dependencies:
   - org.jetbrains.kotlin:kotlin-serialization:1.8.0
   - io.ktor:ktor-client-core:2.2.0
 ```
 
-#### Managing Maven repositories
+#### Module dependencies
 
-By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 
+To depend on another module, use a relative path to the folder which contains the corresponding `module.yaml`.
+Module dependency should start either with `./` or `../`.
 
-```yaml
-repositories:
-  - https://repo.spring.io/ui/native/release
-  - url: https://dl.google.com/dl/android/maven2/
-  - id: jitpack
-    url: https://jitpack.io
-```
-
-To configure repository credentials use the following snippet:
-```yaml
-repositories:
-  - url: https://my.private.repository/
-    credentials:
-      file: ../local.properties # relative path to the file with credentials
-      usernameKey: my.private.repository.username
-      passwordKey: my.private.repository.password
-```
-
-Here is the file `../local.properties`:
-```properties
-my.private.repository.username=...
-my.private.repository.password=...
-```
-
-_Note: Currently only *.property files are supported._
-
-**Note on Gradle interop**
-
-If some repositories are defined in `settings.gradle.kts` using a `dependencyResolutionManagement` block, they are only
-taken into account by pure Gradle subprojects, and don't affect Amper modules configured with a `module.yaml` file.
-
-This is because, in Gradle, adding any repository at the subproject level will by default discard the repositories
-configured in the settings (unless a different Gradle
-[RepositoriesMode](https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/resolve/RepositoriesMode.html)
-is used). And, as we've seen above, Amper adds some default repositories to all modules that are configured with a
-`module.yaml` file, which is equivalent to adding a `repositories` section in the gradle project build script.
-
-If you want to define repositories in a central place for Amper modules, you can use a `repositories` list in a template
-file and apply this template to your modules (see section about templates).
-
-#### Internal dependencies
-To depend on another module, use a relative path to the folder which contains the corresponding `module.yaml`. 
-Internal dependency should start either with `./` or `../`.
+> Dependencies between modules are only allowed within the project scope.
+> That is, they must be listed in the `project.yaml` or `settings.gradle.kts` file.
 
 Example: given the project layout
+
 ```
 root/
   |-app/
@@ -301,13 +314,16 @@ root/
   |  |  |-src/
   |  |  |-module.yaml
 ```
+
 The `app/module.yaml` could declare dependency on `ui/utils` as follows:
+
 ```yaml
 dependencies:
   - ../ui/utils
 ```
 
 Other examples of the internal dependencies:
+
 ```yaml
 dependencies:
   - ./nested-folder-with-module-yaml
@@ -362,8 +378,8 @@ dependencies:
 ```
 
 #### Native dependencies
-                        
-_NOTE: Native dependencies are not yet implemented in the prototype._
+
+> Native dependencies are not yet implemented.
 
 To depend on a npm, CocoaPods, or a Swift package, use the following format:
 
@@ -385,6 +401,7 @@ dependencies:
     git: 'https://github.com/Alamofire/Alamofire.git'
     tag: '3.1.1'
 ```
+
 ```yaml
 dependencies:
   - swift-package:
@@ -392,6 +409,49 @@ dependencies:
       from: "2.0.0"
       target: "SomePackageTarget"
 ```
+
+### Managing Maven repositories
+
+By default, Maven Central and Google Android repositories are pre-configured. To add extra repositories, use the following options: 
+
+```yaml
+repositories:
+  - https://repo.spring.io/ui/native/release
+  - url: https://dl.google.com/dl/android/maven2/
+  - id: jitpack
+    url: https://jitpack.io
+```
+
+To configure repository credentials, use the following snippet:
+```yaml
+repositories:
+  - url: https://my.private.repository/
+    credentials:
+      file: ../local.properties # relative path to the file with credentials
+      usernameKey: my.private.repository.username
+      passwordKey: my.private.repository.password
+```
+
+Here is the file `../local.properties`:
+```properties
+my.private.repository.username=...
+my.private.repository.password=...
+```
+
+> Currently only *.property files with credentials are supported.
+
+**Note on Gradle interop**
+
+If some repositories are defined in `settings.gradle.kts` using a `dependencyResolutionManagement` block, they are only
+taken into account by pure Gradle subprojects, and don't affect Amper modules. If you want to define repositories in a
+central place for Amper modules, you can use a `repositories` list in a [template
+file](#templates) and apply this template to your modules.
+
+Technical explanation: in Gradle, adding any repository at the subproject level will by default discard the repositories
+configured in the settings (unless a different Gradle
+[RepositoriesMode](https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/resolve/RepositoriesMode.html)
+is used). Default repositories provided by Amper is an equivalent to adding a `repositories` section in
+the `build.gradle.kts`file of each individual Amper module.
 
 ### Dependency/Version Catalogs
 
@@ -419,7 +479,8 @@ dependencies:
 ### Settings
 
 The `settings:` section contains toolchains settings. _Toolchain_ is an SDK (Kotlin, Java, Android, iOS) or a simpler tool (like linter, code generator). Currently, the following toolchains are supported: `kotlin:`, `java:`, `android:`, `compose:`.
-Toolchains list is supposed to be [extensible](#extensibility) in the future.
+
+> Toolchains are supposed to be [extensible](#extensibility) in the future.
 
 All toolchain settings are specified in the dedicated groups in the `settings:` section:
 ```yaml
@@ -430,7 +491,7 @@ settings:
     compileSdk: 31
 ```
 
-Here is the list of [currently supported toolchains and their settings](DSLReference.md#compose).   
+Here is the list of [currently supported toolchains and their settings](DSLReference.md#settings-and-test-settings).   
 
 See [multi-platform settings configuration](#multi-platform-settings) for more details.
 
@@ -483,9 +544,6 @@ settings:
   compose: enabled
 ```
 
-_NOTE: Explicit Compose dependency specification will be replaced with version catalog in future design. 
-Also, certain dependencies might be added automatically when Compose is enabled._
-
 There is also a full form for enabling or disabling the Compose toolchain:
 ```yaml
 ...
@@ -494,21 +552,30 @@ settings:
     enabled: true
 ```
 
-_NOTE: For Compose Android and iOS you also need to set a couple of flags in `gradle.properties`:_
+Also, you can specify the exact version of the Compose framework to use:
+
+```yaml
+...
+settings:
+  compose:
+    version: 1.5.10
+```
+
+> In a [Gradle-based project](#gradle-based-projects) you also need to set a couple of flags in the `gradle.properties`
+> file:
+
+```
+|-...
+|-settings.gradle.kts
+|-gradle.properties    # create this file if it doesn't exist 
+``` 
+
 ```properties
 # Compose requires AndroidX
 android.useAndroidX=true
 
 # Android and iOS build require more memory
 org.gradle.jvmargs=-Xmx4g
-```
-
-Also, you can specify the exact version of the Compose plugin to use:
-```yaml
-...
-settings: 
-  compose:
-    version: 1.5.10
 ```
 
 #### Configuring entry points
@@ -569,18 +636,20 @@ struct iosApp: App {
 
 ### Tests
 
-Test code is located in the `test/` folder.  By default, the [Kotlin test](https://kotlinlang.org/api/latest/kotlin.test/) framework is preconfigured for each platform. Put additional test-only dependencies into `test-dependencies:` section:
-
+Test code is located in the `test/` folder:
 ```
 |-src/            # production code
 |  ...      
-|-test/           # tests tests 
+|-test/           # test code 
 |  |-MainTest.kt
 |  |-... 
 |-module.yaml
 ```
 
-module.yaml:
+By default, the [Kotlin test](https://kotlinlang.org/api/latest/kotlin.test/) framework is preconfigured for each
+platform. Additional test-only dependencies should be added to the `test-dependencies:` section of your module
+configuration file:
+
 ```yaml
 product: jvm/app
 
@@ -593,7 +662,7 @@ test-dependencies:
   - io.ktor:ktor-server-test-host:2.2.0
 ```
 
-To add or override toolchain settings in tests, use `test-settings:` section:
+To add or override [toolchain settings](#settings) in tests, use `test-settings:` section:
 ```yaml
 # these dependencies are available in main and test code
 setting:
@@ -648,25 +717,29 @@ test-settings:
 
 #### Special types of tests
 
-Unit tests are an integral part of a module. In addition to unit tests, some platform have additional types of tests,
+Unit tests are an integral part of a module. In addition to unit tests, some platforms have additional types of tests,
 such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests)
-or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need
+or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also, a project might need
 dedicated benchmarking, performance or integration tests.
 
-In order to keep module configuration files simple and at the same to offer flexibility for different type of tests,
-Amper has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular
-module in some important aspects:
-- Auxiliary module should be located in a subfolder inside its main module. 
-- There may be multiple Auxiliary module for a single main module.
+To keep module configuration files simple and at the same to offer flexibility for a different type of tests,
+Amper has a concept of _auxiliary modules_.
+
+> Auxiliary modules are not yet implemented.
+
+They differ from the regular modules in some important aspects:
+
+- Auxiliary module is located inside its main module.
+- There may be multiple Auxiliary modules for a single main module.
 - Auxiliary module have an implicit dependency on its main module.
-- Auxiliary module is a _friend_ to its main module and can see the internal declarations which are often needed for white-box of grey-box testing.
-- Auxiliary module inherit settings from its main module.
+- Auxiliary module is a _friend_ to its main module and can see the internal declarations which are often needed for
+  white-box of grey-box testing.
+- Auxiliary module inherits settings from its main module.
 - Main module cannot depend on its Auxiliary module in `dependencies:` section, but can in `test-dependencies:` section.
 - Auxiliary module is not accessible from outside its main module, so other modules can't depend on Auxiliary modules.
 
-You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary modules, which are embedded directly into the main module for the convenience.
-
-_NOTE: Auxiliary modules design is work in progress is not implemented in the prototype._
+You may think of module's unit tests which are located in `test/` folder and have dedicated `test-dependencies:`
+and `test-settings:` as auxiliary modules, which are embedded directly into the main module for the convenience.
 
 #### Android Instrumented tests
 Here is how Android Instrumented tests could be added as an Auxiliary module:
@@ -814,14 +887,14 @@ Android modules also have [res and assets](https://developer.android.com/guide/t
 ## Interop between languages
 
 Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
-There are tree distinct scenarios where such interoperability is needed:
+There are tree distinct scenarios where such an interoperability is needed:
 
 - Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM or CocoaPods on iOS.  
 - Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's tooling; such as jars on JVM, *.so on linux or frameworks on iOS.    
 - Joint compilation: Kotlin code be compiled and linked into a final product together with the platform languages, like JVM, C, Objective-C and Swift.
 
-_NOTE: Kotlin JVM supported all these scenarios from the beginning.
-However, full interoperability is currently not supported in the Kotlin Native._
+> Kotlin JVM supported all these scenarios from the beginning.
+> However, full interoperability is currently not supported in the Kotlin Native.
 
 Here is how the interop is designed to work in the current Amper design:
 
@@ -874,7 +947,7 @@ From the user's point of view the joint compilation is transparent; they could s
 |-module.yaml
 ```
 
-## Multi-platform configuration
+## Multi-platform projects
 
 ### Platform qualifier
 
@@ -1139,16 +1212,22 @@ Think of the rules like adding merging Java/Kotlin Maps.
 
 ## Build variants
 
-In the native world it's rather common to have at least two types of build configurations, release and debug.
+In the native world, it's rather common to have at least two types of build configurations, release and debug.
 In the release configuration settings like compiler optimizations and obfuscation are enabled, while in the debug mode they are disabled and additional debug information is generated.
 
-In Android world in addition to the [debug and release build types](https://developer.android.com/build/build-variants#build-types), there exists a concept of [product flavors](https://developer.android.com/build/build-variants#product-flavors). Product flavor is a slight modification of the final product, e.g. with paid features or ads for a free version. Product flavors are also used for [white labeling](https://en.wikipedia.org/wiki/White-label_product), e.g. to add a logo or certain resources to the application without modify the code.
+In the Android world, in addition to
+the [debug and release build types](https://developer.android.com/build/build-variants#build-types), there exists a
+concept of [product flavors](https://developer.android.com/build/build-variants#product-flavors). Product flavor is a
+slight modification of the final product, e.g. with paid features or ads for a free version. Product flavors are also
+used for [white labeling](https://en.wikipedia.org/wiki/White-label_product), e.g. to add a logo or certain resources to
+the application without modify the code.
 
-To support such configurations Amper offers a concept of _build variants_. A build variant can have additional code, resources, override/append dependencies and settings.
+To support such configurations, Amper offers a concept of _build variants_. A build variant can have additional code,
+resources, override/append dependencies and settings.
 
-_NOTE: build variants are not yet fully implemented._
-                       
-Here is how a basic build variants configuration look like:
+> Build variants are not yet fully implemented.
+
+Here is how a basic build variants configuration looks like:
 ```yaml
 product: android/app
 
@@ -1179,12 +1258,15 @@ And the basic file layout could look like this:
 |-module.yaml 
 ```
 
-You might have noticed that build variants configuration uses the `@variant`-qualifier, similarly to the [`@platform`-qualifier](#platform-qualifier). Also, the same rule as with [platform-specific sections](#multi-platform-configuration-1) apply to the build variants.
+You might have noticed that build variants configuration uses the `@variant`-qualifier, similarly to
+the [`@platform`-qualifier](#platform-qualifier). Also, the same rule as
+with [platform-specific sections](#multi-platform-projects) apply to the build variants.
         
 
 #### Advanced build variants
 
-In order to model both Android build types and Android product flavors, multidimensional build variants are supported: 
+To model both Android build types and Android product flavors, multidimensional build variants are supported:
+
 ```yaml
 product: android/app
 
@@ -1263,7 +1345,8 @@ Platforms and variants in the file layout:
 
 ## Templates
 
-In modularized projects there is often a need to have a certain common configuration for some or all or some modules. Typical examples could be a testing framework used in all modules or a Kotlin language version.
+In modularized projects, there is often a need to have a certain common configuration for some or all or some modules.
+Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
 Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any module.yaml in the `apply:` section.
 
@@ -1287,7 +1370,8 @@ settings:
 
 Sections in the template can also have `@platform`-qualifiers. See the [Multi-platform configuration](#multi-platform-configuration) section for details.
 
-_NOTE: Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive. Templates can't define product lists._
+> Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive. Templates can't
+> define product lists.
 
 Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
 - Scalar values (strings,  numbers etc.) are overridden.
@@ -1323,7 +1407,7 @@ settings:
     release: 8
 ```
 
-After template application the resulting effective module is:
+After applying the template the resulting effective module is:
 module.yaml:
 ```yaml
 product: jvm/app
@@ -1342,14 +1426,17 @@ settings:  # objects merged
 
 ## Extensibility
 
-_NOTE: Extensibility is not yet implemented. Meanwhile, you can use [Gradle interop](#gradle-interop) for plugins and custom tasks._
+> Extensibility is not yet implemented in a standalone Amper. Meanwhile, you can use [Gradle interop](#gradle-interop)
+> for plugins and custom
+> tasks.
 
-The main design goal for Amper is simplicity, and ease of use specifically for Kotlin and Kotlin Multiplatform. 
+The main design goal for Amper is simplicity and ease of use specifically for Kotlin and Kotlin Multiplatform.
 We would like to provide great user experience of the box. That's why there are many aspects that are available in Amper as first-class citizens. 
 Streamlined [multiplatform](#multi-platform-configuration) setup,
-built-in support for [CocoaPods dependencies](#native-dependencies), 
-straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc., 
-should enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expand, and more use cases emerge,
+built-in support for [CocoaPods dependencies](#native-dependencies),
+straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc.,
+should enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expands, and more use
+cases emerge,
 its inevitable that some level of extensibility will be needed. 
 
 The following aspects are designed to be extensible:
@@ -1400,7 +1487,9 @@ The Amper engine would be able to quickly discover the DSL schema for `setting:m
 
 ## Gradle-based projects
 
-The current Amper implementation is Gradle-based and is tested with Gradle 8.1. You need a `settings.gradle.kts` file and a `gradle/wrapper/` folders in the project root:
+> Gradle-based Amper is tested with Gradle 8.1.
+
+In a Gradle-based Amper you need a `settings.gradle.kts` file and a `gradle/wrapper/` folders in the project root:
 ```
 |-gradle/...
 |-src/
@@ -1409,9 +1498,7 @@ The current Amper implementation is Gradle-based and is tested with Gradle 8.1. 
 |-settings.gradle.kts
 ```
 
-In case of a multi-module projects, the `settings.gradle.kts` should be placed in the root as usual.
-The module.yaml files in the subdirectories are discovered automatically by looking recursively into each directory
-starting from the location of `settings.gradle.kts`.
+In case of a multi-module projects, the `settings.gradle.kts` should be placed in the root as usual:
 
 ```
 |-app/
@@ -1423,7 +1510,8 @@ starting from the location of `settings.gradle.kts`.
 |-settings.gradle.kts
 ```
 
-settings.gradle.kts:
+Amper needs to be added in the `settings.gradle.kts` and Amper modules explicitly specfied:
+
 ```kotlin
 pluginManagement {
     // Configure repositories required for the Amper plugin
@@ -1441,22 +1529,26 @@ plugins {
     // Add the plugin
     id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-487")
 }
+
+// add Amper modules to the project
+include("app", "lib")
 ```
 
 ### Gradle interop
 
-The Gradle interop supports two main scenarios:
+The Gradle interop supports the following scenarios:
 
 * partial use of Amper in an existing Gradle project,
 * smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Amper,
 * writing custom Gradle tasks or using existing Gradle plugins in an existing Amper module.
 
-Gradle features supported by Amper:
+Gradle features supported in Amper modules:
 * Cross-project dependencies between Gradle sub-projects and Amper modules.
 * Using the default [libs.versions.toml version catalogs](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). 
-* Writing custom tasks in Gradle build scripts.
-* Using Gradle plugins in Gradle build scripts.
-* Configuring additional settings in Gradle build scripts
+* Writing Gradle [custom tasks](#writing-custom-gradle-tasks).
+* Using [Gradle plugins](#using-gradle-plugins).
+* Configuring additional [settings in the `build.gradle.kts` files](#configuring-settings-in-the-gradle-build-files).
+* [Gradle-compatible file layout](#file-layout-with-gradle-interop).
 
 To use Gradle interop in an Amper module, place either a `build.gradle.kts` or a `build.gradle` file next to
 your `module.yaml` file:
@@ -1502,29 +1594,33 @@ sqldelight {
 }
 ```
 
-_Note: The following plugins are preconfigured and their versions can't be changed:_
+> The following plugins are preconfigured and their versions can't be changed:
 
-| Plugin                                      | Version     |
-|---------------------------------------------|-------------|
-| `org.jetbrains.kotlin.multiplatform`        | 1.9.20   |
-| `org.jetbrains.kotlin.android`              | 1.9.20   |
-| `org.jetbrains.kotlin.plugin.serialization` | 1.9.20   |
-| `com.android.library`                       | 8.1.0       |
-| `com.android.application`                   | 8.1.0       |
-| `org.jetbrains.compose`                     | 1.5.10 |
+| Plugin                                      | Version |
+|---------------------------------------------|---------|
+| `org.jetbrains.kotlin.multiplatform`        | 1.9.20  |
+| `org.jetbrains.kotlin.android`              | 1.9.20  |
+| `org.jetbrains.kotlin.plugin.serialization` | 1.9.20  |
+| `com.android.library`                       | 8.1.0   |
+| `com.android.application`                   | 8.1.0   |
+| `org.jetbrains.compose`                     | 1.5.10  |
 
-Here is how to use in these plugins in a Gradle script:
+Here is how to use these plugins in a Gradle script:
 ```kotlin
 plugins {
-    kotlin("multiplatform")     // don't specify version here,
+  kotlin("multiplatform")     // don't specify a version here,
     id("com.android.library")   // here,
     id("org.jetbrains.compose") // and here
 }
 ```
 
-Configuration in `build.gradle*` file has precedence over `module.yml`. That means that a Gradle script can be used to
-tune/change the final configuration of your Amper module.
-E.g. the following Gradle script configures the working dir and the `mainClass` property: 
+#### Configuring settings in the Gradle build files
+
+You can change all Gradle project settings in gradle build files as usual. Configuration in `build.gradle*` file has
+precedence over `module.yml`. That means that a Gradle script can be used to tune/change the final configuration of your
+Amper module.
+
+E.g., the following Gradle script configures the working dir and the `mainClass` property: 
 ```kotlin
 application {
     executableDir = "my_dir"
@@ -1548,7 +1644,7 @@ The default [module layout](#project-layout) suites best for the newly created m
 |-build.gradle.kts
 ```
 
-For migration of an existing Gradle project there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
+For migration of an existing Gradle project, there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
 To set the compatibility mode, add the following snippet to a module.yaml file:
 ```yaml
 module:
@@ -1562,7 +1658,7 @@ Here are possible layout modes:
 
 See the [Gradle and Amper layouts comparison](#gradle-vs-amper-project-layout).
 
-E.g. for the module.yaml:
+E.g., for the module.yaml:
 ```yaml
 product: jvm/app
 module:
