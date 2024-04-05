@@ -41,7 +41,7 @@ Please report problems to [our issue tracker](https://youtrack.jetbrains.com/iss
 ### Is there an automated migration tool?
 Not currently, but it certainly is something we’re looking into. See the [Gradle migration tutorial](GradleMigration.md) and examples. 
 
-### Why don’t you use Kotlin for the manifest files?
+### Why don’t you use Kotlin for the Amper configuration files?
 Currently, we use YAML as a simple and readable markup language. It allows us to experiment with the UX and the IDE support much faster. We’ll review the language choice as we proceed with the design and based on demand. The Kotlin DSL, or a limited form thereof, is one of the possible options.
 
 Having said that, we believe that the declarative approach to project configuration has significant advantages over the imperative approach. Declarative configuration is easily toolable, recovery from errors is much easier, and interpretation is much faster. These properties are critical for a good UX. 

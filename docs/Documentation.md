@@ -4,7 +4,10 @@ Check the [setup instructions](Setup.md), and open [a new project template](../e
 
 ## Basics
 
-A **module** is a directory with a `module.yaml` manifest file, sources, and resources that are used to build a certain product. A Module Manifest file describes _what_ to produce: either a reusable library or a platform-specific application. _How_ to produce the desired artifact is the responsibility of the build engine and extensions (see more on [Gradle-based](Documentation.md#gradle-interop)).
+A **module** is a directory with a `module.yaml` configurarion file, sources, and resources that are used to build a
+certain product. A Module configuration file describes _what_ to produce: either a reusable library or a
+platform-specific application. _How_ to produce the desired artifact is the responsibility of the build engine and
+extensions (see more on [Gradle-based](Documentation.md#gradle-interop)).
 
 Sources and resources can't be shared by several modules.
 
@@ -87,10 +90,10 @@ For the existing JVM and Kotlin Multiplatform [Gradle-based](#gradle-based-proje
 ```
 Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-interop).
 
+## Module file anatomy
 
-## Module Manifest file anatomy
-
-`module.yaml` is a Module Manifest file and is declared using YAML (here is a [brief intro YAML](#brief-yaml-reference)).
+`module.yaml` is a Module configuration file and is declared using YAML (here is
+a [brief intro YAML](#brief-yaml-reference)).
 
 _NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
 
@@ -645,9 +648,14 @@ test-settings:
 
 #### Special types of tests
 
-Unit tests is an integral part of a Module Manifest. In addition to unit tests, some platform have additional types of tests, such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests) or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need dedicated benchmarking, performance or integration tests.
+Unit tests are an integral part of a Module. In addition to unit tests, some platform have additional types of tests,
+such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests)
+or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need
+dedicated benchmarking, performance or integration tests.
 
-In order to keep Module Manifest files simple and at the same to offer flexibility for different type of tests, Amper has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular Module in some important aspects:
+In order to keep Module configuration files simple and at the same to offer flexibility for different type of tests,
+Amper has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular
+Module in some important aspects:
 - Auxiliary Module should be located in a subfolder inside its main Module. 
 - There may be multiple Auxiliary Module for a single main Module.
 - Auxiliary Module have an implicit dependency on its main Module.
@@ -1438,8 +1446,10 @@ plugins {
 ### Gradle interop
 
 The Gradle interop supports two main scenarios:
-* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Module Manifest,
-* writing custom Gradle tasks or using existing Gradle plugins in an existing Module Manifest.
+
+* partial use of Amper in an existing Gradle project,
+* smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Amper,
+* writing custom Gradle tasks or using existing Gradle plugins in an existing Amper Module.
 
 Gradle features supported by Amper:
 * Cross-project dependencies between Gradle sub-projects and Amper modules.
@@ -1448,7 +1458,8 @@ Gradle features supported by Amper:
 * Using Gradle plugins in Gradle build scripts.
 * Configuring additional settings in Gradle build scripts
 
-To use Gradle interop in a Module Manifest, place either a `build.gradle.kts` or a `build.gradle` file next to your `module.yaml` file:
+To use Gradle interop in an Amper Module, place either a `build.gradle.kts` or a `build.gradle` file next to
+your `module.yaml` file:
 ```
 |-src/
 |  |-main.kt
@@ -1511,7 +1522,8 @@ plugins {
 }
 ```
 
-Configuration in `build.gradle*` file has precedence over `Module.yml`. That means that a Gradle script can be used to tune/change the final configuration of your Module Manifest.
+Configuration in `build.gradle*` file has precedence over `Module.yml`. That means that a Gradle script can be used to
+tune/change the final configuration of your Amper Module.
 E.g. the following Gradle script configures the working dir and the `mainClass` property: 
 ```kotlin
 application {
@@ -1626,7 +1638,7 @@ kotlin {
 }
 ```
 
-Additionally, source sets are generated for each [alias](#aliases). E.g. given a following Module Manifest:  
+Additionally, source sets are generated for each [alias](#aliases). E.g. given the following Module configuration:
 
 ```yaml
 product:

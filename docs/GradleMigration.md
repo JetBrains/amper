@@ -338,7 +338,7 @@ Note, how the platform-specific dependency blocks have [@platform qualifier](Doc
 
 # Step 5. Migrate settings
 
-Settings like Kotlin language version, Java release version, Android sdk versions could be moved to the `settings:` section in the Module Manifest.
+Settings like Kotlin language version, Java release version, Android sdk versions could be moved to the `settings:` section in the Module configuration file.
 E.g. for the following Gradle script:
 
 ```kotlin

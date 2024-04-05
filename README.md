@@ -29,7 +29,7 @@ Supported features:
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
 * Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
-* Code assistance for [module manifest files](docs/Documentation.md#module-manifest-file-anatomy) in IntelliJ IDEA and Fleet.
+* Code assistance for [module manifest files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Planned features:
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
