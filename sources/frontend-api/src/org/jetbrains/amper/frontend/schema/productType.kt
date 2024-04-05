@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
@@ -16,10 +17,12 @@ import org.jetbrains.amper.frontend.api.unsafe
 
 
 @SchemaDoc("Product type to build from the module")
+@EnumValueFilter("obsolete", isNegated = true)
 enum class ProductType(
     val value: String,
     val supportedPlatforms: Set<Platform>,
-    val defaultPlatforms: Set<Platform>?
+    val defaultPlatforms: Set<Platform>?,
+    @Suppress("unused") val obsolete: Boolean = false
 ): SchemaEnum {
 
     @SchemaDoc("Kotlin multiplatform library")
@@ -32,7 +35,8 @@ enum class ProductType(
     LEGACY_APP(
         "app",
         supportedPlatforms = Platform.leafPlatforms,
-        defaultPlatforms = setOf(Platform.JVM)
+        defaultPlatforms = setOf(Platform.JVM),
+        obsolete = true
     ),
 
     @SchemaDoc("JVM application")

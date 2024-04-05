@@ -114,7 +114,7 @@
               }
             },
             "type": {
-              "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
+              "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
             }
           },
           "additionalProperties": false

@@ -99,7 +99,11 @@ val KType.enumSchema
             .toList()
             .run { if (orderSensitive?.reverse == true) asReversed() else this  }
             .filter { it !is SchemaEnum || !it.outdated }
-            .filter { propertyToFilter == null || propertyToFilter.getter.call(it) != false }
+            .filter {
+                propertyToFilter == null ||
+                !valueFilter.isNegated && propertyToFilter.getter.call(it) != false ||
+                valueFilter.isNegated && propertyToFilter.getter.call(it) != true
+            }
             .forEachEndAware<Any> { isEnd, it ->
                 append("\"${(it as? SchemaEnum)?.schemaValue ?: it}\"")
                 if (!isEnd) append(",")
