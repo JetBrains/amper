@@ -11,7 +11,6 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
-import org.jetbrains.amper.tasks.CompileTask
 
 @Serializable
 internal data class CompilationUserSettings(
@@ -35,7 +34,6 @@ internal data class KotlinUserSettings(
     val composeEnabled: Boolean,
 )
 
-context(CompileTask)
 internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings = CompilationUserSettings(
     kotlin = mergedKotlinSettings(),
     jvmRelease = unanimousOptionalSetting("jvm.release") { it.jvm.release },
@@ -44,7 +42,6 @@ internal fun List<Fragment>.mergedCompilationSettings(): CompilationUserSettings
 // TODO Consider for which Kotlin settings we should enforce consistency between fragments.
 //  Currently we compile all related fragments together (we don't do klib for common separately), so we have to use
 //  consistent compiler arguments. This is why we forbid configurations where some fragments diverge.
-context(CompileTask)
 internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinUserSettings(
     languageVersion = unanimousKotlinSetting("languageVersion") { it.languageVersion },
     apiVersion = unanimousKotlinSetting("apiVersion") { it.apiVersion },
@@ -60,24 +57,33 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } ?: false,
 )
 
-context(CompileTask)
 private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T?): T? =
     unanimousOptionalSetting("kotlin.$settingFqn") { selector(it.kotlin) }
 
-context(CompileTask)
 private fun <T : Any> List<Fragment>.unanimousKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T): T =
     unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) }
 
-context(CompileTask)
+/**
+ * Gets a single common value for a particular setting among these fragments, and throws an exception if 2 fragments
+ * have a different value for it, or if there are no fragments at all.
+ *
+ * The setting is accessed using the provided [selector]. [settingFqn] is only used for error reporting.
+ */
 private fun <T : Any> List<Fragment>.unanimousSetting(settingFqn: String, selector: (Settings) -> T): T =
     unanimousOptionalSetting(settingFqn, selector)
-        ?: error("Module '${module.userReadableName}' has no fragments, cannot merge setting '$settingFqn'")
+        ?: error("No fragments provided, cannot merge setting '$settingFqn'")
 
-context(CompileTask)
+/**
+ * Gets a single common value for a particular setting among these fragments, and throws an exception if 2 fragments
+ * have a different value for it. If a fragment doesn't specify a value for the setting (null), it doesn't count as
+ * having a different value and doesn't throw an exception.
+ *
+ * The setting is accessed using the provided [selector]. [settingFqn] is only used for error reporting.
+ */
 private fun <T> List<Fragment>.unanimousOptionalSetting(settingFqn: String, selector: (Settings) -> T): T? {
     val distinctValues = mapNotNull { selector(it.settings) }.distinct()
     if (distinctValues.size > 1) {
-        error("The fragments ${userReadableList()} of module '${module.userReadableName}' are compiled " +
+        error("The fragments ${userReadableList()} of module '${first().module.userReadableName}' are compiled " +
                 "together but provide several different values for 'settings.$settingFqn': $distinctValues")
     }
     return distinctValues.singleOrNull()
