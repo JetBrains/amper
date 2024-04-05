@@ -1,6 +1,6 @@
 ### Product
 
-`product:` section defines what should be produced out of the Module.
+`product:` section defines what should be produced out of the module.
 Read more about the [product types](Documentation.md#product-types).
 
 | Attribute             | Description                                 |
@@ -98,7 +98,7 @@ dependencies@debug:
 
 ### Module
 
-`module:` section defines the non-code/product related aspects of the Module, such as file layout.
+`module:` section defines the non-code/product related aspects of the module, such as file layout.
 
 | Attribute      | Description               | Default   |
 |----------------|---------------------------|-----------|
@@ -117,7 +117,7 @@ See more on the layouts in the [documentation](Documentation.md#file-layout-with
 Examples:
 
 ```yaml
-# Layout is not specified, default Module layout is used
+# Layout is not specified, default module layout is used
 product: jvm/app
 ```
 
@@ -133,18 +133,18 @@ module:
 
 ### Dependencies and test dependencies
 
-`dependecies:` section defines the list of modules and libraries necessary to build the Module.
-Certain dependencies can also be exported as part of the Module API.
+`dependecies:` section defines the list of modules and libraries necessary to build the module.
+Certain dependencies can also be exported as part of the module API.
 Read more about the [dependencies](Documentation.md#dependencies).
 
-`test-dependenceis:` section defines the dependencies necessary to build and run tests of the Module. Read more about
-the [Module tests](Documentation.md#tests).
+`test-dependenceis:` section defines the dependencies necessary to build and run tests of the module. Read more about
+the [module tests](Documentation.md#tests).
 
 Supported dependency types:
 
 | Notation                                         | Description                                                                                                   |
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another Module](Documentation.md#internal-dependencies) in the codebase.                       |
+| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another module](Documentation.md#internal-dependencies) in the codebase.                       |
 | `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
 | `- $<catalog.key>`                               | [Dependency from a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
 
@@ -204,7 +204,7 @@ dependencies@jvm:
 
 ### Repositories
 
-`repositories:` section defines the list of repositories used to look up and download the Module dependencies.
+`repositories:` section defines the list of repositories used to look up and download the module dependencies.
 Read more about the [dependency repositories](Documentation.md#managing-maven-repositories).
 
 | Attribute             | Description                                         |
@@ -254,8 +254,8 @@ repositories:
 `settings:` section configures the toolchains used in the build process. Read more
 about [settings configuration](Documentation.md#settings).
 
-`test-settings:` section controls building and running the Module tests. Read more about
-the [Module tests](Documentation.md#tests).
+`test-settings:` section controls building and running the module tests. Read more about
+the [module tests](Documentation.md#tests).
 
 #### Kotlin
 

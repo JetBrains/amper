@@ -1,9 +1,9 @@
-This tutorial demonstrates how to add Amper Module files to existing Gradle JVM and Kotlin Multiplatform projects.
+This tutorial demonstrates how to add Amper module files to existing Gradle JVM and Kotlin Multiplatform projects.
 
 See also project examples:
 * [gradle-interop](../examples/gradle-interop) shows how to use Gradle with an exising module.yaml.  
-* [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper Module.   
-* [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper Module.
+* [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper module.   
+* [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper module.
 
 If you are looking to more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
 
@@ -159,7 +159,7 @@ The `product:` section controls the type of produced artifact, in this case, a l
 The `layout: gradle-jvm` enables a [Gradle-compatible mode](Documentation.md#file-layout-with-gradle-interop) for JVM
 projects.
 
-_Note: Due to current limitation, when you migrate a JVM subproject to an Amper Module you need to replace
+_Note: Due to current limitation, when you migrate a JVM subproject to an Amper module you need to replace
 the `org.jetbrains.kotlin.jvm` plugin with `org.jetbrains.kotlin.multiplatform`._
 Find code like
 
@@ -264,7 +264,7 @@ dependencies {
 }
 ```
 
-Here is how it maps to the Amper Module DSL:
+Here is how it maps to the Amper module DSL:
 ```yaml
 dependencies:
   - ../api: exported    
@@ -316,7 +316,7 @@ kotlin {
 }
 ```
 
-Here is how it maps to the Amper Module DSL:
+Here is how it maps to the Amper module DSL:
 ```yaml
 
 dependencies:
@@ -338,7 +338,7 @@ Note, how the platform-specific dependency blocks have [@platform qualifier](Doc
 
 # Step 5. Migrate settings
 
-Settings like Kotlin language version, Java release version, Android sdk versions could be moved to the `settings:` section in the Module configuration file.
+Settings like Kotlin language version, Java release version, Android sdk versions could be moved to the `settings:` section in the module configuration file.
 E.g. for the following Gradle script:
 
 ```kotlin

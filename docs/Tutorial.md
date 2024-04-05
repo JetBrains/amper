@@ -60,7 +60,7 @@ Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../e
 
 Documentation:
 - [Project layout](Documentation.md#project-layout)
-- [Module file anatomy](Documentation.md#module-file-anatomy)
+- [module file anatomy](Documentation.md#module-file-anatomy)
 
 ### Step 2. Add dependencies
 

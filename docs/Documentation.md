@@ -5,7 +5,7 @@ Check the [setup instructions](Setup.md), and open [a new project template](../e
 ## Basics
 
 A **module** is a directory with a `module.yaml` configurarion file, sources, and resources that are used to build a
-certain product. A Module configuration file describes _what_ to produce: either a reusable library or a
+certain product. A *module configuration file* describes _what_ to produce: either a reusable library or a
 platform-specific application. _How_ to produce the desired artifact is the responsibility of the build engine and
 extensions (see more on [Gradle-based](Documentation.md#gradle-interop)).
 
@@ -15,7 +15,7 @@ Amper supports Kotlin Multiplatform as a core concept and offers a special synta
 
 ## Project layout
 
-The basic Module layout looks like this:
+The basic module layout looks like this:
 ```
 |-src/             
 |  |-main.kt      
@@ -35,7 +35,7 @@ _NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-pro
 |-settings.gradle.kts
 ```
 
-In a JVM Module you can mix Kotlin and Java code:
+In a JVM module you can mix Kotlin and Java code:
 ```
 |-src/             
 |  |-main.kt      
@@ -43,7 +43,7 @@ In a JVM Module you can mix Kotlin and Java code:
 |-module.yaml
 ```
 
-In a multi-platform Module platform-specific code is located in the folders with `@platform`-qualifier:
+In a multi-platform module platform-specific code is located in the folders with `@platform`-qualifier:
 ```
 |-src/             # common code
 |  |-main.kt      
@@ -67,7 +67,7 @@ It requires some investment in the IntelliJ platform, so we haven't yet done it.
 |-module.yaml
 ```
 
-_NOTE: Sources and resources can't be shared by several Modules._
+_NOTE: Sources and resources can't be shared by several modules._
 This is to make sure that a given source file is always present in a single analysis/resolve/refactoring context (that is, has a single well-defined set of dependencies and compilation settings).
 
 See also info on [resource management](#resources).
@@ -92,7 +92,7 @@ Read more about [Gradle-compatible project layouts](#file-layout-with-gradle-int
 
 ## Module file anatomy
 
-`module.yaml` is a Module configuration file and is declared using YAML (here is
+`module.yaml` is a module configuration file and is declared using YAML (here is
 a [brief intro YAML](#brief-yaml-reference)).
 
 _NOTE: YAML is not the final language choice. For the purpose of the prototyping and designing it serves well, but we plan to re-evaluate other options in the future._
@@ -125,7 +125,7 @@ settings:
 ### Product types
 
 Product type describes the target platform and the type of the product at the same type. Here is the partial list of possible product types:
-- `lib` - a reusable library which could be used as dependency by other Modules in the codebase.
+- `lib` - a reusable library which could be used as dependency by other modules in the codebase.
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 app
 - `linux/app`
@@ -287,7 +287,7 @@ If you want to define repositories in a central place for Amper modules, you can
 file and apply this template to your modules (see section about templates).
 
 #### Internal dependencies
-To depend on another Module, use a relative path to the folder which contains the corresponding `module.yaml`. 
+To depend on another module, use a relative path to the folder which contains the corresponding `module.yaml`. 
 Internal dependency should start either with `./` or `../`.
 
 Example: given the project layout
@@ -337,7 +337,7 @@ dependencies:
 ```
 
 All dependencies by default are not accessible from the dependent code.  
-In order to make a dependency visible to a dependent Module, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
+In order to make a dependency visible to a dependent module, you need to explicitly mark it as `exported` (aka Gradle API-dependency). 
 
 ```yaml
 dependencies:
@@ -648,28 +648,28 @@ test-settings:
 
 #### Special types of tests
 
-Unit tests are an integral part of a Module. In addition to unit tests, some platform have additional types of tests,
+Unit tests are an integral part of a module. In addition to unit tests, some platform have additional types of tests,
 such as Android [instrumented tests](https://developer.android.com/training/testing/instrumented-tests)
 or [iOS UI Test](https://developer.apple.com/documentation/xctest/user_interface_tests). Also project might need
 dedicated benchmarking, performance or integration tests.
 
-In order to keep Module configuration files simple and at the same to offer flexibility for different type of tests,
+In order to keep module configuration files simple and at the same to offer flexibility for different type of tests,
 Amper has a concept of _Auxiliary Modules_. Their main purpose is improving usability, and they differ from the regular
-Module in some important aspects:
-- Auxiliary Module should be located in a subfolder inside its main Module. 
-- There may be multiple Auxiliary Module for a single main Module.
-- Auxiliary Module have an implicit dependency on its main Module.
-- Auxiliary Module is a _friend_ to its main Module and can see the internal declarations which are often needed for white-box of grey-box testing.
-- Auxiliary Module inherit settings from its main Module.
-- Main Module cannot depend on its Auxiliary Module in `dependencies:` section, but can in `test-dependencies:` section.
-- Auxiliary Module is not accessible from outside its main Module, so other Modules can't depend on Auxiliary Modules.
+module in some important aspects:
+- Auxiliary module should be located in a subfolder inside its main module. 
+- There may be multiple Auxiliary module for a single main module.
+- Auxiliary module have an implicit dependency on its main module.
+- Auxiliary module is a _friend_ to its main module and can see the internal declarations which are often needed for white-box of grey-box testing.
+- Auxiliary module inherit settings from its main module.
+- Main module cannot depend on its Auxiliary module in `dependencies:` section, but can in `test-dependencies:` section.
+- Auxiliary module is not accessible from outside its main module, so other modules can't depend on Auxiliary modules.
 
-You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary Modules, which are embedded directly into the main Module for the convenience.
+You may think of tests which are located in `test/` folder and have dedicated `test-dependencies:` and `test-settings:` as Auxiliary modules, which are embedded directly into the main module for the convenience.
 
-_NOTE: Auxiliary Modules design is work in progress is not implemented in the prototype._
+_NOTE: Auxiliary modules design is work in progress is not implemented in the prototype._
 
 #### Android Instrumented tests
-Here is how Android Instrumented tests could be added as an Auxiliary Module:
+Here is how Android Instrumented tests could be added as an Auxiliary module:
 
 Main module.yaml:
 ```yaml
@@ -971,10 +971,10 @@ dependencies@jvm:
 
 ### Multi-platform dependencies
 
-When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each Module platform.
+When you use a Kotlin Multiplatform library, its platforms-specific parts are automatically configured for each module platform.
 
 Example:
-To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multi-platform Module, simply write
+To add a [KmLogging library](https://github.com/LighthouseGames/KmLogging) to a multi-platform module, simply write
 
 ```yaml
 product:
@@ -1323,7 +1323,7 @@ settings:
     release: 8
 ```
 
-After template application the resulting effective Module is:
+After template application the resulting effective module is:
 module.yaml:
 ```yaml
 product: jvm/app
@@ -1449,7 +1449,7 @@ The Gradle interop supports two main scenarios:
 
 * partial use of Amper in an existing Gradle project,
 * smooth and gradual [migration of an existing Gradle project](./GradleMigration.md) to Amper,
-* writing custom Gradle tasks or using existing Gradle plugins in an existing Amper Module.
+* writing custom Gradle tasks or using existing Gradle plugins in an existing Amper module.
 
 Gradle features supported by Amper:
 * Cross-project dependencies between Gradle sub-projects and Amper modules.
@@ -1458,7 +1458,7 @@ Gradle features supported by Amper:
 * Using Gradle plugins in Gradle build scripts.
 * Configuring additional settings in Gradle build scripts
 
-To use Gradle interop in an Amper Module, place either a `build.gradle.kts` or a `build.gradle` file next to
+To use Gradle interop in an Amper module, place either a `build.gradle.kts` or a `build.gradle` file next to
 your `module.yaml` file:
 ```
 |-src/
@@ -1467,7 +1467,7 @@ your `module.yaml` file:
 |-build.gradle.kts
 ```
 
-#### Writing custom Gradle tasks:
+#### Writing custom Gradle tasks
 
 As an example let's use the following `module.yaml`:
 ```yaml
@@ -1522,8 +1522,8 @@ plugins {
 }
 ```
 
-Configuration in `build.gradle*` file has precedence over `Module.yml`. That means that a Gradle script can be used to
-tune/change the final configuration of your Amper Module.
+Configuration in `build.gradle*` file has precedence over `module.yml`. That means that a Gradle script can be used to
+tune/change the final configuration of your Amper module.
 E.g. the following Gradle script configures the working dir and the `mainClass` property: 
 ```kotlin
 application {
@@ -1534,7 +1534,7 @@ application {
 
 #### File layout with Gradle interop
 
-The default [Module layout](#project-layout) suites best for the newly created modules:  
+The default [module layout](#project-layout) suites best for the newly created modules:  
 ```
 |-src/
 |  |-main.kt
@@ -1638,7 +1638,7 @@ kotlin {
 }
 ```
 
-Additionally, source sets are generated for each [alias](#aliases). E.g. given the following Module configuration:
+Additionally, source sets are generated for each [alias](#aliases). E.g. given the following module configuration:
 
 ```yaml
 product:
