@@ -10,7 +10,7 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.aomBuilder.ancestralPath
+import org.jetbrains.amper.frontend.ancestralPath
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.serializationFormatNone
 
