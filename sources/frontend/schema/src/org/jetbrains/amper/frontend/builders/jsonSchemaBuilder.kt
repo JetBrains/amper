@@ -149,18 +149,22 @@ class JsonSchemaBuilder(
         types: Collection<KClass<*>>,
         modifierAware: Boolean
     ) {
-        fun buildForTyped(type: KType, firstInvoke: Boolean = false): String = when {
+        fun buildForTyped(type: KType, firstInvoke: Boolean = false, skipModifiers: Boolean = false): String = when {
             type.isSchemaNode -> types.wrapInAnyOf { it.asReferenceTo }
             type.isCollection -> buildSchemaCollection { buildForTyped(type.collectionType) }
             // TODO Support modifiers.
+            type.isMap && firstInvoke && modifierAware && skipModifiers -> buildForTyped(type.mapValueType)
             type.isMap && firstInvoke && modifierAware -> buildModifierBasedCollection(prop.name) { buildForTyped(type.mapValueType) }
             type.isMap -> buildSchemaKeyBasedCollection { buildForTyped(type.mapValueType) }
             else -> error("Unsupported type $type") // TODO Report
         }
 
-        // Modifier aware properties are always pattern properties.
-        if (modifierAware) addPatternProperty(prop) { buildForTyped(type, true) }
-        else addProperty(prop) { buildForTyped(type, true) }
+        // Modifier-aware properties produce a regular property (for completion), and a pattern-property
+        // producing a regular property is crucial for having a working chained completion
+        if (modifierAware) {
+            addProperty(prop) { buildForTyped(type, true, skipModifiers = true) }
+            addPatternProperty(prop) { buildForTyped(type, true) }
+        } else addProperty(prop) { buildForTyped(type, true) }
         super.visitTyped(prop, type, schemaNodeType, types, modifierAware)
     }
 

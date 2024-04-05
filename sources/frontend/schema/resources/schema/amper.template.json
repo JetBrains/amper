@@ -54,12 +54,32 @@
         }
       },
       "properties": {
+        "dependencies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenDependency"
+              },
+              {
+                "$ref": "#/$defs/InternalDependency"
+              }
+            ]
+          }
+        },
         "repositories": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/Repository"
           }
+        },
+        "settings": {
+          "$ref": "#/$defs/Settings"
         },
         "tasks": {
           "type": "array",
@@ -70,6 +90,26 @@
               }
             }
           }
+        },
+        "test-dependencies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/CatalogDependency"
+              },
+              {
+                "$ref": "#/$defs/ExternalMavenDependency"
+              },
+              {
+                "$ref": "#/$defs/InternalDependency"
+              }
+            ]
+          }
+        },
+        "test-settings": {
+          "$ref": "#/$defs/Settings"
         }
       },
       "additionalProperties": false
