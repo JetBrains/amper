@@ -131,15 +131,6 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     val cmdError = stderr.toString()
     println(cmdOutput)
     println(cmdError)
-    if (params.any { it.contains("instrument") }) {
-        // Specify the file path relative to the project directory
-        val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
-        if (!outputDir.exists()) {
-            outputDir.mkdirs()
-        }
-      //  val outputFile = File(outputDir, "report.xml")
-       // outputFile.writeText(convertToJUnitReport(cmdOutput))
-    }
     return stdout
 }
 
@@ -228,36 +219,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         }
     }
 
-    tasks.register("runPureSampleAPK") {
-        doFirst {
 
-            adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
-            adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
-
-            adb(
-                "shell",
-                "am",
-                "start",
-                "-n",
-                "com.jetbrains.sample.app/com.jetbrains.sample.app.MainActivity"
-            )
-        }
-    }
-    val assembleDebugAndTestAPK by tasks.registering(Exec::class) {
-        workingDir = file("testData/projects/compose-android-ui")
-        commandLine("gradle", "assembleDebugAndTest")
-    }
-
-    tasks.register("installAndroidTestApp") {
-        doLast {
-            adb(
-                "install",
-                "testData/projects/compose-android-ui/build/outputs/apk/androidTest/debug/compose-android-ui-debug-androidTest.apk"
-            )
-        }
-    }
 
     val prepareProjects = tasks.register("prepareProjectsAndroid") {
         doLast {
@@ -399,48 +361,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     }
 
 
-//TEMPORARY FOR FAST CHECK WILL BE REFACTOR SOON BECAUSE WE WILL BE RUN APPS OTHER WAY
-    tasks.register("installAndRunPureApps") {
 
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            val rootDirectory = project.file("../../androidTestProjects")
-            if (rootDirectory.listFiles() == null || rootDirectory.listFiles()!!.isEmpty()) {
-                throw GradleException("No projects was found in $rootDirectory")
-            }
-
-            rootDirectory.listFiles()?.filter { it.isDirectory }?.forEach { projectDir ->
-                println("Processing project in directory: ${projectDir.name}")
-
-                val apkDirectory = File(projectDir, "build/tasks/_${projectDir.name}_buildAndroidDebug/")
-                println(projectDir.listFiles())
-
-                val apkFiles = apkDirectory.listFiles { _, name ->
-                    name.endsWith(".apk")
-                } ?: arrayOf()
-
-                if (apkFiles.isNotEmpty()) {
-
-                    val apkFile = apkFiles.first()
-                    println("Installing APK: ${apkFile.name}")
-
-                    adb("install", apkFile.absolutePath)
-                    val packageName = "com.jetbrains.sample.app"
-
-                    println("Running task: runPureSampleAPK")
-                    val runPureSampleAPKTask = project.tasks.findByName("runPureSampleAPK")
-                    runPureSampleAPKTask?.actions?.forEach { action ->
-                        action.execute(runPureSampleAPKTask)
-                    }
-
-                    println("Uninstalling $packageName")
-                    adb("uninstall", packageName)
-                } else {
-                    throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory ${apkDirectory.listFiles()}")
-                }
-            }
-        }
-    }
 
     tasks.register("runTestsForPureAmper") {
         group = "android_Pure_Emulator_Tests"
@@ -534,21 +455,11 @@ tasks.register("installAndTestPureApps") {
 }
 
 // Helper function to install and run an APK file.
- fun installAndRunApk(apkFile: File) {
+fun installAndRunApk(apkFile: File) {
     val packageName = "com.jetbrains.sample.app"
 
     adb("install", apkFile.absolutePath)
-    adb(
-        "shell",
-        "am",
-        "instrument",
-        "-w",
-        "-r",
-        "-e",
-        "class",
-        "com.jetbrains.sample.app.AppOpenTest",
-        "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
-    )
+    adb("shell", "am", "instrument", "-w", "-r", "$packageName.test/androidx.test.runner.AndroidJUnitRunner")
     println("Uninstalling $packageName")
     adb("uninstall", packageName)
 }
