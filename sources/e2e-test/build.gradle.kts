@@ -373,7 +373,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         doLast {
             adb(
                 "install",
-                "/Users/Vladimir.Naumenko/Desktop/amper_version_with_reports/amper/sources/e2e-test/androidUITestsAssets/app-debug-androidTest.apk"
+                "androidUITestsAssets/app-debug-androidTest.apk"
             )
         }
     }
@@ -398,15 +398,6 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         }
     }
 
-    tasks.register("installAndroidAppForPureTests") {
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            adb(
-                "install",
-                "/Users/Vladimir.Naumenko/Desktop/amper_version_with_reports/amper/androidTestProjects/android-appcompat/build/tasks/_android-appcompat_buildAndroidDebug/43abbbcaf635e6015a1ac2f3898e41dce7d7196c-debug.apk"
-            )
-        }
-    }
 
 //TEMPORARY FOR FAST CHECK WILL BE REFACTOR SOON BECAUSE WE WILL BE RUN APPS OTHER WAY
     tasks.register("installAndRunPureApps") {
