@@ -137,8 +137,8 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         if (!outputDir.exists()) {
             outputDir.mkdirs()
         }
-        val outputFile = File(outputDir, "report.xml")
-        outputFile.writeText(convertToJUnitReport(cmdOutput))
+      //  val outputFile = File(outputDir, "report.xml")
+       // outputFile.writeText(convertToJUnitReport(cmdOutput))
     }
     return stdout
 }
@@ -522,14 +522,14 @@ tasks.register("installAndTestPureApps") {
                 val apkFile = apkFiles.first()
                 println("Installing APK: ${apkFile.name}")
                 installAndRunApk(apkFile)
-                updateClassnameAndRenameFile(projectDir.name)
+                //updateClassnameAndRenameFile(projectDir.name)
 
             } else {
                 throw GradleException("No APK files found in $apkDirectory.")
             }
         }
         val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
-        combineJUnitReports(outputDir.absolutePath,"main.xml")
+        //combineJUnitReports(outputDir.absolutePath,"main.xml")
     }
 }
 
