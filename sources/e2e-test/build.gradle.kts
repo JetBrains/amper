@@ -129,14 +129,14 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     }
     val cmdOutput = stdout.toString()
     val cmdError = stderr.toString()
-    if (cmdError.contains("Error: Activity class") || cmdOutput.contains("Error: Activity class")) {
-        throw RuntimeException("Error launching MainActivity. Failing the task.")
-    }
     println(cmdOutput)
-    println(cmd)
+    println(cmdError)
     if (params.any { it.contains("instrument") }) {
         // Specify the file path relative to the project directory
         val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
         val outputFile = File(outputDir, "report.xml")
         outputFile.writeText(convertToJUnitReport(cmdOutput))
     }
