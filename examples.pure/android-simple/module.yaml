@@ -6,3 +6,4 @@ settings:
 
 dependencies:
   - com.google.guava:guava:33.0.0-android
+  - androidx.appcompat:appcompat:1.6.1
