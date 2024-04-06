@@ -501,7 +501,6 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     }
 
 tasks.register("installAndTestPureApps") {
-    dependsOn("installAndroidTestAppForPureTests")
     group = "android_Pure_Emulator_Tests"
 
     doLast {
