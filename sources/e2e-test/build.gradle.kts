@@ -378,6 +378,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
                 "instrument",
                 "-w",
                 "-r",
+                "-t",
                 "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner",
             )
         }
@@ -459,7 +460,7 @@ fun installAndRunApk(apkFile: File) {
     val packageName = "com.jetbrains.sample.app"
 
     adb("install", apkFile.absolutePath)
-    adb("shell", "am", "instrument", "-w", "-r", "$packageName.test/androidx.test.runner.AndroidJUnitRunner")
+    adb("shell", "am", "instrument", "-w", "-r", "-t", "$packageName.test/androidx.test.runner.AndroidJUnitRunner")
     println("Uninstalling $packageName")
     adb("uninstall", packageName)
 }
