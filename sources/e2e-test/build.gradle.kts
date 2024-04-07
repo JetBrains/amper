@@ -334,7 +334,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         group = "android_Pure_Emulator_Tests"
         doLast {
             adb(
-                "install",
+                "install", "-t",
                 "androidUITestsAssets/app-debug-androidTest.apk"
             )
         }
