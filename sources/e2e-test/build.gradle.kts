@@ -459,7 +459,7 @@ tasks.register("installAndTestPureApps") {
             }
         }
         val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
-        //combineJUnitReports(outputDir.absolutePath,"main.xml")
+        combineJUnitReports(outputDir.absolutePath,"main.xml")
     }
 }
 
