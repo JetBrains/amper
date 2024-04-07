@@ -131,6 +131,14 @@ fun adb(vararg params: String): ByteArrayOutputStream {
     val cmdError = stderr.toString()
     println(cmdOutput)
     println(cmdError)
+    if (params.any { it.contains("instrument") }) {
+        val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+         val outputFile = File(outputDir, "report.xml")
+         outputFile.writeText(convertToJUnitReport(cmdOutput))
+    }
     return stdout
 }
 
