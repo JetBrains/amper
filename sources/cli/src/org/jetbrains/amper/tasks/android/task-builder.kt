@@ -18,12 +18,12 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.PlatformTaskType
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
-import org.jetbrains.amper.tasks.jvm.JvmTestTask
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import org.jetbrains.amper.tasks.jvm.JvmTestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
@@ -158,6 +158,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 module = module,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
+                tempRoot = context.projectTempRoot,
                 taskName = testTaskName,
                 taskOutputRoot = context.getTaskOutputPath(testTaskName),
             ),

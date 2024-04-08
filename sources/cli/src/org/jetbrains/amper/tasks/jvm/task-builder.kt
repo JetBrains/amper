@@ -101,6 +101,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 module = module,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
+                tempRoot = context.projectTempRoot,
                 taskName = testTaskName,
                 taskOutputRoot = context.getTaskOutputPath(testTaskName),
             ),
