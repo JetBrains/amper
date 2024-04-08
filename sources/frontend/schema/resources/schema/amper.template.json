@@ -60,6 +60,16 @@
           "items": {
             "$ref": "#/$defs/Repository"
           }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "$ref": "#/$defs/TaskSettings"
+              }
+            }
+          }
         }
       },
       "additionalProperties": false
@@ -493,6 +503,19 @@
         },
         "version": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TaskSettings": {
+      "type": "object",
+      "properties": {
+        "dependsOn": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false

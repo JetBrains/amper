@@ -7,6 +7,7 @@ Module
 	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. See [dependencies](#dependencies)
 	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. See [repositories](#managing-maven-repositories)
 	settings[@modifier]: Settings - Configures the toolchains used in the build process. See [settings](#settings)
+	tasks: Map<String, TaskSettings> - Tasks settings. Experimental and will be replaced
 	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. See [dependencies](#dependencies)
 	test-settings[@modifier]: Settings - Controls building and running the Module tests. See [settings](#settings)
 
@@ -137,4 +138,8 @@ PublishingSettings
 	group: String - Group id of the published module
 	name: String - Name (artifactId) of the published module
 	version: String - Version of the published module
+
+TaskSettings: Provides custom settings for tasks
+------------------------------------------------
+	dependsOn: List<String> - Adds to task dependencies
 

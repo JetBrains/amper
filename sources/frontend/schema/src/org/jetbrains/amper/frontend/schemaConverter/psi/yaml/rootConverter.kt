@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
@@ -69,6 +70,39 @@ internal fun <T : Base> YAMLMapping.convertBase(base: T) = base.apply {
 
     ::settings.convertModifierAware(Settings()) { convertSettings() }
     ::`test-settings`.convertModifierAware(Settings()) { convertSettings() }
+
+    ::tasks.convertChild { convertTasks() }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLKeyValue.convertTasks(): Map<String, TaskSettings>? {
+    // TODO Report wrong type.
+    val yamlMapping = this.value as? YAMLMapping ?: return null
+    return yamlMapping.keyValues.mapNotNull { it.convertTask() }.toMap()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLKeyValue.convertTask(): Pair<String, TaskSettings>? {
+    // TODO Report empty/missing key
+    val taskName = name
+    if (taskName.isNullOrEmpty()) return null
+
+    // TODO Report wrong structure
+    val settings = (value as? YAMLMapping)?.convertTaskSettings() ?: return null
+
+    return taskName to settings
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun YAMLMapping.convertTaskSettings(): TaskSettings {
+    val settings = TaskSettings()
+    for (item in keyValues) {
+        if (item.name != "dependsOn") continue
+        val value = item.value as? YAMLSequence ?: continue
+        val dependsOn = value.items.mapNotNull { (it.value as? YAMLScalar)?.textValue }
+        settings.dependsOn = dependsOn
+    }
+    return settings
 }
 
 context(ProblemReporterContext, ConvertCtx)

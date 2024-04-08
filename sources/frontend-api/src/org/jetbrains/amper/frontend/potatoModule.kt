@@ -35,6 +35,12 @@ data class RepositoriesModulePart(
     )
 }
 
+data class ModuleTasksPart(
+    val settings: Map<String, TaskSettings>,
+) : ModulePart<ModuleTasksPart> {
+    data class TaskSettings(val dependsOn: List<String>)
+}
+
 enum class Layout {
     /**
      * Mode, when Gradle kotlin source sets layout is preserved.

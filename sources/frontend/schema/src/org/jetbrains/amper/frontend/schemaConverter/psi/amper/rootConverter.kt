@@ -8,6 +8,7 @@ import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperObjectElement
 import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.AmperStringLiteral
 import com.intellij.amper.lang.AmperValue
 import com.intellij.amper.lang.impl.allObjectElements
 import com.intellij.amper.lang.impl.collectionItems
@@ -30,6 +31,7 @@ import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
@@ -69,6 +71,38 @@ internal fun <T : Base> AmperObject.convertBase(base: T) = base.apply {
 
     ::settings.convertModifierAware(Settings()) { (value as? AmperObject)?.convertSettings() }
     ::`test-settings`.convertModifierAware(Settings()) { (value as? AmperObject)?.convertSettings() }
+
+    ::tasks.convertChild { convertTasks() }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun AmperProperty.convertTasks(): Map<String, TaskSettings>? {
+    // TODO Report wrong type.
+    val amperObject = this.value as? AmperObject ?: return null
+    return amperObject.objectElementList.mapNotNull { it.convertTask() }.toMap()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun AmperObjectElement.convertTask(): Pair<String, TaskSettings>? {
+    val property = this as? AmperProperty ?: return null
+    val taskName = property.name
+    if (taskName.isNullOrEmpty()) return null
+    val settings = (property.value as? AmperObject)?.convertTaskSettings() ?: return null
+    return taskName to settings
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun AmperObject.convertTaskSettings(): TaskSettings {
+    val settings = TaskSettings()
+    for (item in objectElementList) {
+        val property = item as? AmperProperty ?: continue
+        if (property.name == "dependsOn") {
+            val value = property.value as? AmperObject ?: continue
+            val dependsOn = value.objectElementList.mapNotNull { (it as? AmperProperty)?.name }
+            settings.dependsOn = dependsOn
+        }
+    }
+    return settings
 }
 
 context(ProblemReporterContext, ConvertCtx)

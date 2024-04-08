@@ -24,6 +24,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 class TestProblemReporter : CollectingProblemReporter() {
     override fun doReportMessage(message: BuildProblem) {}
@@ -55,6 +56,7 @@ fun readContentsAndReplace(
     val testResources = Path(".").resolve(base).normalize().absolutePathString()
 
     // This is actual check.
+    if (!expectedPath.exists()) expectedPath.writeText("")
     val resourceFileText = expectedPath.readText()
     return resourceFileText
         .replace("{{ buildDir }}", buildDir)

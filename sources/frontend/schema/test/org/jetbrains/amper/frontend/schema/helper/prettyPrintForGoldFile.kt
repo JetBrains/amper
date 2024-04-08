@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
+import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -59,6 +60,15 @@ internal fun PotatoModule.prettyPrintForGoldFile(): String = buildString {
             appendLine("    publish: ${it.publish}")
             appendLine("    username: ${it.userName}")
             appendLine("    password: ${it.password}")
+        }
+    }
+
+    val taskSettingsMap = parts[ModuleTasksPart::class.java]?.settings ?: emptyMap()
+    if (taskSettingsMap.isNotEmpty()) {
+        appendLine("Task:")
+        taskSettingsMap.forEach { (taskName, settings) ->
+            appendLine("  - name: $taskName")
+            appendLine("    dependsOn: ${settings.dependsOn.joinToString(", ")}")
         }
     }
 }

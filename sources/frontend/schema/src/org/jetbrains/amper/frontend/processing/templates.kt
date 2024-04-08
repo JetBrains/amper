@@ -51,6 +51,7 @@ fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
         mergeNodeProperty(Base::`test-settings`) { it }
         mergeNodeProperty(Base::dependencies) { it }
         mergeNodeProperty(Base::`test-dependencies`) { it }
+        mergeNodeProperty(Base::tasks) { it }
     }
 
     return result

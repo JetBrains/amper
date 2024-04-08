@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.TaskSettings
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 
@@ -42,6 +43,12 @@ fun Base.merge(overwrite: Base, target: () -> Base): Base = mergeNode(overwrite,
 
     mergeNodeProperty(Base::settings) { mergeMap(it) { overwriteSettings -> merge(overwriteSettings) } }
     mergeNodeProperty(Base::`test-settings`) { mergeMap(it) { overwriteSettings -> merge(overwriteSettings) } }
+
+    mergeNodeProperty(Base::tasks) { mergeMap(it) { overwriteTaskSettings -> merge(overwriteTaskSettings) } }
+}
+
+fun TaskSettings.merge(overwrite: TaskSettings): TaskSettings = mergeNode(overwrite, ::TaskSettings) {
+    mergeNullableCollection(TaskSettings::dependsOn)
 }
 
 fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {

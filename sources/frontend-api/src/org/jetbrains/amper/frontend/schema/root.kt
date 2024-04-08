@@ -39,6 +39,9 @@ sealed class Base : SchemaNode() {
     @ModifierAware
     @SchemaDoc("Controls building and running the Module tests. See [settings](#settings)")
     var `test-settings` by value(mapOf(noModifiers to Settings()))
+
+    @SchemaDoc("Tasks settings. Experimental and will be replaced")
+    var tasks by nullableValue<Map<String, TaskSettings>>()
 }
 
 /**
@@ -96,6 +99,12 @@ class Repository : SchemaNode() {
         @SchemaDoc("A key in the file that holds the password")
         var passwordKey by value<String>()
     }
+}
+
+@SchemaDoc("Provides custom settings for tasks")
+class TaskSettings: SchemaNode() {
+    @SchemaDoc("Adds to task dependencies")
+    var dependsOn by nullableValue<List<String>>()
 }
 
 const val repositoryShortForm = """

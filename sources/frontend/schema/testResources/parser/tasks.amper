@@ -1,0 +1,10 @@
+product = "jvm/app"
+
+tasks {
+  task1 {
+    dependsOn {
+      ":otherModule:task2"
+      "task3"
+    }
+  }
+}

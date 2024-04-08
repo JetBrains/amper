@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.frontend.builders
 
+import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
 import org.jetbrains.amper.frontend.api.Default
-import org.jetbrains.amper.core.forEachEndAware
 import java.io.Writer
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty

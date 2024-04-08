@@ -705,6 +705,14 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(msgPrefix = find)
     }
 
+    @Test
+    fun `custom task dependencies`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("custom-task-dependencies")
+        AmperBackend(projectContext).showTasks()
+
+        assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :utils:testJvm, :main-lib:testJvm, :main-lib:jarJvm, :main-lib:sourcesJarJvm")
+    }
+
     private val specialCmdChars = "&()[]{}^=;!'+,`~"
     private val argumentsWithSpecialChars = listOf(
         "simple123",

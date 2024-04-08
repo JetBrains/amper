@@ -1,0 +1,129 @@
+Fragments:
+  jvm
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+
+  jvmTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:1.9.20, compile=true, runtime=true, exported=false)
+    Src folder: test
+    Fragment dependencies:
+      jvm (FRIEND)
+    Settings: {
+      android: <default> {
+        applicationId: <default> org.example.namespace
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: <default> org.example.namespace
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 1.9
+        debug: <default> false
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 1.9
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      native: <default> null
+      publishing: <default> null
+    }
+
+Artifacts:
+  isTest: false
+  [JVM]
+    Fragments:
+      jvm
+  isTest: true
+  [JVM]
+    Fragments:
+      jvmTest
+Repositories:
+  - id: https://repo1.maven.org/maven2
+    url: https://repo1.maven.org/maven2
+    publish: false
+    username: null
+    password: null
+  - id: https://maven.google.com
+    url: https://maven.google.com
+    publish: false
+    username: null
+    password: null
+  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    publish: false
+    username: null
+    password: null
+Task:
+  - name: task1
+    dependsOn: :otherModule:task2, task3

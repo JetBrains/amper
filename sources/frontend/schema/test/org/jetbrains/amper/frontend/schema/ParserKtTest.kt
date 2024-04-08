@@ -164,4 +164,9 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `no NPE when leaf platform is accessed`() {
         aomTest("24-no-npe-for-leaf-platform")
     }
+
+    @Test
+    fun tasks() {
+        aomTest("tasks")
+    }
 }

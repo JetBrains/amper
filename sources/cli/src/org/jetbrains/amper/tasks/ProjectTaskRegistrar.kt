@@ -18,7 +18,6 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
-import kotlin.io.path.exists
 
 typealias OnModuleBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
 typealias OnFragmentBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, fragment: Fragment) -> Unit

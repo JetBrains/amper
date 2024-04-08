@@ -9,6 +9,7 @@ import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
@@ -49,6 +50,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         builder.setupAndroidTasks()
         builder.setupNativeTasks()
         builder.setupIosTasks()
+        builder.setupCustomTaskDependencies()
         return builder.build()
     }
 
@@ -107,6 +109,25 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     executeOnChangedInputs = executeOnChangedInputs,
                 )
             )
+        }
+    }
+
+    private fun ProjectTaskRegistrar.setupCustomTaskDependencies() {
+        onEachModule { module, _ ->
+            val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@onEachModule
+            for ((taskName, taskSettings) in tasksSettings.settings) {
+                val thisModuleTaskName = TaskName.fromHierarchy(module.userReadableName, taskName)
+
+                for (dependsOnTaskName in taskSettings.dependsOn) {
+                    val dependsOnTask = if (dependsOnTaskName.startsWith(":")) {
+                        TaskName(dependsOnTaskName)
+                    } else {
+                        TaskName.fromHierarchy(module.userReadableName, dependsOnTaskName)
+                    }
+
+                    registerDependency(thisModuleTaskName, dependsOnTask)
+                }
+            }
         }
     }
 

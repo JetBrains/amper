@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.ClassBasedSet
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MetaModulePart
 import org.jetbrains.amper.frontend.ModulePart
+import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.classBasedSet
@@ -85,6 +86,12 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
             } ?: emptyList()
             defaultRepositories + customRepositories
         }
+    )
+
+    parts += ModuleTasksPart(
+        settings = tasks
+            ?.mapValues { (_, value) -> ModuleTasksPart.TaskSettings(dependsOn = value.dependsOn ?: emptyList()) }
+            ?: emptyMap(),
     )
 
     return parts
