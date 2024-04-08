@@ -343,7 +343,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         doLast {
             adb(
                 "install", "-t",
-                "androidUITestsAssets/app-debug-androidTest.apk"
+                "testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
             )
         }
     }
@@ -367,9 +367,6 @@ fun adb(vararg params: String): ByteArrayOutputStream {
             )
         }
     }
-
-
-
 
     tasks.register("runTestsForPureAmper") {
         group = "android_Pure_Emulator_Tests"
@@ -539,5 +536,29 @@ fun combineJUnitReports(folderPath: String, outputFileName: String) {
     transformer.transform(source, result)
 
     println("Combined report generated successfully: ${resultFile.absolutePath}")
+}
+
+val assemblePureTestAPK by tasks.registering(Exec::class) {
+    group = "android_Pure_Emulator_Tests"
+    workingDir = file("testData/projects/test-apk/app")
+    commandLine("gradle", "createDebugAndroidTestApk")
+}
+
+tasks.register("installAndroidTestApp") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/compose-android-ui/build/outputs/apk/androidTest/debug/compose-android-ui-debug-androidTest.apk"
+        )
+    }
+}
+
+tasks.register("installAndroidTestPureTest") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        )
+    }
 }
 
