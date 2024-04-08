@@ -76,10 +76,11 @@ abstract class IntegrationTestBase {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
+        val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
         return ProjectContext.create(
             projectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
-            buildOutputRoot = AmperBuildOutputRoot(tempRoot.resolve("build")),
+            buildOutputRoot = AmperBuildOutputRoot(buildDir),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
         )
     }

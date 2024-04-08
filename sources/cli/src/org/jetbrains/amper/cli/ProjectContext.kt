@@ -14,7 +14,9 @@ import org.jetbrains.amper.util.OS.Type.Linux
 import org.jetbrains.amper.util.OS.Type.Mac
 import org.jetbrains.amper.util.OS.Type.Windows
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.isDirectory
 
 class ProjectContext(
     val projectRoot: AmperProjectRoot,
@@ -35,7 +37,11 @@ class ProjectContext(
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot? = null,
         ): ProjectContext {
-            val buildOutputRootNotNull = buildOutputRoot ?: AmperBuildOutputRoot(projectRoot.resolve("build"))
+            val buildOutputRootNotNull = buildOutputRoot ?: run {
+                val defaultBuildDir = projectRoot.resolve("build").also { it.createDirectories() }
+                AmperBuildOutputRoot(defaultBuildDir)
+            }
+
             val userCacheRootNotNull = userCacheRoot ?: AmperUserCacheRoot.fromCurrentUser()
 
             for (path in listOf(userCacheRootNotNull.path, buildOutputRootNotNull.path, projectRoot)) {
@@ -44,11 +50,14 @@ class ProjectContext(
                 }
             }
 
+            val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
+            val logsDir = buildOutputRootNotNull.path.resolve("logs").also { it.createDirectories() }
+
             return ProjectContext(
                 projectRoot = AmperProjectRoot(projectRoot),
                 buildOutputRoot = buildOutputRootNotNull,
-                projectTempRoot = AmperProjectTempRoot(buildOutputRootNotNull.path.resolve("temp")),
-                buildLogsRoot = AmperBuildLogsRoot(buildOutputRootNotNull.path.resolve("logs")),
+                projectTempRoot = AmperProjectTempRoot(tempDir),
+                buildLogsRoot = AmperBuildLogsRoot(logsDir),
                 userCacheRoot = userCacheRootNotNull,
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
@@ -101,7 +110,34 @@ data class AmperUserCacheRoot(val path: Path) {
     }
 }
 
-data class AmperBuildOutputRoot(val path: Path)
-data class AmperBuildLogsRoot(val path: Path)
-data class AmperProjectTempRoot(val path: Path)
-data class AmperProjectRoot(val path: Path)
+data class AmperBuildOutputRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Build output root is not a directory: $path"
+        }
+    }
+}
+
+data class AmperBuildLogsRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Build logs root is not a directory: $path"
+        }
+    }
+}
+
+data class AmperProjectTempRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Temp root is not a directory: $path"
+        }
+    }
+}
+
+data class AmperProjectRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Project root is not a directory: $path"
+        }
+    }
+}
