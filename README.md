@@ -6,18 +6,21 @@
 
 Amper is a build and project configuration tool. Its goal is to provide a great and smooth user experience and IDE support 
 We believe that this can be achieved by:
-- providing a developer - and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but also improve maintainability and let an IDE assist with automatic configuration reliably;
+
+- providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but
+  also improve maintainability and let an IDE assist with automatic configuration reliably;
 - bundling a curated set of compatible toolchains and extensions - to support the majority of the scenarios without the need to find compatible plugins;
 - carefully choosing the extensibility points - to keep the overall mental model and UX of the configuration consistent and to avoid unexpected third-party code execution.
 
 In essence, we aim to achieve a similar well-thought-out and well-tested experience as with [JetBrains IDEs](https://www.jetbrains.com/ides/).
 
-We’re currently looking at various aspects, including the configuration of projects for the purpose of building, packaging, publishing, and more. At its current stage, however, the focus is primarily on configuring projects for the purpose of building.
+We’re currently looking at various aspects, including the configuration of projects for building, packaging, publishing,
+and more. At the current stage, however, the focus is primarily on configuring projects for building. While the current
+use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
+However, the same approach to configuration could work for other languages and technology stacks in the future.
 
-Currently, Amper is implemented as a Gradle plugin and uses YAML for its project configuration format. We are working on replacing Gradle with a custom build engine and investigating YAMl alternatives.
-
-While the current use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform). However, the same approach to configuration could work for other languages and technology stacks in the future.  
-
+Amper is implemented as a Gradle-based tool and also as a standalone tool, and provides an easy-to-use declarative
+configuration format.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux and macOS applications.
@@ -25,11 +28,11 @@ Supported features:
 * Running tests.
 * Mixing Kotlin, Java and Swift code.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
-* [Multi-module](docs/Documentation.md#internal-dependencies) projects.
+* [Multi-module](docs/Documentation.md#module-dependencies) projects.
 * [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
 * Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
 * [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
-* Code assistance for [module manifest files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
+* Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Planned features:
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
@@ -38,7 +41,6 @@ Planned features:
 * [Packaging](docs/Documentation.md#packaging) and [publication](docs/Documentation.md#publishing). 
 * [Build variants](docs/Documentation.md#build-variants) support.
 * [Extensibility](docs/Documentation.md#extensibility).
-* Workspaces (organizing multiple modules together).
 * Support more Kotlin and Kotlin Multiplatform scenarios and configurations out-of-the-box.
 
 For a quick start:
@@ -59,7 +61,7 @@ You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062
 ## How to Try
 There are multiple ways to try Amper:
 
-* In the latest [IntelliJ IDEA 2024.1 EAP](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](/docs/Usage.md#using-amper-in-intellij-idea)).
+* In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](/docs/Usage.md#using-amper-in-intellij-idea)).
 * In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](/docs/Usage.md#using-amper-in-fleet)).
 * Using Gradle to build Amper projects [from the CLI or CI/CD](/docs/Usage.md#using-amper-from-command-line).
 
@@ -71,7 +73,7 @@ Here is a very basics JVM "Hello, World!" project:
 <img src="docs/images/ij-jvm-structure.png" width="50%" alt="">
 
 
-The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them. The interesting part is `module.yaml`, which is the Amper manifest file. For the above project structure, it would simply be: 
+The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing special in them. The interesting part is `module.yaml`, which is the Amper module configuration file. For the above project structure, it would simply be: 
 
 ```yaml
 # Produce a JVM application 
@@ -91,7 +93,7 @@ Now, let's look at a Compose Multiplatform project with Android, iOS, and deskto
 Notice how the `src/` folder contains Kotlin and Swift code together. It could, of course, also be Kotlin and Java.
 Another aspect to highlight is the shared module with the common code in the `src` folder and the platform-specific code folders `src@ios` and `src@android` (learn more about [project layout](docs/Documentation.md#project-layout)).
 
-Here is how `ios-app/module.yaml` manifest file looks:
+Here is how `ios-app/module.yaml` file looks:
 ```yaml
 # Produce an iOS application
 product: ios/app
