@@ -1,16 +1,17 @@
 This tutorial gives a short introduction to Amper and how to use it a new project.
 
-If you are looking to more detailed info, check [the documentation](Documentation.md).
+If you are looking for more detailed info, check [the documentation](Documentation.md).
 
 ### Before you start
 Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
 
-Note, that:
+Note that:
 * JDK 17+ is required. Make sure you have it installed. 
 
 ### Step 1. Hello, World
 
-First thing you’d want to try when getting familiar with a new tool is just a simple hello world application. Here is what we do:
+The first thing you’d want to try when getting familiar with a new tool is just a simple hello world application. Here
+is what we do:
 
 Create a `module.yaml` file:
 
@@ -33,8 +34,11 @@ fun main() {
 }
 ```
 
-_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
-_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:_
+> This tutorial demonstrates the [Gradle-based](Documentation.md#gradle-based-projects) Amper version. You need to
+> create a settings.gradle.kts in the project root.
+
+Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and
+the [gradle folder](../examples/new-project-template/gradle) from a template project:
 ```
 |-gradle/...
 |-src/
@@ -202,10 +206,13 @@ File layout:
 |  |-module.yaml
 ```
 
-In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give additional names to the libraries.
+In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give
+additional names to the libraries.
 
-_NOTE: Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects), a settings.gradle.kts should be located in the project root._
-_Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:_
+> In the [Gradle-based](Documentation.md#gradle-based-projects) Amper project, a `settings.gradle.kts` file should be
+> located in the project root.
+
+Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:
 ```
 |-gradle/...
 |-app/
@@ -215,6 +222,14 @@ _Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle
 |  |-...
 |  |-module.yaml
 |-settings.gradle.kts
+```
+
+After that, add modules to the `settings.gradle.kts` file:
+```kotlin
+...
+
+// add Amper modules to the project
+include("app", "shared")
 ```
 
 Examples: [modularized](.././examples/modularized).
@@ -260,7 +275,9 @@ settings:
 ```
 
 And update the shared module:
-_NOTE: Currently lib modules require an explicit list of platform. We plan to automatically configure library modules with required platforms in the future_   
+
+> Currently, library modules require an explicit list of platforms. We plan to automatically configure library modules
+> with required platforms in the future
 
 /shared/module.yaml:
 ```YAML
@@ -303,7 +320,7 @@ So we might need to add some platform-specific code, like [Kotlin Multiplatform 
 
 Let's add some platform-specific networking code and dependencies.
 
-_NOTE: Native dependencies (like CocoaPods) are currently not implemented._
+> Native dependencies (like CocoaPods) are currently not implemented.
 
 /shared/module.yaml:
 ```YAML
@@ -470,7 +487,8 @@ File layout:
 |-app.module-template.yaml
 ```
 
-Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical configurations in our codebase.
+Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical
+configurations in our codebase.
 
 Examples: [templates](../examples/templates)
 

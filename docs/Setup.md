@@ -1,6 +1,6 @@
 ## Check your IDE
 
-* Use tne latest [IntelliJ IDEA 2024.1 EAP](https://www.jetbrains.com/idea/nextversion/) with Amper plugin for JVM and Android projects.
+* Use the latest [IntelliJ IDEA 2024.1 EAP](https://www.jetbrains.com/idea/nextversion/) with Amper plugin for JVM and Android projects.
 * Use the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) for JVM, Android, and Kotlin Multiplatform projects.
  
 The best way to get the most recent IDE versions is by using the [Toolbox App](https://www.jetbrains.com/lp/toolbox/).
