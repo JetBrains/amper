@@ -4,7 +4,7 @@
 
 ## Breaking changes
 
-Amper now uses the `release` javac option instead of `target` and `source` to compiler Java code. 
+Amper now uses the `release` javac option instead of `target` and `source` to compile the Java code. 
 This version is also passed to the Kotlin compiler on the JVM platform.   
 
 You need to update your configuration files. If you have the following settings:
@@ -21,7 +21,7 @@ Remove `java:source:` and change `jvm:target:` to `jvm:release:`:
 ```yaml
 settings:
   jvm:
-    targe: 17
+    release: 17
 ```
 
 See the [DSL reference](docs/DSLReference.md#jvm) for details.
