@@ -343,7 +343,7 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         doLast {
             adb(
                 "install", "-t",
-                "androidUITestsAssets/app-debug-androidTest.apk"
+                "androidUITestsAssets/testAPK/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
             )
         }
     }
