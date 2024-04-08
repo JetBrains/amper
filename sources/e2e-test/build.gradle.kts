@@ -467,8 +467,8 @@ tasks.register("installAndTestPureApps") {
 fun installAndRunApk(apkFile: File) {
     val packageName = "com.jetbrains.sample.app"
 
-    adb("install", apkFile.absolutePath)
-    adb("shell", "am", "instrument", "-w", "-r", "-t", "$packageName.test/androidx.test.runner.AndroidJUnitRunner")
+    adb("install", "-t", apkFile.absolutePath)
+    adb("shell", "am", "instrument", "-w", "-r", "$packageName.test/androidx.test.runner.AndroidJUnitRunner")
     println("Uninstalling $packageName")
     adb("uninstall", packageName)
 }
