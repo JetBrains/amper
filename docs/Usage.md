@@ -1,6 +1,6 @@
-### Using Amper from command line
+### Using the Gradle-based Amper from command line
 
-Since Amper is currently [Gradle-based](Documentation.md#gradle-based-projects) you can use it as usually:
+You can use the [Gradle-based](Documentation.md#gradle-based-projects) Amper is you normally use Gradle. 
 E.g. to build and run the [JVM Hello, World](../examples/jvm-hello-world):
 ```
 cd jvm-hello-world
@@ -8,7 +8,43 @@ cd jvm-hello-world
 ```
 See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_building_java_applications.html) for more info.
 
-_Note, that to use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is recommended._
+> To use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is
+> recommended.
+
+### Using the standalone Amper from command line
+
+To use Amper CLI, you need to download the wrapper script to your project's root folder. The wrapper script is
+a small file that downloads and runs the actual Amper CLI distribution.
+
+Depending on your operating system, use one of the following commands to download the wrapper script:
+Linux/macOS:
+```
+curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-487/cli-0.3.0-dev-487-wrapper.sh?download=true" && chmod +x amper.sh
+```
+
+Windows powershell:
+```
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-487/cli-0.3.0-dev-487-wrapper.bat?download=true -OutFile amper.bat
+```
+
+Alternatively, you can use any other method to download the wrapper script from the Maven repository, as long as you
+save it with the correct name and extension.
+
+After that, run the Amper script to explore what is possible using Amper CLI:
+
+Linux/macOS
+```
+./amper.sh --help
+```
+
+Windows powershell:
+
+```
+./amper.bat --help
+```
+
+> The first time you run the wrapper script, it will take some time to download the JDK and Amper CLI distribution.
+Subsequent runs will be faster, as the downloaded files will be cached locally.
 
 ### Using Amper in IntelliJ IDEA
 
