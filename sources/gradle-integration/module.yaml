@@ -28,3 +28,7 @@ test-dependencies:
   - org.gradle:gradle-tooling-api:8.1
   - commons-io:commons-io:2.4
   - ../test-base
+
+tasks:
+  testJvm:
+    dependsOn: [ publishJvmToMavenLocal ]

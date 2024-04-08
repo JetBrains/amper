@@ -24,3 +24,8 @@ test-dependencies:
 
 apply:
   - ../common.module-template.yaml
+
+tasks:
+  testJvm:
+    # android gradle plugin
+    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal ]
