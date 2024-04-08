@@ -15,6 +15,7 @@ dependencies:
   - ../frontend/schema
   - ../dependency-resolution
   - ../android-integration/runner
+  - ../android-integration/android-utils
   - org.jetbrains:ij-parsing-core:0.3.154
   - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980
   - com.jetbrains.intellij.platform:core:233.13763.11

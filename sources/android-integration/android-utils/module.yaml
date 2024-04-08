@@ -1,0 +1,11 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../../common.module-template.yaml
+
+
+dependencies:
+  - ../../core
+  - com.android.tools:common:31.2.0

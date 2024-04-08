@@ -4,40 +4,9 @@
 
 package org.jetbrains.amper.util
 
-import com.android.SdkConstants
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.schema.AndroidSettings
-import java.nio.file.Path
-import java.nio.file.Paths
 
 const val headlessEmulatorModePropertyName = "org.jetbrains.amper.android.emulator.headless"
 
 val AndroidSettings.repr: String
     get() = "AndroidSettings(minSdk=$minSdk, maxSdk=$maxSdk, targetSdk=$targetSdk, compileSdk=$compileSdk, namespace='$namespace', applicationId='$applicationId')"
-
-class AndroidSdkDetector(
-    private val suggesters: List<Suggester> = buildList {
-        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_HOME_ENV))
-        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_SDK_ROOT_ENV))
-        add(DefaultSuggester())
-    }
-) {
-    fun detectSdkPath(): Path? = suggesters.firstNotNullOfOrNull { it.suggestSdkPath() }
-
-    interface Suggester {
-        fun suggestSdkPath(): Path?
-    }
-
-    class EnvironmentVariableSuggester(private val environmentVariableName: String) : Suggester {
-        override fun suggestSdkPath(): Path? = System.getenv(environmentVariableName)?.let { Paths.get(it) }
-    }
-
-    class DefaultSuggester : Suggester {
-        override fun suggestSdkPath(): Path? = when (DefaultSystemInfo.detect().family) {
-            SystemInfo.OsFamily.Windows -> Path.of(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
-            SystemInfo.OsFamily.MacOs -> Path.of(System.getProperty("user.home")).resolve("Library/Android/sdk")
-            else -> Path.of(System.getProperty("user.home")).resolve("Android/Sdk")
-        }
-    }
-}
