@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
@@ -65,7 +66,8 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         val publishRepositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList())
             .filter { it.publish }
         for (repository in publishRepositories) {
-            val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = "To${repository.id.doCapitalize()}")
+            val publishTaskSuffix = "To${repository.id.doCapitalize()}"
+            val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = publishTaskSuffix)
             registerTask(
                 PublishTask(
                     taskName = publishTaskName,
@@ -76,6 +78,15 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 ),
                 jarTaskName,
             )
+
+            // Publish task should depend on publishing of modules which this module depends on
+            // TODO It could be optional in the future by, e.g., introducing an option to `publish` command
+            val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !it.isTest }
+            val thisModuleDependencies = thisModuleFragments.flatMap { it.externalDependencies }.filterIsInstance<PotatoModuleDependency>()
+            for (moduleDependency in thisModuleDependencies) {
+                val dependencyPublishTaskName = CommonTaskType.Publish.getTaskName(moduleDependency.module, platform, suffix = publishTaskSuffix)
+                registerDependency(publishTaskName, dependencyPublishTaskName)
+            }
 
             // TODO It should be optional to publish or not to publish sources
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)

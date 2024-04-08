@@ -396,8 +396,20 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             }
             .map { it.relativeTo(groupDir).pathString.replace('\\', '/') }
             .sorted()
+
+        // note that publishing of main-lib module triggers all other modules (by design)
         assertEquals(
             """
+                jvm-lib/1.2.3/_remote.repositories
+                jvm-lib/1.2.3/jvm-lib-1.2.3-sources.jar
+                jvm-lib/1.2.3/jvm-lib-1.2.3.jar
+                jvm-lib/1.2.3/jvm-lib-1.2.3.pom
+                jvm-lib/maven-metadata-local.xml
+                kmp-lib-jvm/1.2.3/_remote.repositories
+                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3-sources.jar
+                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3.jar
+                kmp-lib-jvm/1.2.3/kmp-lib-jvm-1.2.3.pom
+                kmp-lib-jvm/maven-metadata-local.xml
                 main-lib/1.2.3/_remote.repositories
                 main-lib/1.2.3/main-lib-1.2.3-sources.jar
                 main-lib/1.2.3/main-lib-1.2.3.jar

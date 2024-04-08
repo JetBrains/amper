@@ -30,8 +30,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.maven.MavenCoordinates
-import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.publicationCoordinates
+import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor
 import org.jetbrains.amper.tasks.SourcesJarTask.SourcesJarTaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask.JvmClassesJarTaskResult
@@ -106,10 +106,7 @@ class PublishTask(
             repositorySystem.deploy(repositorySession, deployRequest)
         }
 
-        return object : TaskResult {
-            override val dependencies: List<TaskResult>
-                get() = dependenciesResult
-        }
+        return PublishTaskResult(dependenciesResult)
     }
 
     private fun createArtifactsToDeploy(dependenciesResult: List<TaskResult>): List<Artifact> {
@@ -119,7 +116,7 @@ class PublishTask(
 
         // Note: this will break if we have multiple dependency tasks with the same type, because we'll try to publish
         //  different files with identical artifact coordinates (including classifier).
-        return dependenciesResult.map { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
+        return dependenciesResult.mapNotNull { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
     }
 
     private fun generatePomFile(module: PotatoModule, platform: Platform): Path {
@@ -135,8 +132,11 @@ class PublishTask(
     private fun TaskResult.toMavenArtifact(coords: MavenCoordinates) = when (this) {
         is JvmClassesJarTaskResult -> jarPath.toMavenArtifact(coords)
         is SourcesJarTaskResult -> jarPath.toMavenArtifact(coords, classifier = "sources")
+        is PublishTaskResult -> null
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
+
+    class PublishTaskResult(override val dependencies: List<TaskResult>) : TaskResult
 
     companion object {
         private val container: PlexusContainer by lazy {
