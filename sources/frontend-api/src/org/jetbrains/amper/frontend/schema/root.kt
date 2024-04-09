@@ -21,23 +21,23 @@ val noModifiers = emptySet<TraceableString>()
 
 sealed class Base : SchemaNode() {
 
-    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. See [repositories](#managing-maven-repositories)")
+    @SchemaDoc("The list of repositories used to look up and download the Module dependencies. [Read more](#managing-maven-repositories)")
     var repositories by nullableValue<List<Repository>>()
 
     @ModifierAware
-    @SchemaDoc("The list of modules and libraries necessary to build the Module. See [dependencies](#dependencies)")
+    @SchemaDoc("The list of modules and libraries necessary to build the Module. [Read more](#dependencies)")
     var dependencies by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
-    @SchemaDoc("Configures the toolchains used in the build process. See [settings](#settings)")
+    @SchemaDoc("Configures the toolchains used in the build process. [Read more](#settings)")
     var settings by value(mapOf(noModifiers to Settings()))
 
     @ModifierAware
-    @SchemaDoc("The dependencies necessary to build and run tests of the Module. See [dependencies](#dependencies)")
+    @SchemaDoc("The dependencies necessary to build and run tests of the Module. [Read more](#dependencies)")
     var `test-dependencies` by nullableValue<Map<Modifiers, List<Dependency>>>()
 
     @ModifierAware
-    @SchemaDoc("Controls building and running the Module tests. See [settings](#settings)")
+    @SchemaDoc("Configures the toolchains used in the build process of the module's tests. [Read more](#settings)")
     var `test-settings` by value(mapOf(noModifiers to Settings()))
 
     @SchemaDoc("Tasks settings. Experimental and will be replaced")
@@ -58,39 +58,37 @@ class Template : Base()
 
 class Module : Base() {
 
-    @SchemaDoc("Defines what should be produced out of the module. See [products](#product-types)")
+    @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
     var product by value<ModuleProduct>()
 
-    @SchemaDoc("Defines the names for the custom code sharing groups. See [aliases](#aliases)")
+    @SchemaDoc("Defines the names for the custom code sharing groups. [Read more](#aliases)")
     var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
 
-    @SchemaDoc("List of templates that are applied. See [Templates](#templates)")
+    @SchemaDoc("Lists the templates applied to the module. [Read more](#templates)")
     var apply by nullableValue<List<Path>>()
 
-    @SchemaDoc("Non-code/product related aspects of the Module (e.g. file layout)")
+    @SchemaDoc("Configures various aspects of the module, such as file layout")
     var module by value(::Meta)
 }
 
 @AdditionalSchemaDef(repositoryShortForm, useOneOf = true)
-@SchemaDoc("Maven repository settings")
 class Repository : SchemaNode() {
 
-    @SchemaDoc("The url to the repository")
+    @SchemaDoc("The url of the repository")
     var url by value<String>()
 
-    @SchemaDoc("The ID of the repository, used for to reference it (defaults to url)")
+    @SchemaDoc("The ID of the repository, used for to reference it. Defaults to the repository url")
     var id by value { url }
 
-    @SchemaDoc("Username/password authentication support")
+    @SchemaDoc("Credentials for the authenticated repositories")
     var credentials by nullableValue<Credentials>()
 
-    @SchemaDoc("Should this repository used to publish artifacts")
+    @SchemaDoc("Whether this repository can be used to publish artifacts")
     var publish by value(false)
 
-    @SchemaDoc("Username/password pair for maven repository")
     class Credentials : SchemaNode() {
 
-        @SchemaDoc("A relative path to a file with the credentials")
+        @SchemaDoc("A relative path to a file with the credentials. Currently, only `*.property` files are supported")
         var file by value<Path>()
 
         @SchemaDoc("A key in the file that holds the username")
@@ -101,7 +99,6 @@ class Repository : SchemaNode() {
     }
 }
 
-@SchemaDoc("Provides custom settings for tasks")
 class TaskSettings: SchemaNode() {
     @SchemaDoc("Adds to task dependencies")
     var dependsOn by nullableValue<List<String>>()
@@ -113,26 +110,25 @@ const val repositoryShortForm = """
   }
 """
 
-@SchemaDoc("File layout that is used for the module")
+@SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interop)")
 enum class AmperLayout(
     override var schemaValue: String,
     override val outdated: Boolean = false
 ) : SchemaEnum {
-    @SchemaDoc("Gradle like file layout")
+    @SchemaDoc("The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets)")
     GRADLE("gradle-kmp"),
 
-    @SchemaDoc("Jvm compatible gradle like layout")
+    @SchemaDoc("The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html)")
     GRADLE_JVM("gradle-jvm"),
 
-    @SchemaDoc("Amper file layout")
+    @SchemaDoc("The [default Amper file layout](#project-layout) is used")
     AMPER("default"),;
 
     companion object : EnumMap<AmperLayout, String>(AmperLayout::values, AmperLayout::schemaValue)
 }
 
-@SchemaDoc("Meta settings for current module")
 class Meta : SchemaNode() {
 
-    @SchemaDoc("Which file layout to use")
+    @SchemaDoc("File layout of the module. [Read more](#file-layout-with-gradle-interop)")
     var layout by value(AmperLayout.AMPER)
 }

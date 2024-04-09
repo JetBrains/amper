@@ -1,85 +1,85 @@
 Module
 ------
-	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups. See [aliases](#aliases)
-	apply: List<Path> - List of templates that are applied. See [Templates](#templates)
-	module: Meta - Non-code/product related aspects of the Module (e.g. file layout)
-	product: ModuleProduct - Defines what should be produced out of the module. See [products](#product-types)
-	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. See [dependencies](#dependencies)
-	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. See [repositories](#managing-maven-repositories)
-	settings[@modifier]: Settings - Configures the toolchains used in the build process. See [settings](#settings)
+	aliases: Map<String, Set<Platform>> - Defines the names for the custom code sharing groups. [Read more](#aliases)
+	apply: List<Path> - Lists the templates applied to the module. [Read more](#templates)
+	module: Meta - Configures various aspects of the module, such as file layout
+	product: ModuleProduct - Defines what should be produced out of the module. Read more about the [product types](#product-types)
+	dependencies[@modifier]: List<Dependency> - The list of modules and libraries necessary to build the Module. [Read more](#dependencies)
+	repositories: List<Repository> - The list of repositories used to look up and download the Module dependencies. [Read more](#managing-maven-repositories)
+	settings[@modifier]: Settings - Configures the toolchains used in the build process. [Read more](#settings)
 	tasks: Map<String, TaskSettings> - Tasks settings. Experimental and will be replaced
-	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. See [dependencies](#dependencies)
-	test-settings[@modifier]: Settings - Controls building and running the Module tests. See [settings](#settings)
+	test-dependencies[@modifier]: List<Dependency> - The dependencies necessary to build and run tests of the Module. [Read more](#dependencies)
+	test-settings[@modifier]: Settings - Configures the toolchains used in the build process of the module's tests. [Read more](#settings)
 
-Meta: Meta settings for current module
---------------------------------------
-	layout: AmperLayout, default: default - Which file layout to use
+Meta
+----
+	layout: AmperLayout, default: default - File layout of the module. [Read more](#file-layout-with-gradle-interop)
 
-ModuleProduct: Description of the product that should be built from the module
-------------------------------------------------------------------------------
+ModuleProduct: Defines what should be produced out of the module. [Read more](#product-types)
+---------------------------------------------------------------------------------------------
 	platforms: List<Platform> - What platforms to generate the product for
 	type: ProductType - What type of product to generate
 
 CatalogDependency
 -----------------
-	catalogKey: String - [Dependency from a dependency catalog](#dependencyversion-catalogs)
-	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
-	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
+	catalogKey: String - Dependency from [a dependency catalog](#dependencyversion-catalogs)
+	exported: Boolean, default: false - Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)
+	scope: DependencyScope, default: all - When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)
 
 ExternalMavenDependency
 -----------------------
-	coordinates: String - [Dependency on a Kotlin or Java library](#external-maven-dependencies) in a Maven repository
-	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
-	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
+	coordinates: String - Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository
+	exported: Boolean, default: false - Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)
+	scope: DependencyScope, default: all - When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)
 
 InternalDependency
 ------------------
-	path: Path - [Dependency on another Module](#internal-dependencies) in the codebase
-	exported: Boolean, default: false - [When in the build process](#scopes-and-visibility) should a dependency be used
-	scope: DependencyScope, default: all - Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)
+	path: Path - Dependency [on another module](#module-dependencies) in the codebase
+	exported: Boolean, default: false - Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)
+	scope: DependencyScope, default: all - When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)
 
-Repository: Maven repository settings
--------------------------------------
-	credentials: Credentials - Username/password authentication support
-	id: String - The ID of the repository, used for to reference it (defaults to url)
-	publish: Boolean, default: false - Should this repository used to publish artifacts
-	url: String - The url to the repository
+Repository
+----------
+	credentials: Credentials - Credentials for the authenticated repositories
+	id: String - The ID of the repository, used for to reference it. Defaults to the repository url
+	publish: Boolean, default: false - Whether this repository can be used to publish artifacts
+	url: String - The url of the repository
 
-Credentials: Username/password pair for maven repository
---------------------------------------------------------
-	file: Path - A relative path to a file with the credentials
+Credentials
+-----------
+	file: Path - A relative path to a file with the credentials. Currently, only `*.property` files are supported
 	passwordKey: String - A key in the file that holds the password
 	usernameKey: String - A key in the file that holds the username
 
-Settings: Configures the toolchains used in the build process. See [settings](#settings).
------------------------------------------------------------------------------------------
+Settings
+--------
 	android: AndroidSettings - Android toolchain and platform settings
-	compose: ComposeSettings - Compose multiplatform framework settings
+	compose: ComposeSettings - [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework.Read more about [Compose configuration](#configuring-compose-multiplatform)
 	ios: IosSettings - iOS toolchain and platform settings
-	junit: JUnitVersion, default: junit-4 - Used JUnit version
-	jvm: JvmSettings - JVM platform specific settings
+	junit: JUnitVersion, default: junit-4 - JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)
+	jvm: JvmSettings - JVM platform-specific settings
 	kotlin: KotlinSettings - Kotlin language and the compiler settings
-	kover: KoverSettings - Kover settings
-	native: NativeSettings - Native applications related settings
-	publishing: PublishingSettings - Artifact publishing related settings
+	kover: KoverSettings - Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+	native: NativeSettings - Native applications settings
+	publishing: PublishingSettings - Publishing settings
 
 AndroidSettings
 ---------------
-	applicationId: String - The ID for the application on a device and in the Google Play Store. Read [more](https://developer.android.com/build/configure-app-module#set-namespace)
-	compileSdk: AndroidVersion - The API level to compile the code. The code can use only the Android APIs up to that API level. Read [more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())
-	maxSdk: AndroidVersion, default: 34 - Maximum API level on which the application can run. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
-	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
-	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. Read [more](https://developer.android.com/build/configure-app-module#set-namespace)
-	targetSdk: AndroidVersion, default: 34 - The target API level for the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	applicationId: String - The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
+	compileSdk: AndroidVersion - The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())
+	maxSdk: AndroidVersion, default: 34 - Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
+	targetSdk: AndroidVersion, default: 34 - The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 
 ComposeSettings
 ---------------
 	enabled: Boolean, default: false - Enable Compose runtime, dependencies and the compiler plugins
-	version: String - Used compose version
+	version: String - The Compose plugin version
 
 IosSettings
 -----------
-	framework: IosFrameworkSettings - (Only for the library [product type](Documentation.md#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)
+	framework: IosFrameworkSettings - (Only for the library [product type](#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)
 	teamId: String - A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)
 
 IosFrameworkSettings
@@ -109,11 +109,11 @@ KotlinSettings
 
 SerializationSettings
 ---------------------
-	format: String, default: json - Chosen serialization engine
+	format: String, default: json - Kotlin Serialization format
 
 KoverSettings
 -------------
-	enabled: Boolean, default: false - Enable kover library
+	enabled: Boolean, default: false - Enable code overage with Kover
 	html: KoverHtmlSettings
 	xml: KoverXmlSettings
 
@@ -131,15 +131,15 @@ KoverXmlSettings
 
 NativeSettings
 --------------
-	entryPoint: String - Fqn of the function that is an entry of the application
+	entryPoint: String - The fully-qualified name of the application's entry point function
 
 PublishingSettings
 ------------------
-	group: String - Group id of the published module
-	name: String - Name (artifactId) of the published module
-	version: String - Version of the published module
+	group: String - Group ID of the published Maven artifact
+	name: String - Artifact ID of the published Maven artifact
+	version: String - Version of the published Maven artifact
 
-TaskSettings: Provides custom settings for tasks
-------------------------------------------------
+TaskSettings
+------------
 	dependsOn: List<String> - Adds to task dependencies
 

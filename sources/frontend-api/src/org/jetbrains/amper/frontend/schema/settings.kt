@@ -21,10 +21,9 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
     companion object Index : EnumMap<JUnitVersion, String>(JUnitVersion::values, JUnitVersion::schemaValue)
 }
 
-@SchemaDoc("Configures the toolchains used in the build process. See [settings](#settings).")
 class Settings : SchemaNode() {
 
-    @SchemaDoc("JVM platform specific settings")
+    @SchemaDoc("JVM platform-specific settings")
     var jvm by value(::JvmSettings)
 
     @SchemaDoc("Kotlin language and the compiler settings")
@@ -33,22 +32,24 @@ class Settings : SchemaNode() {
     @SchemaDoc("Android toolchain and platform settings")
     var android by value(::AndroidSettings)
 
-    @SchemaDoc("Compose multiplatform framework settings")
+    @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework." +
+            "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)
 
-    @SchemaDoc("Used JUnit version")
+    @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
+            "Read more about [testing support](#tests)")
     var junit by value(JUnitVersion.JUNIT4)
 
     @SchemaDoc("iOS toolchain and platform settings")
     var ios by value(::IosSettings)
 
-    @SchemaDoc("Artifact publishing related settings")
+    @SchemaDoc("Publishing settings")
     var publishing by nullableValue<PublishingSettings>()
 
-    @SchemaDoc("Kover settings")
+    @SchemaDoc("Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)")
     var kover by nullableValue<KoverSettings>()
 
-    @SchemaDoc("Native applications related settings")
+    @SchemaDoc("Native applications settings")
     var native by nullableValue<NativeSettings>()
 }
 
@@ -58,7 +59,7 @@ class ComposeSettings : SchemaNode() {
     @SchemaDoc("Enable Compose runtime, dependencies and the compiler plugins")
     var enabled by value(default = false)
 
-    @SchemaDoc("Used compose version")
+    @SchemaDoc("The Compose plugin version")
     var version by nullableValue<String> { UsedVersions.composeVersion.takeIf { enabled } }
 }
 
@@ -73,7 +74,7 @@ const val composeSettingsShortForm = """
 @AdditionalSchemaDef(serializationSettingsShortForm)
 class SerializationSettings : SchemaNode() {
 
-    @SchemaDoc("Chosen serialization engine")
+    @SchemaDoc("Kotlin Serialization format")
     var format by value("json")
 }
 
@@ -91,10 +92,11 @@ class IosSettings : SchemaNode() {
 
     @SchemaDoc("A Team ID is a unique string assigned to your team by Apple.<br>" +
             "It's necessary if you want to run/test on a Apple device.<br>" +
-            "Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)")
+            "Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/)," +
+            " or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)")
     var teamId by nullableValue<String>()
 
-    @SchemaDoc("(Only for the library [product type](Documentation.md#product-types) " +
+    @SchemaDoc("(Only for the library [product type](#product-types) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
     var framework by value(::IosFrameworkSettings)
 }
@@ -110,20 +112,20 @@ class IosFrameworkSettings : SchemaNode() {
 
 class PublishingSettings : SchemaNode() {
 
-    @SchemaDoc("Group id of the published module")
+    @SchemaDoc("Group ID of the published Maven artifact")
     var group by nullableValue<String>()
 
-    @SchemaDoc("Version of the published module")
+    @SchemaDoc("Version of the published Maven artifact")
     var version by nullableValue<String>()
 
-    @SchemaDoc("Name (artifactId) of the published module")
+    @SchemaDoc("Artifact ID of the published Maven artifact")
     var name by nullableValue<String>()
 }
 
 @AdditionalSchemaDef(koverSettingsShortForm)
 class KoverSettings : SchemaNode() {
 
-    @SchemaDoc("Enable kover library")
+    @SchemaDoc("Enable code overage with Kover")
     var enabled by value(false)
 
 //    @SchemaDoc("")
@@ -166,6 +168,6 @@ class KoverHtmlSettings : SchemaNode() {
 class NativeSettings : SchemaNode() {
 
     // TODO other options from NativeApplicationPart
-    @SchemaDoc("Fqn of the function that is an entry of the application")
+    @SchemaDoc("The fully-qualified name of the application's entry point function")
     var entryPoint by nullableValue<String>()
 }

@@ -26,31 +26,31 @@ enum class DependencyScope(
 sealed class Dependency : SchemaNode() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
-    @SchemaDoc("[When in the build process](#scopes-and-visibility) should a dependency be used")
+    @SchemaDoc("Whether a dependency should be [visible as a part of a published API](#scopes-and-visibility)")
     var exported by value(false)
 
-    @SchemaDoc("Whether a dependency should be [visible as a par of a published API](#scopes-and-visibility)")
+    @SchemaDoc("When the dependency should be used. Read more about the [dependency scopes](#scopes-and-visibility)")
     var scope by value(DependencyScope.ALL)
 }
 
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
 
-    @SchemaDoc("[Dependency on a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
+    @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
     var coordinates by value<String>()
 }
 
 @CustomSchemaDef(dependencySchema)
 class InternalDependency  : Dependency() {
 
-    @SchemaDoc("[Dependency on another Module](#internal-dependencies) in the codebase")
+    @SchemaDoc("Dependency [on another module](#module-dependencies) in the codebase")
     var path by nullableValue<Path>()
 }
 
 @CustomSchemaDef(dependencySchema)
 class CatalogDependency  : Dependency() {
 
-    @SchemaDoc("[Dependency from a dependency catalog](#dependencyversion-catalogs)")
+    @SchemaDoc("Dependency from [a dependency catalog](#dependencyversion-catalogs)")
     var catalogKey by value<String>()
 }
 

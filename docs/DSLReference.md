@@ -43,7 +43,7 @@ Supported product types and platforms:
 |---------------|----------------------------------------------------------------------------------------|---------------------------------------------------------------|
 | `lib`         | A reusable library which could be used as dependency by other modules in the codebase. | any                                                           |
 | `jvm/app`     | A JVM console or desktop application.                                                  | `jvm`                                                         |
-| `linux/app`   | A native linux application.                                                            | `linuxX86`, `linuxArm64`                                      |
+| `linux/app`   | A native Linux application.                                                            | `linuxX86`, `linuxArm64`                                      |
 | `windows/app` | A native Windows application.                                                          | `mingwX64`                                                    |
 | `macos/app`   | A native macOS application.                                                            | `macosX64`, `macosArm64`                                      |
 | `android/app` | An Android VM application.                                                             | `android`                                                     |
@@ -127,19 +127,19 @@ dependencies@debug:
 
 ### Module
 
-`module:` section defines the non-code/product related aspects of the module, such as file layout.
+`module:` section configures various aspects of the module, such as file layout.
 
-| Attribute      | Description               | Default   |
-|----------------|---------------------------|-----------|
-| `layout: enum` | Which file layout to use. | `default` |
+| Attribute      | Description                                                                               | Default   |
+|----------------|-------------------------------------------------------------------------------------------|-----------|
+| `layout: enum` | File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interop). | `default` |
 
 Supported file layouts:
 
-| Attribute    | Description                                                                                                                                    |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `default`    | [Default file layout](Documentation.md#project-layout) is used.                                                                                |
-| `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).    |
-| `gradle-kmp` | The file layout corresponds to the [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
+| Attribute    | Description                                                                                                                                           |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `default`    | The [default Amper file layout](Documentation.md#project-layout) is used.                                                                             |
+| `gradle-jvm` | The file layout corresponds to the standard Gradle [JVM layout](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html).           |
+| `gradle-kmp` | The file layout corresponds to the Gradle [Kotlin Multiplatform layout](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets). |
 
 See more on the layouts in the [documentation](Documentation.md#file-layout-with-gradle-interop).
 
@@ -160,6 +160,22 @@ module:
   layout: gradle-kmp
 ```
 
+### Templates
+
+`apply:` section lists the templates applied to the module. Read more about the [module templates](Documentation.md#templates)
+
+Use `- ./<relative path>` or `- ../<relative path>` notation, where the `<relative path>` points at a template file.
+
+Examples:
+
+```yaml
+# Apply a `common.module-template.yaml` template to the module
+product: jvm/app
+
+apply:
+  - ../common.module-template.yaml
+```
+
 ### Dependencies and test dependencies
 
 `dependecies:` section defines the list of modules and libraries necessary to build the module.
@@ -173,16 +189,16 @@ Supported dependency types:
 
 | Notation                                         | Description                                                                                                   |
 |--------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `- ./<relative path>`<br/>`- ../<relative path>` | [Dependency on another module](Documentation.md#internal-dependencies) in the codebase.                       |
-| `- <group ID>:<artifact ID>:<version>`           | [Dependency on a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
-| `- $<catalog.key>`                               | [Dependency from a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
+| `- ./<relative path>`<br/>`- ../<relative path>` | Dependency on [another module](Documentation.md#module-dependencies) in the codebase.                         |
+| `- <group ID>:<artifact ID>:<version>`           | Dependency on [a Kotlin or Java library](Documentation.md#external-maven-dependencies) in a Maven repository. |
+| `- $<catalog.key>`                               | Dependency from [a dependency catalog](Documentation.md#dependencyversion-catalogs).                          |
 
 Each dependency has the following attributes:
 
-| Attribute           | Description                                                                                                   | Default |
-|---------------------|---------------------------------------------------------------------------------------------------------------|---------|
-| `exported: boolean` | Whether a dependency should be [visible as a par of a published API](Documentation.md#scopes-and-visibility). | `false` |
-| `scope: enum`       | [When in the build process](Documentation.md#scopes-and-visibility) should a dependency be used.              | `all`   |
+| Attribute           | Description                                                                                                          | Default |
+|---------------------|----------------------------------------------------------------------------------------------------------------------|---------|
+| `exported: boolean` | Whether a dependency should be [visible as a part of a published API](Documentation.md#scopes-and-visibility).       | `false` |
+| `scope: enum`       | When the dependency should be used. Read more about the [dependency scopes](Documentation.md#scopes-and-visibility). | `all`   |
 
 Available scopes:
 
@@ -236,20 +252,20 @@ dependencies@jvm:
 `repositories:` section defines the list of repositories used to look up and download the module dependencies.
 Read more about the [dependency repositories](Documentation.md#managing-maven-repositories).
 
-| Attribute             | Description                                         |
-|-----------------------|-----------------------------------------------------|
-| `id: string`          | The ID of the repository, used for to reference it. |
-| `url: string`         | The url to the repository.                          |
-| `credentials: object` | Credentials for the authenticated repositories.     |
+| Attribute             | Description                                         | Default        | 
+|-----------------------|-----------------------------------------------------|----------------| 
+| `url: string`         | The url of the repository.                          |                |
+| `id: string`          | The ID of the repository, used for to reference it. | repository url |
+| `credentials: object` | Credentials for the authenticated repositories.     | empty          |
 
 Read more on the [repository configuration](Documentation.md#managing-maven-repositories)
 Credentials support username/password authentication and have the following attributes:
 
-| Attribute             | Description                                     |
-|-----------------------|-------------------------------------------------|
-| `file: path`          | A relative path to a file with the credentials. |
-| `usernameKey: string` | A key in the file that holds the username.      |
-| `passwordKey: string` | A key in the file that holds the password.      |
+| Attribute             | Description                                                                                       |
+|-----------------------|---------------------------------------------------------------------------------------------------|
+| `file: path`          | A relative path to a file with the credentials. Currently, only `*.property` files are supported. |
+| `usernameKey: string` | A key in the file that holds the username.                                                        |
+| `passwordKey: string` | A key in the file that holds the password.                                                        |
 
 Examples:
 
@@ -347,12 +363,12 @@ settings:
 
 | Attribute               | Description                                                                                                                                                                                                                   | Default |
 |-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `applicationId: string` | The ID for the application on a device and in the Google Play Store. Read [more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     |         |
-| `namespace: string`     | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. Read [more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           |         |
-| `compileSdk: int`       | The API level to compile the code. The code can use only the Android APIs up to that API level. Read [more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). |         |
-| `targetSdk: int`        | The target API level for the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             |         |
-| `minSdk: int`           | Minimum API level needed to run the application. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      |         |
-| `maxSdk: int`           | Maximum API level on which the application can run. Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |         |
+| `applicationId: string` | The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                                     |         |
+| `namespace: string`     | A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace).                                                           |         |
+| `compileSdk: int`       | The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk()). |         |
+| `targetSdk: int`        | The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                             |         |
+| `minSdk: int`           | Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                      |         |
+| `maxSdk: int`           | Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html).                                                                                   |         |
 
 #### iOS
 
@@ -378,7 +394,7 @@ framework. Read more about [Compose configuration](Documentation.md#configuring-
 | Attribute          | Description                                                    | Default  |
 |--------------------|----------------------------------------------------------------|----------|
 | `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins. | `false`  |
-| `version: string`  | Choose the Compose plugin version                              | `1.5.10` |
+| `version: string`  | The Compose plugin version.                                    | `1.5.10` |
 
 Examples:
 
@@ -411,11 +427,11 @@ By default, JUnit 4 is used.
 
 #### Kover
 
-`settings:kover:` configures kover for code coverage. Read more about [kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+`settings:kover:` configures kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 
-| Attribute          | Description  | Default |
-|--------------------|--------------|---------|
-| `enabled: boolean` | Enable Kover | `false` |
+| Attribute          | Description                    | Default |
+|--------------------|--------------------------------|---------|
+| `enabled: boolean` | Enable code overage with Kover | `false` |
 
 `settings:kover:html` configures HTML reports
 

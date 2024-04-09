@@ -58,26 +58,26 @@ enum class AndroidVersion(
 
 class AndroidSettings : SchemaNode() {
     @SchemaDoc("Minimum API level needed to run the application. " +
-            "Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
+            "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var minSdk by value(AndroidVersion.VERSION_21)
 
     @SchemaDoc("Maximum API level on which the application can run. " +
-            "Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
+            "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var maxSdk by value(AndroidVersion.VERSION_34)
 
     @SchemaDoc("The target API level for the application. " +
-            "Read [more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
+            "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
     var targetSdk by value(AndroidVersion.VERSION_34)
 
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
-            "Read [more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
+            "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")
     var compileSdk by value { targetSdk }
 
     @SchemaDoc("A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. " +
-            "Read [more](https://developer.android.com/build/configure-app-module#set-namespace)")
+            "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     var namespace by value("org.example.namespace")
 
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
-            "Read [more](https://developer.android.com/build/configure-app-module#set-namespace)")
+            "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     var applicationId by value { namespace }
 }

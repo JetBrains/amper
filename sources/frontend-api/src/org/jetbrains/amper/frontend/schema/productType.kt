@@ -16,7 +16,7 @@ import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.api.unsafe
 
 
-@SchemaDoc("Product type to build from the module")
+@SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
 @EnumValueFilter("obsolete", isNegated = true)
 enum class ProductType(
     val value: String,
@@ -25,7 +25,7 @@ enum class ProductType(
     @Suppress("unused") val obsolete: Boolean = false
 ): SchemaEnum {
 
-    @SchemaDoc("Kotlin multiplatform library")
+    @SchemaDoc("A reusable library which could be used as dependency by other modules in the codebase")
     LIB(
         "lib",
         supportedPlatforms = Platform.leafPlatforms,
@@ -39,42 +39,42 @@ enum class ProductType(
         obsolete = true
     ),
 
-    @SchemaDoc("JVM application")
+    @SchemaDoc("A JVM console or desktop application")
     JVM_APP(
         "jvm/app",
         supportedPlatforms = setOf(Platform.JVM),
         defaultPlatforms = setOf(Platform.JVM)
     ),
 
-    @SchemaDoc("Android application")
+    @SchemaDoc("An Android VM application")
     ANDROID_APP(
         "android/app",
         supportedPlatforms = setOf(Platform.ANDROID),
         defaultPlatforms = setOf(Platform.ANDROID)
     ),
 
-    @SchemaDoc("Ios application")
+    @SchemaDoc("An iOS application")
     IOS_APP(
         "ios/app",
         supportedPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64),
         defaultPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS_X64, Platform.IOS_SIMULATOR_ARM64)
     ),
 
-    @SchemaDoc("Macos application")
+    @SchemaDoc("A native macOS application")
     MACOS_APP(
         "macos/app",
         supportedPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64),
         defaultPlatforms = setOf(Platform.MACOS_X64, Platform.MACOS_ARM64)
     ),
 
-    @SchemaDoc("Linux application")
+    @SchemaDoc("A native linux application")
     LINUX_APP(
         "linux/app",
         supportedPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64),
         defaultPlatforms = setOf(Platform.LINUX_X64, Platform.LINUX_ARM64)
     ),
 
-    @SchemaDoc("Windows application")
+    @SchemaDoc("A native Windows application")
     WINDOWS_APP(
         "windows/app",
         supportedPlatforms = setOf(Platform.MINGW_X64),
@@ -90,7 +90,7 @@ enum class ProductType(
     companion object : EnumMap<ProductType, String>(ProductType::values, ProductType::value)
 }
 
-@SchemaDoc("Description of the product that should be built from the module")
+@SchemaDoc("Defines what should be produced out of the module. [Read more](#product-types)")
 @AdditionalSchemaDef(productShortForm, useOneOf = true)
 class ModuleProduct : SchemaNode() {
 
