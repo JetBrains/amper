@@ -18,3 +18,7 @@ test-dependencies:
 
 apply:
   - ../common.module-template.yaml
+
+tasks:
+  testJvm:
+    dependsOn: [ :gradle-integration:publishJvmToMavenLocal ]
