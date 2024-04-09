@@ -124,7 +124,8 @@ class JvmTestTask(
                     //  + one more interesting case: if we reported some failed tests to TeamCity, exit code of Amper should be 0,
                     //  since the build will be failed anyway and it'll just have one more useless build failure about exit code
                     if (result.exitCode != 0) {
-                        userReadableError("JVM tests failed for module '${module.userReadableName}' (see errors above)")
+                        val meaning = if (result.exitCode == 2) " (no tests were discovered)" else ""
+                        userReadableError("JVM tests failed for module '${module.userReadableName}' with exit code ${result.exitCode}$meaning (see errors above)")
                     }
 
                     JvmTestTaskResult(dependenciesResult)

@@ -13,6 +13,7 @@ import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
@@ -46,6 +47,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class AmperBackendTest : IntegrationTestBase() {
 
@@ -78,6 +80,31 @@ class AmperBackendTest : IntegrationTestBase() {
             .readText()
 
         assertTrue(xmlReport.contains("<testcase name=\"smoke\" classname=\"apkg.ATest\""), xmlReport)
+    }
+
+    @Test
+    fun `jvm kotlin test no tests`() = runTestInfinitely {
+        // Testing a module should fail if there are some test sources, but no tests were found
+        // for example it'll automatically fail if you run your tests with TestNG, but specified JUnit in settings
+
+        val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
+
+        try {
+            AmperBackend(projectContext).check()
+            fail("must throw")
+        } catch (t: UserReadableError) {
+            assertEquals("JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", t.message)
+        }
+    }
+
+    @Test
+    fun `jvm kotlin test no test sources`() = runTestInfinitely {
+        // Testing a module should not fail if there are no test sources at all
+        // but warn about it
+
+        val projectContext = setupTestDataProject("jvm-kotlin-test-no-test-sources")
+        AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-no-test-sources:testJvm"))
+        assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
     }
 
     @Test
