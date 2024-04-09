@@ -44,7 +44,7 @@ class NativeTestTask(
                 val command = listOf(executable.pathString)
                 val result = BuildPrimitives.runProcessAndGetOutput(command, workingDir, span)
                 if (result.exitCode != 0) {
-                    userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' (see errors above)")
+                    userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }
 
                 object : TaskResult {

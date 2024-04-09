@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.backend.test.extensions
 
+import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
@@ -28,7 +29,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
         get() = pathRef.get()!!
 
     override fun beforeEach(context: ExtensionContext?) {
-        pathRef.set(Files.createTempDirectory("test-dir"))
+        pathRef.set(Files.createTempDirectory(TestUtil.tempDir, "test-dir"))
     }
 
     override fun afterEach(context: ExtensionContext?) {

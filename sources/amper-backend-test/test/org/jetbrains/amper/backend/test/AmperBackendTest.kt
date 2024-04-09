@@ -43,6 +43,7 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.io.path.writeBytes
 import kotlin.io.path.writeText
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -86,6 +87,7 @@ class AmperBackendTest : IntegrationTestBase() {
     fun `jvm kotlin test no tests`() = runTestInfinitely {
         // Testing a module should fail if there are some test sources, but no tests were found
         // for example it'll automatically fail if you run your tests with TestNG, but specified JUnit in settings
+        // see `native test no tests`
 
         val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
 
@@ -98,12 +100,55 @@ class AmperBackendTest : IntegrationTestBase() {
     }
 
     @Test
+    @WindowsOnly
+    @Ignore("AMPER-474")
+    fun `native test no tests`() = runTestInfinitely {
+        // Testing a module should fail if there are some test sources, but no tests were found
+        // see `jvm kotlin test no tests`
+
+        val projectContext = setupTestDataProject("native-test-no-tests")
+
+        try {
+            AmperBackend(projectContext).check()
+            fail("must throw")
+        } catch (t: UserReadableError) {
+            assertEquals("Some message about `no tests were discovered`", t.message)
+        }
+    }
+
+    @Test
+    @WindowsOnly
+    @Ignore("AMPER-475")
+    fun `native test app test`() = runTestInfinitely {
+        // Testing a module should fail if there are some test sources, but no tests were found
+        // see `jvm kotlin test no tests`
+
+        val projectContext = setupTestDataProject("native-test-app-test")
+        AmperBackend(projectContext).check()
+        // TODO assert that some test was actually run
+    }
+
+    @Test
     fun `jvm kotlin test no test sources`() = runTestInfinitely {
         // Testing a module should not fail if there are no test sources at all
         // but warn about it
 
         val projectContext = setupTestDataProject("jvm-kotlin-test-no-test-sources")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-no-test-sources:testJvm"))
+        assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
+    }
+
+    @Test
+    @WindowsOnly
+    @Ignore("AMPER-476")
+    fun `native test no test sources`() = runTestInfinitely {
+        // Testing a module should not fail if there are no test sources at all
+        // but warn about it
+
+        val projectContext = setupTestDataProject("native-test-no-test-sources")
+        val amperBackend = AmperBackend(projectContext)
+        amperBackend.showTasks()
+        amperBackend.runTask(TaskName(":native-test-no-test-sources:testMingwX64"))
         assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
     }
 

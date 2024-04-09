@@ -1,0 +1,3 @@
+product:
+  type: windows/app
+  platforms: [ mingwX64 ]

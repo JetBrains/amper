@@ -34,7 +34,9 @@ import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 import kotlin.io.path.name
+import kotlin.io.path.pathString
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -45,7 +47,17 @@ abstract class IntegrationTestBase {
 
     protected val tempRoot: Path by lazy {
         // Always run tests in a directory with space, tests quoting in a lot of places
-        tempDirExtension.path.resolve("space test").also { it.createDirectories() }
+        // Since TempDirExtension generates temp directory under TestUtil.tempDir
+        // it should already contain a space in the part
+        // assert it anyway
+        val path = tempDirExtension.path
+        check(path.pathString.contains(" ")) {
+            "Temp path should contain a space: ${path.pathString}"
+        }
+        check(path.isDirectory()) {
+            "Temp path is not a directory: $path"
+        }
+        path
     }
 
     @RegisterExtension
