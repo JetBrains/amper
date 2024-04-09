@@ -61,10 +61,10 @@ You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062
 ## How to Try
 There are multiple ways to try Amper:
 
-* In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](/docs/Usage.md#using-amper-in-intellij-idea)).
-* In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](/docs/Usage.md#using-amper-in-fleet)).
-* Using [command line Amper](/docs/Usage.md#using-the-standalone-amper-from-command-line) to build standalone Amper projects.
-* Use [Gradle](/docs/Usage.md#using-the-gradle-based-amper-from-command-line) to build Gradle-based Amper projects.
+* In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
+* In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
+* Using [command line Amper](docs/Usage.md#using-the-standalone-amper-from-command-line) to build standalone Amper projects.
+* Use [Gradle](docs/Usage.md#using-the-gradle-based-amper-from-command-line) to build Gradle-based Amper projects.
 
 ## Examples
 
@@ -104,7 +104,7 @@ dependencies:
   - ../shared
 
 settings:
-  # Enable Compose Multiplatform framework
+  # Enable the Compose Multiplatform framework
   compose: enabled
 ```
 
@@ -123,12 +123,11 @@ dependencies:
 
 # Android-only dependencies  
 dependencies@android:
-  # integration compose with activities
+  # Android-specific integration with Compose
   - androidx.activity:activity-compose:1.7.2: exported
   - androidx.appcompat:appcompat:1.6.1: exported
 
-# iOS-only dependencies with a dependency on a CocoaPod
-#   note that CocoaPods dependencies are not yet implemented in the prototype
+# iOS-only dependencies with a dependency on a CocoaPod (not yet implemented)
 dependencies@ios:
   - pod: 'Alamofire'
     version: '~> 2.0.1'
