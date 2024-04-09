@@ -21,7 +21,6 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.io.path.name
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -117,7 +116,7 @@ class PropertyWithDependency<in T, out V, D>(
     }
 }
 
-private fun createOrReuseDependency(
+internal fun createOrReuseDependency(
     context: Context,
     group: String,
     module: String,
@@ -160,7 +159,7 @@ class MavenDependency internal constructor(
 
     private val mutex = Mutex()
 
-    val metadata = getDependencyFile(this, getNameWithoutExtension(this), "module")
+    val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
         get() = buildList {
@@ -206,7 +205,7 @@ class MavenDependency internal constructor(
         }
         // 2. If pom is missing or mentions metadata, use it.
         if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
-            if (metadata.isDownloadedOrDownload(level, context)) {
+            if (moduleFile.isDownloadedOrDownload(level, context)) {
                 resolveUsingMetadata(context, level)
                 return
             }
@@ -227,7 +226,7 @@ class MavenDependency internal constructor(
     private fun List<Variant>.filterWithFallbackPlatform(context: Context) : List<Variant> {
         val platformVariants = this.filter { context.settings.platform.matches(it) }
         return when {
-            platformVariants.withoutDocumentation.isNotEmpty()
+            platformVariants.withoutDocumentationAndMetadata.isNotEmpty()
                     || context.settings.platform.fallback == null -> platformVariants
             else -> this.filter { context.settings.platform.fallback.matches(it) }
         }
@@ -235,7 +234,7 @@ class MavenDependency internal constructor(
 
     private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(context: Context) : List<Variant> {
         return when {
-            (this.withoutDocumentation.size == 1) -> this
+            (this.withoutDocumentationAndMetadata.size == 1) -> this
             else -> {
                 val usedAttributes = setOf(
                   "org.gradle.category",
@@ -248,7 +247,7 @@ class MavenDependency internal constructor(
                 }
                 this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount }
                     .let {
-                        if (it.withoutDocumentation.size == 1) {
+                        if (it.withoutDocumentationAndMetadata.size == 1) {
                             it
                         } else {
                             this
@@ -260,12 +259,12 @@ class MavenDependency internal constructor(
 
     private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
         val module = try {
-            metadata.readText().parseMetadata()
+            moduleFile.readText().parseMetadata()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             messages.asMutable() += Message(
-                "Unable to parse metadata file $metadata",
+                "Unable to parse metadata file $moduleFile",
                 e.toString(),
                 Severity.ERROR,
                 e,
@@ -284,9 +283,9 @@ class MavenDependency internal constructor(
             .filterWithFallbackPlatform(context)
             .filterMultipleVariantsByUnusedAttributes(context)
 
-        return validVariants.also {
+        validVariants.also {
             variants = it
-            if (it.withoutDocumentation.size > 1) {
+            if (it.withoutDocumentationAndMetadata.size > 1) {
                 messages.asMutable() += Message(
                     "More than a single variant provided",
                     it.joinToString { it.name },
@@ -460,8 +459,10 @@ class MavenDependency internal constructor(
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
-    private val Collection<Variant>.withoutDocumentation: Collection<Variant> get() =
+    private val Collection<Variant>.withoutDocumentationAndMetadata: Collection<Variant> get() =
         filterNot { it.attributes["org.gradle.category"] == "documentation" }
+            .filterNot { it.attributes["org.gradle.usage"] == "kotlin-api"
+                    && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value }
 
     suspend fun downloadDependencies(context: Context) {
         files

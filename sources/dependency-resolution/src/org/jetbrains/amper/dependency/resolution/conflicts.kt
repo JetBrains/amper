@@ -65,7 +65,9 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
             .map { it.dependency }
             .distinctBy { it.version }
             .maxBy { ComparableVersion(it.version) }
-        candidates.asSequence().map { it as MavenDependencyNode }.forEach { it.dependency = dependency }
+        candidates.asSequence().map { it as MavenDependencyNode }.forEach {
+            it.dependency = createOrReuseDependency(it.context, it.group, it.module, dependency.version)
+        }
         return true
     }
 }
