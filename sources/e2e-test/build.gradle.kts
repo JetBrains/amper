@@ -13,7 +13,6 @@ import javax.xml.transform.stream.StreamResult
 import org.w3c.dom.Element
 
 
-
 val sessionInfoPath by extra { "$buildDir/device.session.json" }
 
 val amperBuildNumber = AmperBuild.BuildNumber // Assume AmperBuild.BuildNumber is accessible and holds a value
@@ -136,303 +135,347 @@ fun adb(vararg params: String): ByteArrayOutputStream {
         if (!outputDir.exists()) {
             outputDir.mkdirs()
         }
-         val outputFile = File(outputDir, "report.xml")
-         outputFile.writeText(convertToJUnitReport(cmdOutput))
+        val outputFile = File(outputDir, "report.xml")
+        outputFile.writeText(convertToJUnitReport(cmdOutput))
     }
     return stdout
 }
 
-    tasks.register("createAndroidRemoteSession") {
-        group = "android_Pure_Emulator_Tests"
-        doLast { createAdbRemoteSession() }
+tasks.register("createAndroidRemoteSession") {
+    group = "android_Pure_Emulator_Tests"
+    doLast { createAdbRemoteSession() }
+}
+
+tasks.register<Exec>("deleteAndroidRemoteSession") {
+    group = "android_Pure_Emulator_Tests"
+    commandLine = listOf("./scripts/espressoSession.sh", "-s", sessionInfoPath, "delete")
+}
+
+tasks.register("getEmulators") {
+    doLast {
+        val t = adb("devices")
+            .toString().lines().filter { it.contains("emulator") }
+            .forEach { println(it.trim().split("\\s+").first()) }
     }
+}
 
-    tasks.register<Exec>("deleteAndroidRemoteSession") {
-        group = "android_Pure_Emulator_Tests"
-        commandLine = listOf("./scripts/espressoSession.sh", "-s", sessionInfoPath, "delete")
-    }
-
-    tasks.register("getEmulators") {
-        doLast {
-            val t = adb("devices")
-                .toString().lines().filter { it.contains("emulator") }
-                .forEach { println(it.trim().split("\\s+").first()) }
-        }
-    }
-
-    tasks.register("uninstallPackages") {
-        dependsOn("createAndroidRemoteSession")
-        doLast {
-            adb("shell", "pm", "list", "packages", "-3")
-                .toString().lines().filter { it.contains("jetbrains") }
-                .forEach {
-                    adb("uninstall", it.replace("package:", "")).toString()
-                }
-        }
-        mustRunAfter("createAndroidRemoteSession")
-    }
-
-    tasks.register("installDebugApp") {
-        doLast {
-            adb(
-                "install",
-                "testData/projects/compose-android-ui/build/outputs/apk/debug/compose-android-ui-debug.apk"
-            )
-        }
-    }
-
-
-
-    tasks.register("runTestsViaAdb") {
-        dependsOn("installDebugApp")
-        dependsOn("installAndroidTestApp")
-        doFirst {
-
-            adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
-            adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
-
-            adb(
-                "shell",
-                "am",
-                "instrument",
-                "-w",
-                "-r",
-                "-e",
-                "class",
-                "com.jetbrains.compose_android_ui_test.InstrumentedTests",
-                "com.jetbrains.compose_android_ui_test.test/androidx.test.runner.AndroidJUnitRunner"
-            )
-        }
-    }
-
-    tasks.register("InstallPureAPKSampleApp") {
-        doLast {
-            val apkDirectory =
-                project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
-
-            val apkFiles = apkDirectory.listFiles { dir, name ->
-                println(name)
-                name.endsWith("-debug.apk")
-            } ?: arrayOf()
-
-
-            if (apkFiles.isNotEmpty()) {
-                val apkFile = apkFiles.first()
-                adb("install", apkFile.absolutePath)
-            } else {
-                throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
+tasks.register("uninstallPackages") {
+    dependsOn("createAndroidRemoteSession")
+    doLast {
+        adb("shell", "pm", "list", "packages", "-3")
+            .toString().lines().filter { it.contains("jetbrains") }
+            .forEach {
+                adb("uninstall", it.replace("package:", "")).toString()
             }
+    }
+    mustRunAfter("createAndroidRemoteSession")
+}
+
+tasks.register("installDebugApp") {
+    doLast {
+        adb(
+            "install",
+            "testData/projects/compose-android-ui/build/outputs/apk/debug/compose-android-ui-debug.apk"
+        )
+    }
+}
+
+
+
+tasks.register("runTestsViaAdb") {
+    dependsOn("installDebugApp")
+    dependsOn("installAndroidTestApp")
+    doFirst {
+
+        adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
+        adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
+
+        adb(
+            "shell",
+            "am",
+            "instrument",
+            "-w",
+            "-r",
+            "-e",
+            "class",
+            "com.jetbrains.compose_android_ui_test.InstrumentedTests",
+            "com.jetbrains.compose_android_ui_test.test/androidx.test.runner.AndroidJUnitRunner"
+        )
+    }
+}
+
+tasks.register("InstallPureAPKSampleApp") {
+    doLast {
+        val apkDirectory =
+            project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
+
+        val apkFiles = apkDirectory.listFiles { dir, name ->
+            println(name)
+            name.endsWith("-debug.apk")
+        } ?: arrayOf()
+
+
+        if (apkFiles.isNotEmpty()) {
+            val apkFile = apkFiles.first()
+            adb("install", apkFile.absolutePath)
+        } else {
+            throw GradleException("No APK file matching the pattern '-debug.apk' was found in $apkDirectory")
         }
     }
+}
 
 
+val prepareProjects = tasks.register("prepareProjectsAndroid") {
+    doLast {
+        val projectName: String = "compose-android-ui"
+        val runWithPluginClasspath: Boolean = true
+        val pathToProjects: String = "testData/projects/compose-android-ui"
 
-    val prepareProjects = tasks.register("prepareProjectsAndroid") {
-        doLast {
-            val projectName: String = "compose-android-ui"
-            val runWithPluginClasspath: Boolean = true
-            val pathToProjects: String = "testData/projects/compose-android-ui"
+        val implementationDir = file("../../sources").absoluteFile
+        val originalDir = file(pathToProjects).absoluteFile
 
-            val implementationDir = file("../../sources").absoluteFile
-            val originalDir = file(pathToProjects).absoluteFile
+        require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
+        require(originalDir.exists()) { "Test project not found at $originalDir" }
 
-            require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
-            require(originalDir.exists()) { "Test project not found at $originalDir" }
+        val gradleFile = originalDir.resolve("settings.gradle.kts")
+        require(gradleFile.exists()) { "file not found: $gradleFile" }
 
-            val gradleFile = originalDir.resolve("settings.gradle.kts")
-            require(gradleFile.exists()) { "file not found: $gradleFile" }
+        if (runWithPluginClasspath) {
+            val lines = gradleFile.readLines().filterNot { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" in it }
+            gradleFile.writeText(lines.joinToString("\n"))
 
-            if (runWithPluginClasspath) {
-                val lines = gradleFile.readLines().filterNot { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" in it }
-                gradleFile.writeText(lines.joinToString("\n"))
-
-                val gradleFileText = gradleFile.readText()
+            val gradleFileText = gradleFile.readText()
 
 
-                // Replace mavenCentral with additional repositories
-                val newText = gradleFileText.replace(
-                    "mavenCentral()",
-                    """
+            // Replace mavenCentral with additional repositories
+            val newText = gradleFileText.replace(
+                "mavenCentral()",
+                """
                 mavenCentral()
                 mavenLocal()
                 maven("https://www.jetbrains.com/intellij-repository/releases")
                 maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
                 """.trimIndent()
-                )
-                if (!gradleFileText.contains("mavenLocal()")) {
-                    gradleFile.writeText(newText)
-                }
-
-                require(gradleFile.readText().contains("mavenLocal")) {
-                    "Gradle file must have 'mavenLocal' after replacement: $gradleFile"
-                }
-
-                // Dynamically add Amper plugin version
-                val updatedText = gradleFile.readText().replace(
-                    "id(\"org.jetbrains.amper.settings.plugin\")",
-                    "id(\"org.jetbrains.amper.settings.plugin\") version(\"${"+"}\")"
-                )
-                if (!gradleFileText.contains(amperBuildNumber)) {
-                    gradleFile.writeText(updatedText)
-                }
-
-
-                require(gradleFile.readText().contains("version(")) {
-                    "Gradle file must have 'version(' after replacement: $gradleFile"
-                }
+            )
+            if (!gradleFileText.contains("mavenLocal()")) {
+                gradleFile.writeText(newText)
             }
 
-            if (gradleFile.readText().contains("includeBuild(\".\"")) {
-                throw GradleException("Example project $projectName has a relative includeBuild() call, but it's run within Amper tests from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
+            require(gradleFile.readText().contains("mavenLocal")) {
+                "Gradle file must have 'mavenLocal' after replacement: $gradleFile"
+            }
+
+            // Dynamically add Amper plugin version
+            val updatedText = gradleFile.readText().replace(
+                "id(\"org.jetbrains.amper.settings.plugin\")",
+                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${"+"}\")"
+            )
+            if (!gradleFileText.contains(amperBuildNumber)) {
+                gradleFile.writeText(updatedText)
+            }
+
+
+            require(gradleFile.readText().contains("version(")) {
+                "Gradle file must have 'version(' after replacement: $gradleFile"
+            }
+        }
+
+        if (gradleFile.readText().contains("includeBuild(\".\"")) {
+            throw GradleException("Example project $projectName has a relative includeBuild() call, but it's run within Amper tests from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
+        }
+    }
+}
+
+tasks.register<Copy>("copyAndroidTestProjects") {
+    group = "android_Pure_Emulator_Tests"
+    into(project.file("../../androidTestProjects"))
+
+    arrayOf("android-simple", "compose-android", "android-appcompat").forEach { dirName ->
+        val sourcePath = "../../examples.pure/$dirName"
+        from(sourcePath) {
+            into(dirName)
+        }
+    }
+}
+
+tasks.register("cleanAndroidTestProjects") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        val folderPath = project.file("../../androidTestProjects")
+
+        if (folderPath.exists()) {
+            folderPath.listFiles()?.forEach { file ->
+                delete(file)
             }
         }
     }
+}
 
-    tasks.register<Copy>("copyAndroidTestProjects") {
-        group = "android_Pure_Emulator_Tests"
-        into(project.file("../../androidTestProjects"))
 
-        arrayOf("android-simple", "compose-android", "android-appcompat").forEach { dirName ->
-            val sourcePath = "../../examples.pure/$dirName"
-            from(sourcePath) {
-                into(dirName)
-            }
-        }
-    }
+tasks.register("build_apks_for_ui_tests") {
+    group = "android_Pure_Emulator_Tests"
 
-    tasks.register("cleanAndroidTestProjects") {
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            val folderPath = project.file("../../androidTestProjects")
+    doLast {
+        val basePath = project.file("../../androidTestProjects")
 
-            if (folderPath.exists()) {
-                folderPath.listFiles()?.forEach { file ->
-                    delete(file)
+        if (basePath.exists() && basePath.isDirectory) {
+            basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
+                val command = " bash ./amper.sh task :${dir.name}:buildAndroidDebug"
+
+                project.exec {
+                    workingDir(dir)
+                    commandLine("bash", "-c", command)
+
                 }
             }
+        } else {
+            println("The path '$basePath' does not exist or is not a directory.")
         }
     }
+}
 
+tasks.register("installAndroidTestAppForPureTests") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        adb(
+            "install", "-t",
+            "testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        )
+    }
+}
 
-    tasks.register("build_apks_for_ui_tests") {
-        group = "android_Pure_Emulator_Tests"
+tasks.register("uninstallAndroidTestAppForPureTests") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        adb(
+            "uninstall",
+            "com.jetbrains.sample.app.test"
+        )
+    }
+}
 
-        doLast {
-            val basePath = project.file("../../androidTestProjects")
+tasks.register("uninstallAndroidAppForPureTests") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        adb(
+            "uninstall",
+            "com.jetbrains.sample.app"
+        )
+    }
+}
 
-            if (basePath.exists() && basePath.isDirectory) {
-                basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
-                    val command = " bash ./amper.sh task :${dir.name}:buildAndroidDebug"
+tasks.register("runTestsForPureAmper") {
+    group = "android_Pure_Emulator_Tests"
 
-                    project.exec {
-                        workingDir(dir)
-                        commandLine("bash", "-c", command)
+    doFirst {
 
+        adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
+        adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
+        adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
+        adb(
+            "shell",
+            "am",
+            "instrument",
+            "-w",
+            "-r",
+            "-t",
+            "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner",
+        )
+    }
+}
+
+tasks.register("installAndroidTestAppForPureTestsDebug") {
+    group = "android_Pure_Emulator_Tests"
+    doLast {
+        adb(
+            "install", "-t",
+            "testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+        )
+    }
+}
+
+fun convertToJUnitReport(instrumentationOutput: String): String {
+    val lines = instrumentationOutput.lines()
+    val testCases = mutableListOf<String>()
+    var className = ""
+    var testName = ""
+    var failureMessage = StringBuilder()
+    var inFailureBlock = false
+    var testFailed = false
+    var time = 0.0
+
+    lines.forEach { line ->
+        when {
+            line.startsWith("INSTRUMENTATION_STATUS: class=") -> className =
+                line.substringAfter("INSTRUMENTATION_STATUS: class=")
+
+            line.startsWith("INSTRUMENTATION_STATUS: test=") -> {
+                // If we're starting a new test, add the previous one to the list
+                if (testName.isNotEmpty() && className.isNotEmpty()) {
+                    val testCase = if (testFailed) {
+                        """<testcase classname="$className" name="$testName" time="$time">
+                            |<failure><![CDATA[$failureMessage]]></failure>
+                            |</testcase>""".trimMargin()
+                    } else {
+                        """<testcase classname="$className" name="$testName" time="$time" />"""
                     }
+                    testCases.add(testCase)
+                    // Reset for the next test
+                    failureMessage.clear()
+                    testFailed = false
                 }
-            } else {
-                println("The path '$basePath' does not exist or is not a directory.")
+                testName = line.substringAfter("INSTRUMENTATION_STATUS: test=")
             }
-        }
-    }
 
-    tasks.register("installAndroidTestAppForPureTests") {
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            adb(
-                "install", "-t",
-                "testData/projects/test-apk/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-            )
-        }
-    }
-
-    tasks.register("uninstallAndroidTestAppForPureTests") {
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            adb(
-                "uninstall",
-                "com.jetbrains.sample.app.test"
-            )
-        }
-    }
-
-    tasks.register("uninstallAndroidAppForPureTests") {
-        group = "android_Pure_Emulator_Tests"
-        doLast {
-            adb(
-                "uninstall",
-                "com.jetbrains.sample.app"
-            )
-        }
-    }
-
-    tasks.register("runTestsForPureAmper") {
-        group = "android_Pure_Emulator_Tests"
-
-        doFirst {
-
-            adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
-            adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
-            adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
-            adb(
-                "shell",
-                "am",
-                "instrument",
-                "-w",
-                "-r",
-                "-t",
-                "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner",
-            )
-        }
-    }
-
-    fun convertToJUnitReport(instrumentationOutput: String): String {
-        val lines = instrumentationOutput.lines()
-        val testCases = mutableListOf<String>()
-        var className = ""
-        var testName = ""
-        var time = 0.0
-
-        lines.forEach { line ->
-            when {
-                line.startsWith("INSTRUMENTATION_STATUS: class=") -> {
-                    className = line.substringAfter("INSTRUMENTATION_STATUS: class=")
-                }
-
-                line.startsWith("INSTRUMENTATION_STATUS: test=") -> {
-                    testName = line.substringAfter("INSTRUMENTATION_STATUS: test=")
-                }
-
-                line.startsWith("INSTRUMENTATION_STATUS_CODE: ") -> {
-                    val statusCode = line.substringAfter("INSTRUMENTATION_STATUS_CODE: ").toInt()
-                    if (statusCode == 0) {
-                        testCases.add("""<testcase classname="$className" name="$testName" time="$time" />""")
-                    }
-                }
-
-                line.startsWith("Time: ") -> {
-                    time = line.substringAfter("Time: ").toDouble()
-                }
+            line.startsWith("INSTRUMENTATION_STATUS_CODE: ") -> {
+                val statusCode = line.substringAfter("INSTRUMENTATION_STATUS_CODE: ").toInt()
+                inFailureBlock = statusCode == -2
+                testFailed = testFailed || inFailureBlock
             }
-        }
 
-        return """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <testsuite name="AndroidJUnitRunner" tests="${testCases.size}" failures="0" time="$time">
-            ${testCases.joinToString("\n")}
-        </testsuite>
-    """.trimIndent()
+            line.startsWith("Time: ") -> time = line.substringAfter("Time: ").toDouble()
+            line.startsWith("There was 1 failure:") -> inFailureBlock = true
+            line.startsWith("INSTRUMENTATION_CODE: ") -> inFailureBlock = false // End of failures block
+            inFailureBlock -> failureMessage.appendLine(line)
+        }
     }
+
+    // Add the last test case if it exists
+    if (testName.isNotEmpty() && className.isNotEmpty()) {
+        val testCase = if (testFailed) {
+            """<testcase classname="$className" name="$testName" time="$time">
+                |<failure><![CDATA[$failureMessage]]></failure>
+                |</testcase>""".trimMargin()
+        } else {
+            """<testcase classname="$className" name="$testName" time="$time" />"""
+        }
+        testCases.add(testCase)
+    }
+
+    return """
+        |<?xml version="1.0" encoding="UTF-8"?>
+        |<testsuite name="InstrumentationTestRunner" tests="${testCases.size}" failures="${
+        testCases.count {
+            it.contains(
+                "<failure"
+            )
+        }
+    }" time="$time">
+        |${testCases.joinToString("\n")}
+        |</testsuite>
+        """.trimMargin()
+}
 
 tasks.register("installAndTestPureApps") {
     group = "android_Pure_Emulator_Tests"
 
     doLast {
         val rootDirectory = project.file("../../androidTestProjects")
-        val projects = rootDirectory.listFiles()?.filter { it.isDirectory } ?: throw GradleException("No projects found in $rootDirectory.")
+        val projects = rootDirectory.listFiles()?.filter { it.isDirectory }
+            ?: throw GradleException("No projects found in $rootDirectory.")
 
         // Ensure there are projects to process.
         if (projects.isEmpty()) {
@@ -456,7 +499,7 @@ tasks.register("installAndTestPureApps") {
             }
         }
         val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
-        combineJUnitReports(outputDir.absolutePath,"main.xml")
+        combineJUnitReports(outputDir.absolutePath, "main.xml")
     }
 }
 
@@ -473,30 +516,50 @@ fun installAndRunApk(apkFile: File) {
 fun updateClassnameAndRenameFile(newClassName: String) {
     val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
     val file = File(outputDir, "report.xml")
+    if (!file.exists()) {
+        println("Report file does not exist.")
+        return
+    }
+
     val dbFactory = DocumentBuilderFactory.newInstance()
     val dBuilder = dbFactory.newDocumentBuilder()
     val doc: Document = dBuilder.parse(file)
     doc.documentElement.normalize()
 
-    val testcase = doc.getElementsByTagName("testcase").item(0)
-    testcase.attributes.getNamedItem("classname").textContent = newClassName
+    val testcases = doc.getElementsByTagName("testcase")
+    for (i in 0 until testcases.length) {
+        val testcase = testcases.item(i)
+        testcase.attributes.getNamedItem("classname").textContent = newClassName
+    }
 
-    val transformerFactory = javax.xml.transform.TransformerFactory.newInstance()
+    val transformerFactory = TransformerFactory.newInstance()
     val transformer = transformerFactory.newTransformer()
-    val source = javax.xml.transform.dom.DOMSource(doc)
+    val source = DOMSource(doc)
     val tempFile = File(file.parent, "temp_${file.name}")
-    val result = javax.xml.transform.stream.StreamResult(tempFile)
+    val result = StreamResult(tempFile)
     transformer.transform(source, result)
 
     val backupFile = File(file.parent, "${file.name}.backup")
-    file.renameTo(backupFile)
+    if (backupFile.exists()) {
+        // Optional: Handle or log if a backup already exists to avoid data loss.
+    }
+    val success = file.renameTo(backupFile)
+    if (!success) {
+        println("Failed to create backup of the original file.")
+        return
+    }
 
     val newFileName = newClassName.substringAfterLast('.') + ".xml"
     val newFile = File(file.parent, newFileName)
-    tempFile.renameTo(newFile)
-
-    println("File has been updated and renamed to $newFileName")
+    val renameSuccess = tempFile.renameTo(newFile)
+    if (!renameSuccess) {
+        println("Failed to rename temporary file to $newFileName")
+        // Optional: handle this case, maybe attempt to restore from backup
+    } else {
+        println("File has been updated and renamed to $newFileName")
+    }
 }
+
 
 fun combineJUnitReports(folderPath: String, outputFileName: String) {
     println("Starting to combine JUnit reports from folder: $folderPath")
@@ -504,23 +567,40 @@ fun combineJUnitReports(folderPath: String, outputFileName: String) {
     val dbFactory = DocumentBuilderFactory.newInstance()
     val dBuilder = dbFactory.newDocumentBuilder()
     val outputDoc: Document = dBuilder.newDocument()
-    val rootElement: Element = outputDoc.createElement("testsuites")
+    val rootElement: Element = outputDoc.createElement("testsuite")
     outputDoc.appendChild(rootElement)
+
+    var totalFailures = 0
+    var totalTests = 0
+    var totalTime = 0.0
 
     File(folderPath).listFiles { _, name -> name.endsWith(".xml") }?.forEach { file ->
         println("Processing file: ${file.absolutePath}")
         val doc = dBuilder.parse(file)
         doc.documentElement.normalize()
-        val nodeList = doc.documentElement.childNodes
+
+        val nodeList = doc.getElementsByTagName("testcase")
         for (i in 0 until nodeList.length) {
-            val node = nodeList.item(i)
-            if (node.nodeType == Element.ELEMENT_NODE) {
-                // Import node to the output document
+            val node = nodeList.item(i) as Element
+            val time = node.getAttribute("time").toDouble()
+            if (time > 0.0) {
+                // Only increment totalTests and import node if time > 0.0
+                totalTests++
                 val importedNode = outputDoc.importNode(node, true)
                 rootElement.appendChild(importedNode)
             }
         }
+
+        val testsuite = doc.getElementsByTagName("testsuite").item(0) as Element
+        totalFailures += testsuite.getAttribute("failures").toInt()
+        totalTime += testsuite.getAttribute("time").toDouble()
     }
+
+    // Set aggregated attributes for the testsuite element
+    rootElement.setAttribute("name", "InstrumentationTestRunner")
+    rootElement.setAttribute("tests", totalTests.toString())
+    rootElement.setAttribute("failures", totalFailures.toString())
+    rootElement.setAttribute("time", String.format("%.3f", totalTime))
 
     println("All files processed. Generating combined report...")
 
