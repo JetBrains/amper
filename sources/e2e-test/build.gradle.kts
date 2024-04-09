@@ -449,7 +449,7 @@ tasks.register("installAndTestPureApps") {
                 val apkFile = apkFiles.first()
                 println("Installing APK: ${apkFile.name}")
                 installAndRunApk(apkFile)
-                //updateClassnameAndRenameFile(projectDir.name)
+                updateClassnameAndRenameFile(projectDir.name)
 
             } else {
                 throw GradleException("No APK files found in $apkDirectory.")
