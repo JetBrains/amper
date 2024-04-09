@@ -75,7 +75,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         val exception = assertFailsWith<UserReadableError> {
             AmperBackend(projectContext).check()
         }
-        assertEquals("JVM tests failed for module 'jvm-with-tests' (see errors above)", exception.message)
+        assertEquals("JVM tests failed for module 'jvm-with-tests' with exit code 1 (see errors above)", exception.message)
         assertStdoutContains("MethodSource [className = 'WorldTest', methodName = 'shouldFail', methodParameterTypes = '']")
         assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
     }

@@ -46,9 +46,9 @@ import kotlin.io.path.writeText
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class AmperBackendTest : IntegrationTestBase() {
 
@@ -90,13 +90,10 @@ class AmperBackendTest : IntegrationTestBase() {
         // see `native test no tests`
 
         val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
-
-        try {
+        val exception = assertFailsWith<UserReadableError> {
             AmperBackend(projectContext).check()
-            fail("must throw")
-        } catch (t: UserReadableError) {
-            assertEquals("JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", t.message)
         }
+        assertEquals("JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", exception.message)
     }
 
     @Test
@@ -107,13 +104,10 @@ class AmperBackendTest : IntegrationTestBase() {
         // see `jvm kotlin test no tests`
 
         val projectContext = setupTestDataProject("native-test-no-tests")
-
-        try {
+        val exception = assertFailsWith<UserReadableError> {
             AmperBackend(projectContext).check()
-            fail("must throw")
-        } catch (t: UserReadableError) {
-            assertEquals("Some message about `no tests were discovered`", t.message)
         }
+        assertEquals("Some message about `no tests were discovered`", exception.message)
     }
 
     @Test
