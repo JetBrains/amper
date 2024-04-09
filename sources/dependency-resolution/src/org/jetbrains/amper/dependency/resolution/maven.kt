@@ -51,7 +51,7 @@ class MavenDependencyNode internal constructor(
         parentNodes: List<DependencyNode> = emptyList(),
     ) : this(
         templateContext,
-        createOrReuseDependency(templateContext, group, module, version),
+        templateContext.createOrReuseDependency(group, module, version),
         parentNodes,
     )
 
@@ -116,13 +116,12 @@ class PropertyWithDependency<in T, out V, D>(
     }
 }
 
-internal fun createOrReuseDependency(
-    context: Context,
+internal fun Context.createOrReuseDependency(
     group: String,
     module: String,
     version: String
-): MavenDependency = context.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
-    MavenDependency(context.settings.fileCache, group, module, version)
+): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
+    MavenDependency(this.settings.fileCache, group, module, version)
 }
 
 /**
@@ -301,7 +300,7 @@ class MavenDependency internal constructor(
                 reportDependencyVersionResolutionFailure(dependency, module)
                 return@mapNotNull null
             }
-            createOrReuseDependency(context, dependency.group, dependency.module, version)
+            context.createOrReuseDependency(dependency.group, dependency.module, version)
         }.let {
             children = it
             state = level.state
@@ -371,7 +370,7 @@ class MavenDependency internal constructor(
         }.filter {
             it.version != null && it.optional != true
         }.map {
-            createOrReuseDependency(context, it.groupId, it.artifactId, it.version!!)
+            context.createOrReuseDependency(it.groupId, it.artifactId, it.version!!)
         }.let {
             children = it
             state = level.state
@@ -397,7 +396,7 @@ class MavenDependency internal constructor(
             return this
         }
         val parentNode = parent?.let {
-            createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
+            context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
         }
         val project = if (parentNode != null && (parentNode.pom.isDownloadedOrDownload(resolutionLevel, context))) {
             val text = parentNode.pom.readText()
@@ -425,7 +424,7 @@ class MavenDependency internal constructor(
             ?.map { it.expandTemplates(project) }
             ?.flatMap {
                 if (it.scope == "import" && it.version != null) {
-                    val dependency = createOrReuseDependency(context, it.groupId, it.artifactId, it.version)
+                    val dependency = context.createOrReuseDependency(it.groupId, it.artifactId, it.version)
                     if (dependency.pom.isDownloadedOrDownload(resolutionLevel, context)) {
                         val text = dependency.pom.readText()
                         val dependencyProject = text.parsePom().resolve(context, resolutionLevel, depth + 1, origin)
