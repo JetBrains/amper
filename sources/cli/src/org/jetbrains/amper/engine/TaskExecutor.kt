@@ -31,9 +31,11 @@ class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
         }
     }
 
-    // TODO Should be configurable
+    private val availableProcessors = Runtime.getRuntime().availableProcessors()
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val tasksDispatcher = Dispatchers.IO.limitedParallelism(5)
+    // TODO Should be configurable
+    private val tasksDispatcher = Dispatchers.IO.limitedParallelism(availableProcessors.coerceAtLeast(3))
 
     // Dispatch on default dispatcher, execute on tasks dispatcher
     // Task failures do not throw, instead all exceptions are returned as a map
