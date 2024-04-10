@@ -12,7 +12,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-490")
+    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-491")
 }
 
 
