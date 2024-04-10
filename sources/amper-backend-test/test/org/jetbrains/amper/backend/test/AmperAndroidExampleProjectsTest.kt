@@ -35,6 +35,7 @@ import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.walk
+import kotlin.test.AfterTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -144,7 +145,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
         assertStdoutContains("task :android-simple:transformDependenciesAndroidTest -> :android-simple:resolveDependenciesAndroidTest")
     }
 
-    @AfterEach
+    @AfterTest
     fun tearDown() {
         ConnectorServices.reset()
     }

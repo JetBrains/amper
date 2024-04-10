@@ -52,13 +52,14 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @KonanFolderLock
     fun `configuring native macos`() = test(
         projectName = "native-macos",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
-    @Test
+    @KonanFolderLock
     fun `configuring native linux`() = test(
         projectName = "native-linux",
         "build",
@@ -80,6 +81,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @KonanFolderLock
     @EnabledOnOs(value = [OS.MAC], architectures = ["aarch64"])
     fun `detecting native entry point`() = test(
         projectName = "entry-point-detection-native",
@@ -89,6 +91,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @EnabledOnOs(value = [OS.LINUX], architectures = ["amd64"])
+    @KonanFolderLock
     fun `detecting native entry point on linux (CI)`() = test(
         projectName = "entry-point-detection-native-linux",
         "runLinuxX64DebugExecutableLinuxX64",
@@ -216,6 +219,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun iosApp() = test(
         "ios-app",
         "buildIosAppMain",
@@ -290,6 +294,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun multiplatformIosFramework() {
         test(
             projectName = "multiplatform-lib-ios-framework",
@@ -322,6 +327,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun `compose dev version change`() = test(
         projectName = "compose-dev-version-change",
         "compileKotlinIosArm64",
@@ -345,6 +351,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun `overall platforms test`() = test(
         projectName = "overall-platforms-test",
         "build",

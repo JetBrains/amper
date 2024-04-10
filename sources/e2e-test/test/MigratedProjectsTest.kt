@@ -17,6 +17,7 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithP
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun `compose-multiplatform-ios-android-template (ios)`() = test(
         projectName = "compose-multiplatform-ios-android-template",
         ":shared:linkPodDebugFrameworkIosSimulatorArm64",
@@ -31,6 +32,7 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithP
     )
 
     @Test
+    @KonanFolderLock
     fun `compose-multiplatform-template`() = test(
         projectName = "compose-multiplatform-template",
         "build",
@@ -39,6 +41,7 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithP
 
     @Test
     @EnabledOnOs(value = [OS.MAC])
+    @KonanFolderLock
     fun `compose-multiplatform-template (ios)`() = test(
         projectName = "compose-multiplatform-template",
         ":shared:linkDebugFrameworkIosSimulatorArm64",
@@ -56,6 +59,7 @@ class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithP
      */
     @Test
     @Ignore
+    @KonanFolderLock
     fun `KaMPKit build successful`() = test(
         projectName = "KaMPKit",
         "build",

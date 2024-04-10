@@ -9,7 +9,6 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 class ExamplesTest : E2ETestFixture("../../examples/",
@@ -67,6 +66,7 @@ class ExamplesTest : E2ETestFixture("../../examples/",
     )
 
     @Test
+    @KonanFolderLock
     fun `multiplatform build task succeeds`() = test(
         projectName = "multiplatform",
         ":jvm-app:build", ":android-app:build", ":ios-app:build",
@@ -81,6 +81,7 @@ class ExamplesTest : E2ETestFixture("../../examples/",
     )
 
     @Test
+    @KonanFolderLock
     fun `compose desktop ios task`() = test(
         projectName = "compose-ios",
         "buildIosAppMain",
