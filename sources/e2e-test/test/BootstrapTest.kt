@@ -16,12 +16,12 @@ import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
@@ -41,69 +41,19 @@ class BootstrapTest {
         val yamlPublishing = yamlSettings.getValue("publishing") as Map<String, String>
         val version = yamlPublishing.getValue("version")
 
-        val core = TestUtil.amperSourcesRoot.resolve("core/build/libs/core-jvm-$version.jar")
-        val coreIntellij = TestUtil.amperSourcesRoot.resolve("core-intellij/build/libs/core-intellij-jvm-$version.jar")
-        val gradleIntegration = TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs/gradle-integration-jvm-$version.jar")
-
         println("############ gradle-integration version: $version")
-        println("############ gradle-integration libraries: ${TestUtil.amperSourcesRoot.resolve("gradle-integration/build/libs").toFile().list()?.toSet()}")
-
-        val frontendApi = TestUtil.amperSourcesRoot.resolve("frontend-api/build/libs/frontend-api-jvm-$version.jar")
-        val tomlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/toml-psi/build/libs/toml-psi-jvm-$version.jar")
-        val yamlPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/yaml-psi/build/libs/yaml-psi-jvm-$version.jar")
-        val amperPsi = TestUtil.amperSourcesRoot.resolve("frontend/plain/amper-psi/build/libs/amper-psi-jvm-$version.jar")
-        val parserStub = TestUtil.amperSourcesRoot.resolve("frontend/plain/parserutil-stub/build/libs/parserutil-stub-jvm-$version.jar")
-        val schemaFrontend = TestUtil.amperSourcesRoot.resolve("frontend/schema/build/libs/schema-jvm-$version.jar")
-
-        val intellijVersion = "233.13763.11"
-        val xcodeModelSquashedVersion = "241.14980"
-        // TODO: rewrite to include build approach
-        val settingsContent = """
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-        maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
-        maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-    }
-
-    dependencies {
-        classpath("org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin:1.9.20")
-        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:1.9.20")
-        classpath("com.android.library:com.android.library.gradle.plugin:8.1.0")
-        classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
-        classpath("com.jetbrains.intellij.platform:analysis-impl:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:core:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:core-impl:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:core-ui:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:ide-core:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:util:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:util-base:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:util-ui:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:util-ex:$intellijVersion")
-        classpath("com.jetbrains.intellij.platform:indexing:$intellijVersion")
-        classpath("com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:$xcodeModelSquashedVersion")
-        classpath("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.11-18")
-        classpath(files("${core.pathString.replace('\\', '/')}"))
-        classpath(files("${coreIntellij.pathString.replace('\\', '/')}"))
-        classpath(files("${gradleIntegration.pathString.replace('\\', '/')}"))
-        classpath(files("${frontendApi.pathString.replace('\\', '/')}"))
-        classpath(files("${tomlPsi.pathString.replace('\\', '/')}"))
-        classpath(files("${yamlPsi.pathString.replace('\\', '/')}"))
-        classpath(files("${amperPsi.pathString.replace('\\', '/')}"))
-        classpath(files("${parserStub.pathString.replace('\\', '/')}"))
-        classpath(files("${schemaFrontend.pathString.replace('\\', '/')}"))
-    }
-}
-plugins.apply("org.jetbrains.amper.settings.plugin")
-        """.trimIndent()
 
         copyDirectory(Path("../.."), projectPath)
-        projectPath.resolve("settings.gradle.kts").writeText(
-            settingsContent,
-            options = arrayOf(StandardOpenOption.TRUNCATE_EXISTING)
-        )
+        val settingsKts = projectPath.resolve("settings.gradle.kts")
+
+        settingsKts.readText()
+            .mustReplace(Regex.fromLiteral("// mavenLocal()"), "mavenLocal()")
+            .mustReplace(
+                Regex(Regex.escape("id(\"org.jetbrains.amper.settings.plugin\") version \"") +
+                            "[\\w\\-.]+\""),
+                "id(\"org.jetbrains.amper.settings.plugin\") version \"$version\""
+            )
+            .let { settingsKts.writeText(it) }
 
         // when
         val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome")
@@ -118,7 +68,7 @@ plugins.apply("org.jetbrains.amper.settings.plugin")
             .withArguments(
                 //                "-Dorg.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
                 // --no-build-cache to actually build stuff instead of getting it from cache since cache is shared between runs
-                "publishToMavenLocal", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true")
+                "assemble", "--stacktrace", "--no-build-cache", "-PinBootstrapMode=true")
             .setStandardOutput(TeeOutputStream(System.out, stdout))
             .setStandardError(TeeOutputStream(System.err, stderr))
             .run()
@@ -128,6 +78,13 @@ plugins.apply("org.jetbrains.amper.settings.plugin")
         assertTrue { output.contains("BUILD SUCCESSFUL") }
     }
 
+    private fun String.mustReplace(regex: Regex, replacement: String): String {
+        val s = replace(regex, replacement)
+        if (this == s) {
+            error("No replacements were made while replacing '${regex.pattern}' with '$replacement':\n" + this)
+        }
+        return s
+    }
 }
 
 // TODO Replace by copyRecursively.
