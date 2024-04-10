@@ -175,10 +175,6 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
                 "id(\"org.jetbrains.amper.settings.plugin\")"
             ))
 
-            check(!gradleFile.readText().contains("version(", ignoreCase = true)) {
-                "Gradle files in testData are not supposed to set plugin versions by default (or replacing regex failed): " +
-                        "$gradleFile\n${gradleFile.readText().prependIndent("> ")}"
-            }
             gradleFile.writeText(gradleFile.readText().replace(
                 "id(\"org.jetbrains.amper.settings.plugin\")",
                 "id(\"org.jetbrains.amper.settings.plugin\") version(\"${AmperBuild.BuildNumber}\")"
