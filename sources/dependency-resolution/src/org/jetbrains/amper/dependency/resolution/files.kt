@@ -271,8 +271,7 @@ open class DependencyFile(
                     cache,
                     verify,
                     StandardOpenOption.WRITE,
-                    StandardOpenOption.CREATE_NEW,
-//                    StandardOpenOption.DELETE_ON_CLOSE
+                    StandardOpenOption.CREATE_NEW
                 )
             } catch (e: FileAlreadyExistsException) {
                 return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
@@ -430,9 +429,7 @@ open class DependencyFile(
                     ?: throw AmperDependencyResolutionException("sha1 must be present among hashers"),
             )
             target.parent.createDirectories()
-//            val newPath = temp.copyTo(temp.parent.resolve(temp.name + 34), true)
             try {
-//                newPath.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
                 temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
                 if (repositories.any {
@@ -442,7 +439,6 @@ open class DependencyFile(
                         }, it, progress, cache, verify)
                     }) {
                     temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-//                    newPath.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             onFileDownloaded(target)
