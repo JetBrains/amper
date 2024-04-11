@@ -7,8 +7,11 @@ package org.jetbrains.amper.dependency.resolution
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 
 /**
- * This enum contains possible values of module file attribute "org.jetbrains.kotlin.platform.type".
- * The list is taken from gradle-plugin class 'org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType'.
+ * This enum contains leaf platforms, dependencies resolution could be requested for.
+ *
+ * I.e., it contains non-native leaf platforms defined by attribute 'org.jetbrains.kotlin.platform.type'
+ * as well as all native leaf platforms
+ * that could be defined as a value of attribute 'org.jetbrains.kotlin.native.target'.
  *
  * See https://gist.github.com/h0tk3y/41c73d1f822378f52f1e6cce8dcf56aa for more information
  */
