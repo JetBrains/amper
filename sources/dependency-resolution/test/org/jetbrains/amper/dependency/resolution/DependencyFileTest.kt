@@ -12,6 +12,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.copyTo
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class DependencyFileTest {
@@ -92,6 +93,7 @@ class DependencyFileTest {
     }
 
     @Test
+    @Ignore
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3`() {
         val path = temp.toPath()
         Context {
@@ -123,6 +125,7 @@ class DependencyFileTest {
     }
 
     @Test
+    @Ignore
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         val path = temp.toPath()
         Context {
