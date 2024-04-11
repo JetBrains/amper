@@ -88,7 +88,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
-    var platform: Set<Platform> = setOf(Platform.JVM)
+    var platforms: Set<Platform> = setOf(Platform.JVM)
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
@@ -102,7 +102,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
         get() = Settings(
             progress,
             scope,
-            platform,
+            platforms,
             repositories,
             FileCacheBuilder(cache).build(),
             conflictResolutionStrategies,

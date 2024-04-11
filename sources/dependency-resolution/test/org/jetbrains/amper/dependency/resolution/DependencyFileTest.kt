@@ -73,7 +73,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         val path = temp.toPath()
         Context {
-            platform = setOf(Platform.MACOS_X64)
+            platforms = setOf(Platform.MACOS_X64)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -95,7 +95,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3`() {
         val path = temp.toPath()
         Context {
-            platform = setOf(Platform.JVM, Platform.ANDROID)
+            platforms = setOf(Platform.JVM, Platform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -126,7 +126,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         val path = temp.toPath()
         Context {
-            platform = setOf(Platform.JVM, Platform.ANDROID)
+            platforms = setOf(Platform.JVM, Platform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -157,7 +157,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_4_0 empty module file`() {
         val path = temp.toPath()
         Context {
-            platform = setOf(Platform.MACOS_ARM64)
+            platforms = setOf(Platform.MACOS_ARM64)
             repositories = listOf("https://fake-repository/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))

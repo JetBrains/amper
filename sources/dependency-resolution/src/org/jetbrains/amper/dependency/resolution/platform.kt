@@ -28,7 +28,7 @@ enum class PlatformType(
     NATIVE ("native"),
     WASM("wasm");
 
-    fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
+    internal fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
 }
 
 fun Platform.nativeTarget(): String? = this.takeIf { it.isDescendantOf(Platform.NATIVE) }?.name?.lowercase()

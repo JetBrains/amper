@@ -15,7 +15,7 @@ internal fun String.parseMetadata(): Module = json.decodeFromString(this)
 internal fun Module.serialize(): String = json.encodeToString(this)
 
 @Serializable
-data class Module(
+internal data class Module(
     val formatVersion: String,
     val component: Component,
     val createdBy: CreatedBy,
@@ -23,7 +23,7 @@ data class Module(
 )
 
 @Serializable
-data class Component(
+internal data class Component(
     val url: String? = null,
     val group: String,
     val module: String,
@@ -32,25 +32,25 @@ data class Component(
 )
 
 @Serializable
-data class CreatedBy(
+internal data class CreatedBy(
     val gradle: Gradle? = null,
     val maven: Maven? = null,
 )
 
 @Serializable
-data class Gradle(
+internal data class Gradle(
     val version: String,
     val buildId: String? = null,
 )
 
 @Serializable
-data class Maven(
+internal data class Maven(
     val version: String,
     val buildId: String? = null,
 )
 
 @Serializable
-data class Variant(
+internal data class Variant(
     val name: String,
     val attributes: Map<String, String> = mapOf(),
     val dependencies: List<Dependency> = listOf(),
@@ -61,7 +61,7 @@ data class Variant(
 )
 
 @Serializable
-data class Dependency(
+internal data class Dependency(
     val group: String,
     val module: String,
     val version: Version,
@@ -70,7 +70,7 @@ data class Dependency(
 )
 
 @Serializable
-data class AvailableAt(
+internal data class AvailableAt(
     val url: String,
     val group: String,
     val module: String,
@@ -78,21 +78,21 @@ data class AvailableAt(
 )
 
 @Serializable
-data class Capability(
+internal data class Capability(
     val group: String,
     val name: String,
     val version: String,
 )
 
 @Serializable
-data class Version(
+internal data class Version(
     val strictly: String? = null,
     val requires: String? = null,
     val prefers: String? = null,
 )
 
 @Serializable
-data class File(
+internal data class File(
     val name: String,
     val url: String,
     val size: Long? = null,

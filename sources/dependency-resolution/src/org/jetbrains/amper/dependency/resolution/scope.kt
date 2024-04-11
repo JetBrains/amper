@@ -25,8 +25,8 @@ enum class ResolutionScope(
         { it.scope in setOf(null, "compile", "runtime") },
     );
 
-    fun matches(variant: Variant) = variantMatcher(variant)
-    fun matches(dependency: Dependency) = dependencyMatcher(dependency)
+    internal fun matches(variant: Variant) = variantMatcher(variant)
+    internal fun matches(dependency: Dependency) = dependencyMatcher(dependency)
 }
 
 internal fun Variant.isMetadataApiElements() =

@@ -16,7 +16,7 @@ internal fun Metadata.serialize(): String = xml.encodeToString(this)
 
 @Serializable
 @XmlSerialName("metadata")
-data class Metadata(
+internal data class Metadata(
     @XmlElement(true)
     val groupId: String,
     @XmlElement(true)
@@ -29,7 +29,7 @@ data class Metadata(
 
 @Serializable
 @XmlSerialName("versioning")
-data class Versioning(
+internal data class Versioning(
     @XmlElement(true)
     val snapshot: Snapshot,
     @XmlElement(true)
@@ -40,7 +40,7 @@ data class Versioning(
 
 @Serializable
 @XmlSerialName("snapshot")
-data class Snapshot(
+internal data class Snapshot(
     @XmlElement(true)
     val timestamp: String,
     @XmlElement(true)
@@ -49,14 +49,14 @@ data class Snapshot(
 
 @Serializable
 @XmlSerialName("snapshotVersions")
-data class SnapshotVersions(
+internal data class SnapshotVersions(
     @XmlElement(true)
     val snapshotVersions: List<SnapshotVersion>
 )
 
 @Serializable
 @XmlSerialName("snapshotVersion")
-data class SnapshotVersion(
+internal data class SnapshotVersion(
     @XmlElement(true)
     val classifier: String? = null,
     @XmlElement(true)

@@ -156,7 +156,7 @@ class MavenDependency internal constructor(
         private set
 
     @Volatile
-    var variants: List<Variant> = listOf()
+    internal var variants: List<Variant> = listOf()
         internal set
 
     @Volatile

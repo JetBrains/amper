@@ -11,7 +11,7 @@ import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.test.assertTrue
 
-class ModuleJsonTest : JsonTestBase<Module>() {
+internal class ModuleJsonTest : JsonTestBase<Module>() {
 
     override fun getTestDataPath(name: String): Path =
         TestUtil.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/module/${name}.module")

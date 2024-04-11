@@ -161,7 +161,7 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
         )
 }
 
-fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(dependency,
+internal fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(dependency,
     file.url.substringBeforeLast('.'), file.name.substringAfterLast('.'))
 
 fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String) =

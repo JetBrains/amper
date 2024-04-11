@@ -998,7 +998,7 @@ class BuildGraphTest {
         repositories: List<String> = REDIRECTOR_MAVEN2,
     ) = Context {
         this.scope = scope
-        this.platform = setOf(platform)
+        this.platforms = setOf(platform)
         this.repositories = repositories
         this.cache = {
             amperCache = TestUtil.userCacheRoot.resolve(".amper")

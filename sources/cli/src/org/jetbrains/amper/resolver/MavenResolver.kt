@@ -18,7 +18,6 @@ import org.jetbrains.amper.dependency.resolution.nativeTarget
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.isDescendantOf
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -81,7 +80,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 }
                 this.scope = scope1
 
-                this.platform = setOf(platform)
+                this.platforms = setOf(platform)
                 this.downloadSources = false
             }.use { context ->
                 val root = ModuleDependencyNode(
