@@ -4,25 +4,36 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.jetbrains.amper.dependency.resolution.metadata.json.AvailableAt
-import org.jetbrains.amper.dependency.resolution.metadata.json.Capability
-import org.jetbrains.amper.dependency.resolution.metadata.json.Dependency
-import org.jetbrains.amper.dependency.resolution.metadata.json.Module
-import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
-import org.jetbrains.amper.dependency.resolution.metadata.json.Version
-import org.jetbrains.amper.dependency.resolution.metadata.json.parseMetadata
+import kotlinx.coroutines.withContext
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Module
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
+import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
+import org.jetbrains.amper.frontend.Platform
+import java.io.FileInputStream
+import java.io.InputStreamReader
+import java.lang.UnsupportedOperationException
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarInputStream
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+
 
 /**
  * Serves as a holder for a dependency defined by Maven coordinates, namely, group, module, and version.
@@ -127,6 +138,8 @@ internal fun Context.createOrReuseDependency(
 /**
  * An actual Maven dependency that can be resolved, that is, populated with children according to the requested
  * [ResolutionScope] and platform.
+ * That means MavenDependency is bound to dependency resolution context, i.e., the instance of the class resolved for one context
+ * could not be reused in another one.
  * Its [resolve] method contains the resolution algorithm.
  *
  * @see [DependencyFile]
@@ -163,9 +176,7 @@ class MavenDependency internal constructor(
     val files
         get() = buildList {
             variants.flatMap { it.files }.forEach {
-                val nameWithoutExtension = it.url.substringBeforeLast('.')
-                val extension = it.name.substringAfterLast('.')
-                add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
+                add(getDependencyFile(this@MavenDependency, it))
             }
             packaging?.takeIf { it != "pom" }?.let {
                 val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
@@ -222,12 +233,13 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun List<Variant>.filterWithFallbackPlatform(context: Context) : List<Variant> {
-        val platformVariants = this.filter { context.settings.platform.matches(it) }
+    private fun List<Variant>.filterWithFallbackPlatform(platform: Platform) : List<Variant> {
+        val platformType = platform.toPlatformType()
+        val platformVariants = this.filter { platformType.matches(it) }
         return when {
             platformVariants.withoutDocumentationAndMetadata.isNotEmpty()
-                    || context.settings.platform.fallback == null -> platformVariants
-            else -> this.filter { context.settings.platform.fallback.matches(it) }
+                    || platformType.fallback == null -> platformVariants
+            else -> this.filter { platformType.fallback.matches(it) }
         }
     }
 
@@ -271,15 +283,24 @@ class MavenDependency internal constructor(
             return
         }
 
+        if (context.settings.platforms.isEmpty()) {
+            throw AmperDependencyResolutionException("Target platform is not specified.")
+        } else if (context.settings.platforms.singleOrNull() == Platform.COMMON) {
+            throw AmperDependencyResolutionException("Dependency resolution can not be run for COMMON platform. " +
+                    "Set of actual target platforms should be specified.")
+        }
+
+        val platform = context.settings.platforms.singleOrNull() ?: Platform.COMMON
+
         val initiallyFilteredVariants = module
             .variants
             // todo (AB) : Why filtering against capabilities?
             .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
-            .filter { context.settings.nativeTargetMatches(it) }
+            .filter { context.settings.nativeTargetMatches(it, platform) }
             .filter { context.settings.scope.matches(it) }
 
         val validVariants = initiallyFilteredVariants
-            .filterWithFallbackPlatform(context)
+            .filterWithFallbackPlatform(platform)
             .filterMultipleVariantsByUnusedAttributes(context)
 
         validVariants.also {
@@ -291,20 +312,102 @@ class MavenDependency internal constructor(
                     Severity.WARNING,
                 )
             }
-        }.flatMap {
-            it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
-        }.mapNotNull { dependency ->
-            // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
-            val version = dependency.version.strictly ?: dependency.version.requires ?: dependency.version.prefers
-            if (version == null) {
-                reportDependencyVersionResolutionFailure(dependency, module)
-                return@mapNotNull null
-            }
-            context.createOrReuseDependency(dependency.group, dependency.module, version)
-        }.let {
-            children = it
-            state = level.state
         }
+
+        if (context.settings.platforms.size == 1) {
+            // One platform case
+            validVariants
+                .flatMap {
+                    it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
+                }.mapNotNull { dependency ->
+                    // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
+                    val version =
+                        dependency.version.strictly ?: dependency.version.requires ?: dependency.version.prefers
+                    if (version == null) {
+                        reportDependencyVersionResolutionFailure(dependency, module)
+                        return@mapNotNull null
+                    }
+                    context.createOrReuseDependency(dependency.group, dependency.module, version)
+                }.let {
+                    children = it
+                }
+        } else {
+            throw UnsupportedOperationException("Dependency resolution for multiplatform fragments is not supported yet.")
+
+            // Multiplatform case
+            // 1. Resolve kmp json metadata
+            val kotlinMetadataVariant = validVariants.singleOrNull { it.isMetadataApiElements() }
+                ?: run {
+                    messages.asMutable() += Message(
+                        "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
+                                "but kotlin metadata is not found (none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
+                        severity = Severity.ERROR,
+                    )
+                    children = listOf() // children list is empty in case kmp common variant is not resolved
+                    return
+                }
+
+            val kotlinMetadataFile = kotlinMetadataVariant.files.singleOrNull()
+                ?: run {
+                    messages.asMutable() += Message(
+                        "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version},",
+                        severity = Severity.ERROR,
+                    )
+                    children = listOf() // children list is empty in case kmp common variant is not resolved
+                    return
+                }
+            val kmpMetadataFile = getDependencyFile(this, kotlinMetadataFile)
+
+            if (kmpMetadataFile.isDownloadedOrDownload(level, context)) {
+                val kmpMetadata = kmpMetadataFile.getPath()?.let {
+                    withContext(Dispatchers.IO) {
+                        JarFile(it.toFile()).use { jarFile ->
+                            val source = JarInputStream(FileInputStream(it.toFile()));
+                            source.use {
+                                var entry: JarEntry?
+                                do {
+                                    entry = source.getNextJarEntry();
+                                } while (entry != null && entry.name != "META-INF/kotlin-project-structure-metadata.json")
+
+                                if (entry == null) {
+                                    messages.asMutable() += Message(
+                                        "Kotlin metadata file ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} doesn't contain kotlin-project-structure-metadata.json",
+                                        severity = Severity.ERROR
+                                    )
+                                    return@withContext null
+                                } else {
+                                    jarFile.getInputStream(entry).use { inputStream ->
+                                        InputStreamReader(inputStream).readText()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (kmpMetadata == null) {
+                    messages.asMutable() += Message(
+                        "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension}",
+                        severity = Severity.ERROR
+                    )
+                    return
+                }
+
+                val kotlinProjectStructureMetadata = kmpMetadata.parseKmpLibraryMetadata()
+
+                println("############# ${kotlinProjectStructureMetadata.projectStructure.formatVersion} #############")
+
+                // Selecting source sets related to target platforms.
+
+
+            } else {
+                messages.asMutable() += Message(
+                    "Kotlin metadata file ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is required for $this",
+                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
+                )
+            }
+        }
+
+        state = level.state
     }
 
     private fun reportDependencyVersionResolutionFailure(dependency: Dependency, module: Module) {
@@ -344,9 +447,9 @@ class MavenDependency internal constructor(
     private fun String.matches(variant: Variant) =
         variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
 
-    private fun Settings.nativeTargetMatches(variant: Variant) =
+    private fun Settings.nativeTargetMatches(variant: Variant, platform: Platform) =
         variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
-                || variant.attributes["org.jetbrains.kotlin.native.target"] == nativeTarget
+                || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget()
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 

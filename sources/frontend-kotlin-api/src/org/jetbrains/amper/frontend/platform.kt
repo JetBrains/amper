@@ -96,7 +96,7 @@ enum class Platform(
                 this[parent] = (this[parent] ?: mutableSetOf()).apply { add(child) }
                 add(parent.parent, child)
             } else Unit
-            Platform.leafPlatforms.forEach { add(it.parent, it) }
+            leafPlatforms.forEach { add(it.parent, it) }
         }
     }
 }

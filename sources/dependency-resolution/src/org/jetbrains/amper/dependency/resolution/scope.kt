@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependency
 
 /**
@@ -17,14 +17,18 @@ enum class ResolutionScope(
 ) {
 
     COMPILE(
-        { it.attributes["org.gradle.usage"]?.endsWith("-api") == true },
+        { it.attributes["org.gradle.usage"]?.endsWith("-api") == true || it.isMetadataApiElements() },
         { it.scope in setOf(null, "compile") },
     ),
     RUNTIME(
-        { it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true },
+        { it.attributes["org.gradle.usage"]?.endsWith("-runtime") == true || it.isMetadataApiElements() },
         { it.scope in setOf(null, "compile", "runtime") },
     );
 
     fun matches(variant: Variant) = variantMatcher(variant)
     fun matches(dependency: Dependency) = dependencyMatcher(dependency)
 }
+
+internal fun Variant.isMetadataApiElements() =
+    attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
+            && attributes["org.gradle.usage"] == "kotlin-metadata"

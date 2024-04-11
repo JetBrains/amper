@@ -5,7 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.util.*
@@ -56,7 +56,7 @@ class GradleLocalRepositoryTest {
                 Variant(
                     "",
                     files = listOf(
-                        org.jetbrains.amper.dependency.resolution.metadata.json.File(
+                        org.jetbrains.amper.dependency.resolution.metadata.json.module.File(
                             name = "kotlin-test-1.9.10.jar",
                             "",
                             0,

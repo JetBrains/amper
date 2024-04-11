@@ -9,6 +9,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.nativeTarget
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
@@ -68,10 +69,10 @@ class ResolveExternalDependenciesTask(
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
         // but the current implementation requires a full review of it
 
-        val (resolvePlatform,  resolveNativeTarget) = when {
-            platform == Platform.JVM -> PlatformType.JVM to null
-            platform == Platform.ANDROID -> PlatformType.ANDROID_JVM to null
-            platform.isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE to platform.name.lowercase()
+        val resolvePlatformType = when {
+            platform == Platform.JVM -> PlatformType.JVM
+            platform == Platform.ANDROID -> PlatformType.ANDROID_JVM
+            platform.isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE
             else -> {
                 logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
                 return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
@@ -82,14 +83,14 @@ class ResolveExternalDependenciesTask(
                 "${fragments.userReadableList()} -- " +
                 "${directCompileDependencies.sorted().joinToString(" ")} -- " +
                 exportedDependencies.sorted().joinToString(" ") + " -- " +
-                "resolvePlatform=${resolvePlatform.value} nativeTarget=$resolveNativeTarget")
+                "resolvePlatform=${resolvePlatformType.value} nativeTarget=${platform.nativeTarget()}")
 
         val configuration = mapOf(
             "userCacheRoot" to userCacheRoot.path.pathString,
             "dependencies" to dependenciesToResolve.joinToString("|"),
             "repositories" to repositories.joinToString("|"),
-            "resolvePlatform" to resolvePlatform.value,
-            "resolveNativeTarget" to (resolveNativeTarget ?: ""),
+            "resolvePlatform" to resolvePlatformType.value,
+            "resolveNativeTarget" to (platform.nativeTarget() ?: ""),
         )
 
         val result = try {
@@ -98,15 +99,13 @@ class ResolveExternalDependenciesTask(
                     coordinates = dependenciesToResolve,
                     repositories = repositories,
                     scope = ResolutionScope.COMPILE,
-                    platform = resolvePlatform,
-                    nativeTarget = resolveNativeTarget,
+                    platform = platform
                 ).toList()
                 val runtimeClasspath = mavenResolver.resolve(
                     coordinates = dependenciesToResolve,
                     repositories = repositories,
                     scope = ResolutionScope.RUNTIME,
-                    platform = resolvePlatform,
-                    nativeTarget = resolveNativeTarget,
+                    platform = platform
                 ).toList()
                 return@execute ExecuteOnChangedInputs.ExecutionResult(
                     (compileClasspath + runtimeClasspath).toSet().sorted(),
@@ -122,8 +121,8 @@ class ResolveExternalDependenciesTask(
                     "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                     "direct dependencies:\n${directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
                     "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
-                    "platform: $resolvePlatform" +
-                    if (resolveNativeTarget != null) "\nnativeTarget: $resolveNativeTarget" else "", t)
+                    "platform: $resolvePlatformType" +
+                    (platform.nativeTarget()?.let { "\nnativeTarget: $it" } ?: ""), t)
         }
 
         val compileClasspath = result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
@@ -132,7 +131,7 @@ class ResolveExternalDependenciesTask(
         logger.debug("resolve dependencies ${module.userReadableName} -- " +
                 "${fragments.userReadableList()} -- " +
                 "${dependenciesToResolve.joinToString(" ")} -- " +
-                "resolvePlatform=$resolvePlatform nativeTarget=$resolveNativeTarget\n" +
+                "resolvePlatform=$resolvePlatformType nativeTarget=${platform.nativeTarget()}\n" +
                 "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeToOrSelf(userCacheRoot.path).pathString }}")
 
         return TaskResult(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)

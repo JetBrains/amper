@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -38,6 +39,7 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.security.MessageDigest
 import java.time.ZonedDateTime
+import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -159,6 +161,9 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
         )
 }
 
+fun getDependencyFile(dependency: MavenDependency, file: File) = getDependencyFile(dependency,
+    file.url.substringBeforeLast('.'), file.name.substringAfterLast('.'))
+
 fun getDependencyFile(dependency: MavenDependency, nameWithoutExtension: String, extension: String) =
     if (dependency.version.endsWith("-SNAPSHOT")) {
         SnapshotDependencyFile(dependency, nameWithoutExtension, extension)
@@ -266,7 +271,8 @@ open class DependencyFile(
                     cache,
                     verify,
                     StandardOpenOption.WRITE,
-                    StandardOpenOption.CREATE_NEW
+                    StandardOpenOption.CREATE_NEW,
+//                    StandardOpenOption.DELETE_ON_CLOSE
                 )
             } catch (e: FileAlreadyExistsException) {
                 return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
@@ -424,7 +430,9 @@ open class DependencyFile(
                     ?: throw AmperDependencyResolutionException("sha1 must be present among hashers"),
             )
             target.parent.createDirectories()
+//            val newPath = temp.copyTo(temp.parent.resolve(temp.name + 34), true)
             try {
+//                newPath.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
                 temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
                 if (repositories.any {
@@ -434,6 +442,7 @@ open class DependencyFile(
                         }, it, progress, cache, verify)
                     }) {
                     temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+//                    newPath.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             onFileDownloaded(target)

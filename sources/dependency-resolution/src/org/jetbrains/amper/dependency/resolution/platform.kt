@@ -4,7 +4,9 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.dependency.resolution.metadata.json.Variant
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.isDescendantOf
 
 /**
  * This enum contains possible values of module file attribute "org.jetbrains.kotlin.platform.type".
@@ -27,4 +29,16 @@ enum class PlatformType(
     WASM("wasm");
 
     fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
+}
+
+fun Platform.nativeTarget(): String? = this.takeIf { it.isDescendantOf(Platform.NATIVE) }?.name?.lowercase()
+
+fun Platform.toPlatformType(): PlatformType = when {
+    Platform.JVM == this -> PlatformType.JVM
+    Platform.ANDROID == this -> PlatformType.ANDROID_JVM
+    Platform.COMMON == this -> PlatformType.COMMON
+    Platform.JS == this -> PlatformType.JS
+    Platform.WASM == this -> PlatformType.WASM
+    isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE
+    else -> throw IllegalStateException("Platform $this doesn't correspond to any platform type")
 }

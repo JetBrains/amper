@@ -14,6 +14,7 @@ dependencies:
   - ../core
   - ../core-intellij
   - ../frontend-api
+  - ../frontend-kotlin-api
   - ../frontend/schema
   - org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20
   - com.android.library:com.android.library.gradle.plugin:8.1.0

@@ -2,17 +2,23 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.dependency.resolution.metadata.json
+package org.jetbrains.amper.dependency.resolution.metadata.json.module
 
-import org.jetbrains.amper.dependency.resolution.nameToDependency
+import org.jetbrains.amper.dependency.resolution.metadata.json.JsonTestBase
 import org.jetbrains.amper.test.TestUtil
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import kotlin.io.path.readText
-import kotlin.test.Test
+import java.nio.file.Path
 import kotlin.test.assertTrue
 
-class JsonTest {
+class ModuleJsonTest : JsonTestBase<Module>() {
+
+    override fun getTestDataPath(name: String): Path =
+        TestUtil.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/module/${name}.module")
+
+    override fun String.parse(): Module = parseMetadata()
+
+    override fun serialize(model: Module): String = model.serialize()
 
     @Test
     fun `kotlin-stdlib-1_9_20`(testInfo: TestInfo) = doTest(testInfo)
@@ -55,15 +61,4 @@ class JsonTest {
             it.size == null && it.md5 == null && it.sha1 == null && it.sha256 == null && it.sha512 == null
         })
     }
-
-    private fun doTest(testInfo: TestInfo, sanitizer: (String) -> String = { it }) {
-        val text = getTestDataText(testInfo.nameToDependency())
-        val module = text.parseMetadata()
-        assertEquals(sanitizer(sanitize(text)), sanitizer(module.serialize()))
-    }
-
-    private fun getTestDataText(name: String) =
-        TestUtil.amperSourcesRoot.resolve("dependency-resolution/testData/metadata/json/${name}.module").readText()
-
-    private fun sanitize(text: String) = text.replace("\\s+".toRegex(), "")
 }

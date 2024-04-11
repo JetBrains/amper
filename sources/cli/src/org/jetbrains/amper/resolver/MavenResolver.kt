@@ -11,12 +11,14 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
-import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
+import org.jetbrains.amper.dependency.resolution.nativeTarget
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -29,14 +31,13 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         coordinates: Collection<String>,
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: PlatformType = PlatformType.JVM,
-        nativeTarget: String? = null,
+        platform: Platform = Platform.JVM
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("scope", scope.toString())
         .setAttribute("platform", platform.toString())
-        .also { if (nativeTarget != null) it.setAttribute("nativeTarget", nativeTarget) }
+        .also { builder -> platform.nativeTarget()?.let { builder.setAttribute("nativeTarget", it) } }
         .startSpan().use {
             val acceptedRepositories = mutableListOf<String>()
             for (url in repositories) {
@@ -80,8 +81,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                 }
                 this.scope = scope1
 
-                this.platform = platform
-                this.nativeTarget = nativeTarget
+                this.platform = setOf(platform)
                 this.downloadSources = false
             }.use { context ->
                 val root = ModuleDependencyNode(

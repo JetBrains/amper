@@ -12,6 +12,7 @@ repositories:
 dependencies:
   - org.jetbrains.kotlin:kotlin-reflect:1.9.20
   - ../core
+  - ../frontend-kotlin-api: exported
   - com.jetbrains.intellij.platform:core:233.13763.11
 
 test-dependencies:

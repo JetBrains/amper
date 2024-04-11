@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.TestInfo
 import java.util.*
@@ -44,7 +45,7 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlinx atomicfu 0_23_2`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = PlatformType.JVM,
+            platform = Platform.JVM,
             expected = """root
                 |\--- org.jetbrains.kotlinx:atomicfu:0.23.2
                 |     \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
@@ -245,7 +246,7 @@ class BuildGraphTest {
     fun `androidx_activity activity-compose 1_7_2`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            platform = PlatformType.ANDROID_JVM,
+            platform = Platform.ANDROID,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
             expected = """root
                 |\--- androidx.activity:activity-compose:1.7.2
@@ -367,7 +368,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
-            platform = PlatformType.ANDROID_JVM,
+            platform = Platform.ANDROID,
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
                 |     +--- androidx.activity:activity:1.6.0
@@ -519,7 +520,7 @@ class BuildGraphTest {
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = PlatformType.ANDROID_JVM,
+            platform = Platform.ANDROID,
             expected = """root
                 |\--- com.google.guava:guava:33.0.0-android
                 |     +--- com.google.guava:failureaccess:1.0.2
@@ -569,8 +570,7 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = PlatformType.NATIVE,
-            nativeTarget = "macos_arm64",
+            platform = Platform.MACOS_ARM64,
             expected = """root
                 |\--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
                 |     \--- org.jetbrains.kotlinx:kotlinx-datetime-macosarm64:0.5.0
@@ -971,13 +971,12 @@ class BuildGraphTest {
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: PlatformType = PlatformType.JVM,
-        nativeTarget: String? = null,
+        platform: Platform = Platform.JVM,
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String
     ): DependencyNode {
-        context(scope, platform, nativeTarget, repositories).use { context ->
+        context(scope, platform, repositories).use { context ->
             val root = dependency.toRootNode(context)
             val resolver = Resolver()
             runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
@@ -995,13 +994,11 @@ class BuildGraphTest {
 
     private fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: PlatformType = PlatformType.JVM,
-        nativeTarget: String? = null,
+        platform: Platform = Platform.JVM,
         repositories: List<String> = REDIRECTOR_MAVEN2,
     ) = Context {
         this.scope = scope
-        this.platform = platform
-        this.nativeTarget = nativeTarget
+        this.platform = setOf(platform)
         this.repositories = repositories
         this.cache = {
             amperCache = TestUtil.userCacheRoot.resolve(".amper")

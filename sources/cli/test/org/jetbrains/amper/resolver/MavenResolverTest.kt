@@ -6,8 +6,8 @@ package org.jetbrains.amper.resolver
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.dependency.resolution.PlatformType
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.frontend.Platform
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -73,8 +73,7 @@ class MavenResolverTest {
                 coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
                 repositories = listOf("https://repo1.maven.org/maven2"),
                 scope = ResolutionScope.COMPILE,
-                platform = PlatformType.NATIVE,
-                nativeTarget = "mingw_x64",
+                platform = Platform.MINGW_X64
             )
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted().joinToString("\n")
