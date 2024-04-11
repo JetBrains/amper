@@ -38,6 +38,9 @@ private fun kotlinxSerializationFormatDependency(format: String) = MavenDependen
 fun PotatoModule.withImplicitDependencies(): PotatoModule = object : PotatoModule by this {
     override val fragments: List<Fragment>
         get() = this@withImplicitDependencies.fragments.map { it.withImplicitDependencies() }
+    // Strange, but no implementation exception arises without this.
+    override val rootTestFragment: Fragment?
+        get() = super.rootTestFragment
 }
 
 private fun Fragment.withImplicitDependencies(): Fragment {

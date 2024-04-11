@@ -94,4 +94,9 @@ interface PotatoModule {
     val usedCatalog: VersionCatalog?
 
     val leafFragments get() = fragments.filterIsInstance<LeafFragment>()
+
+    val rootFragment: Fragment? get() = fragments.firstOrNull { it.fragmentDependencies.isEmpty() }
+
+    val rootTestFragment: Fragment? get() = fragments.firstOrNull { it.isTest && it.fragmentDependencies.size == 1 }
+
 }

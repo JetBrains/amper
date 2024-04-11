@@ -8,7 +8,6 @@ import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -97,13 +96,6 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
         val usedDaemon = context.store.remove(usedDaemonKey, GradleConnector::class.java)
         if (!availableGradleDaemons.offer(usedDaemon)) error("Unreachable")
     }
-
-    private fun createTempDir(): Path = Files.createTempDirectory(TestUtil.tempDir, "junit")
-        .also {
-            it.deleteExisting()
-            Files.createDirectories(it)
-            deleteFileOrDirectoryOnExit(it)
-        }
 
     private val ExtensionContext.store get() = getStore(namespace)
     private val ExtensionContext.namespace get() = ExtensionContext.Namespace.create(javaClass, requiredTestMethod)

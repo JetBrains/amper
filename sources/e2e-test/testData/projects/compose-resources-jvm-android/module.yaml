@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms: [ jvm, android ]
+
+settings:
+  compose:
+    enabled: true
+    version: 1.6.1

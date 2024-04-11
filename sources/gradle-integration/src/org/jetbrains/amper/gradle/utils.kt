@@ -150,3 +150,19 @@ fun File.replacePenultimate(newName: String): File {
         penultimateFile.parentFile.resolve(newName).resolve(lastEntry)
     }
 }
+
+fun SourceDirectorySet.tryAdd(toAdd: Path): SourceDirectorySet {
+    val delegate = ReflectionSourceDirectorySet.tryWrap(this)
+    if (delegate != null) with(delegate.mutableSources) {
+        if (!contains(toAdd)) add(toAdd)
+    }
+    return this
+}
+
+fun SourceDirectorySet.tryRemove(toRemove: (File) -> Boolean): SourceDirectorySet {
+    val delegate = ReflectionSourceDirectorySet.tryWrap(this)
+    if (delegate != null) with(delegate.mutableSources) {
+        removeIf { (it as? File)?.let(toRemove) == true }
+    }
+    return this
+}

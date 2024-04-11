@@ -29,12 +29,9 @@ class PotatoModuleWrapper(
     private val allFragmentWrappers = mutableMapOf<Fragment, FragmentWrapper>()
     val LeafFragment.wrappedLeaf get() = wrapped as LeafFragmentWrapper
     val Fragment.wrapped
-        get() = allFragmentWrappers.computeIfAbsent(this) {
-            when (this) {
-                is FragmentWrapper -> this
-                is LeafFragment -> LeafFragmentWrapper(this@PotatoModuleWrapper, this)
-                else -> FragmentWrapper(this@PotatoModuleWrapper, this)
-            }
+        get() = if (this is FragmentWrapper) this else allFragmentWrappers.computeIfAbsent(this) {
+            if (this is LeafFragment) LeafFragmentWrapper(this@PotatoModuleWrapper, this)
+            else FragmentWrapper(this@PotatoModuleWrapper, this)
         }
 
     val artifactPlatforms by lazy { artifacts.flatMap { it.platforms }.toSet() }
@@ -42,6 +39,8 @@ class PotatoModuleWrapper(
     override val artifacts = passedModule.artifacts.map { it.wrap(this) }
     override val fragments = passedModule.fragments.map { it.wrapped }
     override val leafFragments = passedModule.fragments.filterIsInstance<LeafFragment>().map { it.wrappedLeaf }
+    override val rootFragment = passedModule.rootFragment?.wrapped
+    override val rootTestFragment = passedModule.rootTestFragment?.wrapped
     val leafNonTestFragments = leafFragments
         .filter { !it.isTest }
     val leafTestFragments = leafFragments

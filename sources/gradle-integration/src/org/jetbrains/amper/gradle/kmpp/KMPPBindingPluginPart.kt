@@ -6,7 +6,6 @@ package org.jetbrains.amper.gradle.kmpp
 
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.file.SourceDirectorySet
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -39,6 +38,8 @@ import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
 import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
+import org.jetbrains.amper.gradle.tryAdd
+import org.jetbrains.amper.gradle.tryRemove
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
@@ -50,7 +51,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.konan.target.Family
 import java.io.File
-import java.nio.file.Path
 
 
 // Introduced function to remember to propagate language settings.
@@ -148,8 +148,8 @@ class KMPPBindingPluginPart(
 
                 // Do AMPER specific.
                 layout == Layout.AMPER && fragment != null -> {
-                    sourceSet.kotlin.replaceByAmperLayout(fragment.src) { it.endsWith("kotlin") }
-                    sourceSet.resources.replaceByAmperLayout(fragment.resourcesPath) { it.endsWith("resources") }
+                    sourceSet.kotlin.tryAdd(fragment.src).tryRemove { it.endsWith("kotlin") }
+                    sourceSet.resources.tryAdd(fragment.resourcesPath).tryRemove { it.endsWith("resources") }
                 }
 
                 layout == Layout.AMPER && fragment == null -> {
@@ -157,22 +157,6 @@ class KMPPBindingPluginPart(
                     sourceSet.resources.setSrcDirs(emptyList<File>())
                 }
             }
-        }
-    }
-
-    private fun SourceDirectorySet.replaceByAmperLayout(
-        toAdd: Path,
-        toRemove: (File) -> Boolean
-    ) {
-        val delegate = ReflectionSourceDirectorySet.tryWrap(this)
-        if (delegate == null) {
-            // Here we can't delete anything, since values can be provided by
-            // Gradle's [Provider] and so, add new dependencies between source sets and tasks.
-            srcDir(toAdd)
-            return
-        } else with(delegate.mutableSources) {
-            removeIf { (it as? File)?.let(toRemove) == true }
-            if (!contains(toAdd)) add(toAdd)
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.kmpp
@@ -61,10 +61,11 @@ object KotlinAmperNamingConvention {
 
     context(KMPEAware)
     val FragmentWrapper.kotlinSourceSetName: String
-        get() = when(name) {
+        get() = when {
+            !isTest && name == module.rootFragment?.name -> "commonMain"
             // TODO Add variants support.
-            "androidTest" -> "androidUnitTest"
-            "common" -> "commonMain"
+            isTest && name == "androidTest" -> "androidUnitTest"
+            isTest && name == module.rootTestFragment?.name -> "commonTest"
             else -> name
         }
 

@@ -357,4 +357,22 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
+
+    @Test
+    fun `test compose resources jvm`() = test(
+        projectName = "compose-resources-jvm",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        // See compose.kt for this package name hack reasoning
+        additionalEnv = mapOf("AMPER_TEST_COMPOSE_PACKAGE_NAME" to "generated.compose.resources")
+    )
+
+    @Test
+    fun `test compose resources jvm android`() = test(
+        projectName = "compose-resources-jvm-android",
+        "build",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        // See compose.kt for this package name hack reasoning
+        additionalEnv = mapOf("AMPER_TEST_COMPOSE_PACKAGE_NAME" to "generated.compose.resources")
+    )
 }
