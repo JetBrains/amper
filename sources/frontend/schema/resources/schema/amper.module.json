@@ -164,13 +164,15 @@
               }
             },
             "type": {
-              "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
+              "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
+              "x-intellij-enum-order-sensitive": true
             }
           },
           "additionalProperties": false
         },
         {
-          "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
+          "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
+          "x-intellij-enum-order-sensitive": true
         }
       ]
     },

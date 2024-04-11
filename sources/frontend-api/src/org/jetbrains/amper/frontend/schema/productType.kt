@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
@@ -18,6 +19,7 @@ import org.jetbrains.amper.frontend.api.unsafe
 
 @SchemaDoc("Defines what should be produced out of the module. Read more about the [product types](#product-types)")
 @EnumValueFilter("obsolete", isNegated = true)
+@EnumOrderSensitive
 enum class ProductType(
     val value: String,
     val supportedPlatforms: Set<Platform>,
@@ -103,6 +105,7 @@ class ModuleProduct : SchemaNode() {
 
 const val productShortForm = """
   {
-    "enum": ["lib","app","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"]
+    "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
+    "x-intellij-enum-order-sensitive": true
   }
 """
