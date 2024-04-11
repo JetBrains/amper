@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import org.jetbrains.amper.frontend.Platform
 import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -88,7 +87,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
 
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
-    var platforms: Set<Platform> = setOf(Platform.JVM)
+    var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
@@ -143,7 +142,7 @@ class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
 data class Settings(
     val progress: Progress,
     val scope: ResolutionScope,
-    val platforms: Set<Platform>,
+    val platforms: Set<ResolutionPlatform>,
     val repositories: List<String>,
     val fileCache: FileCache,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,

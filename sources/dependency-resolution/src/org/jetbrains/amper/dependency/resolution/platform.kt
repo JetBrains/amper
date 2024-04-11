@@ -5,8 +5,57 @@
 package org.jetbrains.amper.dependency.resolution
 
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
-import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.isDescendantOf
+
+/**
+ * This enum contains possible values of module file attribute "org.jetbrains.kotlin.platform.type".
+ * The list is taken from gradle-plugin class 'org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType'.
+ *
+ * See https://gist.github.com/h0tk3y/41c73d1f822378f52f1e6cce8dcf56aa for more information
+ */
+enum class ResolutionPlatform(
+    val type: PlatformType
+) {
+    JVM (PlatformType.JVM),
+    ANDROID (PlatformType.ANDROID_JVM),
+    COMMON (PlatformType.COMMON),
+    JS (PlatformType.JS),
+    WASM(PlatformType.WASM),
+
+    // LINUX -> NATIVE
+    LINUX_X64(PlatformType.NATIVE),
+    LINUX_ARM64(PlatformType.NATIVE),
+
+    // TVOS -> APPLE -> NATIVE
+    TVOS_ARM64(PlatformType.NATIVE),
+    TVOS_X64(PlatformType.NATIVE),
+    TVOS_SIMULATOR_ARM64(PlatformType.NATIVE),
+
+    // MACOS -> APPLE -> NATIVE
+    MACOS_X64(PlatformType.NATIVE),
+    MACOS_ARM64(PlatformType.NATIVE),
+
+    // IOS -> APPLE -> NATIVE
+    IOS_ARM64(PlatformType.NATIVE),
+    IOS_SIMULATOR_ARM64(PlatformType.NATIVE),
+    IOS_X64(PlatformType.NATIVE),
+
+    // WATCHOS -> APPLE -> NATIVE
+    WATCHOS_ARM64(PlatformType.NATIVE),
+    WATCHOS_ARM32(PlatformType.NATIVE),
+    WATCHOS_DEVICE_ARM64(PlatformType.NATIVE),
+    WATCHOS_SIMULATOR_ARM64(PlatformType.NATIVE),
+
+    // MINGW -> NATIVE
+    MINGW_X64(PlatformType.NATIVE),
+
+    // ANDROID_NATIVE -> NATIVE
+    ANDROID_NATIVE_ARM32(PlatformType.NATIVE),
+    ANDROID_NATIVE_ARM64(PlatformType.NATIVE),
+    ANDROID_NATIVE_X64(PlatformType.NATIVE),
+    ANDROID_NATIVE_X86(PlatformType.NATIVE);
+
+    val nativeTarget: String? = if (type == PlatformType.NATIVE) name.lowercase() else null
+}
 
 /**
  * This enum contains possible values of module file attribute "org.jetbrains.kotlin.platform.type".
@@ -29,16 +78,4 @@ enum class PlatformType(
     WASM("wasm");
 
     internal fun matches(variant: Variant) = variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this.value } ?: true
-}
-
-fun Platform.nativeTarget(): String? = this.takeIf { it.isDescendantOf(Platform.NATIVE) }?.name?.lowercase()
-
-fun Platform.toPlatformType(): PlatformType = when {
-    Platform.JVM == this -> PlatformType.JVM
-    Platform.ANDROID == this -> PlatformType.ANDROID_JVM
-    Platform.COMMON == this -> PlatformType.COMMON
-    Platform.JS == this -> PlatformType.JS
-    Platform.WASM == this -> PlatformType.WASM
-    isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE
-    else -> throw IllegalStateException("Platform $this doesn't correspond to any platform type")
 }

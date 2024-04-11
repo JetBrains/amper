@@ -4,17 +4,14 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Module
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
-import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
@@ -22,15 +19,8 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
 import org.jetbrains.amper.dependency.resolution.metadata.xml.expandTemplates
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
-import org.jetbrains.amper.frontend.Platform
-import java.io.FileInputStream
-import java.io.InputStreamReader
-import java.lang.UnsupportedOperationException
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-import java.util.jar.JarInputStream
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -233,13 +223,12 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun List<Variant>.filterWithFallbackPlatform(platform: Platform) : List<Variant> {
-        val platformType = platform.toPlatformType()
-        val platformVariants = this.filter { platformType.matches(it) }
+    private fun List<Variant>.filterWithFallbackPlatform(platform: ResolutionPlatform) : List<Variant> {
+        val platformVariants = this.filter { platform.type.matches(it) }
         return when {
             platformVariants.withoutDocumentationAndMetadata.isNotEmpty()
-                    || platformType.fallback == null -> platformVariants
-            else -> this.filter { platformType.fallback.matches(it) }
+                    || platform.type.fallback == null -> platformVariants
+            else -> this.filter { platform.type.fallback.matches(it) }
         }
     }
 
@@ -285,12 +274,12 @@ class MavenDependency internal constructor(
 
         if (context.settings.platforms.isEmpty()) {
             throw AmperDependencyResolutionException("Target platform is not specified.")
-        } else if (context.settings.platforms.singleOrNull() == Platform.COMMON) {
+        } else if (context.settings.platforms.singleOrNull() == ResolutionPlatform.COMMON) {
             throw AmperDependencyResolutionException("Dependency resolution can not be run for COMMON platform. " +
                     "Set of actual target platforms should be specified.")
         }
 
-        val platform = context.settings.platforms.singleOrNull() ?: Platform.COMMON
+        val platform = context.settings.platforms.singleOrNull() ?: ResolutionPlatform.COMMON
 
         val initiallyFilteredVariants = module
             .variants
@@ -372,12 +361,9 @@ class MavenDependency internal constructor(
 
     private fun MavenDependency.toCapability() = Capability(group, module, version)
 
-    private fun String.matches(variant: Variant) =
-        variant.attributes["org.jetbrains.kotlin.platform.type"]?.let { it == this } ?: true
-
-    private fun Settings.nativeTargetMatches(variant: Variant, platform: Platform) =
+    private fun Settings.nativeTargetMatches(variant: Variant, platform: ResolutionPlatform) =
         variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
-                || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget()
+                || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 

@@ -7,18 +7,17 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.dependency.resolution.PlatformType
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.nativeTarget
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.resolver.MavenResolver
+import org.jetbrains.amper.resolver.toResolutionPlatform
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -69,28 +68,30 @@ class ResolveExternalDependenciesTask(
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
         // but the current implementation requires a full review of it
 
-        val resolvePlatformType = when {
-            platform == Platform.JVM -> PlatformType.JVM
-            platform == Platform.ANDROID -> PlatformType.ANDROID_JVM
-            platform.isDescendantOf(Platform.NATIVE) -> PlatformType.NATIVE
-            else -> {
-                logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
-                return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
-            }
+        val resolvedPlatform = platform.toResolutionPlatform()
+        if (resolvedPlatform == null) {
+            logger.error("${module.userReadableName}: Non-leaf platform $platform is not supported for resolving external dependencies")
+            return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+        } else if (resolvedPlatform != ResolutionPlatform.JVM
+            && resolvedPlatform != ResolutionPlatform.ANDROID
+            && resolvedPlatform.nativeTarget == null
+        ) {
+            logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
+            return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
         }
 
         logger.info("resolve dependencies ${module.userReadableName} -- " +
                 "${fragments.userReadableList()} -- " +
                 "${directCompileDependencies.sorted().joinToString(" ")} -- " +
                 exportedDependencies.sorted().joinToString(" ") + " -- " +
-                "resolvePlatform=${resolvePlatformType.value} nativeTarget=${platform.nativeTarget()}")
+                "resolvePlatform=${resolvedPlatform.type.value} nativeTarget=${resolvedPlatform.nativeTarget}")
 
         val configuration = mapOf(
             "userCacheRoot" to userCacheRoot.path.pathString,
             "dependencies" to dependenciesToResolve.joinToString("|"),
             "repositories" to repositories.joinToString("|"),
-            "resolvePlatform" to resolvePlatformType.value,
-            "resolveNativeTarget" to (platform.nativeTarget() ?: ""),
+            "resolvePlatform" to resolvedPlatform.type.value,
+            "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
         )
 
         val result = try {
@@ -99,13 +100,13 @@ class ResolveExternalDependenciesTask(
                     coordinates = dependenciesToResolve,
                     repositories = repositories,
                     scope = ResolutionScope.COMPILE,
-                    platform = platform
+                    platform = resolvedPlatform
                 ).toList()
                 val runtimeClasspath = mavenResolver.resolve(
                     coordinates = dependenciesToResolve,
                     repositories = repositories,
                     scope = ResolutionScope.RUNTIME,
-                    platform = platform
+                    platform = resolvedPlatform
                 ).toList()
                 return@execute ExecuteOnChangedInputs.ExecutionResult(
                     (compileClasspath + runtimeClasspath).toSet().sorted(),
@@ -121,8 +122,8 @@ class ResolveExternalDependenciesTask(
                     "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                     "direct dependencies:\n${directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
                     "exported dependencies:\n${exportedDependencies.sorted().joinToString("\n").prependIndent("  ")}\n" +
-                    "platform: $resolvePlatformType" +
-                    (platform.nativeTarget()?.let { "\nnativeTarget: $it" } ?: ""), t)
+                    "platform: $resolvedPlatform" +
+                    (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
         }
 
         val compileClasspath = result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }.map { Path.of(it) }
@@ -131,7 +132,7 @@ class ResolveExternalDependenciesTask(
         logger.debug("resolve dependencies ${module.userReadableName} -- " +
                 "${fragments.userReadableList()} -- " +
                 "${dependenciesToResolve.joinToString(" ")} -- " +
-                "resolvePlatform=$resolvePlatformType nativeTarget=${platform.nativeTarget()}\n" +
+                "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                 "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeToOrSelf(userCacheRoot.path).pathString }}")
 
         return TaskResult(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)

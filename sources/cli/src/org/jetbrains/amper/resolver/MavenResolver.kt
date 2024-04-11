@@ -11,13 +11,12 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
-import org.jetbrains.amper.dependency.resolution.nativeTarget
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
-import org.jetbrains.amper.frontend.Platform
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -30,13 +29,13 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         coordinates: Collection<String>,
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: Platform = Platform.JVM
+        platform: ResolutionPlatform = ResolutionPlatform.JVM
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("scope", scope.toString())
         .setAttribute("platform", platform.toString())
-        .also { builder -> platform.nativeTarget()?.let { builder.setAttribute("nativeTarget", it) } }
+        .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
         .startSpan().use {
             val acceptedRepositories = mutableListOf<String>()
             for (url in repositories) {

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.frontend.Platform
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -74,7 +73,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         val path = temp.toPath()
         Context {
-            platforms = setOf(Platform.MACOS_X64)
+            platforms = setOf(ResolutionPlatform.MACOS_X64)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -97,7 +96,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3`() {
         val path = temp.toPath()
         Context {
-            platforms = setOf(Platform.JVM, Platform.ANDROID)
+            platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -129,7 +128,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         val path = temp.toPath()
         Context {
-            platforms = setOf(Platform.JVM, Platform.ANDROID)
+            platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
@@ -160,7 +159,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_4_0 empty module file`() {
         val path = temp.toPath()
         Context {
-            platforms = setOf(Platform.MACOS_ARM64)
+            platforms = setOf(ResolutionPlatform.MACOS_ARM64)
             repositories = listOf("https://fake-repository/")
             cache = {
                 localRepositories = listOf(MavenLocalRepository(path))
