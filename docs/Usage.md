@@ -19,12 +19,12 @@ a small file that downloads and runs the actual Amper CLI distribution.
 Depending on your operating system, use one of the following commands to download the wrapper script:
 Linux/macOS:
 ```
-curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-492/cli-0.3.0-dev-492-wrapper.sh?download=true" && chmod +x amper.sh
+curl -fsSL -o amper.sh "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-493/cli-0.3.0-dev-493-wrapper.sh?download=true" && chmod +x amper.sh
 ```
 
 Windows powershell:
 ```
-Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-492/cli-0.3.0-dev-492-wrapper.bat?download=true -OutFile amper.bat
+Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.3.0-dev-493/cli-0.3.0-dev-493-wrapper.bat?download=true -OutFile amper.bat
 ```
 
 Alternatively, you can use any other method to download the wrapper script from the Maven repository, as long as you
