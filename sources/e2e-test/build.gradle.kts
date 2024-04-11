@@ -1,16 +1,14 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree.Companion.main
-import java.io.ByteArrayOutputStream
 import org.jetbrains.amper.core.AmperBuild
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Document
+import org.w3c.dom.Element
+import java.io.ByteArrayOutputStream
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import org.w3c.dom.Element
 
 
 val sessionInfoPath by extra { "$buildDir/device.session.json" }
@@ -209,7 +207,7 @@ tasks.register("runTestsViaAdb") {
 tasks.register("InstallPureAPKSampleApp") {
     doLast {
         val apkDirectory =
-            project.file("../../examples.pure/android-simple/build/tasks/_android-simple_buildAndroidDebug")
+            project.file("../amper-backend-test/testData/projects/android/simple/build/tasks/_simple_buildAndroidDebug")
 
         val apkFiles = apkDirectory.listFiles { dir, name ->
             println(name)
@@ -292,7 +290,14 @@ tasks.register<Copy>("copyAndroidTestProjects") {
     group = "android_Pure_Emulator_Tests"
     into(project.file("../../androidTestProjects"))
 
-    arrayOf("android-simple", "compose-android", "android-appcompat").forEach { dirName ->
+    arrayOf("simple", "appcompat").forEach { dirName ->
+        val sourcePath = "../amper-backend-test/testData/projects/android/$dirName"
+        from(sourcePath) {
+            into(dirName)
+        }
+    }
+
+    arrayOf("compose-android").forEach { dirName ->
         val sourcePath = "../../examples.pure/$dirName"
         from(sourcePath) {
             into(dirName)

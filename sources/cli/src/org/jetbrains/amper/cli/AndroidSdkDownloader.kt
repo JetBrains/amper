@@ -19,8 +19,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.downloader.httpClient
 import java.io.InputStream
 import java.net.URL
@@ -29,6 +28,7 @@ import java.nio.channels.FileChannel
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.div
 
 object NoopSettingsController : SettingsController {
     override fun getForceHttp(): Boolean = false
@@ -82,22 +82,21 @@ class KtorDownloader(private val androidSdkPath: Path) : Downloader {
     }.body<InputStream>()
 }
 
-val mutex = Mutex(false)
-
-suspend fun downloadAndExtractAndroidPlatform(packageName: String, androidSdkPath: Path): Path = mutex.withLock {
-    val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
-    val consoleProgressIndicator = ConsoleProgressIndicator()
-    val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
-    val downloader = KtorDownloader(androidSdkPath)
-    val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
-    return localPackage?.location ?: run {
-        repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
-        val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
-        remotePackage?.license?.setAccepted(repoManager.localPath)
-        val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
-        installer.prepare(consoleProgressIndicator)
-        installer.complete(consoleProgressIndicator)
-        val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
-        installDir ?: error("Install dir of package $remotePackage is missing")
+suspend fun downloadAndExtractAndroidPlatform(packageName: String, androidSdkPath: Path): Path =
+    withDoubleLock(androidSdkPath.hashCode(), androidSdkPath / "lock") {
+        val sdkHandler = AndroidSdkHandler.getInstance(AndroidLocationsSingleton, androidSdkPath)
+        val consoleProgressIndicator = ConsoleProgressIndicator()
+        val repoManager = sdkHandler.getSdkManager(consoleProgressIndicator)
+        val downloader = KtorDownloader(androidSdkPath)
+        val localPackage: LocalPackage? = repoManager.packages.localPackages[packageName]
+        localPackage?.location ?: run {
+            repoManager.loadSynchronously(0, consoleProgressIndicator, downloader, NoopSettingsController)
+            val remotePackage: RemotePackage? = repoManager.packages.remotePackages[packageName]
+            remotePackage?.license?.setAccepted(repoManager.localPath)
+            val installer = BasicInstallerFactory().createInstaller(remotePackage, repoManager, downloader)
+            installer.prepare(consoleProgressIndicator)
+            installer.complete(consoleProgressIndicator)
+            val installDir: Path? = remotePackage?.getInstallDir(repoManager, consoleProgressIndicator)
+            installDir ?: error("Install dir of package $remotePackage is missing")
+        }
     }
-}

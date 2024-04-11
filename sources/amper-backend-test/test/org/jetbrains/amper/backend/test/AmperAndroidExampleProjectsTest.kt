@@ -44,10 +44,13 @@ import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
 class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
-    private val androidProjectsPath: Path = TestUtil.amperCheckoutRoot.resolve("examples.pure")
+
+    private val androidTestDataRoot: Path = TestUtil
+        .amperSourcesRoot
+        .resolve("amper-backend-test/testData/projects/android")
 
     private fun setupAndroidTestProject(testProjectName: String): ProjectContext =
-        setupTestProject(androidProjectsPath.resolve(testProjectName), copyToTemp = false)
+        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false)
 
     /**
      * When the emulator already is in working state, app install and launch activity occurring so fast that logcat
@@ -61,50 +64,50 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     @OnNonCI
     @Ignore("Waiting for instrumented test support in pure Amper")
-    fun `android-simple`() = runTest(timeout = 15.minutes) {
-        val projectContext = setupAndroidTestProject("android-simple")
+    fun simple() = runTest(timeout = 15.minutes) {
+        val projectContext = setupAndroidTestProject("simple")
         System.setProperty(headlessEmulatorModePropertyName, "true")
-        val job = async { AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("android-simple", "logcat"))) }
+        val job = async { AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "logcat"))) }
         waitAndAssertSubstringInOutput("My Application")
         job.cancelAndJoin()
     }
 
     @Test
-    fun `android-simple tests debug`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-simple")
-        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("android-simple", "testAndroidTestDebug")))
+    fun `simple tests debug`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple")
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestDebug")))
         assertStdoutContains("1 tests successful")
     }
 
     @Test
-    fun `android-simple tests release`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-simple")
-        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("android-simple", "testAndroidTestRelease")))
+    fun `simple tests release`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple")
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestRelease")))
         assertStdoutContains("1 tests successful")
     }
 
     @Test
     fun `apk contains dependencies`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-simple")
-        val taskName = TaskName.fromHierarchy(listOf("android-simple", "buildAndroidDebug"))
+        val projectContext = setupAndroidTestProject("simple")
+        val taskName = TaskName.fromHierarchy(listOf("simple", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
         assertClassContainsInApk("Lcom/google/common/collect/Synchronized\$SynchronizedBiMap;", apkPath)
     }
 
     @Test
-    fun `android-aar compiles successfully and contains dependencies`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-aar")
-        val taskName = TaskName.fromHierarchy(listOf("android-aar", "buildAndroidDebug"))
+    fun `appcompat compiles successfully and contains dependencies`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("appcompat")
+        val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
-        assertClassContainsInApk("Lcom/github/dkharrat/nexusdialog/FormActivity;", apkPath)
+        assertClassContainsInApk("Landroidx/appcompat/app/AppCompatActivity;", apkPath)
     }
 
     @Test
     fun `lib contains lib code and resources`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-lib")
-        val taskName = TaskName.fromHierarchy(listOf("android-lib", "buildAndroidDebug"))
+        val projectContext = setupAndroidTestProject("lib")
+        val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val aarPath = projectContext.getAarPath(taskName)
         assertClassContainsInAar("org.example.namespace.Lib", aarPath)
@@ -113,8 +116,8 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("android-appcompat")
-        val taskName = TaskName.fromHierarchy(listOf("android-appcompat", "buildAndroidDebug"))
+        val projectContext = setupAndroidTestProject("appcompat")
+        val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
         val extractedApkPath = apkPath.parent.resolve("extractedApk")
@@ -125,24 +128,24 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `task graph is correct for downloading and installing android sdk components`() {
-        val projectContext = setupAndroidTestProject("android-simple")
+        val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext).showTasks()
         // debug
-        assertStdoutContains("task :android-simple:buildAndroidDebug -> :android-simple:resolveDependenciesAndroid, :android-simple:compileAndroidDebug")
-        assertStdoutContains("task :android-simple:compileAndroidDebug -> :android-simple:transformDependenciesAndroid, :android-simple:installPlatformAndroid, :android-simple:prepareAndroidDebug, :android-simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :android-simple:prepareAndroidDebug -> :android-simple:installBuildToolsAndroid, :android-simple:installPlatformToolsAndroid, :android-simple:installPlatformAndroid, :android-simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :android-simple:runAndroidDebug -> :android-simple:installSystemImageAndroid, :android-simple:installEmulatorAndroid, :android-simple:buildAndroidDebug")
+        assertStdoutContains("task :simple:buildAndroidDebug -> :simple:resolveDependenciesAndroid, :simple:compileAndroidDebug")
+        assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
-        assertStdoutContains("task :android-simple:buildAndroidRelease -> :android-simple:resolveDependenciesAndroid, :android-simple:compileAndroidRelease")
-        assertStdoutContains("task :android-simple:compileAndroidRelease -> :android-simple:transformDependenciesAndroid, :android-simple:installPlatformAndroid, :android-simple:prepareAndroidRelease, :android-simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :android-simple:prepareAndroidRelease -> :android-simple:installBuildToolsAndroid, :android-simple:installPlatformToolsAndroid, :android-simple:installPlatformAndroid, :android-simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :android-simple:runAndroidRelease -> :android-simple:installSystemImageAndroid, :android-simple:installEmulatorAndroid, :android-simple:buildAndroidRelease")
+        assertStdoutContains("task :simple:buildAndroidRelease -> :simple:resolveDependenciesAndroid, :simple:compileAndroidRelease")
+        assertStdoutContains("task :simple:compileAndroidRelease -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
 
         // transform dependencies
         // main
-        assertStdoutContains("task :android-simple:transformDependenciesAndroid -> :android-simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:transformDependenciesAndroid -> :simple:resolveDependenciesAndroid")
         // test
-        assertStdoutContains("task :android-simple:transformDependenciesAndroidTest -> :android-simple:resolveDependenciesAndroidTest")
+        assertStdoutContains("task :simple:transformDependenciesAndroidTest -> :simple:resolveDependenciesAndroidTest")
     }
 
     @AfterTest

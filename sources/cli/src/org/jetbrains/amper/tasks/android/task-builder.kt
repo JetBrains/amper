@@ -55,7 +55,6 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "emulator",
-                executeOnChangedInputs,
                 androidSdkPath,
                 AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
             )
@@ -184,7 +183,6 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
         GetAndroidPlatformJarTask(
             GetAndroidPlatformFileFromPackageTask(
                 "platforms;android-$targetSdk",
-                executeOnChangedInputs,
                 androidSdkPath,
                 AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
             )
@@ -202,7 +200,6 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "build-tools;${androidFragment?.settings?.android?.targetSdk?.versionNumber}.0.0",
-            executeOnChangedInputs,
             androidSdkPath,
             AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)
         )
@@ -219,7 +216,6 @@ private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "platform-tools",
-            executeOnChangedInputs,
             androidSdkPath,
             AndroidTaskType.InstallPlatformTools.getTaskName(module, Platform.ANDROID, isTest)
         )
@@ -237,7 +233,6 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "system-images;android-$versionNumber;${DEFAULT_TAG.id};$abi",
-            executeOnChangedInputs,
             androidSdkPath,
             AndroidTaskType.InstallSystemImage.getTaskName(module, Platform.ANDROID, isTest)
         )
