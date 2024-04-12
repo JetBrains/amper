@@ -22,19 +22,21 @@ suspend fun Jdk.runJava(
     classpath: List<Path>,
     programArgs: List<String>,
     jvmArgs: List<String> = emptyList(),
+    /** Print output to this process output in addition to storing it in ProcessResult */
+    printOutput: Boolean = true,
 ): ProcessResult {
     val classpathStr = classpath.joinToString(File.pathSeparator) { it.pathString }
     val command = buildList {
         add(javaExecutable.pathString)
-        
+
         if (classpath.isNotEmpty()) {
             add("-cp")
             add(classpathStr)
         }
-        
+
         addAll(jvmArgs)
         add(mainClass)
-        
+
         addAll(programArgs)
     }
     return spanBuilder("java-exec")
@@ -45,6 +47,6 @@ suspend fun Jdk.runJava(
         .setAttribute("classpath", classpathStr)
         .setAttribute("main-class", mainClass)
         .useWithScope { span ->
-            BuildPrimitives.runProcessAndGetOutput(command, workingDir, span)
+            BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutput = printOutput)
         }
 }

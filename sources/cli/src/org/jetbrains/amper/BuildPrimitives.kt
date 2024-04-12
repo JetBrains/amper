@@ -69,8 +69,8 @@ object BuildPrimitives {
         workingDir: Path,
         span: Span? = null,
         environment: Map<String, String> = emptyMap(),
-        /** If should print out to the main process also */
-        hideOutput: Boolean = false,
+        /** Print output to this process output in addition to storing it in ProcessResult */
+        printOutput: Boolean = true,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -93,8 +93,8 @@ object BuildPrimitives {
                     logger.warn("Unable to close process stdin: ${t.message}", t)
                 }
                 process.awaitAndGetAllOutput(
-                    onStdoutLine = if (hideOutput) { { } } else System.out::println,
-                    onStderrLine = if (hideOutput) { { } } else System.err::println,
+                    onStdoutLine = if (printOutput) System.out::println else { { } },
+                    onStderrLine = if (printOutput) System.err::println else { { } },
                 )
             }
         }

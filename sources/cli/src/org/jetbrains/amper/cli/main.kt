@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
@@ -49,6 +50,7 @@ private class RootCommand : CliktCommand(name = "amper") {
             TaskCommand(),
             TasksCommand(),
             ToolCommand(),
+            PublishCommand(),
         )
     }
 
@@ -195,6 +197,19 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
         amperBackendWithExecutionMode.check(
             platforms = platform.ifEmpty { null }?.toSet(),
             moduleName = module,
+        )
+    }
+}
+
+private class PublishCommand : CliktCommand(name = "publish", help = "Publish modules to a repository") {
+    val module by option("-m", "--modules", help = "specify modules to publish, delimited by ','. " +
+            "By default 'publish' command will publish all possible modules").split(",")
+    val amperBackend by requireObject<AmperBackend>()
+    val repositoryId by argument("repository-id")
+    override fun run() {
+        amperBackend.publish(
+            modules = module?.toSet(),
+            repositoryId = repositoryId,
         )
     }
 }

@@ -17,8 +17,10 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
+import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
@@ -171,6 +173,38 @@ class AmperBackend(val context: ProjectContext) {
                 path.parent.createDirectories()
                 Files.asByteSink(path.toFile()).writeFrom(zip)
             }
+        }
+    }
+
+    fun publish(modules: Set<String>?, repositoryId: String) {
+        require(modules == null || modules.isNotEmpty())
+
+        if (modules != null) {
+            for (moduleName in modules) {
+                val module = resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
+                    ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
+                                "Available modules: ${availableModulesString()}")
+
+                if (module.mavenRepositories.any { it.id == repositoryId }) {
+                    userReadableError("Module '$moduleName' does not have repository with id '$repositoryId'")
+                }
+            }
+        }
+
+        val publishTasks = taskGraph.tasks
+            .filterIsInstance<PublishTask>()
+            .filter { it.targetRepository.id == repositoryId }
+            .filter { modules == null || modules.contains(it.module.userReadableName) }
+
+        if (publishTasks.isEmpty()) {
+            userReadableError("No publish tasks were found for specified module and repository filters")
+        }
+
+        println("Tasks that will be executed:\n" +
+            publishTasks.map { "  " + it.taskName.name }.sorted().joinToString("\n"))
+
+        runBlocking {
+            taskExecutor.runTasksAndReportOnFailure(publishTasks.map { it.taskName })
         }
     }
 

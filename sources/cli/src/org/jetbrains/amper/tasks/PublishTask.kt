@@ -43,7 +43,7 @@ import kotlin.io.path.createTempFile
 class PublishTask(
     override val taskName: TaskName,
     val module: PotatoModule,
-    private val targetRepository: RepositoriesModulePart.Repository,
+    val targetRepository: RepositoriesModulePart.Repository,
     private val tempRoot: AmperProjectTempRoot,
     private val mavenLocalRepository: MavenLocalRepository,
 ) : Task {
