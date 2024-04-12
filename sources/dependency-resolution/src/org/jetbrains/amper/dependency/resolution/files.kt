@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
+import java.nio.channels.FileLock
 import java.nio.channels.OverlappingFileLockException
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.FileAlreadyExistsException
@@ -45,6 +46,8 @@ import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration
 
 
 private val logger = LoggerFactory.getLogger("files.kt")
@@ -278,8 +281,6 @@ open class DependencyFile(
                 e,
             )
             return false
-        } finally {
-            temp.deleteIfExists()
         }
     }
 
@@ -330,14 +331,60 @@ open class DependencyFile(
     ) =
         FileChannel.open(temp, *options)
             .use { fileChannel ->
-                fileChannel.lock().use {
-                    if (isDownloadWithVerification(verify, repositories, progress, cache)) {
-                        true
-                    } else {
-                        downloadUnderFileLock(fileChannel, temp, repositories, progress, cache, verify)
+                val fileLock = fileChannel.lockWithRetry()
+                fileLock.use {
+                    try {
+                        if (isDownloadWithVerification(verify, repositories, progress, cache)) {
+                            true
+                        } else {
+                            downloadUnderFileLock(fileChannel, temp, repositories, progress, cache, verify)
+                        }
+                    } finally {
+                        temp.deleteIfExists()
                     }
                 }
             }
+
+    private suspend fun FileChannel.lockWithRetry(): FileLock? =
+        withRetry(
+            retryOnException = { e ->
+                e is IOException && e.message?.contains("Resource deadlock avoided") == true
+            }
+        ) {
+            lock()
+        }
+
+    private suspend fun <T> withRetry(
+        retryCount: Int = 7,
+        retryInterval: Duration = 200.milliseconds,
+        retryOnException: (e: Exception) -> Boolean = { true },
+        block: () -> T,
+    ): T {
+        var attempt = 0
+        var firstException: Exception? = null
+        do {
+            if (attempt > 0) delay(retryInterval)
+            try {
+                return block()
+            } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                } else if (!retryOnException(e)) {
+                    throw e
+                } else {
+                    logger.debug("Retrying after exception...", e)
+                    if (firstException == null) {
+                        firstException = e
+                    } else {
+                        firstException.addSuppressed(e)
+                    }
+                }
+            }
+            attempt++
+        } while (attempt < retryCount)
+
+        throw firstException!!
+    }
 
     @Suppress("BlockingMethodInNonBlockingContext") // the whole method is called with Dispatchers.IO
     private suspend fun downloadUnderFileLock(
