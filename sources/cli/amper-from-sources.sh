@@ -95,9 +95,9 @@ check_sha256() {
 sys=$(uname -s)
 
 if [ "$sys" = "Darwin" ]; then
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/JetBrains/Amper}"
+  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/Amper}"
 else
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/JetBrains/Amper}"
+  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/Amper}"
 fi
 
 ### JVM

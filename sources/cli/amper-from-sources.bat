@@ -1,25 +1,25 @@
 @echo off
 
-rem 
+rem
 rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-rem 
+rem
 
 rem Runs amper cli from sources
 rem based on https://github.com/mfilippov/gradle-jvm-wrapper/blob/70c0c807169eb6818d10ee3f7fcc34153656e1eb/src/main/kotlin/me/filippov/gradle/jvm/wrapper/Plugin.kt#L129
 
 setlocal
 
-set BUILD_DIR=%LOCALAPPDATA%\gradle-jvm
+set BUILD_DIR=%LOCALAPPDATA%\Amper\boot-jvm
 set JVM_TARGET_DIR=%BUILD_DIR%\jdk-17.0.3.1_windows-x64_bin-d6ede5\
 
 set JVM_URL=https://download.oracle.com/java/17/archive/jdk-17.0.3.1_windows-x64_bin.zip
 
 set IS_TAR_GZ=0
-set JVM_TEMP_FILE=gradle-jvm.zip
+set JVM_TEMP_FILE=boot-jvm.zip
 
 if /I "%JVM_URL:~-7%"==".tar.gz" (
     set IS_TAR_GZ=1
-    set JVM_TEMP_FILE=gradle-jvm.tar.gz
+    set JVM_TEMP_FILE=boot-jvm.tar.gz
 )
 
 set POWERSHELL=%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe

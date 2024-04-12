@@ -26,7 +26,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
 )
 
 if defined AMPER_BOOTSTRAP_CACHE_DIR goto continue_with_cache_dir
-set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\JetBrains\Amper\
+set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper\
 :continue_with_cache_dir
 
 rem add \ to the end if not present
