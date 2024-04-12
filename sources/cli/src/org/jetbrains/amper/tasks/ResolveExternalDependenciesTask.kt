@@ -15,8 +15,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -41,8 +41,7 @@ class ResolveExternalDependenciesTask(
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        val repositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories?.map { it.url } ?: emptyList())
-            .distinct()
+        val repositories = module.mavenRepositories.map { it.url }.distinct()
 
         val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }

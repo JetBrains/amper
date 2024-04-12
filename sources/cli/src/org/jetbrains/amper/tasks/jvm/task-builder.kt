@@ -6,8 +6,8 @@ package org.jetbrains.amper.tasks.jvm
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleDependency
-import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.doCapitalize
+import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
@@ -63,8 +63,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
         )
 
-        val publishRepositories = (module.parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList())
-            .filter { it.publish }
+        val publishRepositories = module.mavenRepositories.filter { it.publish }
         for (repository in publishRepositories) {
             val publishTaskSuffix = "To${repository.id.doCapitalize()}"
             val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = publishTaskSuffix)

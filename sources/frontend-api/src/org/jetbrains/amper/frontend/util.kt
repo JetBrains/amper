@@ -29,6 +29,9 @@ fun String.camelMerge(other: String) = when {
  */
 inline fun <reified T : Any> Collection<Any>.findInstance() = filterIsInstance<T>().firstOrNull()
 
+val PotatoModule.mavenRepositories: List<RepositoriesModulePart.Repository>
+    get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()
+
 /**
  * Simple approach to do some action for fragment closure.
  */
