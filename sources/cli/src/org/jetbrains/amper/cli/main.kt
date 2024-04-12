@@ -34,6 +34,7 @@ import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.system.exitProcess
 
@@ -77,7 +78,7 @@ private class RootCommand : CliktCommand(name = "amper") {
     val buildOutputRoot by option(
         "--build-output",
         help = "Build output root. 'build' directory under project root by default"
-    ).path(mustExist = true, canBeFile = false, canBeDir = true)
+    ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override fun run() {
         // TODO think of a better place to activate it. e.g. we need it in tests too
@@ -89,7 +90,10 @@ private class RootCommand : CliktCommand(name = "amper") {
 
         val projectContext = ProjectContext.create(
             projectRoot = root,
-            buildOutputRoot = buildOutputRoot?.let { AmperBuildOutputRoot(it.toAbsolutePath()) },
+            buildOutputRoot = buildOutputRoot?.let {
+                it.createDirectories()
+                AmperBuildOutputRoot(it.toAbsolutePath())
+            },
             userCacheRoot = sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) } ,
         )
 
