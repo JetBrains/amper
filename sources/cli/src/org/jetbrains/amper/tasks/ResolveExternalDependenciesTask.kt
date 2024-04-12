@@ -41,7 +41,10 @@ class ResolveExternalDependenciesTask(
     }
 
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
-        val repositories = module.mavenRepositories.map { it.url }.distinct()
+        val repositories = module.mavenRepositories
+            .filter { it.resolve }
+            .map { it.url }
+            .distinct()
 
         val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }

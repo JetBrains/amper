@@ -58,6 +58,7 @@ internal fun PotatoModule.prettyPrintForGoldFile(): String = buildString {
             appendLine("  - id: ${it.id}")
             appendLine("    url: ${it.url}")
             appendLine("    publish: ${it.publish}")
+            appendLine("    resolve: ${it.resolve}")
             appendLine("    username: ${it.userName}")
             appendLine("    password: ${it.password}")
         }

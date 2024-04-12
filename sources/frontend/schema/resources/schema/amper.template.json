@@ -245,6 +245,9 @@
             "publish": {
               "type": "boolean"
             },
+            "resolve": {
+              "type": "boolean"
+            },
             "url": {
               "type": "string"
             }

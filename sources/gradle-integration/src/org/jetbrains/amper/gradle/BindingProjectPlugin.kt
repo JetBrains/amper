@@ -111,10 +111,10 @@ class BindingProjectPlugin : Plugin<Project> {
     }
 
     /**
-     * [all] - if we need to configure all repositories, or only publishing ones.
+     * [all] - if we need to configure all repositories which can be used for resolve, or only publishing ones.
      */
     private fun RepositoryHandler.configure(part: RepositoriesModulePart?, all: Boolean = true) {
-        val repositories = part?.mavenRepositories?.filter { all || it.publish } ?: return
+        val repositories = part?.mavenRepositories?.filter { (all && it.resolve) || it.publish } ?: return
         repositories.forEach { declared ->
             if (declared.id == "mavenLocal" && declared.url == "mavenLocal") {
                 mavenLocal()

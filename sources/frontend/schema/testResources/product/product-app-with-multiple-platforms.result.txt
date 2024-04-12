@@ -327,15 +327,18 @@ Repositories:
   - id: https://repo1.maven.org/maven2
     url: https://repo1.maven.org/maven2
     publish: false
+    resolve: true
     username: null
     password: null
   - id: https://maven.google.com
     url: https://maven.google.com
     publish: false
+    resolve: true
     username: null
     password: null
   - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
     url: https://maven.pkg.jetbrains.space/public/p/compose/dev
     publish: false
+    resolve: true
     username: null
     password: null

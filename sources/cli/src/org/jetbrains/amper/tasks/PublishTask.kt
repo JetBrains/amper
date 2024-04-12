@@ -50,6 +50,10 @@ class PublishTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
 
+        check(targetRepository.publish) {
+            "Target repository must be marked for publishing, but it is not: $targetRepository"
+        }
+
         val mavenRepositorySystem = container.lookup(MavenRepositorySystem::class.java)
         val defaultRepositorySystemSessionFactory = container.lookup(DefaultRepositorySystemSessionFactory::class.java)
 

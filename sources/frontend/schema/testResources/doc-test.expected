@@ -43,6 +43,7 @@ Repository
 	credentials: Credentials - Credentials for the authenticated repositories
 	id: String - The ID of the repository, used for to reference it. Defaults to the repository url
 	publish: Boolean, default: false - Whether this repository can be used to publish artifacts
+	resolve: Boolean, default: true - Whether this repository can be used to resolve artifacts
 	url: String - The url of the repository
 
 Credentials

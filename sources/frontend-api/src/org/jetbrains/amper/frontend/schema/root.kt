@@ -86,6 +86,9 @@ class Repository : SchemaNode() {
     @SchemaDoc("Whether this repository can be used to publish artifacts")
     var publish by value(false)
 
+    @SchemaDoc("Whether this repository can be used to resolve artifacts")
+    var resolve by value(true)
+
     class Credentials : SchemaNode() {
 
         @SchemaDoc("A relative path to a file with the credentials. Currently, only `*.property` files are supported")

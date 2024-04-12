@@ -8,7 +8,6 @@ import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperObjectElement
 import com.intellij.amper.lang.AmperProperty
-import com.intellij.amper.lang.AmperStringLiteral
 import com.intellij.amper.lang.AmperValue
 import com.intellij.amper.lang.impl.allObjectElements
 import com.intellij.amper.lang.impl.collectionItems
@@ -155,6 +154,7 @@ private fun AmperObject.convertRepositoryFull(): Repository = Repository().apply
     ::url.convertChildString()
     ::id.convertChildString()
     ::publish.convertChildBoolean()
+    ::resolve.convertChildBoolean()
     ::credentials.convertChild {
         (value as? AmperObject)?.run {
             Repository.Credentials().apply {

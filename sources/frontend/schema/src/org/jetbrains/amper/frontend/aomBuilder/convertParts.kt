@@ -43,6 +43,8 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                 RepositoriesModulePart.Repository(
                     id = url,
                     url = url,
+                    publish = false,
+                    resolve = true,
                 )
             }
 
@@ -80,6 +82,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
                     id = repository.id,
                     url = repository.url,
                     publish = repository.publish,
+                    resolve = repository.resolve,
                     userName = credPair?.first,
                     password = credPair?.second,
                 )

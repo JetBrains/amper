@@ -30,6 +30,7 @@ data class RepositoriesModulePart(
         val id: String,
         val url: String,
         val publish: Boolean = false,
+        val resolve: Boolean = true,
         val userName: String? = null,
         val password: String? = null,
     )

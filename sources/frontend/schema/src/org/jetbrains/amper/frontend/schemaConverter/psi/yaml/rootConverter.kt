@@ -155,6 +155,7 @@ private fun YAMLMapping.convertRepositoryFull(): Repository = Repository().apply
     ::url.convertChildString()
     ::id.convertChildString()
     ::publish.convertChildBoolean()
+    ::resolve.convertChildBoolean()
     ::credentials.convertChild {
         asMappingNode()?.run {
             Repository.Credentials().apply {
