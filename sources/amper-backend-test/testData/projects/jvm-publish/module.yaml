@@ -6,18 +6,21 @@ product:
 repositories:
   - id: mavenLocal
     url: mavenLocal
+    resolve: false
     publish: true
   - id: repoNoCredentialsId
     url: REPO_URL
+    resolve: false
     publish: true
   - id: repoId
     url: REPO_URL
+    resolve: false
     publish: true
     credentials:
       file: p.properties
       usernameKey: scratch.username
       passwordKey: scratch.password
-      
+
 dependencies:
   # Gradle's api
   - io.ktor:ktor-client-core:2.3.9: exported

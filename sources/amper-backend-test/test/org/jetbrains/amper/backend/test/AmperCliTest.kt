@@ -82,13 +82,15 @@ class AmperCliTest {
                 "-javaagent:$kotlinxCoroutinesCore",
                 "-javaagent:$byteBuddyAgent",
             ),
-            printOutput = true,
+            printOutput = false,
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
         val stderr = result.stderr.fancyPrependIndent("STDERR: ").ifEmpty { "STDERR: <no-output>" }
 
         assertEquals(expectedExitCode, result.exitCode, message = "Expected exit code $expectedExitCode, but got ${result.exitCode}:\n$stderr\n$stdout")
+
+        // TODO also assert no ERRORs or WARNs in logs by default
 
         if (assertEmptyStdErr) {
             assertTrue(
