@@ -4,29 +4,49 @@
 
 package org.jetbrains.amper.backend.test
 
+import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.pathString
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalPathApi::class)
 abstract class AmperCliTestBase {
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
+
+    protected val tempRoot: Path by lazy {
+        // Always run tests in a directory with space, tests quoting in a lot of places
+        // Since TempDirExtension generates temp directory under TestUtil.tempDir
+        // it should already contain a space in the part
+        // assert it anyway
+        val path = tempDirExtension.path
+        check(path.pathString.contains(" ")) {
+            "Temp path should contain a space: ${path.pathString}"
+        }
+        check(path.isDirectory()) {
+            "Temp path is not a directory: $path"
+        }
+        path
+    }
 
     protected abstract val testDataRoot: Path
 
     protected suspend fun runCli(backendTestProjectName: String, args: List<String>, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
+
         // TODO This should be an exact SDK which is run by our wrapper.
         //  Probably even the wrapper itself
-
         val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot))
+
+        val buildOutputRoot = tempRoot.resolve("build")
 
         println("Running Amper CLI with '$args' on $projectRoot")
 
@@ -34,7 +54,10 @@ abstract class AmperCliTestBase {
             workingDir = projectRoot,
             mainClass = "org.jetbrains.amper.cli.MainKt",
             classpath = classpath,
-            programArgs = args,
+            programArgs = listOf(
+                "--build-output",
+                buildOutputRoot.pathString,
+            ) + args,
             jvmArgs = listOf(
                 "-ea",
                 "-javaagent:$kotlinxCoroutinesCore",
