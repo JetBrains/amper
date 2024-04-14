@@ -12,6 +12,7 @@ repositories:
     url: https://dl.google.com/dl/android/maven2/
   - id: mavenLocal
     url: mavenLocal
+    resolve: false
     publish: true
   - id: gradle
     url: https://plugins.gradle.org/m2/
