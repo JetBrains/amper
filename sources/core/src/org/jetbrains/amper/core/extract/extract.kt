@@ -11,6 +11,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.amper.concurrency.withDoubleLock
+import org.slf4j.LoggerFactory
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -25,7 +26,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
-import java.util.logging.Logger
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -68,7 +68,7 @@ suspend fun extractFileWithFlag(
     options: Array<out ExtractOptions>,
 ) = withContext(Dispatchers.IO) {
     if (checkFlagFile(archiveFile, flagChannel, targetDirectory, options)) {
-        LOG.fine("Skipping extract to $targetDirectory since flag file $flagFile2 is correct")
+        LOG.debug("Skipping extract to {} since flag file {} is correct", targetDirectory, flagFile2)
 
         // Update file modification time to maintain FIFO caches i.e.
         // in persistent cache folder on TeamCity agent
@@ -282,7 +282,7 @@ private fun genericExtract(archiveFile: Path, archive: ArchiveContent, target: P
                 val relativeSymlinkTarget = Path.of(entry.linkTarget!!)
                 val resolvedTarget = entryPath.resolveSibling(relativeSymlinkTarget).normalize()
                 if (!resolvedTarget.startsWith(canonicalTarget) || resolvedTarget == canonicalTarget) {
-                    LOG.fine(
+                    LOG.debug(
                         """
   $archiveFile: skipping symlink entry '${entry.name}' which points outside of archive extraction directory, which is forbidden.
   resolved target = $resolvedTarget
@@ -416,4 +416,4 @@ enum class ExtractOptions {
     STRIP_ROOT
 }
 
-private val LOG = Logger.getLogger("extract")
+private val LOG = LoggerFactory.getLogger("extract")
