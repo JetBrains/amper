@@ -125,7 +125,7 @@ suspend fun extractFileWithFlag(
 
 
 
-private fun FileChannel.writeFully(bb: ByteBuffer) {
+fun FileChannel.writeFully(bb: ByteBuffer) {
     while (bb.remaining() > 0) {
         val n = write(bb)
         if (n <= 0) {

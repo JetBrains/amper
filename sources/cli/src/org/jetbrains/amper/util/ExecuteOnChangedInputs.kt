@@ -8,6 +8,7 @@ package org.jetbrains.amper.util
 
 import com.google.common.hash.Hashing
 import io.opentelemetry.api.trace.Span
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
@@ -18,24 +19,28 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.extract.readEntireFileToByteArray
+import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
+import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFileAttributes
-import kotlin.io.path.isRegularFile
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
@@ -63,33 +68,36 @@ class ExecuteOnChangedInputs(
         val stateFile = stateRoot.resolve(
             id.replace(Regex("[^a-zA-Z0-9]"), "_") +
                     "-" + Hashing.sha256().hashString("$id\nstate format version: $stateFileFormatVersion", Charsets.UTF_8).toString().take(10))
+        // Prevent parallel execution of this 'id' from this or other processes,
+        // tracked by a lock on state file
+        withLock(id, stateFile) { stateFileChannel ->
+            val (existingResult, cacheCheckTime) = measureTimedValue {
+                getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+            }
+            if (existingResult != null) {
+                logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
+                logger.info("INC: '$id' is up-to-date")
+                span.setAttribute("status", "up-to-date")
+                addResultToSpan(span, existingResult)
+                return@withLock existingResult
+            } else {
+                span.setAttribute("status", "requires-building")
+                logger.info("INC: building '$id'")
+            }
 
-        val (existingResult, cacheCheckTime) = measureTimedValue {
-            getCachedResult(stateFile, configuration, inputs)
+            val (result, buildTime) = measureTimedValue { block() }
+
+            addResultToSpan(span, result)
+
+            logger.info("INC: built '$id' in $buildTime")
+
+            writeStateFile(stateFileChannel, configuration, inputs, result)
+
+            // TODO remove this check later or hide under debug/assert mode
+            ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
+
+            return@withLock result
         }
-        if (existingResult != null) {
-            logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
-            logger.info("INC: '$id' is up-to-date")
-            span.setAttribute("status", "up-to-date")
-            addResultToSpan(span, existingResult)
-            return@useWithScope existingResult
-        } else {
-            span.setAttribute("status", "requires-building")
-            logger.info("INC: building '$id'")
-        }
-
-        val (result, buildTime) = measureTimedValue { block() }
-
-        addResultToSpan(span, result)
-
-        logger.info("INC: built '$id' in $buildTime")
-
-        writeStateFile(stateFile, configuration, inputs, result)
-
-        // TODO remove this check later or hide under debug/assert mode
-        ensureStateFileIsConsistent(stateFile, configuration, inputs, result)
-
-        return@useWithScope result
     }
 
     private fun addResultToSpan(span: Span, result: ExecutionResult) {
@@ -97,7 +105,7 @@ class ExecuteOnChangedInputs(
         span.setListAttribute("output-properties", result.outputProperties.map { "${it.key}=${it.value}" }.sorted())
     }
 
-    private fun writeStateFile(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
+    private fun writeStateFile(stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
         val state = State(
             amperBuild = currentAmperBuildNumber,
             configuration = configuration,
@@ -108,7 +116,8 @@ class ExecuteOnChangedInputs(
             outputProperties = result.outputProperties,
         )
 
-        stateFile.writeText(jsonSerializer.encodeToString(state))
+        stateFileChannel.truncate(0)
+        stateFileChannel.writeFully(ByteBuffer.wrap(jsonSerializer.encodeToString(state).toByteArray()))
     }
 
     object SortedMapSerializer: KSerializer<Map<String, String>> {
@@ -142,16 +151,21 @@ class ExecuteOnChangedInputs(
 
     private fun ensureStateFileIsConsistent(
         stateFile: Path,
+        stateFileChannel: FileChannel,
         configuration: Map<String, String>,
         inputs: List<Path>,
         result: ExecutionResult,
     ) {
         try {
-            val r = getCachedResult(stateFile, configuration, inputs)
-                ?: error("Not up-to-date after successfully writing a state file: $stateFile\n" +
+            val r = getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+                ?: run {
+                    stateFileChannel.position(0)
+                    val stateText = stateFileChannel.readEntireFileToByteArray().decodeToString()
+                    error("Not up-to-date after successfully writing a state file: $stateFile\n" +
                          "--- BEGIN $stateFile\n" +
-                         stateFile.readText().ensureEndsWith("\n") +
+                         stateText.ensureEndsWith("\n") +
                          "--- END $stateFile")
+                }
 
             if (r.outputs != result.outputs) {
                 error(
@@ -175,16 +189,22 @@ class ExecuteOnChangedInputs(
     }
 
     // TODO Probably rewrite to JSON? or a binary format?
-    private fun getCachedResult(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
-        if (!stateFile.isRegularFile()) {
-            logger.debug("INC: state file is missing at '{}' -> rebuilding", stateFile)
+    private fun getCachedResult(stateFile: Path, stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>): ExecutionResult? {
+        if (stateFileChannel.size() <= 0) {
+            logger.debug("INC: state file is missing or empty at '{}' -> rebuilding", stateFile)
             return null
         }
 
         val stateText = try {
-            stateFile.readText()
+            stateFileChannel.position(0)
+            stateFileChannel.readEntireFileToByteArray().decodeToString()
         } catch (t: Throwable) {
             logger.warn("INC: Unable to read state file '$stateFile' -> rebuilding", t)
+            return null
+        }
+
+        if (stateText.isBlank()) {
+            logger.warn("INC: Previous state file '$stateFile' is empty -> rebuilding")
             return null
         }
 
@@ -341,6 +361,20 @@ class ExecuteOnChangedInputs(
 
         private val jsonSerializer = Json {
             prettyPrint = true
+        }
+
+        private val executeOnChangedLocks = ConcurrentHashMap<String, Mutex>()
+
+        private suspend fun <R> withLock(id: String, stateFile: Path, block: suspend (FileChannel) -> R): R {
+            val mutex = executeOnChangedLocks.computeIfAbsent(id) { Mutex() }
+            return mutex.withReentrantLock {
+                FileChannel.open(stateFile, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+                    .use { fileChannel ->
+                        fileChannel.lock().use {
+                            block(fileChannel)
+                        }
+                    }
+            }
         }
     }
 }
