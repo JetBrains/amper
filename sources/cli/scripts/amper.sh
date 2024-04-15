@@ -180,4 +180,4 @@ fi
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
-exec "$java_exe" -ea -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"

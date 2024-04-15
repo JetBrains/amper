@@ -200,4 +200,4 @@ if [ ! -f "$up_to_date_file" ] || [ "$(cat "$up_to_date_file")" != "$current" ];
   current_state >"$up_to_date_file"
 fi
 
-time "$java_exe" -ea -cp "$script_dir/build/unpackedDistribution/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+time "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$script_dir/build/unpackedDistribution/lib/*" org.jetbrains.amper.cli.MainKt "$@"

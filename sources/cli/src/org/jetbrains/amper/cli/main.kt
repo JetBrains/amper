@@ -39,7 +39,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.system.exitProcess
 
-private class RootCommand : CliktCommand(name = "amper") {
+private class RootCommand : CliktCommand(name = System.getProperty("amper.wrapper.process.name") ?: "amper") {
     init {
         versionOption(version = AmperBuild.BuildNumber, message = { AmperBuild.banner })
         subcommands(
