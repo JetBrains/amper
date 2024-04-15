@@ -144,7 +144,7 @@ class ExecuteOnChangedInputs(
         stateFile: Path,
         configuration: Map<String, String>,
         inputs: List<Path>,
-        result: ExecutionResult
+        result: ExecutionResult,
     ) {
         try {
             val r = getCachedResult(stateFile, configuration, inputs)
@@ -160,7 +160,15 @@ class ExecuteOnChangedInputs(
                             "2: ${result.outputs}"
                 )
             }
-        } catch (t: IllegalStateException) {
+
+            if (r.outputProperties != result.outputProperties) {
+                error(
+                    "Output properties mismatch: $stateFile:\n" +
+                            "1: ${r.outputProperties.map { "${it.key}=${it.value}" }.sorted()}\n" +
+                            "2: ${result.outputProperties.map { "${it.key}=${it.value}" }.sorted()}"
+                )
+            }
+        } catch (t: Throwable) {
             Files.deleteIfExists(stateFile)
             throw t
         }
