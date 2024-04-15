@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.tasks.TaskResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -71,13 +72,12 @@ class TaskExecutorTest {
         builder.registerTask(TestTask("D"), listOf(TaskName("B"), TaskName("C")))
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
-        val result = runBlocking {
-            executor.run(listOf(TaskName("D")))
+        val result = assertFailsWith(TaskExecutor.TaskExecutionFailed::class) {
+            runBlocking {
+                executor.run(listOf(TaskName("D")))
+            }
         }
-        assertTrue(result.getValue(TaskName("C")).exceptionOrNull() is CancellationException)
-        assertTrue(result.getValue(TaskName("A")).exceptionOrNull() is IllegalStateException)
-        assertTrue(result.getValue(TaskName("B")).exceptionOrNull() is CancellationException)
-        assertTrue(result.getValue(TaskName("D")).exceptionOrNull() is CancellationException)
+        assertEquals("Task 'A' failed: throw", result.message)
     }
 
     private val executed = mutableListOf<String>()

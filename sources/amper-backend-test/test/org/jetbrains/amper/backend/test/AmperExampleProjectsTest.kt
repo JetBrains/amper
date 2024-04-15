@@ -6,7 +6,7 @@ package org.jetbrains.amper.backend.test
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
-import org.jetbrains.amper.cli.UserReadableError
+import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -72,10 +72,10 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         resetCollectors()
 
-        val exception = assertFailsWith<UserReadableError> {
-            AmperBackend(projectContext).check()
+        val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
+            AmperBackend(projectContext).test()
         }
-        assertEquals("JVM tests failed for module 'jvm-with-tests' with exit code 1 (see errors above)", exception.message)
+        assertEquals("Task ':jvm-with-tests:testJvm' failed: JVM tests failed for module 'jvm-with-tests' with exit code 1 (see errors above)", exception.message)
         assertStdoutContains("MethodSource [className = 'WorldTest', methodName = 'shouldFail', methodParameterTypes = '']")
         assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
     }
@@ -94,7 +94,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         resetCollectors()
 
-        AmperBackend(projectContext).check()
+        AmperBackend(projectContext).test()
         assertStdoutContains("Test run finished after")
     }
 

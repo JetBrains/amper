@@ -32,6 +32,7 @@ import org.jetbrains.amper.tools.JaegerTool
 import org.jetbrains.amper.tools.Tool
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -40,7 +41,7 @@ import kotlin.system.exitProcess
 
 private class RootCommand : CliktCommand(name = "amper") {
     init {
-        versionOption(version = AmperBuild.BuildNumber)
+        versionOption(version = AmperBuild.BuildNumber, message = { AmperBuild.banner })
         subcommands(
             CleanCommand(),
             CleanSharedCachesCommand(),
@@ -81,52 +82,84 @@ private class RootCommand : CliktCommand(name = "amper") {
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override fun run() {
-        // TODO think of a better place to activate it. e.g. we need it in tests too
-        // TODO disabled jul bridge for now since it reports too much in debug mode
-        //  and does not handle source class names from jul LogRecord
-        // JulTinylogBridge.activate()
-
-        CliEnvironmentInitializer.setup()
-
-        val projectContext = ProjectContext.create(
-            projectRoot = root,
-            buildOutputRoot = buildOutputRoot?.let {
-                it.createDirectories()
-                AmperBuildOutputRoot(it.toAbsolutePath())
-            },
-            userCacheRoot = sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) } ,
+        currentContext.obj = CommonOptions(
+            root = root,
+            debug = debug,
+            asyncProfiler = asyncProfiler,
+            sharedCachesRoot = sharedCachesRoot,
+            buildOutputRoot = buildOutputRoot,
         )
-
-        CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
-        CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-        CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, enableConsoleDebugLogging = debug)
-
-        if (asyncProfiler) {
-            AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
-        }
-
-        val backend = AmperBackend(context = projectContext)
-        currentContext.obj = backend
     }
+
+    data class CommonOptions(
+        val root: Path,
+        val debug: Boolean,
+        val asyncProfiler: Boolean,
+        val sharedCachesRoot: Path?,
+        val buildOutputRoot: Path?,
+    )
+}
+
+private fun initializeBackend(
+    commonOptions: RootCommand.CommonOptions,
+    currentCommand: String,
+    commonRunSettings: CommonRunSettings = CommonRunSettings(),
+    taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
+): AmperBackend {
+    // TODO think of a better place to activate it. e.g. we need it in tests too
+    // TODO disabled jul bridge for now since it reports too much in debug mode
+    //  and does not handle source class names from jul LogRecord
+    // JulTinylogBridge.activate()
+
+    CliEnvironmentInitializer.setup()
+
+    val projectContext = ProjectContext.create(
+        projectRoot = commonOptions.root,
+        buildOutputRoot = commonOptions.buildOutputRoot?.let {
+            it.createDirectories()
+            AmperBuildOutputRoot(it.toAbsolutePath())
+        },
+        userCacheRoot = commonOptions.sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) },
+        currentTopLevelCommand = currentCommand,
+        commonRunSettings = commonRunSettings,
+        taskExecutionMode = taskExecutionMode,
+    )
+
+    CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
+    CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
+    CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, enableConsoleDebugLogging = commonOptions.debug)
+
+    // TODO output version, os and some env to log file only
+    println(AmperBuild.banner)
+    println("Logs are in ${projectContext.buildLogsRoot.path}")
+    println()
+
+    if (commonOptions.asyncProfiler) {
+        AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
+    }
+
+    return AmperBackend(context = projectContext)
 }
 
 private class NewCommand : CliktCommand(name = "new", help = "New Amper project") {
     val template by argument(help = "project template name, e.g., 'cli'").optional()
-    val amperBackend by requireObject<AmperBackend>()
-    override fun run() = amperBackend.newProject(template = template)
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() {
+        initializeBackend(commonOptions, commandName).newProject(template = template)
+    }
 }
 
 private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
-    val amperBackend by requireObject<AmperBackend>()
-    override fun run() = amperBackend.clean()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() = initializeBackend(commonOptions, commandName).clean()
 }
 
 private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches", help = "Remove shared caches") {
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     @OptIn(ExperimentalPathApi::class)
     override fun run() {
-        val root = amperBackend.context.userCacheRoot
+        val root = initializeBackend(commonOptions, commandName).context.userCacheRoot
         LoggerFactory.getLogger(javaClass).info("Deleting ${root.path}")
         root.path.deleteRecursively()
     }
@@ -134,9 +167,9 @@ private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-cache
 
 private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
     val name by argument(help = "task name to execute")
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
-        return runBlocking { amperBackend.runTask(TaskName(name)) }
+        return runBlocking { initializeBackend(commonOptions, commandName).runTask(TaskName(name)) }
     }
 }
 
@@ -166,12 +199,13 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     val programArguments by argument(name = "program arguments").multiple()
 
     val module by option("-m", "--module", help = "specific module to run")
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
-        val commonRunSettings = CommonRunSettings(programArgs = programArguments)
-        val amperBackendWithRunSettings = AmperBackend(
-            context = amperBackend.context.withCommonRunSettings(commonRunSettings),
+        val amperBackendWithRunSettings = initializeBackend(
+            commonOptions,
+            commandName,
+            commonRunSettings = CommonRunSettings(programArgs = programArguments),
         )
         val buildType = buildType?.let { BuildType.byValue(it) }?: BuildType.Debug
         amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
@@ -179,26 +213,28 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
 }
 
 private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks in the project") {
-    val amperBackend by requireObject<AmperBackend>()
-    override fun run() = amperBackend.showTasks()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() = initializeBackend(commonOptions, commandName).showTasks()
 }
 
 private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
     val platform by platformOption()
     val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
     val module by option("-m", "--module", help = "specific module to check, the option could be repeated to check several modules")
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         if (filter != null) {
             userReadableError("Filters are not implemented yet")
         }
 
         // try to execution as many tests as possible
-        val amperBackendWithExecutionMode = AmperBackend(
-            context = amperBackend.context.withTaskExecutionMode(TaskExecutor.Mode.GREEDY),
+        val backend = initializeBackend(
+            commonOptions,
+            commandName,
+            taskExecutionMode = TaskExecutor.Mode.GREEDY,
         )
 
-        amperBackendWithExecutionMode.check(
+        backend.test(
             platforms = platform.ifEmpty { null }?.toSet(),
             moduleName = module,
         )
@@ -208,10 +244,10 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
 private class PublishCommand : CliktCommand(name = "publish", help = "Publish modules to a repository") {
     val module by option("-m", "--modules", help = "specify modules to publish, delimited by ','. " +
             "By default 'publish' command will publish all possible modules").split(",")
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
     val repositoryId by argument("repository-id")
     override fun run() {
-        amperBackend.publish(
+        initializeBackend(commonOptions, commandName).publish(
             modules = module?.toSet(),
             repositoryId = repositoryId,
         )
@@ -221,11 +257,11 @@ private class PublishCommand : CliktCommand(name = "publish", help = "Publish mo
 private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
     val tool by argument(name = "tool", help = "available: ${tools.joinToString(" ") { it.name }}")
     val toolArguments by argument(name = "tool arguments").multiple()
-    val amperBackend by requireObject<AmperBackend>()
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         val toolObj = tools.firstOrNull { it.name == tool }
             ?: userReadableError("Tool '$tool' was not found. Available tools: ${tools.joinToString(" ") { it.name }}")
-        toolObj.run(toolArguments, userCacheRoot = amperBackend.context.userCacheRoot)
+        toolObj.run(toolArguments, userCacheRoot = initializeBackend(commonOptions, commandName).context.userCacheRoot)
     }
 
     companion object {
@@ -235,8 +271,9 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
 
 private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
     val platform by platformOption()
-    val amperBackend by requireObject<AmperBackend>()
-    override fun run() = amperBackend.compile(platforms = if (platform.isEmpty()) null else platform.toSet())
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() = initializeBackend(commonOptions, commandName)
+        .compile(platforms = if (platform.isEmpty()) null else platform.toSet())
 }
 
 private val prettyLeafPlatforms = Platform.leafPlatforms.associateBy { it.pretty }

@@ -31,7 +31,7 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
-import kotlin.io.path.createDirectories
+import kotlin.io.path.writeText
 
 object CliEnvironmentInitializer {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -52,24 +52,31 @@ object CliEnvironmentInitializer {
     }
 
     fun setupLogging(logsRoot: AmperBuildLogsRoot, enableConsoleDebugLogging: Boolean) {
-        logsRoot.path.createDirectories()
+        val logFileBanner = """
+            ${AmperBuild.banner}
+            running on ${System.getProperty("os.name")} ${System.getProperty("os.version").lowercase()} jvm arch ${System.getProperty("os.arch")}
+        """.trimIndent().trim() + "\n\n"
 
         val loggingProvider = ProviderRegistry.getLoggingProvider() as TinylogLoggingProvider
 
         loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single()
             .setLevel(if (enableConsoleDebugLogging) Level.DEBUG else Level.INFO)
 
-        loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.DEBUG }
-            .setFile(logsRoot.path.resolve("${logFilePrefix}-debug.log"))
+        val debugWriter = loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.DEBUG }
+        val debugLogFile = logsRoot.path.resolve("debug.log")
+        debugLogFile.writeText(logFileBanner)
+        debugWriter.setFile(debugLogFile)
 
-        loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.INFO }
-            .setFile(logsRoot.path.resolve("${logFilePrefix}-info.log"))
+        val infoWriter = loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.INFO }
+        val infoLogFile = logsRoot.path.resolve("info.log")
+        infoLogFile.writeText(logFileBanner)
+        infoWriter.setFile(infoLogFile)
     }
 
     fun setupTelemetry(logsRoot: AmperBuildLogsRoot) {
         // TODO: Implement some kind of background batch processing like in intellij
 
-        val spansFile = logsRoot.path.resolve("${logFilePrefix}-jaeger.json")
+        val spansFile = logsRoot.path.resolve("jaeger-trace.json")
 
         val jaegerJsonSpanExporter = JaegerJsonSpanExporter(
             file = spansFile,
@@ -117,11 +124,7 @@ object CliEnvironmentInitializer {
         })
     }
 
-    val logFilePrefix by lazy {
-        "amper-${currentTimestamp()}-${AmperBuild.BuildNumber}"
-    }
-
-    fun currentTimestamp() = SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())
+    fun currentTimestamp(): String = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
 
     private val resource: Resource = Resource.create(
         Attributes.builder()

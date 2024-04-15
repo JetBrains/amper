@@ -15,6 +15,7 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.diagnostics.getAttribute
+import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Disabled
@@ -90,10 +91,10 @@ class AmperBackendTest : IntegrationTestBase() {
         // see `native test no tests`
 
         val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
-        val exception = assertFailsWith<UserReadableError> {
-            AmperBackend(projectContext).check()
+        val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
+            AmperBackend(projectContext).test()
         }
-        assertEquals("JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", exception.message)
+        assertEquals("Task ':jvm-kotlin-test-no-tests:testJvm' failed: JVM tests failed for module 'jvm-kotlin-test-no-tests' with exit code 2 (no tests were discovered) (see errors above)", exception.message)
     }
 
     @Test
@@ -105,7 +106,7 @@ class AmperBackendTest : IntegrationTestBase() {
 
         val projectContext = setupTestDataProject("native-test-no-tests")
         val exception = assertFailsWith<UserReadableError> {
-            AmperBackend(projectContext).check()
+            AmperBackend(projectContext).test()
         }
         assertEquals("Some message about `no tests were discovered`", exception.message)
     }
@@ -118,7 +119,7 @@ class AmperBackendTest : IntegrationTestBase() {
         // see `jvm kotlin test no tests`
 
         val projectContext = setupTestDataProject("native-test-app-test")
-        AmperBackend(projectContext).check()
+        AmperBackend(projectContext).test()
         // TODO assert that some test was actually run
     }
 
@@ -393,7 +394,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 artifactName/maven-metadata-local.xml
             """.trimIndent(), files.joinToString("\n")
         )
-        
+
         val pom = groupDir / "artifactName/2.2/artifactName-2.2.pom"
         assertEquals(expected = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -483,7 +484,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 main-lib/maven-metadata-local.xml
             """.trimIndent(), files.joinToString("\n")
         )
-        
+
         val pom = groupDir / "main-lib/1.2.3/main-lib-1.2.3.pom"
         assertEquals(expected = """
             <?xml version="1.0" encoding="UTF-8"?>

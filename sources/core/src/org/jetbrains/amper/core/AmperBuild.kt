@@ -8,12 +8,17 @@ import java.time.Instant
 import java.util.*
 
 object AmperBuild {
-    const val PRODUCT_NAME = "Amper"
-
     val isSNAPSHOT: Boolean
     val BuildNumber: String
-    val CommitHash: String?
-    val BuildDate: Instant?
+    private val commitHash: String?
+    private val commitShortHash: String?
+    private val buildDate: Instant?
+
+    val banner: String
+        get() {
+            val commitHash = commitShortHash?.let { "+$it" } ?: ""
+            return "JetBrains Amper version $BuildNumber$commitHash"
+        }
 
     init {
         this::class.java.getResourceAsStream("/build.properties").use { res ->
@@ -23,8 +28,9 @@ object AmperBuild {
 
                 isSNAPSHOT = true
                 BuildNumber = "1.0-SNAPSHOT"
-                CommitHash = null
-                BuildDate = null
+                commitHash = null
+                commitShortHash = null
+                buildDate = null
 
                 return@use
             }
@@ -42,8 +48,9 @@ object AmperBuild {
 
             BuildNumber = getProperty("version")
             isSNAPSHOT = BuildNumber.contains("-SNAPSHOT")
-            CommitHash = props.getProperty("commitHash")
-            BuildDate = props.getProperty("commitDate")?.let { Instant.parse(it) }
+            commitHash = props.getProperty("commitHash")
+            commitShortHash = props.getProperty("commitShortHash")
+            buildDate = props.getProperty("commitDate")?.let { Instant.parse(it) }
         }
     }
 }

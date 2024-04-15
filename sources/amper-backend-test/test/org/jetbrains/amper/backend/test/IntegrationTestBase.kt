@@ -94,6 +94,7 @@ abstract class IntegrationTestBase {
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(buildDir),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
+            currentTopLevelCommand = "integration-test-base",
         )
     }
 

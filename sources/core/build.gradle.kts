@@ -25,7 +25,9 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
         if(gitRoot.exists()) {
             val git = FileRepository(gitRoot)
             val head = git.getReflogReader("HEAD").lastEntry
+            val shortHash = git.newObjectReader().use { it.abbreviate(head.newId).name() }
             property("commitHash", head.newId.name)
+            property("commitShortHash", shortHash)
             property("commitDate", head.who.`when`.toInstant())
         }
     }

@@ -70,7 +70,7 @@ class AmperBackend(val context: ProjectContext) {
     }
 
     private val taskExecutor: TaskExecutor by lazy {
-        TaskExecutor(taskGraph, TaskExecutor.Mode.GREEDY)
+        TaskExecutor(taskGraph, context.taskExecutionMode)
     }
 
     fun clean() {
@@ -208,7 +208,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun check(moduleName: String? = null, platforms: Set<Platform>? = null) {
+    fun test(moduleName: String? = null, platforms: Set<Platform>? = null) {
         require(platforms == null || platforms.isNotEmpty())
 
         if (moduleName != null && resolvedModel.modules.none { it.userReadableName == moduleName }) {

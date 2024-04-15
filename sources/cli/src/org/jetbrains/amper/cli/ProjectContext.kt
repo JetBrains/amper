@@ -14,6 +14,8 @@ import org.jetbrains.amper.util.OS.Type.Linux
 import org.jetbrains.amper.util.OS.Type.Mac
 import org.jetbrains.amper.util.OS.Type.Windows
 import java.nio.file.Path
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
@@ -36,7 +38,12 @@ class ProjectContext(
             commonRunSettings: CommonRunSettings = CommonRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot? = null,
+            currentTopLevelCommand: String,
         ): ProjectContext {
+            require(currentTopLevelCommand.isNotBlank()) {
+                "currentTopLevelCommand should not be blank"
+            }
+
             val buildOutputRootNotNull = buildOutputRoot ?: run {
                 val defaultBuildDir = projectRoot.resolve("build").also { it.createDirectories() }
                 AmperBuildOutputRoot(defaultBuildDir)
@@ -51,7 +58,12 @@ class ProjectContext(
             }
 
             val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
-            val logsDir = buildOutputRootNotNull.path.resolve("logs").also { it.createDirectories() }
+
+            val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
+            val logsDir = buildOutputRootNotNull.path
+                .resolve("logs")
+                .resolve("amper-${currentTimestamp}_$currentTopLevelCommand")
+                .also { it.createDirectories() }
 
             return ProjectContext(
                 projectRoot = AmperProjectRoot(projectRoot),
@@ -65,28 +77,6 @@ class ProjectContext(
             )
         }
     }
-
-    fun withCommonRunSettings(commonRunSettings: CommonRunSettings) = ProjectContext(
-        projectRoot = projectRoot,
-        userCacheRoot = userCacheRoot,
-        projectTempRoot = projectTempRoot,
-        buildOutputRoot = buildOutputRoot,
-        buildLogsRoot = buildLogsRoot,
-        commonRunSettings = commonRunSettings,
-        taskExecutionMode = taskExecutionMode,
-        mavenLocalRepository = mavenLocalRepository,
-    )
-
-    fun withTaskExecutionMode(taskExecutionMode: TaskExecutor.Mode) = ProjectContext(
-        projectRoot = projectRoot,
-        userCacheRoot = userCacheRoot,
-        projectTempRoot = projectTempRoot,
-        buildOutputRoot = buildOutputRoot,
-        buildLogsRoot = buildLogsRoot,
-        commonRunSettings = commonRunSettings,
-        taskExecutionMode = taskExecutionMode,
-        mavenLocalRepository = mavenLocalRepository,
-    )
 }
 
 data class AmperUserCacheRoot(val path: Path) {

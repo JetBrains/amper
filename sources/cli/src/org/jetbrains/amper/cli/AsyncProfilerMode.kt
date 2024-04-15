@@ -40,7 +40,7 @@ object AsyncProfilerMode {
             libFile.writeBytes(libBytes)
         }
 
-        val snapshotFile = logsDir.path.resolve("${CliEnvironmentInitializer.logFilePrefix}.jfr")
+        val snapshotFile = logsDir.path.resolve("async-profiler-snapshot.jfr")
             .also { it.parent.createDirectories() }
         val startCommand = "start,file=$snapshotFile,event=wall,interval=10ms,jfr,jfrsync=profile"
 

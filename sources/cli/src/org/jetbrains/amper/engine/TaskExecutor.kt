@@ -106,7 +106,7 @@ class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
                         when (mode) {
                             Mode.GREEDY -> result
                             Mode.FAIL_FAST -> if (result.isFailure) {
-                                throw CancellationException("Task '$taskName' failed: ${result.exceptionOrNull()?.message}", result.exceptionOrNull())
+                                throw TaskExecutionFailed(taskName, result.exceptionOrNull()!!)
                             } else result
                         }
                     }
@@ -126,4 +126,7 @@ class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
          */
         FAIL_FAST,
     }
+
+    class TaskExecutionFailed(val taskName: TaskName, val exception: Throwable)
+        : Exception("Task '${taskName.name}' failed: ${exception.message}", exception)
 }
