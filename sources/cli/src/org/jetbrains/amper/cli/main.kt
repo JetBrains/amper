@@ -303,15 +303,16 @@ private fun checkPlatform(value: String) {
 fun main(args: Array<String>) {
     try {
         RootCommand().main(args)
-    } catch (t: UserReadableError) {
-        System.err.println()
-        System.err.println("ERROR: ${t.message}")
-        System.err.println()
-        exitProcess(1)
     } catch (t: Throwable) {
         System.err.println()
-        System.err.print("ERROR: ")
-        t.printStackTrace()
+        System.err.println("ERROR: ${t.message}")
+
+        when {
+            t is UserReadableError -> System.err.println()
+            t is TaskExecutor.TaskExecutionFailed && t.cause is UserReadableError -> System.err.println()
+            else -> t.printStackTrace()
+        }
+
         exitProcess(1)
     }
 }
