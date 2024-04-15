@@ -58,6 +58,7 @@ fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
 fun SpanBuilder.setAmperModule(module: PotatoModule) = setAttribute("amper-module", module.userReadableName)
 
 fun SpanBuilder.setListAttribute(key: String, list: List<String>) = setAttribute(AttributeKey.stringArrayKey(key), list)
+fun Span.setListAttribute(key: String, list: List<String>) = setAttribute(AttributeKey.stringArrayKey(key), list)
 
 /**
  * Returns the value of the attribute [key], or throws [NoSuchElementException] if no such attribute exists in this span.

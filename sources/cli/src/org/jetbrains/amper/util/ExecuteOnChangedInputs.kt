@@ -7,6 +7,7 @@
 package org.jetbrains.amper.util
 
 import com.google.common.hash.Hashing
+import io.opentelemetry.api.trace.Span
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
@@ -18,6 +19,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.diagnostics.spanBuilder
+import org.jetbrains.amper.diagnostics.useWithScope
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.FileVisitResult
@@ -48,7 +52,11 @@ class ExecuteOnChangedInputs(
         configuration: Map<String, String>,
         inputs: List<Path>,
         block: suspend () -> ExecutionResult
-    ): ExecutionResult {
+    ): ExecutionResult = spanBuilder("inc $id")
+        .setListAttribute("configuration", configuration.entries.map { "${it.key}=${it.value}" }.sorted())
+        .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
+        .useWithScope { span ->
+
         Files.createDirectories(stateRoot)
 
         // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
@@ -62,12 +70,17 @@ class ExecuteOnChangedInputs(
         if (existingResult != null) {
             logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
             logger.info("INC: '$id' is up-to-date")
-            return existingResult
+            span.setAttribute("status", "up-to-date")
+            addResultToSpan(span, existingResult)
+            return@useWithScope existingResult
         } else {
+            span.setAttribute("status", "requires-building")
             logger.info("INC: building '$id'")
         }
 
         val (result, buildTime) = measureTimedValue { block() }
+
+        addResultToSpan(span, result)
 
         logger.info("INC: built '$id' in $buildTime")
 
@@ -76,7 +89,12 @@ class ExecuteOnChangedInputs(
         // TODO remove this check later or hide under debug/assert mode
         ensureStateFileIsConsistent(stateFile, configuration, inputs, result)
 
-        return result
+        return@useWithScope result
+    }
+
+    private fun addResultToSpan(span: Span, result: ExecutionResult) {
+        span.setListAttribute("outputs", result.outputs.map { it.pathString }.sorted())
+        span.setListAttribute("output-properties", result.outputProperties.map { "${it.key}=${it.value}" }.sorted())
     }
 
     private fun writeStateFile(stateFile: Path, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {

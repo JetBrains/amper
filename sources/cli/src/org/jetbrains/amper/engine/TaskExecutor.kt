@@ -96,8 +96,7 @@ class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
 
             withContext(tasksDispatcher) {
                 val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
-                spanBuilder(taskName.name)
-                    .setAttribute("type", "task")
+                spanBuilder("task ${taskName.name}")
                     .useWithScope {
                         val result = runCatching {
                             task.run(results)
