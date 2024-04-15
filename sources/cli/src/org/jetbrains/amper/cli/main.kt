@@ -7,11 +7,14 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ParameterHolder
+import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.output.MordantHelpFormatter
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -54,6 +57,18 @@ private class RootCommand : CliktCommand(name = System.getProperty("amper.wrappe
             ToolCommand(),
             PublishCommand(),
         )
+        context {
+            helpFormatter = { context ->
+                object : MordantHelpFormatter(context, showDefaultValues = true) {
+                    override fun renderRepeatedMetavar(metavar: String): String {
+                        if (metavar == "[<program arguments>]") {
+                            return "-- ${metavar}..."
+                        }
+                        return super.renderRepeatedMetavar(metavar)
+                    }
+                }
+            }
+        }
     }
 
     val root by option(help = "Amper project root")
@@ -173,7 +188,11 @@ private class TaskCommand : CliktCommand(name = "task", help = "Execute any task
     }
 }
 
-private class RunCommand : CliktCommand(name = "run", help = "Run your application. Use -- to separate application's arguments from Amper options") {
+private class RunCommand : CliktCommand(
+    name = "run",
+    help = "Run your application",
+    epilog = "Use -- to separate application's arguments from Amper options"
+) {
     val platform by option(
         "-p",
         "--platform",
@@ -186,11 +205,9 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
     val buildType by option(
         "-b",
         "--build-type",
-        help = "Run under specified build type",
-        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings)
-    ).validate { value ->
-        checkBuildType(value)
-    }
+        help = "Run under specified build type (${BuildType.buildTypeStrings.sorted().joinToString(", ")})",
+        completionCandidates = CompletionCandidates.Fixed(BuildType.buildTypeStrings),
+    ).default(BuildType.Debug.value).validate { value -> checkBuildType(value) }
 
     private fun checkBuildType(value: String) {
         BuildType.byValue(value) ?: userReadableError("Unsupported build type '$value'.\n\nPossible values: ${BuildType.buildTypeStrings}")
@@ -198,7 +215,7 @@ private class RunCommand : CliktCommand(name = "run", help = "Run your applicati
 
     val programArguments by argument(name = "program arguments").multiple()
 
-    val module by option("-m", "--module", help = "specific module to run")
+    val module by option("-m", "--module", help = "Specific module to run (run 'modules' command to get modules list)")
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }

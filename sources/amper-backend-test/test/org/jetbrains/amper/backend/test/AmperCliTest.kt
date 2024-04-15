@@ -14,12 +14,25 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalPathApi::class)
 class AmperCliTest: AmperCliTestBase() {
     @Test
     fun smoke() = runTestInfinitely {
-        runCli("jvm-kotlin-test-smoke", listOf("tasks"))
+        runCli("jvm-kotlin-test-smoke", "tasks")
+    }
+
+    @Test
+    fun `run command help prints dot dot`() = runTestInfinitely {
+        val r = runCli("jvm-kotlin-test-smoke", "run", "--help")
+
+        // Check that '--' is printed before program arguments
+        val string = "Usage: amper run [<options>] -- [<program arguments>]..."
+
+        assertTrue("There should be '$string' in `run --help` output") {
+            r.stdout.lines().any { it == string }
+        }
     }
 
     @Test
@@ -28,7 +41,7 @@ class AmperCliTest: AmperCliTestBase() {
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
-        runCli("jvm-publish", listOf("publish", "mavenLocal"))
+        runCli("jvm-publish", "publish", "mavenLocal")
 
         val files = groupDir.walk()
             .onEach {

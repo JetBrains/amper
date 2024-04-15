@@ -39,7 +39,7 @@ abstract class AmperCliTestBase {
 
     protected abstract val testDataRoot: Path
 
-    protected suspend fun runCli(backendTestProjectName: String, args: List<String>, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
+    protected suspend fun runCli(backendTestProjectName: String, vararg args: String, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
 
         // TODO This should be an exact SDK which is run by our wrapper.
