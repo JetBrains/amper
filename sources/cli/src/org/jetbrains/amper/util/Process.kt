@@ -4,46 +4,16 @@
 
 package org.jetbrains.amper.util
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import java.nio.file.Path
-import java.util.*
 
 
-fun startProcessWithStdoutStderrFlows(
+fun fireProcessAndForget(
     command: List<String>,
     workingDir: Path,
     environment: Map<String, String>
-): FlowStdoutStderrProcess {
-    val process = ProcessBuilder(command)
+) {
+    ProcessBuilder(command)
         .directory(workingDir.toFile())
         .also { it.environment().putAll(environment) }
         .start()
-    return FlowStdoutStderrProcess(process)
-}
-
-class FlowStdoutStderrProcess(private val process: Process) {
-    fun stop() {
-        process.destroy()
-    }
-
-    val stdout: Flow<String>
-        get() {
-            val sc = Scanner(process.inputStream)
-            return flow {
-                while (sc.hasNextLine() && process.isAlive) {
-                    emit(sc.nextLine())
-                }
-            }
-        }
-
-    val stderr: Flow<String>
-        get() {
-            val sc = Scanner(process.errorStream)
-            return flow {
-                while (sc.hasNextLine() && process.isAlive) {
-                    emit(sc.nextLine())
-                }
-            }
-        }
 }

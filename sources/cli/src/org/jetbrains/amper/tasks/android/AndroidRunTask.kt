@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks.android
 
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
+import com.android.ddmlib.IShellOutputReceiver
 import com.android.ddmlib.NullOutputReceiver
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.repository.api.ConsoleProgressIndicator
@@ -15,11 +16,12 @@ import com.android.sdklib.internal.avd.AvdManager
 import com.android.sdklib.repository.AndroidSdkHandler
 import com.android.utils.StdLogger
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
@@ -32,11 +34,13 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
-import org.jetbrains.amper.util.startProcessWithStdoutStderrFlows
+import org.jetbrains.amper.util.fireProcessAndForget
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class AndroidRunTask(
     override val taskName: TaskName,
@@ -61,6 +65,8 @@ class AndroidRunTask(
 
         val device = adb
             .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
+            // need to wait package installer to launch on the device before installing the apk
+            .waitForProcess("com.android.packageinstaller")
 
         val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.TaskResult>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
@@ -146,14 +152,13 @@ class AndroidRunTask(
                         true
                     )
                 }
-
-            runAndAwaitForEmulatorToBoot(emulatorExecutable, avd.name)
+            runEmulator(emulatorExecutable, avd.name)
             waitForDevice(androidVersion)
         }
     }
 
-    private suspend fun runAndAwaitForEmulatorToBoot(emulatorExecutable: Path, avdName: String) {
-        val processWrapper = startProcessWithStdoutStderrFlows(
+    private fun runEmulator(emulatorExecutable: Path, avdName: String) {
+        fireProcessAndForget(
             buildList {
                 add(emulatorExecutable.pathString)
                 val headlessMode: String? = System.getProperty(headlessEmulatorModePropertyName)
@@ -169,11 +174,6 @@ class AndroidRunTask(
                 "ANDROID_HOME" to androidSdkPath.toString(),
             )
         )
-        merge(processWrapper.stdout, processWrapper.stderr)
-            .map { it.also { logger.info(it) } }
-            // we need to wait until the boot will be completed (not until a device becomes online) because when becomes
-            // online installation service isn't available yet
-            .first { (it.contains("Boot completed") || it.contains("Successfully loaded snapshot")) }
     }
 
     private suspend fun waitForDevice(targetVersion: AndroidVersion): IDevice {
@@ -208,6 +208,34 @@ private val xml = XML {
         ignoreUnknownChildren()
         repairNamespaces = false
     }
+}
+
+private suspend fun IDevice.waitForProcess(process: String, interval: Duration = 10.milliseconds): IDevice {
+    flow {
+        while (true) {
+            emit(executeShellCommandAndGetOutput("ps -A"))
+            delay(interval)
+        }
+    }.first { it.contains(process) }
+    return this
+}
+
+private suspend fun IDevice.executeShellCommandAndGetOutput(command: String): String = coroutineScope {
+    val deferred: CompletableDeferred<String> = CompletableDeferred()
+    executeShellCommand(command, object: IShellOutputReceiver {
+        val stringBuilder = StringBuilder()
+
+        override fun addOutput(data: ByteArray, offset: Int, length: Int) {
+            stringBuilder.append(data.decodeToString(offset, offset + length))
+        }
+
+        override fun flush() {
+            deferred.complete(stringBuilder.toString())
+        }
+
+        override fun isCancelled(): Boolean = !isActive
+    })
+    deferred.await()
 }
 
 private const val namespace = "http://schemas.android.com/apk/res/android"
