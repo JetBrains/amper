@@ -36,6 +36,22 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    fun modules() = runTestInfinitely {
+        val r = runCli("simple-multiplatform-cli", "modules")
+
+        val modulesList = r.stdout.lines().dropWhile { it.isNotBlank() }
+
+        assertEquals("""
+            jvm-cli
+            linux-cli
+            macos-cli
+            shared
+            utils
+            windows-cli
+        """.trimIndent(), modulesList.filter { it.isNotBlank() }.joinToString("\n"))
+    }
+
+    @Test
     fun publish() = runTestInfinitely {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")

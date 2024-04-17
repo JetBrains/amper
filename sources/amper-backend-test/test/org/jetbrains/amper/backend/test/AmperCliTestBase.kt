@@ -48,7 +48,7 @@ abstract class AmperCliTestBase {
 
         val buildOutputRoot = tempRoot.resolve("build")
 
-        println("Running Amper CLI with '$args' on $projectRoot")
+        println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
         val result = jdk.runJava(
             workingDir = projectRoot,

@@ -113,6 +113,12 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
+    fun showModules() {
+        for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {
+            println(moduleName)
+        }
+    }
+
     private val projectTemplates: Map<String, String> = mapOf(
         "multiplatform-cli" to "templates/multiplatform-cli.zip"
     )

@@ -49,6 +49,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             BuildCommand(),
             CleanCommand(),
             CleanSharedCachesCommand(),
+            ModulesCommand(),
             NewCommand(),
             PublishCommand(),
             RunCommand(),
@@ -229,9 +230,14 @@ private class RunCommand : CliktCommand(
     }
 }
 
-private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks in the project") {
+private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks and their dependencies in the project") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() = initializeBackend(commonOptions, commandName).showTasks()
+}
+
+private class ModulesCommand : CliktCommand(name = "modules", help = "Show modules in the project") {
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() = initializeBackend(commonOptions, commandName).showModules()
 }
 
 private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
