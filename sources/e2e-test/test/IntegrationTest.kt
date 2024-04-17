@@ -59,6 +59,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
+    @Test
     @KonanFolderLock
     fun `configuring native linux`() = test(
         projectName = "native-linux",
@@ -172,6 +173,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @KonanFolderLock
     fun `2 targets, language version 1-9 for common code should not fail`() = test(
         "multiplatform-lib-propagation",
         "build",
@@ -186,6 +188,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @KonanFolderLock
     fun `configure a project with most of the settings`() = test(
         "settings",
         "build",
@@ -319,6 +322,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    @KonanFolderLock
     fun `library with all platforms`() = test(
         projectName = "lib-with-all-platforms",
         "build",
