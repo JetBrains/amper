@@ -62,7 +62,7 @@ class ProjectContext(
             val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
             val logsDir = buildOutputRootNotNull.path
                 .resolve("logs")
-                .resolve("amper-${currentTimestamp}_$currentTopLevelCommand")
+                .resolve("amper_${currentTimestamp}_$currentTopLevelCommand")
                 .also { it.createDirectories() }
 
             return ProjectContext(
