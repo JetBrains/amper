@@ -108,6 +108,7 @@ internal fun kotlinNativeCompilerArgs(
     sourceFiles: List<Path>,
     outputPath: Path,
     isFramework: Boolean,
+    alwaysGenerateKotlinLibrary: Boolean,
 ): List<String> = buildList {
     if (kotlinUserSettings.debug) {
         add("-g")
@@ -116,7 +117,7 @@ internal fun kotlinNativeCompilerArgs(
     add("-ea")
 
     add("-produce")
-    if (module.type.isLibrary() && !isTest) add("library")
+    if (alwaysGenerateKotlinLibrary || (module.type.isLibrary() && !isTest)) add("library")
     else if (!isTest && isFramework) add("framework")
     else add("program")
 
@@ -129,11 +130,11 @@ internal fun kotlinNativeCompilerArgs(
 
     if (isTest) {
         add("-generate-test-runner")
-    }
-
-    if (entryPoint != null) {
-        add("-entry")
-        add(entryPoint)
+    } else {
+        if (entryPoint != null) {
+            add("-entry")
+            add(entryPoint)
+        }
     }
 
     libraryPaths.forEach {
@@ -188,7 +189,7 @@ internal fun kotlinMetadataCompilerArgs(
     // TODO forbid -d in freeCompilerArgs in the frontend, so it's clearer for the users
     add("-d")
     add(outputPath.pathString)
-    
+
     addAll(sourceFiles.map { it.pathString })
 }
 

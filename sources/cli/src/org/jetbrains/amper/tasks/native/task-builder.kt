@@ -4,10 +4,21 @@
 
 package org.jetbrains.amper.tasks.native
 
+import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+
+private fun getProductionSourcesForTestsCompileTaskName(module: PotatoModule, platform: Platform): TaskName {
+    val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, false)
+    return if (module.type.isApplication()) {
+        TaskName(compileTaskName.name + "Library")
+    } else {
+        compileTaskName
+    }
+}
 
 fun ProjectTaskRegistrar.setupNativeTasks() {
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
@@ -22,19 +33,53 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 taskName = compileTaskName,
                 tempRoot = context.projectTempRoot,
                 isTest = isTest,
+                alwaysGenerateKotlinLibrary = false,
             ),
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
+
+        if (module.type.isApplication() && !isTest) {
+            // Application compilation generates executable file which is not usable for tests compilation
+            // Let's prepare separate klib, which will be linked to test code
+
+            registerTask(
+                NativeCompileTask(
+                    module = module,
+                    platform = platform,
+                    userCacheRoot = context.userCacheRoot,
+                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    taskName = getProductionSourcesForTestsCompileTaskName(module, platform),
+                    tempRoot = context.projectTempRoot,
+                    isTest = false,
+                    alwaysGenerateKotlinLibrary = true,
+                ),
+                CommonTaskType.Dependencies.getTaskName(module, platform, false)
+            )
+        }
     }
 
     onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
-        registerDependency(
-            CommonTaskType.Compile.getTaskName(module, platform, isTest),
-            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
-        )
+        if (isTest) {
+            registerDependency(
+                CommonTaskType.Compile.getTaskName(module, platform, true),
+                CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+            )
+        } else {
+            // Two prod compile configurations, one is building an app, another is building klib for linking with tests
+            for (compileTaskName in setOf(
+                getProductionSourcesForTestsCompileTaskName(module, platform),
+                CommonTaskType.Compile.getTaskName(module, platform, false))
+            ) {
+                registerDependency(
+                    compileTaskName,
+                    CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+                )
+            }
+        }
     }
 
-    onMain(Platform.NATIVE) { module, _, platform, isTest ->
+    onMain(Platform.NATIVE) { module, _, platform, _ ->
         val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
         registerTask(
             NativeRunTask(
@@ -44,12 +89,16 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 platform = platform,
                 commonRunSettings = context.commonRunSettings,
             ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest)
+            CommonTaskType.Compile.getTaskName(module, platform, false)
         )
     }
 
-    onTest(Platform.NATIVE) { module, _, platform, isTest ->
+    onTest(Platform.NATIVE) { module, _, platform, _ ->
+        val compileTestsTaskName = CommonTaskType.Compile.getTaskName(module, platform, true)
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
+
+        val sourcesForTestsCompileTaskName = getProductionSourcesForTestsCompileTaskName(module, platform)
+
         registerTask(
             NativeTestTask(
                 module = module,
@@ -57,11 +106,11 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 taskName = testTaskName,
                 platform = platform,
             ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest)
+            compileTestsTaskName
         )
         registerDependency(
-            taskName = CommonTaskType.Compile.getTaskName(module, platform, true),
-            dependsOn = CommonTaskType.Compile.getTaskName(module, platform, false),
+            taskName = compileTestsTaskName,
+            dependsOn = sourcesForTestsCompileTaskName,
         )
     }
 }

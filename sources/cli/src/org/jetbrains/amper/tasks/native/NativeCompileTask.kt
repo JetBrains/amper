@@ -53,6 +53,7 @@ class NativeCompileTask(
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
     private val isFramework: Boolean = false,
+    private val alwaysGenerateKotlinLibrary: Boolean = false,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
@@ -136,7 +137,7 @@ class NativeCompileTask(
             cleanDirectory(taskOutputRoot.path)
 
             val artifactExtension = when {
-                module.type.isLibrary() && !isTest -> ".klib"
+                (module.type.isLibrary() && !isTest) || alwaysGenerateKotlinLibrary -> ".klib"
                 isFramework && !isTest -> ".framework"
                 platform.isDescendantOf(Platform.MINGW) -> ".exe"
                 else -> ".kexe"
@@ -166,6 +167,7 @@ class NativeCompileTask(
                     sourceFiles = rootsToCompile,
                     outputPath = artifact,
                     isFramework = isFramework,
+                    alwaysGenerateKotlinLibrary = alwaysGenerateKotlinLibrary,
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
@@ -198,13 +200,13 @@ class NativeCompileTask(
                                     "-Dkonan.home=$kotlinNativeHome",
                                 ),
                             )
-                            
+
                             // TODO this is redundant with the java span of the external process run. Ideally, we
                             //  should extract higher-level information from the raw output and use that in this span.
                             span.setAttribute("exit-code", result.exitCode.toLong())
                             span.setAttribute("stdout", result.stdout)
                             span.setAttribute("stderr", result.stderr)
-                            
+
                             if (result.exitCode != 0) {
                                 userReadableError("Kotlin native compilation failed (see errors above)")
                             }

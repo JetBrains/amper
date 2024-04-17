@@ -328,7 +328,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli test on mac`() = runTestInfinitely {
+    fun `simple multiplatform cli lib test on mac`() = runTestInfinitely {
         val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
 
@@ -336,6 +336,21 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
+        assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
+    }
+
+    @Test
+    @MacOnly
+    fun `simple multiplatform cli app test on mac`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
+        val amperBackend = AmperBackend(projectContext)
+        amperBackend.showTasks()
+        amperBackend.runTask(TaskName(":macos-cli:testMacosArm64"))
+
+        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
+        val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
+
+        assertTrue(stdout.contains("[       OK ] WorldTestFromMacOsCli.doTest"), stdout)
         assertTrue(stdout.contains("[  PASSED  ] 1 tests"), stdout)
     }
 
