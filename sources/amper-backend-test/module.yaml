@@ -21,6 +21,7 @@ test-dependencies:
 
   - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3
   - org.gradle:gradle-tooling-api:8.4: compile-only
+  - com.android.tools.ddms:ddmlib:25.3.0: compile-only
 
 apply:
   - ../common.module-template.yaml

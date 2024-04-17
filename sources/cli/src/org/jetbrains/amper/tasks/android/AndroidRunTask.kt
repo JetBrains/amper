@@ -65,8 +65,7 @@ class AndroidRunTask(
 
         val device = adb
             .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
-            // need to wait package installer to launch on the device before installing the apk
-            .waitForProcess("com.android.packageinstaller")
+            .waitForProcess("com.android.externalstorage")
 
         val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.TaskResult>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")

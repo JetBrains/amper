@@ -6,15 +6,19 @@
 
 package org.jetbrains.amper.backend.test
 
+import com.android.ddmlib.AndroidDebugBridge
+import com.android.ddmlib.IDevice
+import com.android.ddmlib.MultiLineReceiver
 import com.android.tools.apk.analyzer.BinaryXmlParser
 import com.google.devrel.gmscore.tools.apk.arsc.ArscBlamer
 import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceFile
 import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceIdentifier
 import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.job
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
@@ -25,7 +29,6 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
-import org.junit.jupiter.api.AfterEach
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -36,7 +39,6 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 import kotlin.test.AfterTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
@@ -53,23 +55,16 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
         setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false)
 
     /**
-     * When the emulator already is in working state, app install and launch activity occurring so fast that logcat
-     * listener executed after launch couldn't catch the required line. So the only way to catch the line is to start
-     * listening to logcat right after emulator launch, but it could violate build system concepts, because now we need
-     * to pass a state between tasks
-     *
-     * So it's better just to ignore this test, at least for now and wait until the proper instrumented tests are ready
-     * in pure Amper
+     * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.
      */
     @Test
     @OnNonCI
-    @Ignore("Waiting for instrumented test support in pure Amper")
     fun simple() = runTest(timeout = 15.minutes) {
         val projectContext = setupAndroidTestProject("simple")
         System.setProperty(headlessEmulatorModePropertyName, "true")
-        val job = async { AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "logcat"))) }
-        waitAndAssertSubstringInOutput("My Application")
-        job.cancelAndJoin()
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "runAndroidDebug")))
+        val device = AndroidDebugBridge.getBridge().devices.first()
+        assertStringInLogcat(device, "My Application")
     }
 
     @Test
@@ -189,11 +184,11 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
         .filter { it.extension == "aar" }
         .firstOrNull() ?: fail("AAR not found")
 
-
     private fun ProjectContext.getApkPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
         .walk()
         .filter { it.extension == "apk" }
         .firstOrNull() ?: fail("Apk not found")
+
 
     private suspend fun waitAndAssertSubstringInOutput(substring: String) {
         stdoutCollector.lines.takeWhile { substring !in it }.collect()
@@ -234,5 +229,19 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
         assertContains(classesInJars.toList(), "classes/${fqn.replace(".", "/")}.class")
         return extractedAarPath
+    }
+
+    private suspend fun TestScope.assertStringInLogcat(device: IDevice, value: String) {
+        val deferred = CompletableDeferred(false)
+        device.executeShellCommand("logcat -d -v long", object : MultiLineReceiver() {
+            override fun isCancelled(): Boolean = coroutineContext.job.isCancelled
+
+            override fun processNewLines(lines: Array<out String>) {
+                if (lines.any { it.contains(value) }) {
+                    deferred.complete(true)
+                }
+            }
+        })
+        deferred.await()
     }
 }
