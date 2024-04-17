@@ -80,10 +80,13 @@ class ShellScriptsTest {
             .substringAfterLast('=')
 
         runAmperVersion(customJavaHome = jdkHome) { output ->
-            val expectedVersionString = "amper version $expectedAmperVersion"
+            val expectedVersionStringOld = "amper version $expectedAmperVersion"
+            val expectedVersionString = Regex(
+                Regex.escape("JetBrains Amper version $expectedAmperVersion+") +
+                        "[A-Fa-f0-9]+")
 
-            assertTrue("Process output must contain '$expectedVersionString'. Output:\n$output") {
-                output.lines().contains(expectedVersionString)
+            assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n$output") {
+                output.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }
             }
 
             assertTrue("Process output must have 'Downloading ' line only once (for Amper itself). Output:\n$output") {
