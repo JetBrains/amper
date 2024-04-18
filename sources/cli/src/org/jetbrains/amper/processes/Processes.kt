@@ -55,7 +55,7 @@ class ProcessResult(
  */
 // TODO sometimes capturing the entire stdout/stderr in memory won't work, we most likely will need to provide overloads
 //  that don't collect the result but allow stream processing.
-internal suspend fun Process.awaitAndGetAllOutput(
+suspend fun Process.awaitAndGetAllOutput(
     onStdoutLine: (String) -> Unit = {},
     onStderrLine: (String) -> Unit = {},
 ): ProcessResult = coroutineScope {

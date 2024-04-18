@@ -31,8 +31,7 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.tools.JaegerTool
-import org.jetbrains.amper.tools.Tool
+import org.jetbrains.amper.tools.JaegerToolCommand
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -62,7 +61,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             helpFormatter = { context ->
                 object : MordantHelpFormatter(context, showDefaultValues = true) {
                     override fun renderRepeatedMetavar(metavar: String): String {
-                        if (metavar == "[<program arguments>]") {
+                        if (metavar == "[<program arguments>]" || metavar == "[<tool arguments>]") {
                             return "-- ${metavar}..."
                         }
                         return super.renderRepeatedMetavar(metavar)
@@ -78,7 +77,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
 
     val debug by option(help = "Enable debug output").flag(default = false)
 
-    val sharedCachesRoot by option(
+    private val sharedCachesRoot by option(
         "--shared-caches-root",
         help = "Custom shared caches root " +
                 // see org.jetbrains.amper.cli.AmperUserCacheRoot.Companion.fromCurrentUser
@@ -90,7 +89,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
                 })
         .path(canBeFile = false)
 
-    val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
+    private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
     val buildOutputRoot by option(
         "--build-output",
@@ -225,7 +224,7 @@ private class RunCommand : CliktCommand(
             commandName,
             commonRunSettings = CommonRunSettings(programArgs = programArguments),
         )
-        val buildType = buildType?.let { BuildType.byValue(it) }?: BuildType.Debug
+        val buildType = buildType.let { BuildType.byValue(it) }
         amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
     }
 }
@@ -278,17 +277,16 @@ private class PublishCommand : CliktCommand(name = "publish", help = "Publish mo
 }
 
 private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
-    val tool by argument(name = "tool", help = "available: ${tools.joinToString(" ") { it.name }}")
-    val toolArguments by argument(name = "tool arguments").multiple()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() {
-        val toolObj = tools.firstOrNull { it.name == tool }
-            ?: userReadableError("Tool '$tool' was not found. Available tools: ${tools.joinToString(" ") { it.name }}")
-        toolObj.run(toolArguments, userCacheRoot = initializeBackend(commonOptions, commandName).context.userCacheRoot)
+
+    init {
+        subcommands(JaegerToolCommand())
     }
 
-    companion object {
-        private val tools = listOf<Tool>(JaegerTool)
+    override fun run() {
+        currentContext.obj = lazy {
+            initializeBackend(commonOptions, commandName).context
+        }
     }
 }
 
