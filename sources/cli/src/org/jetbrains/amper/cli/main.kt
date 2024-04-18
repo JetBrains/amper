@@ -32,6 +32,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
+import org.jetbrains.amper.tools.JdkToolCommands
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -280,7 +281,10 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     init {
-        subcommands(JaegerToolCommand())
+        subcommands(
+            JaegerToolCommand(),
+            JdkToolCommands(),
+        )
     }
 
     override fun run() {

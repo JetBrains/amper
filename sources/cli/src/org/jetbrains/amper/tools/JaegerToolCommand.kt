@@ -28,15 +28,13 @@ import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.util.OS
 import java.net.Socket
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 class JaegerToolCommand: CliktCommand(
     name = "jaeger",
-    epilog = "Use -- to separate tool's arguments from Amper options"
+    help = "Download and run Jaeger server https://www.jaegertracing.io",
+    epilog = "Use -- to separate tool's arguments from Amper options",
 ) {
     private val openBrowser by option(
         "--open-browser",
