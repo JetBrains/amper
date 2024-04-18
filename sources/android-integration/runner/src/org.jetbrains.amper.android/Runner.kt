@@ -79,7 +79,7 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
             .action { controller -> controller.getModel(R::class.java) }
             .forTasks(*tasks)
             .withArguments("--stacktrace")
-            .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g"))
+            .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g -XX:MaxMetaspaceSize=1G"))
             .setStandardOutput(System.out)
             .setStandardError(System.err)
 
