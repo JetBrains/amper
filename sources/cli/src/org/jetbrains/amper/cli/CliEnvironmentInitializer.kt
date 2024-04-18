@@ -51,7 +51,7 @@ object CliEnvironmentInitializer {
         DeadLockMonitor.install(logsRoot)
     }
 
-    fun setupLogging(logsRoot: AmperBuildLogsRoot, enableConsoleDebugLogging: Boolean) {
+    fun setupLogging(logsRoot: AmperBuildLogsRoot, consoleLogLevel: Level) {
         val logFileBanner = """
             ${AmperBuild.banner}
             running on ${System.getProperty("os.name")} ${System.getProperty("os.version").lowercase()} jvm arch ${System.getProperty("os.arch")}
@@ -59,8 +59,7 @@ object CliEnvironmentInitializer {
 
         val loggingProvider = ProviderRegistry.getLoggingProvider() as TinylogLoggingProvider
 
-        loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single()
-            .setLevel(if (enableConsoleDebugLogging) Level.DEBUG else Level.INFO)
+        loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single().setLevel(consoleLogLevel)
 
         val debugWriter = loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.DEBUG }
         val debugLogFile = logsRoot.path.resolve("debug.log")

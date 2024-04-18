@@ -22,6 +22,7 @@ import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.options.transformAll
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
@@ -35,6 +36,7 @@ import org.jetbrains.amper.tools.JaegerToolCommand
 import org.jetbrains.amper.tools.JdkToolCommands
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
+import org.tinylog.Level
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
@@ -76,7 +78,18 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
         .path(mustExist = true, canBeFile = false, canBeDir = true)
         .defaultLazy { Path(System.getProperty("user.dir")) }
 
-    val debug by option(help = "Enable debug output").flag(default = false)
+    private val consoleLogLevel by option(
+        "--log-level",
+        help = "Set console logging level"
+    ).choice(
+        mapOf(
+            "debug" to Level.DEBUG,
+            "info" to Level.INFO,
+            "warn" to Level.WARN,
+            "error" to Level.ERROR,
+            "off" to Level.OFF,
+        ), ignoreCase = true
+    ).default(Level.INFO)
 
     private val sharedCachesRoot by option(
         "--shared-caches-root",
@@ -100,7 +113,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
     override fun run() {
         currentContext.obj = CommonOptions(
             root = root,
-            debug = debug,
+            consoleLogLevel = consoleLogLevel,
             asyncProfiler = asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
             buildOutputRoot = buildOutputRoot,
@@ -109,7 +122,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
 
     data class CommonOptions(
         val root: Path,
-        val debug: Boolean,
+        val consoleLogLevel: Level,
         val asyncProfiler: Boolean,
         val sharedCachesRoot: Path?,
         val buildOutputRoot: Path?,
@@ -143,7 +156,7 @@ private fun initializeBackend(
 
     CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
     CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-    CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, enableConsoleDebugLogging = commonOptions.debug)
+    CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, consoleLogLevel = commonOptions.consoleLogLevel)
 
     // TODO output version, os and some env to log file only
     println(AmperBuild.banner)
