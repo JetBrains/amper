@@ -3,12 +3,17 @@
  */
 
 import com.intellij.util.io.sha256Hex
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.regex.Pattern
 
 plugins {
     `maven-publish`
     id("org.jetbrains.kotlin.plugin.atomicfu") version "1.9.22"
 }
 
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     jvm {
         mainRun {
@@ -19,7 +24,6 @@ kotlin {
         }
     }
 }
-
 
 val unpackedDistribution by tasks.creating(Sync::class) {
     inputs.property("up-to-date", "11")
@@ -66,61 +70,85 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
     abstract val amperDistVersion: Property<String>
 
     @get:Input
-    abstract val lineSeparator: Property<String>
+    abstract val outputWindowsLineEndings: Property<Boolean>
+
+    @Suppress("SameParameterValue")
+    private fun substituteTemplatePlaceholders(
+        inputFile: Path,
+        outputFile: Path,
+        placeholder: String,
+        values: List<Pair<String, String>>,
+        outputWindowsLineEndings: Boolean = false,
+    ) {
+        var result = Files.readString(inputFile)
+            .replace("\r", "")
+
+        val missingPlaceholders = mutableListOf<String>()
+        for ((name, value) in values) {
+            check (!name.contains(placeholder)) {
+                "Do not use placeholder '$placeholder' in name: $name"
+            }
+
+            val s = "$placeholder$name$placeholder"
+            if (!result.contains(s)) {
+                missingPlaceholders.add(s)
+            }
+
+            result = result.replace(s, value)
+        }
+
+        check(missingPlaceholders.isEmpty()) {
+            "Missing placeholders [${missingPlaceholders.joinToString(" ")}] in template file $inputFile"
+        }
+
+        val escapedPlaceHolder = Pattern.quote(placeholder)
+        val regex = Regex("$escapedPlaceHolder.+$escapedPlaceHolder")
+        val unsubstituted = result
+            .splitToSequence('\n')
+            .mapIndexed { line, s -> "line ${line + 1}: $s" }
+            .filter(regex::containsMatchIn)
+            .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
+        check (unsubstituted.isBlank()) {
+            "Some template parameters were left unsubstituted in template file $inputFile:\n$unsubstituted"
+        }
+
+        Files.createDirectories(outputFile.parent)
+        Files.writeString(outputFile, result)
+    }
 
     @TaskAction
     fun processScript() {
-        val amperVersion = amperDistVersion.get()
-        val amperSha256 = sha256Hex(amperDistFile.get().asFile.toPath())
-
-        val text = inputFile.get().asFile.readText()
-
-        if (amperVersion.contains("-dev-")) {
-            require(!text.contains(amperVersion)) {
-                "Script '${inputFile.get().asFile}' text should not contain $amperVersion:\n$text"
-            }
-
-            require(!text.contains(amperSha256)) {
-                "Script '${inputFile.get().asFile}' text should not contain $amperSha256:\n$text"
-            }
-        }
-
-        val newText = text
-            .lineSequence()
-            .map { line -> line.replace(Regex("^((set )?amper_version=).*\$"), "$1$amperVersion") }
-            .map { line -> line.replace(Regex("^((set )?amper_sha256=).*\$"), "$1$amperSha256") }
-            .joinToString(lineSeparator.get())
-
-        check(newText.contains(amperVersion)) {
-            "Script text must contain $amperVersion after replacement:\n$newText"
-        }
-
-        check(newText.contains(amperSha256)) {
-            "Script text must contain $amperSha256 after replacement:\n$newText"
-        }
-
-        outputFile.get().asFile.writeText(newText)
+        substituteTemplatePlaceholders(
+            inputFile = inputFile.get().asFile.toPath(),
+            outputFile = outputFile.get().asFile.toPath(),
+            placeholder = "@",
+            values = listOf(
+                "AMPER_VERSION" to amperDistVersion.get(),
+                "AMPER_DIST_SHA256" to sha256Hex(amperDistFile.get().asFile.toPath()),
+            ),
+            outputWindowsLineEndings = outputWindowsLineEndings.get(),
+        )
     }
 }
 
 val amperShellScript = tasks.register<ProcessAmperScriptTask>("amperShellScript") {
-    inputFile = projectDir.resolve("scripts/amper.sh")
+    inputFile = projectDir.resolve("scripts/amper.template.sh")
     outputFile = projectDir.resolve("build/amper.sh")
 
     amperDistVersion = project.version.toString()
     amperDistFile = amperDist
 
-    lineSeparator = "\n"
+    outputWindowsLineEndings = false
 }
 
 val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
-    inputFile = projectDir.resolve("scripts/amper.bat")
+    inputFile = projectDir.resolve("scripts/amper.template.bat")
     outputFile = projectDir.resolve("build/amper.bat")
 
     amperDistVersion = project.version.toString()
     amperDistFile = amperDist
 
-    lineSeparator = "\r\n"
+    outputWindowsLineEndings = true
 }
 
 configurations.create("dist")
