@@ -8,6 +8,7 @@ import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.devices.Abi
 import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
 import org.jetbrains.amper.android.AndroidSdkDetector
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -77,7 +78,8 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
                 CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
             ),
-            context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
+            context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType)),
+            context.buildLogsRoot
         )
 
         // compile
@@ -249,6 +251,7 @@ private fun TaskGraphBuilder.setupPrepareAndroidTask(
     androidSdkPath: Path,
     prepareAndroidTaskDependencies: List<TaskName>,
     taskOutputPath: TaskOutputRoot,
+    buildLogsRoot: AmperBuildLogsRoot,
 ) {
     registerTask(
         AndroidPrepareTask(
@@ -258,7 +261,8 @@ private fun TaskGraphBuilder.setupPrepareAndroidTask(
             executeOnChangedInputs,
             androidSdkPath,
             fragments,
-            taskOutputPath
+            taskOutputPath,
+            buildLogsRoot
         ),
         prepareAndroidTaskDependencies
     )
@@ -284,6 +288,7 @@ private fun TaskGraphBuilder.setupAndroidBuildTasks(
             androidSdkPath,
             fragments,
             context.getTaskOutputPath(buildAndroidTaskName),
+            context.buildLogsRoot,
             buildAndroidTaskName,
         ),
         listOf(

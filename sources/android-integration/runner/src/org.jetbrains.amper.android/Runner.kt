@@ -7,14 +7,21 @@ package org.jetbrains.amper.android
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.events.ProgressEvent
+import org.gradle.tooling.events.ProgressListener
 import org.jetbrains.amper.core.AmperBuild
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import kotlin.io.path.createDirectories
+import kotlin.io.path.outputStream
 
 inline fun <reified R : AndroidBuildResult> runAndroidBuild(
     buildRequest: AndroidBuildRequest,
     buildPath: Path,
-    debug: Boolean = false
+    gradleLogStdoutPath: Path,
+    gradleLogStderrPath: Path,
+    debug: Boolean = false,
+    crossinline eventHandler: (ProgressEvent) -> Unit
 ): R {
     buildPath.createDirectories()
     val settingsGradle = buildPath.resolve("settings.gradle.kts")
@@ -52,13 +59,21 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
         .forProjectDirectory(settingsGradleFile.parentFile)
         .connect()
 
+    val taskPrefix = when (buildRequest.phase) {
+        AndroidBuildRequest.Phase.Prepare -> "prepare"
+        AndroidBuildRequest.Phase.Build -> "build"
+    }
+
+    val stdout = gradleLogStdoutPath
+        .outputStream(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
+        .buffered()
+    val stderr = gradleLogStderrPath
+        .outputStream(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
+        .buffered()
+
     connection.use {
         val tasks = buildList {
             for (buildType in buildRequest.buildTypes) {
-                val taskPrefix = when (buildRequest.phase) {
-                    AndroidBuildRequest.Phase.Prepare -> "prepare"
-                    AndroidBuildRequest.Phase.Build -> "build"
-                }
                 val taskBuildType = buildType.name
                 val taskName = "$taskPrefix$taskBuildType"
                 if (buildRequest.targets.isEmpty()) {
@@ -75,22 +90,35 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
             }
         }.toTypedArray()
 
-        val buildLauncher = connection
-            .action { controller -> controller.getModel(R::class.java) }
-            .forTasks(*tasks)
-            .withArguments("--stacktrace")
-            .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g -XX:MaxMetaspaceSize=1G"))
-            .setStandardOutput(System.out)
-            .setStandardError(System.err)
+        try {
+            stdout.use { stdoutStream ->
+                stderr.use { stderrStream ->
+                    val buildLauncher = connection
+                        .action { controller -> controller.getModel(R::class.java) }
+                        .forTasks(*tasks)
+                        .withArguments("--stacktrace")
+                        .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g -XX:MaxMetaspaceSize=1G"))
+                        .addProgressListener(ProgressListener { eventHandler(it) })
+                        .setStandardOutput(stdoutStream)
+                        .setStandardError(stderrStream)
 
-        buildRequest.sdkDir?.let {
-            buildLauncher.setEnvironmentVariables(System.getenv() + mapOf("ANDROID_HOME" to it.toAbsolutePath().toString()))
+                    buildRequest.sdkDir?.let {
+                        buildLauncher.setEnvironmentVariables(
+                            System.getenv() + mapOf(
+                                "ANDROID_HOME" to it.toAbsolutePath().toString()
+                            )
+                        )
+                    }
+
+                    if (debug) {
+                        buildLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+                    }
+
+                    return buildLauncher.run()
+                }
+            }
+        } catch (_: RuntimeException) {
+            error("Error during Gradle build")
         }
-
-        if (debug) {
-            buildLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-        }
-
-        return buildLauncher.run()
     }
 }

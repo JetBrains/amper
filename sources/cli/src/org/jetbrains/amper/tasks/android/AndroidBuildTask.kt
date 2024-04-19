@@ -9,6 +9,7 @@ import org.jetbrains.amper.android.AndroidModuleData
 import org.jetbrains.amper.android.ApkPathAndroidBuildResult
 import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.android.runAndroidBuild
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
@@ -21,7 +22,6 @@ import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
@@ -35,6 +35,7 @@ class AndroidBuildTask(
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
     private val taskOutputPath: TaskOutputRoot,
+    private val buildLogsRoot: AmperBuildLogsRoot,
     override val taskName: TaskName,
 ) : Task {
     @OptIn(ExperimentalPathApi::class)
@@ -59,14 +60,27 @@ class AndroidBuildTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val result = runAndroidBuild<ApkPathAndroidBuildResult>(request, taskOutputPath.path / "gradle-project")
+            val gradleLogStdoutPath = (buildLogsRoot.path / "gradle" / "build.stdout")
+            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "build.stderr"
+            val result = runAndroidBuild<ApkPathAndroidBuildResult>(
+                request,
+                taskOutputPath.path / "gradle-project",
+                gradleLogStdoutPath,
+                gradleLogStderrPath,
+                eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) }
+            )
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
         }
         taskOutputPath.path.createDirectories()
         val outputs = executionResult
             .outputs
-            .map { it.copyToRecursively(taskOutputPath.path.resolve(it.fileName), followLinks = false, overwrite = true) }
-        logger.info("ANDROID ARTIFACTS $outputs")
+            .map {
+                it.copyToRecursively(
+                    taskOutputPath.path.resolve(it.fileName),
+                    followLinks = false,
+                    overwrite = true
+                )
+            }
         return TaskResult(dependenciesResult, executionResult.outputs)
     }
 
@@ -75,5 +89,4 @@ class AndroidBuildTask(
         val artifacts: List<Path>,
     ) : org.jetbrains.amper.tasks.TaskResult
 
-    private val logger = LoggerFactory.getLogger(javaClass)
 }

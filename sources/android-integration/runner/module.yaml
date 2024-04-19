@@ -6,9 +6,9 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
-  - ../android-integration-core: exported
   - ../../core
-  - org.gradle:gradle-tooling-api:8.4
+  - ../android-integration-core: exported
+  - org.gradle:gradle-tooling-api:8.4: exported
 
 settings:
   kotlin:

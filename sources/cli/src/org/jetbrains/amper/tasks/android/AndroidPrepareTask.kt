@@ -8,21 +8,23 @@ import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.AndroidModuleData
 import org.jetbrains.amper.android.RClassAndroidBuildResult
 import org.jetbrains.amper.android.ResolvedDependency
+import org.jetbrains.amper.android.runAndroidBuild
+import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
-import org.jetbrains.amper.android.runAndroidBuild
 import java.nio.file.Path
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.extension
 
@@ -34,6 +36,7 @@ class AndroidPrepareTask(
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
     private val taskOutputRoot: TaskOutputRoot,
+    private val buildLogsRoot: AmperBuildLogsRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val rootPath =
@@ -57,7 +60,16 @@ class AndroidPrepareTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val result = runAndroidBuild<RClassAndroidBuildResult>(request, taskOutputRoot.path / "gradle-project")
+            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "prepare.stdout"
+            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "prepare.stderr"
+            gradleLogStdoutPath.createParentDirectories()
+            val result = runAndroidBuild<RClassAndroidBuildResult>(
+                request,
+                taskOutputRoot.path / "gradle-project",
+                gradleLogStdoutPath,
+                gradleLogStderrPath,
+                eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) },
+            )
             val outputs = result.paths.map { Path.of(it) }.filter { it.extension.lowercase() == "jar" }
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
