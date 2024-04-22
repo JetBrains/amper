@@ -24,9 +24,11 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
 import java.time.Instant
+import java.util.UUID
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 
 class AndroidBuildTask(
@@ -61,9 +63,10 @@ class AndroidBuildTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val logFileName = Instant.now().nano
+            val logFileName = UUID.randomUUID()
             val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stdout"
             val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stderr"
+            gradleLogStdoutPath.createParentDirectories()
             val result = runAndroidBuild<ApkPathAndroidBuildResult>(
                 request,
                 taskOutputPath.path / "gradle-project",
