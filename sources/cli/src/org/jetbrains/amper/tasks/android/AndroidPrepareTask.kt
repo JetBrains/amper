@@ -24,8 +24,10 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
+import java.time.Instant
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.extension
 
 class AndroidPrepareTask(
@@ -60,8 +62,9 @@ class AndroidPrepareTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val result = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
-            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "prepare.stdout"
-            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "prepare.stderr"
+            val logFileName = Instant.now().nano
+            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "prepare-$logFileName.stdout"
+            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "prepare-$logFileName.stderr"
             gradleLogStdoutPath.createParentDirectories()
             val result = runAndroidBuild<RClassAndroidBuildResult>(
                 request,
