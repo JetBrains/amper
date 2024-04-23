@@ -11,11 +11,11 @@ package org.jetbrains.amper.core
  */
 object UsedVersions {
 
-    /*magic_replacement*/ val kotlinVersion = "1.9.20"
+    /*magic_replacement*/ val kotlinVersion = "2.0.0-RC1"
 
-    /*magic_replacement*/ val androidVersion = "8.1.0"
+    /*magic_replacement*/ val androidVersion = "8.2.2"
 
-    /*magic_replacement*/ val composeVersion = "1.5.10"
+    /*magic_replacement*/ val composeVersion = "1.6.2"
 
     // No replacement yet.
     val junit4Version = "4.12"
@@ -59,6 +59,7 @@ object UsedVersions {
         "1.9.22" -> "1.5.8.1"
         "2.0.0-Beta1" -> "1.5.4-dev1-kt2.0.0-Beta1"
         "2.0.0-Beta4" -> "1.5.9-kt-2.0.0-Beta4"
+        "2.0.0-RC1" -> "1.5.11-kt-2.0.0-RC1"
         else -> null // the error will be handled differently depending on the caller
     }
 }

@@ -21,11 +21,11 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-BOOTSTRAP_AMPER_VERSION="0.3.0-dev-534"
-KOTLIN_VERSION="1.9.20"
-COMPOSE_VERSION="1.5.10"
+BOOTSTRAP_AMPER_VERSION="0.3.0-dev-530"
+KOTLIN_VERSION="2.0.0-RC1"
+COMPOSE_VERSION="1.6.2"
 GRADLE_VERSION="8.1.1-bin.zip"
-ANDROID_VERSION="8.1.0"
+ANDROID_VERSION="8.2.2"
 
 DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
 
@@ -84,15 +84,8 @@ AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.
 echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""
 
-OSTYPE=$(uname -o | tr '[:upper:]' '[:lower:]')
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  find -E . -regex "$AFFECTED_FILES_REGEX$" | \
-      grep -v "/build/" 1> "$FOUND_FILES_FILE"
-else
-  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$" | \
-    grep -v "/build/" 1> "$FOUND_FILES_FILE"
-fi
+find -E . -regex "$AFFECTED_FILES_REGEX$" | \
+  grep -v "/build/" 1> "$FOUND_FILES_FILE"
 
 FILES_COUNT=$(wc -l < "$FOUND_FILES_FILE" | tr -d ' ')
 echo "  $FILES_COUNT matched files found."
@@ -102,13 +95,8 @@ echo "Performing replacement."
 cat "$FOUND_FILES_FILE" | \
   xargs sed -r -E -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
+find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
   grep -v "/build/" 1> "$EDITED_FILES_FILE"
-else
-  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
-    grep -v "/build/" 1> "$EDITED_FILES_FILE"
-fi
 
 echo "  Done."
 

@@ -16,9 +16,9 @@ dependencies:
   - ../frontend-api
   - ../frontend/schema
   - org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20
-  - com.android.library:com.android.library.gradle.plugin:8.1.0
+  - com.android.library:com.android.library.gradle.plugin:8.2.2
   - org.jetbrains.kotlin:kotlin-serialization:1.9.20
-  - org.jetbrains.compose:compose-gradle-plugin:1.6.1: compile-only
+  - org.jetbrains.compose:compose-gradle-plugin:1.6.2: compile-only
   - dev.gradleplugins:gradle-api:8.1: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4550-0.23
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4

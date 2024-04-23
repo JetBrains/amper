@@ -12,7 +12,7 @@ dependencies:
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
   - ../../core-intellij
-  - org.jetbrains.kotlin:kotlin-reflect:1.9.20
+  - org.jetbrains.kotlin:kotlin-reflect:2.0.0-RC1
   - org.apache.maven:maven-artifact:3.9.6
   - com.jetbrains.intellij.platform:ide-core:233.13763.11
   - com.jetbrains.intellij.platform:core-impl:233.13763.11
