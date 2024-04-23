@@ -9,6 +9,7 @@ import com.android.sdklib.devices.Abi
 import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
+import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -49,14 +50,15 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
         )
 
-        setupAndroidPlatformTask(module, executeOnChangedInputs, androidSdkPath, isTest)
-        setupDownloadBuildToolsTask(module, executeOnChangedInputs, androidSdkPath, isTest)
-        setupDownloadPlatformToolsTask(module, executeOnChangedInputs, androidSdkPath, isTest)
-        setupDownloadSystemImageTask(module, executeOnChangedInputs, isTest)
+        setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
+        setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
+        setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
+        setupDownloadSystemImageTask(module, context.userCacheRoot, isTest)
         registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "emulator",
                 androidSdkPath,
+                context.userCacheRoot,
                 AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
             )
         )
@@ -175,8 +177,8 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
 
 private fun TaskGraphBuilder.setupAndroidPlatformTask(
     module: PotatoModule,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,
+    userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
@@ -186,6 +188,7 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
             GetAndroidPlatformFileFromPackageTask(
                 "platforms;android-$targetSdk",
                 androidSdkPath,
+                userCacheRoot,
                 AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
             )
         )
@@ -194,8 +197,8 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
 
 private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
     module: PotatoModule,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,
+    userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
@@ -203,6 +206,7 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
         GetAndroidPlatformFileFromPackageTask(
             "build-tools;${androidFragment?.settings?.android?.targetSdk?.versionNumber}.0.0",
             androidSdkPath,
+            userCacheRoot,
             AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)
         )
     )
@@ -211,14 +215,15 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
 
 private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
     module: PotatoModule,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,
+    userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
 ) {
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "platform-tools",
             androidSdkPath,
+            userCacheRoot,
             AndroidTaskType.InstallPlatformTools.getTaskName(module, Platform.ANDROID, isTest)
         )
     )
@@ -226,7 +231,7 @@ private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
 
 private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     module: PotatoModule,
-    executeOnChangedInputs: ExecuteOnChangedInputs,
+    userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
@@ -236,6 +241,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
         GetAndroidPlatformFileFromPackageTask(
             "system-images;android-$versionNumber;${DEFAULT_TAG.id};$abi",
             androidSdkPath,
+            userCacheRoot,
             AndroidTaskType.InstallSystemImage.getTaskName(module, Platform.ANDROID, isTest)
         )
     )
