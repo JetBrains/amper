@@ -39,6 +39,13 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
             CommonTaskType.Run.getTaskName(module, Platform.ANDROID, isTest = false, BuildType.Debug)
         )
+
+        registerTask(
+            AcceptAndroidSdkLicenseTask(
+                androidSdkPath,
+                AndroidTaskType.AcceptAndroidLicenses.getTaskName(module, Platform.ANDROID)
+            )
+        )
     }
 
     onEachTaskType(Platform.ANDROID) { module, executeOnChangedInputs, _, isTest ->
@@ -78,7 +85,8 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
                 AndroidTaskType.InstallPlatformTools.getTaskName(module, platform, isTest),
                 AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
-                CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+                AndroidTaskType.AcceptAndroidLicenses.getTaskName(module, Platform.ANDROID),
+                CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
             ),
             context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType)),
             context.buildLogsRoot
@@ -317,5 +325,6 @@ private enum class AndroidTaskType(override val prefix: String) : PlatformTaskTy
     InstallEmulator("installEmulator"),
     TransformDependencies("transformDependencies"),
     Prepare("prepare"),
-    Build("build")
+    Build("build"),
+    AcceptAndroidLicenses("acceptAndroidLicenses")
 }
