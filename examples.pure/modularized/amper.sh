@@ -15,9 +15,9 @@
 
 set -e -u
 
-amper_version=0.3.0-dev-501
+amper_version=0.3.0-dev-530
 amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
-amper_sha256=f049e42d6ea35fec4503e0082d84de2af9888dac239ed6fe8571e6139220bbfc
+amper_sha256=9f830cab583f957582ac7e298b628a40d3231c4096e1250ab1eec773fa12707d
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
@@ -106,9 +106,9 @@ check_sha256() {
 sys=$(uname -s)
 
 if [ "$sys" = "Darwin" ]; then
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/JetBrains/Amper}"
+  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/Library/Caches/Amper}"
 else
-  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/JetBrains/Amper}"
+  amper_cache_dir="${AMPER_BOOTSTRAP_CACHE_DIR:-$HOME/.cache/Amper}"
 fi
 
 ### JVM
@@ -180,4 +180,4 @@ fi
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
-exec "$java_exe" -ea -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"

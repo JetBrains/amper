@@ -6,9 +6,9 @@
 
 setlocal
 
-set amper_version=0.3.0-dev-501
+set amper_version=0.3.0-dev-530
 set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
-set amper_sha256=f049e42d6ea35fec4503e0082d84de2af9888dac239ed6fe8571e6139220bbfc
+set amper_sha256=9f830cab583f957582ac7e298b628a40d3231c4096e1250ab1eec773fa12707d
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=https://aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
@@ -26,7 +26,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
 )
 
 if defined AMPER_BOOTSTRAP_CACHE_DIR goto continue_with_cache_dir
-set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\JetBrains\Amper\
+set AMPER_BOOTSTRAP_CACHE_DIR=%LOCALAPPDATA%\Amper\
 :continue_with_cache_dir
 
 rem add \ to the end if not present
@@ -60,7 +60,7 @@ if errorlevel 1 goto fail
 
 REM ********** Run Amper **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea -cp "%amper_target_dir%lib\*" org.jetbrains.amper.cli.MainKt %*
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /B %ERRORLEVEL%
 
 REM ********** Download And Extract Any Zip Archive **********
