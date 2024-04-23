@@ -128,12 +128,12 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:resolveDependenciesAndroid, :simple:compileAndroidDebug")
         assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:acceptAndroidLicensesAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
         assertStdoutContains("task :simple:buildAndroidRelease -> :simple:resolveDependenciesAndroid, :simple:compileAndroidRelease")
         assertStdoutContains("task :simple:compileAndroidRelease -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:acceptAndroidLicensesAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
 
         // transform dependencies
