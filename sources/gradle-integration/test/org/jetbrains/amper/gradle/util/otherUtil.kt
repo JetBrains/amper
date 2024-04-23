@@ -4,10 +4,10 @@
 
 package org.jetbrains.amper.gradle.util
 
-import org.gradle.tooling.GradleConnector
-import org.jetbrains.amper.gradle.MockModelHandle
 import org.apache.commons.io.output.TeeOutputStream
+import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.gradle.MockModelHandle
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
@@ -46,7 +46,7 @@ fun TestBase.runGradleWithModel(model: MockModelHandle): String {
     val stdout = ByteArrayOutputStream()
     val stderr = ByteArrayOutputStream()
     GradleConnector.newConnector()
-        .useGradleVersion("8.1")
+        .useGradleVersion("8.2")
         .useGradleUserHomeDir(gradleHome.toFile())
         .forProjectDirectory(tempDir)
         .connect()

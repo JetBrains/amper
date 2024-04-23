@@ -80,7 +80,7 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
             val gradleHome = TestUtil.sharedTestCaches.resolve("gradleHome")
                 .also { it.createDirectories() }
             add(GradleConnector.newConnector()
-                .useGradleVersion("8.1")
+                .useGradleVersion("8.2")
                 .useGradleUserHomeDir(gradleHome.toFile()))
         }
     }
