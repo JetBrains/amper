@@ -2,9 +2,9 @@ Fragments:
   android
     External dependencies:
       MavenDependency(coordinates=androidx.compose.animation:animation-graphics:1.4.3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       jvmAndAndroid (REFINE)
@@ -19,7 +19,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -70,9 +70,9 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       jvmAndAndroidTest (REFINE)
@@ -88,7 +88,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -140,7 +140,7 @@ Fragments:
   common
     External dependencies:
       InternalDependency(module={{ testResources }}{{ fileSeparator }}subModule)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -154,7 +154,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -205,8 +205,8 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0-RC1, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
@@ -222,7 +222,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -273,7 +273,7 @@ Fragments:
 
   ios
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
@@ -288,7 +288,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -339,8 +339,8 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
@@ -356,7 +356,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -409,7 +409,7 @@ Fragments:
     External dependencies:
       MavenDependency(coordinates=io.ktor:ktor-server-core:2.3.2, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.compose.material3:material3:1.4.1, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       jvmAndAndroid (REFINE)
@@ -424,7 +424,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -475,7 +475,7 @@ Fragments:
 
   jvmAndAndroid
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: src@jvmAndAndroid
     Fragment dependencies:
       common (REFINE)
@@ -490,7 +490,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -541,7 +541,7 @@ Fragments:
 
   jvmAndAndroidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: test@jvmAndAndroid
     Fragment dependencies:
       commonTest (REFINE)
@@ -557,7 +557,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
@@ -608,7 +608,7 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:1.9.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       jvmAndAndroidTest (REFINE)
@@ -624,7 +624,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.5.10
+        version: <default> 1.6.2
       }
       ios: <default> {
         framework: <default> {
