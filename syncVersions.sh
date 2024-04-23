@@ -24,7 +24,7 @@ add_update_rule() {
 BOOTSTRAP_AMPER_VERSION="0.3.0-dev-530"
 KOTLIN_VERSION="2.0.0-RC1"
 COMPOSE_VERSION="1.6.2"
-GRADLE_VERSION="8.1.1-bin.zip"
+GRADLE_VERSION="8.2.1-bin.zip"
 ANDROID_VERSION="8.2.2"
 
 DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
