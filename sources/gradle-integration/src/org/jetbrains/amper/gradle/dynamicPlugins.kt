@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.gradle
 
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
@@ -18,6 +20,7 @@ import org.gradle.api.internal.initialization.ClassLoaderScope
 import org.gradle.api.internal.initialization.RootScriptDomainObjectContext
 import org.gradle.api.internal.initialization.ScriptClassPathResolver
 import org.gradle.initialization.DefaultSettings
+import org.gradle.internal.classpath.ClassPath
 import java.lang.reflect.Field
 
 private const val DYNAMIC_PLUGINS_CLASSPATH = "dynamicPluginsClasspath"
@@ -63,7 +66,7 @@ private fun GradleInternal.doSetupDynamicPlugins(
 //    classPathResolver.prepareClassPath(classpathConfig, dependencyHandler)
 
     // Resolve classpath.
-    val foundClassPath = classPathResolver.resolveClassPath(classpathConfig)
+    val foundClassPath = resolveClassPath(classPathResolver, classpathConfig, dependencyHandler, configurationContainer)
 
     // Set classpath for settings ClassLoaderScope.
     // (so that, this classpath will be accessible in project scripts)
@@ -72,6 +75,26 @@ private fun GradleInternal.doSetupDynamicPlugins(
         .createChild("amper", null)
         .export(foundClassPath)
         .lock()
+}
+
+private fun resolveClassPath(
+    classPathResolver: ScriptClassPathResolver,
+    classpathConfig: Configuration?,
+    dependencyHandler: DependencyHandler?,
+    configurationContainer: RoleBasedConfigurationContainerInternal
+): ClassPath {
+    val resolver = classPathResolver.javaClass.declaredMethods.filter {
+        it.name == "resolveClassPath"
+    }.single()
+
+    // breaking internal API changes in Gradle 8.6;
+    // we want to support both Gradle < 8.6 and Gradle >= 8.6
+    val foundClassPath = if (resolver.parameters.size == 1) {
+        resolver.invoke(classPathResolver, classpathConfig)
+    } else {
+        resolver.invoke(classPathResolver, dependencyHandler, configurationContainer)
+    } as ClassPath
+    return foundClassPath
 }
 
 /**
