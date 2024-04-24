@@ -92,7 +92,7 @@ private fun resolveClassPath(
     val foundClassPath = if (resolver.parameters.size == 1) {
         resolver.invoke(classPathResolver, classpathConfig)
     } else {
-        resolver.invoke(classPathResolver, dependencyHandler, configurationContainer)
+        resolver.invoke(classPathResolver, classpathConfig, dependencyHandler, configurationContainer)
     } as ClassPath
     return foundClassPath
 }
