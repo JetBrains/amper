@@ -4,6 +4,7 @@ product:
 
 dependencies:
   - io.github.java-diff-utils:java-diff-utils:4.12: exported
+  - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3: exported
 
 apply:
   - ../common.module-template.yaml

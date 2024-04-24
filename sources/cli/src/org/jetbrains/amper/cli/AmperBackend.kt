@@ -97,13 +97,13 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
                 .filterIsInstance<CompileTask>()
                 .filter { platformsToCompile.contains(it.platform) }
                 .map { it.taskName }
-                .sortedBy { it.name }
-            logger.info("Selected tasks to compile: ${taskNames.joinToString(" ") { it.name }}")
+                .toSet()
+            logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")
             taskExecutor.runTasksAndReportOnFailure(taskNames)
         }
     }
 
-    suspend fun runTask(taskName: TaskName) = taskExecutor.runTasksAndReportOnFailure(listOf(taskName))
+    suspend fun runTask(taskName: TaskName) = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))
 
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
@@ -203,16 +203,18 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
             .filterIsInstance<PublishTask>()
             .filter { it.targetRepository.id == repositoryId }
             .filter { modules == null || modules.contains(it.module.userReadableName) }
+            .map { it.taskName }
+            .toSet()
 
         if (publishTasks.isEmpty()) {
             userReadableError("No publish tasks were found for specified module and repository filters")
         }
 
-        println("Tasks that will be executed:\n" +
-            publishTasks.map { "  " + it.taskName.name }.sorted().joinToString("\n"))
+        context.terminal.println("Tasks that will be executed:\n" +
+            publishTasks.sorted().joinToString("\n"))
 
         runBlocking {
-            taskExecutor.runTasksAndReportOnFailure(publishTasks.map { it.taskName })
+            taskExecutor.runTasksAndReportOnFailure(publishTasks)
         }
     }
 
@@ -240,13 +242,15 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
             .filterIsInstance<TestTask>()
             .filter { moduleName == null || moduleName == it.module.userReadableName }
             .filter { platforms == null || platforms.contains(it.platform) }
+            .map { it.taskName }
+            .toSet()
 
         if (testTasks.isEmpty()) {
             userReadableError("No test tasks were found for specified module and platform filters")
         }
 
         runBlocking {
-            taskExecutor.runTasksAndReportOnFailure(testTasks.map { it.taskName })
+            taskExecutor.runTasksAndReportOnFailure(testTasks)
         }
     }
 

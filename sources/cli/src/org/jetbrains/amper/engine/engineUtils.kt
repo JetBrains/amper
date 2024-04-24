@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.engine
 
-suspend fun TaskExecutor.runTasksAndReportOnFailure(tasks: List<TaskName>) {
+suspend fun TaskExecutor.runTasksAndReportOnFailure(tasks: Set<TaskName>) {
     val result = run(tasks)
     val exceptions = tasks
         .map { taskName -> result.getValue(taskName) }

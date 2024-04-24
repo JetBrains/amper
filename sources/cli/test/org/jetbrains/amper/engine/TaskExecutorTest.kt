@@ -4,16 +4,22 @@
 
 package org.jetbrains.amper.engine
 
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.tasks.TaskResult
+import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.seconds
 
 class TaskExecutorTest {
     @Test
@@ -26,7 +32,7 @@ class TaskExecutorTest {
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
         runBlocking {
-            executor.run(listOf(TaskName("A")))
+            executor.run(setOf(TaskName("A")))
         }
         if (executed != listOf("D", "B", "C", "A") && executed != listOf("D", "C", "B", "A")) {
             fail("Wrong execution order: $executed")
@@ -49,7 +55,7 @@ class TaskExecutorTest {
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.GREEDY)
         val result = runBlocking {
-            executor.run(listOf(TaskName("D")))
+            executor.run(setOf(TaskName("D")))
         }
         assertEquals("C", (result.getValue(TaskName("C")).getOrThrow() as TestTaskResult).taskName.name)
         assertTrue(result.getValue(TaskName("A")).exceptionOrNull() is IllegalStateException)
@@ -74,24 +80,59 @@ class TaskExecutorTest {
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
         val result = assertFailsWith(TaskExecutor.TaskExecutionFailed::class) {
             runBlocking {
-                executor.run(listOf(TaskName("D")))
+                executor.run(setOf(TaskName("D")))
             }
         }
         assertEquals("Task 'A' failed: throw", result.message)
     }
 
+    @Test
+    fun rootTasksExecuteInParallel() = runTest {
+        val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("A", waitForMaxParallelTasksCount = 3))
+        builder.registerTask(TestTask("B", waitForMaxParallelTasksCount = 3))
+        builder.registerTask(TestTask("C", waitForMaxParallelTasksCount = 3))
+        val graph = builder.build()
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
+        executor.run(setOf(TaskName("A"), TaskName("B"), TaskName("C")))
+        assertEquals(3, maxParallelTasksCount.value)
+    }
+
     private val executed = mutableListOf<String>()
-    private inner class TestTask(val name: String, val delayMs: Long = 0, val throwException: Boolean = false): Task {
+    private val tasksCount = atomic(0)
+    private val maxParallelTasksCount = atomic(0)
+    private inner class TestTask(
+        val name: String,
+        val delayMs: Long = 0,
+        val waitForMaxParallelTasksCount: Int? = null,
+        val throwException: Boolean = false,
+    ): Task {
         override val taskName: TaskName
             get() = TaskName(name)
 
         override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-            synchronized(executed) {
-                executed.add(name)
+            val currentTasksCount = tasksCount.incrementAndGet()
+            maxParallelTasksCount.update { max -> max(max, currentTasksCount) }
+            try {
+                synchronized(executed) {
+                    executed.add(name)
+                }
+                if (waitForMaxParallelTasksCount != null) {
+                    withTimeout(10.seconds) {
+                        while (true) {
+                            if (maxParallelTasksCount.value == waitForMaxParallelTasksCount) {
+                                break
+                            }
+                            delay(10)
+                        }
+                    }
+                }
+                delay(delayMs)
+                if (throwException) error("throw")
+                return TestTaskResult(taskName, dependenciesResult)
+            } finally {
+                tasksCount.decrementAndGet()
             }
-            delay(delayMs)
-            if (throwException) error("throw")
-            return TestTaskResult(taskName, dependenciesResult)
         }
     }
 

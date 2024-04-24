@@ -5,7 +5,6 @@
 package org.jetbrains.amper.engine
 
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,6 +34,10 @@ class TaskExecutor(
                 }
             }
         }
+
+        check(!graph.nameToTask.containsKey(rootTaskName)) {
+            "task graph should not contain internal root task name '${rootTaskName.name}'"
+        }
     }
 
     private val availableProcessors = Runtime.getRuntime().availableProcessors()
@@ -45,21 +48,11 @@ class TaskExecutor(
 
     // Dispatch on default dispatcher, execute on tasks dispatcher
     // Task failures do not throw, instead all exceptions are returned as a map
-    suspend fun run(tasks: List<TaskName>): Map<TaskName, Result<TaskResult>> = withContext(Dispatchers.Default) {
+    suspend fun run(tasksToRun: Set<TaskName>): Map<TaskName, Result<TaskResult>> = withContext(Dispatchers.Default) {
         val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
         try {
             coroutineScope {
-                for (task in tasks) {
-                    val result = try {
-                        runTask(task, emptyList(), results)
-                    } catch (e: CancellationException) {
-                        Result.failure(e)
-                    }
-
-                    synchronized(results) {
-                        results[task] = CompletableDeferred(result)
-                    }
-                }
+                runTask(rootTaskName, emptyList(), results, rootTaskDependencies = tasksToRun)
                 results.mapValues { it.value.await() }
             }
         } catch (e: CancellationException) {
@@ -68,7 +61,12 @@ class TaskExecutor(
     }
 
     // TODO we need to re-evaluate task order execution later
-    private suspend fun runTask(taskName: TaskName, currentPath: List<TaskName>, taskResults: MutableMap<TaskName, Deferred<Result<TaskResult>>>): Result<TaskResult> = withContext(Dispatchers.Default) {
+    private suspend fun runTask(
+        taskName: TaskName,
+        currentPath: List<TaskName>,
+        taskResults: MutableMap<TaskName, Deferred<Result<TaskResult>>>,
+        rootTaskDependencies: Set<TaskName>,
+    ): Result<TaskResult> = withContext(Dispatchers.Default) {
         // TODO slow, we can do better for sure
         if (currentPath.contains(taskName)) {
             error("Found a cycle in task execution graph:\n" +
@@ -76,8 +74,29 @@ class TaskExecutor(
         }
         val newPath = currentPath + taskName
 
+        fun taskDependencies(taskName: TaskName): Collection<TaskName> = when (taskName) {
+            rootTaskName -> rootTaskDependencies
+            else -> graph.dependencies[taskName] ?: emptySet()
+        }
+
+        suspend fun runTask(taskName: TaskName, dependenciesResult: List<TaskResult>): TaskResult = when (taskName) {
+            rootTaskName -> object : TaskResult {
+                override val dependencies: List<TaskResult> = dependenciesResult
+            }
+
+            else -> {
+                val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
+                progressListener.taskStarted(taskName).use {
+                    MDC.put("amper-task-name", taskName.name)
+                    withContext(MDCContext()) {
+                        task.run(dependenciesResult)
+                    }
+                }
+            }
+        }
+
         coroutineScope {
-            val results = (graph.dependencies[taskName] ?: emptySet())
+            val results = taskDependencies(taskName)
                 .map { dependsOn ->
                     dependsOn to synchronized(taskResults) {
                         val existingResult = taskResults[dependsOn]
@@ -85,7 +104,7 @@ class TaskExecutor(
                             existingResult
                         } else {
                             val newDeferred = async {
-                                runTask(dependsOn, newPath, taskResults)
+                                runTask(dependsOn, newPath, taskResults, rootTaskDependencies)
                             }
                             taskResults[dependsOn] = newDeferred
                             newDeferred
@@ -101,16 +120,10 @@ class TaskExecutor(
                 }
 
             withContext(tasksDispatcher) {
-                val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
                 spanBuilder("task ${taskName.name}")
                     .useWithScope {
                         val result = runCatching {
-                            progressListener.taskStarted(taskName).use {
-                                MDC.put("amper-task-name", taskName.name)
-                                withContext(MDCContext()) {
-                                    task.run(results)
-                                }
-                            }
+                            runTask(taskName, results)
                         }
 
                         when (mode) {
@@ -139,4 +152,8 @@ class TaskExecutor(
 
     class TaskExecutionFailed(val taskName: TaskName, val exception: Throwable)
         : Exception("Task '${taskName.name}' failed: ${exception.message}", exception)
+
+    companion object {
+        private val rootTaskName = TaskName(":")
+    }
 }
