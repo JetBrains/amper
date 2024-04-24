@@ -5,7 +5,7 @@
 package org.jetbrains.amper.cli
 
 import com.google.common.io.Files
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.Result
@@ -40,7 +40,7 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 @OptIn(ExperimentalPathApi::class)
-class AmperBackend(val context: ProjectContext) {
+class AmperBackend(val context: ProjectContext, private val lifetime: CoroutineScope = GlobalScope) {
     private val resolvedModel: Model by lazy {
         with(CliProblemReporterContext()) {
             val model = spanBuilder("loading model")
@@ -71,9 +71,8 @@ class AmperBackend(val context: ProjectContext) {
         ProjectTasksBuilder(context = context, model = resolvedModel).build()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private val taskExecutor: TaskExecutor by lazy {
-        val progress = TaskProgressRenderer(context.terminal, GlobalScope)
+        val progress = TaskProgressRenderer(context.terminal, lifetime)
         TaskExecutor(taskGraph, context.taskExecutionMode, progress)
     }
 

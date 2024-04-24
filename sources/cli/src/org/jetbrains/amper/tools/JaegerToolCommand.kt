@@ -17,7 +17,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.RootCommand
+import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -42,9 +43,10 @@ class JaegerToolCommand: CliktCommand(
     ).boolean().default(true)
 
     private val toolArguments by argument(name = "tool arguments").multiple()
-    private val projectContext by requireObject<Lazy<ProjectContext>>()
 
-    override fun run() {
+    private val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun run() = withBackend(commonOptions, commandName) { backend ->
         val os = DefaultSystemInfo.detect()
         val osString = when (os.family) {
             SystemInfo.OsFamily.Windows -> "windows"
@@ -62,8 +64,8 @@ class JaegerToolCommand: CliktCommand(
 
         val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$VERSION/jaeger-${VERSION}-$osString-$archString.tar.gz"
         runBlocking(Dispatchers.IO) {
-            val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, projectContext.value.userCacheRoot)
-            val root = extractFileToCacheLocation(file, projectContext.value.userCacheRoot, ExtractOptions.STRIP_ROOT)
+            val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, backend.context.userCacheRoot)
+            val root = extractFileToCacheLocation(file, backend.context.userCacheRoot, ExtractOptions.STRIP_ROOT)
 
             val executable = root.resolve("jaeger-all-in-one${if (os.family == SystemInfo.OsFamily.Windows) ".exe" else ""}")
             val cmd = listOf(executable.pathString) + toolArguments

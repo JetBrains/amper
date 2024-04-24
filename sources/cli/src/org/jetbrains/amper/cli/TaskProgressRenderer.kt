@@ -34,6 +34,7 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
         coroutineScope.launch(Dispatchers.IO) {
             val animation = terminal.animation<List<ThreadState>> { tasks ->
                 verticalLayout {
+                    cell("")
 //                    cell(HorizontalRule())
                     for (threadState in tasks) {
                         cell(horizontalLayout {
@@ -76,13 +77,8 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
                         animation.update(snapshot)
                     }
                 }
-            } catch (t: Throwable) {
-                // TODO Better error handling
-                t.printStackTrace()
             } finally {
-                // TODO Not called now, needs investigation
-                terminal.println("ANI EXIT")
-                println("ANI EXIT")
+                animation.clear()
             }
         }
 

@@ -24,6 +24,11 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -129,12 +134,20 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
     )
 }
 
-private fun initializeBackend(
+private val backendInitialized = atomic<Throwable?>(null)
+
+internal fun withBackend(
     commonOptions: RootCommand.CommonOptions,
     currentCommand: String,
     commonRunSettings: CommonRunSettings = CommonRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
-): AmperBackend {
+    block: suspend CoroutineScope.(AmperBackend) -> Unit,
+) {
+    val initializedException = backendInitialized.getAndSet(Throwable())
+    if (initializedException != null) {
+        throw IllegalStateException("withBackend was already called, see nested exception", initializedException)
+    }
+
     // TODO think of a better place to activate it. e.g. we need it in tests too
     // TODO disabled jul bridge for now since it reports too much in debug mode
     //  and does not handle source class names from jul LogRecord
@@ -171,20 +184,36 @@ private fun initializeBackend(
         AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
     }
 
-    return AmperBackend(context = projectContext)
+    // TODO could it be more elegant?
+    val normalEndingMessage = "exited-normally"
+    try {
+        runBlocking(Dispatchers.Default) {
+            val backend = AmperBackend(context = projectContext, lifetime = this)
+            block(backend)
+            cancel(normalEndingMessage)
+        }
+    } catch (t: CancellationException) {
+        if (t.message != normalEndingMessage) {
+            throw t
+        }
+    }
 }
 
 private class NewCommand : CliktCommand(name = "new", help = "New Amper project") {
     val template by argument(help = "project template name, e.g., 'cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
-        initializeBackend(commonOptions, commandName).newProject(template = template)
+        withBackend(commonOptions, commandName) { backend ->
+            backend.newProject(template = template)
+        }
     }
 }
 
 private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() = initializeBackend(commonOptions, commandName).clean()
+    override fun run() = withBackend(commonOptions, commandName) { backend ->
+        backend.clean()
+    }
 }
 
 private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches", help = "Remove shared caches") {
@@ -192,9 +221,11 @@ private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-cache
 
     @OptIn(ExperimentalPathApi::class)
     override fun run() {
-        val root = initializeBackend(commonOptions, commandName).context.userCacheRoot
-        LoggerFactory.getLogger(javaClass).info("Deleting ${root.path}")
-        root.path.deleteRecursively()
+        withBackend(commonOptions, commandName) { backend ->
+            val root = backend.context.userCacheRoot
+            LoggerFactory.getLogger(javaClass).info("Deleting ${root.path}")
+            root.path.deleteRecursively()
+        }
     }
 }
 
@@ -202,7 +233,9 @@ private class TaskCommand : CliktCommand(name = "task", help = "Execute any task
     val name by argument(help = "task name to execute")
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
-        return runBlocking { initializeBackend(commonOptions, commandName).runTask(TaskName(name)) }
+        return withBackend(commonOptions, commandName) { backend ->
+            backend.runTask(TaskName(name))
+        }
     }
 }
 
@@ -237,24 +270,29 @@ private class RunCommand : CliktCommand(
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
-        val amperBackendWithRunSettings = initializeBackend(
+        withBackend(
             commonOptions,
             commandName,
             commonRunSettings = CommonRunSettings(programArgs = programArguments),
-        )
-        val buildType = buildType.let { BuildType.byValue(it) }
-        amperBackendWithRunSettings.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
+        ) { backend ->
+            val buildType = buildType.let { BuildType.byValue(it) }
+            backend.runApplication(platform = platformToRun, moduleName = module, buildType = buildType)
+        }
     }
 }
 
 private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks and their dependencies in the project") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() = initializeBackend(commonOptions, commandName).showTasks()
+    override fun run() = withBackend(commonOptions, commandName) { backend ->
+        backend.showTasks()
+    }
 }
 
 private class ModulesCommand : CliktCommand(name = "modules", help = "Show modules in the project") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() = initializeBackend(commonOptions, commandName).showModules()
+    override fun run() = withBackend(commonOptions, commandName) { backend ->
+        backend.showModules()
+    }
 }
 
 private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
@@ -268,16 +306,16 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
         }
 
         // try to execution as many tests as possible
-        val backend = initializeBackend(
+        withBackend(
             commonOptions,
             commandName,
             taskExecutionMode = TaskExecutor.Mode.GREEDY,
-        )
-
-        backend.test(
-            platforms = platform.ifEmpty { null }?.toSet(),
-            moduleName = module,
-        )
+        ) { backend ->
+            backend.test(
+                platforms = platform.ifEmpty { null }?.toSet(),
+                moduleName = module,
+            )
+        }
     }
 }
 
@@ -287,16 +325,16 @@ private class PublishCommand : CliktCommand(name = "publish", help = "Publish mo
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     val repositoryId by argument("repository-id")
     override fun run() {
-        initializeBackend(commonOptions, commandName).publish(
-            modules = module?.toSet(),
-            repositoryId = repositoryId,
-        )
+        withBackend(commonOptions, commandName) { backend ->
+            backend.publish(
+                modules = module?.toSet(),
+                repositoryId = repositoryId,
+            )
+        }
     }
 }
 
 private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
-    val commonOptions by requireObject<RootCommand.CommonOptions>()
-
     init {
         subcommands(
             JaegerToolCommand(),
@@ -304,18 +342,15 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
         )
     }
 
-    override fun run() {
-        currentContext.obj = lazy {
-            initializeBackend(commonOptions, commandName).context
-        }
-    }
+    override fun run() = Unit
 }
 
 private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
     val platform by platformOption()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() = initializeBackend(commonOptions, commandName)
-        .compile(platforms = if (platform.isEmpty()) null else platform.toSet())
+    override fun run() = withBackend(commonOptions, commandName) { backend ->
+        backend.compile(platforms = if (platform.isEmpty()) null else platform.toSet())
+    }
 }
 
 private val prettyLeafPlatforms = Platform.leafPlatforms.associateBy { it.pretty }
