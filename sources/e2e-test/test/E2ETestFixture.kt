@@ -206,7 +206,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         private suspend fun installToolIfMissing(home: Path, pack: String, userCacheRoot: AmperUserCacheRoot) {
             val java = JdkDownloader.getJdk(userCacheRoot).javaExecutable
 
-            val sdkManagerJar = home / "lib" / "sdkmanager-classpath.jar"
+            val sdkManagerJar = home / "cmdline-tools" / "lib" / "sdkmanager-classpath.jar"
 
             val sourceProperties = home.resolve(pack.replace(';', '/')) / "source.properties"
             if (sourceProperties.exists()) {
@@ -260,6 +260,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
             "platforms;android-34",
             "build-tools;33.0.0",
             "build-tools;33.0.1",
+            "build-tools;34.0.0",
         )
 
         private val androidHome: Path by lazy {
@@ -288,7 +289,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
                     val root = fakeUserCacheRoot.path / "android-sdk"
                     cleanDirectory(root)
 
-                    extractZip(commandLineTools, root, true)
+                    extractZip(commandLineTools, root / "cmdline-tools", true)
 
                     acceptAndroidLicense(root, "android-googletv-license", "601085b94cd77f0b54ff86406957099ebe79c4d6")
                     acceptAndroidLicense(root, "android-sdk-license", "8933bad161af4178b1185d1a37fbf41ea5269c55")
