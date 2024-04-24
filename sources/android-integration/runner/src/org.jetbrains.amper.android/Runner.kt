@@ -117,8 +117,8 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
                     return buildLauncher.run()
                 }
             }
-        } catch (_: RuntimeException) {
-            error("Error during Gradle build")
+        } catch (t: RuntimeException) {
+            throw IllegalStateException("Error during Gradle build", t)
         }
     }
 }
