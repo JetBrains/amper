@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.processes
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -23,7 +24,7 @@ suspend fun Jdk.runJava(
     programArgs: List<String>,
     jvmArgs: List<String> = emptyList(),
     /** Print output to this process output in addition to storing it in ProcessResult */
-    printOutput: Boolean = true,
+    printOutputToTerminal: Terminal?,
 ): ProcessResult {
     val classpathStr = classpath.joinToString(File.pathSeparator) { it.pathString }
     val command = buildList {
@@ -47,6 +48,6 @@ suspend fun Jdk.runJava(
         .setAttribute("classpath", classpathStr)
         .setAttribute("main-class", mainClass)
         .useWithScope { span ->
-            BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutput = printOutput)
+            BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutputToTerminal = printOutputToTerminal)
         }
 }

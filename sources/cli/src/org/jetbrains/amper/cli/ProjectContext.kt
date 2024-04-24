@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import com.github.ajalt.mordant.terminal.Terminal
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
@@ -30,6 +31,7 @@ class ProjectContext(
     val commonRunSettings: CommonRunSettings,
     val taskExecutionMode: TaskExecutor.Mode,
     val mavenLocalRepository: MavenLocalRepository,
+    val terminal: Terminal,
 ) {
     companion object {
         fun create(
@@ -74,6 +76,7 @@ class ProjectContext(
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
                 mavenLocalRepository = MavenLocalRepository(),
+                terminal = Terminal(),
             )
         }
     }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli
 
+import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
@@ -51,7 +52,7 @@ object CliEnvironmentInitializer {
         DeadLockMonitor.install(logsRoot)
     }
 
-    fun setupLogging(logsRoot: AmperBuildLogsRoot, consoleLogLevel: Level) {
+    fun setupLogging(logsRoot: AmperBuildLogsRoot, consoleLogLevel: Level, terminal: Terminal) {
         val logFileBanner = """
             ${AmperBuild.banner}
             running on ${System.getProperty("os.name")} ${System.getProperty("os.version").lowercase()} jvm arch ${System.getProperty("os.arch")}
@@ -59,7 +60,9 @@ object CliEnvironmentInitializer {
 
         val loggingProvider = ProviderRegistry.getLoggingProvider() as TinylogLoggingProvider
 
-        loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single().setLevel(consoleLogLevel)
+        val consoleLogger = loggingProvider.writers.filterIsInstance<DynamicLevelConsoleWriter>().single()
+        consoleLogger.setLevel(consoleLogLevel)
+        consoleLogger.setTerminal(terminal)
 
         val debugWriter = loggingProvider.writers.filterIsInstance<DynamicFileWriter>().single { it.level == Level.DEBUG }
         val debugLogFile = logsRoot.path.resolve("debug.log")

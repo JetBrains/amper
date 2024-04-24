@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -51,6 +52,7 @@ class NativeCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
+    private val terminal: Terminal,
     override val isTest: Boolean,
     private val isFramework: Boolean = false,
     private val alwaysGenerateKotlinLibrary: Boolean = false,
@@ -199,6 +201,7 @@ class NativeCompileTask(
                                     "-Dfile.encoding=UTF-8",
                                     "-Dkonan.home=$kotlinNativeHome",
                                 ),
+                                printOutputToTerminal = terminal,
                             )
 
                             // TODO this is redundant with the java span of the external process run. Ideally, we

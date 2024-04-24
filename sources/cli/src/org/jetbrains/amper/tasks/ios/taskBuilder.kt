@@ -31,6 +31,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 executeOnChangedInputs = eoci,
                 taskName = frameworkTaskName,
                 tempRoot = context.projectTempRoot,
+                terminal = context.terminal,
                 isTest = false,
                 isFramework = true,
             ),
@@ -45,6 +46,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 buildType,
                 eoci,
                 context.getTaskOutputPath(buildTaskName),
+                context.terminal,
                 buildTaskName,
             ),
             dependsOn = listOf(frameworkTaskName)
@@ -55,6 +57,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
             task = RunAppleTask(
                 runTaskName,
                 context.getTaskOutputPath(runTaskName),
+                context.terminal,
             ),
             dependsOn = listOf(buildTaskName)
         )

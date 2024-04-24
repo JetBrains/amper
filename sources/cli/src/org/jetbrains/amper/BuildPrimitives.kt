@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper
 
+import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -38,10 +39,10 @@ object BuildPrimitives {
         span: Span? = null,
         logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
-        hideOutput: Boolean = false,
+        printOutputToTerminal: Terminal?,
     ): ProcessResult {
         if (logCall) logger.logProcessCall(command.toList())
-        return runProcessAndGetOutput(command.toList(), workingDir, span, environment, hideOutput)
+        return runProcessAndGetOutput(command.toList(), workingDir, span, environment, printOutputToTerminal)
     }
 
     /**
@@ -70,7 +71,7 @@ object BuildPrimitives {
         span: Span? = null,
         environment: Map<String, String> = emptyMap(),
         /** Print output to this process output in addition to storing it in ProcessResult */
-        printOutput: Boolean = true,
+        printOutputToTerminal: Terminal?,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -93,8 +94,8 @@ object BuildPrimitives {
                     logger.warn("Unable to close process stdin: ${t.message}", t)
                 }
                 process.awaitAndGetAllOutput(
-                    onStdoutLine = if (printOutput) System.out::println else { { } },
-                    onStderrLine = if (printOutput) System.err::println else { { } },
+                    onStdoutLine = { printOutputToTerminal?.println(it) },
+                    onStderrLine = { printOutputToTerminal?.println(it, stderr = true) },
                 )
             }
         }

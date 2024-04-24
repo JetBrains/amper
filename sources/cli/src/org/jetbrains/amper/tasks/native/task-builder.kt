@@ -34,6 +34,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 tempRoot = context.projectTempRoot,
                 isTest = isTest,
                 alwaysGenerateKotlinLibrary = false,
+                terminal = context.terminal,
             ),
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
@@ -53,6 +54,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                     tempRoot = context.projectTempRoot,
                     isTest = false,
                     alwaysGenerateKotlinLibrary = true,
+                    terminal = context.terminal,
                 ),
                 CommonTaskType.Dependencies.getTaskName(module, platform, false)
             )
@@ -88,6 +90,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 taskName = runTaskName,
                 platform = platform,
                 commonRunSettings = context.commonRunSettings,
+                terminal = context.terminal,
             ),
             CommonTaskType.Compile.getTaskName(module, platform, false)
         )
@@ -105,6 +108,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 projectRoot = context.projectRoot,
                 taskName = testTaskName,
                 platform = platform,
+                terminal = context.terminal,
             ),
             compileTestsTaskName
         )

@@ -48,6 +48,7 @@ dependencies:
   - com.android.tools:sdk-common:31.1.0
   - com.android.tools.ddms:ddmlib:25.3.0
   - com.github.ajalt.clikt:clikt:4.2.2
+  - com.github.ajalt.mordant:mordant-jvm:2.4.0
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - org.jetbrains.kotlinx:atomicfu:0.23.1
   - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8

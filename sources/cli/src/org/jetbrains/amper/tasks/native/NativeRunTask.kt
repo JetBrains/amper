@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
@@ -29,6 +30,7 @@ class NativeRunTask(
     override val platform: Platform,
     private val projectRoot: AmperProjectRoot,
     private val commonRunSettings: CommonRunSettings,
+    private val terminal: Terminal,
 ) : RunTask {
     init {
         require(platform.isLeaf)
@@ -60,6 +62,7 @@ class NativeRunTask(
                     command = listOf(executable.pathString) + programArgs,
                     workingDir = workingDir,
                     span = span,
+                    printOutputToTerminal = terminal,
                 )
 
                 val message = "Process exited with exit code ${result.exitCode}" +

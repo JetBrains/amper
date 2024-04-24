@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import com.github.ajalt.mordant.terminal.Terminal
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.engine.Task
@@ -28,6 +29,7 @@ class BuildAppleTask(
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputPath: TaskOutputRoot,
+    private val terminal: Terminal,
     override val taskName: TaskName,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -93,7 +95,7 @@ class BuildAppleTask(
                     "-sdk", targetPlatform.platform,
                     "build",
                     logCall = true,
-                    hideOutput = true,
+                    printOutputToTerminal = terminal,
                 )
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))

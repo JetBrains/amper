@@ -156,7 +156,11 @@ private fun initializeBackend(
 
     CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
     CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-    CliEnvironmentInitializer.setupLogging(projectContext.buildLogsRoot, consoleLogLevel = commonOptions.consoleLogLevel)
+    CliEnvironmentInitializer.setupLogging(
+        logsRoot = projectContext.buildLogsRoot,
+        consoleLogLevel = commonOptions.consoleLogLevel,
+        terminal = projectContext.terminal,
+    )
 
     // TODO output version, os and some env to log file only
     println(AmperBuild.banner)

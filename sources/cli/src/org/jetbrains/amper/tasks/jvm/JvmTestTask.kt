@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperProjectTempRoot
@@ -39,6 +40,7 @@ class JvmTestTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val tempRoot: AmperProjectTempRoot,
     private val projectRoot: AmperProjectRoot,
+    private val terminal: Terminal,
     override val module: PotatoModule,
     override val taskName: TaskName,
 ): TestTask {
@@ -64,7 +66,7 @@ class JvmTestTask(
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
             return JvmTestTaskResult(dependenciesResult)
         }
-        
+
         val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
         val testModuleClasspath = compileTask.classesOutputRoot
 
@@ -118,7 +120,7 @@ class JvmTestTask(
                 .useWithScope { span ->
                     DeadLockMonitor.disable()
 
-                    val result = BuildPrimitives.runProcessAndGetOutput(jvmCommand, workingDirectory, span)
+                    val result = BuildPrimitives.runProcessAndGetOutput(jvmCommand, workingDirectory, span, printOutputToTerminal = terminal)
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
                     //  + one more interesting case: if we reported some failed tests to TeamCity, exit code of Amper should be 0,

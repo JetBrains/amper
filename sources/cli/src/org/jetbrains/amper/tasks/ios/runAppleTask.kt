@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.delay
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.pathString
@@ -18,6 +18,7 @@ import kotlin.io.path.pathString
 class RunAppleTask(
     override val taskName: TaskName,
     private val taskOutputPath: TaskOutputRoot,
+    private val terminal: Terminal,
 ) : Task {
     companion object {
         const val AWAIT_ATTEMPTS = 10
@@ -38,6 +39,7 @@ class RunAppleTask(
             taskOutputPath.path,
             "open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", chosenDevice.deviceId,
             logCall = true,
+            printOutputToTerminal = terminal,
         )
 
         // Wait for booting.
@@ -56,12 +58,14 @@ class RunAppleTask(
             taskOutputPath.path,
             "xcrun", "simctl", "install", chosenDevice.deviceId, builtApp.appPath.pathString,
             logCall = true,
+            printOutputToTerminal = terminal,
         )
 
         BuildPrimitives.runProcessAndGetOutput(
             taskOutputPath.path,
             "xcrun", "simctl", "launch", chosenDevice.deviceId, builtApp.bundleId,
             logCall = true,
+            printOutputToTerminal = terminal,
         )
 
         return Result()
@@ -74,7 +78,7 @@ class RunAppleTask(
             taskOutputPath.path,
             "xcrun", "simctl", "list", "-v", "devices", filter,
             logCall = filter == "available",
-            hideOutput = true,
+            printOutputToTerminal = null,
         ).stdout.lines()
 
         // TODO Rework for json parsing later.
@@ -98,6 +102,4 @@ class RunAppleTask(
     class Result : TaskResult {
         override val dependencies = emptyList<TaskResult>()
     }
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 }

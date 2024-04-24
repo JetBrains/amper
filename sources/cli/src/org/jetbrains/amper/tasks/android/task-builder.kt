@@ -103,6 +103,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 fragments = fragments,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
+                terminal = context.terminal,
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,
@@ -172,6 +173,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 tempRoot = context.projectTempRoot,
                 taskName = testTaskName,
                 taskOutputRoot = context.getTaskOutputPath(testTaskName),
+                terminal = context.terminal,
             ),
             CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
         )

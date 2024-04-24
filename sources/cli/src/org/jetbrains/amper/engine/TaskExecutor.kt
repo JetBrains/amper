@@ -16,7 +16,11 @@ import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
 
-class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
+class TaskExecutor(
+    private val graph: TaskGraph,
+    private val mode: Mode,
+    private val progressListener: TaskProgressListener = TaskProgressListener.Noop,
+) {
     init {
         // verify all dependencies are resolved
         for ((taskName, dependsOn) in graph.dependencies) {
@@ -99,7 +103,9 @@ class TaskExecutor(private val graph: TaskGraph, private val mode: Mode) {
                 spanBuilder("task ${taskName.name}")
                     .useWithScope {
                         val result = runCatching {
-                            task.run(results)
+                            progressListener.taskStarted(taskName).use {
+                                task.run(results)
+                            }
                         }
 
                         when (mode) {

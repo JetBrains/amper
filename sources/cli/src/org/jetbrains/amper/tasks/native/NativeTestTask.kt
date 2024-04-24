@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.userReadableError
@@ -23,6 +24,7 @@ class NativeTestTask(
     override val taskName: TaskName,
     override val module: PotatoModule,
     private val projectRoot: AmperProjectRoot,
+    private val terminal: Terminal,
     override val platform: Platform,
 ) : TestTask {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -42,7 +44,7 @@ class NativeTestTask(
                 }
 
                 val command = listOf(executable.pathString)
-                val result = BuildPrimitives.runProcessAndGetOutput(command, workingDir, span)
+                val result = BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutputToTerminal = terminal)
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }

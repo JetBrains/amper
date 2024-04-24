@@ -24,6 +24,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 fragments = fragments,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
+                terminal = context.terminal,
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,
@@ -48,6 +49,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                     projectRoot = context.projectRoot,
                     taskName = CommonTaskType.Run.getTaskName(module, platform),
                     commonRunSettings = context.commonRunSettings,
+                    terminal = context.terminal,
                 ),
                 CommonTaskType.Compile.getTaskName(module, platform)
             )
@@ -103,6 +105,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 tempRoot = context.projectTempRoot,
                 taskName = testTaskName,
                 taskOutputRoot = context.getTaskOutputPath(testTaskName),
+                terminal = context.terminal,
             ),
             listOf(
                 CommonTaskType.Compile.getTaskName(module, platform, true),

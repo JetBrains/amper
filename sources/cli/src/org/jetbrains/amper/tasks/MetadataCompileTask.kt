@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperUserCacheRoot
@@ -45,6 +46,7 @@ class MetadataCompileTask(
     private val fragment: Fragment,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
+    private val terminal: Terminal,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
@@ -73,7 +75,7 @@ class MetadataCompileTask(
         val classpath = localClasspath + mavenClasspath // TODO where to get transitive maven deps?
         val refinesPaths = fragment.refinedFragments.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
         val friendPaths = fragment.friends.map { localDependencies.findMetadataResultForFragment(it).metadataOutputRoot }
-        
+
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
@@ -138,7 +140,7 @@ class MetadataCompileTask(
         if (kotlinSourceFiles.isEmpty()) {
             return
         }
-        
+
         val compilerJars = kotlinCompilerDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
         val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(
             kotlinVersion = kotlinVersion,
@@ -167,6 +169,7 @@ class MetadataCompileTask(
                     classpath = compilerJars,
                     programArgs = compilerArgs,
                     jvmArgs = listOf(),
+                    printOutputToTerminal = terminal,
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin metadata compilation failed (see errors above)")

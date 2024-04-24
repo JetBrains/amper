@@ -37,7 +37,7 @@ internal interface PlatformTaskType : TaskType {
 }
 
 internal interface FragmentTaskType : TaskType {
-    
+
     fun getTaskName(fragment: Fragment): TaskName =
         TaskName.fromHierarchy(fragment.module.userReadableName, "$prefix${fragment.name.replaceFirstChar { it.uppercase() }}")
 }
@@ -79,6 +79,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     module = module,
                     fragment = fragment,
                     userCacheRoot = context.userCacheRoot,
+                    terminal = context.terminal,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     executeOnChangedInputs = executeOnChangedInputs,
                 )
@@ -90,7 +91,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     dependsOn = CommonTaskType.Dependencies.getTaskName(module, leafPlatform)
                 )
             }
-            
+
             fragment.allSourceFragmentCompileDependencies.forEach { otherFragment ->
                 registerDependency(
                     taskName = taskName,

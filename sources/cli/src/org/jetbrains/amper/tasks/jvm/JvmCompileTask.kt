@@ -4,13 +4,14 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.Jdk
+import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
@@ -58,6 +59,7 @@ class JvmCompileTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
     private val taskOutputRoot: TaskOutputRoot,
+    private val terminal: Terminal,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
@@ -202,6 +204,7 @@ class JvmCompileTask(
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
+                terminal = terminal,
             )
             if (!javacSuccess) {
                 userReadableError("Java compilation failed (see errors above)")
@@ -273,6 +276,7 @@ class JvmCompileTask(
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
+        terminal: Terminal,
     ): Boolean {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
@@ -309,7 +313,7 @@ class JvmCompileTask(
             .setAttribute("jdk-home", jdk.homeDir.pathString)
             .setAttribute("version", jdk.version)
             .useWithScope { span ->
-                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdk.homeDir, span)
+                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdk.homeDir, span, printOutputToTerminal = terminal)
             }
         return result.exitCode == 0
     }

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.jvm
 
+import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
@@ -28,6 +29,7 @@ class JvmRunTask(
     override val module: PotatoModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
+    private val terminal: Terminal,
     private val commonRunSettings: CommonRunSettings,
 ) : RunTask {
     override val platform = Platform.JVM
@@ -59,13 +61,14 @@ class JvmRunTask(
             is PotatoModuleFileSource -> source.moduleDir
             PotatoModuleProgrammaticSource -> projectRoot.path
         }
-        
+
         val result = jdk.runJava(
             workingDir = workingDir,
             mainClass = effectiveMainClassFqn,
             classpath = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult),
             programArgs = commonRunSettings.programArgs,
             jvmArgs = jvmArgs,
+            printOutputToTerminal = terminal,
         )
 
         val message = "Process exited with exit code ${result.exitCode}" +

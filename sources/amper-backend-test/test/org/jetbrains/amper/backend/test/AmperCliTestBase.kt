@@ -63,7 +63,7 @@ abstract class AmperCliTestBase {
                 "-javaagent:$kotlinxCoroutinesCore",
                 "-javaagent:$byteBuddyAgent",
             ),
-            printOutput = false,
+            printOutputToTerminal = null,
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
