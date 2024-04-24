@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+#
+
 WD_HUB_URL=${WD_HUB_URL:-"http://circlet:circlet@10.21.0.104:4444/wd/hub"}
 DEVICE_NAME=${DEVICE_NAME:-"iPhone 12"}
 SESSION_URL="$WD_HUB_URL/session"

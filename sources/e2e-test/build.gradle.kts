@@ -5,10 +5,13 @@ import org.jetbrains.amper.core.AmperBuild
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.ByteArrayOutputStream
+import java.io.OutputStream
+import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
 
 
 val sessionInfoPath by extra { "$buildDir/device.session.json" }
@@ -646,4 +649,487 @@ tasks.register("installAndroidTestPureTest") {
         )
     }
 }
+
+//region iOS Tasks
+val spaceAppBundleId = "com.jetbrains.circlet.nightly"
+val testHostAppBundleId = "com.jetbrains.space.ios.CircletEAPUITests.xctrunner"
+val xctestBundleId = "com.jetbrains.space.ios.CircletEAPUITests"
+
+fun getOrCreateRemoteSession(): String {
+    var idbCompanion = if (project.hasProperty("idbCompanion")) project.property("idbCompanion") as String else ""
+    if (idbCompanion == "") {
+        val stdout = ByteArrayOutputStream()
+        project.exec {
+            commandLine("./scripts/session.sh", "-s", sessionInfoPath, "-n", "Amper UI Test", "create")
+            standardOutput = stdout
+        }
+        stdout.toString().lines().forEach {
+            println(it)
+            if (it.startsWith("IDB_COMPANION")) {
+                idbCompanion = it.split('=')[1]
+            }
+        }
+    }
+    return idbCompanion
+}
+
+fun stringToByteArrayOutputStream(inputString: String): ByteArrayOutputStream {
+    val outputStream = ByteArrayOutputStream()
+    outputStream.write(inputString.toByteArray(StandardCharsets.UTF_8))
+    return outputStream
+}
+
+fun idb(outputStream: OutputStream? = null, vararg params: String): String {
+    val stdout = outputStream ?: ByteArrayOutputStream()
+    val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
+    val cmd = listOf("idb", *params)
+    println("Executing IDB: $cmd")
+
+    project.exec {
+        commandLine = cmd
+        environment("IDB_COMPANION", idbCompanion)
+        standardOutput = stdout
+    }
+
+    val cmdOutput = stdout.toString()
+    if (outputStream == null) {
+        print(cmdOutput)
+    }
+
+    return cmdOutput
+}
+
+
+tasks.register("createRemoteSessionIOS") {
+    group = "ios tests"
+
+    doLast {
+        getOrCreateRemoteSession()
+    }
+}
+
+tasks.register<Exec>("deleteRemoteSessionIOS") {
+    group = "ios tests"
+    commandLine("./scripts/session.sh", "-s", sessionInfoPath, "delete")
+}
+
+
+
+tasks.register<Exec>("buildIOSApp") {
+    group = "ios tests"
+    // Task group and description for better organization and visibility
+    group = "ios tests"
+    description = "Build the iOS app using xcodebuild"
+    workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
+
+
+    // Command to execute
+    commandLine("sh", "-c", """
+        xcodebuild -scheme iosApp \
+                   -project iosApp.xcodeproj \
+                   -configuration Debug \
+                   -sdk iphonesimulator \
+                   BUILD_DIR='${workingDir.path+"/AppBundle"}' \
+                   build
+    """.trimIndent())
+
+
+    // Log output to standard out and error
+    standardOutput = System.out
+    errorOutput = System.err
+
+    // Actions to perform before the task execution
+    doFirst {
+        println("Starting to build iOS app...")
+    }
+
+    // Actions to perform after the task execution
+    doLast {
+        println("Finished building iOS app.")
+    }
+}
+
+
+tasks.register<Exec>("buildIOSAppUITests") {
+    // Task group and description for better organization and visibility
+    group = "ios tests"
+    description = "Build the iOS app UI tests bundle using xcodebuild"
+    workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
+
+
+    // Command to execute
+    commandLine("sh", "-c", """
+        xcodebuild -scheme iosAppUITests \
+                   -project iosApp.xcodeproj \
+                   -configuration Debug \
+                   -sdk iphonesimulator \
+                   BUILD_DIR='${workingDir.path+"/TestBundle"}' \
+                   build-for-testing
+    """.trimIndent())
+
+
+
+    // Log output to standard out and error
+    standardOutput = System.out
+    errorOutput = System.err
+
+    // Actions to perform before the task execution
+    doFirst {
+        println("Starting to build iOS app UI tests bundle...")
+    }
+}
+
+tasks.register("installAppBundle") {
+    group = "ios tests"
+    doLast {
+        var workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
+
+        val appsBuildDir = "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/tempIOSGradleTests/ios-app/build/apple/bin/Debug-iphonesimulator/"
+        val appArtifactName = "iosApp.app"
+        idb(params = arrayOf("install",appsBuildDir+appArtifactName))
+
+    }
+}
+
+tasks.register("installBundleAppUITests") {
+    group = "ios tests"
+    doLast {
+        var workingDir = file("testData/iOSTestsAssets/")
+
+        val appArtifactNameFullName = "iosAppUITests-Runner.app"
+        idb(params = arrayOf("install", "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/iOSTestsAssets/iosAppUITests-Runner.app"))
+        idb(params = arrayOf("xctest","install", "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/iOSTestsAssets/iosAppUITests-Runner.app/Plugins/iosAppUITests.xctest"))
+
+
+    }
+}
+
+tasks.register("checkTestList") {
+    group = "ios tests"
+    doLast {
+        idb(params = arrayOf("xctest","list"))
+
+    }
+}
+
+tasks.register("showInstalledApps") {
+    group = "ios tests"
+    doLast {
+        idb(params = arrayOf("list-apps"))
+
+    }
+}
+
+tasks.register("getSimulators") {
+    group = "ios tests"
+    doLast {
+        idb(params = arrayOf("list-targets"))
+
+    }
+}
+
+
+
+tasks.register("runUITests") {
+    val appBundleId = "iosApp.iosApp"
+    val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
+    val xctestBundleId = "iosApp.iosAppUITests"
+    val xcTestLogsDir = "$buildDir/reports/xctest"
+    group = "ios tests"
+    doLast {
+        idb(
+            params = arrayOf(
+                "--log", "DEBUG",
+                "xctest",
+                "run",
+                "ui",
+                xctestBundleId,
+                appBundleId,
+                testHostAppBundleId
+
+            )
+        )
+    }
+}
+
+fun Project.checkCopySuccess(dirNames: List<String>, basePath: String) {
+    dirNames.forEach { dirName ->
+        val destPath = file("$basePath/$dirName")
+        if (!destPath.exists()) {
+            throw GradleException("Failed to copy $dirName to $destPath")
+        }
+    }
+}
+
+tasks.register<Copy>("copyiOSTestProjects") {
+    group = "ios tests"
+    val destinationBasePath = "testdata/tempIOSGradleTests/"
+    into(project.file(destinationBasePath))
+
+    val directories = arrayOf("ios-app", "multiplatform-lib-ios-framework")
+    directories.forEach { dirName ->
+        val sourcePath = "testdata/projects/$dirName"
+        from(sourcePath) {
+            into(dirName)
+        }
+    }
+
+    // Check if copy was successful
+    doLast {
+        project.checkCopySuccess(directories.toList(), destinationBasePath)
+    }
+}
+
+tasks.register("cleaniOSTestProjects") {
+    group = "ios tests"
+    doLast {
+        val folderPath = project.file("testdata/tempIOSGradleTests")
+
+        if (folderPath.exists()) {
+            delete(folderPath)
+        }
+    }
+}
+
+tasks.register("assembleInSpecificFolder") {
+    doLast {
+        // Define the directory where you want to run the assemble task
+        val buildDir = project.file("testData/tempIOSGradleTests/ios-app")
+
+        // Execute the assemble task in that directory
+        exec {
+            workingDir(buildDir)
+            commandLine("gradle", "assemble")
+        }
+    }
+}
+
+val prepareProjectsiOS = tasks.register("prepareProjectsiOS") {
+    group = "ios tests"
+    doLast {
+        val runWithPluginClasspath: Boolean = true
+        val pathToProjects: String = "testdata/tempIOSGradleTests"
+        val rootPath = project.rootDir.absolutePath
+        val assetsPath = "testData/iOSTestsAssets"
+
+        validateDirectories(rootPath, assetsPath)
+
+        file(pathToProjects).absoluteFile.listFiles()?.forEach { projectDir ->
+            if (projectDir.isDirectory) {
+                processProjectDirectory(projectDir, runWithPluginClasspath, assetsPath, rootPath)
+            }
+        } ?: error("No projects found at $pathToProjects")
+    }
+}
+
+fun validateDirectories(rootPath: String, assetsPath: String) {
+    val implementationDir = file("../../sources").absoluteFile
+    require(implementationDir.exists()) { "Amper plugin project not found at $implementationDir" }
+
+    val assetsDir = file(assetsPath)
+    require(assetsDir.exists() && assetsDir.isDirectory) { "Assets directory not found at $assetsPath" }
+}
+
+fun processProjectDirectory(projectDir: File, runWithPluginClasspath: Boolean, assetsPath: String, rootPath: String) {
+    prepareProject(projectDir, runWithPluginClasspath, file("../../sources").absoluteFile)
+    compileAndExecuteGradleTasks(projectDir, rootPath)
+    configureXcodeProject(projectDir)
+    copyAssets(projectDir, assetsPath)
+}
+
+fun compileAndExecuteGradleTasks(projectDir: File, rootPath: String) {
+    listOf("assemble").forEach { task ->
+        println("Executing './gradlew $task' in ${projectDir.name}")
+        ProcessBuilder("/bin/sh", "-c", "$rootPath/gradlew $task")
+            .directory(projectDir)
+            .redirectErrorStream(true)
+            .start().apply {
+                inputStream.bufferedReader().forEachLine { println(it) }
+                waitFor()
+            }
+    }
+}
+
+fun configureXcodeProject(projectDir: File) {
+    val xcodeprojPath = if (projectDir.name == "ios-app") {
+        File(projectDir, "build/apple/ios-app/ios-app.xcodeproj/project.pbxproj")
+    } else {
+        File(projectDir, "ios-app/build/apple/ios-app/ios-app.xcodeproj/project.pbxproj")
+    }
+    addDeploymentTarget(xcodeprojPath, "16.0", "iosApp.iosApp")
+
+    val xcodeBuildCommand = "xcrun xcodebuild -project ${xcodeprojPath.parent} -scheme iosApp -configuration Debug OBJROOT=${projectDir.path}/tmp SYMROOT=${projectDir.path}/bin -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
+    executeCommandInDirectory(xcodeBuildCommand, projectDir)
+}
+
+fun executeCommandInDirectory(command: String, directory: File) {
+    ProcessBuilder("/bin/sh", "-c", command)
+        .directory(directory)
+        .redirectErrorStream(true)
+        .start().apply {
+            inputStream.bufferedReader().forEachLine { println(it) }
+            waitFor()
+        }
+}
+
+fun copyAssets(projectDir: File, assetsPath: String) {
+    val destinationPath = File(projectDir, "build/apple/ios-app")
+    project.copy {
+        from(file(assetsPath))
+        into(destinationPath)
+    }
+    println("Copied assets to ${destinationPath.path}")
+}
+
+fun addDeploymentTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
+    // Read the content of the file
+    val content = xcodeprojPath.readText()
+
+    // Define the regular expression pattern to find INFOPLIST_FILE
+    val infoPlistRegex = Regex("(INFOPLIST_FILE\\s*=\\s*\".*?\";)")
+    // Define the regular expression pattern to find PRODUCT_BUNDLE_IDENTIFIER
+    val bundleIdentifierRegex = Regex("(PRODUCT_BUNDLE_IDENTIFIER\\s*=\\s*\".*?\";)")
+
+    // Find the match for INFOPLIST_FILE
+    val infoPlistMatchResult = infoPlistRegex.find(content)
+
+    // Find the match for PRODUCT_BUNDLE_IDENTIFIER
+    val bundleIdentifierMatchResult = bundleIdentifierRegex.find(content)
+
+    // Variable to hold the updated content, start with original
+    var updatedContent = content
+
+    // Check and update INFOPLIST_FILE
+    if (infoPlistMatchResult != null) {
+        val infoPlistMatch = infoPlistMatchResult.value
+        val infoPlistReplacement = "$infoPlistMatch\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;"
+        updatedContent = updatedContent.replace(infoPlistMatch, infoPlistReplacement)
+        println("IPHONEOS_DEPLOYMENT_TARGET added")
+    } else {
+        println("INFOPLIST_FILE not found in the file.")
+    }
+
+    // Check and update PRODUCT_BUNDLE_IDENTIFIER
+    if (bundleIdentifierMatchResult != null) {
+        val bundleIdentifierMatch = bundleIdentifierMatchResult.value
+        val bundleIdentifierReplacement = "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+        updatedContent = updatedContent.replace(bundleIdentifierMatch, bundleIdentifierReplacement)
+        println("PRODUCT_BUNDLE_IDENTIFIER updated")
+    } else {
+        println("PRODUCT_BUNDLE_IDENTIFIER not found in the file.")
+    }
+
+    // Write the updated content back to the file
+    xcodeprojPath.writeText(updatedContent)
+}
+
+
+
+
+
+fun prepareProject(projectDir: File, runWithPluginClasspath: Boolean, implementationDir: File) {
+    val gradleFile = projectDir.resolve("settings.gradle.kts")
+    require(gradleFile.exists()) { "file not found: $gradleFile" }
+
+    if (runWithPluginClasspath) {
+        val lines = gradleFile.readLines().filterNot { "<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>" in it }
+        gradleFile.writeText(lines.joinToString("\n"))
+
+        val gradleFileText = gradleFile.readText()
+        // Replace mavenCentral with additional repositories
+        val newText = gradleFileText.replace(
+            "mavenCentral()",
+            """
+            mavenCentral()
+            mavenLocal()
+            maven("https://www.jetbrains.com/intellij-repository/releases")
+            maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+            """.trimIndent()
+        )
+        if (!gradleFileText.contains("mavenLocal()")) {
+            gradleFile.writeText(newText)
+        }
+
+        require(gradleFile.readText().contains("mavenLocal")) {
+            "Gradle file must have 'mavenLocal' after replacement: $gradleFile"
+        }
+
+        // Dynamically add Amper plugin version
+        val updatedText = gradleFile.readText().replace(
+            "id(\"org.jetbrains.amper.settings.plugin\")",
+            "id(\"org.jetbrains.amper.settings.plugin\") version(\"${"+"}\")"
+        )
+        if (!gradleFileText.contains("version(")) {
+            gradleFile.writeText(updatedText)
+        }
+
+        require(gradleFile.readText().contains("version(")) {
+            "Gradle file must have 'version(' after replacement: $gradleFile"
+        }
+    }
+
+    if (gradleFile.readText().contains("includeBuild(\".\"")) {
+        throw GradleException("Example project ${projectDir.name} has a relative includeBuild() call, but it's run within Amper tests from a moved directory. Add a comment '<REMOVE_LINE_IF_RUN_WITH_PLUGIN_CLASSPATH>' on the same line if this included build is for Amper itself (will be removed if Amper is on the classpath).")
+    }
+}
+
+tasks.register("installAndTestiOSApps") {
+    group = "ios tests"
+
+    doLast {
+        val rootDirectory = project.file("testdata/tempIOSGradleTests")
+        val projects = rootDirectory.listFiles()?.filter { it.isDirectory }
+            ?: throw GradleException("No projects found in $rootDirectory.")
+
+        // Ensure there are projects to process.
+        if (projects.isEmpty()) {
+            throw GradleException("No projects found in $rootDirectory.")
+        }
+
+        projects.forEach { projectDir ->
+            println("Processing project in directory: ${projectDir.name}")
+            val appDirectory = File(projectDir, "bin/Debug-iphonesimulator")
+
+            val appFiles = appDirectory.listFiles { _, name -> name.endsWith(".app") } ?: emptyArray()
+
+            if (appFiles.isNotEmpty()) {
+                val appFile = appFiles.first()
+                println("Installing app bundle: ${projectDir.name}")
+                installAndRunAppBundle(appFile)
+                //updateClassnameAndRenameFile(projectDir.name)
+
+            } else {
+                throw GradleException("No app files found in $projectDir.")
+            }
+        }
+        val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
+        //combineJUnitReports(outputDir.absolutePath, "main.xml")
+    }
+}
+
+fun installAndRunAppBundle(appFile: File) {
+    val appBundleId = "iosApp.iosApp"
+    val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
+    val xctestBundleId = "iosApp.iosAppUITests"
+
+    idb(params = arrayOf("install",appFile.absolutePath))
+    idb(
+        params = arrayOf(
+            "--log", "ERROR",
+            "xctest",
+            "run",
+            "ui",
+            xctestBundleId,
+            appBundleId,
+            testHostAppBundleId
+
+        )
+    )
+    println("Uninstalling $appBundleId")
+    idb(params = arrayOf("uninstall",appBundleId))
+}
+
+
+
+//endregion
 
