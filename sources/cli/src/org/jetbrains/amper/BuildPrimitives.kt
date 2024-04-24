@@ -29,22 +29,6 @@ import kotlin.io.path.pathString
  * a comprehensive support in a build system to make it observable
  */
 object BuildPrimitives {
-
-    /**
-     * Convenient shortcut for [runProcessAndGetOutput].
-     */
-    suspend fun runProcessAndGetOutput(
-        workingDir: Path,
-        vararg command: String,
-        span: Span? = null,
-        logCall: Boolean = false,
-        environment: Map<String, String> = emptyMap(),
-        printOutputToTerminal: Terminal?,
-    ): ProcessResult {
-        if (logCall) logger.logProcessCall(command.toList())
-        return runProcessAndGetOutput(command.toList(), workingDir, span, environment, printOutputToTerminal)
-    }
-
     /**
      * Starts a new process with the given [command] in [workingDir], and awaits the result.
      * While waiting, stdout and stderr are printed to the console, but they are also entirely collected in memory as
@@ -66,14 +50,17 @@ object BuildPrimitives {
     // TODO sometimes capturing the entire stdout/stderr in memory won't work
     //  do we want to offload big (and probably only big outputs) to the disk?
     suspend fun runProcessAndGetOutput(
-        command: List<String>,
         workingDir: Path,
+        vararg command: String,
         span: Span? = null,
+        logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
         /** Print output to this process output in addition to storing it in ProcessResult */
-        printOutputToTerminal: Terminal?,
+        printOutputToTerminal: Terminal? = null,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
+
+        if (logCall) logger.logProcessCall(command.toList())
 
         val result = withContext(Dispatchers.IO) {
             // Why quoteCommandLineForCurrentPlatform:
@@ -81,7 +68,7 @@ object BuildPrimitives {
             // generally, JDK developers do not think that executed command should receive the same arguments as passed to ProcessBuilder
             // see, e.g., https://bugs.openjdk.org/browse/JDK-8131908
             // this code is mostly tested by AmperBackendTest.simple multiplatform cli on jvm
-            val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
+            val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command.toList()))
                 .directory(workingDir.toFile())
                 .also { it.environment().putAll(environment) }
                 .start()

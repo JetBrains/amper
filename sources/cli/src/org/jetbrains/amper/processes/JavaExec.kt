@@ -48,6 +48,11 @@ suspend fun Jdk.runJava(
         .setAttribute("classpath", classpathStr)
         .setAttribute("main-class", mainClass)
         .useWithScope { span ->
-            BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutputToTerminal = printOutputToTerminal)
+            BuildPrimitives.runProcessAndGetOutput(
+                workingDir,
+                *command.toTypedArray(),
+                span = span,
+                printOutputToTerminal = printOutputToTerminal,
+            )
         }
 }

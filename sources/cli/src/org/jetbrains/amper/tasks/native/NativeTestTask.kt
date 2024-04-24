@@ -43,8 +43,12 @@ class NativeTestTask(
                     PotatoModuleProgrammaticSource -> projectRoot.path
                 }
 
-                val command = listOf(executable.pathString)
-                val result = BuildPrimitives.runProcessAndGetOutput(command, workingDir, span, printOutputToTerminal = terminal)
+                val result = BuildPrimitives.runProcessAndGetOutput(
+                    workingDir,
+                    executable.pathString,
+                    span = span,
+                    printOutputToTerminal = terminal
+                )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }

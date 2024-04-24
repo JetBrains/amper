@@ -59,8 +59,8 @@ class NativeRunTask(
                 }
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    command = listOf(executable.pathString) + programArgs,
-                    workingDir = workingDir,
+                    workingDir,
+                    *(listOf(executable.pathString) + programArgs).toTypedArray(),
                     span = span,
                     printOutputToTerminal = terminal,
                 )

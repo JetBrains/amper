@@ -313,7 +313,12 @@ class JvmCompileTask(
             .setAttribute("jdk-home", jdk.homeDir.pathString)
             .setAttribute("version", jdk.version)
             .useWithScope { span ->
-                BuildPrimitives.runProcessAndGetOutput(javacCommand, jdk.homeDir, span, printOutputToTerminal = terminal)
+                BuildPrimitives.runProcessAndGetOutput(
+                    jdk.homeDir,
+                    *javacCommand.toTypedArray(),
+                    span = span,
+                    printOutputToTerminal = terminal,
+                )
             }
         return result.exitCode == 0
     }
