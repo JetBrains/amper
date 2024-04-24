@@ -11,10 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
+import org.slf4j.MDC
 
 class TaskExecutor(
     private val graph: TaskGraph,
@@ -104,7 +106,10 @@ class TaskExecutor(
                     .useWithScope {
                         val result = runCatching {
                             progressListener.taskStarted(taskName).use {
-                                task.run(results)
+                                MDC.put("amper-task-name", taskName.name)
+                                withContext(MDCContext()) {
+                                    task.run(results)
+                                }
                             }
                         }
 
