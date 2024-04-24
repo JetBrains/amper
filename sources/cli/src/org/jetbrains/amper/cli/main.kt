@@ -25,11 +25,13 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -134,6 +136,22 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
     )
 }
 
+private suspend fun cancelAndWaitForScope(scope: CoroutineScope) {
+    val normalTerminationMessage = "terminating scope normally"
+
+    try {
+        val job = scope.coroutineContext.job
+        job.cancel(normalTerminationMessage)
+        job.join()
+    } catch (t: Throwable) {
+        println("XXXX: <${t.message}> == '$normalTerminationMessage'")
+        if (t.message != normalTerminationMessage) {
+            throw t
+        }
+        println("CONTINUE")
+    }
+}
+
 private val backendInitialized = atomic<Throwable?>(null)
 
 internal fun withBackend(
@@ -141,7 +159,7 @@ internal fun withBackend(
     currentCommand: String,
     commonRunSettings: CommonRunSettings = CommonRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
-    block: suspend CoroutineScope.(AmperBackend) -> Unit,
+    block: suspend (AmperBackend) -> Unit,
 ) {
     val initializedException = backendInitialized.getAndSet(Throwable())
     if (initializedException != null) {
@@ -184,17 +202,15 @@ internal fun withBackend(
         AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
     }
 
-    // TODO could it be more elegant?
-    val normalEndingMessage = "exited-normally"
-    try {
-        runBlocking(Dispatchers.Default) {
-            val backend = AmperBackend(context = projectContext, lifetime = this)
+    runBlocking(Dispatchers.Default) {
+        // do not fail on child cancellation
+        supervisorScope {
+            val backgroundScope = CoroutineScope(coroutineContext + Job())
+            val backend = AmperBackend(context = projectContext, backgroundScope = backgroundScope)
+
             block(backend)
-            cancel(normalEndingMessage)
-        }
-    } catch (t: CancellationException) {
-        if (t.message != normalEndingMessage) {
-            throw t
+
+            cancelAndWaitForScope(backgroundScope)
         }
     }
 }

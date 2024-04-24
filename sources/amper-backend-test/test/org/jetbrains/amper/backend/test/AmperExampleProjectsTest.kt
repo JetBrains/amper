@@ -28,11 +28,11 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `jvm-hello-world`() {
-        val projectContext = setupExampleProject("jvm-hello-world")
-        projectContext.assertHasTasks(jvmAppTasks)
-
-        AmperBackend(projectContext).runApplication()
+    fun `jvm-hello-world`() = runTestInfinitely {
+        AmperBackend(setupExampleProject("jvm-hello-world"), backgroundScope).run {
+            assertHasTasks(jvmAppTasks)
+            runApplication()
+        }
 
         // testing some default compiler arguments
         assertKotlinJvmCompilationSpan {
@@ -44,11 +44,11 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `jvm-kotlin+java`() {
-        val projectContext = setupExampleProject("jvm-kotlin+java")
-        projectContext.assertHasTasks(jvmAppTasks)
-
-        AmperBackend(projectContext).runApplication()
+    fun `jvm-kotlin+java`() = runTestInfinitely {
+        AmperBackend(setupExampleProject("jvm-kotlin+java"), backgroundScope).run {
+            assertHasTasks(jvmAppTasks)
+            runApplication()
+        }
 
         assertKotlinJvmCompilationSpan {
             hasCompilerArgument("-language-version", "1.8") // explicit
@@ -61,11 +61,11 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `jvm-with-tests`() {
-        val projectContext = setupExampleProject("jvm-with-tests")
-        projectContext.assertHasTasks(jvmAppTasks + jvmTestTasks)
-
-        AmperBackend(projectContext).runApplication()
+    fun `jvm-with-tests`() = runTestInfinitely {
+        AmperBackend(setupExampleProject("jvm-with-tests"), backgroundScope).run {
+            assertHasTasks(jvmAppTasks + jvmTestTasks)
+            runApplication()
+        }
 
         kotlinJvmCompilationSpans.assertSingle()
         assertStdoutContains("Hello, World!")
@@ -73,7 +73,7 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
         resetCollectors()
 
         val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
-            AmperBackend(projectContext).test()
+            AmperBackend(setupExampleProject("jvm-with-tests"), backgroundScope).test()
         }
         assertEquals("Task ':jvm-with-tests:testJvm' failed: JVM tests failed for module 'jvm-with-tests' with exit code 1 (see errors above)", exception.message)
         assertStdoutContains("MethodSource [className = 'WorldTest', methodName = 'shouldFail', methodParameterTypes = '']")
@@ -81,12 +81,14 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun modularized() {
+    fun modularized() = runTestInfinitely {
         val projectContext = setupExampleProject("modularized")
-        projectContext.assertHasTasks(jvmAppTasks, module = "app")
-        projectContext.assertHasTasks(jvmBaseTasks + jvmTestTasks, module = "shared")
 
-        AmperBackend(projectContext).runApplication()
+        AmperBackend(projectContext, backgroundScope).run {
+            assertHasTasks(jvmAppTasks, module = "app")
+            assertHasTasks(jvmBaseTasks + jvmTestTasks, module = "shared")
+            runApplication()
+        }
 
         kotlinJvmCompilationSpans.withAmperModule("app").assertSingle()
         kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
@@ -94,17 +96,19 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
 
         resetCollectors()
 
-        AmperBackend(projectContext).test()
+        AmperBackend(projectContext, backgroundScope).test()
         assertStdoutContains("Test run finished after")
     }
 
     @Test
-    fun multiplatform() {
+    fun multiplatform() = runTestInfinitely {
         val projectContext = setupExampleProject("multiplatform")
-        projectContext.assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
-        projectContext.assertHasTasks(androidAppTasks, module = "android-app")
-        projectContext.assertHasTasks(jvmAppTasks, module = "jvm-app")
-        projectContext.assertHasTasks(iosAppTasks, module = "ios-app")
+        AmperBackend(projectContext, backgroundScope).run {
+            assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
+            assertHasTasks(androidAppTasks, module = "android-app")
+            assertHasTasks(jvmAppTasks, module = "jvm-app")
+            assertHasTasks(iosAppTasks, module = "ios-app")
+        }
 
         // TODO handle ios app compilation, currently it fails with this error:
         //   error: could not find 'main' in '<root>' package.
@@ -117,31 +121,32 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun composeAndroid() {
-        val projectContext = setupExampleProject("compose-android")
-        projectContext.assertHasTasks(androidAppTasks)
-        AmperBackend(projectContext).compile()
+    fun composeAndroid() = runTestInfinitely {
+        AmperBackend(setupExampleProject("compose-android"), backgroundScope).run {
+            assertHasTasks(androidAppTasks)
+            compile()
+        }
         // debug + release
         kotlinJvmCompilationSpans.assertTimes(2)
         ConnectorServices.reset()
     }
 
     @Test
-    fun composeDesktop() {
-        val projectContext = setupExampleProject("compose-desktop")
-        projectContext.assertHasTasks(jvmAppTasks)
-
-        AmperBackend(projectContext).compile()
+    fun composeDesktop() = runTestInfinitely {
+        AmperBackend(setupExampleProject("compose-desktop"), backgroundScope).run {
+            assertHasTasks(jvmAppTasks)
+            compile()
+        }
 
         assertKotlinJvmCompilationSpan {
             hasCompilerArgumentStartingWith("-Xplugin=")
         }
     }
 
-    private fun ProjectContext.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
-        AmperBackend(this).showTasks()
+    private fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
+        showTasks()
         tasks.forEach { task ->
-            assertStdoutContains(":${module ?: projectRoot.path.name}:$task")
+            assertStdoutContains(":${module ?: context.projectRoot.path.name}:$task")
         }
     }
 }
