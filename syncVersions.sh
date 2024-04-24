@@ -84,8 +84,15 @@ AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.
 echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""
 
-find -E . -regex "$AFFECTED_FILES_REGEX$" | \
-  grep -v "/build/" 1> "$FOUND_FILES_FILE"
+OSTYPE=$(uname -o | tr '[:upper:]' '[:lower:]')
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  find -E . -regex "$AFFECTED_FILES_REGEX$" | \
+      grep -v "/build/" 1> "$FOUND_FILES_FILE"
+else
+  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$" | \
+    grep -v "/build/" 1> "$FOUND_FILES_FILE"
+fi
 
 FILES_COUNT=$(wc -l < "$FOUND_FILES_FILE" | tr -d ' ')
 echo "  $FILES_COUNT matched files found."
@@ -95,8 +102,13 @@ echo "Performing replacement."
 cat "$FOUND_FILES_FILE" | \
   xargs sed -r -E -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
 
-find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
   grep -v "/build/" 1> "$EDITED_FILES_FILE"
+else
+  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
+    grep -v "/build/" 1> "$EDITED_FILES_FILE"
+fi
 
 echo "  Done."
 
