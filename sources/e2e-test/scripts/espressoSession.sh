@@ -1,10 +1,10 @@
 #!/bin/bash
 
 WD_HUB_URL=${WD_HUB_URL:-"http://circlet:circlet@10.21.0.104:4444/wd/hub"}
-DEVICE_NAME=${DEVICE_NAME:-"iPhone 12"}
 SESSION_URL="$WD_HUB_URL/session"
-SESSION_NAME=${SESSION_NAME:-"iOS tests"}
-SESSION_TIMEOUT=${SESSION_TIMEOUT:-"35m"}
+SESSION_NAME="Android espresso tests"
+ANDROID_VERSION=${ANDROID_VERSION:-"0.8.1"}
+CAPABILITIES='{"desiredCapabilities": {"version": "__ANDROID_VERSION__", "platformName": "Android", "deviceName": "android", "name": "__SESSION_NAME__", "newCommandTimeout": 0, "sessionTimeout": "15m", "enableVNC": true, "portBindings": { "5037": "50001-50010" }}}'
 SESSION_INFO_FILE=".device.session.json"
 
 function get_session_id() {
@@ -13,19 +13,11 @@ function get_session_id() {
     fi
 }
 
-function get_idb_companion_host_port() {
-    if [ -f "$SESSION_INFO_FILE" ]; then
-        IDB_COMPANION_HOST=$(jq -r '.host' "$SESSION_INFO_FILE")
-        IDB_COMPANION_PORT=$(jq -r '.port' "$SESSION_INFO_FILE")
-        echo "$IDB_COMPANION_HOST:$IDB_COMPANION_PORT"
-    fi
-}
-
 function print_session_info() {
     SESSION_ID="$(get_session_id)"
-    IDB_COMPANION="$(get_idb_companion_host_port)"
+    ADB_COMPANION_HOST_PORT=$(get_adb_host)
 
-    [ -n "$SESSION_ID" ] && echo -e "DEVICE_SESSION_ID=$SESSION_ID\nIDB_COMPANION=$IDB_COMPANION"
+    [ -n "$SESSION_ID" ] && echo -e "DEVICE_SESSION_ID=$SESSION_ID\nADB_COMPANION=$ADB_COMPANION_HOST_PORT"
 }
 
 function check_session() {
@@ -47,16 +39,23 @@ function create_session() {
 
     [ -f "$SESSION_INFO_FILE" ] && rm "$SESSION_INFO_FILE"
 
-    SESSION_PAYLOAD="{\"deviceName\":\"$DEVICE_NAME\",\"desiredCapabilities\":{\"browserName\":\"$DEVICE_NAME\",\"name\":\"$SESSION_NAME\",\"newCommandTimeout\":0,\"sessionTimeout\":\"$SESSION_TIMEOUT\"}}"
-    echo "Creating session with payload: $(echo "$SESSION_PAYLOAD" | jq)"
+    CAPABILITIES=$(echo "$CAPABILITIES" | sed "s|__SESSION_NAME__|$SESSION_NAME|")
+    CAPABILITIES=$(echo "$CAPABILITIES" | sed "s|__ANDROID_VERSION__|$ANDROID_VERSION|")
+    echo "Creating session with capabilities: $CAPABILITIES"
 
-    curl -fsSL --retry 30 --retry-max-time 300 -H "Content-type: application/json" -d "$SESSION_PAYLOAD" --create-dirs -o "$SESSION_INFO_FILE" "$SESSION_URL"
+    curl -fsSL --retry 30 --retry-max-time 300 -H "Content-type: application/json" -d "$CAPABILITIES" --create-dirs -o "$SESSION_INFO_FILE" "$SESSION_URL"
     print_session_info
 }
 
+function get_adb_host() {
+    if [ -f "$SESSION_INFO_FILE" ]; then
+        ADB_COMPANION=$(jq -r '.value.portBindings."5037"' "$SESSION_INFO_FILE")
+        echo "$ADB_COMPANION"
+    fi
+}
+
 function delete_session() {
-    FORCE="$1"
-    if [ -n "$(check_session)" -o -n "$FORCE" ]; then
+    if [ -n "$(check_session)" ]; then
         SESSION_ID=$(get_session_id)
 
         echo "Deleting session: $SESSION_ID"
@@ -74,8 +73,8 @@ $(basename $0) [-s <session_info_file>] <action>
 Available actions:
       create      Create new device session
       check       Check if current session is still alive
+      port        Get adb host and mapped port
       delete      Delete active session
-      purge       Delete active session (force mode: try deleting even if check session returns nothing)
 
 Options:
       -s path     Use specified file path to store/read information about device session
@@ -84,13 +83,16 @@ END
 }
 
 
-while getopts ":hs:n:" opt; do
+while getopts ":hs:n:v:" opt; do
     case ${opt} in
         s)
             SESSION_INFO_FILE=$OPTARG
             ;;
         n)
             SESSION_NAME=$OPTARG
+            ;;
+	    v)
+            ANDROID_VERSION=$OPTARG
             ;;
         h)
             usage
@@ -116,14 +118,11 @@ case "$1" in
     check)
         check_session
         ;;
-    check1)
-            check_session1
-            ;;
+    port)
+        get_adb_host
+        ;;
     delete)
         delete_session
-        ;;
-    purge)
-        delete_session "force"
         ;;
     \?)
         echo "Unknown operation" 1>&2
