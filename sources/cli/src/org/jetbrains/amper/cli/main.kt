@@ -179,7 +179,10 @@ internal fun withBackend(
             it.createDirectories()
             AmperBuildOutputRoot(it.toAbsolutePath())
         },
-        userCacheRoot = commonOptions.sharedCachesRoot?.let { AmperUserCacheRoot(it.toAbsolutePath()) },
+        userCacheRoot = commonOptions.sharedCachesRoot?.let {
+            it.createDirectories()
+            AmperUserCacheRoot(it.toAbsolutePath())
+        },
         currentTopLevelCommand = currentCommand,
         commonRunSettings = commonRunSettings,
         taskExecutionMode = taskExecutionMode,

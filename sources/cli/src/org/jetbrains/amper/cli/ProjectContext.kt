@@ -83,6 +83,15 @@ class ProjectContext(
 }
 
 data class AmperUserCacheRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "User cache root is not a directory: $path"
+        }
+        require(path.isAbsolute) {
+            "User cache root is not an absolute path: $path"
+        }
+    }
+
     companion object {
         fun fromCurrentUser(): AmperUserCacheRoot {
             val userHome = Path.of(System.getProperty("user.home"))
@@ -98,6 +107,8 @@ data class AmperUserCacheRoot(val path: Path) {
 
             val localAppDataAmper = localAppData.resolve("Amper")
 
+            localAppDataAmper.createDirectories()
+
             return AmperUserCacheRoot(localAppDataAmper)
         }
     }
@@ -108,6 +119,9 @@ data class AmperBuildOutputRoot(val path: Path) {
         require(path.isDirectory()) {
             "Build output root is not a directory: $path"
         }
+        require(path.isAbsolute) {
+            "Build output root is not an absolute path: $path"
+        }
     }
 }
 
@@ -115,6 +129,9 @@ data class AmperBuildLogsRoot(val path: Path) {
     init {
         require(path.isDirectory()) {
             "Build logs root is not a directory: $path"
+        }
+        require(path.isAbsolute) {
+            "Build logs root is not an absolute path: $path"
         }
     }
 }
@@ -124,6 +141,9 @@ data class AmperProjectTempRoot(val path: Path) {
         require(path.isDirectory()) {
             "Temp root is not a directory: $path"
         }
+        require(path.isAbsolute) {
+            "Temp root is not an absolute path: $path"
+        }
     }
 }
 
@@ -131,6 +151,9 @@ data class AmperProjectRoot(val path: Path) {
     init {
         require(path.isDirectory()) {
             "Project root is not a directory: $path"
+        }
+        require(path.isAbsolute) {
+            "Project root is not an absolute path: $path"
         }
     }
 }
