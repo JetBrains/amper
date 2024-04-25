@@ -715,140 +715,13 @@ tasks.register<Exec>("deleteRemoteSessionIOS") {
 
 
 
-tasks.register<Exec>("buildIOSApp") {
-    group = "ios tests"
-    // Task group and description for better organization and visibility
-    group = "ios tests"
-    description = "Build the iOS app using xcodebuild"
-    workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
 
-
-    // Command to execute
-    commandLine("sh", "-c", """
-        xcodebuild -scheme iosApp \
-                   -project iosApp.xcodeproj \
-                   -configuration Debug \
-                   -sdk iphonesimulator \
-                   BUILD_DIR='${workingDir.path+"/AppBundle"}' \
-                   build
-    """.trimIndent())
-
-
-    // Log output to standard out and error
-    standardOutput = System.out
-    errorOutput = System.err
-
-    // Actions to perform before the task execution
-    doFirst {
-        println("Starting to build iOS app...")
-    }
-
-    // Actions to perform after the task execution
-    doLast {
-        println("Finished building iOS app.")
-    }
-}
-
-
-tasks.register<Exec>("buildIOSAppUITests") {
-    // Task group and description for better organization and visibility
-    group = "ios tests"
-    description = "Build the iOS app UI tests bundle using xcodebuild"
-    workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
-
-
-    // Command to execute
-    commandLine("sh", "-c", """
-        xcodebuild -scheme iosAppUITests \
-                   -project iosApp.xcodeproj \
-                   -configuration Debug \
-                   -sdk iphonesimulator \
-                   BUILD_DIR='${workingDir.path+"/TestBundle"}' \
-                   build-for-testing
-    """.trimIndent())
-
-
-
-    // Log output to standard out and error
-    standardOutput = System.out
-    errorOutput = System.err
-
-    // Actions to perform before the task execution
-    doFirst {
-        println("Starting to build iOS app UI tests bundle...")
-    }
-}
-
-tasks.register("installAppBundle") {
-    group = "ios tests"
-    doLast {
-        var workingDir = file("testData/projects/compose-ios-project-ui/iosApp")
-
-        val appsBuildDir = "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/tempIOSGradleTests/ios-app/build/apple/bin/Debug-iphonesimulator/"
-        val appArtifactName = "iosApp.app"
-        idb(params = arrayOf("install",appsBuildDir+appArtifactName))
-
-    }
-}
 
 tasks.register("installBundleAppUITests") {
     group = "ios tests"
     doLast {
-        var workingDir = file("testData/iOSTestsAssets/")
-
-        val appArtifactNameFullName = "iosAppUITests-Runner.app"
-        idb(params = arrayOf("install", "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/iOSTestsAssets/iosAppUITests-Runner.app"))
-        idb(params = arrayOf("xctest","install", "/Users/Vladimir.Naumenko/Desktop/iOS-tests/amper/sources/e2e-test/testData/iOSTestsAssets/iosAppUITests-Runner.app/Plugins/iosAppUITests.xctest"))
-
-
-    }
-}
-
-tasks.register("checkTestList") {
-    group = "ios tests"
-    doLast {
-        idb(params = arrayOf("xctest","list"))
-
-    }
-}
-
-tasks.register("showInstalledApps") {
-    group = "ios tests"
-    doLast {
-        idb(params = arrayOf("list-apps"))
-
-    }
-}
-
-tasks.register("getSimulators") {
-    group = "ios tests"
-    doLast {
-        idb(params = arrayOf("list-targets"))
-
-    }
-}
-
-
-
-tasks.register("runUITests") {
-    val appBundleId = "iosApp.iosApp"
-    val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
-    val xctestBundleId = "iosApp.iosAppUITests"
-    val xcTestLogsDir = "$buildDir/reports/xctest"
-    group = "ios tests"
-    doLast {
-        idb(
-            params = arrayOf(
-                "--log", "DEBUG",
-                "xctest",
-                "run",
-                "ui",
-                xctestBundleId,
-                appBundleId,
-                testHostAppBundleId
-
-            )
-        )
+        idb(params = arrayOf("install", "testData/iOSTestsAssets/iosAppUITests-Runner.app"))
+        idb(params = arrayOf("xctest","install", "testData/iOSTestsAssets/iosAppUITests-Runner.app/Plugins/iosAppUITests.xctest"))
     }
 }
 
@@ -891,18 +764,6 @@ tasks.register("cleaniOSTestProjects") {
     }
 }
 
-tasks.register("assembleInSpecificFolder") {
-    doLast {
-        // Define the directory where you want to run the assemble task
-        val buildDir = project.file("testData/tempIOSGradleTests/ios-app")
-
-        // Execute the assemble task in that directory
-        exec {
-            workingDir(buildDir)
-            commandLine("gradle", "assemble")
-        }
-    }
-}
 
 val prepareProjectsiOS = tasks.register("prepareProjectsiOS") {
     group = "ios tests"
@@ -956,7 +817,7 @@ fun configureXcodeProject(projectDir: File) {
     } else {
         File(projectDir, "ios-app/build/apple/ios-app/ios-app.xcodeproj/project.pbxproj")
     }
-    addDeploymentTarget(xcodeprojPath, "16.0", "iosApp.iosApp")
+    updateAppTarget(xcodeprojPath, "16.0", "iosApp.iosApp")
 
     val xcodeBuildCommand = "xcrun xcodebuild -project ${xcodeprojPath.parent} -scheme iosApp -configuration Debug OBJROOT=${projectDir.path}/tmp SYMROOT=${projectDir.path}/bin -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
     executeCommandInDirectory(xcodeBuildCommand, projectDir)
@@ -981,46 +842,52 @@ fun copyAssets(projectDir: File, assetsPath: String) {
     println("Copied assets to ${destinationPath.path}")
 }
 
-fun addDeploymentTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
+fun updateAppTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
     // Read the content of the file
     val content = xcodeprojPath.readText()
+    println("Processing file: " + xcodeprojPath)
 
-    // Define the regular expression pattern to find INFOPLIST_FILE
-    val infoPlistRegex = Regex("(INFOPLIST_FILE\\s*=\\s*\".*?\";)")
-    // Define the regular expression pattern to find PRODUCT_BUNDLE_IDENTIFIER
-    val bundleIdentifierRegex = Regex("(PRODUCT_BUNDLE_IDENTIFIER\\s*=\\s*\".*?\";)")
+    // Regular expression to find the application target blocks
+    val appTargetRegex = Regex("(INFOPLIST_FILE = \"Info-iosApp\\.plist\";[\\s\\S]*?SDKROOT = iphoneos;)")
 
-    // Find the match for INFOPLIST_FILE
-    val infoPlistMatchResult = infoPlistRegex.find(content)
+    // Find all matches instead of just the first
+    val matches = appTargetRegex.findAll(content).toList()
 
-    // Find the match for PRODUCT_BUNDLE_IDENTIFIER
-    val bundleIdentifierMatchResult = bundleIdentifierRegex.find(content)
+    if (matches.isNotEmpty()) {
+        var updatedContent = content
 
-    // Variable to hold the updated content, start with original
-    var updatedContent = content
+        // Process each match
+        for (matchResult in matches) {
+            val appTargetSection = matchResult.value
 
-    // Check and update INFOPLIST_FILE
-    if (infoPlistMatchResult != null) {
-        val infoPlistMatch = infoPlistMatchResult.value
-        val infoPlistReplacement = "$infoPlistMatch\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;"
-        updatedContent = updatedContent.replace(infoPlistMatch, infoPlistReplacement)
-        println("IPHONEOS_DEPLOYMENT_TARGET added")
+            // Define the regular expressions to check for existing properties
+            val deploymentTargetRegex = Regex("IPHONEOS_DEPLOYMENT_TARGET = \\d+\\.\\d+;")
+            val bundleIdentifierRegex = Regex("PRODUCT_BUNDLE_IDENTIFIER = \".*?\";")
+
+            // Modify or add the deployment target
+            var updatedAppTarget = if (deploymentTargetRegex.containsMatchIn(appTargetSection)) {
+                appTargetSection.replace(deploymentTargetRegex, "IPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+            } else {
+                appTargetSection.replaceFirst("SDKROOT = iphoneos;", "SDKROOT = iphoneos;\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+            }
+
+            // Modify or add the bundle identifier
+            updatedAppTarget = if (bundleIdentifierRegex.containsMatchIn(appTargetSection)) {
+                updatedAppTarget.replace(bundleIdentifierRegex, "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";")
+            } else {
+                updatedAppTarget + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+            }
+
+            // Replace the old app target section with the updated one in the file's content
+            updatedContent = updatedContent.replace(appTargetSection, updatedAppTarget)
+        }
+
+        // Write the updated content back to the file
+        xcodeprojPath.writeText(updatedContent)
+        println("Updated app target with new deployment target and bundle identifier for all configurations.")
     } else {
-        println("INFOPLIST_FILE not found in the file.")
+        println("App target sections not found.")
     }
-
-    // Check and update PRODUCT_BUNDLE_IDENTIFIER
-    if (bundleIdentifierMatchResult != null) {
-        val bundleIdentifierMatch = bundleIdentifierMatchResult.value
-        val bundleIdentifierReplacement = "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
-        updatedContent = updatedContent.replace(bundleIdentifierMatch, bundleIdentifierReplacement)
-        println("PRODUCT_BUNDLE_IDENTIFIER updated")
-    } else {
-        println("PRODUCT_BUNDLE_IDENTIFIER not found in the file.")
-    }
-
-    // Write the updated content back to the file
-    xcodeprojPath.writeText(updatedContent)
 }
 
 
