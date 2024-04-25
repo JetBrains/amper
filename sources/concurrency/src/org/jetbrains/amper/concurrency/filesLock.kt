@@ -11,6 +11,7 @@ import java.nio.channels.OverlappingFileLockException
 import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import kotlin.coroutines.cancellation.CancellationException
@@ -82,8 +83,8 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
  * To achieve such concurrency safety, it does the following:
  * - creates a temporary file with the help of given lambda <code>tempFilePath<code>,
  * - takes JVM and inter-process locks on that file
- * - and under the locks write content to the file with help of the given writeFileContent lambda.
- * - after the file was successfully written to temp location, its sha1 hash is stored into the target file directory.
+ * - under the locks write content to the file with help of the given lambda (writeFileContent)
+ * - after the file was successfully written to temp location, its sha1 hash is stored into the target file directory
  * - finally, temporary file is moved to the target file location.
  *
  * The following two restrictions are applied on the input parameters for correct locking logic:
@@ -91,13 +92,15 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
  *  - the same temporary file is used for the given target file no matter how many times the method is called.
  *
  * Note: Since the first lock is a non-reentrant coroutine Mutex,
- *  callers MUST not call locking methods defined in this file again from inside the given block -
+ *  callers MUST not call locking methods defined in this utility file again from inside the lambda (writeFileContent) -
  *  that would lead to the hanging coroutine.
  */
 suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
     owner: Any? = null,
-    tempFilePath: suspend () -> Path,
+    tempFilePath: suspend () -> Path = {
+        Paths.get(System.getProperty("tmp.dir")).resolve(".amper").resolve("~${target.name}")
+    },
     returnAlreadyProducedWithoutLocking: Boolean = true,
     writeFileContent: suspend (FileChannel) -> Boolean
 ) : Path {
@@ -108,19 +111,16 @@ suspend fun produceFileWithDoubleLockAndHash(
         returnAlreadyProducedWithoutLocking,
         getAlreadyProducedResult = {
             if (!target.exists()) {
-                logger.debug("############ Target file doesn't exist {}", target)
                 null
             } else {
                 val hashFile = target.parent.resolve("${target.name}.sha1")
                 if (!hashFile.exists()) {
-                    logger.debug("############ Hash file doesn't exist {}", hashFile)
                     null
                 } else {
                     val expectedHash = hashFile.readText()
                     val actualHash = computeHash(target, listOf(Hasher("sha1"))).single().hash
 
                     if (expectedHash != actualHash) {
-                        logger.debug("############ Hashes don't match. expectedHash=$expectedHash, actual=$actualHash")
                         null
                     } else {
                         target
@@ -138,7 +138,6 @@ suspend fun produceFileWithDoubleLockAndHash(
                     fileChannel.position(0)
                     fileChannel.readTo(listOf(hasher.writer))
                     hashFile.parent.createDirectories()
-                    logger.debug("######################## Stored (hash): hashFile={}", hashFile)
                     hashFile.writeText(hasher.hash)
                 }
             }
@@ -259,9 +258,9 @@ suspend fun FileChannel.lockWithRetry(): FileLock? =
         lock()
     }
 
-// todo (AB): 1,5 seconds is not enough
+// todo (AB): 10 seconds is not enough
 private suspend fun <T> withRetry(
-    retryCount: Int = 7,
+    retryCount: Int = 50,
     retryInterval: Duration = 200.milliseconds,
     retryOnException: (e: Exception) -> Boolean = { true },
     block: () -> T,
