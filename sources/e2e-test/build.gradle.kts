@@ -682,14 +682,11 @@ fun stringToByteArrayOutputStream(inputString: String): ByteArrayOutputStream {
 fun idb(outputStream: OutputStream? = null, vararg params: String): String {
     val stdout = outputStream ?: ByteArrayOutputStream()
     val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
-    val cmd = listOf("idb", *params)
+    val cmd = listOf("/opt/homebrew/bin/idb", *params)
     println("Executing IDB: $cmd")
-    val path = "/usr/local/bin:/usr/bin:/bin:/Users/admin/Library/Python/3.9/bin:$(brew --prefix)/bin" // Adjust based on actual paths
-
 
     project.exec {
         commandLine = cmd
-        environment("PATH", path) // Explicitly set PATH
         environment("IDB_COMPANION", idbCompanion)
         standardOutput = stdout
     }
