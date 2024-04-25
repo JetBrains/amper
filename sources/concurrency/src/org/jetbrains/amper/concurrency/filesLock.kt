@@ -2,7 +2,6 @@ package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.withLock
-import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
@@ -31,8 +30,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 private val filesLock = StripedMutex(stripeCount = 512)
-
-private val logger = LoggerFactory.getLogger("files.kt")
 
 /**
  * It locks on a non-reentrant coroutine Mutex first - getting exclusive access inside one JVM.
@@ -279,7 +276,6 @@ private suspend fun <T> withRetry(
             } else if (!retryOnException(e)) {
                 throw e
             } else {
-                logger.debug("Retrying after exception...", e)
                 if (firstException == null) {
                     firstException = e
                 } else {
