@@ -94,7 +94,6 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
  */
 suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
-    owner: Any? = null,
     tempFilePath: suspend () -> Path = {
         Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper").resolve("~${target.name}")
     },
@@ -103,7 +102,6 @@ suspend fun produceFileWithDoubleLockAndHash(
 ) : Path {
     return produceFileWithDoubleLock(
         target,
-        owner,
         tempFilePath,
         returnAlreadyProducedWithoutLocking,
         getAlreadyProducedResult = {
@@ -143,7 +141,6 @@ suspend fun produceFileWithDoubleLockAndHash(
 
 private suspend fun produceFileWithDoubleLock(
     target: Path,
-    owner: Any? = null,
     tempFilePath: suspend () -> Path,
     returnAlreadyProducedWithoutLocking: Boolean = true,
     getAlreadyProducedResult: suspend () -> Path? = { target.takeIf { it.exists() } },
@@ -152,7 +149,7 @@ private suspend fun produceFileWithDoubleLock(
     val temp = tempFilePath()
 
     return produceResultWithDoubleLock(
-        target.hashCode(), temp, owner,
+        target.hashCode(), temp,
         block = {
             if (writeFileContent(it)) {
                 target.parent.createDirectories()
@@ -179,7 +176,6 @@ private suspend fun produceFileWithDoubleLock(
 private suspend fun <T> produceResultWithDoubleLock(
     hash: Int,
     file: Path,
-    owner: Any? = null,
     block: suspend (FileChannel) -> T,
     returnAlreadyProducedWithoutLocking: Boolean = true,
     getAlreadyProducedResult: suspend () -> T?
@@ -188,7 +184,7 @@ private suspend fun <T> produceResultWithDoubleLock(
     if (returnAlreadyProducedWithoutLocking) getAlreadyProducedResult()?.let { return it }
 
     // First lock locks the stuff inside one JVM process
-    return withLock(hash, owner) {
+    return withLock(hash) {
         // Second lock locks a flagFile across all processes on the system
         produceResultWithFileLock(file, block, getAlreadyProducedResult)
     }
