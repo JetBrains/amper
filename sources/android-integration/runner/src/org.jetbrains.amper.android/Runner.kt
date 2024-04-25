@@ -15,13 +15,14 @@ import java.nio.file.StandardOpenOption
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
 
-inline fun <reified R : AndroidBuildResult> runAndroidBuild(
+fun <R : AndroidBuildResult> runAndroidBuild(
     buildRequest: AndroidBuildRequest,
     buildPath: Path,
     gradleLogStdoutPath: Path,
     gradleLogStderrPath: Path,
+    resultClass: Class<R>,
     debug: Boolean = false,
-    crossinline eventHandler: (ProgressEvent) -> Unit
+    eventHandler: (ProgressEvent) -> Unit,
 ): R {
     buildPath.createDirectories()
     val settingsGradle = buildPath.resolve("settings.gradle.kts")
@@ -94,7 +95,7 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
             stdout.use { stdoutStream ->
                 stderr.use { stderrStream ->
                     val buildLauncher = connection
-                        .action { controller -> controller.getModel(R::class.java) }
+                        .action { controller -> controller.getModel(resultClass) }
                         .forTasks(*tasks)
                         .withArguments("--stacktrace")
                         .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g -XX:MaxMetaspaceSize=1G"))

@@ -67,11 +67,12 @@ class AndroidPrepareTask(
             val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "prepare-$logFileName.stdout"
             val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "prepare-$logFileName.stderr"
             gradleLogStdoutPath.createParentDirectories()
-            val result = runAndroidBuild<RClassAndroidBuildResult>(
+            val result = runAndroidBuild(
                 request,
                 taskOutputRoot.path / "gradle-project",
                 gradleLogStdoutPath,
                 gradleLogStderrPath,
+                RClassAndroidBuildResult::class.java,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) },
             )
             val outputs = result.paths.map { Path.of(it) }.filter { it.extension.lowercase() == "jar" }
