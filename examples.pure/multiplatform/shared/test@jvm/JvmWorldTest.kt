@@ -4,6 +4,6 @@ import kotlin.test.assertEquals
 class JvmWorldTest {
     @Test
     fun doTest() {
-        assertEquals("JVM World", World().get())
+        assertEquals("JVM World", getWorld())
     }
 }

@@ -1,5 +1,1 @@
-actual class World {
-    actual fun get(): String {
-        return "JVM World"
-    }
-}
+actual fun getWorld() = "JVM World"

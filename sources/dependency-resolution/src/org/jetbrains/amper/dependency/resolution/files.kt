@@ -19,6 +19,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.concurrency.Hasher
+import org.jetbrains.amper.concurrency.Writer
+import org.jetbrains.amper.concurrency.computeHash
+import org.jetbrains.amper.concurrency.lockWithRetry
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
@@ -26,9 +30,7 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.channels.FileLock
 import java.nio.channels.OverlappingFileLockException
-import java.nio.channels.ReadableByteChannel
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
@@ -37,7 +39,6 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
-import java.security.MessageDigest
 import java.time.ZonedDateTime
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -47,11 +48,9 @@ import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration
 
 
-private val logger = LoggerFactory.getLogger("files.kt")
+internal val logger = LoggerFactory.getLogger("files.kt")
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal val downloadDispatcher by lazy {
@@ -174,6 +173,7 @@ open class DependencyFile(
     val dependency: MavenDependency,
     val nameWithoutExtension: String,
     val extension: String,
+    val kmpSourceSet: String? = null,
     private val fileCache: FileCache = dependency.fileCache,
 ) {
 
@@ -218,7 +218,7 @@ open class DependencyFile(
         isLockAcquired: Boolean = false,
     ): Boolean {
         val path = getPath() ?: return false
-        val hashers = computeHash(path)
+        val hashers = path.computeHash()
         for (repository in repositories) {
             val result = verify(hashers, repository, progress, cache, isLockAcquired = isLockAcquired, requestedLevel = level)
             return when (result) {
@@ -288,7 +288,7 @@ open class DependencyFile(
         }
     }
 
-    private suspend fun DependencyFile.getTempFilePath() =
+    internal suspend fun DependencyFile.getTempFilePath() =
         getCacheDirectory().getTempPath(dependency, "$nameWithoutExtension.$extension")
 
     private suspend fun waitForFileLockReleaseAndCheckResult(
@@ -349,47 +349,6 @@ open class DependencyFile(
                 }
             }
 
-    private suspend fun FileChannel.lockWithRetry(): FileLock? =
-        withRetry(
-            retryOnException = { e ->
-                e is IOException && e.message?.contains("Resource deadlock avoided") == true
-            }
-        ) {
-            lock()
-        }
-
-    private suspend fun <T> withRetry(
-        retryCount: Int = 7,
-        retryInterval: Duration = 200.milliseconds,
-        retryOnException: (e: Exception) -> Boolean = { true },
-        block: () -> T,
-    ): T {
-        var attempt = 0
-        var firstException: Exception? = null
-        do {
-            if (attempt > 0) delay(retryInterval)
-            try {
-                return block()
-            } catch (e: Exception) {
-                if (e is CancellationException) {
-                    throw e
-                } else if (!retryOnException(e)) {
-                    throw e
-                } else {
-                    logger.debug("Retrying after exception...", e)
-                    if (firstException == null) {
-                        firstException = e
-                    } else {
-                        firstException.addSuppressed(e)
-                    }
-                }
-            }
-            attempt++
-        } while (attempt < retryCount)
-
-        throw firstException!!
-    }
-
     @Suppress("BlockingMethodInNonBlockingContext") // the whole method is called with Dispatchers.IO
     private suspend fun downloadUnderFileLock(
         channel: FileChannel,
@@ -417,23 +376,26 @@ open class DependencyFile(
                             Severity.ERROR,
                         )
                     }
+
                     channel.truncate(0)
                     continue
                 }
             }
-            val target = getCacheDirectory().getPath(
-                dependency,
-                "$nameWithoutExtension.$extension",
-                hashers.find { it.algorithm == "sha1" }?.hash
-                    ?: throw AmperDependencyResolutionException("sha1 must be present among hashers"),
-            )
+
+            val sha1 = hashers.find { it.algorithm == "sha1" }?.hash
+                ?: throw AmperDependencyResolutionException("sha1 must be present among hashers")
+
+            val target = getCacheDirectory().getPath(dependency,"$nameWithoutExtension.$extension", sha1)
+            val targetSha1 = target.parent.resolve("${target.name}.sha1")
+
             target.parent.createDirectories()
             try {
+                targetSha1.writeText(sha1)
                 temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
                 if (repositories.any {
                         shouldOverwrite(object : HashersProvider {
-                            private val lazyHashers: Collection<Hasher> by lazy { computeHash(target) }
+                            private val lazyHashers: Collection<Hasher> by lazy { target.computeHash() }
                             override fun invoke(): Collection<Hasher> = lazyHashers
                         }, it, progress, cache, verify)
                     }) {
@@ -509,9 +471,9 @@ open class DependencyFile(
 
     enum class VerificationResult { PASSED, UNKNOWN, FAILED }
 
-    private suspend fun getOrDownloadExpectedHash(
+    internal suspend fun getOrDownloadExpectedHash(
         algorithm: String,
-        repository: String,
+        repository: String?,
         progress: Progress,
         cache: Cache,
         isLockAcquired: Boolean = false,
@@ -535,7 +497,7 @@ open class DependencyFile(
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
             it.isDownloaded()
                     || level == ResolutionLevel.NETWORK
-                    && it.download(listOf(repository), progress, cache, isLockAcquired = isLockAcquired, verify = false)
+                    && repository != null && it.download(listOf(repository), progress, cache, isLockAcquired = isLockAcquired, verify = false)
         }
         val hashFromRepository = hashFile?.readText()
         if (hashFromRepository != null) {
@@ -632,7 +594,7 @@ open class DependencyFile(
     ) =
         "$name.$extension"
 
-    protected open suspend fun onFileDownloaded(target: Path) {
+    internal open suspend fun onFileDownloaded(target: Path) {
         path = target
     }
 }
@@ -642,7 +604,7 @@ class SnapshotDependencyFile(
     name: String,
     extension: String,
     fileCache: FileCache = dependency.fileCache,
-) : DependencyFile(dependency, name, extension, fileCache) {
+) : DependencyFile(dependency, name, extension, fileCache = fileCache) {
 
     private val mavenMetadata by lazy {
         SnapshotDependencyFile(dependency, "maven-metadata", "xml", FileCacheBuilder {
@@ -740,40 +702,9 @@ internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.mo
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
 
-fun interface Writer {
-    fun write(data: ByteBuffer)
-}
-
-class Hasher(algorithm: String) {
-    private val digest = MessageDigest.getInstance(algorithm)
-    val algorithm: String = digest.algorithm
-    val writer: Writer = Writer(digest::update)
-    val hash: String by lazy { toHex(digest.digest()) }
-}
-
-private fun computeHash(path: Path): Collection<Hasher> {
-    val hashers = createHashers()
-    FileChannel.open(path, StandardOpenOption.READ).use { channel ->
-        channel.readTo(hashers.map { it.writer })
-    }
-    return hashers
-}
+private fun Path.computeHash(): Collection<Hasher> = computeHash(this, createHashers())
 
 private fun createHashers() = listOf("sha512", "sha256", "sha1", "md5").map { Hasher(it) }
-
-private fun ReadableByteChannel.readTo(writers: Collection<Writer>): Long {
-    var size = 0L
-    val data = ByteBuffer.allocate(1024)
-    while (read(data) != -1) {
-        writers.forEach {
-            data.flip()
-            it.write(data)
-        }
-        size += data.position()
-        data.clear()
-    }
-    return size
-}
 
 private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
     var size = 0L
@@ -788,8 +719,5 @@ private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
     }
     return size
 }
-
-@OptIn(ExperimentalStdlibApi::class)
-internal fun toHex(bytes: ByteArray) = bytes.toHexString()
 
 private val httpClientKey = Key<HttpClient>("httpClient")

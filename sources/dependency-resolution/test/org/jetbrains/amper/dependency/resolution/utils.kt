@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import org.jetbrains.amper.concurrency.toHex
 import org.junit.jupiter.api.TestInfo
 import java.security.MessageDigest
 
@@ -13,5 +14,7 @@ fun computeHash(algorithm: String, bytes: ByteArray): String {
     val messageDigest = MessageDigest.getInstance(algorithm)
     messageDigest.update(bytes, 0, bytes.size)
     val hash = messageDigest.digest()
-    return toHex(hash)
+    return hash.toHex()
 }
+
+

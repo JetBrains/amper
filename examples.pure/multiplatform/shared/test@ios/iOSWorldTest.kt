@@ -4,6 +4,6 @@ import kotlin.test.assertEquals
 class iOSWorldTest {
     @Test
     fun doTest() {
-        assertEquals("iOS World", World().get())
+        assertEquals("iOS World", getWorld())
     }
 }

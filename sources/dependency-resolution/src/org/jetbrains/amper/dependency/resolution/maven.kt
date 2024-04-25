@@ -4,8 +4,15 @@
 
 package org.jetbrains.amper.dependency.resolution
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.jetbrains.amper.concurrency.Hasher
+import org.jetbrains.amper.concurrency.computeHash
+import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Capability
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Dependency
@@ -13,6 +20,8 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.module.Module
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
+import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.SourceSet
+import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
 import org.jetbrains.amper.dependency.resolution.metadata.xml.DependencyManagement
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Project
@@ -150,6 +159,11 @@ class MavenDependency internal constructor(
         internal set
 
     @Volatile
+
+    internal var sourceSetsFiles: List<DependencyFile> = listOf()
+        internal set
+
+    @Volatile
     var packaging: String? = null
         private set
 
@@ -176,6 +190,7 @@ class MavenDependency internal constructor(
                     add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
                 }
             }
+            sourceSetsFiles.let { addAll(it) }
         }
 
     override fun toString(): String = "$group:$module:$version"
@@ -232,7 +247,7 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(context: Context) : List<Variant> {
+    private fun List<Variant>.filterMultipleVariantsByUnusedAttributes(): List<Variant> {
         return when {
             (this.withoutDocumentationAndMetadata.size == 1) -> this
             else -> {
@@ -258,7 +273,7 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
-        val module = try {
+        val moduleMetadata = try {
             moduleFile.readText().parseMetadata()
         } catch (e: CancellationException) {
             throw e
@@ -281,39 +296,28 @@ class MavenDependency internal constructor(
 
         val platform = context.settings.platforms.singleOrNull() ?: ResolutionPlatform.COMMON
 
-        val initiallyFilteredVariants = module
-            .variants
-            // todo (AB) : Why filtering against capabilities?
-            .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
-            .filter { context.settings.nativeTargetMatches(it, platform) }
-            .filter { context.settings.scope.matches(it) }
-
-        val validVariants = initiallyFilteredVariants
-            .filterWithFallbackPlatform(platform)
-            .filterMultipleVariantsByUnusedAttributes(context)
-
-        validVariants.also {
-            variants = it
-            if (it.withoutDocumentationAndMetadata.size > 1) {
-                messages.asMutable() += Message(
-                    "More than a single variant provided",
-                    it.joinToString { it.name },
-                    Severity.WARNING,
-                )
-            }
-        }
+        val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
 
         if (context.settings.platforms.size == 1) {
+            validVariants.also {
+                variants = it
+                if (it.withoutDocumentationAndMetadata.size > 1) {
+                    messages.asMutable() += Message(
+                        "More than a single variant provided",
+                        it.joinToString { it.name },
+                        Severity.WARNING,
+                    )
+                }
+            }
             // One platform case
             validVariants
                 .flatMap {
                     it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
                 }.mapNotNull { dependency ->
                     // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
-                    val version =
-                        dependency.version.strictly ?: dependency.version.requires ?: dependency.version.prefers
+                    val version = dependency.version.resolve()
                     if (version == null) {
-                        reportDependencyVersionResolutionFailure(dependency, module)
+                        reportDependencyVersionResolutionFailure(dependency, moduleMetadata)
                         return@mapNotNull null
                     }
                     context.createOrReuseDependency(dependency.group, dependency.module, version)
@@ -321,10 +325,212 @@ class MavenDependency internal constructor(
                     children = it
                 }
         } else {
-            throw UnsupportedOperationException("Dependency resolution for multiplatform fragments is not supported yet.")
+            // Multiplatform case
+            // 1. Resolve kmp json metadata
+            val kotlinMetadataVariant = getKotlinMetadataVariant(validVariants)
+                ?: return  // children list is empty in case kmp common variant is not resolved
+
+            val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant)
+                ?: return  // children list is empty in case kmp common variant file is not resolved
+
+            val kmpMetadataFile = getDependencyFile(this, kotlinMetadataFile)
+
+            if (kmpMetadataFile.isDownloadedOrDownload(level, context)) {
+                resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
+            } else {
+                messages.asMutable() += Message(
+                    "Kotlin metadata file ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is required for $this",
+                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
+                )
+            }
         }
 
         state = level.state
+    }
+
+    private suspend fun resolveKmpLibrary(
+        kmpMetadataFile: DependencyFile,
+        context: Context,
+        moduleMetadata: Module,
+        level: ResolutionLevel,
+        kotlinMetadataVariant: Variant
+    ) {
+        val kmpMetadata = kmpMetadataFile.getPath()?.let {
+            readJarEntry(it, "META-INF/kotlin-project-structure-metadata.json")
+        } ?: run {
+            messages.asMutable() += Message(
+                "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension}",
+                severity = Severity.ERROR
+            )
+            return
+        }
+
+        val kotlinProjectStructureMetadata = kmpMetadata.parseKmpLibraryMetadata()
+
+        val allPlatformsVariants = context.settings.platforms.flatMap {
+            resolveVariants(
+                moduleMetadata,
+                context.settings.copy(scope = ResolutionScope.COMPILE),
+                it
+            ).withoutDocumentationAndMetadata
+        }.associateBy { it.name }
+
+        // Selecting source sets related to target platforms.
+        val sourceSetsIntersection = kotlinProjectStructureMetadata.projectStructure.variants
+            .filter { it.name in (allPlatformsVariants.keys + allPlatformsVariants.keys.map { it.removeSuffix("-published") }) }
+            .map { it.sourceSet.toSet() }
+            .let {
+                if (it.isEmpty()) emptySet() else it.reduce { l1, l2 -> l1.intersect(l2) }
+            }
+
+        // Transforming it right here, since it doesn't require network access.
+        sourceSetsFiles = coroutineScope {
+            kotlinProjectStructureMetadata.projectStructure.sourceSets
+                .filter { it.name in sourceSetsIntersection }
+                .map {
+                    async(Dispatchers.IO) { it.toDependencyFile(kmpMetadataFile, context, level) }
+                }
+        }.awaitAll()
+            .mapNotNull { it }
+
+        // Find source sets dependencies
+        children = kotlinProjectStructureMetadata.projectStructure.sourceSets
+            .filter { it.name in sourceSetsIntersection }
+            .flatMap { it.moduleDependency }
+            .toSet()
+            .mapNotNull { rawDep ->
+                val parts = rawDep.split(":")
+                if (parts.size != 2) {
+                    messages.asMutable() += Message(
+                        "Kotlin library file ${group}:${module}:${version} depends on $rawDep that has unexpected coordinates format",
+                        severity = Severity.ERROR,
+                    )
+                    null
+                } else {
+                    val dependencyGroup = parts[0]
+                    val dependencyModule = parts[1]
+                    kotlinMetadataVariant.dependencies
+                        .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
+                        ?.version
+                        ?.resolve()
+                        ?.let { context.createOrReuseDependency(dependencyGroup, dependencyModule, it) }
+                        ?: run {
+                            messages.asMutable() += Message(
+                                "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
+                                        " but its version could not be determined from module file ${moduleFile.getPath()}",
+                                severity = Severity.ERROR,
+                            )
+                            null
+                        }
+                }
+            }
+    }
+
+    private fun getKotlinMetadataFile(kotlinMetadataVariant: Variant) =
+        kotlinMetadataVariant.files.singleOrNull()
+            ?: run {
+                messages.asMutable() += Message(
+                    "Kotlin metadata file is not resolved for maven dependency ${group}:${module}:${version},",
+                    severity = Severity.ERROR,
+                )
+                null
+            }
+
+    private fun getKotlinMetadataVariant(validVariants: List<Variant>): Variant? =
+        validVariants.singleOrNull { it.isMetadataApiElements() }
+            ?: run {
+                messages.asMutable() += Message(
+                    "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
+                            "but kotlin metadata is not found (none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
+                    severity = Severity.ERROR,
+                )
+                null
+            }
+
+    companion object {
+        private fun Version.resolve() = strictly ?: requires ?: prefers
+    }
+
+    private suspend fun SourceSet.toDependencyFile(
+        kmpMetadataFile: DependencyFile, context: Context, level: ResolutionLevel
+    ): DependencyFile? {
+        val group = kmpMetadataFile.dependency.group
+        val module = kmpMetadataFile.dependency.module
+        val version = kmpMetadataFile.dependency.version
+        // kmpMetadataFile hash
+        val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
+            "sha1", null, context.settings.progress, context.resolutionCache, false, level)
+            ?: kmpMetadataFile.getPath()?.let {
+                val hasher = Hasher("sha1")
+                computeHash(it, listOf(Hasher("sha1")))
+                hasher.hash
+            }
+            ?: run {
+                messages.asMutable() += Message(
+                    "Kotlin metadata file hash sha1 coud not be resolved for maven dependency ${group}:${module}:${version},",
+                    severity = Severity.ERROR,
+                )
+                return null
+            }
+
+        val sourceSetName = name
+
+        val sourceSetFile = DependencyFile(
+            kmpMetadataFile.dependency,
+            "${kmpMetadataFile.dependency.module}-$sourceSetName",
+            "klib",
+            kmpSourceSet = sourceSetName)
+
+        val targetFileName = "$module-$sourceSetName-$version.klib"
+
+        val targetPath = kmpMetadataFile.dependency.fileCache.amperCache
+            .resolve("kotlin/kotlinTransformedMetadataLibraries/")
+            .resolve(group)
+            .resolve(module)
+            .resolve(version)
+            .resolve(sha1)
+            .resolve(targetFileName)
+
+        produceFileWithDoubleLockAndHash(
+            target = targetPath,
+            tempFilePath = { with(sourceSetFile) { getTempFilePath() } },
+        ) {
+            try {
+                copyJarEntryDirToJar(it, sourceSetName, kmpMetadataFile.getPath()!!)
+                true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                messages.asMutable() += Message(
+                    "Failed repackaging kotlin multiplatform library ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is required for $this",
+                    severity = Severity.ERROR,
+                    exception = e
+                )
+                false
+            }
+        }
+
+        sourceSetFile.onFileDownloaded(targetPath)
+        return sourceSetFile
+    }
+
+    private fun resolveVariants(
+        module: Module,
+        settings: Settings,
+        platform: ResolutionPlatform
+    ): List<Variant> {
+        val initiallyFilteredVariants = module
+            .variants
+            // todo (AB) : Why filtering against capabilities?
+            .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
+            .filter { nativeTargetMatches(it, platform) }
+            .filter { settings.scope.matches(it) }
+
+        val validVariants = initiallyFilteredVariants
+            .filterWithFallbackPlatform(platform)
+            .filterMultipleVariantsByUnusedAttributes()
+
+        return validVariants
     }
 
     private fun reportDependencyVersionResolutionFailure(dependency: Dependency, module: Module) {
@@ -361,8 +567,9 @@ class MavenDependency internal constructor(
 
     private fun MavenDependency.toCapability() = Capability(group, module, version)
 
-    private fun Settings.nativeTargetMatches(variant: Variant, platform: ResolutionPlatform) =
+    private fun nativeTargetMatches(variant: Variant, platform: ResolutionPlatform) =
         variant.attributes["org.jetbrains.kotlin.platform.type"] != PlatformType.NATIVE.value
+                || variant.attributes["org.jetbrains.kotlin.native.target"] == null
                 || variant.attributes["org.jetbrains.kotlin.native.target"] == platform.nativeTarget
 
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
@@ -487,7 +694,8 @@ class MavenDependency internal constructor(
                 context.settings.downloadSources
                         || (!"${it.nameWithoutExtension}.${it.extension}".let { name -> name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar") } )
             }
-            .filter { !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
+            .filter { context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
+                    && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
             .forEach { it.download(context) }
     }
 }
