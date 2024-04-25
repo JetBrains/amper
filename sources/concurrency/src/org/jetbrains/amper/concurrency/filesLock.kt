@@ -99,7 +99,7 @@ suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
     owner: Any? = null,
     tempFilePath: suspend () -> Path = {
-        Paths.get(System.getProperty("tmp.dir")).resolve(".amper").resolve("~${target.name}")
+        Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper").resolve("~${target.name}")
     },
     returnAlreadyProducedWithoutLocking: Boolean = true,
     writeFileContent: suspend (FileChannel) -> Boolean
@@ -144,7 +144,7 @@ suspend fun produceFileWithDoubleLockAndHash(
     }
 }
 
-internal suspend fun produceFileWithDoubleLock(
+private suspend fun produceFileWithDoubleLock(
     target: Path,
     owner: Any? = null,
     tempFilePath: suspend () -> Path,
@@ -203,6 +203,8 @@ private suspend fun <T> produceResultWithFileLock(
     getAlreadyProducedFile: suspend () -> T?
 ) : T {
     getAlreadyProducedFile()?.let { return it }
+
+    file.parent.createDirectories()
 
     // Open temporary file channel
     val fileChannel = FileChannel.open(
