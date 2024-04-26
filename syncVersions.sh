@@ -1,18 +1,3 @@
-#!/usr/bin/env bash
-#
-# Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-#
-
-# --- Utils ---
-SQUOTE=\`
-
-# Create temp file to store sed commands.
-SED_COMMANDS_FILE=$(mktemp /tmp/used_sed_commands.XXXXXX)
-
-append_to_sed_file() {
-  echo "$1" >> "$SED_COMMANDS_FILE"
-}
-
 # A bit of complex regex.
 # Note: \w is handled differently within different sed implementations,
 #       so [a-zA-Z0-9] is introduced.
@@ -21,7 +6,7 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-BOOTSTRAP_AMPER_VERSION="0.3.0-dev-530"
+BOOTSTRAP_AMPER_VERSION="0.3.0-dev-534"
 KOTLIN_VERSION="2.0.0-RC1"
 COMPOSE_VERSION="1.6.2"
 GRADLE_VERSION="8.2.1-bin.zip"
@@ -84,8 +69,15 @@ AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.
 echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""
 
-find -E . -regex "$AFFECTED_FILES_REGEX$" | \
-  grep -v "/build/" 1> "$FOUND_FILES_FILE"
+OSTYPE=$(uname -o | tr '[:upper:]' '[:lower:]')
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  find -E . -regex "$AFFECTED_FILES_REGEX$" | \
+      grep -v "/build/" 1> "$FOUND_FILES_FILE"
+else
+  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$" | \
+    grep -v "/build/" 1> "$FOUND_FILES_FILE"
+fi
 
 FILES_COUNT=$(wc -l < "$FOUND_FILES_FILE" | tr -d ' ')
 echo "  $FILES_COUNT matched files found."
@@ -95,8 +87,13 @@ echo "Performing replacement."
 cat "$FOUND_FILES_FILE" | \
   xargs sed -r -E -f "$SED_COMMANDS_FILE" -i "$OLD_FILES_POSTFIX" -r
 
-find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  find -E . -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
   grep -v "/build/" 1> "$EDITED_FILES_FILE"
+else
+  find . -regextype posix-extended -regex "$AFFECTED_FILES_REGEX$OLD_FILES_POSTFIX$" | \
+    grep -v "/build/" 1> "$EDITED_FILES_FILE"
+fi
 
 echo "  Done."
 
