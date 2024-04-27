@@ -40,7 +40,7 @@ object TestUtil {
             }
             Paths.get(persistentCachePath) / "amper build"
         } else {
-            amperCheckoutRoot / "build" / "shared caches"
+            amperCheckoutRoot / "shared test caches"
         }
 
         Files.createDirectories(dir)

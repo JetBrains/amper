@@ -2,5 +2,6 @@ build
 .fleet/scratches
 .gradle
 .DS_Store
+shared test caches/
 
 local.properties
