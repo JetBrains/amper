@@ -682,7 +682,9 @@ fun stringToByteArrayOutputStream(inputString: String): ByteArrayOutputStream {
 fun idb(outputStream: OutputStream? = null, vararg params: String): String {
     val stdout = outputStream ?: ByteArrayOutputStream()
     val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
-    val cmd = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params)
+    //val cmd = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
+    val cmd = listOf("idb", *params) // hardcode to ci. because path var not changing now
+
     println("Executing IDB: $cmd")
     project.exec {
         commandLine = cmd
@@ -695,9 +697,17 @@ fun idb(outputStream: OutputStream? = null, vararg params: String): String {
         print(cmdOutput)
     }
 
+    if (params.any { it.contains("run") }) {
+        val outputDir = File(project.projectDir, "testdata/iOSTestsAssets/reports")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        val outputFile = File(outputDir, "report.xml")
+        outputFile.writeText(convertToJUnitReportFromIos(cmdOutput))
+    }
+
     return cmdOutput
 }
-
 
 tasks.register("createRemoteSessionIOS") {
     group = "ios tests"
@@ -962,14 +972,14 @@ tasks.register("installAndTestiOSApps") {
                 val appFile = appFiles.first()
                 println("Installing app bundle: ${projectDir.name}")
                 installAndRunAppBundle(appFile)
-                //updateClassnameAndRenameFile(projectDir.name)
+                updateClassnameAndRenameFileiOS(projectDir.name)
 
             } else {
                 throw GradleException("No app files found in $projectDir.")
             }
         }
-        val outputDir = File(project.projectDir, "androidUITestsAssets/reports")
-        //combineJUnitReports(outputDir.absolutePath, "main.xml")
+        val outputDir = File(project.projectDir, "testData/iOSTestsAssets/reports")
+        combineJUnitReports(outputDir.absolutePath, "main.xml")
     }
 }
 
@@ -995,6 +1005,94 @@ fun installAndRunAppBundle(appFile: File) {
     idb(params = arrayOf("uninstall",appBundleId))
 }
 
+fun convertToJUnitReportFromIos(testOutput: String): String {
+    val lines = testOutput.lines()
+    val testCases = mutableListOf<String>()
+    var className = ""
+    var testName = ""
+    var status = ""
+    var duration = 0.0
+
+    lines.forEach { line ->
+        if (line.isNotEmpty()) {
+            val splitLine = line.split('|')
+            if (splitLine.size >= 3) {
+                val fullName = splitLine[0].trim().split('.')
+                className = fullName[0]
+                testName = fullName[1]
+                status = splitLine[1].trim().substringAfter("Status: ")
+                duration = splitLine[2].trim().substringAfter("Duration: ").toDouble()
+
+                val testCase = if (status == "failed") {
+                    """<testcase classname="$className" name="$testName" time="$duration">
+                        |<failure><![CDATA[Fail: $status]]></failure>
+                        |</testcase>""".trimMargin()
+                } else {
+                    """<testcase classname="$className" name="$testName" time="$duration" />"""
+                }
+                testCases.add(testCase)
+            }
+        }
+    }
+
+    return """
+        |<?xml version="1.0" encoding="UTF-8"?>
+        |<testsuite name="IosAppUITests" tests="${testCases.size}" failures="${
+        testCases.count {
+            it.contains("<failure")
+        }
+    }" time="${duration}">
+        |${testCases.joinToString("\n")}
+        |</testsuite>
+    """.trimMargin()
+}
+
+fun updateClassnameAndRenameFileiOS(newClassName: String) {
+    val outputDir = File(project.projectDir, "testdata/iOSTestsAssets/reports")
+    val file = File(outputDir, "report.xml")
+    if (!file.exists()) {
+        println("Report file does not exist.")
+        return
+    }
+
+    val dbFactory = DocumentBuilderFactory.newInstance()
+    val dBuilder = dbFactory.newDocumentBuilder()
+    val doc: Document = dBuilder.parse(file)
+    doc.documentElement.normalize()
+
+    val testcases = doc.getElementsByTagName("testcase")
+    for (i in 0 until testcases.length) {
+        val testcase = testcases.item(i)
+        testcase.attributes.getNamedItem("classname").textContent = newClassName
+    }
+
+    val transformerFactory = TransformerFactory.newInstance()
+    val transformer = transformerFactory.newTransformer()
+    val source = DOMSource(doc)
+    val tempFile = File(file.parent, "temp_${file.name}")
+    val result = StreamResult(tempFile)
+    transformer.transform(source, result)
+
+    val backupFile = File(file.parent, "${file.name}.backup")
+    if (backupFile.exists()) {
+        // Optional: Handle or log if a backup already exists to avoid data loss.
+    }
+    val success = file.renameTo(backupFile)
+    if (!success) {
+        println("Failed to create backup of the original file.")
+        return
+    }
+
+    val newFileName = newClassName.substringAfterLast('.') + ".xml"
+    val newFile = File(file.parent, newFileName)
+    val renameSuccess = tempFile.renameTo(newFile)
+    if (!renameSuccess) {
+        println("Failed to rename temporary file to $newFileName")
+        // Optional: handle this case, maybe attempt to restore from backup
+    } else {
+        println("File has been updated and renamed to $newFileName")
+    }
+}
 
 
 //endregion
