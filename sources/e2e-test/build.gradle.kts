@@ -682,8 +682,8 @@ fun stringToByteArrayOutputStream(inputString: String): ByteArrayOutputStream {
 fun idb(outputStream: OutputStream? = null, vararg params: String): String {
     val stdout = outputStream ?: ByteArrayOutputStream()
     val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
-    //val cmd = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
-    val cmd = listOf("idb", *params) // hardcode to ci. because path var not changing now
+    val cmd = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
+   // val cmd = listOf("idb", *params) // hardcode to ci. because path var not changing now
 
     println("Executing IDB: $cmd")
     project.exec {
