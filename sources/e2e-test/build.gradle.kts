@@ -682,9 +682,8 @@ fun stringToByteArrayOutputStream(inputString: String): ByteArrayOutputStream {
 fun idb(outputStream: OutputStream? = null, vararg params: String): String {
     val stdout = outputStream ?: ByteArrayOutputStream()
     val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
-    val cmd = listOf("/Users/admin/Library/Python/3.9/lib/python/site-packages/idb", *params)
+    val cmd = listOf("idb", *params)
     println("Executing IDB: $cmd")
-
     project.exec {
         commandLine = cmd
         environment("IDB_COMPANION", idbCompanion)
