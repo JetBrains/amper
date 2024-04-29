@@ -683,7 +683,7 @@ fun idb(outputStream: OutputStream? = null, vararg params: String): String {
     val stdout = outputStream ?: ByteArrayOutputStream()
     val idbCompanion = getOrCreateRemoteSession() // Assuming this function is defined elsewhere
     val cmd = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
-   // val cmd = listOf("idb", *params) // hardcode to ci. because path var not changing now
+    //val cmd = listOf("idb", *params)
 
     println("Executing IDB: $cmd")
     project.exec {
@@ -899,10 +899,6 @@ fun updateAppTarget(xcodeprojPath: File, newDeploymentTarget: String, newBundleI
     }
 }
 
-
-
-
-
 fun prepareProject(projectDir: File, runWithPluginClasspath: Boolean, implementationDir: File) {
     val gradleFile = projectDir.resolve("settings.gradle.kts")
     require(gradleFile.exists()) { "file not found: $gradleFile" }
@@ -1091,6 +1087,98 @@ fun updateClassnameAndRenameFileiOS(newClassName: String) {
         // Optional: handle this case, maybe attempt to restore from backup
     } else {
         println("File has been updated and renamed to $newFileName")
+    }
+}
+
+tasks.register<Copy>("copyPureiOSTestProjects") {
+    group = "ios_Pure_Emulator_Tests"
+    into(project.file("testdata/tempIOSGradleTests/"))
+
+    arrayOf("ampercliplayground").forEach { dirName ->
+        val sourcePath = "../amper-backend-test/testData/projects/ios/$dirName"
+        from(sourcePath) {
+            into(dirName)
+        }
+    }
+}
+
+tasks.register("prepareProjectiOSForPure") {
+    group = "ios_Pure_Emulator_Tests"
+
+    doLast {
+        val basePath = project.file("testdata/tempIOSGradleTests/")
+
+        if (basePath.exists() && basePath.isDirectory) {
+            basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
+                val command = " bash ./amper.sh task :${dir.name}:buildIosAppIosSimulatorArm64"
+
+                project.exec {
+                    workingDir(dir)
+                    commandLine("bash", "-c", command)
+
+                }
+                configureXcodeProjectForPure(dir)
+            }
+        } else {
+            println("The path '$basePath' does not exist or is not a directory.")
+        }
+    }
+}
+
+fun configureXcodeProjectForPure(projectDir: File) {
+    val xcodeprojPath = File(projectDir, "build/tasks/_"+projectDir.name+"_buildIosAppIosSimulatorArm64/build/${projectDir.name}.xcodeproj/project.pbxproj")
+
+    updateAppTargetPure(xcodeprojPath, "16.0", "iosApp.iosApp")
+
+    val xcodeBuildCommand = "xcrun xcodebuild -project ${xcodeprojPath.parent} -scheme iosSimulatorArm64 -configuration Debug OBJROOT=${projectDir.path}/tmp SYMROOT=${projectDir.path}/bin -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
+    executeCommandInDirectory(xcodeBuildCommand, projectDir)
+}
+
+fun updateAppTargetPure(xcodeprojPath: File, newDeploymentTarget: String, newBundleIdentifier: String) {
+    // Read the content of the file
+    val content = xcodeprojPath.readText()
+    println("Processing file: " + xcodeprojPath)
+
+    // Regular expression to find the application target blocks
+    val appTargetRegex = Regex("(INFOPLIST_FILE = \"Info-iosSimulatorArm64\\.plist\";[\\s\\S]*?SDKROOT = iphoneos;)")
+
+    // Find all matches instead of just the first
+    val matches = appTargetRegex.findAll(content).toList()
+
+    if (matches.isNotEmpty()) {
+        var updatedContent = content
+
+        // Process each match
+        for (matchResult in matches) {
+            val appTargetSection = matchResult.value
+
+            // Define the regular expressions to check for existing properties
+            val deploymentTargetRegex = Regex("IPHONEOS_DEPLOYMENT_TARGET = \\d+\\.\\d+;")
+            val bundleIdentifierRegex = Regex("PRODUCT_BUNDLE_IDENTIFIER = \".*?\";")
+
+            // Modify or add the deployment target
+            var updatedAppTarget = if (deploymentTargetRegex.containsMatchIn(appTargetSection)) {
+                appTargetSection.replace(deploymentTargetRegex, "IPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+            } else {
+                appTargetSection.replaceFirst("SDKROOT = iphoneos;", "SDKROOT = iphoneos;\n\t\t\tIPHONEOS_DEPLOYMENT_TARGET = $newDeploymentTarget;")
+            }
+
+            // Modify or add the bundle identifier
+            updatedAppTarget = if (bundleIdentifierRegex.containsMatchIn(appTargetSection)) {
+                updatedAppTarget.replace(bundleIdentifierRegex, "PRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";")
+            } else {
+                updatedAppTarget + "\n\t\tPRODUCT_BUNDLE_IDENTIFIER = \"$newBundleIdentifier\";"
+            }
+
+            // Replace the old app target section with the updated one in the file's content
+            updatedContent = updatedContent.replace(appTargetSection, updatedAppTarget)
+        }
+
+        // Write the updated content back to the file
+        xcodeprojPath.writeText(updatedContent)
+        println("Updated app target with new deployment target and bundle identifier for all configurations.")
+    } else {
+        println("App target sections not found.")
     }
 }
 
