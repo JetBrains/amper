@@ -178,12 +178,7 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
                     allTemplateFiles.joinToString("\n")
         }
 
-        val filesToCheck = templateFiles.map { it.second } + "amper" + "amper.bat"
-        val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
-        if (alreadyExistingFiles.isNotEmpty()) {
-            userReadableError("Files already exist in the project root:\n" +
-                    alreadyExistingFiles.joinToString("\n").prependIndent("  "))
-        }
+        checkTemplateFilesConflicts(templateFiles, root)
 
         root.createDirectories()
         for ((resourceName, relativeName) in templateFiles) {
@@ -198,6 +193,17 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
         context.terminal.println()
         val exe = if (OS.isWindows) "amper.bat build" else "./amper build"
         context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
+    }
+
+    private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
+        val filesToCheck = templateFiles.map { it.second } + "amper" + "amper.bat"
+        val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
+        if (alreadyExistingFiles.isNotEmpty()) {
+            userReadableError(
+                "Files already exist in the project root:\n" +
+                        alreadyExistingFiles.joinToString("\n").prependIndent("  ")
+            )
+        }
     }
 
     fun publish(modules: Set<String>?, repositoryId: String) {

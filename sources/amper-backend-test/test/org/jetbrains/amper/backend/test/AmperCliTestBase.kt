@@ -42,13 +42,26 @@ abstract class AmperCliTestBase {
     protected suspend fun runCli(backendTestProjectName: String, vararg args: String, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
 
+        return runCli(
+            projectRoot,
+            *args,
+            expectedExitCode = expectedExitCode,
+            assertEmptyStdErr = assertEmptyStdErr
+        )
+    }
+
+    protected suspend fun runCli(
+        projectRoot: Path,
+        vararg args: String,
+        expectedExitCode: Int = 0,
+        assertEmptyStdErr: Boolean = true,
+    ): ProcessResult {
+        println("Running Amper CLI with '${args.toList()}' on $projectRoot")
+
         // TODO This should be an exact SDK which is run by our wrapper.
         //  Probably even the wrapper itself
         val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot))
-
         val buildOutputRoot = tempRoot.resolve("build")
-
-        println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
         val result = jdk.runJava(
             workingDir = projectRoot,
@@ -69,7 +82,11 @@ abstract class AmperCliTestBase {
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
         val stderr = result.stderr.fancyPrependIndent("STDERR: ").ifEmpty { "STDERR: <no-output>" }
 
-        assertEquals(expectedExitCode, result.exitCode, message = "Expected exit code $expectedExitCode, but got ${result.exitCode}:\n$stderr\n$stdout")
+        assertEquals(
+            expectedExitCode,
+            result.exitCode,
+            message = "Expected exit code $expectedExitCode, but got ${result.exitCode}:\n$stderr\n$stdout"
+        )
 
         // TODO also assert no ERRORs or WARNs in logs by default
 
@@ -81,7 +98,7 @@ abstract class AmperCliTestBase {
         }
 
         // TODO export to junit test reporter in the future
-        println("Result of running Amper CLI with '$args' on $projectRoot:\n$stdout")
+        println("Result of running Amper CLI with '${args.toList()}' on $projectRoot:\n$stdout")
 
         return result
     }
