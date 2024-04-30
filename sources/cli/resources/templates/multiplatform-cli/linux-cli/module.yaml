@@ -1,0 +1,6 @@
+product:
+  type: linux/app
+  platforms: [ linuxArm64, linuxX64 ]
+
+dependencies:
+  - ../shared

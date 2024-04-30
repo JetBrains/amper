@@ -61,7 +61,7 @@ dependencies:
   - org.apache.maven.resolver:maven-resolver-transport-http:1.9.15
   - com.sun.xml.bind:jaxb-impl:2.3.2
   - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
-
+  - io.github.classgraph:classgraph:4.8.172
 
 test-dependencies:
   - ../test-base

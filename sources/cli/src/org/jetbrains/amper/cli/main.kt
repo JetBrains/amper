@@ -58,8 +58,8 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             BuildCommand(),
             CleanCommand(),
             CleanSharedCachesCommand(),
+            InitCommand(),
             ModulesCommand(),
-            NewCommand(),
             PublishCommand(),
             RunCommand(),
             TaskCommand(),
@@ -221,7 +221,7 @@ private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
-            backend.newProject(template = template)
+            backend.initProject(template = template)
         }
     }
 }

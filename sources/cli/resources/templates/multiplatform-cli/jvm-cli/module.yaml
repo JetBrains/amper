@@ -1,0 +1,9 @@
+product:
+  type: jvm/app
+
+dependencies:
+  - ../shared
+
+settings:
+  jvm:
+    mainClass: MainKt

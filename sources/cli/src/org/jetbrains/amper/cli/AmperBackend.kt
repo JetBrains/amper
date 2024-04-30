@@ -5,6 +5,7 @@
 package org.jetbrains.amper.cli
 
 import com.google.common.io.Files
+import io.github.classgraph.ClassGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.Result
@@ -25,17 +26,16 @@ import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
+import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.PlatformUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.zip.ZipInputStream
+import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
 import kotlin.io.path.pathString
 
 @OptIn(ExperimentalPathApi::class)
@@ -122,67 +122,82 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
         }
     }
 
-    private val projectTemplates: Map<String, String> = mapOf(
-        "multiplatform-cli" to "templates/multiplatform-cli.zip"
-    )
+    fun initProject(template: String?) {
+        val allTemplateFiles = ClassGraph().acceptPaths("templates").scan().use { scanResult ->
+            scanResult.allResources.paths.map { pathString ->
+                check(pathString.startsWith("templates/")) {
+                    "Resource path must start with templates/: $pathString"
+                }
+                pathString
+            }
+        }
 
-    fun newProject(template: String?) {
-        val availableTemplates = projectTemplates.keys.sorted().joinToString(" ")
+        val allTemplateNames = allTemplateFiles.map {
+            Path.of(it).getName(1).pathString
+        }.distinct().sorted()
 
         if (template == null) {
-            userReadableError("Please specify a template (template name substring is sufficient).\n\n" +
-            "Available templates: $availableTemplates")
+            userReadableError(
+                "Please specify a template (template name substring is sufficient).\n\n" +
+                        "Available templates: ${allTemplateNames.joinToString(" ")}")
         }
 
         val root = context.projectRoot.path
-        if (root.exists()) {
-            if (!root.isDirectory()) {
-                userReadableError("Project root is not a directory: $root")
-            }
+        if (root.exists() && !root.isDirectory()) {
+            userReadableError("Project root is not a directory: $root")
+        }
 
-            if (root.listDirectoryEntries().any { it.name != "amper" && it.name != "amper.bat" }) {
-                userReadableError("Project root is not empty: $root")
-            }
-         }
-
-        val matchedTemplates = projectTemplates.filterKeys {
+        val matchedTemplates = allTemplateNames.filter {
             it.contains(template, ignoreCase = true)
         }
 
         if (matchedTemplates.isEmpty()) {
             userReadableError(
                 "No templates were found matching '$template'\n\n" +
-                        "Available templates: $availableTemplates"
+                        "Available templates: ${allTemplateNames.joinToString(" ")}"
             )
         }
         if (matchedTemplates.size > 1) {
             userReadableError(
-                "Multiple templates (${matchedTemplates.keys.sorted().joinToString("")}) were found matching '$template'\n\n" +
-                        "Available templates: $availableTemplates"
+                "Multiple templates (${
+                    matchedTemplates.sorted().joinToString(" ")
+                }) were found matching '$template'\n\n" +
+                        "Available templates: ${allTemplateNames.joinToString(" ")}"
             )
         }
 
-        context.terminal.println("Extracting template '${matchedTemplates.keys.single()}' to $root")
+        val matchedTemplate = matchedTemplates.single()
+        context.terminal.println("Extracting template '$matchedTemplate' to $root")
+
+        val resourcePrefix = "templates/$matchedTemplate/"
+        val templateFiles = allTemplateFiles
+            .filter { it.startsWith(resourcePrefix) }
+            .map { it to it.removePrefix(resourcePrefix) }
+        check(templateFiles.isNotEmpty()) {
+            "No files was found for template '$matchedTemplate'. All template files:\n" +
+                    allTemplateFiles.joinToString("\n")
+        }
+
+        val filesToCheck = templateFiles.map { it.second } + "amper" + "amper.bat"
+        val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
+        if (alreadyExistingFiles.isNotEmpty()) {
+            userReadableError("Files already exist in the project root:\n" +
+                    alreadyExistingFiles.joinToString("\n").prependIndent("  "))
+        }
 
         root.createDirectories()
-
-        javaClass.classLoader.getResourceAsStream(matchedTemplates.values.single())!!.use { stream ->
-            val zip = ZipInputStream(stream)
-            while (true) {
-                val entry = zip.nextEntry ?: break
-                if (entry.isDirectory || entry.name.isEmpty()) {
-                    continue
-                }
-                check(!entry.name.contains("..")) {
-                    "'..' is not allowed in zip entry: ${entry.name}"
-                }
-
-                val relativeFileName = entry.name.replace('\\', '/').trimStart('/')
-                val path = root.resolve(relativeFileName)
-                path.parent.createDirectories()
-                Files.asByteSink(path.toFile()).writeFrom(zip)
+        for ((resourceName, relativeName) in templateFiles) {
+            val path = root.resolve(relativeName)
+            path.parent.createDirectories()
+            javaClass.classLoader.getResourceAsStream(resourceName)!!.use { stream ->
+                Files.asByteSink(path.toFile()).writeFrom(stream)
             }
         }
+
+        context.terminal.println("Project template successfully instantiated to $root")
+        context.terminal.println()
+        val exe = if (OS.isWindows) "amper.bat build" else "./amper build"
+        context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
     fun publish(modules: Set<String>?, repositoryId: String) {
