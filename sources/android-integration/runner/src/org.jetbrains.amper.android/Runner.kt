@@ -98,7 +98,7 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
                         .action { controller -> controller.getModel(resultClass) }
                         .forTasks(*tasks)
                         .withArguments("--stacktrace")
-                        .withSystemProperties(mapOf("org.gradle.jvmargs" to "-Xmx4g -XX:MaxMetaspaceSize=1G"))
+                        .addJvmArguments("-Xmx4G", "-XX:MaxMetaspaceSize=1G")
                         .addProgressListener(ProgressListener { eventHandler(it) })
                         .setStandardOutput(stdoutStream)
                         .setStandardError(stderrStream)
