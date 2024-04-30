@@ -107,17 +107,18 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
 
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
-            print("task ${taskName.name}")
-            taskGraph.dependencies[taskName]?.let { taskDeps ->
-                print(" -> ${taskDeps.joinToString { it.name }}")
-            }
-            println()
+            context.terminal.println(buildString {
+                append("task ${taskName.name}")
+                taskGraph.dependencies[taskName]?.let { taskDeps ->
+                    append(" -> ${taskDeps.joinToString { it.name }}")
+                }
+            })
         }
     }
 
     fun showModules() {
         for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {
-            println(moduleName)
+            context.terminal.println(moduleName)
         }
     }
 
@@ -161,7 +162,7 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
             )
         }
 
-        println("Extracting template '${matchedTemplates.keys.single()}' to $root")
+        context.terminal.println("Extracting template '${matchedTemplates.keys.single()}' to $root")
 
         root.createDirectories()
 

@@ -144,11 +144,9 @@ private suspend fun cancelAndWaitForScope(scope: CoroutineScope) {
         job.cancel(normalTerminationMessage)
         job.join()
     } catch (t: Throwable) {
-        println("XXXX: <${t.message}> == '$normalTerminationMessage'")
         if (t.message != normalTerminationMessage) {
             throw t
         }
-        println("CONTINUE")
     }
 }
 
@@ -197,9 +195,9 @@ internal fun withBackend(
     )
 
     // TODO output version, os and some env to log file only
-    println(AmperBuild.banner)
-    println("Logs are in ${projectContext.buildLogsRoot.path}")
-    println()
+    projectContext.terminal.println(AmperBuild.banner)
+    projectContext.terminal.println("Logs are in ${projectContext.buildLogsRoot.path}")
+    projectContext.terminal.println()
 
     if (commonOptions.asyncProfiler) {
         AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
@@ -218,8 +216,8 @@ internal fun withBackend(
     }
 }
 
-private class NewCommand : CliktCommand(name = "new", help = "New Amper project") {
-    val template by argument(help = "project template name, e.g., 'cli'").optional()
+private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper project") {
+    val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
