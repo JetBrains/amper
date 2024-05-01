@@ -30,6 +30,8 @@ open class BaseTestRun(
     context(TestBase, TestProblemReporterContext)
     open fun getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
 
+    open val expectIsInput = false
+
     context(TestBase)
     open fun doTest() = with(ctx) {
         with(buildFile) {
@@ -38,8 +40,7 @@ open class BaseTestRun(
 
             val expect = base / "$caseName$expectPostfix"
             val expectContent = getExpectContent(input, expect)
-
-            assertEqualsIgnoreLineSeparator(expectContent, inputContent, expect)
+            assertEqualsIgnoreLineSeparator(expectContent, inputContent, if (expectIsInput) input else expect)
 
             val inputAmper = base / "$caseName$inputAmperPostfix"
             if (inputAmper.exists()) {
@@ -50,7 +51,7 @@ open class BaseTestRun(
                     ?: (base / "$caseName$expectPostfix")
                 val expectAmperContent = getExpectContent(inputAmper, expectAmper)
 
-                assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, expect)
+                assertEqualsIgnoreLineSeparator(expectAmperContent, inputAmperContent, if (expectIsInput) inputAmper else expect)
             }
         }
     }

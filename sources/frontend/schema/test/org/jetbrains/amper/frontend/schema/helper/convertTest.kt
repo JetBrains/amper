@@ -35,7 +35,7 @@ class ConvertTestRun(
         }
         TestTraceValidationVisitor().visit(module)
         expectedModule?.accept(EqualsVisitor(module))
-        return ctx.problemReporter.getErrors().joinToString { it.message }
+        return ctx.problemReporter.getDiagnostics().joinToString { it.message }
     }
 
     context(TestBase, TestProblemReporterContext)

@@ -31,7 +31,7 @@ class TestProblemReporter : CollectingProblemReporter() {
 
     fun clearAll() = problems.clear()
 
-    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error || it.level == Level.Fatal }
+    fun getDiagnostics(vararg levels: Level = arrayOf(Level.Error, Level.Fatal)): List<BuildProblem> = problems.filter { levels.contains(it.level) }
 }
 
 class TestProblemReporterContext : ProblemReporterContext {

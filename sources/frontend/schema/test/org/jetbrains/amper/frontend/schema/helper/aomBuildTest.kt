@@ -40,8 +40,8 @@ open class BuildAomTestRun(
         val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
 
         // Check errors absence.
-        assert(problemReporter.getErrors().isEmpty()) {
-            "Expected no errors, but got ${problemReporter.getErrors()
+        assert(problemReporter.getDiagnostics().isEmpty()) {
+            "Expected no errors, but got ${problemReporter.getDiagnostics()
                 .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t")}"
         }
 

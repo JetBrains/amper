@@ -116,7 +116,9 @@ fun addBuiltInCatalog(
     nonProcessed: Base,
     otherCatalog: VersionCatalog? = null,
 ): VersionCatalog {
-    val chosenComposeVersion = nonProcessed.settings[noModifiers]?.compose?.version
+    val compose = nonProcessed.settings[noModifiers]?.compose
+    // resolve compose version only if compose is enabled
+    val chosenComposeVersion = compose?.version?.takeIf { compose.enabled }
     val builtInCatalog = BuiltInCatalog(composeVersion = chosenComposeVersion)
     val catalogs = otherCatalog?.let { listOf(it) }.orEmpty() + builtInCatalog
     val compositeCatalog = CompositeVersionCatalog(catalogs)

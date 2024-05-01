@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import com.intellij.psi.PsiFile
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
@@ -15,13 +16,15 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 context(TestBase)
-fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo) =
-    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath).doTest()
+fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo,
+                    vararg levels: Level = arrayOf(Level.Error, Level.Fatal)) =
+    DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath, levels).doTest()
 
 class DiagnosticsTestRun(
     caseName: String,
     private val systemInfo: SystemInfo,
     override val base: Path,
+    private val levels: Array<out Level>
 ) : BaseTestRun(caseName) {
 
     context(TestBase, TestProblemReporterContext)
@@ -38,7 +41,7 @@ class DiagnosticsTestRun(
         doBuild(readCtx, TestFioContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
 
         // Collect errors.
-        val errors = problemReporter.getErrors()
+        val errors = problemReporter.getDiagnostics(*levels)
         val annotated = annotateTextWithDiagnostics(cleared, errors) {
             it.replace(buildDir.absolutePathString() + File.separator, "")
         }
@@ -48,6 +51,8 @@ class DiagnosticsTestRun(
     context(TestBase, TestProblemReporterContext)
     override fun getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
+
+    override val expectIsInput: Boolean = true
 }
 
 private fun String.trimTrailingWhitespacesAndEmptyLines(): String {
