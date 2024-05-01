@@ -132,7 +132,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
 }
 
 val amperShellScript = tasks.register<ProcessAmperScriptTask>("amperShellScript") {
-    inputFile = projectDir.resolve("scripts/amper.template.sh")
+    inputFile = projectDir.resolve("resources/wrappers/amper.template.sh")
     outputFile = projectDir.resolve("build/amper.sh")
 
     amperDistVersion = project.version.toString()
@@ -142,7 +142,7 @@ val amperShellScript = tasks.register<ProcessAmperScriptTask>("amperShellScript"
 }
 
 val amperBatScript = tasks.register<ProcessAmperScriptTask>("amperBatScript") {
-    inputFile = projectDir.resolve("scripts/amper.template.bat")
+    inputFile = projectDir.resolve("resources/wrappers/amper.template.bat")
     outputFile = projectDir.resolve("build/amper.bat")
 
     amperDistVersion = project.version.toString()

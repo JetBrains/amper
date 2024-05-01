@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import org.jetbrains.amper.util.OS
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -20,10 +21,17 @@ import kotlin.io.path.isExecutable
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.readLines
+import kotlin.io.path.readText
 import kotlin.io.path.writeLines
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/**
+ * Shell scripts test Amper version which is already published and used in `amper-backend-test/testData/projects/shell-scripts`.
+ * Other tests use Amper from sources.
+ * This is only test where wrappers may download the real Amper version from real location
+ */
 @OptIn(ExperimentalPathApi::class)
 class ShellScriptsTest {
     @TempDir
@@ -42,7 +50,7 @@ class ShellScriptsTest {
 
         val bootstrapCacheDir = tempDir.resolve("boot strap")
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir) { output ->
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "task", ":shell-scripts:runJvm") { output ->
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
                 output.contains("Hello for Shell Scripts Test")
             }
@@ -56,7 +64,7 @@ class ShellScriptsTest {
             }
         }
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir) { output ->
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "task", ":shell-scripts:runJvm") { output ->
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
                 output.contains("Hello for Shell Scripts Test")
             }
@@ -68,6 +76,30 @@ class ShellScriptsTest {
             assertTrue("Process output must not have 'Extracting ' lines. Output:\n$output") {
                 output.lines().none { it.startsWith("Extracting ") }
             }
+        }
+    }
+
+    @Test
+    @Ignore("Not yet supported by published Amper")
+    fun `init command writes the same wrappers as published`() {
+        val projectPath = shellScriptExampleProject
+        assertTrue { projectPath.isDirectory() }
+
+        val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
+        tempProjectRoot.createDirectories()
+
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "init", "multiplatform-cli") {
+        }
+
+        for (wrapperName in listOf("amper.sh", "amper.bat")) {
+            val originalFile = shellScriptExampleProject.resolve(wrapperName)
+            assertEqualsIgnoreLineSeparator(
+                expectedContent = originalFile.readText(),
+                actualContent = tempProjectRoot.resolve(wrapperName).readText(),
+                originalFile = originalFile,
+            )
         }
     }
 
@@ -130,7 +162,7 @@ class ShellScriptsTest {
         }
     }
 
-    private fun runBuild(workingDir: Path, bootstrapCacheDir: Path?, outputAssertions: (String) -> Unit) {
+    private fun runBuild(workingDir: Path, bootstrapCacheDir: Path?, vararg args: String, outputAssertions: (String) -> Unit) {
         val process = ProcessBuilder()
             .directory(workingDir.toFile())
             .redirectInput(ProcessBuilder.Redirect.PIPE)
@@ -141,7 +173,7 @@ class ShellScriptsTest {
                     it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 }
             }
-            .command(cliScript.pathString, "task", ":shell-scripts:runJvm")
+            .command(cliScript.pathString, *args)
             .start()
 
         process.outputStream.close()

@@ -41,9 +41,5 @@ settings:
   junit:
     platformEnabled: true
 
-# bump jupiter-api version for junit-5 since we use recent api than referenced from kotlin-test-junit5
-test-dependencies:
-  - org.junit.jupiter:junit-jupiter-api:5.10.2
-
 test-settings:
   junit: junit-5

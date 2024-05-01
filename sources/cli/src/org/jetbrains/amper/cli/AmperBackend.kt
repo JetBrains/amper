@@ -8,6 +8,7 @@ import com.google.common.io.Files
 import io.github.classgraph.ClassGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
@@ -31,6 +32,7 @@ import org.jetbrains.amper.util.PlatformUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.regex.Pattern
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
@@ -188,6 +190,7 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
                 Files.asByteSink(path.toFile()).writeFrom(stream)
             }
         }
+        writeWrappers(root)
 
         context.terminal.println("Project template successfully instantiated to $root")
         context.terminal.println()
@@ -195,8 +198,79 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
         context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
+    @Suppress("SameParameterValue")
+    private fun substituteTemplatePlaceholders(
+        input: String,
+        outputFile: Path,
+        placeholder: String,
+        values: List<Pair<String, String>>,
+        outputWindowsLineEndings: Boolean = false,
+    ) {
+        var result = input.replace("\r", "")
+
+        val missingPlaceholders = mutableListOf<String>()
+        for ((name, value) in values) {
+            check (!name.contains(placeholder)) {
+                "Do not use placeholder '$placeholder' in name: $name"
+            }
+
+            val s = "$placeholder$name$placeholder"
+            if (!result.contains(s)) {
+                missingPlaceholders.add(s)
+            }
+
+            result = result.replace(s, value)
+        }
+
+        check(missingPlaceholders.isEmpty()) {
+            "Missing placeholders [${missingPlaceholders.joinToString(" ")}] in template"
+        }
+
+        val escapedPlaceHolder = Pattern.quote(placeholder)
+        val regex = Regex("$escapedPlaceHolder.+$escapedPlaceHolder")
+        val unsubstituted = result
+            .splitToSequence('\n')
+            .mapIndexed { line, s -> "line ${line + 1}: $s" }
+            .filter(regex::containsMatchIn)
+            .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
+        check (unsubstituted.isBlank()) {
+            "Some template parameters were left unsubstituted in template:\n$unsubstituted"
+        }
+
+        java.nio.file.Files.createDirectories(outputFile.parent)
+        java.nio.file.Files.writeString(outputFile, result)
+    }
+
+    private val wrappers = listOf("amper" to "wrappers/amper.template.sh", "amper.bat" to "wrappers/amper.template.bat")
+
+    private fun writeWrappers(root: Path) {
+        val sha256: String? = System.getProperty("amper.wrapper.dist.sha256")
+        if (sha256.isNullOrEmpty()) {
+            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $root")
+            return
+        }
+
+        if (AmperBuild.isSNAPSHOT) {
+            logger.warn("Amper was compiled from sources in dev environment, skipping generating wrappers for $root")
+            return
+        }
+
+        for ((wrapperFileName, templateResource) in wrappers) {
+            substituteTemplatePlaceholders(
+                input = javaClass.classLoader.getResourceAsStream(templateResource)!!.use { it.readAllBytes() }.decodeToString(),
+                outputFile = root.resolve(wrapperFileName),
+                placeholder = "@",
+                values = listOf(
+                    "AMPER_VERSION" to AmperBuild.BuildNumber,
+                    "AMPER_DIST_SHA256" to sha256,
+                ),
+                outputWindowsLineEndings = wrapperFileName.endsWith(".bat"),
+            )
+        }
+    }
+
     private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
-        val filesToCheck = templateFiles.map { it.second } + "amper" + "amper.bat"
+        val filesToCheck = templateFiles.map { it.second } + wrappers.map { it.first }
         val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
         if (alreadyExistingFiles.isNotEmpty()) {
             userReadableError(

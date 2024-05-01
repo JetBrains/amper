@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.schema.helper
 
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
