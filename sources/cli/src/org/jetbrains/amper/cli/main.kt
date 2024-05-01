@@ -186,7 +186,7 @@ internal fun withBackend(
         taskExecutionMode = taskExecutionMode,
     )
 
-    CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot)
+    CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
     CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
     CliEnvironmentInitializer.setupLogging(
         logsRoot = projectContext.buildLogsRoot,

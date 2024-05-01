@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
+import com.github.ajalt.mordant.terminal.Terminal
 import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
 import org.jetbrains.amper.cli.RootCommand
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.DefaultSystemInfo
@@ -47,6 +49,8 @@ class JaegerToolCommand: CliktCommand(
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun run() = withBackend(commonOptions, commandName) { backend ->
+        val terminal = backend.context.terminal
+
         val os = DefaultSystemInfo.detect()
         val osString = when (os.family) {
             SystemInfo.OsFamily.Windows -> "windows"
@@ -84,8 +88,8 @@ class JaegerToolCommand: CliktCommand(
 
                         if (connectToLocalPort(JAEGER_HTTP_PORT)) {
                             val url = "http://127.0.0.1:$JAEGER_HTTP_PORT"
-                            println("*** Opening browser $url *** (specify --open-browser=false to disable)")
-                            openBrowser(url)
+                            terminal.println("*** Opening browser $url *** (specify --open-browser=false to disable)")
+                            openBrowser(url, terminal)
                             break
                         }
 
@@ -96,18 +100,20 @@ class JaegerToolCommand: CliktCommand(
 
             val result = process.awaitAndGetAllOutput(
                 onStdoutLine = { line ->
-                    println(line)
+                    terminal.println(line)
                 },
                 onStderrLine = { line ->
                     System.err.println(line)
                 }
             )
 
-            println("${executable.name} exited with code ${result.exitCode}")
+            if (result.exitCode != 0) {
+                userReadableError("${executable.name} exited with code ${result.exitCode}")
+            }
         }
     }
 
-    private suspend fun openBrowser(url: String) {
+    private suspend fun openBrowser(url: String, t: Terminal) {
         val cmd = when {
             OS.isWindows -> listOf("rundll32", "url.dll,FileProtocolHandler", url)
             OS.isLinux -> listOf("xdg-open", url)
@@ -115,7 +121,7 @@ class JaegerToolCommand: CliktCommand(
             else -> return
         }
 
-        println("Starting $cmd")
+        t.println("Starting $cmd")
 
         val process = runInterruptible {
             ProcessBuilder(cmd).inheritIO().start()
@@ -123,7 +129,7 @@ class JaegerToolCommand: CliktCommand(
 
         val exitCode = process.awaitExit()
         if (exitCode != 0) {
-            println("$cmd failed with exit code $exitCode")
+            t.println("$cmd failed with exit code $exitCode")
         }
     }
 

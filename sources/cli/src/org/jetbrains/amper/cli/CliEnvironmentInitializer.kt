@@ -48,8 +48,8 @@ object CliEnvironmentInitializer {
 
     fun setup() = init
 
-    fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot) {
-        DeadLockMonitor.install(logsRoot)
+    fun setupDeadLockMonitor(logsRoot: AmperBuildLogsRoot, terminal: Terminal) {
+        DeadLockMonitor.install(logsRoot, terminal)
     }
 
     fun setupLogging(logsRoot: AmperBuildLogsRoot, consoleLogLevel: Level, terminal: Terminal) {

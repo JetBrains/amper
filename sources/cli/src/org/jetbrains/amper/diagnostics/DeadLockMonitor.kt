@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.diagnostics
 
+import com.github.ajalt.mordant.terminal.Terminal
 import jetbrains.buildServer.messages.serviceMessages.PublishArtifacts
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +31,7 @@ object DeadLockMonitor {
     }
 
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    fun install(logsRoot: AmperBuildLogsRoot) {
+    fun install(logsRoot: AmperBuildLogsRoot, terminal: Terminal) {
         require(DebugProbes.isInstalled) {
             "DebugProbes must be installed to use DebugProbes.dumpCoroutines"
         }

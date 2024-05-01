@@ -121,7 +121,6 @@ fun NativeSettings.merge(overwrite: NativeSettings) = mergeNode(overwrite, ::Nat
 
 fun IosFrameworkSettings.merge(overwrite: IosFrameworkSettings) = mergeNode(overwrite, ::IosFrameworkSettings) {
     mergeScalar(IosFrameworkSettings::basename)
-    println("FOO Merged basename is ${target.basename}")
 }
 
 fun KoverSettings.merge(overwrite: KoverSettings) = mergeNode(overwrite, ::KoverSettings) {
