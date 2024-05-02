@@ -7,6 +7,7 @@ package org.jetbrains.amper.test
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
 
@@ -63,6 +64,8 @@ object TestUtil {
     // Re-use user cache root for local runs to make testing faster
     // On CI (TeamCity) make it per-build (temp directory for build is cleaned after each build run)
     val userCacheRoot: Path = if (TeamCityHelper.isUnderTeamCity) {
-        TeamCityHelper.tempDirectory.resolve("amperUserCacheRoot")
+        TeamCityHelper.tempDirectory.resolve("amperUserCacheRoot").also {
+            it.createDirectories()
+        }
     } else sharedTestCaches
 }
