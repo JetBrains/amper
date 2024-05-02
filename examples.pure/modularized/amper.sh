@@ -15,9 +15,9 @@
 
 set -e -u
 
-amper_version=0.3.0-dev-542
+amper_version=0.3.0-dev-547
 amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
-amper_sha256=ee1fe00e937800023e2c2e4972a82d2aa662d3aee9cc9c4b31bf7079b74c6727
+amper_sha256=e133b6d8ace34b56f51c74b3a0a70a305a461444a13d01ce82662d42236b014d
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
@@ -180,4 +180,4 @@ fi
 amper_target_dir="$amper_cache_dir/amper-cli-$amper_version"
 download_and_extract "$amper_url" "$amper_sha256" "$amper_cache_dir" "$amper_target_dir"
 
-exec "$java_exe" -ea "-Damper.wrapper.process.name=$0" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
+exec "$java_exe" -ea "-Damper.wrapper.dist.sha256=$amper_sha256" "-Damper.wrapper.process.name=$0" -cp "$amper_target_dir/lib/*" org.jetbrains.amper.cli.MainKt "$@"
