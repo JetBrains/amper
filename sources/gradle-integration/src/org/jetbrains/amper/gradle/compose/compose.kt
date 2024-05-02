@@ -67,8 +67,8 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
             }
 
             // TODO (Anton Prokhorov): figure it out from where duplicates came
-            project.tasks.filterIsInstance<Copy>().filter { it.name.contains("compose") }.forEach {
-                it.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            project.tasks.matching { it is Copy }.matching { it.name.contains("copyTestComposeResources") }.forEach {
+                (it as Copy).duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
         }
     }
