@@ -102,9 +102,16 @@ class ShellScriptsTest {
             )
         }
 
+        val windowsWrapper = tempProjectRoot.resolve("amper.bat")
+        val unixWrapper = tempProjectRoot.resolve("amper")
+
+        assertTrue(windowsWrapper.readText().count { it == '\r' } > 10,
+            "Windows wrapper must have \\r in line separators: $windowsWrapper")
+        assertTrue(unixWrapper.readText().count { it == '\r' } == 0,
+            "Unix wrapper must not have \\r in line separators: $unixWrapper")
+
         if (OS.isUnix) {
-            val wrapper = tempProjectRoot.resolve("amper")
-            assertTrue("Wrapper must be executable: $wrapper") { wrapper.isExecutable() }
+            assertTrue("Unix wrapper must be executable: $unixWrapper") { unixWrapper.isExecutable() }
         }
     }
 
