@@ -5,7 +5,9 @@
 package org.jetbrains.amper.gradle.compose
 
 import org.gradle.api.Project
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Copy
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.amper.gradle.android.AndroidAwarePart
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
@@ -62,6 +64,11 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
                     "getFrom",
                     composeResourcesDir
                 )
+            }
+
+            // TODO (Anton Prokhorov): figure it out from where duplicates came
+            project.tasks.filterIsInstance<Copy>().filter { it.name.contains("compose") }.forEach {
+                it.duplicatesStrategy = DuplicatesStrategy.INCLUDE
             }
         }
     }
