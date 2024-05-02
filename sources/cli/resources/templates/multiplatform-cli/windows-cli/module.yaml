@@ -1,0 +1,6 @@
+product:
+  type: windows/app
+  platforms: [ mingwX64 ]
+
+dependencies:
+  - ../shared
