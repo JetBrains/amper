@@ -83,7 +83,7 @@ suspend fun extractFileWithFlag(
         cleanDirectory(targetDirectory)
     }
 
-    LOG.info(" * Extracting $archiveFile to $targetDirectory")
+    LOG.info("Extracting $archiveFile to $targetDirectory")
     Files.createDirectories(targetDirectory)
 
     val filesAfterCleaning = Files.newDirectoryStream(targetDirectory).use { it.toList() }
