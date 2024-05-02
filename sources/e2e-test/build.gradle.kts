@@ -330,12 +330,11 @@ tasks.register("build_apks_for_ui_tests") {
 
         if (basePath.exists() && basePath.isDirectory) {
             basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
-                val command = " bash ./amper.sh task :${dir.name}:buildAndroidDebug"
+                val command = "./amper task :${dir.name}:buildAndroidDebug"
 
                 project.exec {
                     workingDir(dir)
                     commandLine("bash", "-c", command)
-
                 }
             }
         } else {
@@ -1110,12 +1109,11 @@ tasks.register("prepareProjectiOSForPure") {
 
         if (basePath.exists() && basePath.isDirectory) {
             basePath.listFiles { file -> file.isDirectory }?.forEach { dir ->
-                val command = " bash ./amper.sh task :${dir.name}:buildIosAppIosSimulatorArm64"
+                val command = " ./amper task :${dir.name}:buildIosAppIosSimulatorArm64"
 
                 project.exec {
                     workingDir(dir)
                     commandLine("bash", "-c", command)
-
                 }
                 configureXcodeProjectForPure(dir)
             }

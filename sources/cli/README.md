@@ -25,7 +25,7 @@ go to `Search -> Upload` section to upload and explore `amper-*-jaeger.json` fil
 Execute the following command to run [jaeger](https://www.jaegertracing.io):
 
 ```
-./amper.sh tool jaeger
+./amper tool jaeger
 ```
 
 ### Profiling
@@ -35,7 +35,7 @@ right from command line and collect .jfr profiling snapshot.
 Drag and drop .jfr file to IntelliJ Ultimate window to analyze the snapshot.
 
 ```
-./amper.sh --async-profiler build
+./amper --async-profiler build
 ```
 
 ### Reporting issues
@@ -51,7 +51,7 @@ as possible, such as:
 ## Running Amper CLI from sources
 
 It is possible to use Amper CLI built from sources, please check out the Amper project
-and use the following instead of `amper.sh` or `amper.bat`:
+and use the following instead of `amper` or `amper.bat`:
 
 ```
 /path/to/amper/checkout/sources/cli/amper-from-sources.sh

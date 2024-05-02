@@ -64,7 +64,7 @@ FOUND_FILES_FILE=$(mktemp /tmp/sync_versions_found_files.XXXXXX)
 EDITED_FILES_FILE=$(mktemp /tmp/sync_versions_edited_files.XXXXXX)
 
 # Find matching files..
-AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.kt|\.md|\.properties|module\.yaml|amper\.sh|amper\.bat)"
+AFFECTED_FILES_REGEX=".*(settings\.gradle\.kts|build\.gradle\.kts|UsedVersions\.kt|\.md|\.properties|module\.yaml|amper|amper\.bat)"
 
 echo "Searching for matching files."
 echo "  Files regex is \"$AFFECTED_FILES_REGEX\""

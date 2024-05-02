@@ -93,7 +93,7 @@ class ShellScriptsTest {
         runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "init", "multiplatform-cli") {
         }
 
-        for (wrapperName in listOf("amper.sh", "amper.bat")) {
+        for (wrapperName in listOf("amper", "amper.bat")) {
             val originalFile = shellScriptExampleProject.resolve(wrapperName)
             assertEqualsIgnoreLineSeparator(
                 expectedContent = originalFile.readText(),
@@ -216,7 +216,7 @@ class ShellScriptsTest {
         outputAssertions(processOutput)
     }
 
-    private val cliScriptExtension = if (OS.isWindows) ".bat" else ".sh"
+    private val cliScriptExtension = if (OS.isWindows) ".bat" else ""
 
     private val cliScript: Path by lazy {
         val script = shellScriptExampleProject.resolve("amper$cliScriptExtension")
