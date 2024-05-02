@@ -41,6 +41,9 @@ abstract class AmperCliTestBase {
 
     protected suspend fun runCli(backendTestProjectName: String, vararg args: String, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
+        check(projectRoot.isDirectory()) {
+            "Project root is not a directory: $projectRoot"
+        }
 
         return runCli(
             projectRoot,

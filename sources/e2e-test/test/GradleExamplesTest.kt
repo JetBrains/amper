@@ -11,7 +11,7 @@ import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
 import kotlin.test.assertEquals
 
-class ExamplesTest : E2ETestFixture("../../examples/",
+class GradleExamplesTest : E2ETestFixture("../../examples/",
     runWithPluginClasspath = if (System.getenv("WITH_PLUGIN_CLASSPATH") != null) System.getenv("WITH_PLUGIN_CLASSPATH").toBoolean() else true  ) {
     @Test
     fun `check all example projects are tested`() {

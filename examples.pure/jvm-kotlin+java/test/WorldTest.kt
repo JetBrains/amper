@@ -11,9 +11,4 @@ class WorldTest {
     fun doTest() {
         assertEquals("World", World.get())
     }
-
-    @Test
-    fun shouldFail() {
-        assertTrue(false)
-    }
 }
