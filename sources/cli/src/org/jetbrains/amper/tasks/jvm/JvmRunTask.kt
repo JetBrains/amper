@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
@@ -75,12 +76,10 @@ class JvmRunTask(
                 (if (result.stderr.isNotEmpty()) "\nSTDERR:\n${result.stderr}\n" else "") +
                 (if (result.stdout.isNotEmpty()) "\nSTDOUT:\n${result.stdout}\n" else "")
         if (result.exitCode != 0) {
-            logger.error(message)
+            userReadableError(message)
         } else {
             logger.info(message)
         }
-
-        // TODO Should non-zero exit code fail the task somehow?
 
         return object : TaskResult {
             override val dependencies: List<TaskResult> = dependenciesResult
