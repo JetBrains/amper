@@ -73,7 +73,7 @@ class TestSystemInfo(
 }
 
 open class TestFioContext(
-    override val root: VirtualFile,
+    root: VirtualFile,
     override val amperModuleFiles: List<VirtualFile>,
     val frontendPathResolver: FrontendPathResolver,
 ) : FioContext by DefaultFioContext(root) {

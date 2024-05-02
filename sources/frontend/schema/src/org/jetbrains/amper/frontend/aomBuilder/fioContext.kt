@@ -30,10 +30,7 @@ private fun FioContext.isIgnored(file: VirtualFile): Boolean {
 /**
  * Files context used to parse amper modules.
  */
-interface FioContext {
-    val root: VirtualFile
-
-    val rootDir: VirtualFile
+internal interface FioContext {
 
     /**
      * `.amperignore` file parsed lines as paths, relative to [rootDir].
@@ -64,10 +61,10 @@ interface FioContext {
 /**
  * Default files context.
  */
-open class DefaultFioContext(
-    override val root: VirtualFile
+internal open class DefaultFioContext(
+    private val root: VirtualFile
 ) : FioContext {
-    override val rootDir: VirtualFile by lazy {
+    private val rootDir: VirtualFile by lazy {
         root.takeIf { it.isDirectory }
             ?: root.parent
             ?: error("Should not call with a root without parent")
@@ -151,7 +148,7 @@ open class DefaultFioContext(
 /**
  * Per-file context.
  */
-class ModuleFioContext(
+internal class ModuleFioContext(
     virtualFile: VirtualFile,
     project: Project,
 ) : DefaultFioContext(requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }) {

@@ -27,17 +27,13 @@ data class ConvertCtx(
 )
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertModule(file: VirtualFile): Module? {
-    val psiFile = pathResolver.toPsiFile(file)
-    return psiFile?.let { convertModulePsi(it) }
-}
+fun convertModule(file: VirtualFile): Module? = pathResolver.toPsiFile(file)?.let { convertModulePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertTemplate(file: VirtualFile) =
-    pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
+fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertModulePsi(file: PsiFile): Module? {
+private fun convertModulePsi(file: PsiFile): Module? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
         return@Computable when (file) {
@@ -49,7 +45,7 @@ fun convertModulePsi(file: PsiFile): Module? {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertTemplatePsi(file: PsiFile): Template? {
+private fun convertTemplatePsi(file: PsiFile): Template? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
         return@Computable when (file) {

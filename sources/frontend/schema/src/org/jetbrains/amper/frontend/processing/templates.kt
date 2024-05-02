@@ -18,7 +18,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 
 
 context(ProblemReporterContext, FrontendPathResolver)
-fun readTemplate(fioCtx: FioContext, file: VirtualFile): ModelInit.TemplateHolder? =
+internal fun readTemplate(fioCtx: FioContext, file: VirtualFile): ModelInit.TemplateHolder? =
     with(ConvertCtx(file.parent, this@FrontendPathResolver)) {
         val nonProcessed = convertTemplate(file) ?: return@with null
         val chosenCatalog = tryGetCatalogFor(fioCtx, file, nonProcessed)
@@ -27,7 +27,7 @@ fun readTemplate(fioCtx: FioContext, file: VirtualFile): ModelInit.TemplateHolde
 }
 
 context(ProblemReporterContext, FrontendPathResolver)
-fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
+internal fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
     val readTemplates = apply
         ?.mapNotNull { loadVirtualFileOrNull(it) }
         ?.mapNotNull { readTemplate(fioCtx, it)?.template } ?: emptyList()

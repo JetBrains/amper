@@ -130,7 +130,7 @@ object MockProjectInitializer {
     }
 }
 
-class StandaloneXcodeComponentManager(private val xcodePath: String, private val unitTestMode: Boolean) :
+private class StandaloneXcodeComponentManager(private val xcodePath: String, private val unitTestMode: Boolean) :
     XcodeComponentManager {
     override fun isUnitTestMode(): Boolean = unitTestMode
 

@@ -43,7 +43,7 @@ import kotlin.io.path.pathString
 /**
  * Module wrapper to hold also chosen catalog.
  */
-data class ModuleHolder(
+private data class ModuleHolder(
     val module: Module,
     val chosenCatalog: VersionCatalog?,
 )
@@ -101,7 +101,7 @@ internal fun doBuild(
  * Try to find gradle catalog and compose it with built-in catalog.
  */
 context(ProblemReporterContext, FrontendPathResolver)
-fun tryGetCatalogFor(fioCtx: FioContext, file: VirtualFile, nonProcessed: Base): VersionCatalog {
+internal fun tryGetCatalogFor(fioCtx: FioContext, file: VirtualFile, nonProcessed: Base): VersionCatalog {
     val gradleCatalog = fioCtx.getCatalogPathFor(file)
         ?.let { parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
@@ -112,7 +112,7 @@ fun tryGetCatalogFor(fioCtx: FioContext, file: VirtualFile, nonProcessed: Base):
  * Try to get used version catalog.
  */
 context(ProblemReporterContext)
-fun addBuiltInCatalog(
+private fun addBuiltInCatalog(
     nonProcessed: Base,
     otherCatalog: VersionCatalog? = null,
 ): VersionCatalog {
@@ -135,7 +135,7 @@ private data class ModuleTriple(
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-internal fun Map<VirtualFile, ModuleHolder>.buildAom(
+private fun Map<VirtualFile, ModuleHolder>.buildAom(
     gradleModules: Map<VirtualFile, PotatoModule>,
 ): List<PotatoModule> {
     val modules = map { (mPath, holder) ->
