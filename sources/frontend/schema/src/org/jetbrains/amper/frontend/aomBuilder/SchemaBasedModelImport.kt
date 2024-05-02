@@ -42,7 +42,6 @@ class SchemaBasedModelImport : ModelInit {
         val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
-        // Propagate settings from fragment to fragment.
         return resultModules.singleOrNull()?.asAmperSuccess()
             ?: return amperFailure()
     }
