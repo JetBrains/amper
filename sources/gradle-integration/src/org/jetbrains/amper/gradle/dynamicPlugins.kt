@@ -87,12 +87,26 @@ private fun resolveClassPath(
         it.name == "resolveClassPath"
     }.single()
 
-    // breaking internal API changes in Gradle 8.6;
-    // we want to support both Gradle < 8.6 and Gradle >= 8.6
-    val foundClassPath = if (resolver.parameters.size == 1) {
-        resolver.invoke(classPathResolver, classpathConfig)
-    } else {
-        resolver.invoke(classPathResolver, classpathConfig, dependencyHandler, configurationContainer)
+    // breaking internal API changes in both Gradle 8.6 and 8.7
+    // we want to support all of Gradle < 8.6, Gradle = 8.6 and Gradle 8.7+
+    val foundClassPath = when (resolver.parameters.size) {
+        1 -> {
+            // Gradle < 8.6 - one parameter
+            resolver.invoke(classPathResolver, classpathConfig)
+        }
+        2 -> {
+            // Gradle 8.7+ - two parameters
+            val prepareHandler = classPathResolver.javaClass.declaredMethods.filter {
+                it.name == "prepareDependencyHandler"
+            }.single()
+            resolver.invoke(classPathResolver, prepareHandler.invoke(
+                classPathResolver, dependencyHandler
+            ))
+        }
+        else -> {
+            // Gradle 8.6 - three parameters :D
+            resolver.invoke(classPathResolver, classpathConfig, dependencyHandler, configurationContainer)
+        }
     } as ClassPath
     return foundClassPath
 }
