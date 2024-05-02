@@ -76,7 +76,9 @@ class AmperCliTest: AmperCliTestBase() {
                 shared/src@jvm/World.kt
                 shared/src@linux/World.kt
                 shared/src@macos/World.kt
+                shared/src@mingw/World.kt
                 shared/test/test.kt
+                windows-cli/module.yaml
             """.trimIndent(),
             files
         )
