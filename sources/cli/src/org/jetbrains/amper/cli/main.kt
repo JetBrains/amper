@@ -71,6 +71,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             helpFormatter = { context ->
                 object : MordantHelpFormatter(context, showDefaultValues = true) {
                     override fun renderRepeatedMetavar(metavar: String): String {
+                        // make it clear that arguments should be separated by '--'
                         if (metavar == "[<program arguments>]" || metavar == "[<tool arguments>]") {
                             return "-- ${metavar}..."
                         }
