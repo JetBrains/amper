@@ -40,7 +40,7 @@ class ResolveExternalDependenciesTask(
         MavenResolver(userCacheRoot)
     }
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val repositories = module.mavenRepositories
             .filter { it.resolve }
             .map { it.url }
@@ -71,13 +71,13 @@ class ResolveExternalDependenciesTask(
         val resolvedPlatform = platform.toResolutionPlatform()
         if (resolvedPlatform == null) {
             logger.error("${module.userReadableName}: Non-leaf platform $platform is not supported for resolving external dependencies")
-            return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
         } else if (resolvedPlatform != ResolutionPlatform.JVM
             && resolvedPlatform != ResolutionPlatform.ANDROID
             && resolvedPlatform.nativeTarget == null
         ) {
             logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
-            return TaskResult(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
         }
 
         logger.info("resolve dependencies ${module.userReadableName} -- " +
@@ -135,13 +135,13 @@ class ResolveExternalDependenciesTask(
                 "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                 "${repositories.joinToString(" ")} resolved to:\n${compileClasspath.joinToString("\n") { "  " + it.relativeToOrSelf(userCacheRoot.path).pathString }}")
 
-        return TaskResult(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)
+        return Result(compileClasspath = compileClasspath, runtimeClasspath = runtimeClasspath, dependencies = dependenciesResult)
     }
 
-    class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
-                     val compileClasspath: List<Path>,
-                     val runtimeClasspath: List<Path>,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    class Result(override val dependencies: List<TaskResult>,
+                 val compileClasspath: List<Path>,
+                 val runtimeClasspath: List<Path>,
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

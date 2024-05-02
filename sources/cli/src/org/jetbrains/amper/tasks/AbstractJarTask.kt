@@ -25,7 +25,7 @@ abstract class AbstractJarTask(
     protected abstract fun outputJarPath(): Path
     protected abstract fun jarConfig(): JarConfig
 
-    protected abstract fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult
+    protected abstract fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): Result
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val inputDirs = getInputDirs(dependenciesResult)
@@ -45,7 +45,7 @@ abstract class AbstractJarTask(
         return createResult(dependenciesResult, outputJarPath)
     }
 
-    abstract class AbstractJarTaskResult(
+    abstract class Result(
         override val dependencies: List<TaskResult>,
         val jarPath: Path,
     ) : TaskResult

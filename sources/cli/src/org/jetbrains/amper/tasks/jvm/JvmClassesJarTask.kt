@@ -36,15 +36,15 @@ class JvmClassesJarTask(
     }
 
     // TODO add version here?
-    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar" 
+    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar"
 
     override fun jarConfig(): JarConfig = JarConfig(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null
     )
 
-    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult =
-        JvmClassesJarTaskResult(dependenciesResult, jarPath)
+    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTask.Result =
+        Result(dependenciesResult, jarPath)
 
-    class JvmClassesJarTaskResult(dependencies: List<TaskResult>, jarPath: Path) :
-        AbstractJarTaskResult(dependencies, jarPath)
+    class Result(dependencies: List<TaskResult>, jarPath: Path) :
+        AbstractJarTask.Result(dependencies, jarPath)
 }

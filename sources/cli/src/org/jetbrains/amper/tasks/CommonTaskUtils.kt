@@ -22,7 +22,7 @@ object CommonTaskUtils {
 
     private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
         val externalClasspath =
-            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.Result>()
                 .flatMap { it.runtimeClasspath }
         for (path in externalClasspath) {
             if (!result.contains(path)) {

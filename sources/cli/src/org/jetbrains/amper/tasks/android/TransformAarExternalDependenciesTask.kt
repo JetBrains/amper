@@ -19,7 +19,7 @@ class TransformAarExternalDependenciesTask(
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val resolvedAndroidCompileDependencies = dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath }
 
         val executionResult = executeOnChangedInputs.execute(taskName.name, mapOf(), resolvedAndroidCompileDependencies) {

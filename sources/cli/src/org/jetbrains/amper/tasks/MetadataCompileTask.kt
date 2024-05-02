@@ -62,7 +62,7 @@ class MetadataCompileTask(
         val kotlinVersion = UsedVersions.kotlinVersion
         val kotlinSettings = listOf(fragment).mergedKotlinSettings()
 
-        val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+        val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
 
         // TODO extract deps only for our fragment/platforms
         val mavenClasspath = dependencyResolutionResults.flatMap { it.compileClasspath }

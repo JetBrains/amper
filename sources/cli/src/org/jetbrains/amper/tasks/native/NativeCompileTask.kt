@@ -75,14 +75,14 @@ class NativeCompileTask(
         // TODO exported dependencies. It's better to supported them in unified way across JVM and Native
 
         val externalDependenciesTaskResult = dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .singleOrNull()
-            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
+            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
         // TODO Native compiler won't work without recursive dependencies, which we should correctly calculate in that case
         val externalDependencies = (externalDependenciesTaskResult.compileClasspath +
                 dependenciesResult.flatMap {
-                    result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.TaskResult>().flatMap { it.compileClasspath }
+                    result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.Result>().flatMap { it.compileClasspath }
                 })
             .distinct()
         logger.warn("" +

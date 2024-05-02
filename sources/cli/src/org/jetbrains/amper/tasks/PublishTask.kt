@@ -33,8 +33,7 @@ import org.jetbrains.amper.maven.MavenCoordinates
 import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor
-import org.jetbrains.amper.tasks.SourcesJarTask.SourcesJarTaskResult
-import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask.JvmClassesJarTaskResult
+import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -110,7 +109,7 @@ class PublishTask(
             repositorySystem.deploy(repositorySession, deployRequest)
         }
 
-        return PublishTaskResult(dependenciesResult)
+        return Result(dependenciesResult)
     }
 
     private fun createArtifactsToDeploy(dependenciesResult: List<TaskResult>): List<Artifact> {
@@ -134,13 +133,13 @@ class PublishTask(
     }
 
     private fun TaskResult.toMavenArtifact(coords: MavenCoordinates) = when (this) {
-        is JvmClassesJarTaskResult -> jarPath.toMavenArtifact(coords)
-        is SourcesJarTaskResult -> jarPath.toMavenArtifact(coords, classifier = "sources")
-        is PublishTaskResult -> null
+        is JvmClassesJarTask.Result -> jarPath.toMavenArtifact(coords)
+        is SourcesJarTask.Result -> jarPath.toMavenArtifact(coords, classifier = "sources")
+        is Result -> null
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
 
-    class PublishTaskResult(override val dependencies: List<TaskResult>) : TaskResult
+    class Result(override val dependencies: List<TaskResult>) : TaskResult
 
     companion object {
         private val container: PlexusContainer by lazy {

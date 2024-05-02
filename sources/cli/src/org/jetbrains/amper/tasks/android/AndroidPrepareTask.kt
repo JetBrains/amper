@@ -24,11 +24,9 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
-import java.time.Instant
 import java.util.*
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.extension
 
 class AndroidPrepareTask(
@@ -46,7 +44,7 @@ class AndroidPrepareTask(
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
 
         val resolvedAndroidRuntimeDependencies = dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.runtimeClasspath }
         val androidModuleData = AndroidModuleData(":", listOf(), resolvedAndroidRuntimeDependencies.map {
             ResolvedDependency("group", "artifact", "version", it)

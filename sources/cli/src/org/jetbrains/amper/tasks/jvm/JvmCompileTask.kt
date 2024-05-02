@@ -76,9 +76,9 @@ class JvmCompileTask(
         logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
 
         val mavenDependencies = dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.TaskResult>()
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .singleOrNull()
-            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.TaskResult::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
+            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
         val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
 

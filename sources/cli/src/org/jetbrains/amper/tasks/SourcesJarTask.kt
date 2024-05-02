@@ -43,9 +43,8 @@ class SourcesJarTask(
 
     override fun jarConfig(): JarConfig = JarConfig()
 
-    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTaskResult =
-        SourcesJarTaskResult(dependenciesResult, jarPath)
+    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTask.Result =
+        Result(dependenciesResult, jarPath)
 
-    class SourcesJarTaskResult(dependencies: List<TaskResult>, jarPath: Path) :
-        AbstractJarTaskResult(dependencies, jarPath)
+    class Result(dependencies: List<TaskResult>, jarPath: Path) : AbstractJarTask.Result(dependencies, jarPath)
 }
