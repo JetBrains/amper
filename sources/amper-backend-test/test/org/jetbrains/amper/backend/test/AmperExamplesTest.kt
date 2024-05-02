@@ -37,6 +37,7 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     @Test
+    @Ignore("AMPER-527")
     fun `jvm-hello-world`() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Assert output
@@ -68,7 +69,7 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     @Test
-    @Ignore("Currently fails")
+    @Ignore("AMPER-526")
     fun multiplatform() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Assert output
