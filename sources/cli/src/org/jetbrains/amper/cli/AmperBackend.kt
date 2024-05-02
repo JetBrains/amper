@@ -241,7 +241,16 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
         java.nio.file.Files.writeString(outputFile, result)
     }
 
-    private val wrappers = listOf("amper" to "wrappers/amper.template.sh", "amper.bat" to "wrappers/amper.template.bat")
+    private data class AmperWrapper(
+        val fileName: String,
+        val resourceName: String,
+        val executable: Boolean,
+    )
+
+    private val wrappers = listOf(
+        AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true),
+        AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false),
+    )
 
     private fun writeWrappers(root: Path) {
         val sha256: String? = System.getProperty("amper.wrapper.dist.sha256")
@@ -255,22 +264,31 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
             return
         }
 
-        for ((wrapperFileName, templateResource) in wrappers) {
+        for (w in wrappers) {
+            val path = root.resolve(w.fileName)
+
             substituteTemplatePlaceholders(
-                input = javaClass.classLoader.getResourceAsStream(templateResource)!!.use { it.readAllBytes() }.decodeToString(),
-                outputFile = root.resolve(wrapperFileName),
+                input = javaClass.classLoader.getResourceAsStream(w.resourceName)!!.use { it.readAllBytes() }.decodeToString(),
+                outputFile = path,
                 placeholder = "@",
                 values = listOf(
                     "AMPER_VERSION" to AmperBuild.BuildNumber,
                     "AMPER_DIST_SHA256" to sha256,
                 ),
-                outputWindowsLineEndings = wrapperFileName.endsWith(".bat"),
+                outputWindowsLineEndings = w.fileName.endsWith(".bat"),
             )
+
+            if (w.executable) {
+                val rc = path.toFile().setExecutable(true)
+                check(rc) {
+                    "Unable to make file executable: $rc"
+                }
+            }
         }
     }
 
     private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
-        val filesToCheck = templateFiles.map { it.second } + wrappers.map { it.first }
+        val filesToCheck = templateFiles.map { it.second } + wrappers.map { it.fileName }
         val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
         if (alreadyExistingFiles.isNotEmpty()) {
             userReadableError(

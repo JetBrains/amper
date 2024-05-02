@@ -101,6 +101,11 @@ class ShellScriptsTest {
                 originalFile = originalFile,
             )
         }
+
+        if (OS.isUnix) {
+            val wrapper = tempProjectRoot.resolve("amper")
+            assertTrue("Wrapper must be executable: $wrapper") { wrapper.isExecutable() }
+        }
     }
 
     @Test
