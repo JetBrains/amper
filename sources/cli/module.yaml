@@ -22,7 +22,7 @@ dependencies:
   - com.jetbrains.intellij.platform:core-impl:233.13763.11
   - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
-  - org.jetbrains.kotlin:kotlin-build-tools-api:1.9.22
+  - org.jetbrains.kotlin:kotlin-build-tools-api:2.0.0-RC1
   - org.slf4j:slf4j-api:2.0.9
   - org.tinylog:tinylog-api-kotlin:2.6.2
   - org.tinylog:tinylog-impl:2.6.2

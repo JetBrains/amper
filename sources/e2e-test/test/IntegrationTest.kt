@@ -309,7 +309,8 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
                 "ARCHS" to "arm64",
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to "./target_xcode_build",
-                "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir"
+                "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir",
+                "BUILT_PRODUCTS_DIR" to "testBuiltProductsDir",
             )
         )
     }

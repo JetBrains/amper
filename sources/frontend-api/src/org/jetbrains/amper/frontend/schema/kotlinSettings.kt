@@ -55,7 +55,7 @@ class KotlinSettings : SchemaNode() {
     var linkerOpts by nullableValue<List<String>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information")
-    var debug by value(false)
+    var debug by value(true)
 
     @SchemaDoc("Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
     var progressiveMode by value(false)

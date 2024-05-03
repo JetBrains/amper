@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package org.jetbrains.amper.gradle.apple
@@ -16,10 +16,7 @@ import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 val iosPlatforms = setOf(Platform.IOS_ARM64, Platform.IOS, Platform.IOS_SIMULATOR_ARM64, Platform.IOS_X64)
 
-class AppleBindingPluginPart(ctx: PluginPartCtx) : KMPEAware, BindingPluginPart by ctx {
-    override val kotlinMPE: KotlinMultiplatformExtension
-        get() = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
-
+class AppleBindingPluginPart(ctx: PluginPartCtx): BindingPluginPart by ctx {
     private val applePE: AppleProjectExtension? get() = project.extensions.findByName("apple") as AppleProjectExtension?
 
     override val needToApply by lazy { module.type == ProductType.IOS_APP }

@@ -316,7 +316,7 @@ the [module tests](Documentation.md#tests).
 | `progressiveMode: boolean`      | Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive).                                                     |         |
 | `optIns: enum list`             | Enable usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name. |         |
 | `freeCompilerArgs: string list` | Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly.                                                           |         |
-| `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               |         |
+| `debug: boolean`                | (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information.                                               | `true`  |
 | `serialization: object \| enum` | Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization).                                                                               |         |
 
 `serialization:` attribute could an object or an enum corresponding to the `format:` attribute:

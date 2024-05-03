@@ -14,6 +14,7 @@ import org.gradle.api.tasks.testing.Test
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.gradle.android.AndroidBindingPluginPart
+import org.jetbrains.amper.gradle.apple.AppleBindingPluginPart
 import org.jetbrains.amper.gradle.base.BindingPluginPart
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.compose.ComposePluginPart
@@ -45,7 +46,7 @@ class BindingProjectPlugin : Plugin<Project> {
             kmppBindingPluginPart,
             JavaBindingPluginPart(pluginCtx),
             ComposePluginPart(pluginCtx),
-            org.jetbrains.amper.gradle.apple.AppleBindingPluginPart(pluginCtx),
+            AppleBindingPluginPart(pluginCtx),
             SerializationPluginPart(pluginCtx),
             KoverPluginPart(pluginCtx)
         )

@@ -36,7 +36,7 @@ Fragments:
       kotlin: {
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
-        debug: <default> false
+        debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
         languageVersion: 1.9
@@ -95,7 +95,7 @@ Fragments:
       kotlin: {
         allWarningsAsErrors: <default> false
         apiVersion: <default> 1.9
-        debug: <default> false
+        debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
         languageVersion: 1.9

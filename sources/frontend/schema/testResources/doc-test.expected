@@ -97,7 +97,7 @@ KotlinSettings
 --------------
 	allWarningsAsErrors: Boolean, default: false - Turn any warnings into a compilation error
 	apiVersion: KotlinVersion - Allow using declarations only from the specified version of Kotlin bundled libraries
-	debug: Boolean, default: false - (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information
+	debug: Boolean, default: true - (Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information
 	freeCompilerArgs: List<String> - Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly
 	languageFeatures: List<String>
 	languageVersion: KotlinVersion, default: 1.9 - Source compatibility with the specified version of Kotlin
