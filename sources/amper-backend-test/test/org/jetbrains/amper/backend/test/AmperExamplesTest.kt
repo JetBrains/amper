@@ -31,13 +31,13 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     @Test
+    @Ignore("AMPER-527")
     fun `compose-android`() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Can we run it somehow?
     }
 
     @Test
-    @Ignore("AMPER-527")
     fun `jvm-hello-world`() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Assert output
