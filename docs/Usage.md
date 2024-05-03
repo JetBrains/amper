@@ -46,6 +46,13 @@ Windows powershell:
 > The first time you run the wrapper script, it will take some time to download the JDK and Amper CLI distribution.
 Subsequent runs will be faster, as the downloaded files will be cached locally.
 
+Useful commands:
+- `amper init` to create a new Amper project
+- `amper build` to compile and link all code in the project
+- `amper test` to run tests in the project
+- `amper run` to run your application 
+- `amper clean` to remove the project's build output and caches
+
 ### Using Amper in IntelliJ IDEA
 
 See [the setup instructions](Setup.md) to configure your IDE and the environment.
