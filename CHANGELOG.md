@@ -1,8 +1,18 @@
 # 0.3.0
 
-* Standalone Amper CLI. See the [usage instructions](docs/Usage.md#using-the-standalone-amper-from-command-line). 
+* Standalone Amper CLI. See the [usage instructions](docs/Usage.md#using-the-standalone-amper-from-command-line).
+  * Build, test, and run JVM and Android applications in CLI and Fleet.
+  * iOS support is on the way.
+  * Standalone Amper can automatically download and configure the build environment, such as JDK, Android SDK.
+* Gradle-based Amper has been updated with the following plugins:
+  * Kotlin 2.0
+  * Compose 1.6.10
+  * Android 8.1
+* Support WASM platform for libraries. 
 
 ## Breaking changes
+
+Gradle-based Amper now requires Gradle 8.6 or later
 
 Amper now uses the `release` javac option instead of `target` and `source` to compile the Java code. 
 This version is also passed to the Kotlin compiler on the JVM platform.   
