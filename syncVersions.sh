@@ -1,3 +1,13 @@
+
+
+
+# Create temp file to store sed commands.
+SED_COMMANDS_FILE=$(mktemp /tmp/used_sed_commands.XXXXXX)
+
+append_to_sed_file() {
+  echo "$1" >> "$SED_COMMANDS_FILE"
+}
+
 # A bit of complex regex.
 # Note: \w is handled differently within different sed implementations,
 #       so [a-zA-Z0-9] is introduced.
@@ -9,8 +19,8 @@ add_update_rule() {
 BOOTSTRAP_AMPER_VERSION="0.3.0-dev-551"
 KOTLIN_VERSION="2.0.0-RC1"
 COMPOSE_VERSION="1.6.2"
-GRADLE_VERSION="8.2.1-bin.zip"
-ANDROID_VERSION="8.2.2"
+GRADLE_VERSION="8.6-bin.zip"
+ANDROID_VERSION="8.3.0"
 
 DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
 

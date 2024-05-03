@@ -270,7 +270,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         "mergeReleaseJavaResource",
         expectOutputToHave = "BUILD SUCCESSFUL",
     ) {
-        val pathToMergedResources = it / "build" / "intermediates" / "java_res" / "release" / "out"
+        val pathToMergedResources = it / "build" / "intermediates" / "java_res" / "release" / "processReleaseJavaRes" / "out"
         assertTrue(
             pathToMergedResources.resolve("commonResource.txt").exists(),
             "Expected to have common resource in merged resources"

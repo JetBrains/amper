@@ -73,7 +73,6 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         )
     }
 
-    @OptIn(ExperimentalPathApi::class)
     internal fun test(
         projectName: String,
         vararg buildArguments: String,
@@ -89,6 +88,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
         newEnv["ANDROID_HOME"] = androidHome.pathString
         val runner = gradleRunner
         val projectConnector = runner
+            .useGradleVersion("8.6")
             .forProjectDirectory(tempDir.toFile())
             .connect()
         val stdout = ByteArrayOutputStream()
@@ -101,7 +101,7 @@ open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath
                 .withArguments(*buildArguments, "--stacktrace", "--no-build-cache")
                 .setStandardOutput(TeeOutputStream(System.out, stdout))
                 .setStandardError(TeeOutputStream(System.err, stderr))
-//            .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
+//            .addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
                 .run()
         } catch (t: Throwable) {
             if (shouldSucceed) {
