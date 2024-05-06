@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -92,7 +93,14 @@ class AmperBackend(val context: ProjectContext, private val backgroundScope: Cor
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
 
-        val platformsToCompile: Set<Platform> = platforms ?: Platform.leafPlatforms
+        val possibleCompilationPlatforms = if (OS.isMac) {
+            Platform.leafPlatforms
+        } else {
+            // Apple targets could be compiled only on Mac OS X due to legal obstacles
+            Platform.leafPlatforms.filter { !it.isDescendantOf(Platform.APPLE) }.toSet()
+        }
+
+        val platformsToCompile: Set<Platform> = platforms ?: possibleCompilationPlatforms
         runBlocking {
             val taskNames = taskGraph
                 .tasks
