@@ -301,7 +301,7 @@ tasks.register<Copy>("copyAndroidTestProjects") {
     }
 
     arrayOf("compose-android").forEach { dirName ->
-        val sourcePath = "../../examples.pure/$dirName"
+        val sourcePath = "../../examples-standalone/$dirName"
         from(sourcePath) {
             into(dirName)
         }

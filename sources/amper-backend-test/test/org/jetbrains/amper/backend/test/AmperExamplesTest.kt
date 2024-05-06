@@ -6,6 +6,7 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -13,8 +14,17 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 
-// Runs examples.pure under current backend
+// Runs examples-standalone under current backend
 class AmperExamplesTest: AmperCliTestBase() {
+    @Test
+    @Ignore("AMPER-526")
+    fun `compose-multiplatform`() = runTestInfinitely {
+        runCli(projectName, "build")
+        // TODO Assert output
+        runCli(projectName, "run")
+        runCli(projectName, "test")
+    }
+
     @Test
     fun `compose-desktop`() = runTestInfinitely {
         runCli(projectName, "build")
@@ -29,22 +39,14 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `jvm-hello-world`() = runTestInfinitely {
+    @Ignore("AMPER-534")
+    fun `compose-ios`() = runTestInfinitely {
         runCli(projectName, "build")
-        // TODO Assert output
-        runCli(projectName, "run")
+        // TODO Can we run it somehow?
     }
 
     @Test
-    fun `jvm-kotlin+java`() = runTestInfinitely {
-        runCli(projectName, "build")
-        // TODO Assert output
-        runCli(projectName, "run")
-        runCli(projectName, "test")
-    }
-
-    @Test
-    fun `jvm-with-tests`() = runTestInfinitely {
+    fun jvm() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Assert output
         runCli(projectName, "run")
@@ -52,16 +54,7 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     @Test
-    fun modularized() = runTestInfinitely {
-        runCli(projectName, "build")
-        // TODO Assert output
-        runCli(projectName, "run")
-        runCli(projectName, "test")
-    }
-
-    @Test
-    @Ignore("AMPER-526")
-    fun multiplatform() = runTestInfinitely {
+    fun `new-project-template`() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Assert output
         runCli(projectName, "run")
@@ -72,7 +65,7 @@ class AmperExamplesTest: AmperCliTestBase() {
     fun `all examples are covered`() {
         val methods = javaClass.declaredMethods.map { it.name }.toSet()
 
-        for (entry in testDataRoot.listDirectoryEntries()) {
+        for (entry in testDataRoot.listDirectoryEntries().filter { it.isDirectory() }) {
             assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
                     "Please add a test method named '${entry.name}'")
         }
@@ -81,5 +74,5 @@ class AmperExamplesTest: AmperCliTestBase() {
     private val projectName: String
         get() = currentTestName
 
-    override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples.pure")
+    override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 }

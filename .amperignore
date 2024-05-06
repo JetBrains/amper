@@ -1,7 +1,7 @@
 build
 buildSrc
 examples
-examples.pure
+examples-standalone
 migrated-projects
 sources/amper-backend-test/testData
 sources/cli/resources/templates

@@ -16,5 +16,3 @@ dependencies@android:
 settings:
   compose:
     enabled: true
-  jvm:
-    release: 17
