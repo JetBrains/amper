@@ -1,15 +1,15 @@
 This tutorial demonstrates how to add Amper module files to existing Gradle JVM and Kotlin Multiplatform projects.
 
 See also project examples:
-* [gradle-interop](../examples/gradle-interop) shows how to use Gradle with an exising module.yaml.  
-* [gradle-migration-jvm](../examples/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper module.   
-* [gradle-migration-kmp](../examples/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper module.
+* [gradle-interop](../examples-gradle/gradle-interop) shows how to use Gradle with an exising module.yaml.  
+* [gradle-migration-jvm](../examples-gradle/gradle-migration-jvm) demonstrates a JVM Gradle project with an Amper module.   
+* [gradle-migration-kmp](../examples-gradle/gradle-migration-kmp) demonstrates a Kotlin Multiplatform Gradle project with an Amper module.
 
 If you are looking for more detailed info on Gradle interop, check [the documentation](Documentation.md#gradle-interop).
 
 ### Before you start
 
-Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE
+Check the [setup instructions](Setup.md), and open [a new project template](../examples-gradle/new-project-template) in the IDE
 to make sure everything works.
 
 Note, that:
@@ -184,7 +184,7 @@ plugins {
 }
 ```
 
-See example project [gradle-migration-jvm](../examples/gradle-migration-jvm).
+See example project [gradle-migration-jvm](../examples-gradle/gradle-migration-jvm).
 
 #### Kotlin Multiplatform projects
 

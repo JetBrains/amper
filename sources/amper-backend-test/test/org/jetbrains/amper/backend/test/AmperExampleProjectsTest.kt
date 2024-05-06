@@ -19,7 +19,7 @@ import kotlin.test.assertFailsWith
 
 class AmperExampleProjectsTest : IntegrationTestBase() {
 
-    private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples")
+    private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
 
     private fun setupExampleProject(testProjectName: String): ProjectContext {
         val projectContext = setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)

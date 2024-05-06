@@ -1,6 +1,6 @@
 build
 buildSrc
-examples
+examples-gradle
 examples-standalone
 migrated-projects
 sources/amper-backend-test/testData

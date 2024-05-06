@@ -3,7 +3,7 @@ This tutorial gives a short introduction to Amper and how to create a new projec
 If you are looking for more detailed info, check [the documentation](Documentation.md).
 
 ### Before you start
-Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
+Check the [setup instructions](Setup.md), and open [a new project template](../examples-gradle/new-project-template) in the IDE to make sure everything works.
 
 Note that:
 * JDK 17+ is required. Make sure you have it installed. 
@@ -37,8 +37,8 @@ fun main() {
 > This tutorial demonstrates the [Gradle-based](Documentation.md#gradle-based-projects) Amper version. You need to
 > create a settings.gradle.kts in the project root.
 
-Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and
-the [gradle folder](../examples/new-project-template/gradle) from a template project:
+Copy the [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts) and
+the [gradle folder](../examples-gradle/new-project-template/gradle) from a template project:
 ```
 |-gradle/...
 |-src/
@@ -60,7 +60,7 @@ And since it’s JVM, let’s also add some Java code.
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
 
-Examples: [jvm-hello-world](../examples/jvm-hello-world), [jvm-kotlin+java](../examples/jvm-kotlin+java).
+Examples: [jvm-hello-world](../examples-gradle/jvm-hello-world), [jvm-kotlin+java](../examples-gradle/jvm-kotlin+java).
 
 Documentation:
 - [Project layout](Documentation.md#project-layout)
@@ -79,7 +79,7 @@ dependencies:
 
 We’ve just added a dependency on a Kotlin library from the Maven repository. 
 
-Examples: [jvm-with-tests](../examples/jvm-with-tests).
+Examples: [jvm-with-tests](../examples-gradle/jvm-with-tests).
 
 Documentation:
 - [Dependencies](Documentation.md#dependencies)
@@ -110,7 +110,7 @@ Then, the test code:
 
 Notice that test dependencies are configured as a separate list. It should be very familiar to the Cargo, Flutter and Poetry users.
 
-Examples: [jvm-with-tests](../examples/jvm-with-tests)
+Examples: [jvm-with-tests](../examples-gradle/jvm-with-tests)
 
 Documentation:
 - [Tests](Documentation.md#tests)
@@ -155,7 +155,7 @@ settings:
   compose: enabled
 ```
 
-Examples: [compose-desktop](../examples/compose-desktop), [compose-android](../examples/compose-android)
+Examples: [compose-desktop](../examples-gradle/compose-desktop), [compose-android](../examples-gradle/compose-android)
 
 Documentation:
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
@@ -212,7 +212,7 @@ additional names to the libraries.
 > In the [Gradle-based](Documentation.md#gradle-based-projects) Amper project, a `settings.gradle.kts` file should be
 > located in the project root.
 
-Copy the [settings.gradle.kts](../examples/new-project-template/settings.gradle.kts) and the [gradle folder](../examples/new-project-template/gradle) from a template project:
+Copy the [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts) and the [gradle folder](../examples-gradle/new-project-template/gradle) from a template project:
 ```
 |-gradle/...
 |-app/
@@ -232,7 +232,7 @@ After that, add modules to the `settings.gradle.kts` file:
 include("app", "shared")
 ```
 
-Examples: [modularized](.././examples/modularized).
+Examples: [modularized](../examples-gradle/modularized).
 
 Documentation:
 - [Internal dependencies](Documentation.md#internal-dependencies)
@@ -375,7 +375,7 @@ They are platform qualifiers which instruct the build tool to only use the corre
 Another interesting thing is `- pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS.
 It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
 
-Examples: [multiplatform](../examples/multiplatform)
+Examples: [multiplatform](../examples-gradle/multiplatform)
 
 Documentation:
 - [Multi-platform configuration](Documentation.md#multi-platform-configuration)
@@ -490,11 +490,11 @@ File layout:
 Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical
 configurations in our codebase.
 
-Examples: [templates](../examples/templates)
+Examples: [templates](../examples-gradle/templates)
 
 Documentation:
 - [Templates](Documentation.md#templates)
 
 ### Further steps
 
-Check the [documentation](Documentation.md) and explore [examples](../examples) for more information.
+Check the [documentation](Documentation.md) and explore [examples](../examples-gradle) for more information.

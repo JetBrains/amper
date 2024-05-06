@@ -1,6 +1,6 @@
 ## Before you start
 
-Check the [setup instructions](Setup.md), and open [a new project template](../examples/new-project-template) in the IDE to make sure everything works.
+Check the [setup instructions](Setup.md), and open [a new project template](../examples-gradle/new-project-template) in the IDE to make sure everything works.
 
 ## Basics
 

@@ -47,7 +47,7 @@ For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
 * [Tutorial](docs/Tutorial.md)  
 * [Documentation](docs/Documentation.md) 
-* [Example projects](examples)
+* [Example projects](examples-gradle)
 * Gradle [migration guide](docs/GradleMigration.md)  
 
 ## Issues and feedback
@@ -81,7 +81,7 @@ The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing s
 product: jvm/app
 ```
 
-That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples/jvm-with-tests).
+That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples-gradle/jvm-with-tests).
 
 ![](docs/images/ij-jvm-result.png)
 
@@ -146,12 +146,12 @@ Second, the dependencies: section allows not only Kotlin and Maven dependencies,
 
 ![](docs/images/fleet-kmp-result.png)
 
-Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples) to get more insight into Amper’s design and functionality.     
+Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples-gradle) to get more insight into Amper’s design and functionality.     
 
 ### More examples
 Check our more real world examples:
-* [JVM "Hello, World!"](examples/jvm-kotlin+java)
-* Compose for [iOS](examples/compose-ios), [Android](examples/compose-android) and [desktop](examples/compose-desktop).
-* [Multiplatform](examples/multiplatform) project with shared code.
-* [Gradle interop](examples/gradle-interop)
-* And [others](examples)
+* [JVM "Hello, World!"](examples-gradle/jvm-kotlin+java)
+* Compose for [iOS](examples-gradle/compose-ios), [Android](examples-gradle/compose-android) and [desktop](examples-gradle/compose-desktop).
+* [Multiplatform](examples-gradle/multiplatform) project with shared code.
+* [Gradle interop](examples-gradle/gradle-interop)
+* And [others](examples-gradle)

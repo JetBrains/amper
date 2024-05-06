@@ -1,7 +1,7 @@
 ### Using the Gradle-based Amper from command line
 
 You can use the [Gradle-based](Documentation.md#gradle-based-projects) Amper is you normally use Gradle. 
-E.g. to build and run the [JVM Hello, World](../examples/jvm-hello-world):
+E.g. to build and run the [JVM Hello, World](../examples-gradle/jvm-hello-world):
 ```
 cd jvm-hello-world
 ./gradlew run 

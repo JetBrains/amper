@@ -10,27 +10,31 @@ import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
-class GradleExamplesTest : E2ETestFixture("../../examples/",
+class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
     runWithPluginClasspath = if (System.getenv("WITH_PLUGIN_CLASSPATH") != null) System.getenv("WITH_PLUGIN_CLASSPATH").toBoolean() else true  ) {
     @Test
     fun `check all example projects are tested`() {
         @OptIn(ExperimentalPathApi::class)
         val testProjects = Path.of(pathToProjects).walk().filter {
             it.name.startsWith("settings.gradle", ignoreCase = true)
-        }.sorted()
+        }.map { it.parent }.sorted().toList()
 
-        val testMethods = this::class.declaredFunctions.count {
+        val testMethods = this::class.declaredFunctions.filter {
             it.annotations.any { it.annotationClass.qualifiedName == "org.junit.jupiter.api.Test" }
         }
 
-        assertEquals(testProjects.count(), testMethods - 1/*except this test method*/,
-            message = "Unexpected tests count, there are ${testProjects.count()} test projects:\n"
-                    + testProjects.joinToString("\n") { it.parent.pathString })
+        val notTested = testProjects.filter { p -> testMethods.none { m -> m.name.contains(p.name) } }
+
+        if(notTested.isNotEmpty()) {
+            fail(message = "Some example projects are not tested:\n"
+                        + notTested.joinToString("\n") { it.pathString })
+        }
     }
 
     @Test
-    fun `new project template runs and prints Hello, World`() = test(
+    fun `new-project-template runs and prints Hello, World`() = test(
         projectName = "new-project-template",
         "run",
         expectOutputToHave = "Hello, World!"
@@ -74,7 +78,7 @@ class GradleExamplesTest : E2ETestFixture("../../examples/",
     )
 
     @Test
-    fun `compose desktop build task`() = test(
+    fun `compose-desktop build task`() = test(
         projectName = "compose-desktop",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
@@ -82,14 +86,14 @@ class GradleExamplesTest : E2ETestFixture("../../examples/",
 
     @Test
     @KonanFolderLock
-    fun `compose desktop ios task`() = test(
+    fun `compose-ios task`() = test(
         projectName = "compose-ios",
         "buildIosAppMain",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
 
     @Test
-    fun `compose android build task`() = test(
+    fun `compose-android build task`() = test(
         projectName = "compose-android",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
@@ -103,7 +107,7 @@ class GradleExamplesTest : E2ETestFixture("../../examples/",
     )
 
     @Test
-    fun `gradle interop`() = test(
+    fun `gradle-interop`() = test(
         projectName = "gradle-interop",
         "build", ":hello", ":run",
         expectOutputToHave = listOf(
@@ -122,14 +126,14 @@ class GradleExamplesTest : E2ETestFixture("../../examples/",
     )
 
     @Test
-    fun `gradle migration jvm`() = test(
+    fun `gradle-migration-jvm`() = test(
         projectName = "gradle-migration-jvm",
         "build", ":app:run",
         expectOutputToHave = listOf("Hello, World!", "BUILD SUCCESSFUL")
     )
 
     @Test
-    fun `gradle migration kmp`() = test(
+    fun `gradle-migration-kmp`() = test(
         projectName = "gradle-migration-kmp",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
