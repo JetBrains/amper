@@ -26,6 +26,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
@@ -201,7 +202,15 @@ class NativeCompileTask(
                                     "-Dfile.encoding=UTF-8",
                                     "-Dkonan.home=$kotlinNativeHome",
                                 ),
-                                printOutputToTerminal = terminal,
+                                outputListener = object : ProcessOutputListener {
+                                    override fun onStdoutLine(line: String) {
+                                        logger.info(line)
+                                    }
+
+                                    override fun onStderrLine(line: String) {
+                                        logger.error(line)
+                                    }
+                                },
                             )
 
                             // TODO this is redundant with the java span of the external process run. Ideally, we
@@ -211,7 +220,12 @@ class NativeCompileTask(
                             span.setAttribute("stderr", result.stderr)
 
                             if (result.exitCode != 0) {
-                                userReadableError("Kotlin native compilation failed (see errors above)")
+                                val errors = result.stderr
+                                    .lines()
+                                    .filter { it.startsWith("error: ") || it.startsWith("exception: ")}
+                                    .joinToString("\n")
+                                val errorsPart = if (errors.isNotEmpty()) ":\n\n$errors" else ""
+                                userReadableError("Kotlin native compilation failed$errorsPart")
                             }
                         }
                 }

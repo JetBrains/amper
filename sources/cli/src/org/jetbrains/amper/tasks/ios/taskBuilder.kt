@@ -57,7 +57,6 @@ fun ProjectTaskRegistrar.setupIosTasks() {
             task = RunAppleTask(
                 runTaskName,
                 context.getTaskOutputPath(runTaskName),
-                context.terminal,
             ),
             dependsOn = listOf(buildTaskName)
         )

@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
+import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -169,7 +170,7 @@ class MetadataCompileTask(
                     classpath = compilerJars,
                     programArgs = compilerArgs,
                     jvmArgs = listOf(),
-                    printOutputToTerminal = terminal,
+                    outputListener = LoggingProcessOutputListener(logger),
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin metadata compilation failed (see errors above)")

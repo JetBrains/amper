@@ -2,6 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:Suppress("SameParameterValue")
+
 package org.jetbrains.amper.processes
 
 import kotlinx.coroutines.CompletableDeferred
@@ -37,7 +39,7 @@ class ProcessesTest {
             else -> binSh("printf 'line1\n'; printf 'line2\nbreak'; printf 'hello stderr' 1>&2")
         }
         val process = ProcessBuilder(command).start()
-        val result = process.awaitAndGetAllOutput()
+        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
         assertZeroExitCode(result)
         assertEquals(listOf("line1", "line2", "break"), result.stdout.trim().lines())
         assertEquals("hello stderr", result.stderr.trim())
@@ -50,7 +52,7 @@ class ProcessesTest {
             else -> binSh("echo line1; not-a-command")
         }
         val process = ProcessBuilder(command).start()
-        val result = process.awaitAndGetAllOutput()
+        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
         assertEquals(unknownCommandExitCode, result.exitCode)
         assertEquals("line1", result.stdout.trim())
         assertContains(result.stderr, "not-a-command")
@@ -71,10 +73,18 @@ class ProcessesTest {
         val firstOutputEvent = CompletableDeferred<Unit>()
         val deferredResult = async {
             process.awaitAndGetAllOutput(
-                onStdoutLine = { firstOutputEvent.complete(Unit) },
-                onStderrLine = { firstOutputEvent.complete(Unit) },
+                object : ProcessOutputListener {
+                    override fun onStdoutLine(line: String) {
+                        firstOutputEvent.complete(Unit)
+                    }
+
+                    override fun onStderrLine(line: String) {
+                        firstOutputEvent.complete(Unit)
+                    }
+                }
             )
         }
+
         // make sure we got some output from the process, confirming it is running
         firstOutputEvent.await()
 
@@ -98,7 +108,7 @@ class ProcessesTest {
         val process = ProcessBuilder(echoEnv("MY_ENV"))
             .apply { environment().putAll(from = mapOf("MY_ENV" to "env_value")) }
             .start()
-        val result = process.awaitAndGetAllOutput()
+        val result = process.awaitAndGetAllOutput(ProcessOutputListener.NOOP)
         assertZeroExitCode(result)
         assertEquals("env_value", result.stdout.trim())
         assertEquals("", result.stderr)

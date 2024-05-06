@@ -36,15 +36,15 @@ class ProcessResult(
  * Awaits the termination of this [Process] in a suspending and cancellable way.
  *
  * The standard IO streams of this process are entirely collected in memory and returned as part of the [ProcessResult].
- * The callbacks [onStdoutLine] and [onStderrLine] can be used to handle lines of output on the fly while the process
+ * [outputListener] can be used to handle lines of output on the fly while the process
  * is running (for instance to print them to the console).
  *
- * **Important:** the stream collection is performed on the current coroutine context, the dispatcher of which must
+ * **Important: ** the stream collection is performed on the current coroutine context, the dispatcher of which must
  * provide **at least 2 threads** (to perform blocking reads of stdout and stderr in parallel). It is the responsibility
  * of the caller to provide a suitable dispatcher.
  *
- * If this function is cancelled, the cancellation is immediate but **the process is untouched and can keep running**.
- * The same applies if any exception is thrown (for instance IO exceptions while reading streams).
+ * If this function is cancelled, the cancellation is immediate, but **the process is untouched and can keep running**.
+ * The same applies if any exception is thrown (for instance, IO exceptions while reading streams).
  * The caller is responsible for ensuring the process doesn't leak, for instance using [withGuaranteedTermination].
  * The reason for this is that the caller of [ProcessBuilder.start] should be responsible for the life of the process.
  *
@@ -55,12 +55,18 @@ class ProcessResult(
  */
 // TODO sometimes capturing the entire stdout/stderr in memory won't work, we most likely will need to provide overloads
 //  that don't collect the result but allow stream processing.
-suspend fun Process.awaitAndGetAllOutput(
-    onStdoutLine: (String) -> Unit = {},
-    onStderrLine: (String) -> Unit = {},
-): ProcessResult = coroutineScope {
-    val deferredStdout = async { inputStream.readAllAndDoOnEachLine(onStdoutLine) }
-    val deferredStderr = async { errorStream.readAllAndDoOnEachLine(onStderrLine) }
+suspend fun Process.awaitAndGetAllOutput(outputListener: ProcessOutputListener): ProcessResult = coroutineScope {
+    val deferredStdout = async {
+        inputStream.readAllAndDoOnEachLine {
+            outputListener.onStdoutLine(it)
+        }
+    }
+
+    val deferredStderr = async {
+        errorStream.readAllAndDoOnEachLine {
+            outputListener.onStderrLine(it)
+        }
+    }
 
     // This is async: onExit() runs on the ForkJoinPool so it doesn't hold the current thread.
     // This is why we only really need 2 threads in the current dispatcher (to consume stdout and stderr).
@@ -131,7 +137,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
         }
     } catch (e: Throwable) {
         // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.
-        // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on a best effort basis.
+        // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on the best effort basis.
         killAndAwaitTermination(gracePeriod)
         throw e
     }
@@ -160,7 +166,7 @@ internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds):
     }
     destroyHierarchyForcibly()
     // The forced destroy operation is asynchronous, so we need to wait until this process is actually terminated.
-    // This may hang if the process is not killable, but if that's the case it's better to hang than to return and
+    // This may hang if the process is not killable, but if that's the case, it's better to hang than to return and
     // silently have a live zombie process.
     return waitFor()
 }
@@ -169,8 +175,8 @@ internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds):
  * Requests the process and all its descendants to be killed. If the process is not alive, no action is taken.
  * The operating system access controls may prevent the process from being killed.
  *
- * Whether the process represented by this [Process] object is normally terminated or not is implementation
- * dependent. Forcible process destruction is defined as the immediate termination of the process, whereas normal
+ * Whether the process represented by this [Process] object is normally terminated or not is implementation-dependent.
+ * Forcible process destruction is defined as the immediate termination of the process, whereas normal
  * termination allows the process to shut down cleanly. If the process is not alive, no action is taken.
  */
 private fun Process.destroyHierarchy() {

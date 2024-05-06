@@ -31,6 +31,8 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -317,7 +319,7 @@ class JvmCompileTask(
                     jdk.homeDir,
                     *javacCommand.toTypedArray(),
                     span = span,
-                    printOutputToTerminal = terminal,
+                    outputListener = LoggingProcessOutputListener(logger),
                 )
             }
         return result.exitCode == 0

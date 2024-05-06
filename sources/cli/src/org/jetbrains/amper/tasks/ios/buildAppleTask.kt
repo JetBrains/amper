@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.forClosure
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeCompileTask
@@ -95,7 +96,7 @@ class BuildAppleTask(
                     "-sdk", targetPlatform.platform,
                     "build",
                     logCall = true,
-                    printOutputToTerminal = terminal,
+                    outputListener = LoggingProcessOutputListener(logger),
                 )
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))

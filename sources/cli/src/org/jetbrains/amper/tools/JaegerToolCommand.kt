@@ -28,6 +28,7 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.intellij.CommandLineUtils
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.util.OS
 import java.net.Socket
@@ -98,14 +99,7 @@ class JaegerToolCommand: CliktCommand(
                 }
             }
 
-            val result = process.awaitAndGetAllOutput(
-                onStdoutLine = { line ->
-                    terminal.println(line)
-                },
-                onStderrLine = { line ->
-                    System.err.println(line)
-                }
-            )
+            val result = process.awaitAndGetAllOutput(PrintToTerminalProcessOutputListener(terminal))
 
             if (result.exitCode != 0) {
                 userReadableError("${executable.name} exited with code ${result.exitCode}")

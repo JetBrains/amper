@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import kotlin.io.path.pathString
@@ -47,7 +48,7 @@ class NativeTestTask(
                     workingDir,
                     executable.pathString,
                     span = span,
-                    printOutputToTerminal = terminal
+                    outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")

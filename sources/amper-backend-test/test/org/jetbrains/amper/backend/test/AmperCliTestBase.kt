@@ -7,9 +7,12 @@ package org.jetbrains.amper.backend.test
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -35,6 +38,15 @@ abstract class AmperCliTestBase {
             "Temp path is not a directory: $path"
         }
         path
+    }
+
+    protected lateinit var testInfo: TestInfo
+    protected val currentTestName: String
+        get() = testInfo.testMethod.get().name
+
+    @BeforeEach
+    fun before(testInfo: TestInfo) {
+        this.testInfo = testInfo
     }
 
     protected abstract val testDataRoot: Path
@@ -79,7 +91,7 @@ abstract class AmperCliTestBase {
                 "-javaagent:$kotlinxCoroutinesCore",
                 "-javaagent:$byteBuddyAgent",
             ),
-            printOutputToTerminal = null,
+            outputListener = ProcessOutputListener.NOOP,
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }

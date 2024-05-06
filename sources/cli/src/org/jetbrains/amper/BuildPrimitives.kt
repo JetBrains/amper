@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper
 
-import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -12,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.intellij.CommandLineUtils
+import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.processes.withGuaranteedTermination
@@ -55,8 +55,7 @@ object BuildPrimitives {
         span: Span? = null,
         logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
-        /** Print output to this process output in addition to storing it in ProcessResult */
-        printOutputToTerminal: Terminal? = null,
+        outputListener: ProcessOutputListener,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -80,10 +79,7 @@ object BuildPrimitives {
                     // we are not interested whether this operation fails
                     logger.warn("Unable to close process stdin: ${t.message}", t)
                 }
-                process.awaitAndGetAllOutput(
-                    onStdoutLine = { printOutputToTerminal?.println(it) },
-                    onStderrLine = { printOutputToTerminal?.println(it, stderr = true) },
-                )
+                process.awaitAndGetAllOutput(outputListener)
             }
         }
         if (span != null) {

@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
@@ -62,7 +63,7 @@ class NativeRunTask(
                     workingDir,
                     *(listOf(executable.pathString) + programArgs).toTypedArray(),
                     span = span,
-                    printOutputToTerminal = terminal,
+                    outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
 
                 val message = "Process exited with exit code ${result.exitCode}" +

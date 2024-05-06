@@ -5,8 +5,6 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -17,13 +15,6 @@ import kotlin.test.assertContains
 
 // Runs examples.pure under current backend
 class AmperExamplesTest: AmperCliTestBase() {
-    private lateinit var testInfo: TestInfo
-
-    @BeforeEach
-    fun before(testInfo: TestInfo) {
-        this.testInfo = testInfo
-    }
-
     @Test
     fun `compose-desktop`() = runTestInfinitely {
         runCli(projectName, "build")
@@ -88,7 +79,7 @@ class AmperExamplesTest: AmperCliTestBase() {
     }
 
     private val projectName: String
-        get() = testInfo.testMethod.get().name
+        get() = currentTestName
 
     override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples.pure")
 }

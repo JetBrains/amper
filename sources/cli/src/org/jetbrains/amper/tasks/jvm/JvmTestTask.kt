@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -124,7 +125,7 @@ class JvmTestTask(
                         workingDirectory,
                         *jvmCommand.toTypedArray(),
                         span = span,
-                        printOutputToTerminal = terminal
+                        outputListener = PrintToTerminalProcessOutputListener(terminal),
                     )
 
                     // TODO exit code from junit launcher should be carefully become some kind of exit code for entire Amper run
