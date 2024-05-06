@@ -4,23 +4,21 @@
 
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.GradleConnector
-import org.jetbrains.amper.core.messages.BuildProblem
-import org.jetbrains.amper.core.messages.CollectingProblemReporter
-import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.yaml.snakeyaml.Yaml
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.nio.file.FileVisitResult
+import java.nio.file.FileVisitor
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
@@ -87,32 +85,36 @@ class BootstrapTest {
     }
 }
 
-// TODO Replace by copyRecursively.
 private fun copyDirectory(source: Path, target: Path) {
-    Files.walk(source).use { paths ->
-        paths.forEach { sourcePath ->
-            if (sourcePath.any { it.pathString == "build" || it.pathString == ".gradle" }) return@forEach
-            // could be present to attach a java agent to the process. Not relevant for this test
-            if (sourcePath.name.startsWith(".attach_pid")) return@forEach
-
-            val targetPath = target.resolve(source.relativize(sourcePath))
-            if (Files.isDirectory(sourcePath)) {
-                if (!Files.exists(targetPath)) {
-                    Files.createDirectory(targetPath)
-                }
-            } else {
-                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
+    Files.walkFileTree(source, object : FileVisitor<Path> {
+        override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+            if (dir.name == "build" || dir.name == ".gradle" || dir.name == ".git") {
+                return FileVisitResult.SKIP_SUBTREE
             }
+
+            val targetPath = target.resolve(source.relativize(dir))
+            targetPath.createDirectories()
+            return FileVisitResult.CONTINUE
         }
-    }
-}
 
-class TestProblemReporter : CollectingProblemReporter() {
-    override fun doReportMessage(message: BuildProblem) {}
+        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+            val targetPath = target.resolve(source.relativize(file))
+            Files.copy(file, targetPath)
 
-    fun getErrors(): List<BuildProblem> = problems.filter { it.level == Level.Error || it.level == Level.Fatal }
-}
+            return FileVisitResult.CONTINUE
+        }
 
-class TestProblemReporterContext : ProblemReporterContext {
-    override val problemReporter: TestProblemReporter = TestProblemReporter()
+        override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
+            if (exc is NoSuchFileException && exc.message?.contains(".attach_pid") == true) {
+                // .attach_pidPID may vanish while copying the project
+                return FileVisitResult.CONTINUE
+            }
+
+            throw exc
+        }
+
+        override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
+            return FileVisitResult.CONTINUE
+        }
+    })
 }
