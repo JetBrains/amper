@@ -6,6 +6,8 @@ package org.jetbrains.amper.backend.test
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.util.OS
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import java.nio.file.Path
@@ -17,23 +19,30 @@ import kotlin.test.assertContains
 
 class AmperProjectTemplatesTest: AmperCliTestBase() {
     // Please add as many checks as possible to template tests
-    // Basic `build` call is already covered by @BeforeEach function
 
     @Test
-    fun `compose-desktop`() = Unit
+    fun `compose-desktop`() = runTestInfinitely {
+        runCli(tempRoot, "build")
+    }
 
     @Test
-    fun `jvm-cli`() = Unit
+    fun `jvm-cli`() = runTestInfinitely {
+        runCli(tempRoot, "build")
+    }
 
     @Test
-    // Can't easily get rid of output associated with
-    // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
-    // See https://youtrack.jetbrains.com/issue/KT-55177
-    @Tag(ALLOW_STDERR_OUTPUT_TAG)
-    fun `multiplatform-cli`() = Unit
+    fun `multiplatform-cli`() = runTestInfinitely {
+        // Can't easily get rid of output associated with
+        // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
+        // See https://youtrack.jetbrains.com/issue/KT-55177
+        runCli(tempRoot, "build", assertEmptyStdErr = false)
+    }
 
     @Test
-    fun `multiplatform-app`() = Unit
+    fun `multiplatform-app`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
+        runCli(tempRoot, "build")
+    }
 
     @BeforeEach
     fun createFromTemplateAndBuild() {
@@ -41,7 +50,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
         runBlocking {
             runCli(tempRoot, "init", currentTestName)
-            runCli(tempRoot, "build", assertEmptyStdErr = !testInfo.tags.contains(ALLOW_STDERR_OUTPUT_TAG))
         }
     }
 
@@ -70,6 +78,5 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     companion object {
         private const val SUPPLEMENTAL_TAG = "supplemental"
-        private const val ALLOW_STDERR_OUTPUT_TAG = "allow-stderr-output"
     }
 }
