@@ -129,9 +129,9 @@ dependencies@debug:
 
 `module:` section configures various aspects of the module, such as file layout.
 
-| Attribute      | Description                                                                               | Default   |
-|----------------|-------------------------------------------------------------------------------------------|-----------|
-| `layout: enum` | File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interop). | `default` |
+| Attribute      | Description                                                                                                         | Default   |
+|----------------|---------------------------------------------------------------------------------------------------------------------|-----------|
+| `layout: enum` | (Gradle-based Amper only) File layout of the module. [Read more](Documentation.md#file-layout-with-gradle-interop). | `default` |
 
 Supported file layouts:
 
@@ -427,7 +427,7 @@ By default, JUnit 4 is used.
 
 #### Kover
 
-`settings:kover:` configures kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+(Gradle-based Amper only)`settings:kover:` configures kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 
 | Attribute          | Description                    | Default |
 |--------------------|--------------------------------|---------|

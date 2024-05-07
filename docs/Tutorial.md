@@ -1,4 +1,4 @@
-This tutorial gives a short introduction to Amper and how to use it a new project.
+This tutorial gives a short introduction to Amper and how to create a new project.
 
 If you are looking for more detailed info, check [the documentation](Documentation.md).
 
@@ -10,7 +10,7 @@ Note that:
 
 ### Step 1. Hello, World
 
-The first thing you’d want to try when getting familiar with a new tool is just a simple hello world application. Here
+The first thing you’d want to try when getting familiar with a new tool is just a simple "Hello, World" application. Here
 is what we do:
 
 Create a `module.yaml` file:

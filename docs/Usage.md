@@ -53,6 +53,13 @@ Useful commands:
 - `amper run` to run your application 
 - `amper clean` to remove the project's build output and caches
 
+E.g. to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
+```
+cd examples-standalone/jvm
+./amper run 
+```
+
+
 ### Using Amper in IntelliJ IDEA
 
 See [the setup instructions](Setup.md) to configure your IDE and the environment.

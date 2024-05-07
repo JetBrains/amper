@@ -23,15 +23,15 @@ Amper is implemented as a Gradle-based tool and also as a standalone tool, and p
 configuration format.
 
 Supported features:
-* Creating and running JVM, Android, iOS, Linux and macOS applications.
+* Creating and running JVM, Android, iOS, Linux, and macOS applications.
 * Creating Kotlin Multiplatform libraries.
 * Running tests.
 * Mixing Kotlin, Java and Swift code.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
 * [Multi-module](docs/Documentation.md#module-dependencies) projects.
-* [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
-* Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
-* [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
+* (Gradle-based Amper only) [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
+* (Gradle-based Amper only) Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
+* (Gradle-based Amper only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
 * Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Planned features:
@@ -54,7 +54,7 @@ For a quick start:
 
 Amper uses [YouTrack](https://youtrack.jetbrains.com/issues/AMPER) for issue tracking, [create a new issue](https://youtrack.jetbrains.com/newIssue?project=AMPER) there to report problems or submit ideas.
 
-Before reporting an issue, please check the [FAQ](docs/FAQ.md) and the [list of known issues](docs/KnownIssues.md).
+Before reporting an issue, please check the [FAQ](docs/FAQ.md).
 
 You can also join the [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for discussions, or share your feedback using the [feedback form](https://surveys.jetbrains.com/s3/Amper-feedback-form).     
 
@@ -69,7 +69,7 @@ There are multiple ways to try Amper:
 ## Examples
 
 ### Basics
-Here is a very basics JVM "Hello, World!" project:
+Here is a very basic JVM "Hello, World!" project:
 
 <img src="docs/images/ij-jvm-structure.png" width="50%" alt="">
 
