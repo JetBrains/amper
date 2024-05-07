@@ -368,8 +368,6 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         projectName = "compose-resources-jvm",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
-        // See compose.kt for this package name hack reasoning
-//        additionalEnv = mapOf("AMPER_TEST_COMPOSE_PACKAGE_NAME" to "generated.compose.resources")
     )
 
     @Test
@@ -377,7 +375,5 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
         projectName = "compose-resources-jvm-android",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL",
-        // See compose.kt for this package name hack reasoning
-//        additionalEnv = mapOf("AMPER_TEST_COMPOSE_PACKAGE_NAME" to "generated.compose.resources")
     )
 }

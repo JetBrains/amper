@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.gradle
 
+import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
+import com.android.build.gradle.internal.lint.LintModelWriterTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
@@ -54,6 +56,26 @@ class SettingsPluginRun(
     }
 
     private fun configureProject(project: Project) {
+
+        // Dirty hack related with the same problem as here
+        // https://github.com/JetBrains/compose-multiplatform/blob/b6e7ba750c54fddfd60c57b0a113d80873aa3992/gradle-plugins/compose/src/main/kotlin/org/jetbrains/compose/resources/ComposeResources.kt#L75
+        listOf(
+            "com.android.application",
+            "com.android.library"
+        ).forEach {
+            project.plugins.withId(it) {
+                project.tasks.matching {
+                    it is AndroidLintAnalysisTask || it is LintModelWriterTask
+                }.configureEach { task ->
+                    project.tasks.matching { it.name.startsWith("generateResourceAccessorsFor") }
+                        .map { it.name }
+                        .forEach {
+                            task.mustRunAfter(it)
+                        }
+                }
+            }
+        }
+
         // Gradle projects that are not in the map aren't Amper projects (modules) anyway,
         // so we can stop here
         val connectedModule = settings.gradle.projectPathToModule[project.path] ?: run {
