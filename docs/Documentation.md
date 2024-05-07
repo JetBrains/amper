@@ -1487,7 +1487,7 @@ The Amper engine would be able to quickly discover the DSL schema for `setting:m
 
 ## Gradle-based projects
 
-> Gradle-based Amper is tested with Gradle 8.1.
+> Gradle 8.6 is recommended. Gradle 8.7+ is not yet supported.
 
 In a Gradle-based Amper you need a `settings.gradle.kts` file and a `gradle/wrapper/` folders in the project root:
 ```

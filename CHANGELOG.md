@@ -7,12 +7,11 @@
 * Gradle-based Amper has been updated with the following plugins:
   * Kotlin 2.0
   * Compose 1.6.10
-  * Android 8.1
+  * Android 8.2
+* Gradle 8.6 is recommended for the Gradle-based Amper. Gradle 8.7+ is not yet supported. 
 * Support WASM platform for libraries. 
 
 ## Breaking changes
-
-Gradle-based Amper now requires Gradle 8.6 or later
 
 Amper now uses the `release` javac option instead of `target` and `source` to compile the Java code. 
 This version is also passed to the Kotlin compiler on the JVM platform.   
