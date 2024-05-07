@@ -14,6 +14,7 @@ import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 
@@ -21,7 +22,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
     // Please add as many checks as possible to template tests
 
     @Test
-    fun `compose-desktop`() = runTestInfinitely {
+    fun `kmp-lib`() = runTestInfinitely {
         runCli(tempRoot, "build")
     }
 
@@ -39,8 +40,25 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `multiplatform-app`() = runTestInfinitely {
+    fun `compose-multiplatform`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
+        runCli(tempRoot, "build")
+    }
+
+    @Test
+    fun `compose-desktop`() = runTestInfinitely {
+        runCli(tempRoot, "build")
+    }
+
+    @Test
+    fun `compose-android`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
+        runCli(tempRoot, "build")
+    }
+
+    @Test
+    @Ignore("AMPER-534 Can't build a basic iOS project")
+    fun `compose-ios`() = runTestInfinitely {
         runCli(tempRoot, "build")
     }
 

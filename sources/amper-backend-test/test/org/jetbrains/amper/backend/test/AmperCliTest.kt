@@ -67,9 +67,11 @@ class AmperCliTest: AmperCliTestBase() {
             .joinToString("\n")
         assertEquals(
             """
+                .editorconfig
                 jvm-cli/module.yaml
                 linux-cli/module.yaml
                 macos-cli/module.yaml
+                project.yaml
                 shared/module.yaml
                 shared/src/World.kt
                 shared/src/main.kt

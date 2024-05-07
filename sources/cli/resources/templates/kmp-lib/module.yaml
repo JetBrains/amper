@@ -1,0 +1,5 @@
+product:
+  type: lib
+  # ios support is not yet enabled
+  # platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
+  platforms: [jvm, android]
