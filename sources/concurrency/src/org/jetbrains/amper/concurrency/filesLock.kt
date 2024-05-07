@@ -95,6 +95,7 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
 suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
     tempFilePath: suspend () -> Path = {
+        // todo (AB) : Add path checksum to avoid contention if different files have the same name but different paths.
         Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper").resolve("~${target.name}")
     },
     returnAlreadyProducedWithoutLocking: Boolean = true,
@@ -105,6 +106,7 @@ suspend fun produceFileWithDoubleLockAndHash(
         tempFilePath,
         returnAlreadyProducedWithoutLocking,
         getAlreadyProducedResult = {
+            // todo (AB) : replace with logic from ExecuteOnChange (hashes are too heavy)
             if (!target.exists()) {
                 null
             } else {

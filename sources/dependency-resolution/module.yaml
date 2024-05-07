@@ -15,6 +15,11 @@ dependencies:
 
 test-dependencies:
   - ../test-base
+  - org.slf4j:slf4j-api:2.0.9
+  - org.tinylog:tinylog-api-kotlin:2.6.2
+  - org.tinylog:tinylog-impl:2.6.2
+  - org.tinylog:slf4j-tinylog:2.6.2
+  - org.tinylog:jul-tinylog:2.6.2
 
 settings:
   kotlin:

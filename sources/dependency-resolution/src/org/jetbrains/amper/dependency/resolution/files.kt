@@ -359,7 +359,6 @@ open class DependencyFile(
         verify: Boolean,
     ): Boolean {
         for (repository in repositories) {
-            logger.trace("download: Trying to download $nameWithoutExtension from $repository")
             val hashers = createHashers().filter { verify || it.algorithm == "sha1" }.filterWellKnownBrokenHashes(repository)
             val writers = hashers.map { it.writer } + Writer(channel::write)
             if (!download(writers, repository, progress, cache)) {
@@ -402,16 +401,18 @@ open class DependencyFile(
                     temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
-            onFileDownloaded(target)
-            logger.info(
-                "Downloaded {}:{}:{} from {} and stored to {} ",
+            logger.trace(
+                "Downloaded file {} for the dependency {}:{}:{} was stored into {}",
+                target.name,
                 dependency.group,
                 dependency.module,
                 dependency.version,
-                repository,
-                target
+                target.parent
             )
+            onFileDownloaded(target)
+
             dependency.messages.asMutable() += Message("Downloaded from $repository")
+
             return true
         }
         return false
@@ -527,6 +528,8 @@ open class DependencyFile(
         progress: Progress,
         cache: Cache,
     ): Boolean {
+        logger.trace("Trying to download $nameWithoutExtension from $repository")
+
         val client = cache.computeIfAbsent(httpClientKey) {
             HttpClient(CIO) {
                 engine {
@@ -562,10 +565,21 @@ open class DependencyFile(
                             "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
                         )
                     }
+
+                    if (logger.isDebugEnabled) {
+                        logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
+                    } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                        // Reports downloaded dependency to INFO (visible to user by default)
+                        logger.info("Downloaded $url")
+                    }
+
                     return true
                 }
 
-                HttpStatusCode.NotFound -> return false
+                HttpStatusCode.NotFound -> {
+                    logger.debug("Not found URL: $url")
+                    return false
+                }
                 else -> throw IOException(
                     "Unexpected response code for $url. " +
                             "Expected: ${HttpStatusCode.OK.value}, actual: $status"
@@ -704,7 +718,9 @@ private fun fileFromVariant(dependency: MavenDependency, name: String) =
 
 private fun Path.computeHash(): Collection<Hasher> = computeHash(this, createHashers())
 
-private fun createHashers() = listOf("sha512", "sha256", "sha1", "md5").map { Hasher(it) }
+private val hashAlgorithms = listOf("sha512", "sha256", "sha1", "md5")
+
+private fun createHashers() = hashAlgorithms.map { Hasher(it) }
 
 private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
     var size = 0L
