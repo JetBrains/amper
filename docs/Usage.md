@@ -81,7 +81,7 @@ To run an application:
   ![](images/ij-run-config-android.png)
 
 
-* launch a Gradle task directly:\
+* (Gradle-based Amper only) launch a Gradle task directly:\
   ![](images/ij-run-gradle-task.png)
   
 
@@ -105,23 +105,21 @@ To run an application:
 
 
 * use [Run configurations](https://www.jetbrains.com/help/fleet/getting-started-with-kotlin-in-fleet.html#create-rc):\
-  ![](images/fleet-run-config.png)\
-  ![](images/fleet-run-config-ios.png)
+  ![](images/fleet-run-config.png)
 
 
-* launch a Gradle task directly:\
+* (Gradle-based Amper only) launch a Gradle task directly:\
   ![](images/fleet-run-gradle-task.png)
 
-To run tests use the same 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.
+To run tests, use the same 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.
 
 #### Configuring device and simulators
-To select a target device used to an Android or iOS application:
+To [select a target device](https://www.jetbrains.com/help/fleet/kotlin-multiplatform.html#run) used to run an Android or iOS application:
 
-* Create a run configuration in `.fleet/run.json`:\  
-  ![](images/fleet-create-run-configuration.png)
-
-* Specify a type - `kmp-app` for iOS or `android-app` for Android - and a device or a simulator in the `destination` parameter:\   
-  ![](images/fleet-select-ios-device.png)\
-  ![](images/fleet-select-android-device.png)
+* use the device switcher in the Fleet run configuration:\
+ ![](images/fleet-select-device-run-config.png)
+ 
+* use the device switcher in the 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon:\
+ ![](images/fleet-select-device-gutter.png)
 
 
