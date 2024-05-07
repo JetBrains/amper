@@ -14,8 +14,9 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 
+// TODO review and merge with AmperExamples2Test
 // Runs examples-standalone under current backend
-class AmperExamplesTest: AmperCliTestBase() {
+class AmperExamples1Test: AmperCliTestBase() {
     @Test
     @Ignore("AMPER-526 Building of 'examples.pure/multiplatform' failed due to 'unresolved reference: Screen'")
     fun `compose-multiplatform`() = runTestInfinitely {

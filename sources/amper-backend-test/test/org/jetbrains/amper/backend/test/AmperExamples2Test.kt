@@ -17,19 +17,19 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class AmperExampleProjectsTest : IntegrationTestBase() {
-
-    private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-gradle")
+// TODO: review and merged with AmperExamples1Test test suite
+// This test was initially testing Gradle-based example projects.
+// It was decoupled from the Gradle-based examples, and split into AmperExamples2Test and AmperBasicIntegrationTest.
+class AmperExamples2Test : IntegrationTestBase() {
+    private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
     private fun setupExampleProject(testProjectName: String): ProjectContext {
-        val projectContext = setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
-        projectContext.projectRoot.path.deleteGradleFiles()
-        return projectContext
+        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
     }
 
     @Test
-    fun `jvm-hello-world`() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm-hello-world"), backgroundScope).run {
+    fun jvm() = runTestInfinitely {
+        AmperBackend(setupExampleProject("jvm"), backgroundScope).run {
             assertHasTasks(jvmAppTasks)
             runApplication()
         }
@@ -40,69 +40,23 @@ class AmperExampleProjectsTest : IntegrationTestBase() {
             hasCompilerArgument("-api-version", "1.9")
             hasCompilerArgument("-Xjdk-release=17")
         }
-        assertStdoutContains("Hello, World!")
-    }
-
-    @Test
-    fun `jvm-kotlin+java`() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm-kotlin+java"), backgroundScope).run {
-            assertHasTasks(jvmAppTasks)
-            runApplication()
-        }
-
-        assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version", "1.8") // explicit
-            hasCompilerArgument("-Xjdk-release=17") // explicit
-        }
         assertJavaCompilationSpan {
             hasCompilerArgument("--release", "17")
         }
         assertStdoutContains("Hello, World")
-    }
-
-    @Test
-    fun `jvm-with-tests`() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm-with-tests"), backgroundScope).run {
-            assertHasTasks(jvmAppTasks + jvmTestTasks)
-            runApplication()
-        }
-
-        kotlinJvmCompilationSpans.assertSingle()
-        assertStdoutContains("Hello, World!")
 
         resetCollectors()
 
-        val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
-            AmperBackend(setupExampleProject("jvm-with-tests"), backgroundScope).test()
-        }
-        assertEquals("Task ':jvm-with-tests:testJvm' failed: JVM tests failed for module 'jvm-with-tests' with exit code 1 (see errors above)", exception.message)
-        assertStdoutContains("MethodSource [className = 'WorldTest', methodName = 'shouldFail', methodParameterTypes = '']")
-        assertStdoutContains("=> java.lang.AssertionError: Expected value to be true.")
+        AmperBackend(setupExampleProject("jvm"), backgroundScope).test()
+        assertStdoutContains("Test run finished")
+        assertStdoutContains("1 tests successful")
+        assertStdoutContains("0 tests failed")
     }
 
-    @Test
-    fun modularized() = runTestInfinitely {
-        val projectContext = setupExampleProject("modularized")
-
-        AmperBackend(projectContext, backgroundScope).run {
-            assertHasTasks(jvmAppTasks, module = "app")
-            assertHasTasks(jvmBaseTasks + jvmTestTasks, module = "shared")
-            runApplication()
-        }
-
-        kotlinJvmCompilationSpans.withAmperModule("app").assertSingle()
-        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
-        assertStdoutContains("Hello, World!")
-
-        resetCollectors()
-
-        AmperBackend(projectContext, backgroundScope).test()
-        assertStdoutContains("Test run finished after")
-    }
 
     @Test
-    fun multiplatform() = runTestInfinitely {
-        val projectContext = setupExampleProject("multiplatform")
+    fun `compose-multiplatform`() = runTestInfinitely {
+        val projectContext = setupExampleProject("compose-multiplatform")
         AmperBackend(projectContext, backgroundScope).run {
             assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
             assertHasTasks(androidAppTasks, module = "android-app")
@@ -197,10 +151,3 @@ private val knownGradleFiles = setOf(
     "build.gradle.kts",
     "settings.gradle.kts",
 )
-
-@OptIn(ExperimentalPathApi::class)
-private fun Path.deleteGradleFiles() {
-    walk()
-        .filter { it.name in knownGradleFiles }
-        .forEach { it.deleteExisting() }
-}

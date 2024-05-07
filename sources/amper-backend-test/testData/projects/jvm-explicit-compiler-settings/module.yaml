@@ -1,0 +1,10 @@
+# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
+
+product: jvm/app
+
+
+settings:
+  kotlin:
+    languageVersion: 1.8
+  jvm:
+    release: 17
