@@ -1,14 +1,18 @@
 @echo off
 
+@rem
+@rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+@rem
+
 @rem Possible environment variables:
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution, must end with \
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 
 setlocal
 
-set amper_version=0.3.0-dev-558
+set amper_version=0.3.0-dev-559
 set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
-set amper_sha256=c2c9b14a9aafa5062e15997e6f7df05fd17febc8b843c8078622ed28de1eace5
+set amper_sha256=685f8e33ceff198640141b6e2f4db7e205bdbaad7ff2de4b2ffa7f83de12a822
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=https://aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
