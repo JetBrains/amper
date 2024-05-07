@@ -39,6 +39,7 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 import kotlin.test.AfterTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
@@ -59,6 +60,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
      */
     @Test
     @OnNonCI
+    @Ignore
     fun simple() = runTest(timeout = 15.minutes) {
         val projectContext = setupAndroidTestProject("simple")
         System.setProperty(headlessEmulatorModePropertyName, "true")

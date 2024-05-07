@@ -6,4 +6,7 @@ dependencies:
 settings:
   compose:
     enabled: true
-    version: 1.6.1
+    version: 1.6.10-rc01
+
+module:
+  layout: gradle-kmp

@@ -37,7 +37,7 @@ class SettingsPluginRun(
                 it.plugins.id("")
             }
             settings.setupDynamicPlugins(
-                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion"
+                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
             ) {
                 mavenCentral()
                 // For compose dev versions.

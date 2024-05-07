@@ -64,14 +64,14 @@ plugins.apply("org.jetbrains.amper.settings.plugin")
 
 Certain plugins come preconfigured and their versions can't be changed:
 
-| Plugin                                      | Version |
-|---------------------------------------------|---------|
-| `org.jetbrains.kotlin.multiplatform`        | 2.0.0-RC1  |
-| `org.jetbrains.kotlin.android`              | 2.0.0-RC1  |
-| `org.jetbrains.kotlin.plugin.serialization` | 2.0.0-RC1  |
-| `com.android.library`                       | 8.2.2   |
-| `com.android.application`                   | 8.2.2   |
-| `org.jetbrains.compose`                     | 1.6.2  |
+| Plugin                                      | Version     |
+|---------------------------------------------|-------------|
+| `org.jetbrains.kotlin.multiplatform`        | 2.0.0-RC2   |
+| `org.jetbrains.kotlin.android`              | 2.0.0-RC2   |
+| `org.jetbrains.kotlin.plugin.serialization` | 2.0.0-RC2   |
+| `com.android.library`                       | 8.2.2       |
+| `com.android.application`                   | 8.2.2       |
+| `org.jetbrains.compose`                     | 1.6.10-rc01 |
 
 Check the `settings.gradle.kts` file and update `pluginManagement { plugins {...} }` section:
 ```kotlin

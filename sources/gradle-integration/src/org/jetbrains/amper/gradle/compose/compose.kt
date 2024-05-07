@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.gradle.compose
 
+import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
+import com.android.build.gradle.internal.lint.LintModelWriterTask
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
@@ -33,8 +35,9 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
     override fun applyBeforeEvaluate() {
         val composeVersion = chooseComposeVersion(model)!!
         val composeResourcesDir = module.moduleDir.resolve("composeResources").toFile()
+            project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
+            project.plugins.apply("org.jetbrains.compose")
 
-        project.plugins.apply("org.jetbrains.compose")
 
         // Clean old resources from source sets.
         kotlinMPE.sourceSets.all { it.resources.tryRemove { it.endsWith("composeResources") } }
@@ -53,6 +56,17 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
         androidSourceSets?.findByName("main")
             ?.resources?.srcDirs(composeResourcesDir)
 
+        project.tasks.withType(LintModelWriterTask::class.java) { task ->
+            project.tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.path?.let { path ->
+                task.mustRunAfter(path)
+            }
+        }
+        project.tasks.withType(AndroidLintAnalysisTask::class.java) { task ->
+            project.tasks.findByName("generateResourceAccessorsForAndroidUnitTest")?.path?.let { path ->
+                task.mustRunAfter(path)
+            }
+        }
+
         // Adjust compose-android fonts copying tasks.
         // Execute in afterEvaluate, because these tasks are created when android variants are.
         project.afterEvaluate {
@@ -64,11 +78,6 @@ class ComposePluginPart(ctx: PluginPartCtx) : KMPEAware, AmperNamingConventions,
                     "getFrom",
                     composeResourcesDir
                 )
-            }
-
-            // TODO (Anton Prokhorov): figure it out from where duplicates came
-            project.tasks.matching { it is Copy }.matching { it.name.contains("copyTestComposeResources") }.forEach {
-                (it as Copy).duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
         }
     }

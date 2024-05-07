@@ -14,3 +14,5 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin")
 }
+
+rootProject.name = "compose-resources-jvm-android"

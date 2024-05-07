@@ -13,6 +13,7 @@ plugins {
     //   `kotlin("multiplatform")`
 
     id("com.android.application")
+    kotlin("plugin.compose")
     id("org.jetbrains.compose")
     kotlin("multiplatform")
 }

@@ -69,13 +69,23 @@ class KotlinCompilerDownloader(
      * The [kotlinVersion] should match the Kotlin version requested by the user, the plugin will be added to
      * the Kotlin compiler command line of version [kotlinVersion].
      */
-    suspend fun downloadKotlinComposePlugin(kotlinVersion: String): Path = downloadKotlinCompilerPlugin(
-        groupId = "org.jetbrains.compose.compiler",
-        artifactId = "compiler",
-        // This error should be gracefully reported in the frontend, so it's OK to crash here
-        version = UsedVersions.composeCompilerVersionFor(kotlinVersion)
-            ?: error("No Compose compiler plugin version matching Kotlin version $kotlinVersion"),
-    )
+    suspend fun downloadKotlinComposePlugin(kotlinVersion: String): Path {
+        UsedVersions.composeCompilerVersionFor(kotlinVersion)?.let {  composeCompilerVersionFor ->
+            return downloadKotlinCompilerPlugin(
+                groupId = "org.jetbrains.compose.compiler",
+                artifactId = "compiler",
+                // This error should be gracefully reported in the frontend, so it's OK to crash here
+                version = composeCompilerVersionFor
+            )
+        } ?: run {
+            return downloadKotlinCompilerPlugin(
+                groupId = "org.jetbrains.kotlin",
+                artifactId = "kotlin-compose-compiler-plugin-embeddable",
+                // This error should be gracefully reported in the frontend, so it's OK to crash here
+                version = kotlinVersion
+            )
+        }
+    }
 
     suspend fun downloadKotlinCompilerPlugin(groupId: String = KOTLIN_GROUP_ID, artifactId: String, version: String): Path {
         val artifacts = downloadMavenArtifact(

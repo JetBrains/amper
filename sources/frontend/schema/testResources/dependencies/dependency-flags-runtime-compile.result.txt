@@ -4,7 +4,7 @@ Fragments:
       MavenDependency(coordinates=a, compile=false, runtime=true, exported=false)
       MavenDependency(coordinates=b, compile=true, runtime=false, exported=false)
       MavenDependency(coordinates=c, compile=true, runtime=false, exported=true)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC2, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -53,8 +53,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0-RC1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC2, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0-RC2, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       jvm (FRIEND)
