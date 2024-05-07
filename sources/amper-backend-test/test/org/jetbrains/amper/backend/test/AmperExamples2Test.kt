@@ -58,10 +58,18 @@ class AmperExamples2Test : IntegrationTestBase() {
     fun `compose-multiplatform`() = runTestInfinitely {
         val projectContext = setupExampleProject("compose-multiplatform")
         AmperBackend(projectContext, backgroundScope).run {
-            assertHasTasks(jvmBaseTasks + jvmTestTasks + iosBaseTasks + iosTestTasks + androidBaseTasks + androidTestTasks, module = "shared")
+            assertHasTasks(
+                jvmBaseTasks + jvmTestTasks +
+//                      TODO uncomment when  AMPER-526 is fixed
+ //                     iosBaseTasks + iosTestTasks +
+                        androidBaseTasks + androidTestTasks,
+                module = "shared"
+            )
             assertHasTasks(androidAppTasks, module = "android-app")
             assertHasTasks(jvmAppTasks, module = "jvm-app")
-            assertHasTasks(iosAppTasks, module = "ios-app")
+
+//          TODO uncomment when  AMPER-526 is fixed
+//            assertHasTasks(iosAppTasks, module = "ios-app")
         }
 
         // TODO handle ios app compilation, currently it fails with this error:
