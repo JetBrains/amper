@@ -1,5 +1,9 @@
 @echo off
 
+@rem
+@rem Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+@rem
+
 @rem Possible environment variables:
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution, must end with \
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
