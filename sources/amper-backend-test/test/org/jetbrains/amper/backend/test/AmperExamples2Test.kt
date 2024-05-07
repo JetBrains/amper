@@ -43,7 +43,7 @@ class AmperExamples2Test : IntegrationTestBase() {
         assertJavaCompilationSpan {
             hasCompilerArgument("--release", "17")
         }
-        assertStdoutContains("Hello, World")
+        assertStdoutContains("Hello, World!")
 
         resetCollectors()
 

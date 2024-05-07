@@ -44,7 +44,7 @@ class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
     fun `jvm runs and prints Hello, World`() = test(
         projectName = "jvm",
         "run",
-        expectOutputToHave = "Hello, World"
+        expectOutputToHave = "Hello, World!"
     )
 
     @Test
