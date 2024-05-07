@@ -60,7 +60,7 @@ And since it’s JVM, let’s also add some Java code.
 
 As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
 
-Examples: [jvm-hello-world](../examples-gradle/jvm-hello-world), [jvm-kotlin+java](../examples-gradle/jvm-kotlin+java).
+Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
 
 Documentation:
 - [Project layout](Documentation.md#project-layout)
@@ -79,7 +79,7 @@ dependencies:
 
 We’ve just added a dependency on a Kotlin library from the Maven repository. 
 
-Examples: [jvm-with-tests](../examples-gradle/jvm-with-tests).
+Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
 
 Documentation:
 - [Dependencies](Documentation.md#dependencies)
@@ -110,7 +110,7 @@ Then, the test code:
 
 Notice that test dependencies are configured as a separate list. It should be very familiar to the Cargo, Flutter and Poetry users.
 
-Examples: [jvm-with-tests](../examples-gradle/jvm-with-tests)
+Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
 
 Documentation:
 - [Tests](Documentation.md#tests)
@@ -232,7 +232,7 @@ After that, add modules to the `settings.gradle.kts` file:
 include("app", "shared")
 ```
 
-Examples: [modularized](../examples-gradle/modularized).
+Examples: [Compose Multiplatform](../examples-gradle/compose-multiplatform).
 
 Documentation:
 - [Internal dependencies](Documentation.md#internal-dependencies)
@@ -375,7 +375,7 @@ They are platform qualifiers which instruct the build tool to only use the corre
 Another interesting thing is `- pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS.
 It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
 
-Examples: [multiplatform](../examples-gradle/multiplatform)
+Examples: [Compose Multiplatform](../examples-gradle/compose-multiplatform)
 
 Documentation:
 - [Multi-platform configuration](Documentation.md#multi-platform-configuration)
@@ -489,8 +489,6 @@ File layout:
 
 Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical
 configurations in our codebase.
-
-Examples: [templates](../examples-gradle/templates)
 
 Documentation:
 - [Templates](Documentation.md#templates)

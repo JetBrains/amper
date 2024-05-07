@@ -81,7 +81,7 @@ The `main.kt` and `MyTest.kt` files are just regular Kotlin files with nothing s
 product: jvm/app
 ```
 
-That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality is configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples-gradle/jvm-with-tests).
+That's it. The Kotlin and Java toolchains, test framework, and other necessary functionality are configured and available straight out of the box. You can build it, run it, write and run tests, and more. For more detailed information, check out the [full example](examples-gradle/jvm).
 
 ![](docs/images/ij-jvm-result.png)
 
@@ -149,9 +149,9 @@ Second, the dependencies: section allows not only Kotlin and Maven dependencies,
 Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples-gradle) to get more insight into Amper’s design and functionality.     
 
 ### More examples
-Check our more real world examples:
-* [JVM "Hello, World!"](examples-gradle/jvm-kotlin+java)
-* Compose for [iOS](examples-gradle/compose-ios), [Android](examples-gradle/compose-android) and [desktop](examples-gradle/compose-desktop).
-* [Multiplatform](examples-gradle/multiplatform) project with shared code.
+Check our more real-world examples:
+* [JVM "Hello, World!"](examples-gradle/jvm)
+* [Compose Multiplatform](examples-gradle/compose-multiplatform) project with shared code.
+* Compose on [iOS](examples-gradle/compose-ios), [Android](examples-gradle/compose-android) and [desktop](examples-gradle/compose-desktop).
 * [Gradle interop](examples-gradle/gradle-interop)
 * And [others](examples-gradle)

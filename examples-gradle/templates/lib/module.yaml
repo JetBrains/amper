@@ -1,8 +1,0 @@
-# Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
-
-product:
-  type: lib
-  platforms: [ jvm ]
-
-apply:
-  - ../common.module-template.yaml

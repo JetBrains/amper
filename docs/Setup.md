@@ -44,13 +44,13 @@ Otherwise, KDoctor will highlight which parts of your setup still need to be con
 them.
 
 
-- Try opening [an example project](../examples-gradle/jvm-hello-world) in IntelliJ IDEA or in Fleet. 
+- Try opening [an example project](../examples-gradle/jvm) in IntelliJ IDEA or in Fleet. 
   You should get completion in the module.yaml files:
   ![](images/amper-in-ij.png)
   ![](images/amper-in-fleet.png)
 
 ### What's next
-See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea) and [Fleet](Usage.md#using-amper-in-fleet). Try opening the examples projects:
-  - [JVM Hello World](../examples-gradle/jvm-kotlin+java)
+See the [tutorial](Tutorial.md) and [documentation](Documentation.md). Read how to use Amper in [IntelliJ IDEA](Usage.md#using-amper-in-intellij-idea) and [Fleet](Usage.md#using-amper-in-fleet). Try opening the example projects:
+  - [JVM "Hello, World!"](../examples-gradle/jvm)
   - [Compose Desktop](../examples-gradle/compose-desktop)
-  - [Kotlin Multiplatform](../examples-gradle/multiplatform)
+  - [Compose Multiplatform](../examples-gradle/compose-multiplatform)

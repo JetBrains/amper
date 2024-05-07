@@ -41,38 +41,24 @@ class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
     )
 
     @Test
-    fun `jvm-hello-world runs and prints Hello, World`() = test(
-        projectName = "jvm-hello-world",
-        "run",
-        expectOutputToHave = "Hello, World!"
-    )
-
-    @Test
-    fun `jvm-kotlin+java runs and prints Hello, World`() = test(
-        projectName = "jvm-kotlin+java",
+    fun `jvm runs and prints Hello, World`() = test(
+        projectName = "jvm",
         "run",
         expectOutputToHave = "Hello, World"
     )
 
     @Test
-    fun `jvm-with-tests test task fails`() = test(
-        projectName = "jvm-with-tests",
+    fun `jvm test task fails`() = test(
+        projectName = "jvm",
         "test",
         expectOutputToHave = "> There were failing tests. See the report at: file:",
         shouldSucceed = false
     )
 
     @Test
-    fun `modularized test task succeeds`() = test(
-        projectName = "modularized",
-        "test",
-        expectOutputToHave = "BUILD SUCCESSFUL"
-    )
-
-    @Test
     @KonanFolderLock
-    fun `multiplatform build task succeeds`() = test(
-        projectName = "multiplatform",
+    fun `compose-multiplatform build task succeeds`() = test(
+        projectName = "compose-multiplatform",
         ":jvm-app:build", ":android-app:build", ":ios-app:build",
         expectOutputToHave = listOf("BUILD SUCCESSFUL")
     )
@@ -95,13 +81,6 @@ class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
     @Test
     fun `compose-android build task`() = test(
         projectName = "compose-android",
-        "build",
-        expectOutputToHave = "BUILD SUCCESSFUL"
-    )
-
-    @Test
-    fun `templates build task`() = test(
-        projectName = "templates",
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
