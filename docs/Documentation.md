@@ -613,9 +613,9 @@ module:
   layout: gradle-kmp 
 ```
 
-Amper automatically generates the accessors for the resources during build and opon project opening in the IDE.
+Amper automatically generates the accessors for resources during build and when working with code in the IDE.
 Accessors are generated in a package that corresponds to the module name. All non-letter symbols are replaced with `_`.
-In the given example where the module name is`my-kmp-module`, the package name for the generated resources 
+In the given example where the module name is `my-kmp-module`, the package name for the generated resources 
 will be `my_kmp_module`.
 
 Here is how to use the resources in the code:
@@ -623,12 +623,11 @@ Here is how to use the resources in the code:
 ```kotlin
 import my_kmp_module.generated.resources.Res
 import my_kmp_module.generated.resources.hello
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.getString
+// other imports
 
-@OptIn(ExperimentalResourceApi::class)
-suspend fun printString() {
-    println(getString(Res.string.hello.key))
+@Composable
+private fun displayHelloText() {
+    BasicText(stringResource(Res.string.hello))
 }
 ```
 
