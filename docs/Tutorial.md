@@ -3,10 +3,8 @@ This tutorial gives a short introduction to Amper and how to create a new projec
 If you are looking for more detailed info, check [the documentation](Documentation.md).
 
 ### Before you start
-Check the [setup instructions](Setup.md), and open [a new project template](../examples-gradle/new-project-template) in the IDE to make sure everything works.
 
-Note that:
-* JDK 17+ is required. Make sure you have it installed. 
+Check the [setup instructions](Setup.md).
 
 ### Step 1. Hello, World
 
@@ -34,22 +32,43 @@ fun main() {
 }
 ```
 
-> This tutorial demonstrates the [Gradle-based](Documentation.md#gradle-based-projects) Amper version. You need to
-> create a settings.gradle.kts in the project root.
+> To use the standalone Amper version, you need to add a couple of shell scripts to your project folder.
+> Copy the following files from a [template project](../examples-standalone/new-project-template):
+>
+> - [amper](../examples-standalone/new-project-template/amper)
+> - [amper.bat](../examples-standalone/new-project-template/amper.bat)
+>
+> ```
+> |-src/
+> |  |-main.kt
+> |-module.yaml
+> |-amper
+> |-amper.bat
+> ```
 
-Copy the [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts) and
-the [gradle folder](../examples-gradle/new-project-template/gradle) from a template project:
-```
-|-gradle/...
-|-src/
-|  |-...
-|-module.yaml
-|-settings.gradle.kts
-```
+> To use the [Gradle-based](Documentation.md#gradle-based-projects) Amper version,
+> you need to create `settings.gradle.kts` and Gradle wrappers in the project root. Thes files are necessary to
+> configure
+> and launch Gradle. Copy the following files from a [template project](../examples-gradle/new-project-template):
+>
+> - [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts),
+> - [gradlew](../examples-gradle/new-project-template/gradlew)
+    > and [gradlew.bat](../examples-gradle/new-project-template/gradlew.bat),
+> - [gradle](../examples-gradle/new-project-template/gradle) folder
+> ```
+> |-gradle/...
+> |-src/
+> |  |-main.kt
+> |-module.yaml
+> |-settings.gradle.kts
+> |-gradlew
+> |-gradlew.bat
+> ```
 
 That’s it, we’ve just created a simple JVM application.
 
-And since it’s JVM, let’s also add some Java code.
+And since it’s a JVM project, you can add Java code. Java and Kotlin files can reside together,
+no need to create separate Maven-like `java/` and `kotlin/` folders:
 
 ```
 |-src/
@@ -58,17 +77,18 @@ And since it’s JVM, let’s also add some Java code.
 |-module.yaml
 ```
 
-As with IntelliJ projects Java and Kotlin can reside together, no need to create separate Maven-like `java/` and `kotlin/` folders.
-
-Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
+Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
 
 Documentation:
+
+- [Using standalone Amper](Usage.md#using-the-standalone-amper-from-command-line)
+- [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-from-command-line)
 - [Project layout](Documentation.md#project-layout)
 - [module file anatomy](Documentation.md#module-file-anatomy)
 
 ### Step 2. Add dependencies
 
-The next thing one usually does is adding dependency on a library:
+Let's add a dependency on a Kotlin library from the Maven repository:
 
 ```YAML
 product: jvm/app
@@ -77,28 +97,24 @@ dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 ```
 
-We’ve just added a dependency on a Kotlin library from the Maven repository. 
+We can now use this library in the `main.kt` file:
 
-Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
+```kotlin
+import kotlinx.datetime.*
+
+fun main() {
+    println("Hello, World!")
+    println("It's ${Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())} here")
+}
+```
 
 Documentation:
 - [Dependencies](Documentation.md#dependencies)
 
 ### Step 3. Add tests
 
-Now let’s write some tests. First, we add a test framework:
-
-```YAML
-product: jvm/app
-
-dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-```
-
-Then, the test code:
+Now let’s add some tests. Amper configures the testing framework automatically,
+we only need to add a test code into the `test/` folder:
 
 ```
 |-src/
@@ -108,16 +124,18 @@ Then, the test code:
 |-module.yaml
 ```
 
-Notice that test dependencies are configured as a separate list. It should be very familiar to the Cargo, Flutter and Poetry users.
+```kotlin
+class MyTest {
+    @Test
+    fun doTest() {
+        assertTrue(true)
+    }
+}
+```
 
-Examples: [JVM "Hello, World!"](../examples-gradle/jvm).
-
-Documentation:
-- [Tests](Documentation.md#tests)
-
-### Step 4. Configure Java and Kotlin
-
-Another typical task is configuring compiler settings, such as language level etc. Here is how we do it:
+To add test-specific dependencies, use the dedicated `test-dependencies:` section.
+This should be very familiar to the Cargo, Flutter and Poetry users.
+As an example, let's add a MockK library to the project:
 
 ```YAML
 product: jvm/app
@@ -126,13 +144,32 @@ dependencies:
   - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
 
 test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
+  - io.mockk:mockk:1.13.10
+```
+
+Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
+
+Documentation:
+- [Tests](Documentation.md#tests)
+
+### Step 4. Configure Java and Kotlin
+
+Another typical task is configuring compiler settings, such as language level etc. Here is how we do it in Amper:
+
+```YAML
+product: jvm/app
+
+dependencies:
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+
+test-dependencies:
+  - io.mockk:mockk:1.13.10
 
 settings:
   kotlin:
-    languageVersion: 1.8
+    languageVersion: 1.8  # Set Kotlin source compatibility to 1.8
   jvm:
-    release: 17
+    release: 17  # Set the minimum JVM version that the Kotlin and Java code should be compatible with.
 ```
 
 Documentation:
@@ -140,159 +177,200 @@ Documentation:
 
 ### Step 5. Add Compose Multiplatform
 
-To use Compose Multiplatform framework, add corresponding dependencies and a Compose toolchain section in `settings:`.
+Now, let's turn the example into a GUI application.
+To do that we'll the [Compose Multiplatform framework](https://github.com/JetBrains/compose-multiplatform):
 
-/android/module.yaml:
 ```YAML
 product: jvm/app
 
 dependencies:
+  # ...other dependencies...
+
   # add Compose dependencies
+  - $compose.foundation
+  - $compose.material3
   - $compose.desktop.currentOs
 
 settings:
-  # enable Compose toolchain
-  compose: enabled
+  # ...other settings...
+
+  # enable the Compose framework toolchain  
+  compose:
+    enabled: true
 ```
 
-Examples: [compose-desktop](../examples-gradle/compose-desktop), [compose-android](../examples-gradle/compose-android)
+and add the following code in the `main.kt` file:
+
+```kotlin
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+
+fun main() = application {
+    Window(onCloseRequest = ::exitApplication) {
+        BasicText("Hello, World!")
+    }
+}
+```
+
+Now we have a GUI application!
+
+Examples:
+
+- Compose
+  Desktop ([standalone](../examples-standalone/compose-desktop), [Gradle-based](../examples-gradle/compose-desktop))
+- Compose
+  Android ([standalone](../examples-standalone/compose-android), [Gradle-based](../examples-gradle/compose-android))
+- Compose iOS ([standalone](../examples-standalone/compose-ios), [Gradle-based](../examples-gradle/compose-ios))
+- Compose
+  Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
 
 Documentation:
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
 
 ### Step 6. Modularize
 
-Let's split our app into a library and an application modules:
+Let's split our project into a JVM application and a library module with a shared code, which we are going to reuse.
+It will have the following structure:
 
-/app/module.yaml:
+```
+|-jvm-app/
+|  |-src/
+|  |  |-main.kt
+|  |-test/
+|  |  |-...
+|  |-module.yaml
+|-shared/
+|  |-src/
+|  |  |-hello.kt
+|  |-module.yaml
+```
+
+> In the case of the standalone Amper, we'll also add `project.yaml` file in the root,
+> next to the existing `amper` and `amper.bat` files. It will help Amper find all modules in the project:
+> ```
+> |-jvm-app/
+> |  |-...
+> |  |-module.yaml
+> |-shared/
+> |  |-...
+> |  |-module.yaml
+> |-amper
+> |-amper.bat
+> |-project.yaml
+> ```
+>
+> After that add the module to the `project.yaml` file:
+>
+> ```yaml
+> modules:
+>   - ./jvm-app
+>   - ./lib
+> ```
+> Read more about the [project layout](Documentation.md#project-layout)
+
+> In the case of the [Gradle-based](Documentation.md#gradle-based-projects) Amper version,
+> the previously added Gradle files will remain in the project root:
+>
+> ```
+> |-jvm-app/
+> |  |-...
+> |  |-module.yaml
+> |-shared/
+> |  |-...
+> |  |-module.yaml
+> |-gradle/...
+> |-settings.gradle.kts
+> |-gradlew
+> |-gradlew.bat
+> ```
+>
+> Add modules to the `settings.gradle.kts` file:
+> ```kotlin
+> // ... existing code in the settings.gradle.kts file ...
+> 
+> // add new modules to the project
+> include("jvm-app", "shared")
+> ``` 
+>
+> Read more about the [project layout](Documentation.md#project-layout)
+
+
+The `jvm-app/module.yaml` will look like this
 ```YAML
 product: jvm/app
 
 dependencies:
-  - ../shared
-  - $compose.desktop.currentOs
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
+  - ../shared # use the 'shared' module as a dependency
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
 ```
 
-/shared/module.yaml:
+Note how a dependency on the `shared` module is declared using a relative path.
+
+And the `shared/module.yaml`:
 ```YAML
 product:
   type: lib
   platforms: [jvm]
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
+  - $compose.foundation: exported
+  - $compose.material3: exported
+  - $compose.desktop.currentOs: exported
 
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
+settings:
+  compose:
+    enabled: true
 ```
 
-File layout:
-```
-|-app/
-|  |-src/
-|  |  |-main.kt
-|  |-module.yaml
-|-shared/
-|  |-src/
-|  |  |-Util.kt
-|  |-test/
-|  |  |-UtilTest.kt
-|  |-module.yaml
-```
+Note how the library 'exports' its dependencies. The dependent module will 'see' these dependencies and don't need to
+explicitly depend on them.
 
-In this example, the internal dependencies on the `shared` module are declared using relative paths. No need to give
-additional names to the libraries.
+Let's extract the common code into the `shared/src/hello.kt` file:
 
-> In the [Gradle-based](Documentation.md#gradle-based-projects) Amper project, a `settings.gradle.kts` file should be
-> located in the project root.
-
-Copy the [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts) and the [gradle folder](../examples-gradle/new-project-template/gradle) from a template project:
-```
-|-gradle/...
-|-app/
-|  |-...
-|  |-module.yaml
-|-shared/
-|  |-...
-|  |-module.yaml
-|-settings.gradle.kts
-```
-
-After that, add modules to the `settings.gradle.kts` file:
 ```kotlin
-...
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
 
-// add Amper modules to the project
-include("app", "shared")
+@Composable
+fun sayHello() {
+    BasicText("Hello, World!")
+}
 ```
 
-Examples: [Compose Multiplatform](../examples-gradle/compose-multiplatform).
+And re-use it in the `jvm-app/src/main.kt` file:
+```kotlin
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+
+fun main() = application {
+    Window(onCloseRequest = ::exitApplication) {
+        sayHello()
+    }
+}
+```
+
+Now we have a multi-module project with some neatly extracted shared code. 
+
+Examples: Compose
+Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
 
 Documentation:
-- [Internal dependencies](Documentation.md#internal-dependencies)
+- [Project layout](Documentation.md#project-layout)
+- [Module dependencies](Documentation.md#module-dependencies)
+- [Dependency visibility and scope](Documentation.md#scopes-and-visibility)
 
 ### Step 7. Make project multi-platform
 
-Let’s add client Android and iOS apps our project. 
+So far we've been working with a JVM platform to create a desktop application.
+Let's add an Android and an iOS application.
+It will be straightforward, since we've already prepared a multi-module layout with a shared module that we can reuse.
 
-module.yaml for Android:
-```YAML
-product: android/app
+Here is the project structure that we need:
 
-dependencies:
-  - ../shared
-  - $compose.foundation
-  - $compose.material3
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-
-settings:
-  compose: enabled
-```
-
-module.yaml for iOS:
-
-```YAML
-product: ios/app
-
-dependencies:
-  - ../shared
-  - $compose.foundation
-  - $compose.material3
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-
-settings:
-  compose: enabled
-```
-
-And update the shared module:
-
-> Currently, library modules require an explicit list of platforms. We plan to automatically configure library modules
-> with required platforms in the future
-
-/shared/module.yaml:
-```YAML
-product:
-  type: lib
-  platforms: [jvm, android, iosArm64, iosSimulatorArm64]
-
-dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-```
-
-The new file layout:
 ```
 |-android-app/
 |  |-src/
@@ -301,51 +379,180 @@ The new file layout:
 |  |-module.yaml
 |-ios-app/
 |  |-src/
+|  |  |-iosApp.swift
 |  |  |-main.kt
 |  |-module.yaml
 |-jvm-app/
-|  |-src/
-|  |  |-main.kt
-|  |-module.yaml
+|  |-...
 |-shared/
-|  |-src/
-|  |  |-Util.kt
-|  |-test/
-|  |  |-UtilTest.kt
-|  |-module.yaml
+|  |-...
 ```
 
-Now we have a `shared` module, which is used by client apps on different platforms. 
-So we might need to add some platform-specific code, like [Kotlin Multiplatform expect/actual declarations](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html) and corresponding dependencies.
+Don't forget to add the new modules to the project files.
+For the standalone Amper, into the `project.yaml` file:
 
-Let's add some platform-specific networking code and dependencies.
+```yaml
+modules:
+  - ./android-app
+  - ./ios-app
+  - ./jvm-app
+  - ./shared   
+```
 
-> Native dependencies (like CocoaPods) are currently not implemented.
+For the Gradle-based Amper, into the `settings.gradle.kts` file:
+> ```kotlin
+> // add new modules to the project
+> include("android-app", "ios-app", "jvm-app", "shared")
+> ``` 
 
-/shared/module.yaml:
+
+The `android-app/module.yaml` will look like this way:
+```YAML
+product: android/app
+
+dependencies:
+  - ../shared
+
+settings:
+  compose:
+    enabled: true
+```
+
+And the `ios-app/module.yaml`:
+
+```YAML
+product: ios/app
+
+dependencies:
+  - ../shared
+
+settings:
+  compose:
+    enabled: true
+  ios:
+    teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
+```
+
+Let's update the `shared/module.yaml` and add the new platforms and a couple of additional dependencies for Android:
+
 ```YAML
 product:
   type: lib
-  platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
+  platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-    
-dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-
-dependencies@android:
-  - com.squareup.retrofit2:retrofit:2.9.0
+  - $compose.foundation: exported
+  - $compose.material3: exported
 
 dependencies@jvm:
-  - com.squareup.okhttp3:mockwebserver:4.10.0
+  - $compose.desktop.currentOs: exported
 
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
+dependencies@android:
+  # Compose integration with Android activities
+  - androidx.activity:activity-compose:1.7.2: exported
+  - androidx.appcompat:appcompat:1.6.1: exported
+
+settings:
+  compose:
+    enabled: true
 ```
 
-Possible file layout:
+Note how we used the `dependencies@jvm:` and `dependencies@android:` sections to specify JVM- and Android-specific dependencies.
+These dependencies will be added to the JVM and Android versions of the `shared` library correspondingly.
+They will also be available for the `jvm-app` and `android-app` modules, since they depend on the `shared` module.
+Read more about multi-platform configuration in the [documentation](Documentation.md#multi-platform-configuration). 
+
+Now, as we have the module structure, we need to add platform-specific application code to the Android and iOS modules.
+Create a `MainActivity.kt` file in `android-app/src` with the following content:
+
+```kotlin
+package hello.world
+
+import sayHello
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            sayHello()
+        }
+    }
+}
+```
+
+Next, create a `ViewController.kt` file in `ios-app/src`:
+
+```kotlin
+import sayHello
+import androidx.compose.ui.window.ComposeUIViewController
+
+fun ViewController() = ComposeUIViewController { 
+    sayHello() 
+}
+```
+
+And the last step, copy
+the [AndroidManifest.xml file from an example project](../examples-gradle/compose-multiplatform/android-app/src/AndroidManifest.xml)
+into `android-app/src` folder, and the [iosApp.swift file](../examples-gradle/compose-multiplatform/ios-app/src/iosApp.swift) into the `ios-app/src`.
+These files bind the Compose UI code with the native application entry points.
+
+Make sure that your project structure looks like this:
+```
+|-android-app/
+|  |-src/
+|  |  |-main.kt
+|  |  |-AndroidManifest.xml
+|  |-module.yaml
+|-ios-app/
+|  |-src/
+|  |  |-iosApp.swift
+|  |  |-main.kt
+|  |-module.yaml
+|-jvm-app/
+|-shared/
+|-...
+```
+
+> In the case the Gradle-based Amper, you also need to add a couple of configuration files.
+> Copy the [gradle.properties](../examples-gradle/compose-multiplatform/gradle.properties) into your project root,
+> and create a `local.properties` file nearby with the follwoing content:
+> 
+> ```properties 
+> ## This file must *NOT* be checked into Version Control Systems
+> 
+> sdk.dir=<path to the Android SDK>
+> ```
+> [Check the instructions](https://stackoverflow.com/a/48155800) on how to set the `sdk.dir` on StackOverflow 
+>
+> Your project root content will look like this: 
+> ```
+> |-android-app/
+> |-...
+> |-settings.gradle.kts
+> |-gradle.properties
+> |-local.properties
+> ```
+>  
+
+Now you can build and run both apps using [the Fleet run configurations](Usage.md#using-amper-in-fleet).
+
+Examples: Compose Multiplatform
+([standalone](../examples-standalone/compose-multiplatform),
+[Gradle-based](../examples-gradle/compose-multiplatform))
+
+Documentation:
+- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
+- [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
+
+
+### Step 8. Deduplicate common configuration
+
+You might have noticed that there are some settings present in  the `module.yaml` files. To redce duplication we can extract them into a template.
+
+Let's create a couple of `<name>.module-template.yaml` files:
 ```
 |-android-app/
 |  |-...
@@ -354,145 +561,87 @@ Possible file layout:
 |-jvm-app/
 |  |-...
 |-shared/
-|  |-src/
-|  |  |-Util.kt
-|  |  |-networking.kt
-|  |-src@android/
-|  |  |-networking.kt
-|  |-src@jvm/
-|  |  |-networking.kt
-|  |-src@ios/
-|  |  |-networking.kt
-|  |-test/
-|  |  |-UtilTest.kt
-|  |-module.yaml
+|  |-...
+|-compose.module-template.yaml
+|-app.module-template.yaml
 ```
 
-One thing you might have noticed is the `@platform` suffixes. 
-They are platform qualifiers which instruct the build tool to only use the corresponding declaration when building for the corresponding platform.
-`@platform` qualifier can be applied to source folders, `dependencies:` and `settings:`.
-
-Another interesting thing is `- pod: 'Alamofire'` dependency. This is a CocoaPods dependency, a popular package manager for macOS and iOS.
-It’s an example of a native dependencies, which are declared using a syntax specific for each dependency type.
-
-Examples: [Compose Multiplatform](../examples-gradle/compose-multiplatform)
-
-Documentation:
-- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
-
-
-### Step 8. Deduplicate common parts
-
-You might have noticed that there are some common dependencies and settings present in `module.yaml` files. We now can extract them into a template.
-
-Let's create a couple of `<name>.module-template.yaml` files:
-
-/common.module-template.yaml:
+A `/compose.module-template.yaml` with settings common to all modules:
 ```YAML
-test-dependencies:
-  - org.jetbrains.kotlin:kotlin-test:1.8.0
-
 settings:
-  kotlin:
-    languageVersion: 1.8
+  compose:
+    enabled: true
 ```
 
-/app.module-template.yaml:
+and `/app.module-template.yaml` with dependencies that are used in the application modules:
 ```YAML
 dependencies:
   - ./shared
-  
-settings:
-  compose: enabled
 ```
 
-And apply it to our module.yaml files:
+Now we will apply these templates to our module files:
 
-/shared/module.yaml:
+`/shared/module.yaml`:
 ```YAML
 product:
   type: lib
-  platforms: [android, iosArm64]
+  platforms: [ jvm, android, iosArm64, iosSimulatorArm64, iosX64 ]
 
 apply:
-  - ../common.module-template.yaml
+  - ../compose.module-template.yaml
 
 dependencies:
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
-    
-dependencies@ios:
-  - pod: 'Alamofire'
-    version: '~> 2.0.1'
-
-dependencies@android:
-  - com.squareup.retrofit2:retrofit:2.9.0
+  - $compose.foundation: exported
+  - $compose.material3: exported
 
 dependencies@jvm:
-  - com.squareup.okhttp3:mockwebserver:4.10.0
+  - $compose.desktop.currentOs
+
+dependencies@android:
+  # Compose integration with Android activities
+  - androidx.activity:activity-compose:1.7.2: exported
+  - androidx.appcompat:appcompat:1.6.1: exported
 ```
 
-/android-app/module.yaml:
+`/jvm-app/module.yaml`:
+```YAML
+product: jvm/app
+
+apply:
+  - ../compose.module-template.yaml
+  - ../app.module-template.yaml
+```
+
+`/android-app/module.yaml`:
 ```YAML
 product: android/app
 
 apply:
-  - ../common.module-template.yaml
+  - ../compose.module-template.yaml
   - ../app.module-template.yaml
 
-dependencies:
-  - $compose.foundation
-  - $compose.material3
 ```
 
-/ios-app/module.yaml:
+`/ios-app/module.yaml`:
 ```YAML
 product: ios/app
 
 apply:
-  - ../common.module-template.yaml
+  - ../compose.module-template.yaml
   - ../app.module-template.yaml
 
-dependencies:
-  - $compose.foundation
-  - $compose.material3
+settings:
+  ios:
+    teamId: <your team ID here> # See https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
 ```
 
-/jvm-app/module.yaml:
-```YAML
-product: ios/app
-
-apply:
-  - ../common.module-template.yaml
-  - ../app.module-template.yaml
-
-dependencies:
-  - $compose.desktop.currentOs
-```
-
-File layout:
-```
-|-android-app/
-|  |-...
-|  |-module.yaml
-|-ios-app/
-|  |-...
-|  |-module.yaml
-|-jvm-app/
-|  |-...
-|  |-module.yaml
-|-shared/
-|  |-...
-|  |-module.yaml
-|-common.module-template.yaml
-|-app.module-template.yaml
-```
-
-Now we can place all common dependencies and settings into the template. Or have multiple templates for various typical
-configurations in our codebase.
+You can put all common dependencies and settings into the template. It's also possible to have multiple templates 
+for various typical configurations in the project.
 
 Documentation:
 - [Templates](Documentation.md#templates)
 
 ### Further steps
 
-Check the [documentation](Documentation.md) and explore [examples](../examples-gradle) for more information.
+Check the [documentation](Documentation.md) and explore examples [for the standalone Amper](../examples-standalone) and
+[for the Gradle-based Amper](../examples-gradle).

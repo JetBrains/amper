@@ -9,8 +9,7 @@ If you are looking for more detailed info on Gradle interop, check [the document
 
 ### Before you start
 
-Check the [setup instructions](Setup.md), and open [a new project template](../examples-gradle/new-project-template) in the IDE
-to make sure everything works.
+Check the [setup instructions](Setup.md).
 
 Note, that:
 * JDK 17+ is required. Make sure you have it installed and selected in the IDE. 
