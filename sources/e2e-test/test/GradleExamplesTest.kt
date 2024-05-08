@@ -9,7 +9,6 @@ import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -58,7 +57,6 @@ class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
 
     @Test
     @KonanFolderLock
-    @Ignore("Until XCode upgrade on TC")
     fun `compose-multiplatform build task succeeds`() = test(
         projectName = "compose-multiplatform",
         ":jvm-app:build", ":android-app:build", ":ios-app:build",
@@ -74,7 +72,6 @@ class GradleExamplesTest : E2ETestFixture("../../examples-gradle/",
 
     @Test
     @KonanFolderLock
-    @Ignore("Until XCode upgrade on TC")
     fun `compose-ios task`() = test(
         projectName = "compose-ios",
         "buildIosAppMain",
