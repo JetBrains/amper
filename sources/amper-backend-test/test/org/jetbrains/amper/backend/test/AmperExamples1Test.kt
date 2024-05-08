@@ -5,6 +5,8 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.util.OS
+import org.junit.jupiter.api.Assumptions
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -19,6 +21,7 @@ import kotlin.test.assertContains
 class AmperExamples1Test: AmperCliTestBase() {
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "build")
         // TODO Assert output
         runCli(projectName, "test")
@@ -32,8 +35,8 @@ class AmperExamples1Test: AmperCliTestBase() {
     }
 
     @Test
-    @Ignore("AMPER-527 Test AmperExamplesTest.compose-android is flaky: DirectoryNotEmptyException")
     fun `compose-android`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "build")
         // TODO Can we run it somehow?
     }

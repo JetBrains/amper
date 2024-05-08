@@ -8,6 +8,8 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.util.OS
+import org.junit.jupiter.api.Assumptions
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteExisting
@@ -56,6 +58,8 @@ class AmperExamples2Test : IntegrationTestBase() {
 
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-525 The process cannot access the file because another process has locked a portion of the file")
+
         val projectContext = setupExampleProject("compose-multiplatform")
         AmperBackend(projectContext, backgroundScope).run {
             assertHasTasks(
@@ -84,6 +88,8 @@ class AmperExamples2Test : IntegrationTestBase() {
 
     @Test
     fun composeAndroid() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-525 The process cannot access the file because another process has locked a portion of the file")
+
         AmperBackend(setupExampleProject("compose-android"), backgroundScope).run {
             assertHasTasks(androidAppTasks)
             compile()

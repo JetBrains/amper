@@ -23,6 +23,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     fun `kmp-lib`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(tempRoot, "build")
     }
 
