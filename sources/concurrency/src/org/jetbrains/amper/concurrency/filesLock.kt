@@ -115,7 +115,7 @@ suspend fun produceFileWithDoubleLockAndHash(
                     null
                 } else {
                     val expectedHash = hashFile.readText()
-                    val actualHash = computeHash(target, listOf(Hasher("sha1"))).single().hash
+                    val actualHash = computeHash(target){ listOf(Hasher("sha1")) }.single().hash
 
                     if (expectedHash != actualHash) {
                         null
@@ -256,11 +256,11 @@ suspend fun FileChannel.lockWithRetry(): FileLock? =
     }
 
 // todo (AB): 10 seconds is not enough
-private suspend fun <T> withRetry(
+internal suspend fun <T> withRetry(
     retryCount: Int = 50,
     retryInterval: Duration = 200.milliseconds,
     retryOnException: (e: Exception) -> Boolean = { true },
-    block: () -> T,
+    block: suspend () -> T,
 ): T {
     var attempt = 0
     var firstException: Exception? = null

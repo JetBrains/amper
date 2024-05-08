@@ -211,6 +211,7 @@ class MavenDependency internal constructor(
         val pomText = if (pom.isDownloadedOrDownload(level, context)) {
             pom.readText()
         } else {
+            // todo (AB) : It is not clear what happened (the error is too broad)
             messages.asMutable() += Message(
                 "Pom required for $this",
                 settings.repositories.toString(),
@@ -461,9 +462,7 @@ class MavenDependency internal constructor(
         val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
             "sha1", null, context.settings.progress, context.resolutionCache, false, level)
             ?: kmpMetadataFile.getPath()?.let {
-                val hasher = Hasher("sha1")
-                computeHash(it, listOf(Hasher("sha1")))
-                hasher.hash
+                computeHash(it) { listOf(Hasher("sha1")) }.single().hash
             }
             ?: run {
                 messages.asMutable() += Message(

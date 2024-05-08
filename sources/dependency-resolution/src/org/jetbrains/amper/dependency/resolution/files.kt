@@ -393,10 +393,7 @@ open class DependencyFile(
                 temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
                 if (repositories.any {
-                        shouldOverwrite(object : HashersProvider {
-                            private val lazyHashers: Collection<Hasher> by lazy { target.computeHash() }
-                            override fun invoke(): Collection<Hasher> = lazyHashers
-                        }, it, progress, cache, verify)
+                        shouldOverwrite(it, progress, cache, verify) { target.computeHash() }
                     }) {
                     temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                 }
@@ -418,14 +415,14 @@ open class DependencyFile(
         return false
     }
 
-    fun interface HashersProvider : () -> Collection<Hasher>
+    fun interface HashersProvider : suspend () -> Collection<Hasher>
 
     protected open suspend fun shouldOverwrite(
-        hashersProvider: HashersProvider,
         repository: String,
         progress: Progress,
         cache: Cache,
-        verify: Boolean
+        verify: Boolean,
+        hashersProvider: HashersProvider,
     ): Boolean = verify && verify(
         hashersProvider(),
         repository,
@@ -695,11 +692,11 @@ class SnapshotDependencyFile(
     }
 
     override suspend fun shouldOverwrite(
-        hashersProvider: HashersProvider,
         repository: String,
         progress: Progress,
         cache: Cache,
         verify: Boolean,
+        hashersProvider: HashersProvider
     ): Boolean = nameWithoutExtension == "maven-metadata"
             || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
 
@@ -716,7 +713,7 @@ internal fun getNameWithoutExtension(node: MavenDependency): String = "${node.mo
 private fun fileFromVariant(dependency: MavenDependency, name: String) =
     dependency.variants.flatMap { it.files }.singleOrNull { it.name == name }
 
-private fun Path.computeHash(): Collection<Hasher> = computeHash(this, createHashers())
+internal suspend fun Path.computeHash(): Collection<Hasher> = computeHash(this) { createHashers() }
 
 private val hashAlgorithms = listOf("sha512", "sha256", "sha1", "md5")
 

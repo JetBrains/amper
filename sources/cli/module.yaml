@@ -23,7 +23,7 @@ dependencies:
   - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - org.jetbrains.kotlin:kotlin-build-tools-api:2.0.0-RC2
-  - org.slf4j:slf4j-api:2.0.9
+  - $libs.slf4jApi
   - org.tinylog:tinylog-api-kotlin:2.6.2
   - org.tinylog:tinylog-impl:2.6.2
   - org.tinylog:slf4j-tinylog:2.6.2
@@ -39,7 +39,7 @@ dependencies:
   - io.ktor:ktor-client:2.3.6
   - net.java.dev.jna:jna:5.13.0
   - net.java.dev.jna:jna-platform:5.13.0
-  # for debugging, serialize frontend model to json to read and understand
+  # for debugging, serialize a frontend model to json to read and understand
   - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
   - com.fasterxml.jackson.core:jackson-databind:2.16.0
   # for something else

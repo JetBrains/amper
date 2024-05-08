@@ -8,6 +8,7 @@ import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.OS
 import org.junit.jupiter.api.Assumptions
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -28,7 +29,12 @@ class AmperExamples1Test: AmperCliTestBase() {
     }
 
     @Test
-    @Ignore("AMPER-525 The process cannot access the file because another process has locked a portion of the file")
+    fun `compose-multiplatform_build-android`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
+        runCli(projectName, "task", ":android-app:buildAndroidDebug") // check AMPER-529
+    }
+
+    @Test
     fun `compose-desktop`() = runTestInfinitely {
         runCli(projectName, "build")
         // TODO Can we run it somehow?
@@ -39,6 +45,7 @@ class AmperExamples1Test: AmperCliTestBase() {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "build")
         // TODO Can we run it somehow?
+        runCli(projectName, "task", ":$projectName:buildAndroidDebug") // check AMPER-529
     }
 
     @Test
@@ -66,7 +73,7 @@ class AmperExamples1Test: AmperCliTestBase() {
 
     @Test
     fun `all examples are covered`() {
-        val methods = javaClass.declaredMethods.map { it.name }.toSet()
+        val methods = javaClass.declaredMethods.map { it.name.substringBefore("_") }.toSet()
 
         for (entry in testDataRoot.listDirectoryEntries().filter { it.isDirectory() }) {
             assertContains(methods, entry.name, "Example '${entry.pathString}' is not covered by test '${javaClass.name}'. " +
@@ -75,7 +82,7 @@ class AmperExamples1Test: AmperCliTestBase() {
     }
 
     private val projectName: String
-        get() = currentTestName
+        get() = currentTestName.substringBefore("_")
 
     override val testDataRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 }
