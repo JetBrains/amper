@@ -189,6 +189,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
 
     @Test
     @KonanFolderLock
+    @Ignore("Until XCode upgrade on TC")
     fun `configure a project with most of the settings`() = test(
         "settings",
         "build",
@@ -223,6 +224,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
     @EnabledOnOs(value = [OS.MAC])
     @KonanFolderLock
+    @Ignore("Until XCode upgrade on TC")
     fun iosApp() = test(
         "ios-app",
         "buildIosAppMain",
