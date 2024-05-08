@@ -27,8 +27,9 @@ Supported features:
 * Creating Kotlin Multiplatform libraries.
 * Running tests.
 * Mixing Kotlin, Java and Swift code.
-* Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
 * [Multi-module](docs/Documentation.md#module-dependencies) projects.
+* Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
+* (Gradle-based Amper only) Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
 * (Gradle-based Amper only) [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
 * (Gradle-based Amper only) Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
 * (Gradle-based Amper only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
