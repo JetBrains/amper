@@ -578,6 +578,62 @@ android.useAndroidX=true
 org.gradle.jvmargs=-Xmx4g
 ```
 
+##### Using multiplatform resources
+
+Amper supports Compose Multiplatform [resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html). 
+
+> Current limitations: 
+>  - Resources are supported only in Gradle-based Amper.
+>  - To use multiplatform resources, a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interop).   
+
+The file layout is:
+```
+|-my-kmp-module/
+|  |-module.yaml
+|  |-src/
+|  |  |-commonMain/
+|  |  |  |-kotlin # your code is here
+|  |  |  |  |-...
+|  |  |  |-composeResources # place your multiplatform resources in this folder
+|  |  |  |  |-values/
+|  |  |  |  |  |-strings.xml
+|  |  |  |  |-drawable/
+|  |  |  |  |  |-image.jpg
+|  |  |-...
+```
+
+
+Configure the module.yaml to use `gradle-kmp` file layout:
+```yaml
+product: 
+  type: lib
+  platforms: [jvm, android]
+
+module:
+  layout: gradle-kmp 
+```
+
+Amper automatically generates the accessors for the resources during build and opon project opening in the IDE.
+Accessors are generated in a package that corresponds to the module name. All non-letter symbols are replaced with `_`.
+In the given example where the module name is`my-kmp-module`, the package name for the generated resources 
+will be `my_kmp_module`.
+
+Here is how to use the resources in the code:
+
+```kotlin
+import my_kmp_module.generated.resources.Res
+import my_kmp_module.generated.resources.hello
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
+
+@OptIn(ExperimentalResourceApi::class)
+suspend fun printString() {
+    println(getString(Res.string.hello.key))
+}
+```
+
+Read more about setting up and using compose resources in [the documentation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html).
+
 #### Configuring entry points
 
 ##### JVM
