@@ -10,7 +10,7 @@ repositories:
   - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
 
 dependencies:
-  - org.jetbrains.kotlin:kotlin-reflect:2.0.0-RC2
+  - org.jetbrains.kotlin:kotlin-reflect:2.0.0-RC3
   - ../core
   - com.jetbrains.intellij.platform:core:233.13763.11
 

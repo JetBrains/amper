@@ -15,10 +15,10 @@ dependencies:
   - ../core-intellij
   - ../frontend-api
   - ../frontend/schema
-  - org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0-RC2
+  - org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0-RC3
   - com.android.library:com.android.library.gradle.plugin:8.2.0
-  - org.jetbrains.kotlin:kotlin-serialization:2.0.0-RC2
-  - org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.0-RC2
+  - org.jetbrains.kotlin:kotlin-serialization:2.0.0-RC3
+  - org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.0-RC3
   - org.jetbrains.compose:compose-gradle-plugin:1.6.10-rc01
   - dev.gradleplugins:gradle-api:8.6: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.1
