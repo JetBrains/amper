@@ -26,9 +26,11 @@ import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
+import org.junit.jupiter.api.Assumptions
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -62,6 +64,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @OnNonCI
     @Ignore
     fun simple() = runTest(timeout = 15.minutes) {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("simple")
         System.setProperty(headlessEmulatorModePropertyName, "true")
         AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "runAndroidDebug")))
@@ -71,6 +74,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `simple tests debug`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestDebug")))
         assertStdoutContains("1 tests successful")
@@ -78,6 +82,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `simple tests release`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestRelease")))
         assertStdoutContains("1 tests successful")
@@ -85,6 +90,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `apk contains dependencies`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("simple")
         val taskName = TaskName.fromHierarchy(listOf("simple", "buildAndroidDebug"))
         AmperBackend(projectContext, backgroundScope).runTask(taskName)
@@ -94,6 +100,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `appcompat compiles successfully and contains dependencies`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext, backgroundScope).runTask(taskName)
@@ -103,6 +110,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `lib contains lib code and resources`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("lib")
         val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
         AmperBackend(projectContext, backgroundScope).runTask(taskName)
@@ -113,6 +121,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext, backgroundScope).runTask(taskName)
@@ -125,6 +134,7 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
 
     @Test
     fun `task graph is correct for downloading and installing android sdk components`() = runTestInfinitely {
+        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext, backgroundScope).showTasks()
         // debug
