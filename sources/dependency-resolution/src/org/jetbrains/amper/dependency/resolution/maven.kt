@@ -83,7 +83,12 @@ class MavenDependencyNode internal constructor(
         value = listOf<MavenDependencyNode>(),
         dependency = listOf<DependencyNode>(),
         valueProvider = { thisRef ->
-            thisRef.dependency.children.map { thisRef.context.getOrCreateNode(it, this) }
+            thisRef.dependency.children.mapNotNull {
+                thisRef.context
+                    .getOrCreateNode(it, this)
+                    // skip children that form cyclic dependencies
+                    .takeIf { !it.isDescendantOf(it) }
+            }
         },
         dependencyProvider = { thisRef ->
             thisRef.dependency.children
@@ -100,6 +105,11 @@ class MavenDependencyNode internal constructor(
         dependency.toString()
     } else {
         "$group:$module:$version -> ${dependency.version}"
+    }
+
+    private fun DependencyNode.isDescendantOf(parent: DependencyNode): Boolean {
+        return parents.any { it.key == parent.key }
+                || parents.any { it.isDescendantOf(parent) }
     }
 }
 

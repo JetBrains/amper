@@ -46,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @see MavenDependencyNode
  * @see Context
  */
-class Resolver() {
+class Resolver {
 
     /**
      * Builds a dependency graph starting from [root].
@@ -61,7 +61,8 @@ class Resolver() {
         val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies)
 
         // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
-        // all child nodes resolutions have either completed or been cancelled. The cancelled descendant nodes are
+        // all child nodes resolutions have either completed or been canceled.
+        // The canceled descendant nodes are
         // tracked by the conflict resolution structures, so they won't be forgotten anyway, but they don't require a
         // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
         val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
@@ -76,10 +77,11 @@ class Resolver() {
 
             nodesToResolve = conflictResolver.resolveConflicts()
 
-            // Some candidates may have been resolved entirely before the conflict was detected and the resolution
-            // cancelled, so we need to "unmark" them as resolved because their dependency may have changed after
+            // Some candidates may have been resolved entirely before the conflict was detected
+            // and the resolution canceled.
+            // So we need to "unmark" them as resolved because their dependency may have changed after
             // conflict resolution (requiring a new resolution).
-            resolvedNodes.removeAll(nodesToResolve)
+            resolvedNodes.removeAll(nodesToResolve.toSet())
         }
     }
 
@@ -98,7 +100,7 @@ class Resolver() {
         val job = launch {
             resolveRecursively(level, conflictResolver, resolvedNodes)
         }
-        // This ensures the job is removed from the list upon completion even in cases where it is cancelled
+        // This ensures the job is removed from the list upon completion even in cases where it is canceled
         // before it even starts. We can't achieve this with a try-finally inside the coroutine itself.
         job.invokeOnCompletion {
             resolutionJobs.remove(job)
@@ -106,6 +108,7 @@ class Resolver() {
         resolutionJobs.add(job)
     }
 
+    context(CoroutineScope)
     private suspend fun DependencyNode.resolveRecursively(
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
@@ -131,7 +134,7 @@ class Resolver() {
                     node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
                 }
             }
-            // We track that we finished resolving this node, because some resolutions can be cancelled half-way through
+            // We track that we finished resolving this node, because some resolutions can be canceled half-way through
             // in case of conflicts
             resolvedNodes.add(this)
         }
@@ -154,7 +157,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
      * sources of dependency conflicts.
-     * The map needs to be thread-safe because we only protect with a mutex per dependency key (2 dependencies with
+     * The map needs to be thread-safe because we only protect with a mutex per-dependency key (two dependencies with
      * different keys can access the map at the same time).
      * The list values, however, aren't thread-safe, but they are key-specific.
      */
@@ -173,7 +176,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             if (node.key in conflictedKeys) {
                 return true
             }
-            if (similarNodes.size > 1 && similarNodes.containsConflicts(node.context)) {
+            if (similarNodes.size > 1 && similarNodes.containsConflicts()) {
                 conflictedKeys += node.key
                 // We don't want to keep resolving conflicting nodes, because it's potentially pointless.
                 // They will be resolved in the next wave.
@@ -183,7 +186,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             return false
         }
 
-    private fun List<DependencyNode>.containsConflicts(context: Context) = conflictResolutionStrategies.any {
+    private fun List<DependencyNode>.containsConflicts() = conflictResolutionStrategies.any {
         it.isApplicableFor(this) && it.seesConflictsIn(this)
     }
 
@@ -253,7 +256,7 @@ interface DependencyNode {
     suspend fun resolveChildren(level: ResolutionLevel)
 
     /**
-     * Ensures that the dependency-relevant files are on disk according to settings.
+     * Ensures that the dependency-relevant files are on disk, according to settings.
      */
     suspend fun downloadDependencies()
 
@@ -322,12 +325,13 @@ interface DependencyNode {
 }
 
 /**
- * A mutex to protect the resolution of a node. This prevents 2 jobs from resolving the same node (and children), while
+ * A mutex to protect the resolution of a node.
+ * This prevents two jobs from resolving the same node (and children), while
  * still allowing to spawn multiple jobs for the same node (which happens in case of diamonds).
  *
  * Why multiple jobs per node? Why not reuse a single job? The nodes are a graph, while structured concurrency is a tree
- * of jobs. We want to be able to cancel a subgraph of jobs without caring about whether another non-cancelled parent
- * requires one of the child dependencies: this parent just launches its own job for the node, and that one is not cancelled.
+ * of jobs. We want to be able to cancel a subgraph of jobs without caring about whether another non-canceled parent
+ * requires one of the child dependencies: this parent just launches its own job for the node, and that one is not canceled.
  */
 // TODO this should probably be an internal property of the dependency node instead of being stored in the nodeCache
 private val DependencyNode.resolutionMutex: Mutex
@@ -344,7 +348,7 @@ private val DependencyNode.resolutionJobs: MutableList<Job>
     get() = context.nodeCache.computeIfAbsent(Key<MutableList<Job>>("resolutionJobs")) { CopyOnWriteArrayList() }
 
 /**
- * Describes a state of the dependency resolution process.
+ * Describes the state of the dependency resolution process.
  * It can be [UNSURE] if the resolution was done without network access.
  *
  * @see ResolutionLevel

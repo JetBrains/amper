@@ -566,6 +566,159 @@ class BuildGraphTest {
     }
 
     @Test
+    fun `junit junit 4_10`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            expected = """root
+                |\--- junit:junit:4.10
+                |     \--- org.hamcrest:hamcrest-core:1.1
+                |          +--- jmock:jmock:1.1.0
+                |          \--- org.easymock:easymock:2.2
+            """.trimMargin()
+        )
+    }
+
+    @Test
+    fun `io_ktor ktor-server-auth 2_2_2`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+            expected = """root
+                |\--- io.ktor:ktor-server-auth:2.2.2
+                |     \--- io.ktor:ktor-server-auth-jvm:2.2.2
+                |          +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20
+                |          |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.20 -> 1.7.22
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.22
+                |          |         \--- org.jetbrains:annotations:13.0
+                |          +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20
+                |          |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.20 -> 1.7.22 (*)
+                |          |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4
+                |          |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+                |          |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4
+                |          |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                |          |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.7.20 (*)
+                |          |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21 -> 1.7.22
+                |          |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4
+                |          |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 -> 1.7.20 (*)
+                |          +--- org.slf4j:slf4j-api:1.7.36
+                |          +--- com.googlecode.json-simple:json-simple:1.1.1
+                |          |    \--- junit:junit:4.10
+                |          |         \--- org.hamcrest:hamcrest-core:1.1
+                |          |              +--- jmock:jmock:1.1.0
+                |          |              \--- org.easymock:easymock:2.2
+                |          +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          +--- io.ktor:ktor-server-core:2.2.2
+                |          |    \--- io.ktor:ktor-server-core-jvm:2.2.2
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         +--- com.typesafe:config:1.4.2
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         +--- io.ktor:ktor-utils:2.2.2
+                |          |         |    \--- io.ktor:ktor-utils-jvm:2.2.2
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         +--- io.ktor:ktor-io:2.2.2
+                |          |         |         |    \--- io.ktor:ktor-io-jvm:2.2.2
+                |          |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         +--- io.ktor:ktor-http:2.2.2
+                |          |         |    \--- io.ktor:ktor-http-jvm:2.2.2
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         +--- io.ktor:ktor-utils:2.2.2 (*)
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         +--- io.ktor:ktor-serialization:2.2.2
+                |          |         |    \--- io.ktor:ktor-serialization-jvm:2.2.2
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         +--- io.ktor:ktor-http:2.2.2 (*)
+                |          |         |         +--- io.ktor:ktor-websockets:2.2.2
+                |          |         |         |    \--- io.ktor:ktor-websockets-jvm:2.2.2
+                |          |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         |         +--- io.ktor:ktor-http:2.2.2 (*)
+                |          |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         +--- io.ktor:ktor-events:2.2.2
+                |          |         |    \--- io.ktor:ktor-events-jvm:2.2.2
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         +--- io.ktor:ktor-http:2.2.2 (*)
+                |          |         |         +--- io.ktor:ktor-utils:2.2.2 (*)
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         \--- org.jetbrains.kotlin:kotlin-reflect:1.7.22
+                |          |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.22 (*)
+                |          +--- io.ktor:ktor-client-core:2.2.2
+                |          |    \--- io.ktor:ktor-client-core-jvm:2.2.2
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         +--- io.ktor:ktor-http:2.2.2 (*)
+                |          |         +--- io.ktor:ktor-events:2.2.2 (*)
+                |          |         +--- io.ktor:ktor-websocket-serialization:2.2.2
+                |          |         |    \--- io.ktor:ktor-websocket-serialization-jvm:2.2.2
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         |         +--- io.ktor:ktor-http:2.2.2 (*)
+                |          |         |         +--- io.ktor:ktor-serialization:2.2.2 (*)
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          +--- io.ktor:ktor-server-sessions:2.2.2
+                |          |    \--- io.ktor:ktor-server-sessions-jvm:2.2.2
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4 (*)
+                |          |         +--- org.slf4j:slf4j-api:1.7.36
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
+                |          |         +--- io.ktor:ktor-server-core:2.2.2 (*)
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1
+                |          |         |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.20 -> 1.7.22 (*)
+                |          |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          |         \--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1
+                |          |              \--- org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1
+                |          |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.20 -> 1.7.22 (*)
+                |          |                   +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+                |          |                   +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1 (*)
+                |          |                   \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20 (*)
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.7.20 -> 1.7.22
+            """.trimMargin()
+        )
+    }
+
+    @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
