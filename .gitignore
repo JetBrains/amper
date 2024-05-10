@@ -1,7 +1,10 @@
-build
-.fleet/scratches
-.gradle
 .DS_Store
+
+.fleet/scratches
+
+.gradle
+.kotlin
+build
 shared test caches/
 
 local.properties
