@@ -1283,7 +1283,7 @@ the application without modify the code.
 To support such configurations, Amper offers a concept of _build variants_. A build variant can have additional code,
 resources, override/append dependencies and settings.
 
-> Build variants are not yet fully implemented.
+> Build variants are not currently implemented.
 
 Here is how a basic build variants configuration looks like:
 ```yaml
