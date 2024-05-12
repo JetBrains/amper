@@ -5,18 +5,21 @@
 package org.jetbrains.amper.resolver
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.frontend.Platform
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.io.path.fileSize
+import kotlin.io.path.name
 import kotlin.io.path.relativeTo
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration
 
 class MavenResolverTest {
     @field:TempDir
@@ -138,6 +141,36 @@ class MavenResolverTest {
         }
         assertEquals(
             "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            t.message
+        )
+    }
+
+    @Test
+    @Ignore("AMPER-580 DR: Fail resolve if platform support was not found")
+    fun negativeResolvePlatformSupportWasNotFound() = runTest(timeout = Duration.INFINITE ) {
+        val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
+
+        // kotlinx-datetime:0.2.1 is available for macos_x64
+        val macosX64 = resolver.resolve(
+            coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
+            platform = ResolutionPlatform.MACOS_X64,
+            repositories = listOf("https://repo1.maven.org/maven2"),
+        )
+        assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
+            message = "kotlinx-datetime-macosx64-0.2.1.klib must be found in resolve result: ${macosX64.toList()}")
+
+        // kotlinx-datetime:0.2.1 is NOT available for macos_arm64
+        val t = assertThrows<MavenResolverException> {
+            runBlocking {
+                resolver.resolve(
+                    coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
+                    platform = ResolutionPlatform.MACOS_ARM64,
+                    repositories = listOf("https://repo1.maven.org/maven2"),
+                )
+            }
+        }
+        assertEquals(
+            "some good explanation that macos_arm64 support is missing, but it's available for the following list of platforms: LIST",
             t.message
         )
     }
