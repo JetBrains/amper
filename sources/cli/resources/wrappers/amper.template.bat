@@ -64,7 +64,7 @@ if errorlevel 1 goto fail
 
 REM ********** Run Amper **********
 
-"%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%lib\*" org.jetbrains.amper.cli.MainKt %*
+"%AMPER_JAVA_HOME%\bin\java.exe" -ea "-Damper.wrapper.dist.sha256=%amper_sha256%" "-Damper.wrapper.process.name=%~nx0" -cp "%amper_target_dir%lib\*" org.jetbrains.amper.cli.MainKt %*
 exit /B %ERRORLEVEL%
 
 REM ********** Download And Extract Any Zip Archive **********
