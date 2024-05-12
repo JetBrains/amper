@@ -86,7 +86,7 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        val testInstance = context.testInstance.getOrNull() as? E2ETestFixture ?: return
+        val testInstance = context.testInstance.getOrNull() as? GradleE2ETestFixture ?: return
         val takenDaemon = availableGradleDaemons.take()
         context.store.put(usedDaemonKey, takenDaemon)
         testInstance.gradleRunner = takenDaemon

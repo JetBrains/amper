@@ -40,7 +40,7 @@ tasks.withType<Test>().configureEach {
         maxHeapSize = "4g"
 
         exclude { include ->
-            include.file.name.contains("EmulatorTests")
+            include.file.name.contains("GradleEmulatorTests")
         }
     }
 }

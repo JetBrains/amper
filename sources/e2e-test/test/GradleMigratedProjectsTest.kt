@@ -7,7 +7,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import kotlin.test.Ignore
 
-class MigratedProjectsTest : E2ETestFixture("../../migrated-projects/", runWithPluginClasspath = false) {
+class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects/", runWithPluginClasspath = false) {
     @Test
     fun `compose-multiplatform-ios-android-template (android)`() = test(
         projectName = "compose-multiplatform-ios-android-template",

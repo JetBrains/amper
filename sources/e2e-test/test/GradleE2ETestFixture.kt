@@ -42,7 +42,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 
-open class E2ETestFixture(val pathToProjects: String, val runWithPluginClasspath: Boolean = true) {
+open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginClasspath: Boolean = true) {
 
     @Suppress("unused") // JUnit5 extension.
     @field:RegisterExtension

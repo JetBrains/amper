@@ -13,7 +13,7 @@ import kotlin.io.path.exists
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
-class IntegrationTest : E2ETestFixture("./testData/projects/") {
+class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     @Test
     fun `running jvm`() = test(
         projectName = "jvm-basic",
@@ -84,7 +84,7 @@ class IntegrationTest : E2ETestFixture("./testData/projects/") {
     @Test
     @KonanFolderLock
     @EnabledOnOs(value = [OS.MAC], architectures = ["aarch64"])
-    fun `detecting native entry point`() = test(
+    fun `detecting native entry point on mac`() = test(
         projectName = "entry-point-detection-native",
         "runMacosArm64DebugExecutableMacosArm64",
         expectOutputToHave = "Hello, World!",

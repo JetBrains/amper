@@ -23,7 +23,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
-class BootstrapTest {
+class GradleBootstrapTest {
 
     @TempDir
     lateinit var projectPath: Path
