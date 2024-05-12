@@ -21,7 +21,7 @@ class AmperProjectStructureTest {
     fun sameVersionInEveryWrapper() {
         val filesWithWrappers = mutableListOf<Path>()
 
-        val gradleTestProjects = TestUtil.amperSourcesRoot.resolve("e2e-test/testData/projects")
+        val gradleTestProjects = TestUtil.amperSourcesRoot.resolve("gradle-e2e-test/testData/projects")
 
         TestUtil.amperCheckoutRoot.visitFileTree(object : FileVisitor<Path> {
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
