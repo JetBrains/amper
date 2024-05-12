@@ -13,7 +13,9 @@ import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.compilation.CombiningKotlinLogger
 import org.jetbrains.amper.compilation.CompilationUserSettings
+import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
@@ -183,7 +185,7 @@ class JvmCompileTask(
             //  is it worth it? Could we always set -Xmulti-platform?
             val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
 
-            val kotlinCompilationResult = compileKotlinSources(
+            compileKotlinSources(
                 compilerVersion = kotlinVersion,
                 userSettings = userSettings,
                 isMultiplatform = isMultiplatform,
@@ -192,9 +194,6 @@ class JvmCompileTask(
                 sourceDirectories = sourceDirectories,
                 friendPaths = friendPaths,
             )
-            if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
-                userReadableError("Kotlin compilation failed (see errors above)")
-            }
         }
 
         val javaFilesToCompile = sourcesFiles.filter { it.extension == "java" }
@@ -205,7 +204,6 @@ class JvmCompileTask(
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
-                terminal = terminal,
             )
             if (!javacSuccess) {
                 userReadableError("Java compilation failed (see errors above)")
@@ -221,7 +219,7 @@ class JvmCompileTask(
         jdk: Jdk,
         sourceDirectories: List<Path>,
         friendPaths: List<Path>,
-    ): CompilationResult {
+    ) {
         // TODO should we download this in a separate task?
         val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinCompilerDownloader)
 
@@ -233,8 +231,9 @@ class JvmCompileTask(
             //.useDaemonStrategy(jvmArguments = emptyList())
 
         // TODO configure incremental compilation here
+        val errorsCollector = ErrorsCollectorKotlinLogger()
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
-            .useLogger(logger.asKotlinLogger())
+            .useLogger(CombiningKotlinLogger(logger.asKotlinLogger(), errorsCollector))
 
         val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
 
@@ -269,7 +268,13 @@ class JvmCompileTask(
                 compilationService.finishProjectCompilation(projectId)
                 compilationResult
             }
-        return kotlinCompilationResult
+
+        if (kotlinCompilationResult != CompilationResult.COMPILATION_SUCCESS) {
+            val errorsSuffix = if (errorsCollector.errors.isNotEmpty()) {
+                ":\n\n${errorsCollector.errors.joinToString("\n")}"
+            } else " (see errors above)"
+            userReadableError("Kotlin compilation failed$errorsSuffix")
+        }
     }
 
     private suspend fun compileJavaSources(
@@ -277,7 +282,6 @@ class JvmCompileTask(
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
-        terminal: Terminal,
     ): Boolean {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {

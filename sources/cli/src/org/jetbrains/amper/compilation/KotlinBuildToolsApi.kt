@@ -16,6 +16,7 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import javax.annotation.concurrent.ThreadSafe
 import kotlin.io.path.absolutePathString
 
 /**
@@ -93,4 +94,39 @@ fun Logger.asKotlinLogger(): KotlinLogger {
         override fun info(msg: String) = slf4jLogger.info(msg)
         override fun warn(msg: String) = slf4jLogger.warn(msg)
     }
+}
+
+class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
+    private val loggers = logger
+
+    override val isDebugEnabled: Boolean
+        get() = loggers.any { it.isDebugEnabled }
+
+    override fun debug(msg: String) = loggers.forEach { it.debug(msg) }
+    override fun error(msg: String, throwable: Throwable?) = loggers.forEach { it.error(msg, throwable) }
+    override fun info(msg: String) = loggers.forEach { it.info(msg) }
+    override fun lifecycle(msg: String) = loggers.forEach { it.lifecycle(msg) }
+    override fun warn(msg: String) = loggers.forEach { it.warn(msg) }
+}
+
+@ThreadSafe
+class ErrorsCollectorKotlinLogger: KotlinLogger {
+    private val collector: MutableList<String> = mutableListOf()
+
+    val errors: List<String>
+        get() = synchronized(collector) {
+            collector.toList()
+        }
+
+    override fun error(msg: String, throwable: Throwable?) {
+        synchronized(collector) {
+            collector.add(msg)
+        }
+    }
+
+    override val isDebugEnabled: Boolean = false
+    override fun debug(msg: String) = Unit
+    override fun info(msg: String) = Unit
+    override fun lifecycle(msg: String) = Unit
+    override fun warn(msg: String) = Unit
 }

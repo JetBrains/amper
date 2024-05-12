@@ -56,6 +56,26 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    fun `failed kotlinc compilation message`() = runTestInfinitely {
+        val projectName = "multi-module-failed-kotlinc-compilation"
+        val r = runCli(
+            projectName,
+            "build",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        val lastLines = r.stderr.lines().filter { it.isNotBlank() }.takeLast(2)
+
+        val file = testDataRoot.resolve(projectName).resolve("shared/src/World.kt").toUri()
+
+        assertEquals("""
+            ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
+            e: $file:2:26 Unresolved reference: XXXX
+        """.trimIndent(), lastLines.joinToString("\n"))
+    }
+
+    @Test
     fun `init works`() = runTestInfinitely {
         val p = tempRoot.resolve("new").also { it.createDirectories() }
         runCli(p, "init", "multiplatform-cli")
