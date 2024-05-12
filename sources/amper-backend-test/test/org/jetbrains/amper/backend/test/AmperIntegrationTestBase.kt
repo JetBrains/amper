@@ -42,7 +42,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class IntegrationTestBase {
+abstract class AmperIntegrationTestBase {
     @RegisterExtension
     private val tempDirExtension = TempDirExtension()
 

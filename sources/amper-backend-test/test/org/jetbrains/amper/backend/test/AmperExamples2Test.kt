@@ -15,7 +15,7 @@ import kotlin.test.Test
 // TODO: review and merged with AmperExamples1Test test suite
 // This test was initially testing Gradle-based example projects.
 // It was decoupled from the Gradle-based examples, and split into AmperExamples2Test and AmperBasicIntegrationTest.
-class AmperExamples2Test : IntegrationTestBase() {
+class AmperExamples2Test : AmperIntegrationTestBase() {
     private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
     private fun setupExampleProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext {

@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
  * This is only test where wrappers may download the real Amper version from real location
  */
 @OptIn(ExperimentalPathApi::class)
-class ShellScriptsTest {
+class AmperShellScriptsTest {
     @TempDir
     lateinit var tempDir: Path
 

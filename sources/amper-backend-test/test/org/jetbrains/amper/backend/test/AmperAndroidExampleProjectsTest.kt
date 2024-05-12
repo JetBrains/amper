@@ -47,7 +47,7 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
-class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
+class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
 
     private val androidTestDataRoot: Path = TestUtil
         .amperSourcesRoot

@@ -17,7 +17,7 @@ import kotlin.test.assertFailsWith
 // TODO: review and merged with other integration test suite
 // This test was initially testing Gradle-based example projects.
 // It was decoupled from the Gradle-based examples, and split into AmperExamples2Test and AmperBasicIntegrationTest.
-class AmperBasicIntegrationTest : IntegrationTestBase() {
+class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     private val exampleProjectsRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 

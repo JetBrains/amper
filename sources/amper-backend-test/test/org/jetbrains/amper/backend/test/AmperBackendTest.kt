@@ -52,7 +52,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class AmperBackendTest : IntegrationTestBase() {
+class AmperBackendTest : AmperIntegrationTestBase() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
