@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
 import kotlin.io.path.visitFileTree
 
 @OptIn(ExperimentalPathApi::class)
@@ -39,14 +40,20 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
 
     companion object {
         fun deleteWithDiagnostics(path: Path) {
-            val exceptions = mutableListOf<Throwable>()
+            // On Windows a directory may be freed only after a some time,
+            // so allow some slack
 
-            try {
-                path.deleteRecursively()
-                return
-            } catch (t: Throwable) {
-                exceptions.add(t)
+            repeat(20) {
+                try {
+                    path.deleteRecursively()
+                    return
+                } catch (_: Throwable) {
+                    // ignore exceptions
+                }
+                Thread.sleep(50)
             }
+
+            val exceptions = mutableListOf<Throwable>()
 
             fun log(s: String) = println("TempDirExtension.deleteWithRetries: $s")
 
@@ -89,8 +96,16 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
                 }
             })
 
-            throw IllegalStateException("Got ${exceptions.size} delete exceptions for $path").also { ex ->
-                exceptions.forEach { ex.addSuppressed(it) }
+            if (exceptions.isEmpty()) {
+                error(
+                    "After a full second of retires, second method of deleting (visitFileTree) succeeded without exceptions. " +
+                            "This is very suspicious and should not generally happen. Probably a bug in visitFileTree-based deletion?" +
+                            "path.exists=${path.exists()}"
+                )
+            } else {
+                throw IllegalStateException("Got ${exceptions.size} delete exceptions for $path").also { ex ->
+                    exceptions.forEach { ex.addSuppressed(it) }
+                }
             }
         }
     }
