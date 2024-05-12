@@ -80,7 +80,7 @@ class ResolveExternalDependenciesTask(
             return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
         }
 
-        logger.info("resolve dependencies ${module.userReadableName} -- " +
+        logger.debug("resolve dependencies ${module.userReadableName} -- " +
                 "${fragments.userReadableList()} -- " +
                 "${directCompileDependencies.sorted().joinToString(" ")} -- " +
                 exportedDependencies.sorted().joinToString(" ") + " -- " +

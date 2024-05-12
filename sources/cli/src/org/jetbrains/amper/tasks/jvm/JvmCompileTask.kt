@@ -32,7 +32,6 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
-import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -75,7 +74,7 @@ class JvmCompileTask(
             "fragments list is empty for jvm compile task, module=${module.userReadableName}"
         }
 
-        logger.info("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
+        logger.debug("compile ${module.userReadableName} -- ${fragments.userReadableList()}")
 
         val mavenDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
@@ -255,7 +254,7 @@ class JvmCompileTask(
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .useWithScope {
-                logger.info("Calling Kotlin compiler...")
+                logger.debug("Calling Kotlin compiler...")
                 // TODO capture compiler errors/warnings in span (currently stdout/stderr are only logged)
                 val projectId = projectRoot.toKotlinProjectId()
                 val compilationResult = compilationService.compileJvm(
@@ -266,7 +265,7 @@ class JvmCompileTask(
                     arguments = compilerArgs,
                 )
 
-                logger.info("Kotlin compiler finalization...")
+                logger.debug("Kotlin compiler finalization...")
                 compilationService.finishProjectCompilation(projectId)
                 compilationResult
             }

@@ -76,20 +76,20 @@ class ExecuteOnChangedInputs(
             }
             if (existingResult != null) {
                 logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
-                logger.info("INC: '$id' is up-to-date")
+                logger.info("'$id' is up-to-date")
                 span.setAttribute("status", "up-to-date")
                 addResultToSpan(span, existingResult)
                 return@withLock existingResult
             } else {
                 span.setAttribute("status", "requires-building")
-                logger.info("INC: building '$id'")
+                logger.info("building '$id'")
             }
 
             val (result, buildTime) = measureTimedValue { block() }
 
             addResultToSpan(span, result)
 
-            logger.info("INC: built '$id' in $buildTime")
+            logger.info("finished '$id' in $buildTime")
 
             writeStateFile(stateFileChannel, configuration, inputs, result)
 
