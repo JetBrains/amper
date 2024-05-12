@@ -15,6 +15,7 @@ import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceFile
 import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceIdentifier
 import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.job
@@ -54,8 +55,8 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun setupAndroidTestProject(testProjectName: String): ProjectContext =
-        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false)
+    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext =
+        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope)
 
     /**
      * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.
@@ -65,9 +66,9 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Ignore
     fun simple() = runTest(timeout = 15.minutes) {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("simple")
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
         System.setProperty(headlessEmulatorModePropertyName, "true")
-        AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "runAndroidDebug")))
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "runAndroidDebug")))
         val device = AndroidDebugBridge.getBridge().devices.first()
         assertStringInLogcat(device, "My Application")
     }
@@ -75,25 +76,25 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `simple tests debug`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("simple")
-        AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestDebug")))
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestDebug")))
         assertStdoutContains("1 tests successful")
     }
 
     @Test
     fun `simple tests release`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("simple")
-        AmperBackend(projectContext, backgroundScope).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestRelease")))
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestRelease")))
         assertStdoutContains("1 tests successful")
     }
 
     @Test
     fun `apk contains dependencies`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("simple")
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
         val taskName = TaskName.fromHierarchy(listOf("simple", "buildAndroidDebug"))
-        AmperBackend(projectContext, backgroundScope).runTask(taskName)
+        AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
         assertClassContainsInApk("Lcom/google/common/collect/Synchronized\$SynchronizedBiMap;", apkPath)
     }
@@ -101,9 +102,9 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `appcompat compiles successfully and contains dependencies`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("appcompat")
+        val projectContext = setupAndroidTestProject("appcompat", backgroundScope = backgroundScope)
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
-        AmperBackend(projectContext, backgroundScope).runTask(taskName)
+        AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
         assertClassContainsInApk("Landroidx/appcompat/app/AppCompatActivity;", apkPath)
     }
@@ -111,9 +112,9 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `lib contains lib code and resources`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("lib")
+        val projectContext = setupAndroidTestProject("lib", backgroundScope = backgroundScope)
         val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
-        AmperBackend(projectContext, backgroundScope).runTask(taskName)
+        AmperBackend(projectContext).runTask(taskName)
         val aarPath = projectContext.getAarPath(taskName)
         assertClassContainsInAar("org.example.namespace.Lib", aarPath)
         assertStringContainsInResources("My Library", aarPath)
@@ -122,9 +123,9 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("appcompat")
+        val projectContext = setupAndroidTestProject("appcompat", backgroundScope = backgroundScope)
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
-        AmperBackend(projectContext, backgroundScope).runTask(taskName)
+        AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
         val extractedApkPath = apkPath.parent.resolve("extractedApk")
         extractZip(apkPath, extractedApkPath, false)
@@ -135,8 +136,8 @@ class AmperAndroidExampleProjectsTest : IntegrationTestBase() {
     @Test
     fun `task graph is correct for downloading and installing android sdk components`() = runTestInfinitely {
         Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
-        val projectContext = setupAndroidTestProject("simple")
-        AmperBackend(projectContext, backgroundScope).showTasks()
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:resolveDependenciesAndroid, :simple:compileAndroidDebug")
         assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")

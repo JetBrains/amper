@@ -8,6 +8,7 @@ package org.jetbrains.amper.backend.test
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.backend.test.assertions.FilteredSpans
 import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
 import org.jetbrains.amper.backend.test.assertions.spansNamed
@@ -84,7 +85,12 @@ abstract class IntegrationTestBase {
         CliEnvironmentInitializer.setup()
     }
 
-    protected fun setupTestProject(testProjectPath: Path, copyToTemp: Boolean, programArgs: List<String> = emptyList()): ProjectContext {
+    protected fun setupTestProject(
+        testProjectPath: Path,
+        copyToTemp: Boolean,
+        programArgs: List<String> = emptyList(),
+        backgroundScope: CoroutineScope,
+    ): ProjectContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
@@ -95,6 +101,7 @@ abstract class IntegrationTestBase {
             buildOutputRoot = AmperBuildOutputRoot(buildDir),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
             currentTopLevelCommand = "integration-test-base",
+            backgroundScope = backgroundScope,
         )
     }
 

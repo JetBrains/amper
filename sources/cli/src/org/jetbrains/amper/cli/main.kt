@@ -24,14 +24,13 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
+import com.intellij.util.namedChildScope
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.supervisorScope
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -172,48 +171,47 @@ internal fun withBackend(
 
     CliEnvironmentInitializer.setup()
 
-    val projectContext = ProjectContext.create(
-        projectRoot = commonOptions.root,
-        buildOutputRoot = commonOptions.buildOutputRoot?.let {
-            it.createDirectories()
-            AmperBuildOutputRoot(it.toAbsolutePath())
-        },
-        userCacheRoot = commonOptions.sharedCachesRoot?.let {
-            it.createDirectories()
-            AmperUserCacheRoot(it.toAbsolutePath())
-        },
-        currentTopLevelCommand = currentCommand,
-        commonRunSettings = commonRunSettings,
-        taskExecutionMode = taskExecutionMode,
-    )
-
-    CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
-    CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-    CliEnvironmentInitializer.setupLogging(
-        logsRoot = projectContext.buildLogsRoot,
-        consoleLogLevel = commonOptions.consoleLogLevel,
-        terminal = projectContext.terminal,
-    )
-
-    // TODO output version, os and some env to log file only
-    projectContext.terminal.println(AmperBuild.banner)
-    projectContext.terminal.println("Logs are in ${projectContext.buildLogsRoot.path}")
-    projectContext.terminal.println()
-
-    if (commonOptions.asyncProfiler) {
-        AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
-    }
-
     runBlocking(Dispatchers.Default) {
-        // do not fail on child cancellation
-        supervisorScope {
-            val backgroundScope = CoroutineScope(coroutineContext + Job())
-            val backend = AmperBackend(context = projectContext, backgroundScope = backgroundScope)
+        @Suppress("UnstableApiUsage")
+        val backgroundScope = namedChildScope("project background scope", supervisor = true)
 
-            block(backend)
+        val projectContext = ProjectContext.create(
+            projectRoot = commonOptions.root,
+            buildOutputRoot = commonOptions.buildOutputRoot?.let {
+                it.createDirectories()
+                AmperBuildOutputRoot(it.toAbsolutePath())
+            },
+            userCacheRoot = commonOptions.sharedCachesRoot?.let {
+                it.createDirectories()
+                AmperUserCacheRoot(it.toAbsolutePath())
+            },
+            currentTopLevelCommand = currentCommand,
+            commonRunSettings = commonRunSettings,
+            taskExecutionMode = taskExecutionMode,
+            backgroundScope = backgroundScope,
+        )
 
-            cancelAndWaitForScope(backgroundScope)
-        }
+            CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
+            CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
+            CliEnvironmentInitializer.setupLogging(
+                logsRoot = projectContext.buildLogsRoot,
+                consoleLogLevel = commonOptions.consoleLogLevel,
+                terminal = projectContext.terminal,
+            )
+
+            // TODO output version, os and some env to log file only
+            projectContext.terminal.println(AmperBuild.banner)
+            projectContext.terminal.println("Logs are in ${projectContext.buildLogsRoot.path}")
+            projectContext.terminal.println()
+
+            if (commonOptions.asyncProfiler) {
+                AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
+            }
+
+        val backend = AmperBackend(context = projectContext)
+        block(backend)
+
+        cancelAndWaitForScope(backgroundScope)
     }
 }
 

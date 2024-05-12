@@ -7,6 +7,7 @@ package org.jetbrains.amper.cli
 import com.github.ajalt.mordant.terminal.Terminal
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
@@ -21,7 +22,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 
-class ProjectContext(
+class ProjectContext private constructor(
     val projectRoot: AmperProjectRoot,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
@@ -32,6 +33,11 @@ class ProjectContext(
     val taskExecutionMode: TaskExecutor.Mode,
     val mavenLocalRepository: MavenLocalRepository,
     val terminal: Terminal,
+
+    /**
+     * Background scope is terminated when project-related activities are finished (e.g., on Amper exit)
+     */
+    val backgroundScope: CoroutineScope,
 ) {
     companion object {
         fun create(
@@ -41,6 +47,7 @@ class ProjectContext(
             buildOutputRoot: AmperBuildOutputRoot? = null,
             userCacheRoot: AmperUserCacheRoot? = null,
             currentTopLevelCommand: String,
+            backgroundScope: CoroutineScope,
         ): ProjectContext {
             require(currentTopLevelCommand.isNotBlank()) {
                 "currentTopLevelCommand should not be blank"
@@ -77,6 +84,7 @@ class ProjectContext(
                 taskExecutionMode = taskExecutionMode,
                 mavenLocalRepository = MavenLocalRepository(),
                 terminal = Terminal(),
+                backgroundScope = backgroundScope,
             )
         }
     }

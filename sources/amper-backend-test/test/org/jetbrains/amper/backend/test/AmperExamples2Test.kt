@@ -3,21 +3,14 @@
  */
 package org.jetbrains.amper.backend.test
 
+import kotlinx.coroutines.CoroutineScope
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
-import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.util.OS
-import org.junit.jupiter.api.Assumptions
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.deleteExisting
 import kotlin.io.path.name
-import kotlin.io.path.walk
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 // TODO: review and merged with AmperExamples1Test test suite
 // This test was initially testing Gradle-based example projects.
@@ -25,13 +18,13 @@ import kotlin.test.assertFailsWith
 class AmperExamples2Test : IntegrationTestBase() {
     private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
-    private fun setupExampleProject(testProjectName: String): ProjectContext {
-        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
+    private fun setupExampleProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext {
+        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true, backgroundScope = backgroundScope)
     }
 
     @Test
     fun jvm() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm"), backgroundScope).run {
+        AmperBackend(setupExampleProject("jvm", backgroundScope = backgroundScope)).run {
             assertHasTasks(jvmAppTasks)
             runApplication()
         }
@@ -49,7 +42,7 @@ class AmperExamples2Test : IntegrationTestBase() {
 
         resetCollectors()
 
-        AmperBackend(setupExampleProject("jvm"), backgroundScope).test()
+        AmperBackend(setupExampleProject("jvm", backgroundScope = backgroundScope)).test()
         assertStdoutContains("Test run finished")
         assertStdoutContains("1 tests successful")
         assertStdoutContains("0 tests failed")
@@ -58,8 +51,8 @@ class AmperExamples2Test : IntegrationTestBase() {
 
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
-        val projectContext = setupExampleProject("compose-multiplatform")
-        AmperBackend(projectContext, backgroundScope).run {
+        val projectContext = setupExampleProject("compose-multiplatform", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).run {
             assertHasTasks(
                 jvmBaseTasks + jvmTestTasks +
 //                      TODO uncomment when  AMPER-526 is fixed
@@ -86,7 +79,7 @@ class AmperExamples2Test : IntegrationTestBase() {
 
     @Test
     fun composeAndroid() = runTestInfinitely {
-        AmperBackend(setupExampleProject("compose-android"), backgroundScope).run {
+        AmperBackend(setupExampleProject("compose-android", backgroundScope = backgroundScope)).run {
             assertHasTasks(androidAppTasks)
             compile()
         }
@@ -97,7 +90,7 @@ class AmperExamples2Test : IntegrationTestBase() {
 
     @Test
     fun composeDesktop() = runTestInfinitely {
-        AmperBackend(setupExampleProject("compose-desktop"), backgroundScope).run {
+        AmperBackend(setupExampleProject("compose-desktop", backgroundScope = backgroundScope)).run {
             assertHasTasks(jvmAppTasks)
             compile()
         }
