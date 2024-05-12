@@ -6,8 +6,6 @@ package org.jetbrains.amper.backend.test
 
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.util.OS
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import java.nio.file.Path
@@ -23,7 +21,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     fun `kmp-lib`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(tempRoot, "build")
     }
 
@@ -42,7 +39,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(tempRoot, "build")
     }
 
@@ -53,7 +49,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     fun `compose-android`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(tempRoot, "build")
     }
 

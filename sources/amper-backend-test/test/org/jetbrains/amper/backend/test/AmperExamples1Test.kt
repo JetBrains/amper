@@ -5,8 +5,6 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.util.OS
-import org.junit.jupiter.api.Assumptions
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.isDirectory
@@ -22,7 +20,6 @@ import kotlin.test.assertContains
 class AmperExamples1Test: AmperCliTestBase() {
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "build")
         // TODO Assert output
         runCli(projectName, "test")
@@ -30,7 +27,6 @@ class AmperExamples1Test: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform_build-android`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "task", ":android-app:buildAndroidDebug") // check AMPER-529
     }
 
@@ -42,7 +38,6 @@ class AmperExamples1Test: AmperCliTestBase() {
 
     @Test
     fun `compose-android`() = runTestInfinitely {
-        Assumptions.assumeFalse(OS.isWindows, "Skip test on Windows, fix AMPER-527 and remove this line")
         runCli(projectName, "build")
         // TODO Can we run it somehow?
         runCli(projectName, "task", ":$projectName:buildAndroidDebug") // check AMPER-529
