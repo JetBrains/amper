@@ -77,16 +77,6 @@ class AmperBackend(val context: ProjectContext) {
         TaskExecutor(taskGraph, context.taskExecutionMode, progress)
     }
 
-    fun clean() {
-        val rootsToClean = listOf(context.buildOutputRoot.path, context.projectTempRoot.path)
-        for (path in rootsToClean) {
-            if (path.exists()) {
-                logger.info("Deleting $path")
-                path.deleteRecursively()
-            }
-        }
-    }
-
     fun compile(platforms: Set<Platform>? = null) {
         if (platforms != null) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")

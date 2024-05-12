@@ -2,6 +2,8 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(ExperimentalPathApi::class)
+
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
@@ -48,6 +50,7 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
 internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapper.process.name") ?: "amper") {
@@ -157,6 +160,7 @@ internal fun withBackend(
     currentCommand: String,
     commonRunSettings: CommonRunSettings = CommonRunSettings(),
     taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
+    setupEnvironment: Boolean = true,
     block: suspend (AmperBackend) -> Unit,
 ) {
     val initializedException = backendInitialized.getAndSet(Throwable())
@@ -191,6 +195,7 @@ internal fun withBackend(
             backgroundScope = backgroundScope,
         )
 
+        if (setupEnvironment) {
             CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
             CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
             CliEnvironmentInitializer.setupLogging(
@@ -207,6 +212,7 @@ internal fun withBackend(
             if (commonOptions.asyncProfiler) {
                 AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
             }
+        }
 
         val backend = AmperBackend(context = projectContext)
         block(backend)
@@ -227,8 +233,16 @@ private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper
 
 private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
-    override fun run() = withBackend(commonOptions, commandName) { backend ->
-        backend.clean()
+    override fun run() = withBackend(commonOptions, commandName, setupEnvironment = false) { backend ->
+        val rootsToClean = listOf(backend.context.buildOutputRoot.path, backend.context.projectTempRoot.path)
+        for (path in rootsToClean) {
+            if (path.exists()) {
+                @Suppress("ReplacePrintlnWithLogging")
+                println("Deleting $path")
+
+                path.deleteRecursively()
+            }
+        }
     }
 }
 
