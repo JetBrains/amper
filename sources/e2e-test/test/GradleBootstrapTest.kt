@@ -47,9 +47,9 @@ class GradleBootstrapTest {
         settingsKts.readText()
             .mustReplace(Regex.fromLiteral("// mavenLocal()"), "mavenLocal()")
             .mustReplace(
-                Regex(Regex.escape("id(\"org.jetbrains.amper.settings.plugin\") version \"") +
-                            "[\\w\\-.]+\""),
-                "id(\"org.jetbrains.amper.settings.plugin\") version \"$version\""
+                Regex(Regex.escape("id(\"org.jetbrains.amper.settings.plugin\").version(\"") +
+                            "[\\w\\-.]+\"\\)"),
+                "id(\"org.jetbrains.amper.settings.plugin\").version(\"$version\")"
             )
             .let { settingsKts.writeText(it) }
 
