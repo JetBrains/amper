@@ -5,6 +5,7 @@
 package org.jetbrains.amper.diagnostics
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie.REPEL_TERMINAL_LOGGING_MDC_NAME
 import org.tinylog.Level
 import org.tinylog.core.LogEntry
 import org.tinylog.core.LogEntryValue
@@ -30,14 +31,17 @@ class DynamicLevelConsoleWriter(properties: Map<String, String>): AbstractFormat
 
     override fun write(logEntry: LogEntry) {
         if (logEntry.level.ordinal >= minimumLevel.ordinal) {
-            val isError = logEntry.level.ordinal >= Level.ERROR.ordinal
-            terminal?.println(render(logEntry).trim(), stderr = isError)
+            if (!logEntry.context.containsKey(REPEL_TERMINAL_LOGGING_MDC_NAME)) {
+                val isError = logEntry.level.ordinal >= Level.ERROR.ordinal
+                terminal?.println(render(logEntry).trim(), stderr = isError)
+            }
         }
     }
 
     override fun getRequiredLogEntryValues(): Collection<LogEntryValue> {
         val logEntryValues = super.getRequiredLogEntryValues()
         logEntryValues.add(LogEntryValue.LEVEL)
+        logEntryValues.add(LogEntryValue.CONTEXT)
         return logEntryValues
     }
 

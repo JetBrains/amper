@@ -7,6 +7,7 @@ package org.jetbrains.amper.resolver
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.junit.jupiter.api.assertThrows
@@ -33,7 +34,8 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
-                listOf("https://repo1.maven.org/maven2")
+                repositories = listOf("https://repo1.maven.org/maven2"),
+                resolveSourceMoniker = "test",
             )
         }
         val relative = result.map { it.relativeTo(root).joinToString("/") }.sorted()
@@ -58,7 +60,8 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
-                listOf("https://repo1.maven.org/maven2")
+                repositories = listOf("https://repo1.maven.org/maven2"),
+                resolveSourceMoniker = "test",
             )
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
@@ -77,7 +80,8 @@ class MavenResolverTest {
                 coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
                 repositories = listOf("https://repo1.maven.org/maven2"),
                 scope = ResolutionScope.COMPILE,
-                platform = ResolutionPlatform.MINGW_X64
+                platform = ResolutionPlatform.MINGW_X64,
+                resolveSourceMoniker = "test",
             )
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted().joinToString("\n")
@@ -101,6 +105,7 @@ class MavenResolverTest {
                 coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
                 repositories = listOf("https://repo1.maven.org/maven2"),
                 scope = ResolutionScope.RUNTIME,
+                resolveSourceMoniker = "test",
             )
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
@@ -131,16 +136,21 @@ class MavenResolverTest {
     fun negativeResolveSingleCoordinates() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
-        val t = assertThrows<MavenResolverException> {
+        val t = assertThrows<UserReadableError> {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
-                    listOf("https://repo1.maven.org/maven2")
+                    repositories = listOf("https://repo1.maven.org/maven2"),
+                    resolveSourceMoniker = "test",
                 )
             }
         }
         assertEquals(
-            "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            """
+                Unable to resolve dependencies for test:
+
+                Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])
+            """.trimIndent(),
             t.message
         )
     }
@@ -155,6 +165,7 @@ class MavenResolverTest {
             coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
             platform = ResolutionPlatform.MACOS_X64,
             repositories = listOf("https://repo1.maven.org/maven2"),
+            resolveSourceMoniker = "test",
         )
         assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
             message = "kotlinx-datetime-macosx64-0.2.1.klib must be found in resolve result: ${macosX64.toList()}")
@@ -166,6 +177,7 @@ class MavenResolverTest {
                     coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
                     platform = ResolutionPlatform.MACOS_ARM64,
                     repositories = listOf("https://repo1.maven.org/maven2"),
+                    resolveSourceMoniker = "test",
                 )
             }
         }
@@ -190,6 +202,7 @@ class MavenResolverTest {
                     "https://repo.gradle.org/gradle/libs-releases",
                 ),
                 scope = ResolutionScope.COMPILE,
+                resolveSourceMoniker = "test",
             )
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
@@ -205,22 +218,23 @@ class MavenResolverTest {
     fun negativeResolveMultipleCoordinates() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
-        val t = assertThrows<MavenResolverException> {
+        val t = assertThrows<UserReadableError> {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
-                    listOf("https://repo1.maven.org/maven2")
+                    repositories = listOf("https://repo1.maven.org/maven2"),
+                    resolveSourceMoniker = "test",
                 )
             }
         }
         assertEquals(
-            "Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])",
+            """
+                Unable to resolve dependencies for test:
+
+                Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])
+                Pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])
+            """.trimIndent(),
             t.message
         )
-        assertEquals(
-            "Pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])",
-            t.suppressed.single().message
-        )
-        return
     }
 }

@@ -87,7 +87,7 @@ class KotlinCompilerDownloader(
         }
     }
 
-    suspend fun downloadKotlinCompilerPlugin(groupId: String = KOTLIN_GROUP_ID, artifactId: String, version: String): Path {
+    private suspend fun downloadKotlinCompilerPlugin(groupId: String = KOTLIN_GROUP_ID, artifactId: String, version: String): Path {
         val artifacts = downloadMavenArtifact(
             groupId = groupId,
             artifactId = artifactId,
@@ -98,13 +98,15 @@ class KotlinCompilerDownloader(
                     + artifacts.joinToString(" "))
     }
 
-    suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
+    private suspend fun downloadMavenArtifact(groupId: String, artifactId: String, version: String): List<Path> =
         // using executeOnChangedInputs because currently DR takes ~3s even when the artifact is already cached
         executeOnChangedInputs.execute("resolve-$groupId-$artifactId-$version", emptyMap(), emptyList()) {
+            val coordinates = "$groupId:$artifactId:$version"
             val resolved = mavenResolver.resolve(
-                coordinates = listOf("$groupId:$artifactId:$version"),
+                coordinates = listOf(coordinates),
                 repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
                 scope = ResolutionScope.RUNTIME,
+                resolveSourceMoniker = coordinates,
             )
             return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
         }.outputs

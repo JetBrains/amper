@@ -9,6 +9,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.diagnostics.spanBuilder
@@ -27,6 +28,7 @@ import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
+import java.util.concurrent.CancellationException
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
@@ -138,18 +140,24 @@ class ResolveExternalDependenciesTask(
                             ),
                         )
                     }
+                } catch (t: CancellationException) {
+                    throw t
                 } catch (t: Throwable) {
-                    throw IllegalStateException("resolve dependencies of module '${module.userReadableName}' failed\n" +
-                            "fragments: ${fragments.userReadableList()}\n" +
-                            "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
-                            "direct dependencies:\n${
-                                directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")
-                            }\n" +
-                            "exported dependencies:\n${
-                                exportedDependencies.sorted().joinToString("\n").prependIndent("  ")
-                            }\n" +
-                            "platform: $resolvedPlatform" +
-                            (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
+                    DoNotLogToTerminalCookie.use {
+                        logger.error("resolve dependencies of module '${module.userReadableName}' failed\n" +
+                                "fragments: ${fragments.userReadableList()}\n" +
+                                "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
+                                "direct dependencies:\n${
+                                    directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")
+                                }\n" +
+                                "exported dependencies:\n${
+                                    exportedDependencies.sorted().joinToString("\n").prependIndent("  ")
+                                }\n" +
+                                "platform: $resolvedPlatform" +
+                                (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
+                    }
+
+                    throw t
                 }
 
                 val compileClasspath =

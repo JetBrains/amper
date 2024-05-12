@@ -5,6 +5,7 @@
 package org.jetbrains.amper.resolver
 
 import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -15,6 +16,7 @@ import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
+import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.slf4j.LoggerFactory
@@ -29,14 +31,15 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         coordinates: Collection<String>,
         repositories: Collection<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: ResolutionPlatform = ResolutionPlatform.JVM
+        platform: ResolutionPlatform = ResolutionPlatform.JVM,
+        resolveSourceMoniker: String,
     ): Collection<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .setAttribute("repositories", repositories.joinToString(" "))
         .setAttribute("scope", scope.toString())
         .setAttribute("platform", platform.toString())
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
-        .startSpan().use {
+        .startSpan().use { span ->
             val acceptedRepositories = mutableListOf<String>()
             for (url in repositories) {
                 @Suppress("HttpUrlsUsage")
@@ -114,14 +117,18 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     }
                 }
                 if (errorNodes.isNotEmpty()) {
-                    val first = errorNodes.first().messages.first { it.severity == Severity.ERROR }
-                    throw MavenResolverException(first.message, first.exception).apply {
-                        errorNodes.flatMap { dependency ->
-                            dependency.messages.filter { it.severity == Severity.ERROR }.map {
-                                MavenResolverException(it.message, it.exception)
-                            }
-                        }.drop(1).forEach { addSuppressed(it) }
+                    val errors = errorNodes.flatMap { it.messages }.filter { it.severity == Severity.ERROR }
+
+                    for (error in errors) {
+                        span.recordException(error.exception ?: MavenResolverException(error.message))
+                        DoNotLogToTerminalCookie.use {
+                            logger.error(error.message, error.exception)
+                        }
                     }
+
+                    userReadableError(
+                        "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
+                                errors.joinToString("\n") { it.message })
                 }
                 files
             }

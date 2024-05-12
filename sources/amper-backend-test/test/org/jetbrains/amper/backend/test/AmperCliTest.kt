@@ -19,6 +19,7 @@ import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @OptIn(ExperimentalPathApi::class)
 class AmperCliTest: AmperCliTestBase() {
@@ -73,6 +74,46 @@ class AmperCliTest: AmperCliTestBase() {
             ERROR: Task ':shared:compileJvm' failed: Kotlin compilation failed:
             e: $file:2:26 Unresolved reference: XXXX
         """.trimIndent(), lastLines.joinToString("\n"))
+    }
+
+    @Test
+    fun `failed resolve message`() = runTestInfinitely {
+        val projectName = "multi-module-failed-resolve"
+        val r = runCli(
+            projectName,
+            "build",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+
+        val lastLines = r.stderr.lines().filter { it.isNotBlank() }
+
+        // could be any of them first
+        val expected1 = """
+            ERROR: Task ':shared:resolveDependenciesJvm' failed: Unable to resolve dependencies for module shared:
+            Pom required for org.junit.jupiter:junit-jupiter-api:9999 ([https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev])
+        """.trimIndent()
+        val expected2 = """
+            ERROR: Task ':shared:resolveDependenciesJvmTest' failed: Unable to resolve dependencies for module shared:
+            Pom required for org.junit.jupiter:junit-jupiter-api:9999 ([https://repo1.maven.org/maven2, https://maven.google.com, https://maven.pkg.jetbrains.space/public/p/compose/dev])
+        """.trimIndent()
+        val actual = lastLines.joinToString("\n")
+
+        if (expected1 != actual && expected2 != actual) {
+            println("Full stderr:\n${r.stderr.trim().prependIndent("STDERR ")}\n")
+
+            // produce IDEA-viewable diff
+            println(expected1.trim().prependIndent("EXPECTED1> "))
+            println()
+
+            println(expected2.trim().prependIndent("EXPECTED2> "))
+            println()
+
+            println(actual.trim().prependIndent("ACTUAL> "))
+            println()
+
+            fail("assertion failed")
+        }
     }
 
     @Test
