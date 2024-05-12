@@ -20,6 +20,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.readText
+import kotlin.io.path.relativeTo
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
@@ -86,35 +87,66 @@ class GradleBootstrapTest {
 }
 
 private fun copyDirectory(source: Path, target: Path) {
+    var lastException: Throwable? = null
+
+    for (i in 1..20) {
+        // collecting the entire Amper project may fail,
+        // e.g., .attach_pidPID may vanish while copying the project
+        // since processes are run from Amper folders.
+        // so far, it's our last, best hope for peace
+        val filesList = try {
+            collectFilesToCopy(source)
+        } catch (t: Throwable) {
+            // retry
+            lastException = t
+            Thread.sleep(50)
+            continue
+        }
+
+        for (sourceFile in filesList) {
+            check(!sourceFile.name.contains(".attach_pid")) {
+                "Unable to copy .attach_pid* files, they'll vanish. Please exclude them"
+            }
+
+            val relativeName = sourceFile.relativeTo(source)
+            val targetFile = target.resolve(relativeName)
+            Files.createDirectories(targetFile.parent)
+            Files.copy(sourceFile, targetFile)
+        }
+
+        return
+    }
+
+    throw lastException!!
+}
+
+private fun collectFilesToCopy(source: Path): List<Path> {
+    val result = mutableListOf<Path>()
     Files.walkFileTree(source, object : FileVisitor<Path> {
         override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-            if (dir.name == "build" || dir.name == ".gradle" || dir.name == ".git") {
+            if (dir.name == "build" || dir.name == ".gradle" || dir.name == ".git" || dir.name == "shared test caches") {
                 return FileVisitResult.SKIP_SUBTREE
             }
 
-            val targetPath = target.resolve(source.relativize(dir))
-            targetPath.createDirectories()
             return FileVisitResult.CONTINUE
         }
 
         override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-            val targetPath = target.resolve(source.relativize(file))
-            Files.copy(file, targetPath)
-
+            // may vanish
+            if (!file.name.contains(".attach_pid")) {
+                result.add(file)
+            }
             return FileVisitResult.CONTINUE
         }
 
         override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
-            if (exc is NoSuchFileException && exc.message?.contains(".attach_pid") == true) {
-                // .attach_pidPID may vanish while copying the project
-                return FileVisitResult.CONTINUE
-            }
-
             throw exc
         }
 
         override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
+            if (exc != null) throw exc
             return FileVisitResult.CONTINUE
         }
     })
+    return result
 }
