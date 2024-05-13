@@ -7,6 +7,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import kotlin.test.Ignore
 
+@Ignore("Until KMP plugin lifecycle violation is fixed")
 class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects/", runWithPluginClasspath = false) {
     @Test
     fun `compose-multiplatform-ios-android-template (android)`() = test(
