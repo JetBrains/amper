@@ -77,7 +77,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
                 // Very ugly hack for AMPER-395 DR: Unable to resolve gradle-tooling-api
                 val scope1 = when {
-                    coordinates.any { it == "org.gradle:gradle-tooling-api:8.4" } && scope == ResolutionScope.COMPILE -> ResolutionScope.RUNTIME
+                    coordinates.any { it.startsWith("org.gradle:gradle-tooling-api:") } && scope == ResolutionScope.COMPILE -> ResolutionScope.RUNTIME
                     else -> scope
                 }
                 this.scope = scope1
