@@ -35,7 +35,6 @@ import java.nio.file.Path
 import java.util.regex.Pattern
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
@@ -285,7 +284,7 @@ class AmperBackend(val context: ProjectContext) {
     }
 
     private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
-        val filesToCheck = templateFiles.map { it.second } + wrappers.map { it.fileName }
+        val filesToCheck = templateFiles.map { it.second }
         val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
         if (alreadyExistingFiles.isNotEmpty()) {
             userReadableError(
