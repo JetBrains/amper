@@ -65,7 +65,7 @@ There are multiple ways to try Amper:
 ## Examples
 
 ### Basics
-Here is a very basics JVM "Hello, World!" project:
+Here is a very basic JVM "Hello, World!" project:
 
 <img src="docs/images/ij-jvm-structure.png" width="50%" alt="">
 
