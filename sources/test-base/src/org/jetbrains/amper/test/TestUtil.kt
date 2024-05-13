@@ -52,7 +52,10 @@ object TestUtil {
     // on TeamCity: will be removed after the build
     val tempDir: Path by lazy {
         val dir = if (TeamCityHelper.isUnderTeamCity) {
-            TeamCityHelper.tempDirectory / "amper tests"
+            // As we found out, tempDirectory from TeamCity sometimes could be not empty
+            // (e.g., locked by some process)
+            // let's make it unique and add build id (global build counter on TC server across the entire server)
+            TeamCityHelper.tempDirectory / TeamCityHelper.buildId / "amper tests"
         } else {
             amperCheckoutRoot / "build" / "tests temp"
         }

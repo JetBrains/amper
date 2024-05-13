@@ -60,6 +60,10 @@ object TeamCityHelper {
         loadPropertiesFile(file)
     }
 
+    val buildId: String
+        get() = allProperties["teamcity.build.id"]
+            ?: error("'teamcity.build.id' is missing in TeamCity build parameters, this should not happen")
+
     val allProperties: Map<String, String> by lazy {
         requireRunUnderTeamcity()
 
