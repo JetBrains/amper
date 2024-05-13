@@ -20,6 +20,7 @@ import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
@@ -96,7 +97,7 @@ abstract class AmperIntegrationTestBase {
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
         return ProjectContext.create(
-            projectRoot = projectRoot,
+            projectRoot = AmperProjectRoot(projectRoot),
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(buildDir),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),

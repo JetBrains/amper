@@ -41,7 +41,7 @@ class ProjectContext private constructor(
 ) {
     companion object {
         fun create(
-            projectRoot: Path,
+            projectRoot: AmperProjectRoot,
             taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
             commonRunSettings: CommonRunSettings = CommonRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
@@ -54,17 +54,11 @@ class ProjectContext private constructor(
             }
 
             val buildOutputRootNotNull = buildOutputRoot ?: run {
-                val defaultBuildDir = projectRoot.resolve("build").also { it.createDirectories() }
+                val defaultBuildDir = projectRoot.path.resolve("build").also { it.createDirectories() }
                 AmperBuildOutputRoot(defaultBuildDir)
             }
 
             val userCacheRootNotNull = userCacheRoot ?: AmperUserCacheRoot.fromCurrentUser()
-
-            for (path in listOf(userCacheRootNotNull.path, buildOutputRootNotNull.path, projectRoot)) {
-                require(path.isAbsolute) {
-                    "Path must be absolute: $path"
-                }
-            }
 
             val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
 
@@ -75,7 +69,7 @@ class ProjectContext private constructor(
                 .also { it.createDirectories() }
 
             return ProjectContext(
-                projectRoot = AmperProjectRoot(projectRoot),
+                projectRoot = projectRoot,
                 buildOutputRoot = buildOutputRootNotNull,
                 projectTempRoot = AmperProjectTempRoot(tempDir),
                 buildLogsRoot = AmperBuildLogsRoot(logsDir),

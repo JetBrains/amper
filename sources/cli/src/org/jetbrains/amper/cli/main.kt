@@ -180,7 +180,7 @@ internal fun withBackend(
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
 
         val projectContext = ProjectContext.create(
-            projectRoot = commonOptions.root,
+            projectRoot = AmperProjectRoot(commonOptions.root.toAbsolutePath()),
             buildOutputRoot = commonOptions.buildOutputRoot?.let {
                 it.createDirectories()
                 AmperBuildOutputRoot(it.toAbsolutePath())
