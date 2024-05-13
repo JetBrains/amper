@@ -29,10 +29,10 @@ import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.PlatformUtil
+import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.regex.Pattern
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -194,58 +194,16 @@ class AmperBackend(val context: ProjectContext) {
         context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
-    @Suppress("SameParameterValue")
-    private fun substituteTemplatePlaceholders(
-        input: String,
-        outputFile: Path,
-        placeholder: String,
-        values: List<Pair<String, String>>,
-        outputWindowsLineEndings: Boolean = false,
-    ) {
-        var result = input.replace("\r", "")
-
-        val missingPlaceholders = mutableListOf<String>()
-        for ((name, value) in values) {
-            check (!name.contains(placeholder)) {
-                "Do not use placeholder '$placeholder' in name: $name"
-            }
-
-            val s = "$placeholder$name$placeholder"
-            if (!result.contains(s)) {
-                missingPlaceholders.add(s)
-            }
-
-            result = result.replace(s, value)
-        }
-
-        check(missingPlaceholders.isEmpty()) {
-            "Missing placeholders [${missingPlaceholders.joinToString(" ")}] in template"
-        }
-
-        val escapedPlaceHolder = Pattern.quote(placeholder)
-        val regex = Regex("$escapedPlaceHolder.+$escapedPlaceHolder")
-        val unsubstituted = result
-            .splitToSequence('\n')
-            .mapIndexed { line, s -> "line ${line + 1}: $s" }
-            .filter(regex::containsMatchIn)
-            .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
-        check (unsubstituted.isBlank()) {
-            "Some template parameters were left unsubstituted in template:\n$unsubstituted"
-        }
-
-        java.nio.file.Files.createDirectories(outputFile.parent)
-        java.nio.file.Files.writeString(outputFile, result)
-    }
-
     private data class AmperWrapper(
         val fileName: String,
         val resourceName: String,
         val executable: Boolean,
+        val windowsLineEndings: Boolean,
     )
 
     private val wrappers = listOf(
-        AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true),
-        AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false),
+        AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true, windowsLineEndings = false),
+        AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false, windowsLineEndings = true),
     )
 
     private fun writeWrappers(root: Path) {
@@ -271,7 +229,7 @@ class AmperBackend(val context: ProjectContext) {
                     "AMPER_VERSION" to AmperBuild.BuildNumber,
                     "AMPER_DIST_SHA256" to sha256,
                 ),
-                outputWindowsLineEndings = w.fileName.endsWith(".bat"),
+                outputWindowsLineEndings = w.windowsLineEndings,
             )
 
             if (w.executable) {

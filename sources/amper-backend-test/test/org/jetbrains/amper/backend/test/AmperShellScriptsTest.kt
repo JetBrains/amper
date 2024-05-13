@@ -8,18 +8,22 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.assertEqualsIgnoreLineSeparator
+import org.jetbrains.amper.test.generateUnifiedDiff
 import org.jetbrains.amper.util.OS
+import org.junit.jupiter.api.AssertionFailureBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.opentest4j.FileInfo
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
 import kotlin.io.path.name
 import kotlin.io.path.pathString
+import kotlin.io.path.readBytes
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
@@ -95,11 +99,15 @@ class AmperShellScriptsTest {
 
         for (wrapperName in listOf("amper", "amper.bat")) {
             val originalFile = shellScriptExampleProject.resolve(wrapperName)
-            assertEqualsIgnoreLineSeparator(
-                expectedContent = originalFile.readText(),
-                actualContent = tempProjectRoot.resolve(wrapperName).readText(),
-                originalFile = originalFile,
-            )
+            val actualFile = tempProjectRoot.resolve(wrapperName)
+
+            if (!originalFile.readBytes().contentEquals(actualFile.readBytes())) {
+                AssertionFailureBuilder.assertionFailure()
+                    .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
+                    .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
+                    .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
+                    .buildAndThrow()
+            }
         }
 
         val windowsWrapper = tempProjectRoot.resolve("amper.bat")
