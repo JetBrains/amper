@@ -7,6 +7,9 @@ package org.jetbrains.amper.backend.test
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.processes.ProcessOutputListener
+import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.generateUnifiedDiff
 import org.jetbrains.amper.util.OS
@@ -27,6 +30,7 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
+import kotlin.io.path.writeText
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -54,7 +58,9 @@ class AmperShellScriptsTest {
 
         val bootstrapCacheDir = tempDir.resolve("boot strap")
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "task", ":shell-scripts:runJvm") { output ->
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("task", ":shell-scripts:runJvm")) { result ->
+            val output = result.stdout
+
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
                 output.contains("Hello for Shell Scripts Test")
             }
@@ -68,7 +74,9 @@ class AmperShellScriptsTest {
             }
         }
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "task", ":shell-scripts:runJvm") { output ->
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("task", ":shell-scripts:runJvm")) { result ->
+            val output = result.stdout
+
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
                 output.contains("Hello for Shell Scripts Test")
             }
@@ -92,9 +100,13 @@ class AmperShellScriptsTest {
         val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
         tempProjectRoot.createDirectories()
 
+        // `amper init` should overwrite wrapper files
+        tempProjectRoot.resolve("amper").writeText("w1")
+        tempProjectRoot.resolve("amper.bat").writeText("w2")
+
         val bootstrapCacheDir = tempDir.resolve("boot strap")
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, "init", "multiplatform-cli") {
+        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("init", "multiplatform-cli")) {
         }
 
         for (wrapperName in listOf("amper", "amper.bat")) {
@@ -120,6 +132,41 @@ class AmperShellScriptsTest {
 
         if (OS.isUnix) {
             assertTrue("Unix wrapper must be executable: $unixWrapper") { unixWrapper.isExecutable() }
+        }
+    }
+
+    @Test
+    fun `init command should stop before overwriting files from template`() {
+        val projectPath = shellScriptExampleProject
+        assertTrue { projectPath.isDirectory() }
+
+        val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
+        tempProjectRoot.createDirectories()
+
+        tempProjectRoot.resolve("project.yaml").writeText("w1")
+        tempProjectRoot.resolve("jvm-cli").createDirectories()
+        tempProjectRoot.resolve("jvm-cli/module.yaml").writeText("w2")
+
+        val bootstrapCacheDir = tempDir.resolve("boot strap")
+
+        runBuild(
+            workingDir = tempProjectRoot,
+            bootstrapCacheDir = bootstrapCacheDir,
+            args = listOf("init", "multiplatform-cli"),
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        ) { result ->
+            assertEquals("""
+                ERROR: Files already exist in the project root:
+                  project.yaml
+                  jvm-cli/module.yaml
+            """.trimIndent(),
+                result.stderr
+                    .replace("\r", "")
+                    .lines()
+                    .filter { it.isNotBlank() }
+                    .joinToString("\n")
+            )
         }
     }
 
@@ -182,27 +229,47 @@ class AmperShellScriptsTest {
         }
     }
 
-    private fun runBuild(workingDir: Path, bootstrapCacheDir: Path?, vararg args: String, outputAssertions: (String) -> Unit) {
+    private fun runBuild(
+        workingDir: Path,
+        bootstrapCacheDir: Path?,
+        args: List<String>,
+        expectedExitCode: Int = 0,
+        assertEmptyStdErr: Boolean = true,
+        outputAssertions: (ProcessResult) -> Unit,
+    ) {
         val process = ProcessBuilder()
             .directory(workingDir.toFile())
             .redirectInput(ProcessBuilder.Redirect.PIPE)
             .redirectOutput(ProcessBuilder.Redirect.PIPE)
-            .redirectErrorStream(true)
             .also {
                 if (bootstrapCacheDir != null) {
                     it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 }
             }
-            .command(cliScript.pathString, *args)
+            .command(cliScript.pathString, *args.toTypedArray())
             .start()
-
         process.outputStream.close()
-        val processOutput = process.inputStream.readAllBytes().decodeToString()
-        val rc = process.waitFor()
 
-        assertEquals(0, rc, "Exit code must be 0. Process output:\n$processOutput")
+        val result = runBlocking {
+            process.awaitAndGetAllOutput(object : ProcessOutputListener {
+                override fun onStdoutLine(line: String) {
+                    println("OUT> $line")
+                }
 
-        outputAssertions(processOutput)
+                override fun onStderrLine(line: String) {
+                    println("ERR> $line")
+                }
+            })
+        }
+
+        assertEquals(
+            expectedExitCode, result.exitCode,
+            "Exit code must be $expectedExitCode, but got ${result.exitCode}." +
+                    " Process stderr:\n${result.stderr}")
+        if (assertEmptyStdErr) {
+            assertTrue(result.stderr.isBlank(), "Process stderr must be empty, but got:\n${result.stderr}")
+        }
+        outputAssertions(result)
     }
 
     private fun runAmperVersion(
