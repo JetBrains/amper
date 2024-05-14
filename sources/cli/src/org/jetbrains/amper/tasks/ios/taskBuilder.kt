@@ -4,14 +4,20 @@
 
 package org.jetbrains.amper.tasks.ios
 
+import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
+import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.native.NativeCompileTask
 import org.jetbrains.amper.util.BuildType
+
+private fun isIosApp(platform: Platform, module: PotatoModule) =
+    platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
 
 /**
  * Setup apple related tasks.
@@ -33,7 +39,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 tempRoot = context.projectTempRoot,
                 terminal = context.terminal,
                 isTest = false,
-                isFramework = true,
+                compilationType = KotlinCompilationType.IOS_FRAMEWORK,
             ),
             ProjectTasksBuilder.Companion.CommonTaskType.Dependencies.getTaskName(module, platform, false)
         )
@@ -48,6 +54,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 context.getTaskOutputPath(buildTaskName),
                 context.terminal,
                 buildTaskName,
+                false,
             ),
             dependsOn = listOf(frameworkTaskName)
         )
@@ -59,6 +66,17 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 context.getTaskOutputPath(runTaskName),
             ),
             dependsOn = listOf(buildTaskName)
+        )
+    }
+
+    // TODO Handle tests.
+    onCompileModuleDependency(Platform.IOS) { module, dependsOn, _, platform, isTest ->
+        if (!isIosApp(platform, module)) return@onCompileModuleDependency
+        if (isTest) return@onCompileModuleDependency
+
+        registerDependency(
+            IosTaskType.Framework.getTaskName(module, platform, false),
+            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
         )
     }
 }

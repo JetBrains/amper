@@ -1,5 +1,5 @@
 import SwiftUI
-import ampercliplayground
+import interop
 
 @main
 struct iosApp: App {

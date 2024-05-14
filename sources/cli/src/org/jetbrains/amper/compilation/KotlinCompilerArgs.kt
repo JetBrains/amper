@@ -5,6 +5,8 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CompileTask
 import java.io.File
 import java.nio.file.Files
@@ -99,6 +101,19 @@ internal fun kotlinJvmCompilerArgs(
     add(outputPath.pathString)
 }
 
+enum class KotlinCompilationType(val argName: String) {
+    LIBRARY("library"),
+    BINARY("program"),
+    IOS_FRAMEWORK("framework");
+
+    fun extension(platform: Platform): String = when {
+        this == LIBRARY -> ".klib"
+        this == IOS_FRAMEWORK -> ".framework"
+        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> ".exe"
+        else -> ".kexe"
+    }
+}
+
 context(CompileTask)
 internal fun kotlinNativeCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
@@ -107,8 +122,7 @@ internal fun kotlinNativeCompilerArgs(
     libraryPaths: List<Path>,
     sourceFiles: List<Path>,
     outputPath: Path,
-    isFramework: Boolean,
-    alwaysGenerateKotlinLibrary: Boolean,
+    compilationType: KotlinCompilationType,
 ): List<String> = buildList {
     if (kotlinUserSettings.debug) {
         add("-g")
@@ -117,9 +131,7 @@ internal fun kotlinNativeCompilerArgs(
     add("-ea")
 
     add("-produce")
-    if (alwaysGenerateKotlinLibrary || (module.type.isLibrary() && !isTest)) add("library")
-    else if (!isTest && isFramework) add("framework")
-    else add("program")
+    add(compilationType.argName)
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
     add("-module-name")

@@ -1,0 +1,6 @@
+product:
+  type: ios/app
+
+settings:
+  ios:
+    teamId: <your team ID here>

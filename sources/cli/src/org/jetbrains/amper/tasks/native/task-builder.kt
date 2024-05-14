@@ -4,9 +4,11 @@
 
 package org.jetbrains.amper.tasks.native
 
+import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
@@ -20,8 +22,14 @@ private fun getProductionSourcesForTestsCompileTaskName(module: PotatoModule, pl
     }
 }
 
+private fun isIosApp(platform: Platform, module: PotatoModule) =
+    platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
+
 fun ProjectTaskRegistrar.setupNativeTasks() {
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
+        // Skip native compilation of ios/app modules, since it is handled in [ios.task-builder.kt].
+        if (isIosApp(platform, module)) return@onEachTaskType
+
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
         registerTask(
             NativeCompileTask(
@@ -33,7 +41,6 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 taskName = compileTaskName,
                 tempRoot = context.projectTempRoot,
                 isTest = isTest,
-                alwaysGenerateKotlinLibrary = false,
                 terminal = context.terminal,
             ),
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
@@ -53,7 +60,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                     taskName = getProductionSourcesForTestsCompileTaskName(module, platform),
                     tempRoot = context.projectTempRoot,
                     isTest = false,
-                    alwaysGenerateKotlinLibrary = true,
+                    compilationType = KotlinCompilationType.LIBRARY,
                     terminal = context.terminal,
                 ),
                 CommonTaskType.Dependencies.getTaskName(module, platform, false)
@@ -62,6 +69,9 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
     }
 
     onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
+        // Skip native compilation of ios/app modules, since it is handled in [ios.task-builder.kt].
+        if (isIosApp(platform, module)) return@onCompileModuleDependency
+
         if (isTest) {
             registerDependency(
                 CommonTaskType.Compile.getTaskName(module, platform, true),
@@ -82,6 +92,9 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
     }
 
     onMain(Platform.NATIVE) { module, _, platform, _ ->
+        // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
+        if (isIosApp(platform, module)) return@onMain
+
         val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
         registerTask(
             NativeRunTask(
@@ -97,6 +110,9 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
     }
 
     onTest(Platform.NATIVE) { module, _, platform, _ ->
+        // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].
+        if (isIosApp(platform, module)) return@onTest
+
         val compileTestsTaskName = CommonTaskType.Compile.getTaskName(module, platform, true)
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
 

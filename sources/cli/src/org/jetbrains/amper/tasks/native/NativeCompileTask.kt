@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
@@ -55,8 +56,7 @@ class NativeCompileTask(
     private val tempRoot: AmperProjectTempRoot,
     private val terminal: Terminal,
     override val isTest: Boolean,
-    private val isFramework: Boolean = false,
-    private val alwaysGenerateKotlinLibrary: Boolean = false,
+    val compilationType: KotlinCompilationType? = null,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): CompileTask {
@@ -139,12 +139,11 @@ class NativeCompileTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifactExtension = when {
-                (module.type.isLibrary() && !isTest) || alwaysGenerateKotlinLibrary -> ".klib"
-                isFramework && !isTest -> ".framework"
-                platform.isDescendantOf(Platform.MINGW) -> ".exe"
-                else -> ".kexe"
-            }
+            val finalCompilationType = compilationType
+                ?: if (module.type.isLibrary() && !isTest) KotlinCompilationType.LIBRARY else KotlinCompilationType.BINARY
+
+            val artifactExtension = finalCompilationType.extension(platform)
+
             val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
 
             val libraryPaths = compiledModuleDependencies + externalDependencies.filter { !it.pathString.endsWith(".jar") }
@@ -169,8 +168,7 @@ class NativeCompileTask(
                     libraryPaths = libraryPaths,
                     sourceFiles = rootsToCompile,
                     outputPath = artifact,
-                    isFramework = isFramework,
-                    alwaysGenerateKotlinLibrary = alwaysGenerateKotlinLibrary,
+                    compilationType = finalCompilationType,
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->

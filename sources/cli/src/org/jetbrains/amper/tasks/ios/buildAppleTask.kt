@@ -6,14 +6,20 @@ package org.jetbrains.amper.tasks.ios
 
 import com.github.ajalt.mordant.terminal.Terminal
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
+import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.BuildPrimitives
-import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.diagnostics.setAmperModule
+import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.diagnostics.spanBuilder
+import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.forClosure
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeCompileTask
@@ -25,26 +31,29 @@ import kotlin.io.path.pathString
 
 
 class BuildAppleTask(
-    private val targetPlatform: Platform,
-    private val module: PotatoModule,
+    override val platform: Platform,
+    override val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputPath: TaskOutputRoot,
     private val terminal: Terminal,
     override val taskName: TaskName,
-) : Task {
+    override val isTest: Boolean,
+) : CompileTask {
+    private val prettyPlatform = platform.pretty
+
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val nativeCompileTasksResults = dependenciesResult
             .filterIsInstance<NativeCompileTask.TaskResult>()
             .map { it.artifact }
 
-        val leafAppleFragment = module.leafFragments.first { it.platform == targetPlatform }
-        val targetName = targetPlatform.pretty
+        val leafAppleFragment = module.leafFragments.first { it.platform == platform }
+        val targetName = prettyPlatform
         val productName = module.userReadableName
         val productBundleIdentifier = getQualifiedName(leafAppleFragment.settings, targetName, productName)
 
         // Define required apple sources.
-        val currentPlatformFamily = targetPlatform.parent?.let { it.leaves + it } ?: emptySet()
+        val currentPlatformFamily = platform.parent?.let { it.leaves + it } ?: emptySet()
         val appleSources = buildSet {
             leafAppleFragment.forClosure {
                 if (currentPlatformFamily.containsAll(it.platforms)) add(it.src.toFile().normalize())
@@ -54,18 +63,18 @@ class BuildAppleTask(
         // TODO Add Assertion for apple platform.
         return with(FileConventions(module, taskOutputPath.path.toFile())) {
             val appPath = symRoot
-                .resolve("${buildType.variantName}-${targetPlatform.platform}")
+                .resolve("${buildType.variantName}-${platform.platform}")
                 .resolve("${productName}.app")
 
             // TODO Add all other ios settings.
             val config = mapOf(
-                "target.platform" to targetPlatform.pretty,
+                "target.platform" to prettyPlatform,
                 "task.output.root" to taskOutputPath.path.pathString,
                 "build.type" to buildType.value,
             )
 
             executeOnChangedInputs.execute(
-                "build-${targetPlatform.pretty}",
+                taskName.name,
                 config,
                 appleSources.map { it.toPath() } + nativeCompileTasksResults,
             ) {
@@ -81,23 +90,31 @@ class BuildAppleTask(
                     nativeCompileTasksResults.map { it.toFile() },
                 )
 
-                // TODO Maybe we dont need output here?
-                BuildPrimitives.runProcessAndGetOutput(
-                    baseDir.toPath(),
-                    "xcrun",
-                    "xcodebuild",
-                    "-project", projectDir.path,
-                    "-scheme", targetName,
-                    "-configuration", "Debug",
-                    "${BuildSettingNames.OBJROOT}=$objRootPathString",
-                    "${BuildSettingNames.SYMROOT}=$symRootPathString",
-                    "-arch", targetPlatform.architecture,
-                    "-derivedDataPath", derivedDataPathString,
-                    "-sdk", targetPlatform.platform,
-                    "build",
-                    logCall = true,
-                    outputListener = LoggingProcessOutputListener(logger),
-                )
+                val xcodebuildArgs = buildList {
+                    this += "xcrun"
+                    this += "xcodebuild"
+                    this += "-project"; this += projectDir.path
+                    this += "-scheme"; this += targetName
+                    this += "-configuration"; this += "Debug"
+                    this += "${BuildSettingNames.OBJROOT}=$objRootPathString"
+                    this += "${BuildSettingNames.SYMROOT}=$symRootPathString"
+                    this += "-arch"; this += platform.architecture
+                    this += "-derivedDataPath"; this += derivedDataPathString
+                    this += "-sdk"; this += platform.platform
+                    this += "build"
+                }
+                spanBuilder("xcodebuild")
+                    .setAmperModule(module)
+                    .setListAttribute("args", xcodebuildArgs)
+                    .useWithScope { span ->
+                        // TODO Maybe we dont need output here?
+                        BuildPrimitives.runProcessAndGetOutput(
+                            baseDir.toPath(),
+                            *xcodebuildArgs.toTypedArray(),
+                            logCall = true,
+                            outputListener = LoggingProcessOutputListener(logger),
+                        ).moveResultToSpan(span)
+                    }
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))
             }
@@ -128,3 +145,9 @@ private fun getQualifiedName(
     targetName,
     productName.takeIf { it.isNotBlank() }
 ).joinToString(".")
+
+private fun ProcessResult.moveResultToSpan(span: Span) {
+    span.setAttribute("exit-code", exitCode.toLong())
+    span.setAttribute("stdout", stdout)
+    span.setAttribute("stderr", stderr)
+}
