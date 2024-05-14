@@ -38,6 +38,7 @@ import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -60,7 +61,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
         additionalEnv: Map<String, String> = emptyMap(),
-        additionalCheck: (Path) -> Unit = {},
+        additionalCheck: TestResultContext.() -> Unit = {},
     ) {
         test(
             projectName,
@@ -76,11 +77,11 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     internal fun test(
         projectName: String,
         vararg buildArguments: String,
-        expectOutputToHave: Collection<String>,
+        expectOutputToHave: Collection<String> = emptyList(),
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
         additionalEnv: Map<String, String> = emptyMap(),
-        additionalCheck: (Path) -> Unit = {},
+        additionalCheck: TestResultContext.() -> Unit = {},
     ) {
         val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
@@ -120,7 +121,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
 
         if (checkForWarnings) output.checkForWarnings()
 
-        additionalCheck(tempDir)
+        additionalCheck(TestResultContext(tempDir, output))
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -336,6 +337,41 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
             }
 
             return cmdToolsPkgRevision
+        }
+    }
+}
+
+class TestResultContext(
+    val projectDir: Path,
+    private val outputText: String,
+) {
+    fun assertOutputContains(text: String) {
+        assertTrue("The following text should appear in the output, but it didn't: '$text'") {
+            outputText.contains(text)
+        }
+    }
+
+    fun assertNotInOutput(text: String) {
+        assertFalse("The following text should not appear in the output, but it did: '$text'") {
+            outputText.contains(text)
+        }
+    }
+
+    fun assertTaskSucceeded(taskPath: String) {
+        assertTrue("task '$taskPath' should have succeeded, but was not run at all") {
+            outputText.contains("> Task $taskPath")
+        }
+        assertFalse("task '$taskPath' should have succeeded, but failed") {
+            outputText.contains("> Task $taskPath FAILED")
+        }
+    }
+
+    fun assertTaskFailed(taskPath: String) {
+        assertTrue("task '$taskPath' should have failed, but was not run at all") {
+            outputText.contains("> Task $taskPath")
+        }
+        assertTrue("task '$taskPath' should have failed, but succeeded") {
+            outputText.contains("> Task $taskPath FAILED")
         }
     }
 }

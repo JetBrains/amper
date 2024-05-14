@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  kotlin:
+    freeCompilerArgs: [ "-Xexplicit-api=strict" ]

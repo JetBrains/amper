@@ -29,6 +29,14 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `jvm-free-compiler-args JVM compilation should fail`() = test(
+        projectName = "jvm-free-compiler-args",
+        "assemble",
+        expectOutputToHave = "Visibility must be specified in explicit API mode",
+        shouldSucceed = false,
+    )
+
+    @Test
     fun `jvm-release-8`() = test(
         projectName = "jvm-release-8",
         "run",
@@ -203,6 +211,36 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `multiplatform compilation should fail`() = test(
+        projectName = "multiplatform-free-compiler-args",
+        "assemble",
+        shouldSucceed = false,
+        additionalCheck = {
+//            assertTaskFailed(":common-args:compileCommonMainKotlinMetadata") // FIXME
+//            assertTaskFailed(":common-args:compileReleaseKotlinAndroid") // FIXME
+            assertTaskFailed(":common-args:compileDebugKotlinAndroid")
+            assertTaskFailed(":common-args:compileKotlinJs")
+            assertTaskFailed(":common-args:compileKotlinJvm")
+            assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+            assertOutputContains("common-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            assertOutputContains("common-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+            assertOutputContains("common-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+
+            // explicit API mode is only in settings@jvm, so it shouldn't fail Android, JS, nor common metadata compilations
+            assertTaskSucceeded(":platform-args:compileCommonMainKotlinMetadata")
+            assertTaskSucceeded(":platform-args:compileReleaseKotlinAndroid")
+            assertTaskSucceeded(":platform-args:compileDebugKotlinAndroid")
+            assertTaskSucceeded(":platform-args:compileKotlinJs")
+            assertTaskFailed(":platform-args:compileKotlinJvm")
+            // common code should fail as part of the JVM compilation
+            assertOutputContains("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+            assertOutputContains("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+            assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+            assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+        }
+    )
+
+    @Test
     fun templates() = test(
         "templates",
         "build",
@@ -270,7 +308,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         "mergeReleaseJavaResource",
         expectOutputToHave = "BUILD SUCCESSFUL",
     ) {
-        val pathToMergedResources = it / "build" / "intermediates" / "java_res" / "release" / "out"
+        val pathToMergedResources = projectDir / "build" / "intermediates" / "java_res" / "release" / "out"
         assertTrue(
             pathToMergedResources.resolve("commonResource.txt").exists(),
             "Expected to have common resource in merged resources"
