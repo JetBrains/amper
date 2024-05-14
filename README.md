@@ -19,7 +19,7 @@ and more. At the current stage, however, the focus is primarily on configuring p
 use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
 However, the same approach to configuration could work for other languages and technology stacks in the future.
 
-Amper is implemented as a Gradle-based tool and also as a standalone tool, and provides an easy-to-use declarative
+Amper is implemented as a Gradle-based tool and also as a standalone tool, with a unified easy-to-use declarative
 configuration format.
 
 Supported features:
@@ -35,14 +35,14 @@ Supported features:
 * (Gradle-based Amper only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
 * Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 
-Planned features:
+Future directions:
+* Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
 * More [product types](docs/Documentation.md#product-types) and platforms, such as watchOS, Windows, etc.
 * [Platform-specific test types](docs/Documentation.md#special-types-of-tests), including android instrumented tests.
 * [Native dependencies](docs/Documentation.md#native-dependencies) support, such as CocoaPods, Swift Package Manager.
 * [Packaging](docs/Documentation.md#packaging) and [publication](docs/Documentation.md#publishing). 
 * [Build variants](docs/Documentation.md#build-variants) support.
 * [Extensibility](docs/Documentation.md#extensibility).
-* Support more Kotlin and Kotlin Multiplatform scenarios and configurations out-of-the-box.
 
 For a quick start:
 * [Setup](docs/Setup.md) and [usage](docs/Usage.md) instructions
@@ -147,12 +147,16 @@ Second, the dependencies: section allows not only Kotlin and Maven dependencies,
 
 ![](docs/images/fleet-kmp-result.png)
 
-Naturally, these examples show only a limited set of Amper features. Look at the [documentation](docs/Documentation.md), [tutorial](docs/Tutorial.md), and [example projects](examples-gradle) to get more insight into Amper’s design and functionality.     
+Naturally, these examples show only a limited set of Amper features. 
+To get more insight into Amper’s design and functionality, look at the [documentation](docs/Documentation.md), the [tutorial](docs/Tutorial.md), 
+and example projects for the [Gradle-based](examples-gradle) and the [standalone Amper](examples-standalone).     
 
 ### More examples
 Check our more real-world examples:
-* [JVM "Hello, World!"](examples-gradle/jvm)
-* [Compose Multiplatform](examples-gradle/compose-multiplatform) project with shared code.
-* Compose on [iOS](examples-gradle/compose-ios), [Android](examples-gradle/compose-android) and [desktop](examples-gradle/compose-desktop).
-* [Gradle interop](examples-gradle/gradle-interop)
-* And [others](examples-gradle)
+* JVM "Hello, World!" ([standalone](examples-standalone/jvm), [Gradle-based](examples-gradle/jvm))
+* Compose Multiplatform ([standalone](examples-standalone/compose-multiplatform), [Gradle-based](examples-gradle/compose-multiplatform))
+* Compose on iOS ([standalone](examples-standalone/compose-ios), [Gradle-based](examples-gradle/compose-ios)),
+  Android ([standalone](examples-standalone/compose-android), [Gradle-based](examples-gradle/compose-android)),
+  and desktop ([standalone](examples-standalone/compose-desktop), [Gradle-based](examples-gradle/compose-desktop))
+* Gradle interop in the [Gradle-based Amper](examples-gradle/gradle-interop)
+* And other [standalone](examples-standalone) and [Gradle-based Amper](examples-gradle) examples
