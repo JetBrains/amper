@@ -188,8 +188,6 @@ class MavenResolverTest {
     }
 
     @Test
-    @Ignore
-    // AMPER-395 DR: Unable to resolve gradle-tooling-api
     fun unableToResolveGradleToolingApiInCompileScope() {
         val resolver = MavenResolver(AmperUserCacheRoot(tempDir.toPath()))
 
@@ -207,10 +205,11 @@ class MavenResolverTest {
         }
         val relative = result.map { it.relativeTo(tempDir.toPath()).joinToString("/") }.sorted()
         assertEquals(
-            """
-                whatever
-            """.trimIndent(),
-            relative.joinToString("\n")
+            listOf(
+                ".m2.cache/org/gradle/gradle-tooling-api/8.4/gradle-tooling-api-8.4.jar",
+                ".m2.cache/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar"
+            ),
+            relative
         )
     }
 

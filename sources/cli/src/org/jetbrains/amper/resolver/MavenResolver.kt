@@ -74,14 +74,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                     localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
                 }
                 this.repositories = acceptedRepositories.toList()
-
-                // Very ugly hack for AMPER-395 DR: Unable to resolve gradle-tooling-api
-                val scope1 = when {
-                    coordinates.any { it.startsWith("org.gradle:gradle-tooling-api:") } && scope == ResolutionScope.COMPILE -> ResolutionScope.RUNTIME
-                    else -> scope
-                }
-                this.scope = scope1
-
+                this.scope = scope
                 this.platforms = setOf(platform)
                 this.downloadSources = false
             }.use { context ->

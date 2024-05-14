@@ -249,6 +249,15 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun List<Variant>.filterWithFallbackScope(scope: ResolutionScope) : List<Variant> {
+        val scopeVariants = this.filter { scope.matches(it) }
+        return scopeVariants.takeIf { it.withoutDocumentationAndMetadata.isNotEmpty() }
+            ?: scope.fallback()?.let { fallbackScope ->
+                this.filter { fallbackScope.matches(it) }.takeIf { it.withoutDocumentationAndMetadata.isNotEmpty() }
+            }
+            ?: scopeVariants
+    }
+
     private fun List<Variant>.filterWithFallbackPlatform(platform: ResolutionPlatform) : List<Variant> {
         val platformVariants = this.filter { platform.type.matches(it) }
         return when {
@@ -533,10 +542,11 @@ class MavenDependency internal constructor(
             // todo (AB) : Why filtering against capabilities?
             .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
             .filter { nativeTargetMatches(it, platform) }
-            .filter { settings.scope.matches(it) }
+            .let { if (settings.downloadSources) it else it.withoutDocumentationAndMetadata }
 
         val validVariants = initiallyFilteredVariants
             .filterWithFallbackPlatform(platform)
+            .filterWithFallbackScope(settings.scope)
             .filterMultipleVariantsByUnusedAttributes()
 
         return validVariants
@@ -691,7 +701,7 @@ class MavenDependency internal constructor(
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
-    private val Collection<Variant>.withoutDocumentationAndMetadata: Collection<Variant> get() =
+    private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant> get() =
         filterNot { it.attributes["org.gradle.category"] == "documentation" }
             .filterNot { it.attributes["org.gradle.usage"] == "kotlin-api"
                     && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value }
