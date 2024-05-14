@@ -7,7 +7,7 @@ dependencies:
   - $compose.desktop.currentOs
 
 test-dependencies:
-  - org.jetbrains.compose.ui:ui-test-junit4-desktop:1.6.2
+  - org.jetbrains.compose.ui:ui-test-junit4-desktop:1.6.10-rc01
 
 settings:
   compose: enabled

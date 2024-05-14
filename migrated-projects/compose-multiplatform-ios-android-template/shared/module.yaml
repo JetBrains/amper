@@ -23,3 +23,7 @@ dependencies@android:
   - androidx.activity:activity-compose:1.6.1: exported
   - androidx.appcompat:appcompat:1.6.1: exported
   - androidx.core:core-ktx:1.9.0: exported
+
+
+module:
+  layout: gradle-kmp

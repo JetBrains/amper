@@ -7,8 +7,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import kotlin.test.Ignore
 
-@Ignore("Until KMP plugin lifecycle violation is fixed")
-class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects/", runWithPluginClasspath = false) {
+class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects/", runWithPluginClasspath = true) {
     @Test
     fun `compose-multiplatform-ios-android-template (android)`() = test(
         projectName = "compose-multiplatform-ios-android-template",
@@ -19,6 +18,7 @@ class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects
     @Test
     @EnabledOnOs(value = [OS.MAC])
     @KonanFolderLock
+    @Ignore("Until AMPER-612 is fixed")
     fun `compose-multiplatform-ios-android-template (ios)`() = test(
         projectName = "compose-multiplatform-ios-android-template",
         ":shared:linkPodDebugFrameworkIosSimulatorArm64",
@@ -34,6 +34,7 @@ class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects
 
     @Test
     @KonanFolderLock
+    @Ignore("Until AMPER-612 is fixed")
     fun `compose-multiplatform-template`() = test(
         projectName = "compose-multiplatform-template",
         "build",
@@ -43,9 +44,17 @@ class GradleMigratedProjectsTest : GradleE2ETestFixture("../../migrated-projects
     @Test
     @EnabledOnOs(value = [OS.MAC])
     @KonanFolderLock
+    @Ignore("Until AMPER-612 is fixed")
     fun `compose-multiplatform-template (ios)`() = test(
         projectName = "compose-multiplatform-template",
         ":shared:linkDebugFrameworkIosSimulatorArm64",
+        expectOutputToHave = "BUILD SUCCESSFUL"
+    )
+
+    @Test
+    fun `compose-multiplatform-template (android)`() = test(
+        projectName = "compose-multiplatform-template",
+        ":androidApp:assembleDebug",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
 

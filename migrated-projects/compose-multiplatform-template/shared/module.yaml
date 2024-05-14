@@ -27,3 +27,6 @@ settings:
     ios:
         framework:
             isStatic: true
+
+module:
+  layout: gradle-kmp
