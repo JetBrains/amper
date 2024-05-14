@@ -42,6 +42,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         assertSingle().getAttribute(AttributeKey.longKey("exit-code")).let { assertEquals(0, it) }
 
     @Test
+    @MacOnly
     fun `framework for simple for iosSimulatorArm64`() = runTestInfinitely {
         val projectName = "interop"
         val task = "frameworkIosSimulatorArm64"
@@ -51,6 +52,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `framework for simple for iosArm64`() = runTestInfinitely {
         val projectName = "interop"
         val task = "frameworkIosArm64"
@@ -60,6 +62,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `buildIosApp for simple for iosSimulatorArm64`() = runTestInfinitely {
         val projectName = "interop"
         val task = "buildIosAppIosSimulatorArm64"
@@ -69,6 +72,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `build for simple for iosSimulatorArm64`() = runTestInfinitely {
         val projectContext = setupIosTestProject("interop", backgroundScope = backgroundScope)
         AmperBackend(projectContext).compile(setOf(Platform.IOS_SIMULATOR_ARM64))
@@ -76,6 +80,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `framework for compose for iosSimulatorArm64`() = runTestInfinitely {
         val projectName = "compose"
         val task = "frameworkIosSimulatorArm64"
@@ -85,6 +90,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `framework for compose for iosArm64`() = runTestInfinitely {
         val projectName = "compose"
         val task = "frameworkIosArm64"
@@ -94,6 +100,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `buildIosApp for compose app for iosSimulatorArm64`() = runTestInfinitely {
         val projectName = "compose"
         val task = "buildIosAppIosSimulatorArm64"
@@ -103,10 +110,10 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `build for compose app for iosSimulatorArm64`() = runTestInfinitely {
         val projectContext = setupIosTestProject("compose", backgroundScope = backgroundScope)
         AmperBackend(projectContext).compile(setOf(Platform.IOS_SIMULATOR_ARM64))
         xcodebuildSpans.assertZeroExitCode()
     }
-
 }

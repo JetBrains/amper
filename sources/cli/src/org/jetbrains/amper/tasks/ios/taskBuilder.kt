@@ -47,14 +47,14 @@ fun ProjectTaskRegistrar.setupIosTasks() {
         val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
         registerTask(
             task = BuildAppleTask(
-                platform,
-                module,
-                buildType,
-                eoci,
-                context.getTaskOutputPath(buildTaskName),
-                context.terminal,
-                buildTaskName,
-                false,
+                platform = platform,
+                module = module,
+                buildType = buildType,
+                executeOnChangedInputs = eoci,
+                taskOutputPath = context.getTaskOutputPath(buildTaskName),
+                terminal = context.terminal,
+                taskName = buildTaskName,
+                isTest = false,
             ),
             dependsOn = listOf(frameworkTaskName)
         )
