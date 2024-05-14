@@ -10,10 +10,12 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.DefaultScopedNotation
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.schema.IosSettings
 import org.jetbrains.amper.frontend.schema.JUnitVersion
@@ -30,20 +32,23 @@ import org.jetbrains.amper.gradle.closureSources
 import org.jetbrains.amper.gradle.findEntryPoint
 import org.jetbrains.amper.gradle.java.JavaBindingPluginPart
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.amperFragment
-import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.compilation
+import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.targetCompilation
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSetName
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.mostCommonNearestAmperFragment
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
-import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
+import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
+import org.jetbrains.amper.gradle.kotlin.configureFrom
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.amper.gradle.tryAdd
 import org.jetbrains.amper.gradle.tryRemove
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -60,11 +65,10 @@ fun KotlinSourceSet.doDependsOn(it: FragmentWrapper) {
     dependsOn(dependency ?: return)
 }
 
-private fun KotlinSourceSet.doApplyPart(settings: KotlinSettings?) = languageSettings.apply {
-    settings ?: return@apply
+private fun LanguageSettingsBuilder.configureFromAmperSettings(settings: KotlinSettings) {
     languageVersion = settings.languageVersion.schemaValue
-    apiVersion = settings.apiVersion?.schemaValue
-    if (progressiveMode != settings.progressiveMode) progressiveMode = settings.progressiveMode
+    apiVersion = settings.apiVersion.schemaValue
+    progressiveMode = settings.progressiveMode
     settings.languageFeatures?.forEach { enableLanguageFeature(it.capitalized()) }
     settings.optIns?.forEach { optIn(it) }
 }
@@ -84,9 +88,18 @@ class KMPPBindingPluginPart(
 
     override val needToApply = true
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun applyBeforeEvaluate() {
         initTargets()
-        initFragments()
+        initSourceSets()
+
+        // Workaround for KTIJ-27212, to get proper compiler arguments in the common code facet after import.
+        // Apparently, configuring compiler arguments for metadata compilation is not sufficient.
+        // This workaround doesn't fix intermediate source sets, though, only the most common fragment.
+        kotlinMPE.compilerOptions {
+            configureFrom(module.mostCommonFragment.settings)
+        }
+
         val hasJUnit5 = module.fragments
             .any { it.settings.junit == JUnitVersion.JUNIT5 }
         val hasJUnit = module.fragments
@@ -164,35 +177,23 @@ class KMPPBindingPluginPart(
         project.afterEvaluate {
             // Need after evaluate to catch up android compilations.
             module.artifactPlatforms.forEach { platform ->
-                with(platform.target ?: return@forEach) {
-                    val patchedCompilations = mutableListOf<KotlinCompilation<*>>()
-                    module.leafFragments.filter { it.platform == platform }.forEach { fragment ->
-                        fragment.compilation?.apply {
-                            fragment.settings.kotlin.let {
-                                kotlinOptions::allWarningsAsErrors trySet it.allWarningsAsErrors
-                                kotlinOptions::freeCompilerArgs trySet it.freeCompilerArgs
-                                kotlinOptions::suppressWarnings trySet it.suppressWarnings
-                                kotlinOptions::verbose trySet it.verbose
-                            }
+                val patchedCompilations = mutableListOf<KotlinCompilation<*>>()
 
-                            // Set jvm target for all jvm like compilations.
-                            val selectedJvmRelease = fragment.settings.jvm.release
-                            if (selectedJvmRelease != null) {
-                                compileTaskProvider.configureJvmTargetRelease(selectedJvmRelease)
-                            }
-
-                            patchedCompilations.add(this)
-                        }
+                module.leafFragments.filter { it.platform == platform }.forEach { fragment ->
+                    fragment.targetCompilation?.apply {
+                        compileTaskProvider.configureCompilerOptions(fragment.settings)
+                        patchedCompilations.add(this)
                     }
+                }
 
-                    compilations.forEach loop@{ compilation ->
-                        if (compilation in patchedCompilations) return@loop
-                        val nearestFragment = compilation.defaultSourceSet
-                            .mostCommonNearestAmperFragment
+                // This doesn't seem to actually fix intermediate fragments.
+                // TODO check if it is useful at all
+                platform.target?.compilations?.forEach loop@{ compilation ->
+                    if (compilation in patchedCompilations) return@loop
+                    val nearestFragment = compilation.defaultSourceSet.mostCommonNearestAmperFragment
+                    val settings = nearestFragment?.settings ?: return@loop
 
-                        val foundJvmRelease = nearestFragment?.settings?.jvm?.release ?: return@loop
-                        compilation.compileTaskProvider.configureJvmTargetRelease(foundJvmRelease)
-                    }
+                    compilation.compileTaskProvider.configureCompilerOptions(settings)
                 }
             }
         }
@@ -340,7 +341,7 @@ class KMPPBindingPluginPart(
         }
     }
 
-    private fun initFragments() = with(KotlinAmperNamingConvention) {
+    private fun initSourceSets() = with(KotlinAmperNamingConvention) {
         // First iteration - create source sets and add dependencies.
         module.fragments.forEach { fragment ->
             fragment.maybeCreateSourceSet {
@@ -376,36 +377,30 @@ class KMPPBindingPluginPart(
 
         val adjustedSourceSets = mutableSetOf<KotlinSourceSet>()
 
-        // Second iteration - create dependencies between fragments (aka source sets) and set source/resource directories.
+        // Second iteration - set language settings
         module.fragments.forEach { fragment ->
             val sourceSets = fragment.matchingKotlinSourceSets
 
             for (sourceSet in sourceSets) {
                 // Apply language settings.
-                sourceSet.doApplyPart(fragment.settings.kotlin)
+                sourceSet.languageSettings.configureFromAmperSettings(fragment.settings.kotlin)
                 adjustedSourceSets.add(sourceSet)
             }
         }
 
+        val commonKotlinSettings = module.mostCommonFragment.settings.kotlin
+
         // we imply, sourceSets which was not touched by loop by fragments, they depend only on common
         // to avoid gradle incompatibility error between sourceSets we apply to sourceSets left settings from common
-        val commonKotlinSettings = module.fragments
-            .firstOrNull { it.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE } }
-            ?.settings?.kotlin
-
         (kotlinMPE.sourceSets.toSet() - adjustedSourceSets).forEach { sourceSet ->
-            commonKotlinSettings?.let {
-                sourceSet.doApplyPart(it)
-            }
+            sourceSet.languageSettings.configureFromAmperSettings(commonKotlinSettings)
         }
 
         // it is implied newly added sourceSets will depend on common
         kotlinMPE.sourceSets
             .matching { !adjustedSourceSets.contains(it) }
             .configureEach { sourceSet ->
-                commonKotlinSettings?.let {
-                    sourceSet.doApplyPart(it)
-                }
+                sourceSet.languageSettings.configureFromAmperSettings(commonKotlinSettings)
             }
 
         module.fragments.forEach { fragment ->
@@ -430,37 +425,13 @@ class KMPPBindingPluginPart(
         // Third iteration - adjust kotlin prebuilt source sets (UNMANAGED ones)
         // to match created ones.
         module.leafFragments.forEach { fragment ->
-            val target = fragment.target ?: return@forEach
-            with(target) {
-                val compilation = fragment.compilation ?: return@forEach
-                val compilationSourceSet = compilation.defaultSourceSet
-                if (compilationSourceSet != fragment.kotlinSourceSet) {
-                    // Add dependency from compilation source set ONLY for unmanaged source sets.
-                    if (compilationSourceSet.amperFragment == null) {
-                        compilationSourceSet.dependsOn(fragment.kotlinSourceSet ?: return@with)
-                    }
+            val compilationSourceSet = fragment.targetCompilation?.defaultSourceSet ?: return@forEach
+            if (compilationSourceSet != fragment.kotlinSourceSet) {
+                // Add dependency from compilation source set ONLY for unmanaged source sets.
+                if (compilationSourceSet.amperFragment == null) {
+                    compilationSourceSet.dependsOn(fragment.kotlinSourceSet ?: return@with)
                 }
             }
-        }
-
-        // TODO: AMPER-189 workaround remove after KTIJ-27212 will be fixed
-        module.leafFragments.forEach { fragment ->
-            fragment.settings.kotlin
-                .freeCompilerArgs
-                ?.filter { it.startsWith("-X") }
-                ?.map { it.substring(2) }
-                ?.map {
-                    it.split("-").joinToString("") { it.capitalized() }
-                }
-                ?.forEach {
-                    val target = fragment.target ?: return@forEach
-                    with(target) {
-                        val compilation = fragment.compilation ?: return@forEach
-                        val compilationSourceSet = compilation.defaultSourceSet
-                        compilationSourceSet.languageSettings.enableLanguageFeature(it)
-                    }
-                    fragment.kotlinSourceSet?.languageSettings?.enableLanguageFeature(it)
-                }
         }
     }
 
@@ -472,3 +443,8 @@ class KMPPBindingPluginPart(
         sourceSet.block()
     }
 }
+
+private val PotatoModule.mostCommonFragment: Fragment
+    get() = fragments.firstOrNull { fragment ->
+        fragment.fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
+    } ?: error("Couldn't find the most common fragment")

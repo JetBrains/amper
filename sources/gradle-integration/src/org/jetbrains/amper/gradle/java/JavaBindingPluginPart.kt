@@ -25,7 +25,7 @@ import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.kotlinSourceSet
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention.target
-import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
+import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
 import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.replacePenultimatePaths
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -75,11 +75,8 @@ class JavaBindingPluginPart(
 
     private fun applyJavaTargetForKotlin() = with(KotlinAmperNamingConvention) {
         leafPlatformFragments.forEach { fragment ->
-            with(fragment.target!!) {
-                fragment.settings.jvm.release?.let { release ->
-                    fragment.compilation?.compileTaskProvider?.configureJvmTargetRelease(release)
-                }
-            }
+            // TODO do we need this at all? It seems redundant with the settings done in the KMP binding plugin
+            fragment.targetCompilation?.compileTaskProvider?.configureCompilerOptions(fragment.settings)
         }
     }
 

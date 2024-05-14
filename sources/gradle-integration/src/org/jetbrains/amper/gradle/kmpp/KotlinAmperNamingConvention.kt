@@ -24,11 +24,21 @@ object KotlinAmperNamingConvention {
     val KotlinSourceSet.amperFragment: FragmentWrapper?
         get() = fragmentsByKotlinSourceSetName[name]
 
+    /**
+     * The Amper fragment corresponding to this source set, or to the nearest source sets that this source set depends on.
+     * We basically go down every path in the source set dependency tree until we find source sets with Amper fragments.
+     */
     context(KMPPBindingPluginPart)
     private val KotlinSourceSet.nearestAmperFragments: List<FragmentWrapper>
         get() = amperFragment?.let { listOf(it) }
             ?: dependsOn.flatMap { it.nearestAmperFragments }
 
+    /**
+     * The Amper fragment corresponding to this source set, or the most common one among the Amper fragments associated
+     * to the nearest source sets that this source set depends on.
+     * We basically go down every path in the source set dependency tree until we find source sets with Amper fragments,
+     * and among those, take the fragment that covers the most platforms.
+     */
     context(KMPPBindingPluginPart)
     val KotlinSourceSet.mostCommonNearestAmperFragment get() = nearestAmperFragments.let { nearest ->
         nearest.filter { it.fragmentDependencies.none { dep -> dep.target in nearest } }
@@ -89,6 +99,10 @@ object KotlinAmperNamingConvention {
             isDefault -> "main"
             else -> name
         }
+
+    context(KMPEAware)
+    val LeafFragmentWrapper.targetCompilation: KotlinCompilation<KotlinCommonOptions>?
+        get() = target?.run { (this@targetCompilation as LeafFragment).compilation }
 
     context(KotlinTarget)
     val LeafFragment.compilation: KotlinCompilation<KotlinCommonOptions>?

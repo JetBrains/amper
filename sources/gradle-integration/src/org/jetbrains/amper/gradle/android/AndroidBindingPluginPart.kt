@@ -12,13 +12,13 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
-import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.amper.gradle.contains
 import org.jetbrains.amper.gradle.kmpp.KMPEAware
 import org.jetbrains.amper.gradle.kmpp.KotlinAmperNamingConvention
 import org.jetbrains.amper.gradle.kmpp.doDependsOn
-import org.jetbrains.amper.gradle.kotlin.configureJvmTargetRelease
+import org.jetbrains.amper.gradle.kotlin.configureCompilerOptions
 import org.jetbrains.amper.gradle.layout
+import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.File
 
@@ -130,9 +130,8 @@ class AndroidBindingPluginPart(
                     androidTarget.compilations.matching { !it.name.lowercase().contains("test") }
                 }
                 compilations.configureEach { compilation ->
-                    fragment.settings.jvm.release?.let { release ->
-                        compilation.compileTaskProvider.configureJvmTargetRelease(release)
-                    }
+                    // TODO do we need this at all? It seems redundant with the settings done in the KMP binding plugin
+                    compilation.compileTaskProvider.configureCompilerOptions(fragment.settings)
 
                     compilation.kotlinSourceSets.forEach { compilationSourceSet ->
                         if (compilationSourceSet != fragment.kotlinSourceSet) {

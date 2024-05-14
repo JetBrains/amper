@@ -216,8 +216,8 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         "assemble",
         shouldSucceed = false,
         additionalCheck = {
-//            assertTaskFailed(":common-args:compileCommonMainKotlinMetadata") // FIXME
-//            assertTaskFailed(":common-args:compileReleaseKotlinAndroid") // FIXME
+            assertTaskFailed(":common-args:compileCommonMainKotlinMetadata")
+            assertTaskFailed(":common-args:compileReleaseKotlinAndroid")
             assertTaskFailed(":common-args:compileDebugKotlinAndroid")
             assertTaskFailed(":common-args:compileKotlinJs")
             assertTaskFailed(":common-args:compileKotlinJvm")
