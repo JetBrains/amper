@@ -32,8 +32,14 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
 
     private suspend fun AmperBackend.runTask(vararg parts: String) = runTask(TaskName.fromHierarchy(parts.toList()))
 
-    protected val xcodebuildSpans: FilteredSpans
+    private val xcodebuildSpans: FilteredSpans
         get() = openTelemetryCollector.spansNamed("xcodebuild")
+
+    private val konancSpans: FilteredSpans
+        get() = openTelemetryCollector.spansNamed("konanc")
+
+    private fun FilteredSpans.assertZeroExitCode() =
+        assertSingle().getAttribute(AttributeKey.longKey("exit-code")).let { assertEquals(0, it) }
 
     @Test
     fun `framework for simple for iosSimulatorArm64`() = runTestInfinitely {
@@ -41,7 +47,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        assertStdoutContains("finished ':$projectName:$task'")
+        konancSpans.assertZeroExitCode()
     }
 
     @Test
@@ -50,7 +56,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        assertStdoutContains("finished ':$projectName:$task'")
+        konancSpans.assertZeroExitCode()
     }
 
     @Test
@@ -59,15 +65,14 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "buildIosAppIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        assertStdoutContains("finished ':$projectName:$task'")
+        xcodebuildSpans.assertZeroExitCode()
     }
 
     @Test
     fun `build for simple for iosSimulatorArm64`() = runTestInfinitely {
         val projectContext = setupIosTestProject("interop", backgroundScope = backgroundScope)
         AmperBackend(projectContext).compile(setOf(Platform.IOS_SIMULATOR_ARM64))
-        val exitcode = xcodebuildSpans.assertSingle().getAttribute(AttributeKey.longKey("exit-code"))
-        assertEquals(0, exitcode)
+        xcodebuildSpans.assertZeroExitCode()
     }
 
     @Test
@@ -76,7 +81,16 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        assertStdoutContains("finished ':$projectName:$task'")
+        konancSpans.assertZeroExitCode()
+    }
+
+    @Test
+    fun `framework for compose for iosArm64`() = runTestInfinitely {
+        val projectName = "compose"
+        val task = "frameworkIosArm64"
+        val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(projectName, task)
+        konancSpans.assertZeroExitCode()
     }
 
     @Test
@@ -85,15 +99,14 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "buildIosAppIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        assertStdoutContains("finished ':$projectName:$task'")
+        xcodebuildSpans.assertZeroExitCode()
     }
 
     @Test
     fun `build for compose app for iosSimulatorArm64`() = runTestInfinitely {
         val projectContext = setupIosTestProject("compose", backgroundScope = backgroundScope)
         AmperBackend(projectContext).compile(setOf(Platform.IOS_SIMULATOR_ARM64))
-        val exitcode = xcodebuildSpans.assertSingle().getAttribute(AttributeKey.longKey("exit-code"))
-        assertEquals(0, exitcode)
+        xcodebuildSpans.assertZeroExitCode()
     }
 
 }
