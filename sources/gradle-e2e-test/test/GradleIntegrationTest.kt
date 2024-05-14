@@ -211,9 +211,9 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `multiplatform compilation should fail`() = test(
+    fun `multiplatform compilation should fail with common explicit-api arg`() = test(
         projectName = "multiplatform-free-compiler-args",
-        "assemble",
+        ":common-args:assemble",
         shouldSucceed = false,
         additionalCheck = {
             assertTaskFailed(":common-args:compileCommonMainKotlinMetadata")
@@ -225,7 +225,15 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
             assertOutputContains("common-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
             assertOutputContains("common-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
             assertOutputContains("common-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+        }
+    )
 
+    @Test
+    fun `multiplatform compilation should partially fail with platform-specific explicit-api arg`() = test(
+        projectName = "multiplatform-free-compiler-args",
+        ":platform-args:assemble",
+        shouldSucceed = false,
+        additionalCheck = {
             // explicit API mode is only in settings@jvm, so it shouldn't fail Android, JS, nor common metadata compilations
             assertTaskSucceeded(":platform-args:compileCommonMainKotlinMetadata")
             assertTaskSucceeded(":platform-args:compileReleaseKotlinAndroid")
