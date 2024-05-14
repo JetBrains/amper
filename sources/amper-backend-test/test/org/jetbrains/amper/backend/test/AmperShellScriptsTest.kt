@@ -31,7 +31,6 @@ import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -92,7 +91,6 @@ class AmperShellScriptsTest {
     }
 
     @Test
-    @Ignore("Not yet supported by published Amper")
     fun `init command writes the same wrappers as published`() {
         val projectPath = shellScriptExampleProject
         assertTrue { projectPath.isDirectory() }
