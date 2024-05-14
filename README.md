@@ -4,7 +4,7 @@
 
 # Amper
 
-Amper is a build and project configuration tool. Its goal is to provide a great and smooth user experience and IDE support 
+Amper is a project configuration and build tool. Its goal is to provide a great and smooth user experience and IDE support 
 We believe that this can be achieved by:
 
 - providing a developer- and IDE-friendly declarative configuration DSL - to simplify not only the initial setup but

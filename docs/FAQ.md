@@ -1,7 +1,7 @@
 
 ### Is Amper a brand-new build tool from JetBrains?
 
-Yes, Amper is a build and project configuration tool with a focus on the user experience and IDE support.
+Yes, Amper is a project configuration and build tool with a focus on the user experience and the IDE support.
 It is offered as a Gradle plugin with a declarative configuration layer, and as a standalone build tool.
 
 ### Do you plan to support only Kotlin?
