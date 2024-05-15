@@ -1093,7 +1093,7 @@ tasks.register<Copy>("copyPureiOSTestProjects") {
     group = "ios_Pure_Emulator_Tests"
     into(project.file("testdata/tempIOSGradleTests/"))
 
-    arrayOf("ampercliplayground").forEach { dirName ->
+    arrayOf("interop").forEach { dirName ->
         val sourcePath = "../amper-backend-test/testData/projects/ios/$dirName"
         from(sourcePath) {
             into(dirName)
