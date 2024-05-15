@@ -37,5 +37,20 @@ object CommonTaskUtils {
         result.add(compileTaskResult.classesOutputRoot)
     }
 
+    fun getRuntimeClasses(compileTaskResult: JvmCompileTask.TaskResult): List<Path> {
+        val arrayDeque = ArrayDeque<JvmCompileTask.TaskResult>()
+        arrayDeque.add(compileTaskResult)
+        return buildList {
+            while (arrayDeque.isNotEmpty()) {
+                val current = arrayDeque.removeFirst()
+                add(current.classesOutputRoot)
+
+                for (depCompileResult in current.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
+                    arrayDeque.add(depCompileResult)
+                }
+            }
+        }
+    }
+
     fun Iterable<Fragment>.userReadableList() = map { it.name }.sorted().joinToString(" ")
 }

@@ -15,6 +15,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
@@ -44,11 +45,13 @@ class AndroidBuildTask(
     override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
-        val classes = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().map { it.classesOutputRoot }
-        val resolvedAndroidRuntimeDependencies = dependenciesResult
-            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.runtimeClasspath }
-        val androidModuleData = AndroidModuleData(":", classes, resolvedAndroidRuntimeDependencies.map {
+
+        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
+            ?: error("Could not find a single compile task in dependencies of $taskName")
+
+        val classes = CommonTaskUtils.getRuntimeClasses(compileTaskResult)
+        val runtimeClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult)
+        val androidModuleData = AndroidModuleData(":", classes, runtimeClasspath.map {
             ResolvedDependency("group", "artifact", "version", it)
         })
         val request = AndroidBuildRequest(
@@ -58,7 +61,7 @@ class AndroidBuildTask(
             setOf(buildType.toAndroidRequestBuildType),
             sdkDir = androidSdkPath
         )
-        val inputs = classes + resolvedAndroidRuntimeDependencies
+        val inputs = classes + runtimeClasspath
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
         val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
