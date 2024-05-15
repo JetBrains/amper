@@ -211,42 +211,132 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
-    fun `multiplatform compilation should fail with common explicit-api arg`() = test(
-        projectName = "multiplatform-free-compiler-args",
-        ":common-args:assemble",
-        shouldSucceed = false,
-        additionalCheck = {
-            assertTaskFailed(":common-args:compileCommonMainKotlinMetadata")
-            assertTaskFailed(":common-args:compileReleaseKotlinAndroid")
-            assertTaskFailed(":common-args:compileDebugKotlinAndroid")
-            assertTaskFailed(":common-args:compileKotlinJs")
-            assertTaskFailed(":common-args:compileKotlinJvm")
-            assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
-            assertOutputContains("common-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
-            assertOutputContains("common-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
-            assertOutputContains("common-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
-        }
-    )
+    fun `multiplatform compilation should fail with common explicit-api arg`() {
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":common-args:compileCommonMainKotlinMetadata",
+            shouldSucceed = false,
+            additionalCheck = {
+                assertTaskFailed(":common-args:compileCommonMainKotlinMetadata")
+                assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":common-args:compileReleaseKotlinAndroid",
+            shouldSucceed = false,
+            additionalCheck = {
+                assertTaskFailed(":common-args:compileReleaseKotlinAndroid")
+                assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertOutputContains("common-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":common-args:compileDebugKotlinAndroid",
+            shouldSucceed = false,
+            additionalCheck = {
+                assertTaskFailed(":common-args:compileDebugKotlinAndroid")
+                assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertOutputContains("common-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":common-args:compileKotlinJs",
+            ":common-args:compileKotlinJvm",
+            shouldSucceed = false,
+            additionalCheck = {
+                assertTaskFailed(":common-args:compileKotlinJs")
+                assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertOutputContains("common-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":common-args:compileKotlinJvm",
+            shouldSucceed = false,
+            additionalCheck = {
+                assertTaskFailed(":common-args:compileKotlinJvm")
+                assertOutputContains("common-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertOutputContains("common-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+    }
 
     @Test
-    fun `multiplatform compilation should partially fail with platform-specific explicit-api arg`() = test(
-        projectName = "multiplatform-free-compiler-args",
-        ":platform-args:assemble",
-        shouldSucceed = false,
-        additionalCheck = {
-            // explicit API mode is only in settings@jvm, so it shouldn't fail Android, JS, nor common metadata compilations
-            assertTaskSucceeded(":platform-args:compileCommonMainKotlinMetadata")
-            assertTaskSucceeded(":platform-args:compileReleaseKotlinAndroid")
-            assertTaskSucceeded(":platform-args:compileDebugKotlinAndroid")
-            assertTaskSucceeded(":platform-args:compileKotlinJs")
-            assertTaskFailed(":platform-args:compileKotlinJvm")
-            // common code should fail as part of the JVM compilation
-            assertOutputContains("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
-            assertOutputContains("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
-            assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
-            assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
-        }
-    )
+    fun `multiplatform compilation should partially fail with platform-specific explicit-api arg`() {
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":platform-args:compileCommonMainKotlinMetadata",
+            shouldSucceed = false,
+            additionalCheck = {
+                // explicit API mode is only in settings@jvm, so it shouldn't fail common metadata compilations
+                assertTaskSucceeded(":platform-args:compileCommonMainKotlinMetadata")
+                // common code should only fail as part of the JVM compilation
+                assertNotInOutput("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":platform-args:compileReleaseKotlinAndroid",
+            shouldSucceed = false,
+            additionalCheck = {
+                // explicit API mode is only in settings@jvm, so it shouldn't fail Android compilations
+                assertTaskSucceeded(":platform-args:compileReleaseKotlinAndroid")
+                // common code should only fail as part of the JVM compilation
+                assertNotInOutput("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":platform-args:compileDebugKotlinAndroid",
+            shouldSucceed = false,
+            additionalCheck = {
+                // explicit API mode is only in settings@jvm, so it shouldn't fail Android compilations
+                assertTaskSucceeded(":platform-args:compileDebugKotlinAndroid")
+                // common code should only fail as part of the JVM compilation
+                assertNotInOutput("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":platform-args:compileKotlinJs",
+            shouldSucceed = false,
+            additionalCheck = {
+                // explicit API mode is only in settings@jvm, so it shouldn't fail JS compilation
+                assertTaskSucceeded(":platform-args:compileKotlinJs")
+                // common code should only fail as part of the JVM compilation
+                assertNotInOutput("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+        test(
+            projectName = "multiplatform-free-compiler-args",
+            ":platform-args:compileKotlinJvm",
+            shouldSucceed = false,
+            additionalCheck = {
+                // explicit API mode is in settings@jvm, so it should fail the JVM compilation
+                assertTaskFailed(":platform-args:compileKotlinJvm")
+                // common code should fail as part of the JVM compilation
+                assertOutputContains("platform-args/src/LibCommon.kt:2:1 Visibility must be specified in explicit API mode")
+                assertOutputContains("platform-args/src@jvm/LibJvm.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@android/LibAndroid.kt:2:1 Visibility must be specified in explicit API mode")
+                assertNotInOutput("platform-args/src@js/LibJs.kt:2:1 Visibility must be specified in explicit API mode")
+            }
+        )
+    }
 
     @Test
     fun templates() = test(
