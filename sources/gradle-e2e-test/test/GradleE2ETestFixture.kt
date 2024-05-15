@@ -38,7 +38,6 @@ import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.io.path.writeLines
 import kotlin.io.path.writeText
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -61,7 +60,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
         additionalEnv: Map<String, String> = emptyMap(),
-        additionalCheck: TestResultContext.() -> Unit = {},
+        additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
         test(
             projectName,
@@ -81,7 +80,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
         additionalEnv: Map<String, String> = emptyMap(),
-        additionalCheck: TestResultContext.() -> Unit = {},
+        additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
         val tempDir = prepareTempDirWithProject(projectName, runWithPluginClasspath)
         val newEnv = System.getenv().toMutableMap().apply { putAll(additionalEnv) }
@@ -121,7 +120,12 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
 
         if (checkForWarnings) output.checkForWarnings()
 
-        additionalCheck(TestResultContext(tempDir, output))
+        val testResultAsserter = TestResultAsserter(tempDir, output)
+        additionalCheck(testResultAsserter)
+        assertTrue(
+            actual = testResultAsserter.failedAssertions.isEmpty(),
+            message = "The following assertions failed:\n${testResultAsserter.failedAssertions.joinToString("\n") { " - $it" }}\n\nOutput:\n$output"
+        )
     }
 
     @OptIn(ExperimentalPathApi::class)
@@ -341,37 +345,37 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     }
 }
 
-class TestResultContext(
+class TestResultAsserter(
     val projectDir: Path,
     private val outputText: String,
 ) {
+    val failedAssertions = mutableListOf<String>()
+
     fun assertOutputContains(text: String) {
-        assertTrue("The following text should appear in the output, but it didn't: '$text'") {
-            outputText.contains(text)
+        if (text !in outputText) {
+            failedAssertions.add("the following text should appear in the output, but it didn't: '$text'")
         }
     }
 
     fun assertNotInOutput(text: String) {
-        assertFalse("The following text should not appear in the output, but it did: '$text'") {
-            outputText.contains(text)
+        if (text in outputText) {
+            failedAssertions.add("the following text should not appear in the output, but it did: '$text'")
         }
     }
 
     fun assertTaskSucceeded(taskPath: String) {
-        assertTrue("task '$taskPath' should have succeeded, but was not run at all") {
-            outputText.contains("> Task $taskPath")
-        }
-        assertFalse("task '$taskPath' should have succeeded, but failed") {
-            outputText.contains("> Task $taskPath FAILED")
+        if ("> Task $taskPath" !in outputText) {
+            failedAssertions.add("task '$taskPath' should have succeeded, but was not run at all")
+        } else if ("> Task $taskPath FAILED" in outputText) {
+            failedAssertions.add("task '$taskPath' should have succeeded, but failed")
         }
     }
 
     fun assertTaskFailed(taskPath: String) {
-        assertTrue("task '$taskPath' should have failed, but was not run at all") {
-            outputText.contains("> Task $taskPath")
-        }
-        assertTrue("task '$taskPath' should have failed, but succeeded") {
-            outputText.contains("> Task $taskPath FAILED")
+        if ("> Task $taskPath" !in outputText) {
+            failedAssertions.add("task '$taskPath' should have failed, but was not run at all")
+        } else if ("> Task $taskPath FAILED" !in outputText) {
+            failedAssertions.add("task '$taskPath' should have failed, but succeeded")
         }
     }
 }
