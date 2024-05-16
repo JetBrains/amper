@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.gradle
 
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -21,6 +22,7 @@ import org.gradle.api.internal.initialization.RootScriptDomainObjectContext
 import org.gradle.api.internal.initialization.ScriptClassPathResolver
 import org.gradle.initialization.DefaultSettings
 import org.gradle.internal.classpath.ClassPath
+import org.gradle.util.GradleVersion
 import java.lang.reflect.Field
 
 private const val DYNAMIC_PLUGINS_CLASSPATH = "dynamicPluginsClasspath"
@@ -86,6 +88,11 @@ private fun resolveClassPath(
     val resolver = classPathResolver.javaClass.declaredMethods.filter {
         it.name == "resolveClassPath"
     }.single()
+
+    val currentGradleVersion = GradleVersion.current()
+    if (currentGradleVersion > GradleVersion.version("8.6")) {
+        throw GradleException("Amper does not support custom Compose versions with Gradle > 8.6 (current is ${currentGradleVersion.version})")
+    }
 
     // breaking internal API changes in both Gradle 8.6 and 8.7
     // we want to support all of Gradle < 8.6, Gradle = 8.6 and Gradle 8.7+
