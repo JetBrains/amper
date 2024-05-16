@@ -1,6 +1,6 @@
-### Using the Gradle-based Amper from command line
+### Using Amper from command line in Gradle-based projects
 
-You can use the [Gradle-based](Documentation.md#gradle-based-projects) Amper is you normally use Gradle. 
+In a [Gradle-based project](Documentation.md#gradle-based-projects) you can use Gradle as usually. 
 E.g. to build and run the [JVM "Hello, World"](../examples-gradle/jvm):
 ```
 cd jvm
@@ -81,7 +81,7 @@ To run an application:
   ![](images/ij-run-config-android.png)
 
 
-* (Gradle-based Amper only) launch a Gradle task directly:\
+* (Gradle-based projects only) launch a Gradle task directly:\
   ![](images/ij-run-gradle-task.png)
   
 
@@ -108,7 +108,7 @@ To run an application:
   ![](images/fleet-run-config.png)
 
 
-* (Gradle-based Amper only) launch a Gradle task directly:\
+* (Gradle-based projects only) launch a Gradle task directly:\
   ![](images/fleet-run-gradle-task.png)
 
 To run tests, use the same 'run' (![](images/fleet-run-gutter-icon.png)) gutter icon or Gradle run configuration.

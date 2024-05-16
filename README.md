@@ -28,10 +28,10 @@ Supported features:
 * Mixing Kotlin, Java and Swift code.
 * [Multi-module](docs/Documentation.md#module-dependencies) projects.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
-* (Gradle-based Amper only) Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
-* (Gradle-based Amper only) [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
-* (Gradle-based Amper only) Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
-* (Gradle-based Amper only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
+* (Gradle-based projects only) Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
+* (Gradle-based projects only) [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
+* (Gradle-based projects only) Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
+* (Gradle-based projects only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
 * Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 
 Future directions:
@@ -64,7 +64,7 @@ There are multiple ways to try Amper:
 * In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
 * Using [command line](docs/Usage.md#using-amper-from-command-line) to build Amper projects.
-* Using [Gradle](docs/Usage.md#using-the-gradle-based-amper-from-command-line) to build Gradle-based Amper projects.
+* Using [Gradle](docs/Usage.md#using-amper-from-command-line-in-gradle-based-projects) to build Gradle-based Amper projects.
 
 ## Examples
 
@@ -161,6 +161,6 @@ Check our these example projects:
   ([Gradle-based version](examples-gradle/compose-android)),
   and [iOS](examples-standalone/compose-ios)
   ([Gradle-based version](examples-gradle/compose-ios))
-* Gradle interop in the [Gradle-based Amper](examples-gradle/gradle-interop)
+* Gradle interop in the [Gradle-based Amper projects](examples-gradle/gradle-interop)
 * And other [examples](examples-standalone) ([Gradle-based version](examples-gradle))
 
