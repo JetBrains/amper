@@ -467,12 +467,10 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
     
     @Test
-    @EnabledOnOs(value = [OS.MAC])
-    @KonanFolderLock
     fun `compose dev version change`() = test(
         projectName = "compose-dev-version-change",
-        "compileKotlinIosArm64",
-        expectOutputToHave = "BUILD SUCCESSFUL"
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
     @Test
