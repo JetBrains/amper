@@ -3,7 +3,7 @@
 You can use the [Gradle-based](Documentation.md#gradle-based-projects) Amper is you normally use Gradle. 
 E.g. to build and run the [JVM "Hello, World"](../examples-gradle/jvm):
 ```
-cd examples-gradle/jvm
+cd jvm
 ./gradlew run 
 ```
 See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_building_java_applications.html) for more info.
@@ -11,7 +11,7 @@ See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_buildin
 > To use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is
 > recommended.
 
-### Using the standalone Amper from command line
+### Using Amper from command line
 
 To use Amper CLI, you need to download the wrapper script to your project's root folder. The wrapper script is
 a small file that downloads and runs the actual Amper CLI distribution.
@@ -55,7 +55,7 @@ Useful commands:
 
 E.g. to build and run the [JVM "Hello, World"](../examples-standalone/jvm):
 ```
-cd examples-standalone/jvm
+cd jvm
 ./amper run 
 ```
 

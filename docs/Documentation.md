@@ -6,9 +6,9 @@ Check the [setup instructions](Setup.md)
 
 Amper exists as a standalone build tool and also as a Gradle plugin.
 The [Gradle-based Amper](#gradle-based-projects) supports full Gradle interop and can be used in existing Gradle
-projects. Certain functionality and behavior might differ between the standalone Amper and the Gradle-based amper.
+projects. Certain functionality and behavior might differ between the standalone version and the Gradle-based version.
 
-See the usage instructions for the [standalone Amper](Usage.md#using-the-standalone-amper-from-command-line) and for
+See the usage instructions for the [Amper](Usage.md#using-amper-from-command-line) and for
 the [Gradle-based Amper](Usage.md#using-the-gradle-based-amper-from-command-line).
 
 An Amper **project** in is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
@@ -19,8 +19,7 @@ An Amper **module** is a directory with a `module.yaml` configuration file, modu
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
 Each module describes a single product. Several modules can't share same sources or resources.
 
-> Amper currently users YAML as a configuration language, here is a [brief intro YAML](#brief-yaml-reference).
-> YAML is not the final language choice, and we are working on an alternative option._
+> To get familiar with YAML, see [the brief intro](#brief-yaml-reference).
 
 _How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine
 and [extensions](#extensibility).
@@ -1484,9 +1483,9 @@ settings:  # objects merged
 
 ## Extensibility
 
-> Extensibility is not yet implemented in a standalone Amper. Meanwhile, you can use [Gradle interop](#gradle-interop)
-> for plugins and custom
-> tasks.
+> Extensibility is not yet implemented in a Amper.
+> Meanwhile, you can use [Gradle interop](#gradle-interop) in a Gradle-based project to use Gradle plugins and write
+> custom tasks.
 
 The main design goal for Amper is simplicity and ease of use specifically for Kotlin and Kotlin Multiplatform.
 We would like to provide great user experience of the box. That's why there are many aspects that are available in Amper as first-class citizens. 
