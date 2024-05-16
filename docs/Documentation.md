@@ -6,14 +6,16 @@ Check the [setup instructions](Setup.md)
 
 Amper exists as a standalone build tool and also as a Gradle plugin.
 For the [Gradle-based projects](#gradle-based-projects) Amper supports full Gradle interop, Gradle plugins and custom tasks.
-Certain functionality and behavior might differ for the Gradle-based Amper projects.
+Certain functionality and behavior might differ between the standalone and Gradle-based Amper versions.
 
-See the usage instructions for the [Amper](Usage.md#using-amper-from-command-line) and for
-the [Gradle-based projects](Usage.md#using-amper-from-command-line-in-gradle-based-projects).
+See the usage instructions for the [standalone Amper version](Usage.md#using-the-standalone-amper-version-from-command-line) and for
+the [Gradle-based version](Usage.md#using-the-gradle-based-amper-version-from-command-line).
 
 An Amper **project** in is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the
 project root. If there is only one module in the project, `project.yaml` file is not required.
+
+> In the Gradle-based projects, a `settings.gradle.kts' file is used instead of a `project.yaml` file. 
 
 An Amper **module** is a directory with a `module.yaml` configuration file, module sources and resources.
 A *module configuration file* describes _what_ to produce: e.g. a reusable library or a platform-specific application.
@@ -459,7 +461,7 @@ the `build.gradle.kts`file of each individual Amper module.
 
 There are several types of dependency catalogs that are available in Amper:
 - Dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.). The toolchain catalog names correspond to the [names of the toolchains in the settings section](#settings). E.g. dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog, and its settings using the `compose:` section.
-- In the Gradle-based projects, Amper supports the Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
+- Gradle-based Amper supports Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
 - User-defined dependency catalogs (not yet implemented).
 
 All supported catalogs could be accessed via a `$<catalog-name.key>` reference, for example:
@@ -1483,8 +1485,8 @@ settings:  # objects merged
 
 ## Extensibility
 
-> Extensibility is not yet implemented in a Amper.
-> Meanwhile, you can use [Gradle interop](#gradle-interop) in a Gradle-based project to use Gradle plugins and write
+> Extensibility is not yet implemented in the standalone version of Amper.
+> Meanwhile, in Gradle-based projects you can use [Gradle interop](#gradle-interop), Gradle plugins, and write
 > custom tasks.
 
 The main design goal for Amper is simplicity and ease of use specifically for Kotlin and Kotlin Multiplatform.

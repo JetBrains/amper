@@ -2,7 +2,8 @@
 ### Is Amper a brand-new build tool from JetBrains?
 
 Yes, Amper is a project configuration and build tool with a focus on the user experience and the IDE support.
-Amper exists as a standalone build tool and also as a Gradle plugin.
+Amper exists as a standalone build tool and also as a Gradle plugin for existing Gradle-based projects. 
+Both versions offer a unified easy-to-use declarative configuration format.
 
 ### Do you plan to support only Kotlin?
 
@@ -32,7 +33,7 @@ plugins and tasks as usual. See the documentation on the [Gradle interop](Docume
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility is not currently implemented, but we are working on it.
+Extensibility is not currently implemented in the standalone Amper version, but we are working on it.
 Meanwhile, in the Gradle-based Amper projects, you can use any available Gradle plugin and write custom tasks. 
 See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
@@ -85,6 +86,8 @@ Gradle, as a well-tested build engine, allowed us to start experimenting with th
 What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
 we want to get feedback from real-world use cases.
 
+Amper also exists as a standalone tool which allows us to improve the IDE support and workflows even further.
+
 ### Why not simply improve Gradle?
 
 We believe there is room to improve the project configuration experience and IDE support.
@@ -99,8 +102,8 @@ Gradle support in our IDEs and Gradle itself.
 We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box, 
 and offer a reasonable level of extensibility.
 
-Amper is also offered as a Gradle plugin with the full interoperability with Gradle. 
-It's possible to use existing Gradle plugins and write custom tasks using Gradle.
+In addition to the standalone version, Amper is offered as a Gradle plugin.  
+Gradle-based Amper offers the full interoperability with Gradle, allows using Gradle plugins and write custom tasks.
 
 
 
