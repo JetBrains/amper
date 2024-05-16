@@ -190,7 +190,7 @@ internal fun kotlinMetadataCompilerArgs(
     }
 
     if (refinesPaths.isNotEmpty()) {
-        add("-Xrefines-paths=${friendPaths.joinToString(",")}")
+        add("-Xrefines-paths=${refinesPaths.joinToString(",")}")
     }
 
     // Common args last, because they contain free compiler args
