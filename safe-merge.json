@@ -3,7 +3,7 @@
   "builds": [
     {
       "teamcity": {
-        "configuration": "Amper_main_Build_aggregator",
+        "configuration": "Amper_03_Build_aggregator",
         "url": "https://buildserver.labs.intellij.net/",
         "token": "${buildserver-token}",
         "ssl-keystore": "BuildServer client"
