@@ -99,7 +99,7 @@ Gradle support in our IDEs and Gradle itself.
 
 ### What about Gradle extensibility and plugins?
 
-We aim to support most the Kotlin and Kotlin Multiplatform use cases out of the box,
+We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box,
 and offer a reasonable level of extensibility.
 
 In addition to the standalone version, Amper is offered as a Gradle plugin.  
