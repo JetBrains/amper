@@ -82,7 +82,7 @@ Examples: [JVM "Hello, World!](../examples-standalone/jvm) ([Gradle-based versio
 Documentation:
 
 - [Using Amper](Usage.md#using-amper-from-command-line)
-- [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-from-command-line)
+- [Using Amper in Gradle-based projects](Usage.md#using-amper-from-command-line-in-gradle-based-projects)
 - [Project layout](Documentation.md#project-layout)
 - [module file anatomy](Documentation.md#module-file-anatomy)
 
@@ -400,7 +400,7 @@ modules:
   - ./shared   
 ```
 
-> For the Gradle-based Amper, into the `settings.gradle.kts` file:
+> For the Gradle-based Amper project, into the `settings.gradle.kts` file:
 > ```kotlin
 > // add new modules to the project
 > include("android-app", "ios-app", "jvm-app", "shared")
@@ -517,7 +517,7 @@ Make sure that your project structure looks like this:
 |-...
 ```
 
-> In the case the Gradle-based Amper, you also need to add a couple of configuration files.
+> In the case of a Gradle-based project, you also need to add a couple of configuration files.
 > Copy the [gradle.properties](../examples-gradle/compose-multiplatform/gradle.properties) into your project root,
 > and create a `local.properties` file nearby with the follwoing content:
 > 

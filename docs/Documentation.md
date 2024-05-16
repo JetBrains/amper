@@ -5,11 +5,11 @@ Check the [setup instructions](Setup.md)
 ## Basics
 
 Amper exists as a standalone build tool and also as a Gradle plugin.
-The [Gradle-based Amper](#gradle-based-projects) supports full Gradle interop and can be used in existing Gradle
-projects. Certain functionality and behavior might differ between the standalone version and the Gradle-based version.
+For the [Gradle-based projects](#gradle-based-projects) Amper supports full Gradle interop, Gradle plugins and custom tasks.
+Certain functionality and behavior might differ for the Gradle-based Amper projects.
 
 See the usage instructions for the [Amper](Usage.md#using-amper-from-command-line) and for
-the [Gradle-based Amper](Usage.md#using-the-gradle-based-amper-from-command-line).
+the [Gradle-based projects](Usage.md#using-amper-from-command-line-in-gradle-based-projects).
 
 An Amper **project** in is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
 configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the
@@ -23,7 +23,7 @@ Each module describes a single product. Several modules can't share same sources
 
 _How_ to produce the desired product, that is, the build rules, is the responsibility of the Amper build engine
 and [extensions](#extensibility).
-In a Gradle-based Amper it's possible to use [plugins](Documentation.md#using-gradle-plugins) and
+In a Gradle-based Amper projects it's possible to use [plugins](Documentation.md#using-gradle-plugins) and
 write [custom Gradle tasks](#writing-custom-gradle-tasks).
 
 Amper supports Kotlin Multiplatform as a core concept and offers a special syntax to deal with multi-platform
@@ -459,7 +459,7 @@ the `build.gradle.kts`file of each individual Amper module.
 
 There are several types of dependency catalogs that are available in Amper:
 - Dependency catalogs provided by toolchains (such as Kotlin, Compose Multiplatform etc.). The toolchain catalog names correspond to the [names of the toolchains in the settings section](#settings). E.g. dependencies for the Compose Multiplatform frameworks are accessible using the `$compose` catalog, and its settings using the `compose:` section.
-- Gradle-based Amper supports Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
+- In the Gradle-based projects, Amper supports the Gradle version catalog in the default [gradle/libs.versions.toml file](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml). Dependencies from this catalog can be accessed via `$libs.` catalog name according to the [Gradle name mapping rules](https://docs.gradle.org/current/userguide/platforms.html#sub:mapping-aliases-to-accessors). 
 - User-defined dependency catalogs (not yet implemented).
 
 All supported catalogs could be accessed via a `$<catalog-name.key>` reference, for example:
@@ -585,7 +585,7 @@ org.gradle.jvmargs=-Xmx4g
 Amper supports Compose Multiplatform [resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html). 
 
 > Current limitations: 
->  - Resources are supported only in Gradle-based Amper.
+>  - Resources are supported only in [Gradle-based projects](#gradle-based-projects).
 >  - To use multiplatform resources, a module must be configured with a [Gradle-compatible file layout](#file-layout-with-gradle-interop).   
 
 The file layout is:
@@ -1546,7 +1546,8 @@ The Amper engine would be able to quickly discover the DSL schema for `setting:m
 
 > Gradle 8.6 is recommended. Gradle 8.7+ is not yet supported.
 
-In a Gradle-based Amper you need a `settings.gradle.kts` file and a `gradle/wrapper/` folders in the project root:
+In a Gradle-based project, instead of a `project.yaml` files you need a `settings.gradle.kts` file
+and a `gradle/wrapper/` folders in the project root:
 ```
 |-gradle/...
 |-src/

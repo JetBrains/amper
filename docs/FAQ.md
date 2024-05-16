@@ -32,9 +32,9 @@ plugins and tasks as usual. See the documentation on the [Gradle interop](Docume
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility is not currently implemented, but we are exploring it. Meanwhile, you can use the
-Gradle-based Amper to write tasks and use any available Gradle plugin. See the documentation on
-the [Gradle interop](Documentation.md#gradle-interop).
+Extensibility is not currently implemented, but we are working on it.
+Meanwhile, in the Gradle-based Amper projects, you can use any available Gradle plugin and write custom tasks. 
+See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
 
 ### Will Amper be open source?
 Yes, Amper is already open source.
