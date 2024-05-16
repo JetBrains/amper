@@ -2,7 +2,7 @@
 ### Is Amper a brand-new build tool from JetBrains?
 
 Yes, Amper is a project configuration and build tool with a focus on the user experience and the IDE support.
-It is offered as a Gradle plugin with a declarative configuration layer, and as a standalone build tool.
+Amper exists as a standalone build tool and also as a Gradle plugin.
 
 ### Do you plan to support only Kotlin?
 
@@ -32,7 +32,7 @@ plugins and tasks as usual. See the documentation on the [Gradle interop](Docume
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility in the standalone Amper is not currently implemented, but we are exploring it. Meanwhile, you can use the
+Extensibility is not currently implemented, but we are exploring it. Meanwhile, you can use the
 Gradle-based Amper to write tasks and use any available Gradle plugin. See the documentation on
 the [Gradle interop](Documentation.md#gradle-interop).
 
@@ -85,8 +85,6 @@ Gradle, as a well-tested build engine, allowed us to start experimenting with th
 What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
 we want to get feedback from real-world use cases.
 
-We are also working on a standalone Amper version to further improve the IDE support and workflow
-
 ### Why not simply improve Gradle?
 
 We believe there is room to improve the project configuration experience and IDE support.
@@ -98,11 +96,12 @@ Gradle support in our IDEs and Gradle itself.
 
 ### What about Gradle extensibility and plugins?
 
-Amper is offered as a Gradle plugin, and there’s full interoperability with Gradle. It's possible to use existing Gradle
-plugins and write custom tasks using Gradle.
+We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box, 
+and offer a reasonable level of extensibility.
 
-In a standalone version of Amper, we aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the
-box, and offer a reasonable level of extensibility.
+Amper is also offered as a Gradle plugin with the full interoperability with Gradle. 
+It's possible to use existing Gradle plugins and write custom tasks using Gradle.
+
 
 
 

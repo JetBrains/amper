@@ -32,24 +32,24 @@ fun main() {
 }
 ```
 
-> To use the standalone Amper version, you need to add a couple of shell scripts to your project folder.
-> Copy the following files from a [template project](../examples-standalone/new-project-template):
->
-> - [amper](../examples-standalone/new-project-template/amper)
-> - [amper.bat](../examples-standalone/new-project-template/amper.bat)
->
-> ```
-> |-src/
-> |  |-main.kt
-> |-module.yaml
-> |-amper
-> |-amper.bat
-> ```
+You also need to add a couple of shell scripts to your project folder.
+Copy the following files from a [template project](../examples-standalone/new-project-template):
 
-> To use the [Gradle-based](Documentation.md#gradle-based-projects) Amper version,
-> you need to create `settings.gradle.kts` and Gradle wrappers in the project root. Thes files are necessary to
-> configure
-> and launch Gradle. Copy the following files from a [template project](../examples-gradle/new-project-template):
+- [amper](../examples-standalone/new-project-template/amper)
+- [amper.bat](../examples-standalone/new-project-template/amper.bat)
+
+```
+|-src/
+|  |-main.kt
+|-module.yaml
+|-amper
+|-amper.bat
+```
+
+> To use the [Gradle-based](Documentation.md#gradle-based-projects) Amper version, instead of the 
+> `amper` and `amper.bat` files you need to create `settings.gradle.kts` and Gradle wrappers in the project root. 
+> These files are necessary to configure and launch Gradle. 
+> Copy the following files from a [template project](../examples-gradle/new-project-template):
 >
 > - [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts),
 > - [gradlew](../examples-gradle/new-project-template/gradlew)
@@ -77,11 +77,11 @@ no need to create separate Maven-like `java/` and `kotlin/` folders:
 |-module.yaml
 ```
 
-Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
+Examples: [JVM "Hello, World!](../examples-standalone/jvm) ([Gradle-based version](../examples-gradle/jvm))
 
 Documentation:
 
-- [Using standalone Amper](Usage.md#using-the-standalone-amper-from-command-line)
+- [Using Amper](Usage.md#using-amper-from-command-line)
 - [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-from-command-line)
 - [Project layout](Documentation.md#project-layout)
 - [module file anatomy](Documentation.md#module-file-anatomy)
@@ -147,7 +147,7 @@ test-dependencies:
   - io.mockk:mockk:1.13.10
 ```
 
-Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle-based](../examples-gradle/jvm))
+Examples: [JVM "Hello, World!](../examples-standalone/jvm) ([Gradle-based version](../examples-gradle/jvm))
 
 Documentation:
 - [Tests](Documentation.md#tests)
@@ -217,13 +217,14 @@ Now we have a GUI application!
 
 Examples:
 
-- Compose
-  Desktop ([standalone](../examples-standalone/compose-desktop), [Gradle-based](../examples-gradle/compose-desktop))
-- Compose
-  Android ([standalone](../examples-standalone/compose-android), [Gradle-based](../examples-gradle/compose-android))
-- Compose iOS ([standalone](../examples-standalone/compose-ios), [Gradle-based](../examples-gradle/compose-ios))
-- Compose
-  Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
+- [Compose Multiplatform](../examples-standalone/compose-multiplatform)
+  ([Gradle-based version](../examples-gradle/compose-multiplatform))
+- [Compose Desktop](../examples-standalone/compose-desktop)
+  ([Gradle-based version](../examples-gradle/compose-desktop))
+- [Compose Android](../examples-standalone/compose-android)
+  ([Gradle-based version](../examples-gradle/compose-android))
+- [Compose iOS](../examples-standalone/compose-ios)
+  ([Gradle-based version](../examples-gradle/compose-ios))
 
 Documentation:
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
@@ -246,31 +247,32 @@ It will have the following structure:
 |  |-module.yaml
 ```
 
-> In the case of the standalone Amper, we'll also add `project.yaml` file in the root,
-> next to the existing `amper` and `amper.bat` files. It will help Amper find all modules in the project:
-> ```
-> |-jvm-app/
-> |  |-...
-> |  |-module.yaml
-> |-shared/
-> |  |-...
-> |  |-module.yaml
-> |-amper
-> |-amper.bat
-> |-project.yaml
-> ```
->
-> After that add the module to the `project.yaml` file:
->
-> ```yaml
-> modules:
->   - ./jvm-app
->   - ./lib
-> ```
-> Read more about the [project layout](Documentation.md#project-layout)
+We also add `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files. 
+It will help Amper find all modules in the project:
+```
+|-jvm-app/
+|  |-...
+|  |-module.yaml
+|-shared/
+|  |-...
+|  |-module.yaml
+|-amper
+|-amper.bat
+|-project.yaml
+```
 
-> In the case of the [Gradle-based](Documentation.md#gradle-based-projects) Amper version,
-> the previously added Gradle files will remain in the project root:
+After that add the module to the `project.yaml` file:
+
+```yaml
+modules:
+  - ./jvm-app
+  - ./lib
+```
+Read more about the [project layout](Documentation.md#project-layout)
+
+> In the case of the [Gradle-based](Documentation.md#gradle-based-projects) Amper version, 
+> `settings.gradle.kts` is used instead of `project.yaml` file.
+> So all previously added Gradle files will remain in the project root:
 >
 > ```
 > |-jvm-app/
@@ -355,8 +357,8 @@ fun main() = application {
 
 Now we have a multi-module project with some neatly extracted shared code. 
 
-Examples: Compose
-Multiplatform ([standalone](../examples-standalone/compose-multiplatform), [Gradle-based](../examples-gradle/compose-multiplatform))
+Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform) ([Gradle-based version](../examples-gradle/compose-multiplatform))
+
 
 Documentation:
 - [Project layout](Documentation.md#project-layout)
@@ -388,8 +390,7 @@ Here is the project structure that we need:
 |  |-...
 ```
 
-Don't forget to add the new modules to the project files.
-For the standalone Amper, into the `project.yaml` file:
+Don't forget to add the new modules into the `project.yaml` file:
 
 ```yaml
 modules:
@@ -399,7 +400,7 @@ modules:
   - ./shared   
 ```
 
-For the Gradle-based Amper, into the `settings.gradle.kts` file:
+> For the Gradle-based Amper, into the `settings.gradle.kts` file:
 > ```kotlin
 > // add new modules to the project
 > include("android-app", "ios-app", "jvm-app", "shared")
@@ -539,9 +540,8 @@ Make sure that your project structure looks like this:
 
 Now you can build and run both apps using [the Fleet run configurations](Usage.md#using-amper-in-fleet).
 
-Examples: Compose Multiplatform
-([standalone](../examples-standalone/compose-multiplatform),
-[Gradle-based](../examples-gradle/compose-multiplatform))
+Examples: [Compose Multiplatform](../examples-standalone/compose-multiplatform)
+([Gradle-based version](../examples-gradle/compose-multiplatform))
 
 Documentation:
 - [Multi-platform configuration](Documentation.md#multi-platform-configuration)
@@ -643,5 +643,4 @@ Documentation:
 
 ### Further steps
 
-Check the [documentation](Documentation.md) and explore examples [for the standalone Amper](../examples-standalone) and
-[for the Gradle-based Amper](../examples-gradle).
+Check the [documentation](Documentation.md) and explore [examples](../examples-standalone) ([Gradle-based version](../examples-gradle)).
