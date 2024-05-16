@@ -19,7 +19,8 @@ and more. At the current stage, however, the focus is primarily on configuring p
 use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
 However, the same approach to configuration could work for other languages and technology stacks in the future.
 
-Amper exists as a standalone build tool and also as a Gradle plugin for existing Gradle-based projects. It offers a unified easy-to-use declarative configuration format.
+Amper exists as a standalone build tool and also as a Gradle plugin for existing Gradle-based projects. 
+Both versions offer a unified easy-to-use declarative configuration format.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux, and macOS applications.
@@ -63,8 +64,8 @@ There are multiple ways to try Amper:
 
 * In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
-* Using [command line](docs/Usage.md#using-amper-from-command-line) to build Amper projects.
-* Using [Gradle](docs/Usage.md#using-amper-from-command-line-in-gradle-based-projects) to build Gradle-based Amper projects.
+* Using [standalone Amper from command line](docs/Usage.md#using-the-standalone-amper-version-from-command-line).
+* Using [Gradle-Based Amper from command line](docs/Usage.md#using-the-gradle-based-amper-version-from-command-line) to build Gradle-based Amper projects.
 
 ## Examples
 
@@ -152,15 +153,10 @@ and [example projects](#more-examples).
 
 ### More examples
 Check our these example projects:
-* [JVM "Hello, World!"](examples-standalone/jvm) ([Gradle-based version](examples-gradle/jvm))
-* [Compose Multiplatform](examples-standalone/compose-multiplatform)
-  ([Gradle-based version](examples-gradle/compose-multiplatform))
-* Compose on [Desktop](examples-standalone/compose-desktop)
-  ([Gradle-based version](examples-gradle/compose-desktop)),
-  [Android](examples-standalone/compose-android)
-  ([Gradle-based version](examples-gradle/compose-android)),
-  and [iOS](examples-standalone/compose-ios)
-  ([Gradle-based version](examples-gradle/compose-ios))
-* Gradle interop in the [Gradle-based Amper projects](examples-gradle/gradle-interop)
-* And other [examples](examples-standalone) ([Gradle-based version](examples-gradle))
-
+* JVM "Hello, World!" ([standalone](examples-standalone/jvm), [Gradle-based](examples-gradle/jvm))
+* Compose Multiplatform ([standalone](examples-standalone/compose-multiplatform), [Gradle-based](examples-gradle/compose-multiplatform))
+* Compose on iOS ([standalone](examples-standalone/compose-ios), [Gradle-based](examples-gradle/compose-ios)),
+  Android ([standalone](examples-standalone/compose-android), [Gradle-based](examples-gradle/compose-android)),
+  and desktop ([standalone](examples-standalone/compose-desktop), [Gradle-based](examples-gradle/compose-desktop))
+* Gradle interop in the [Gradle-based Amper](examples-gradle/gradle-interop)
+* And other [standalone](examples-standalone) and [Gradle-based](examples-gradle) examples
