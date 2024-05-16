@@ -60,7 +60,7 @@ product: macos/app
 ```
 
 ```yaml
-# Full form, with explicitly specified platform
+# Full form, with an explicitly specified platform
 product:
   type: macos/app
   platforms: [ macosArm64, macosArm64 ]
@@ -95,7 +95,7 @@ dependencies@jvmAndAndroid:
 
 ### Variants
 
-`variants:` section defines the list of build variants for the product. Variants name can be used as `@platform` qualifiers. Read more about [variants](Documentation.md#build-variants).
+`variants:` section defines the list of build variants for the product. Variant names can be used as `@platform` qualifiers. Read more about [variants](Documentation.md#build-variants).
 
 Examples:
 
@@ -379,7 +379,7 @@ settings:
 | `teamID: string`    | A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`) | empty   |
 | `framework: object` | (Only for the library [product type](Documentation.md#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework).                                                                               |         |
 
-`settings:ios:framework:` configures the generated framework. By default, a dynamically linked framework with name of the module is generated
+`settings:ios:framework:` configures the generated framework. By default, a dynamically linked framework with the name of the module is generated
 
 | Attribute           | Description                                                            | Default |
 |---------------------|------------------------------------------------------------------------|---------|
@@ -427,7 +427,7 @@ By default, JUnit 4 is used.
 
 #### Kover
 
-(Gradle-based projects only) `settings:kover:` configures kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
+(Gradle-based projects only) `settings:kover:` configures Kover for code coverage. Read more about [Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)
 
 | Attribute          | Description                    | Default |
 |--------------------|--------------------------------|---------|
