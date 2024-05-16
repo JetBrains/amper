@@ -1,6 +1,8 @@
 # Try standalone Amper with an example project
 
-We have prepared a number of example projects to help you explore Amper. You can check them out right here on GitHub, or download a zipped version to open in your IDE (refer to the [setup instructions](https://github.com/JetBrains/amper/blob/0.1/docs/Setup.md) if you need more information on how to get started.)
+We have prepared a number of example projects to help you explore Amper. You can check them out right here on GitHub, 
+or download a zipped version to open in your IDE (refer to the [setup instructions](../docs/Setup.md) if you need more
+information on how to get started.)
 
 | Example               | Download                                                                                                                             |
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------|
