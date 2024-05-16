@@ -38,10 +38,10 @@ enum class ResolutionScope(
     internal fun matches(dependency: Dependency) = dependencyMatcher(dependency)
 }
 
-internal fun Variant.isMetadataApiElements() =
-    attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
+internal fun Variant.isKotlinMetadata(platform: ResolutionPlatform = ResolutionPlatform.COMMON) =
+    attributes["org.jetbrains.kotlin.platform.type"] == platform.type.value
             && attributes["org.gradle.usage"] == "kotlin-metadata"
 
 private fun Variant.isDocumentation() = attributes["org.gradle.category"] == "documentation"
 
-private fun Variant.isScopeAgnostic() = isMetadataApiElements() || isDocumentation()
+private fun Variant.isScopeAgnostic() = isKotlinMetadata() || isDocumentation()

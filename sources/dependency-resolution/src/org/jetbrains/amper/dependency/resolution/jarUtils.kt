@@ -21,6 +21,16 @@ import java.util.zip.ZipOutputStream
 
 
 internal suspend fun readJarEntry(jarPath: Path, entryPath: String) : String? =
+    withJarEntry(jarPath, entryPath) { jarFile, jarEntry ->
+        jarFile.getInputStream(jarEntry).use { inputStream ->
+            InputStreamReader(inputStream).readText()
+        }
+    }
+
+internal suspend fun hasJarEntry(jarPath: Path, entryPath: String) : Boolean? =
+    withJarEntry(jarPath, entryPath) { _, _ -> true }
+
+internal suspend fun <T> withJarEntry(jarPath: Path, entryPath: String, block: (JarFile, JarEntry) -> T) : T? =
     withContext(Dispatchers.IO) {
         JarFile(jarPath.toFile()).use { jarFile ->
             val source = JarInputStream(FileInputStream(jarPath.toFile()))
@@ -28,12 +38,10 @@ internal suspend fun readJarEntry(jarPath: Path, entryPath: String) : String? =
                 var entry: JarEntry?
                 do {
                     entry = source.nextJarEntry
-                } while (entry != null && entry.name != entryPath)
+                } while (entry != null && entry.let { if (it.isDirectory) it.name.trimEnd('/') else it.name } != entryPath)
 
                 entry?.let {
-                    jarFile.getInputStream(it).use { inputStream ->
-                        InputStreamReader(inputStream).readText()
-                    }
+                    block(jarFile, it)
                 }
             }
         }

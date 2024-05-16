@@ -44,7 +44,6 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlinx atomicfu 0_23_2`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = ResolutionPlatform.JVM,
             expected = """root
                 |\--- org.jetbrains.kotlinx:atomicfu:0.23.2
                 |     \--- org.jetbrains.kotlinx:atomicfu-jvm:0.23.2
@@ -274,7 +273,7 @@ class BuildGraphTest {
     fun `androidx_activity activity-compose 1_7_2`(testInfo: TestInfo) {
         doTest(
             testInfo,
-            platform = ResolutionPlatform.ANDROID,
+            platform = setOf(ResolutionPlatform.ANDROID),
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
             expected = """root
                 |\--- androidx.activity:activity-compose:1.7.2
@@ -396,7 +395,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2",
-            platform = ResolutionPlatform.ANDROID,
+            platform = setOf(ResolutionPlatform.ANDROID),
             expected = """root
                 |\--- androidx.appcompat:appcompat:1.6.1
                 |     +--- androidx.activity:activity:1.6.0
@@ -548,7 +547,7 @@ class BuildGraphTest {
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = ResolutionPlatform.ANDROID,
+            platform = setOf(ResolutionPlatform.ANDROID),
             expected = """root
                 |\--- com.google.guava:guava:33.0.0-android
                 |     +--- com.google.guava:failureaccess:1.0.2
@@ -751,7 +750,7 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = ResolutionPlatform.MACOS_ARM64,
+            platform = setOf(ResolutionPlatform.MACOS_ARM64),
             expected = """root
                 |\--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
                 |     \--- org.jetbrains.kotlinx:kotlinx-datetime-macosarm64:0.5.0
@@ -918,11 +917,32 @@ class BuildGraphTest {
     }
 
     @Test
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10-rc01`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            platform = setOf(ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            repositories = REDIRECTOR_MAVEN2 +
+                    "https://packages.jetbrains.team/maven/p/kpm/public" +
+                    "https://cache-redirector.jetbrains.com/maven.google.com",
+            expected = """root
+                |\--- org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01
+            """.trimMargin()
+        )
+
+        assertFiles("""
+            ui-uikit-uikitMain-1.6.10-rc01.klib
+            """.trimIndent(),
+            root
+        )
+    }
+
+    @Test
     fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10-rc01`(testInfo: TestInfo) {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            platform = ResolutionPlatform.IOS_ARM64,
+            platform = setOf(ResolutionPlatform.IOS_ARM64),
             repositories = REDIRECTOR_MAVEN2 +
                     "https://packages.jetbrains.team/maven/p/kpm/public" +
                     "https://cache-redirector.jetbrains.com/maven.google.com",
@@ -1335,7 +1355,7 @@ class BuildGraphTest {
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: ResolutionPlatform = ResolutionPlatform.JVM,
+        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String,
@@ -1359,12 +1379,12 @@ class BuildGraphTest {
 
     private fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: ResolutionPlatform = ResolutionPlatform.JVM,
+        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
         repositories: List<String> = REDIRECTOR_MAVEN2,
         downloadSources: Boolean = false
     ) = Context {
         this.scope = scope
-        this.platforms = setOf(platform)
+        this.platforms = platform
         this.repositories = repositories
         this.downloadSources = downloadSources
         this.cache = {

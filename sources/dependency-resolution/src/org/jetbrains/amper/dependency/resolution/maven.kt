@@ -20,6 +20,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.json.module.Module
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Variant
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.parseMetadata
+import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.KotlinProjectStructureMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.SourceSet
 import org.jetbrains.amper.dependency.resolution.metadata.json.projectStructure.parseKmpLibraryMetadata
 import org.jetbrains.amper.dependency.resolution.metadata.xml.Dependencies
@@ -30,6 +31,7 @@ import org.jetbrains.amper.dependency.resolution.metadata.xml.parsePom
 import org.jetbrains.amper.dependency.resolution.metadata.xml.plus
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.name
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -293,19 +295,7 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
-        val moduleMetadata = try {
-            moduleFile.readText().parseMetadata()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            messages.asMutable() += Message(
-                "Unable to parse metadata file $moduleFile",
-                e.toString(),
-                Severity.ERROR,
-                e,
-            )
-            return
-        }
+        val moduleMetadata = parseModuleMetadata(context, level) ?: return
 
         if (context.settings.platforms.isEmpty()) {
             throw AmperDependencyResolutionException("Target platform is not specified.")
@@ -314,11 +304,10 @@ class MavenDependency internal constructor(
                     "Set of actual target platforms should be specified.")
         }
 
-        val platform = context.settings.platforms.singleOrNull() ?: ResolutionPlatform.COMMON
-
-        val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
-
         if (context.settings.platforms.size == 1) {
+            val platform = context.settings.platforms.single()
+            val validVariants = resolveVariants(moduleMetadata, context.settings, platform)
+
             validVariants.also {
                 variants = it
                 if (it.withoutDocumentationAndMetadata.size > 1) {
@@ -333,39 +322,81 @@ class MavenDependency internal constructor(
             validVariants
                 .flatMap {
                     it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
-                }.mapNotNull { dependency ->
-                    // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
-                    val version = dependency.version.resolve()
-                    if (version == null) {
-                        reportDependencyVersionResolutionFailure(dependency, moduleMetadata)
-                        return@mapNotNull null
-                    }
-                    context.createOrReuseDependency(dependency.group, dependency.module, version)
+                }.mapNotNull {
+                    it.toMavenDependency(context, moduleMetadata)
                 }.let {
                     children = it
                 }
         } else {
             // Multiplatform case
-            // 1. Resolve kmp json metadata
-            val kotlinMetadataVariant = getKotlinMetadataVariant(validVariants)
+            val (kotlinMetadataVariant, kmpMetadataFile) =
+                detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level)
                 ?: return  // children list is empty in case kmp common variant is not resolved
 
-            val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant)
-                ?: return  // children list is empty in case kmp common variant file is not resolved
-
-            val kmpMetadataFile = getDependencyFile(this, kotlinMetadataFile)
-
-            if (kmpMetadataFile.isDownloadedOrDownload(level, context)) {
-                resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
-            } else {
-                messages.asMutable() += Message(
-                    "Kotlin metadata file ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is required for $this",
-                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
-                )
-            }
+            resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
         }
 
         state = level.state
+    }
+
+    private fun Dependency.toMavenDependency(context: Context, moduleMetadata: Module) : MavenDependency? {
+        val resolvedVersion = version.resolve()
+        if (resolvedVersion == null) {
+            reportDependencyVersionResolutionFailure(this, moduleMetadata)
+            return null
+        }
+        return context.createOrReuseDependency(group, module, resolvedVersion)
+    }
+
+    private suspend fun parseModuleMetadata(context: Context, level: ResolutionLevel): Module? {
+        if (moduleFile.isDownloadedOrDownload(level, context)) {
+            try {
+                return moduleFile.readText().parseMetadata()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                messages.asMutable() += Message(
+                    "Unable to parse metadata file $moduleFile",
+                    e.toString(),
+                    Severity.ERROR,
+                    e,
+                )
+            }
+        } else {
+            messages.asMutable() += Message(
+                "module file was not downloaded for $this",
+                context.settings.repositories.toString(),
+                if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
+            )
+        }
+        return null
+    }
+
+    private suspend fun detectKotlinMetadataLibrary(
+        context: Context,
+        platform: ResolutionPlatform,
+        moduleMetadata: Module?,
+        level: ResolutionLevel
+    ): Pair<Variant, DependencyFile>? {
+        val resolvedModuleMetadata = moduleMetadata
+            ?: parseModuleMetadata(context, level)
+            ?: return null
+
+        val kotlinMetadataVariant = getKotlinMetadataVariant(resolvedModuleMetadata.variants, platform)
+            ?: return null  // children list is empty in case kmp common variant is not resolved
+        val kotlinMetadataFile = getKotlinMetadataFile(kotlinMetadataVariant)
+            ?: return null  // children list is empty in case kmp common variant file is not resolved
+
+        val kmpMetadataDependencyFile = getDependencyFile(this, kotlinMetadataFile)
+
+        return (kotlinMetadataVariant to kmpMetadataDependencyFile).takeIf { it.second.isDownloadedOrDownload(level, context) }
+            ?: run {
+                messages.asMutable() += Message(
+                    "Kotlin metadata file ${kmpMetadataDependencyFile.nameWithoutExtension}.${kmpMetadataDependencyFile.extension} is required for $this",
+                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
+                )
+                null
+            }
     }
 
     private suspend fun resolveKmpLibrary(
@@ -388,14 +419,10 @@ class MavenDependency internal constructor(
         val kotlinProjectStructureMetadata = kmpMetadata.parseKmpLibraryMetadata()
 
         val allPlatformsVariants = context.settings.platforms.flatMap {
-            resolveVariants(
-                moduleMetadata,
-                context.settings.copy(scope = ResolutionScope.COMPILE),
-                it
-            ).withoutDocumentationAndMetadata
+            resolveVariants(moduleMetadata, context.settings, it).withoutDocumentationAndMetadata
         }.associateBy { it.name }
 
-        // Selecting source sets related to target platforms.
+        // Selecting source sets related to target platforms (intersection).
         val sourceSetsIntersection = kotlinProjectStructureMetadata.projectStructure.variants
             .filter { it.name in (allPlatformsVariants.keys + allPlatformsVariants.keys.map { it.removeSuffix("-published") }) }
             .map { it.sourceSet.toSet() }
@@ -403,12 +430,14 @@ class MavenDependency internal constructor(
                 if (it.isEmpty()) emptySet() else it.reduce { l1, l2 -> l1.intersect(l2) }
             }
 
-        // Transforming it right here, since it doesn't require network access.
+        // Transforming it right here, since it doesn't require network access in most cases.
         sourceSetsFiles = coroutineScope {
             kotlinProjectStructureMetadata.projectStructure.sourceSets
                 .filter { it.name in sourceSetsIntersection }
                 .map {
-                    async(Dispatchers.IO) { it.toDependencyFile(kmpMetadataFile, context, level) }
+                    async(Dispatchers.IO) {
+                        it.toDependencyFile(kmpMetadataFile, moduleMetadata, kotlinProjectStructureMetadata, context, level)
+                    }
                 }
         }.awaitAll()
             .mapNotNull { it }
@@ -456,8 +485,11 @@ class MavenDependency internal constructor(
                 null
             }
 
-    private fun getKotlinMetadataVariant(validVariants: List<Variant>): Variant? =
-        validVariants.singleOrNull { it.isMetadataApiElements() }
+    private fun getKotlinMetadataVariant(
+        validVariants: List<Variant>,
+        platform: ResolutionPlatform
+    ): Variant? =
+        validVariants.firstOrNull { it.isKotlinMetadata(platform) }
             ?: run {
                 messages.asMutable() += Message(
                     "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
@@ -468,11 +500,17 @@ class MavenDependency internal constructor(
             }
 
     companion object {
+        // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
         private fun Version.resolve() = strictly ?: requires ?: prefers
     }
 
+    // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
     private suspend fun SourceSet.toDependencyFile(
-        kmpMetadataFile: DependencyFile, context: Context, level: ResolutionLevel
+        kmpMetadataFile: DependencyFile,
+        moduleMetadata: Module,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
+        context: Context,
+        level: ResolutionLevel
     ): DependencyFile? {
         val group = kmpMetadataFile.dependency.group
         val module = kmpMetadataFile.dependency.module
@@ -485,13 +523,21 @@ class MavenDependency internal constructor(
             }
             ?: run {
                 messages.asMutable() += Message(
-                    "Kotlin metadata file hash sha1 coud not be resolved for maven dependency ${group}:${module}:${version},",
-                    severity = Severity.ERROR,
+                    "Kotlin metadata file hash sha1 could not be resolved for maven dependency ${group}:${module}:${version},",
+                    severity = if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.INFO,
                 )
                 return null
             }
 
         val sourceSetName = name
+
+        val kmpLibraryWithSourceSet = resolveKmpLibraryWithSourceSet(
+            sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level
+        )
+            ?: run {
+                logger.debug("SourceSet $sourceSetName for kotlin multiplatform library ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is not found")
+                return null
+            }
 
         val sourceSetFile = DependencyFile(
             kmpMetadataFile.dependency,
@@ -514,13 +560,13 @@ class MavenDependency internal constructor(
             tempFilePath = { with(sourceSetFile) { getTempFilePath() } },
         ) {
             try {
-                copyJarEntryDirToJar(it, sourceSetName, kmpMetadataFile.getPath()!!)
+                copyJarEntryDirToJar(it, sourceSetName, kmpLibraryWithSourceSet)
                 true
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 messages.asMutable() += Message(
-                    "Failed repackaging kotlin multiplatform library ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is required for $this",
+                    "Failed repackaging kotlin multiplatform library ${kmpLibraryWithSourceSet.name}",
                     severity = Severity.ERROR,
                     exception = e
                 )
@@ -530,6 +576,75 @@ class MavenDependency internal constructor(
 
         sourceSetFile.onFileDownloaded(targetPath)
         return sourceSetFile
+    }
+
+    /**
+     * This method return kotlin metadata library that contains given sourceSet.
+     *
+     * Usually, a kotlin metadata library contains both:
+     * - sourceSets' descriptor: META-INF/kotlin-project-structure-metadata.json
+     * - and sourceSets itself
+     *
+     * And in that case,
+     * a path of the given kmpMetadataFile (representing the kotlin metadata library) is simply returned.
+     *
+     * But iOS sourceSet might be missing (for historical reasons);
+     * in that case, sourceSets are stored in platform-specific kotlin metadata variants.
+     * This method resolves such a platform-specific library and returns its path.
+     *
+     *  For example, let's consider library
+     *  org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01
+     *
+     *  Its kotlin metadata variant defines sourceSet 'uikitMain', but it doesn't include sourceSet itself.
+     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit/1.6.10-rc01/ui-uikit-1.6.10-rc01.jar),
+     *
+     *  Instead, sourceSet 'uikitMain' is included in the kotlin metadata variant of
+     *  EACH platform-specific dependency of the ui-uikit common library
+     *  (for instance, in org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10-rc01)
+     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit-uikitarm64/1.6.10-rc01/ui-uikit-uikitarm64-1.6.10-rc01-metadata.jar)
+     */
+    private suspend fun resolveKmpLibraryWithSourceSet(
+        sourceSetName: String,
+        kmpMetadataFile: DependencyFile,
+        context: Context,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
+        moduleMetadata: Module,
+        level: ResolutionLevel
+    ) = if (hasJarEntry(kmpMetadataFile.getPath()!!, sourceSetName) == true) {
+        kmpMetadataFile.getPath()!!
+    } else {
+        val contextIosPlatforms = allIosPlatforms.intersect(context.settings.platforms)
+        if (contextIosPlatforms.isNotEmpty()) {
+            // 1. Find names of all variants that declare this sourceSet
+            val variantsWithSourceSet = kotlinProjectStructureMetadata.projectStructure.variants
+                .filter { it.sourceSet.contains(sourceSetName) }
+                .map { it.name }
+
+            // 2. Find iOS variants for actual iOS platforms
+            val iosVariants = contextIosPlatforms.flatMap { platform ->
+                resolveVariants(moduleMetadata, context.settings, platform)
+                    .withoutDocumentationAndMetadata
+                    .map { it to platform }
+            }
+
+            iosVariants.firstOrNull {
+                // 3. Filter the first iOS variant that declares sourceSet
+                it.first.name.removeSuffix("-published") in variantsWithSourceSet
+            }?.let {
+                val platform = it.second
+                // 4. Try to download artifact from that variant and resolve dependency from that
+                it.first
+                    .`available-at`
+                    ?.asDependency()
+                    ?.toMavenDependency(context, moduleMetadata)
+                    ?.let {
+                        val depModuleMetadata = it.parseModuleMetadata(context, level)
+                        it.detectKotlinMetadataLibrary(context, platform, depModuleMetadata, level)
+                    }?.let {
+                        it.second.getPath()?.takeIf { hasJarEntry(it, sourceSetName) == true }
+                    }
+            }
+        } else null
     }
 
     private fun resolveVariants(
@@ -556,7 +671,7 @@ class MavenDependency internal constructor(
         messages.asMutable() += Message(
             "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
                     "depends on ${dependency.group}:${dependency.module}, but version of the dependency could not be resolved: " +
-                    "neither 'requires' nor 'prefers' attributes are defined",
+                    "neither 'requires' nor 'prefers' nor 'strictly' attributes are defined",
             severity = Severity.ERROR
         )
     }
@@ -720,3 +835,5 @@ class MavenDependency internal constructor(
 }
 
 internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
+
+private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
