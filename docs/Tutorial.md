@@ -81,8 +81,8 @@ Examples: JVM "Hello, World!" ([standalone](../examples-standalone/jvm), [Gradle
 
 Documentation:
 
-- [Using standalone Amper](Usage.md#using-the-standalone-amper-version-from-command-line)
-- [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-command-line)
+- [Using standalone Amper](Usage.md#using-the-standalone-amper-version-from-the-command-line)
+- [Using Gradle-based Amper](Usage.md#using-the-gradle-based-amper-version-from-the-command-line)
 - [Project layout](Documentation.md#project-layout)
 - [module file anatomy](Documentation.md#module-file-anatomy)
 
@@ -349,7 +349,7 @@ Documentation:
 - [Module dependencies](Documentation.md#module-dependencies)
 - [Dependency visibility and scope](Documentation.md#scopes-and-visibility)
 
-### Step 7. Make project multi-platform
+### Step 7. Make project multiplatform
 
 So far we've been working with a JVM platform to create a desktop application.
 Let's add an Android and an iOS application.
@@ -428,7 +428,7 @@ settings:
 Note how we used the `dependencies@jvm:` and `dependencies@android:` sections to specify JVM- and Android-specific dependencies.
 These dependencies will be added to the JVM and Android versions of the `shared` library correspondingly.
 They will also be available for the `jvm-app` and `android-app` modules, since they depend on the `shared` module.
-Read more about multi-platform configuration in the [documentation](Documentation.md#multi-platform-configuration). 
+Read more about multiplatform configuration in the [documentation](Documentation.md#multiplatform-configuration).
 
 Now, as we have the module structure, we need to add platform-specific application code to the Android and iOS modules.
 Create a `MainActivity.kt` file in `android-app/src` with the following content:
@@ -512,7 +512,7 @@ Examples: Compose Multiplatform
 [Gradle-based](../examples-gradle/compose-multiplatform))
 
 Documentation:
-- [Multi-platform configuration](Documentation.md#multi-platform-configuration)
+- [Multiplatform configuration](Documentation.md#multiplatform-configuration)
 - [Configuring Compose Multiplatform](Documentation.md#configuring-compose-multiplatform)
 
 

@@ -19,21 +19,23 @@ and more. At the current stage, however, the focus is primarily on configuring p
 use case is Kotlin and Kotlin Multiplatform, Amper also supports Java and Swift (as a requirement for multiplatform).
 However, the same approach to configuration could work for other languages and technology stacks in the future.
 
-Amper exists as a standalone build tool and also as a Gradle plugin for existing Gradle-based projects. 
-Both versions offer a unified easy-to-use declarative configuration format.
+Amper exists as a standalone build tool as well as a Gradle plugin for existing Gradle-based projects.
+Both versions offer a unified, easy-to-use, declarative configuration format.
 
 Supported features:
 * Creating and running JVM, Android, iOS, Linux, and macOS applications.
 * Creating Kotlin Multiplatform libraries.
 * Running tests.
 * Mixing Kotlin, Java and Swift code.
+* Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
 * [Multi-module](docs/Documentation.md#module-dependencies) projects.
 * Using [Compose Multiplatform](docs/Documentation.md#configuring-compose-multiplatform).
-* (Gradle-based projects only) Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources).
-* (Gradle-based projects only) [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project.
-* (Gradle-based projects only) Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs).
-* (Gradle-based projects only) [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects.
-* Code assistance for [module files](docs/Documentation.md#module-file-anatomy) in IntelliJ IDEA and Fleet.
+* Using Compose [multiplatform resources](docs/Documentation.md#using-multiplatform-resources)*.
+* [Gradle interop](docs/Documentation.md#gradle-interop), including combining Amper and Gradle modules in one project*.
+* Integration with [Gradle version catalogs](docs/Documentation.md#dependencyversion-catalogs)*.
+* [Gradle-compatible project layout](docs/Documentation.md#file-layout-with-gradle-interop) for the smooth migration of existing Gradle projects*.
+
+*\* only in Gradle-based projects*
 
 Future directions:
 * Support for more Kotlin and Kotlin Multiplatform scenarios and configurations.
@@ -64,8 +66,8 @@ There are multiple ways to try Amper:
 
 * In the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/), for JVM and Android projects ([instructions](docs/Usage.md#using-amper-in-intellij-idea)).
 * In the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/), for the JVM, Android, and Kotlin Multiplatform projects ([instructions](docs/Usage.md#using-amper-in-fleet)).
-* Using [standalone Amper from command line](docs/Usage.md#using-the-standalone-amper-version-from-command-line).
-* Using [Gradle-Based Amper from command line](docs/Usage.md#using-the-gradle-based-amper-version-from-command-line) to build Gradle-based Amper projects.
+* Using [standalone Amper from command line](docs/Usage.md#using-the-standalone-amper-version-from-the-command-line).
+* Using [Gradle-Based Amper from command line](docs/Usage.md#using-the-gradle-based-amper-version-from-the-command-line) to build Gradle-based Amper projects.
 
 ## Examples
 
