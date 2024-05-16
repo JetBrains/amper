@@ -1562,7 +1562,7 @@ In case of a multi-module projects, the `settings.gradle.kts` should be placed i
 |-settings.gradle.kts
 ```
 
-Amper needs to be added in the `settings.gradle.kts` and Amper modules explicitly specfied:
+Amper needs to be added in the `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
