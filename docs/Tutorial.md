@@ -247,7 +247,7 @@ It will have the following structure:
 ```
 
 We also add `project.yaml` file in the root, next to the existing `amper` and `amper.bat` files. 
-It will help Amper find all modules in the project:
+It will help Amper find the root and the modules in the project:
 ```
 |-jvm-app/
 |  |-...
@@ -260,13 +260,6 @@ It will help Amper find all modules in the project:
 |-project.yaml
 ```
 
-After that add the module to the `project.yaml` file:
-
-```yaml
-modules:
-  - ./jvm-app
-  - ./lib
-```
 Read more about the [project layout](Documentation.md#project-layout)
 
 > In the case of a [Gradle-based project](Documentation.md#gradle-based-projects), 
@@ -285,14 +278,6 @@ Read more about the [project layout](Documentation.md#project-layout)
 > |-gradlew
 > |-gradlew.bat
 > ```
->
-> Add modules to the `settings.gradle.kts` file:
-> ```kotlin
-> // ... existing code in the settings.gradle.kts file ...
-> 
-> // add new modules to the project
-> include("jvm-app", "shared")
-> ``` 
 >
 > Read more about the [project layout](Documentation.md#project-layout)
 
@@ -388,23 +373,6 @@ Here is the project structure that we need:
 |-shared/
 |  |-...
 ```
-
-Don't forget to add the new modules into the `project.yaml` file:
-
-```yaml
-modules:
-  - ./android-app
-  - ./ios-app
-  - ./jvm-app
-  - ./shared   
-```
-
-> In case of a Gradle-based Amper project, into the `settings.gradle.kts` file:
-> ```kotlin
-> // add new modules to the project
-> include("android-app", "ios-app", "jvm-app", "shared")
-> ``` 
-
 
 The `android-app/module.yaml` will look like this way:
 ```YAML

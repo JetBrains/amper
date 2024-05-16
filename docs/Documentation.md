@@ -11,9 +11,9 @@ Certain functionality and behavior might differ between the standalone and Gradl
 See the usage instructions for the [standalone Amper version](Usage.md#using-the-standalone-amper-version-from-command-line) and for
 the [Gradle-based version](Usage.md#using-the-gradle-based-amper-version-from-command-line).
 
-An Amper **project** in is defined by a `project.yaml` file. This file contains the list of modules and the project-wide
-configuration. The folder with the `project.yaml` file is the project root. Modules can only be located under the
-project root. If there is only one module in the project, `project.yaml` file is not required.
+An Amper **project** in is defined by a `project.yaml` file. 
+The folder with the `project.yaml` file is the project root. Modules can only be located under the project root.
+If there is only one module in the project, `project.yaml` file is not required.
 
 > In the Gradle-based projects, a `settings.gradle.kts' file is used instead of a `project.yaml` file. 
 
@@ -44,7 +44,7 @@ Basic single-module Amper project looks like this:
 |-module.yaml
 ```
 
-If there are multiple modules, the `project.yaml` file specifies the list of modules:
+If there are multiple modules, the `project.yaml` file is required at the project root:  
 
 ```
 |-app/
@@ -57,14 +57,6 @@ If there are multiple modules, the `project.yaml` file specifies the list of mod
 |  |  |-util.kt      
 |  |-module.yaml
 |-project.jaml
-```
-
-The `project.yaml` file:
-
-```yaml
-modules:
-  - ./app
-  - ./lib
 ```
 
 In a Gradle-based project the `settings.gradle.kts` is expected instead of a `project.yaml` file.
@@ -1589,9 +1581,6 @@ plugins {
     // Add the plugin
     id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-572")
 }
-
-// add Amper modules to the project
-include("app", "lib")
 ```
 
 ### Gradle interop
