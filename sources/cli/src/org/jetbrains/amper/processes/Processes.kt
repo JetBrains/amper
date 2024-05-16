@@ -39,7 +39,7 @@ class ProcessResult(
  * [outputListener] can be used to handle lines of output on the fly while the process
  * is running (for instance to print them to the console).
  *
- * **Important: ** the stream collection is performed on the current coroutine context, the dispatcher of which must
+ * **Important:** the stream collection is performed on the current coroutine context, the dispatcher of which must
  * provide **at least 2 threads** (to perform blocking reads of stdout and stderr in parallel). It is the responsibility
  * of the caller to provide a suitable dispatcher.
  *
@@ -137,7 +137,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
         }
     } catch (e: Throwable) {
         // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.
-        // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on the best effort basis.
+        // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on a best-efforts basis.
         killAndAwaitTermination(gracePeriod)
         throw e
     }
