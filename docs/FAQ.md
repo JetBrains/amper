@@ -1,9 +1,9 @@
 
 ### Is Amper a brand-new build tool from JetBrains?
 
-Yes, Amper is a project configuration and build tool with a focus on the user experience and the IDE support.
-Amper exists as a standalone build tool and also as a Gradle plugin for existing Gradle-based projects. 
-Both versions offer a unified easy-to-use declarative configuration format.
+Yes, Amper is a project configuration and build tool with a focus on user experience and IDE support.
+Amper exists as a standalone build tool as well as a Gradle plugin for existing Gradle-based projects.
+Both versions offer a unified, easy-to-use, declarative configuration format.
 
 ### Do you plan to support only Kotlin?
 
@@ -33,9 +33,9 @@ plugins and tasks as usual. See the documentation on the [Gradle interop](Docume
 
 ### Can I write a custom task or use a plugin?
 
-Extensibility is not currently implemented in the standalone Amper version, but we are working on it.
-Meanwhile, in the Gradle-based Amper projects, you can use any available Gradle plugin and write custom tasks. 
-See the documentation on the [Gradle interop](Documentation.md#gradle-interop).
+Extensibility is not currently implemented in Amper, but we are working on it.
+Meanwhile, in Gradle-based Amper projects, you can use any available Gradle plugin and write custom tasks.
+See the documentation on [Gradle interop](Documentation.md#gradle-interop).
 
 ### Will Amper be open source?
 Yes, Amper is already open source.
@@ -64,10 +64,10 @@ join our [Slack channel](https://kotlinlang.slack.com/archives/C062WG3A7T8) for 
 
 ### Is there an automated migration tool?
 
-Not currently, but it certainly is something we’re looking into. See the [Gradle migration tutorial](GradleMigration.md)
+Not currently, but it's certainly something we’re looking into. See the [Gradle migration tutorial](GradleMigration.md)
 and examples.
 
-### Why don’t you use Kotlin for the Amper configuration files?
+### Why don’t you use Kotlin for Amper's configuration files?
 
 Currently, we use YAML as a simple and readable markup language. It allows us to experiment with the UX and the IDE
 support much faster. We’ll review the language choice as we proceed with the design and based on demand. The Kotlin DSL,
@@ -81,17 +81,17 @@ Our final language choice will be made based on the overall UX it provides.
 
 ### Why is Gradle used as the build engine?
 
-In the initial Amper prototype, our main focus was improving the build configuration user experience and toolability.
+In the initial Amper prototype, our main focus was improving the user experience and toolability of build configuration.
 Gradle, as a well-tested build engine, allowed us to start experimenting with the UX of the configuration very quickly.
 What’s more, smooth interoperability with Gradle allows for the use of Amper in existing projects, which is important if
 we want to get feedback from real-world use cases.
 
-Amper also exists as a standalone tool which allows us to improve the IDE support and workflows even further.
+Amper also exists as a standalone build tool, which allows us to improve the IDE support and workflows even further.
 
 ### Why not simply improve Gradle?
 
 We believe there is room to improve the project configuration experience and IDE support.
-With Amper we want to show you our design and get your feedback, as it will help us to decide which direction to take
+With Amper, we want to show you our design and get your feedback, as it will help us to decide which direction to take
 the design.
 
 At the same time, we are also [working with the Gradle team](https://blog.gradle.org/declarative-gradle) to improve
@@ -99,11 +99,11 @@ Gradle support in our IDEs and Gradle itself.
 
 ### What about Gradle extensibility and plugins?
 
-We aim to support most of the Kotlin and Kotlin Multiplatform use cases out of the box, 
+We aim to support most the Kotlin and Kotlin Multiplatform use cases out of the box,
 and offer a reasonable level of extensibility.
 
 In addition to the standalone version, Amper is offered as a Gradle plugin.  
-Gradle-based Amper offers the full interoperability with Gradle, allows using Gradle plugins and write custom tasks.
+Gradle-based Amper offers full interoperability with Gradle, including the use of Gradle plugins and writing custom tasks.
 
 
 

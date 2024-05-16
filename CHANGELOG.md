@@ -1,6 +1,6 @@
 ## 0.3.0
 
-* Standalone version of Amper. See the [usage instructions](docs/Usage.md#using-amper-from-command-line).
+* Standalone version of Amper. See the [usage instructions](docs/Usage.md#using-the-standalone-amper-version-from-the-command-line).
   * Build, test, and run JVM and Android applications in CLI and Fleet.
   * iOS support is on the way.
   * Standalone Amper can automatically download and configure the build environment, such as JDK, Android SDK.

@@ -1,4 +1,4 @@
-See the [instructions how to use Amper CLI](../../docs/Usage.md#using-amper-from-command-line) 
+See the [instructions how to use Amper CLI](../../docs/Usage.md#using-amper-from-the-command-line) 
 
 ## Troubleshooting
 
