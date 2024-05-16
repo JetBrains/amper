@@ -9,6 +9,7 @@ import com.android.build.gradle.internal.lint.LintModelWriterTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
+import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
@@ -34,7 +35,7 @@ class SettingsPluginRun(
 
         // Adjust compose plugin dynamically.
         val chosenComposeVersion = chooseComposeVersion(model)
-        if (chosenComposeVersion != null) {
+        if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
             settings.pluginManagement {
                 it.plugins.id("")
             }

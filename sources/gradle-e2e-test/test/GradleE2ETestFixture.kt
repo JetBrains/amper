@@ -59,17 +59,19 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         expectOutputToHave: String,
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
+        gradleVersion: String = "8.6",
         additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
         test(
             projectName,
             buildArguments = buildArguments,
-            listOf(expectOutputToHave),
-            shouldSucceed,
-            checkForWarnings,
-            additionalEnv,
-            additionalCheck,
+            expectOutputToHave = listOf(expectOutputToHave),
+            shouldSucceed = shouldSucceed,
+            checkForWarnings = checkForWarnings,
+            gradleVersion = gradleVersion,
+            additionalEnv = additionalEnv,
+            additionalCheck = additionalCheck,
         )
     }
 
@@ -79,6 +81,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         expectOutputToHave: Collection<String> = emptyList(),
         shouldSucceed: Boolean = true,
         checkForWarnings: Boolean = true,
+        gradleVersion: String = "8.6",
         additionalEnv: Map<String, String> = emptyMap(),
         additionalCheck: TestResultAsserter.() -> Unit = {},
     ) {
@@ -88,7 +91,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         newEnv["ANDROID_HOME"] = androidHome.pathString
         val runner = gradleRunner
         val projectConnector = runner
-            .useGradleVersion("8.6")
+            .useGradleVersion(gradleVersion)
             .forProjectDirectory(tempDir.toFile())
             .connect()
         val stdout = ByteArrayOutputStream()

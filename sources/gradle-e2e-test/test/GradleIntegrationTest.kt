@@ -167,6 +167,14 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     )
 
     @Test
+    fun `compose desktop with Gradle 8_7`() = test(
+        projectName = "compose-desktop",
+        "assemble",
+        expectOutputToHave = "BUILD SUCCESSFUL",
+        gradleVersion = "8.7",
+    )
+
+    @Test
     fun `compose android`() = test(
         projectName = "compose-android",
         "build",
@@ -471,6 +479,15 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         projectName = "compose-dev-version-change",
         "assemble",
         expectOutputToHave = "BUILD SUCCESSFUL",
+    )
+
+    @Test
+    fun `compose dev version change with Gradle 8_7 should fail`() = test(
+        projectName = "compose-dev-version-change",
+        "assemble",
+        expectOutputToHave = "Amper does not support custom Compose versions with Gradle > 8.6 (current is 8.7)",
+        shouldSucceed = false,
+        gradleVersion = "8.7",
     )
 
     @Test
