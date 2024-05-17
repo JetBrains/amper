@@ -41,7 +41,7 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
         maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-        ${if (fromSources) "" else "maven(\"https://packages.jetbrains.team/maven/p/amper/amper\")"}
+        ${if (fromSources) "" else "maven(\"https://maven.pkg.jetbrains.space/public/p/amper/amper\")"}
         ${if (fromSources) "" else "maven(\"https://maven.pkg.jetbrains.space/public/p/amper/amper\")"}
     }
 }

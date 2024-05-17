@@ -172,7 +172,7 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
             repositories = listOf(
                 Repository().apply {
                     id = "scratch"
-                    url = "https://packages.jetbrains.team/maven/p/amper/amper"
+                    url = "https://maven.pkg.jetbrains.space/public/p/amper/amper"
                     publish = true
                     credentials = Repository.Credentials().apply {
                         usernameKey = "tName"

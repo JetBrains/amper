@@ -15,7 +15,7 @@ pluginManagement {
         // mavenLocal()
 
         // For published version
-        maven("https://packages.jetbrains.team/maven/p/amper/amper")
+        maven("https://maven.pkg.jetbrains.space/public/p/amper/amper")
 
         // For idea api dependencies
         maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
@@ -31,5 +31,5 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-572")
+    id("org.jetbrains.amper.settings.plugin").version("0.3.0-dev-577")
 }

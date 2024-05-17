@@ -88,7 +88,7 @@ test-dependencies:
 
 repositories:
   - id: scratch
-    url: https://packages.jetbrains.team/maven/p/amper/amper
+    url: https://maven.pkg.jetbrains.space/public/p/amper/amper
     publish: true
     credentials:
       file: local.properties

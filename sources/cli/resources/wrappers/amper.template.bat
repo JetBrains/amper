@@ -11,7 +11,7 @@
 setlocal
 
 set amper_version=@AMPER_VERSION@
-set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
+set amper_url=https://maven.pkg.jetbrains.space/public/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 set amper_sha256=@AMPER_DIST_SHA256@
