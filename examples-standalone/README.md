@@ -7,10 +7,10 @@ information on how to get started.
 
 | Example               | Download                                                                                                                             |
 |-----------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/compose-multiplatform) |
-| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/compose-android)       |
-| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/compose-desktop)       |
-| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/compose-ios)           |
-| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/jvm)                   |
-| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=release/0.3&path=/examples-standalone/new-project-template)  |
+| Compose Multiplatform | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/compose-multiplatform) |
+| Compose Android       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/compose-android)       |
+| Compose Desktop       | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/compose-desktop)       |
+| Compose iOS           | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/compose-ios)           |
+| JVM "Hello, World"    | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/jvm)                   |
+| New Project Template  | [ZIP](https://hoover.fly.dev/download-zip/repo?user=JetBrains&name=amper&branch=main&path=/examples-standalone/new-project-template)  |
 
