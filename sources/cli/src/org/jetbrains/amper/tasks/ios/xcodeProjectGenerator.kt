@@ -41,7 +41,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
     buildType: BuildType,
     appleSources: Set<File>,
     frameworkDependencies: List<File>,
-): Path? {
+): Path {
     val platform = fragment.platform
     val productModuleName = "iosApp"
     val applePlatform = AppleSdkManager.getInstance().findPlatformByType(fragment.platform)

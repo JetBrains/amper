@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -55,26 +56,30 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         AmperBackend(projectContext).run {
             assertHasTasks(
                 jvmBaseTasks + jvmTestTasks +
-//                      TODO uncomment when  AMPER-526 is fixed
- //                     iosBaseTasks + iosTestTasks +
+                        iosLibraryTasks +
                         androidBaseTasks + androidTestTasks,
                 module = "shared"
             )
             assertHasTasks(androidAppTasks, module = "android-app")
             assertHasTasks(jvmAppTasks, module = "jvm-app")
-
-//          TODO uncomment when  AMPER-526 is fixed
-//            assertHasTasks(iosAppTasks, module = "ios-app")
+            assertHasTasks(iosAppTasks, module = "ios-app")
         }
 
-        // TODO handle ios app compilation, currently it fails with this error:
-        //   error: could not find 'main' in '<root>' package.
-//        AmperBackend(projectContext).compile()
-//
-//        kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
-//        kotlinJvmCompilationSpans.withAmperModule("android-app").assertSingle()
-//        kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
-//        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertSingle()
+        // TODO Dont compose ios app for non simulator platform, until signing is handled.
+        val usedPlatforms = setOf(Platform.JVM, Platform.ANDROID, Platform.IOS_SIMULATOR_ARM64)
+        AmperBackend(projectContext).compile(usedPlatforms)
+
+        // main/test for Jvm + main/test * debug/release for Android.
+        kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(6)
+
+        // debug/release for Android (no test sources).
+        kotlinJvmCompilationSpans.withAmperModule("android-app").assertTimes(2)
+
+        // main for Jvm (no test sources).
+        kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
+
+        // library + framework for Ios.
+        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(2)
     }
 
     @Test
@@ -112,16 +117,13 @@ private val jvmBaseTasks = listOf("compileJvm", "resolveDependenciesJvm")
 private val jvmTestTasks = listOf("compileJvmTest", "resolveDependenciesJvmTest")
 private val jvmAppTasks = jvmBaseTasks + listOf("runJvm")
 
-private val iosBaseTasks = listOf(
-    "compileIosArm64",
+private val iosLibraryTasks = listOf(
     "compileIosSimulatorArm64",
-    "compileIosX64",
 )
-private val iosAppTasks = iosBaseTasks
-private val iosTestTasks = listOf(
-    "compileIosArm64Test",
-    "compileIosSimulatorArm64Test",
-    "compileIosX64Test",
+private val iosAppTasks = iosLibraryTasks + listOf(
+    "frameworkIosSimulatorArm64",
+    "buildIosAppIosSimulatorArm64",
+    "runIosAppIosSimulatorArm64",
 )
 
 private val androidBaseTasks = listOf(

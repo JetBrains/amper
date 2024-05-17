@@ -41,7 +41,10 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 isTest = false,
                 compilationType = KotlinCompilationType.IOS_FRAMEWORK,
             ),
-            ProjectTasksBuilder.Companion.CommonTaskType.Dependencies.getTaskName(module, platform, false)
+            listOf(
+                CommonTaskType.Compile.getTaskName(module, platform, false),
+                CommonTaskType.Dependencies.getTaskName(module, platform, false),
+            )
         )
 
         val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)

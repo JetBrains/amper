@@ -206,7 +206,8 @@ internal fun withBackend(
 
             // TODO output version, os and some env to log file only
             projectContext.terminal.println(AmperBuild.banner)
-            projectContext.terminal.println("Logs are in ${projectContext.buildLogsRoot.path}")
+            val printableLogsPath = projectContext.buildLogsRoot.path.toString().replaceWhitespaces()
+            projectContext.terminal.println("Logs are in file://$printableLogsPath")
             projectContext.terminal.println()
 
             if (commonOptions.asyncProfiler) {
@@ -220,6 +221,8 @@ internal fun withBackend(
         cancelAndWaitForScope(backgroundScope)
     }
 }
+
+private fun String.replaceWhitespaces() = replace(" ", "%20")
 
 private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper project") {
     val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()

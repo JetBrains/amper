@@ -44,9 +44,10 @@ class AmperExamples1Test: AmperCliTestBase() {
     }
 
     @Test
-    @Ignore("AMPER-534 Can't build a basic iOS project")
     fun `compose-ios`() = runTestInfinitely {
-        runCli(projectName, "build")
+        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
+        // that are treated like errors.
+        runCli(projectName, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
         // TODO Can we run it somehow?
     }
 

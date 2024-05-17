@@ -1,6 +1,8 @@
 # Have feedback? Share it here https://surveys.jetbrains.com/s3/Amper-feedback-form
 
-product: ios/app
+product:
+  type: ios/app
+  platforms: [ iosSimulatorArm64 ]
 
 dependencies:
   - ../shared

@@ -30,7 +30,7 @@ data class FilteredSpans(
 
     fun assertTimes(times: Int): List<SpanData> {
         assertFalse(matchingSpans.isEmpty(), "No span matching the filters: $filtersDescription")
-        assertEquals(matchingSpans.size, times, "Not exactly $times spans matching the filters: $filtersDescription")
+        assertEquals(times, matchingSpans.size, "Not exactly $times spans matching the filters: $filtersDescription")
         return matchingSpans
     }
 

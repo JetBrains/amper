@@ -80,6 +80,9 @@ abstract class AmperIntegrationTestBase {
     protected val javaCompilationSpans: FilteredSpans
         get() = openTelemetryCollector.spansNamed("javac")
 
+    protected val kotlinNativeCompilationSpans: FilteredSpans
+        get() = openTelemetryCollector.spansNamed("konanc")
+
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
     init {

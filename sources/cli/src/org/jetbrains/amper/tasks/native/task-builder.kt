@@ -27,26 +27,29 @@ private fun isIosApp(platform: Platform, module: PotatoModule) =
 
 fun ProjectTaskRegistrar.setupNativeTasks() {
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
-        // Skip native compilation of ios/app modules, since it is handled in [ios.task-builder.kt].
-        if (isIosApp(platform, module)) return@onEachTaskType
-
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
-        registerTask(
-            NativeCompileTask(
-                module = module,
-                platform = platform,
-                userCacheRoot = context.userCacheRoot,
-                taskOutputRoot = context.getTaskOutputPath(compileTaskName),
-                executeOnChangedInputs = executeOnChangedInputs,
-                taskName = compileTaskName,
-                tempRoot = context.projectTempRoot,
-                isTest = isTest,
-                terminal = context.terminal,
-            ),
-            CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
-        )
+        // Don't create compilations for ios tests yet.
+        val isIosApp = isIosApp(platform, module)
+        if (!isIosApp || !isTest) {
+            registerTask(
+                NativeCompileTask(
+                    module = module,
+                    platform = platform,
+                    userCacheRoot = context.userCacheRoot,
+                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    taskName = compileTaskName,
+                    tempRoot = context.projectTempRoot,
+                    isTest = isTest,
+                    terminal = context.terminal,
+                    // Do native compilation of ios/app modules as libraries for ios apps to use it further in linking.
+                    compilationType = if (isIosApp) KotlinCompilationType.LIBRARY else null
+                ),
+                CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+            )
+        }
 
-        if (module.type.isApplication() && !isTest) {
+        if (!isIosApp && (module.type.isApplication() && !isTest)) {
             // Application compilation generates executable file which is not usable for tests compilation
             // Let's prepare separate klib, which will be linked to test code
 
@@ -69,20 +72,23 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
     }
 
     onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
-        // Skip native compilation of ios/app modules, since it is handled in [ios.task-builder.kt].
-        if (isIosApp(platform, module)) return@onCompileModuleDependency
-
-        if (isTest) {
+        val isIosApp = isIosApp(platform, module)
+        if (isTest && !isIosApp) {
             registerDependency(
                 CommonTaskType.Compile.getTaskName(module, platform, true),
                 CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
             )
         } else {
             // Two prod compile configurations, one is building an app, another is building klib for linking with tests
-            for (compileTaskName in setOf(
-                getProductionSourcesForTestsCompileTaskName(module, platform),
-                CommonTaskType.Compile.getTaskName(module, platform, false))
-            ) {
+            val compileTasks =
+                if (isIosApp) {
+                    setOf(CommonTaskType.Compile.getTaskName(module, platform, false))
+                } else setOf(
+                    CommonTaskType.Compile.getTaskName(module, platform, false),
+                    getProductionSourcesForTestsCompileTaskName(module, platform)
+                )
+
+            for (compileTaskName in compileTasks) {
                 registerDependency(
                     compileTaskName,
                     CommonTaskType.Compile.getTaskName(dependsOn, platform, false)

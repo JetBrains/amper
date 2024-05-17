@@ -32,6 +32,7 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult.Companion.walkDependenciesRecursively
@@ -93,6 +94,14 @@ class NativeCompileTask(
                 externalDependencies.sorted().joinToString("\n").prependIndent("  ")
         )
 
+        // TODO Rethink this approach.
+        // Check if we are inside framework compilation, so there is connected dylib compilation.
+        val compileSameModule = ProjectTasksBuilder.Companion.CommonTaskType.Compile.getTaskName(module, platform, isTest)
+        val includeDependency = dependenciesResult
+            .filterIsInstance<TaskResult>()
+            .firstOrNull { it.taskName == compileSameModule }
+        val includeArtifact = includeDependency?.artifact
+
         val compiledModuleDependencies = dependenciesResult
             .filterIsInstance<TaskResult>()
             .flatMap { it.walkDependenciesRecursively<TaskResult>() + it }
@@ -143,9 +152,7 @@ class NativeCompileTask(
             val finalCompilationType = compilationType
                 ?: if (module.type.isLibrary() && !isTest) KotlinCompilationType.LIBRARY else KotlinCompilationType.BINARY
 
-            val artifactExtension = finalCompilationType.extension(platform)
-
-            val artifact = taskOutputRoot.path.resolve(module.userReadableName + artifactExtension)
+            val artifact = finalCompilationType.output(taskOutputRoot.path, module, platform)
 
             val libraryPaths = compiledModuleDependencies + externalDependencies.filter { !it.pathString.endsWith(".jar") }
 
@@ -170,6 +177,7 @@ class NativeCompileTask(
                     sourceFiles = rootsToCompile,
                     outputPath = artifact,
                     compilationType = finalCompilationType,
+                    include = includeArtifact
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
@@ -238,12 +246,14 @@ class NativeCompileTask(
         return TaskResult(
             dependencies = dependenciesResult,
             artifact = artifact,
+            taskName = taskName,
         )
     }
 
     class TaskResult(
         override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
         val artifact: Path,
+        val taskName: TaskName,
     ) : org.jetbrains.amper.tasks.TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

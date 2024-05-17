@@ -6,6 +6,7 @@ package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.CompileTask
 import java.io.File
@@ -106,11 +107,16 @@ enum class KotlinCompilationType(val argName: String) {
     BINARY("program"),
     IOS_FRAMEWORK("framework");
 
-    fun extension(platform: Platform): String = when {
-        this == LIBRARY -> ".klib"
-        this == IOS_FRAMEWORK -> ".framework"
-        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> ".exe"
-        else -> ".kexe"
+    fun output(root: Path, module: PotatoModule, platform: Platform): Path = when {
+        this == LIBRARY -> root.resolve("${module.userReadableName}.klib")
+        this == IOS_FRAMEWORK -> root.resolve("kotlin.framework")
+        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> root.resolve("${module.userReadableName}.exe")
+        else -> root.resolve("${module.userReadableName}.kexe")
+    }
+
+    fun moduleName(module: PotatoModule): String? = when(this) {
+        IOS_FRAMEWORK -> null
+        else -> module.userReadableName
     }
 }
 
@@ -123,6 +129,7 @@ internal fun kotlinNativeCompilerArgs(
     sourceFiles: List<Path>,
     outputPath: Path,
     compilationType: KotlinCompilationType,
+    include: Path?
 ): List<String> = buildList {
     if (kotlinUserSettings.debug) {
         add("-g")
@@ -134,8 +141,12 @@ internal fun kotlinNativeCompilerArgs(
     add(compilationType.argName)
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
-    add("-module-name")
-    add(module.userReadableName)
+    val moduleName = compilationType.moduleName(module)
+    if (moduleName != null) {
+        add("-module-name")
+        add(moduleName)
+    }
+
 
     add("-target")
     add(platform.name.lowercase())
@@ -157,12 +168,17 @@ internal fun kotlinNativeCompilerArgs(
     // Common args last, because they contain free compiler args
     addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, compilerPlugins))
 
+    if (include != null) add("-Xinclude=${include.pathString}")
+
     // -output is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // TODO forbid -output in freeCompilerArgs in the frontend, so it's clearer for the users
     add("-output")
     add(outputPath.pathString)
 
-    addAll(sourceFiles.map { it.pathString })
+    // Skip adding sources to `IOS_FRAMEWORK`, since it will use `-Xinclude` argument instead.
+    if (compilationType != KotlinCompilationType.IOS_FRAMEWORK) {
+        addAll(sourceFiles.map { it.pathString })
+    }
 }
 
 // https://github.com/JetBrains/kotlin/blob/v1.9.23/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2MetadataCompilerArguments.kt

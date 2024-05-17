@@ -38,8 +38,9 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     private val konancSpans: FilteredSpans
         get() = openTelemetryCollector.spansNamed("konanc")
 
-    private fun FilteredSpans.assertZeroExitCode() =
-        assertSingle().getAttribute(AttributeKey.longKey("exit-code")).let { assertEquals(0, it) }
+    private fun FilteredSpans.assertZeroExitCode(times: Int = 1) = assertTimes(times).forEach {
+        assertEquals(0, it.getAttribute(AttributeKey.longKey("exit-code")))
+    }
 
     @Test
     @MacOnly
@@ -48,7 +49,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        konancSpans.assertZeroExitCode()
+        konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
@@ -58,7 +59,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        konancSpans.assertZeroExitCode()
+        konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
@@ -86,7 +87,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosSimulatorArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        konancSpans.assertZeroExitCode()
+        konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
@@ -96,7 +97,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         val task = "frameworkIosArm64"
         val projectContext = setupIosTestProject(projectName, backgroundScope = backgroundScope)
         AmperBackend(projectContext).runTask(projectName, task)
-        konancSpans.assertZeroExitCode()
+        konancSpans.assertZeroExitCode(times = 2)
     }
 
     @Test
