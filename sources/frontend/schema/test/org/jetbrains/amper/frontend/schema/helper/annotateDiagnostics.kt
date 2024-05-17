@@ -13,7 +13,7 @@ import org.jetbrains.amper.core.messages.MultipleLocationsBuildProblemSource
 private const val DIAGNOSTIC_ANNOTATION_LB = "<!"
 private const val DIAGNOSTIC_ANNOTATION_RB = "!>"
 private const val DIAGNOSTIC_END = "<!>"
-private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB[^<!>]*$DIAGNOSTIC_ANNOTATION_RB)+(.+?)($DIAGNOSTIC_END)+""".toRegex()
+private val DIAGNOSTIC_REGEX = """($DIAGNOSTIC_ANNOTATION_LB[^<!>]*$DIAGNOSTIC_ANNOTATION_RB)+(.*?)($DIAGNOSTIC_END)+""".toRegex()
 
 fun PsiFile.removeDiagnosticAnnotations(): PsiFile {
     val newFile = copy() as PsiFile

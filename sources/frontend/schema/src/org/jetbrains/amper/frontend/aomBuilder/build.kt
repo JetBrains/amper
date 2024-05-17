@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
@@ -14,8 +15,10 @@ import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
+import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
@@ -26,6 +29,7 @@ import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
 import org.jetbrains.amper.frontend.processing.withImplicitDependencies
+import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
@@ -138,7 +142,16 @@ context(ProblemReporterContext)
 private fun Map<VirtualFile, ModuleHolder>.buildAom(
     gradleModules: Map<VirtualFile, PotatoModule>,
 ): List<PotatoModule> {
-    val modules = map { (mPath, holder) ->
+    val modules = mapNotNull { (mPath, holder) ->
+        val noProduct = holder.module::product.unsafe == null
+        if (noProduct || holder.module.product::type.unsafe == null) {
+            SchemaBundle.reportBundleError(
+                property = if (noProduct) holder::module else holder.module::product,
+                messageKey = "product.not.defined",
+                level = Level.Fatal,
+            )
+            return@mapNotNull null
+        }
         // TODO Remove duplicating enums.
         ModuleTriple(
             buildFile = mPath,

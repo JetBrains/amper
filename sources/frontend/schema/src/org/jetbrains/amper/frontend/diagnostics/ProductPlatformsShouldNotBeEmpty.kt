@@ -11,11 +11,13 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.ModuleProduct
 
 object ProductPlatformsShouldNotBeEmpty : IsmDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "product.platforms.should.not.be.empty"
 
     context(ProblemReporterContext) override fun Module.analyze() {
+        val product = productIfDefined ?: return
         if (product::platforms.unsafe?.isEmpty() == true) {
             SchemaBundle.reportBundleError(
                 property = product::platforms,
@@ -25,3 +27,6 @@ object ProductPlatformsShouldNotBeEmpty : IsmDiagnosticFactory {
         }
     }
 }
+
+internal val Module.productIfDefined: ModuleProduct?
+    get() = ::product.unsafe

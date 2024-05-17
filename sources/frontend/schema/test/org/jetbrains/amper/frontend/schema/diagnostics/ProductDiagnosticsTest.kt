@@ -45,4 +45,14 @@ class ProductDiagnosticsTest : TestBase(Path("testResources") / "diagnostics" / 
     fun `product with multiple unsupported platforms`() {
         diagnosticsTest("product-with-multiple-unsupported-platforms")
     }
+
+    @Test
+    fun `product without type`() {
+        diagnosticsTest("product-without-type")
+    }
+
+    @Test
+    fun `empty module`() {
+        diagnosticsTest("empty-module")
+    }
 }

@@ -9,7 +9,6 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.unsafe
-import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Module
@@ -20,6 +19,7 @@ object LibShouldHavePlatforms : IsmDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "product.type.does.not.have.default.platforms"
 
     context(ProblemReporterContext) override fun Module.analyze() {
+        val product = productIfDefined ?: return
         if (product::type.unsafe == ProductType.LIB && product::platforms.unsafe == null) {
             val isYaml = product::type.extractPsiElementOrNull()?.parent is YAMLPsiElement
             SchemaBundle.reportBundleError(

@@ -15,6 +15,7 @@ object ProductPlatformIsUnsupported : IsmDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "product.unsupported.platform"
 
     context(ProblemReporterContext) override fun Module.analyze() {
+        val product = productIfDefined ?: return
         product::platforms.unsafe?.forEach { platform ->
             val platformValue = platform.value
             if (platformValue !in product.type.supportedPlatforms) {
