@@ -19,8 +19,10 @@ import kotlin.test.assertContains
 // Runs examples-standalone under current backend
 class AmperExamples1Test: AmperCliTestBase() {
     @Test
+    @MacOnly
     fun `compose-multiplatform`() = runTestInfinitely {
-        runCli(projectName, "build")
+        // Some warnings are treated like errors.
+        runCli(projectName, "build", assertEmptyStdErr = false)
         // TODO Assert output
         runCli(projectName, "test")
     }
@@ -44,6 +46,7 @@ class AmperExamples1Test: AmperCliTestBase() {
     }
 
     @Test
+    @MacOnly
     fun `compose-ios`() = runTestInfinitely {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.

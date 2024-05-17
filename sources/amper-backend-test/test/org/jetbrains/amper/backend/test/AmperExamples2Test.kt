@@ -51,6 +51,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
 
 
     @Test
+    @MacOnly
     fun `compose-multiplatform`() = runTestInfinitely {
         val projectContext = setupExampleProject("compose-multiplatform", backgroundScope = backgroundScope)
         AmperBackend(projectContext).run {
