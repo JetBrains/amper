@@ -1,8 +1,7 @@
-# Try Gradle-based Amper with an example project
+# Try the Gradle-based Amper version with an example project
 
-We have prepared a number of example projects to help you explore Amper. You can check them out right here on GitHub, 
-or download a zipped version to open in your IDE (refer to the [setup instructions](../docs/Setup.md) if you need more
-information on how to get started.)
+We have prepared a number of example projects to help you explore Amper. You can check them out right here on GitHub, or download a zipped version to open in your IDE.
+Refer to the [setup](../docs/Setup.md) and the [usage instructions](../docs/Usage.md#using-the-gradle-based-amper-version-from-the-command-line) if you need more information on how to get started.
 
 | Example               | Download                                                                                                                         |
 |-----------------------|----------------------------------------------------------------------------------------------------------------------------------|
