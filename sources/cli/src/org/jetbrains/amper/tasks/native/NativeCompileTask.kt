@@ -29,6 +29,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runJava
+import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.CompileTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -213,9 +214,7 @@ class NativeCompileTask(
 
                             // TODO this is redundant with the java span of the external process run. Ideally, we
                             //  should extract higher-level information from the raw output and use that in this span.
-                            span.setAttribute("exit-code", result.exitCode.toLong())
-                            span.setAttribute("stdout", result.stdout)
-                            span.setAttribute("stderr", result.stderr)
+                            span.setProcessResultAttributes(result)
 
                             if (result.exitCode != 0) {
                                 val errors = result.stderr

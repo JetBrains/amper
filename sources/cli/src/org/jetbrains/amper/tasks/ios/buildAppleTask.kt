@@ -111,9 +111,10 @@ class BuildAppleTask(
                         BuildPrimitives.runProcessAndGetOutput(
                             baseDir.toPath(),
                             *xcodebuildArgs.toTypedArray(),
+                            span = span,
                             logCall = true,
                             outputListener = LoggingProcessOutputListener(logger),
-                        ).moveResultToSpan(span)
+                        )
                     }
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))
@@ -145,9 +146,3 @@ private fun getQualifiedName(
     targetName,
     productName.takeIf { it.isNotBlank() }
 ).joinToString(".")
-
-private fun ProcessResult.moveResultToSpan(span: Span) {
-    span.setAttribute("exit-code", exitCode.toLong())
-    span.setAttribute("stdout", stdout)
-    span.setAttribute("stderr", stderr)
-}

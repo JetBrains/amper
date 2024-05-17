@@ -14,6 +14,7 @@ import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
+import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.processes.withGuaranteedTermination
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.Logger
@@ -82,11 +83,7 @@ object BuildPrimitives {
                 process.awaitAndGetAllOutput(outputListener)
             }
         }
-        if (span != null) {
-            span.setAttribute("exit-code", result.exitCode.toLong())
-            span.setAttribute("stdout", result.stdout)
-            span.setAttribute("stderr", result.stderr)
-        }
+        span?.setProcessResultAttributes(result)
         return result
     }
 
