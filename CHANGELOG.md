@@ -1,4 +1,4 @@
-## 0.3.1-dev-581
+## 0.3.0
 
 * Standalone version of Amper. See the [usage instructions](docs/Usage.md#using-the-standalone-amper-version-from-the-command-line).
   * Build, test, and run JVM and Android applications in CLI and Fleet.
