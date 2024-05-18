@@ -12,7 +12,7 @@ pluginManagement {
 
 plugins {
     // apply the plugin:
-    id("org.jetbrains.amper.settings.plugin").version("0.4.0-dev-577")
+    id("org.jetbrains.amper.settings.plugin").version("0.4.0-dev-578")
 }
 
 rootProject.name = "compose-multiplatform-ios-android-template"
