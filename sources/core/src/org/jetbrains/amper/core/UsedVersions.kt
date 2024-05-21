@@ -15,7 +15,7 @@ object UsedVersions {
 
     /*magic_replacement*/ val androidVersion = "8.2.2"
 
-    /*magic_replacement*/ val composeVersion = "1.6.10-rc01"
+    /*magic_replacement*/ val composeVersion = "1.6.10"
 
     // No replacement yet.
     val junit4Version = "4.12"

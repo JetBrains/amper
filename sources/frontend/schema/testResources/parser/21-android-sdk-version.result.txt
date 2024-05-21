@@ -18,7 +18,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.6.10-rc01
+        version: <default> 1.6.10
       }
       ios: <default> {
         framework: <default> {
@@ -71,7 +71,7 @@ Fragments:
       }
       compose: {
         enabled: true
-        version: <default> 1.6.10-rc01
+        version: <default> 1.6.10
       }
       ios: <default> {
         framework: <default> {

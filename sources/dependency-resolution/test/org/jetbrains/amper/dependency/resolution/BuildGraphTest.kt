@@ -917,7 +917,7 @@ class BuildGraphTest {
     }
 
     @Test
-    fun `org_jetbrains_compose_ui ui-uikit 1_6_10-rc01`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_ui ui-uikit 1_6_10`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -926,19 +926,19 @@ class BuildGraphTest {
                     "https://packages.jetbrains.team/maven/p/kpm/public" +
                     "https://cache-redirector.jetbrains.com/maven.google.com",
             expected = """root
-                |\--- org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01
+                |\--- org.jetbrains.compose.ui:ui-uikit:1.6.10
             """.trimMargin()
         )
 
         assertFiles("""
-            ui-uikit-uikitMain-1.6.10-rc01.klib
+            ui-uikit-uikitMain-1.6.10.klib
             """.trimIndent(),
             root
         )
     }
 
     @Test
-    fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10-rc01`(testInfo: TestInfo) {
+    fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10`(testInfo: TestInfo) {
         doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
@@ -947,21 +947,21 @@ class BuildGraphTest {
                     "https://packages.jetbrains.team/maven/p/kpm/public" +
                     "https://cache-redirector.jetbrains.com/maven.google.com",
             expected = """root
-               |\--- org.jetbrains.compose.material3:material3-uikitarm64:1.6.10-rc01
-               |     +--- org.jetbrains.compose.animation:animation-core:1.6.10-rc01
-               |     |    \--- org.jetbrains.compose.animation:animation-core-uikitarm64:1.6.10-rc01
-               |     |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01
-               |     |         |    \--- androidx.annotation:annotation:1.8.0-rc01
-               |     |         |         \--- androidx.annotation:annotation-iosarm64:1.8.0-rc01
+               |\--- org.jetbrains.compose.material3:material3-uikitarm64:1.6.10
+               |     +--- org.jetbrains.compose.animation:animation-core:1.6.10
+               |     |    \--- org.jetbrains.compose.animation:animation-core-uikitarm64:1.6.10
+               |     |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10
+               |     |         |    \--- androidx.annotation:annotation:1.8.0
+               |     |         |         \--- androidx.annotation:annotation-iosarm64:1.8.0
                |     |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.7.10 -> 1.9.23
-               |     |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01
+               |     |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10
                |     |         |    \--- androidx.collection:collection:1.4.0
                |     |         |         \--- androidx.collection:collection-iosarm64:1.4.0
-               |     |         |              +--- androidx.annotation:annotation:1.7.0 -> 1.8.0-rc01 (*)
+               |     |         |              +--- androidx.annotation:annotation:1.7.0 -> 1.8.0 (*)
                |     |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 1.9.23
-               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01
-               |     |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.6.10-rc01
-               |     |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01 (*)
+               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10
+               |     |         |    \--- org.jetbrains.compose.runtime:runtime-uikitarm64:1.6.10
+               |     |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
                |     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2
                |     |         |         |    \--- org.jetbrains.kotlinx:atomicfu-iosarm64:0.23.2
@@ -970,142 +970,142 @@ class BuildGraphTest {
                |     |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-iosarm64:1.8.0
                |     |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.1 -> 0.23.2 (*)
                |     |         |                   \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
-               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10-rc01
-               |     |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.6.10-rc01
-               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0-rc01
-               |     |         |         |    \--- androidx.lifecycle:lifecycle-common:2.8.0-rc01
-               |     |         |         |         \--- androidx.lifecycle:lifecycle-common-iosarm64:2.8.0-rc01
-               |     |         |         |              +--- androidx.annotation:annotation:1.8.0-rc01 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10
+               |     |         |    \--- org.jetbrains.compose.ui:ui-uikitarm64:1.6.10
+               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0
+               |     |         |         |    \--- androidx.lifecycle:lifecycle-common:2.8.0
+               |     |         |         |         \--- androidx.lifecycle:lifecycle-common-iosarm64:2.8.0
+               |     |         |         |              +--- androidx.annotation:annotation:1.8.0 (*)
                |     |         |         |              +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 1.9.23
                |     |         |         |              +--- org.jetbrains.kotlinx:atomicfu:0.17.0 -> 0.23.2 (*)
                |     |         |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.0-rc01
-               |     |         |         |    \--- androidx.lifecycle:lifecycle-runtime:2.8.0-rc01
-               |     |         |         |         \--- androidx.lifecycle:lifecycle-runtime-iosarm64:2.8.0-rc01
-               |     |         |         |              +--- androidx.annotation:annotation:1.8.0-rc01 (*)
-               |     |         |         |              +--- androidx.lifecycle:lifecycle-common:2.8.0-rc01 (*)
+               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.0
+               |     |         |         |    \--- androidx.lifecycle:lifecycle-runtime:2.8.0
+               |     |         |         |         \--- androidx.lifecycle:lifecycle-runtime-iosarm64:2.8.0
+               |     |         |         |              +--- androidx.annotation:annotation:1.8.0 (*)
+               |     |         |         |              +--- androidx.lifecycle:lifecycle-common:2.8.0 (*)
                |     |         |         |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 1.9.23
-               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.0-rc01
-               |     |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitarm64:2.8.0-rc01
-               |     |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.0-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.0
+               |     |         |         |    \--- org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-uikitarm64:2.8.0
+               |     |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-common:2.8.0 (*)
+               |     |         |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.8.0 (*)
+               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.23
-               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.0-rc01
-               |     |         |         |    \--- androidx.lifecycle:lifecycle-viewmodel:2.8.0-rc01
-               |     |         |         |         \--- androidx.lifecycle:lifecycle-viewmodel-iosarm64:2.8.0-rc01
-               |     |         |         |              +--- androidx.annotation:annotation:1.8.0-rc01 (*)
+               |     |         |         +--- org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.8.0
+               |     |         |         |    \--- androidx.lifecycle:lifecycle-viewmodel:2.8.0
+               |     |         |         |         \--- androidx.lifecycle:lifecycle-viewmodel-iosarm64:2.8.0
+               |     |         |         |              +--- androidx.annotation:annotation:1.8.0 (*)
                |     |         |         |              +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 1.9.23
                |     |         |         |              \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3 -> 1.8.0 (*)
-               |     |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10-rc01
-               |     |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.6.10-rc01
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10
+               |     |         |         |    \--- org.jetbrains.compose.runtime:runtime-saveable-uikitarm64:1.6.10
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
                |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10-rc01
-               |     |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.6.10-rc01
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01
-               |     |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitarm64:1.6.10-rc01
-               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01
-               |     |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10-rc01
+               |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10
+               |     |         |         |    \--- org.jetbrains.compose.ui:ui-geometry-uikitarm64:1.6.10
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10
+               |     |         |         |         |    \--- org.jetbrains.compose.ui:ui-util-uikitarm64:1.6.10
+               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10
+               |     |         |         |         |         |    \--- org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10
                |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10-rc01
-               |     |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.6.10-rc01
-               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10-rc01
-               |     |         |         |         |    \--- org.jetbrains.compose.ui:ui-unit-uikitarm64:1.6.10-rc01
-               |     |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10-rc01 (*)
-               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10
+               |     |         |         |    \--- org.jetbrains.compose.ui:ui-graphics-uikitarm64:1.6.10
+               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10
+               |     |         |         |         |    \--- org.jetbrains.compose.ui:ui-unit-uikitarm64:1.6.10
+               |     |         |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+               |     |         |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4
                |     |         |         |              \--- org.jetbrains.skiko:skiko-iosarm64:0.8.4
                |     |         |         |                   +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         |         |                   +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 -> 1.9.23
                |     |         |         |                   \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-text:1.6.10-rc01
-               |     |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.6.10-rc01
-               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-text:1.6.10
+               |     |         |         |    \--- org.jetbrains.compose.ui:ui-text-uikitarm64:1.6.10
+               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime-saveable:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
                |     |         |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-uikit:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
                |     |         |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0 (*)
-               |     +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.foundation:foundation:1.6.10-rc01
-               |     |    \--- org.jetbrains.compose.foundation:foundation-uikitarm64:1.6.10-rc01
-               |     |         +--- org.jetbrains.compose.animation:animation:1.6.10-rc01
-               |     |         |    \--- org.jetbrains.compose.animation:animation-uikitarm64:1.6.10-rc01
-               |     |         |         +--- org.jetbrains.compose.animation:animation-core:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10-rc01
-               |     |         |         |    \--- org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.6.10-rc01
-               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui:1.6.10-rc01 (*)
-               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+               |     +--- org.jetbrains.compose.foundation:foundation:1.6.10
+               |     |    \--- org.jetbrains.compose.foundation:foundation-uikitarm64:1.6.10
+               |     |         +--- org.jetbrains.compose.animation:animation:1.6.10
+               |     |         |    \--- org.jetbrains.compose.animation:animation-uikitarm64:1.6.10
+               |     |         |         +--- org.jetbrains.compose.animation:animation-core:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10
+               |     |         |         |    \--- org.jetbrains.compose.foundation:foundation-layout-uikitarm64:1.6.10
+               |     |         |         |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+               |     |         |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10-rc01 (*)
-               |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-geometry:1.6.10 (*)
+               |     |         |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-text:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     |         +--- org.jetbrains.compose.annotation-internal:annotation:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.collection-internal:collection:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     |         +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     |         \--- org.jetbrains.skiko:skiko:0.8.4 (*)
-               |     +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.material:material-icons-core:1.6.10-rc01
-               |     |    \--- org.jetbrains.compose.material:material-icons-core-uikitarm64:1.6.10-rc01
-               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10-rc01 (*)
+               |     +--- org.jetbrains.compose.foundation:foundation-layout:1.6.10 (*)
+               |     +--- org.jetbrains.compose.material:material-icons-core:1.6.10
+               |     |    \--- org.jetbrains.compose.material:material-icons-core-uikitarm64:1.6.10
+               |     |         +--- org.jetbrains.compose.ui:ui:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-unit:1.6.10 (*)
                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     +--- org.jetbrains.compose.material:material-ripple:1.6.10-rc01
-               |     |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.6.10-rc01
-               |     |         +--- org.jetbrains.compose.animation:animation:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.foundation:foundation:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     +--- org.jetbrains.compose.material:material-ripple:1.6.10
+               |     |    \--- org.jetbrains.compose.material:material-ripple-uikitarm64:1.6.10
+               |     |         +--- org.jetbrains.compose.animation:animation:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.foundation:foundation:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     |         +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
-               |     +--- org.jetbrains.compose.runtime:runtime:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.ui:ui-graphics:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.ui:ui-text:1.6.10-rc01 (*)
-               |     +--- org.jetbrains.compose.ui:ui-util:1.6.10-rc01 (*)
+               |     +--- org.jetbrains.compose.runtime:runtime:1.6.10 (*)
+               |     +--- org.jetbrains.compose.ui:ui-graphics:1.6.10 (*)
+               |     +--- org.jetbrains.compose.ui:ui-text:1.6.10 (*)
+               |     +--- org.jetbrains.compose.ui:ui-util:1.6.10 (*)
                |     +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23
                |     +--- org.jetbrains.kotlinx:atomicfu:0.23.2 (*)
                |     \--- org.jetbrains.kotlinx:kotlinx-datetime:0.5.0

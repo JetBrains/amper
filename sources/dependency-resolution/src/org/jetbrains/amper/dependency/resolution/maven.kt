@@ -593,15 +593,15 @@ class MavenDependency internal constructor(
      * This method resolves such a platform-specific library and returns its path.
      *
      *  For example, let's consider library
-     *  org.jetbrains.compose.ui:ui-uikit:1.6.10-rc01
+     *  org.jetbrains.compose.ui:ui-uikit:1.6.10
      *
      *  Its kotlin metadata variant defines sourceSet 'uikitMain', but it doesn't include sourceSet itself.
-     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit/1.6.10-rc01/ui-uikit-1.6.10-rc01.jar),
+     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit/1.6.10/ui-uikit-1.6.10.jar),
      *
      *  Instead, sourceSet 'uikitMain' is included in the kotlin metadata variant of
      *  EACH platform-specific dependency of the ui-uikit common library
-     *  (for instance, in org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10-rc01)
-     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit-uikitarm64/1.6.10-rc01/ui-uikit-uikitarm64-1.6.10-rc01-metadata.jar)
+     *  (for instance, in org.jetbrains.compose.ui:ui-uikit-uikitarm64:1.6.10)
+     *  (https://maven.pkg.jetbrains.space/public/p/compose/dev/org/jetbrains/compose/ui/ui-uikit-uikitarm64/1.6.10/ui-uikit-uikitarm64-1.6.10-metadata.jar)
      */
     private suspend fun resolveKmpLibraryWithSourceSet(
         sourceSetName: String,
