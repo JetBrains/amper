@@ -1,9 +1,9 @@
 Fragments:
   android
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -52,10 +52,10 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       android (FRIEND)

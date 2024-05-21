@@ -11,7 +11,7 @@ package org.jetbrains.amper.core
  */
 object UsedVersions {
 
-    /*magic_replacement*/ val kotlinVersion = "2.0.0-RC3"
+    /*magic_replacement*/ val kotlinVersion = "2.0.0"
 
     /*magic_replacement*/ val androidVersion = "8.2.2"
 

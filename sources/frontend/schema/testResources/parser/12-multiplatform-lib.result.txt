@@ -1,9 +1,9 @@
 Fragments:
   android
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src@android
     Fragment dependencies:
       common (REFINE)
@@ -53,10 +53,10 @@ Fragments:
 
   androidTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test@android
     Fragment dependencies:
       commonTest (REFINE)
@@ -107,7 +107,7 @@ Fragments:
 
   common
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -156,9 +156,9 @@ Fragments:
 
   commonTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       common (FRIEND)
@@ -208,7 +208,7 @@ Fragments:
 
   ios
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src@ios
     Fragment dependencies:
       common (REFINE)
@@ -258,9 +258,9 @@ Fragments:
 
   iosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test@ios
     Fragment dependencies:
       commonTest (REFINE)
@@ -311,7 +311,7 @@ Fragments:
 
   js
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src@js
     Fragment dependencies:
       common (REFINE)
@@ -361,9 +361,9 @@ Fragments:
 
   jsTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test@js
     Fragment dependencies:
       commonTest (REFINE)
@@ -414,7 +414,7 @@ Fragments:
 
   jvm
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: src@jvm
     Fragment dependencies:
       common (REFINE)
@@ -464,8 +464,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC3, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0-RC3, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0, compile=true, runtime=true, exported=false)
     Src folder: test@jvm
     Fragment dependencies:
       commonTest (REFINE)
