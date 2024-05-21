@@ -5,7 +5,7 @@ product:
 settings:
   compose:
     enabled: true
-    version: 1.6.10-rc01
+    version: 1.6.10
 
 module:
   layout: gradle-kmp
