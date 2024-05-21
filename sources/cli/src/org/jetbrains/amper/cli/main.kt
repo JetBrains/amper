@@ -283,7 +283,7 @@ private class RunCommand : CliktCommand(
         help = "Run under specified platform",
         completionCandidates = CompletionCandidates.Fixed(prettyLeafPlatforms.keys),
     ).validate { value ->
-        checkPlatform(value)
+        checkAndGetPlatform(value)
     }
 
     val buildType by option(
@@ -395,20 +395,16 @@ private fun ParameterHolder.platformOption() = option(
     help = "Limit to the specified platform, the option could be repeated to do the action on several platforms",
     completionCandidates = CompletionCandidates.Fixed(prettyLeafPlatforms.keys),
 ).transformAll { values ->
-    for (value in values) {
-        checkPlatform(value)
-    }
-
-    values.map {
-        prettyLeafPlatforms[it] ?: error("Internal error: no leaf platforms")
-    }
+    values.map { checkAndGetPlatform(it) }
 }
 
-private fun checkPlatform(value: String) {
-    if (!prettyLeafPlatforms.containsKey(value)) {
-        userReadableError("Unsupported platform '$value'.\n\nPossible values: $prettyLeafPlatformsString")
-    }
-}
+/**
+ * Check if passed value can be converted to platform and return one, if possible.
+ * Throw exception otherwise.
+ */
+private fun checkAndGetPlatform(value: String) =
+    prettyLeafPlatforms[value]
+        ?: userReadableError("Unsupported platform '$value'.\n\nPossible values: $prettyLeafPlatformsString")
 
 fun main(args: Array<String>) {
     try {

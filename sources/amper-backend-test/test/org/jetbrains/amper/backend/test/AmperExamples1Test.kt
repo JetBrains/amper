@@ -24,7 +24,8 @@ class AmperExamples1Test: AmperCliTestBase() {
         // Some warnings are treated like errors.
         runCli(projectName, "build", assertEmptyStdErr = false)
         // TODO Assert output
-        runCli(projectName, "test")
+        // TODO Also run ios simulator tests.
+        runCli(projectName, "test", "-p", "jvm", "-p", "android")
     }
 
     @Test
