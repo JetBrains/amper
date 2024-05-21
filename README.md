@@ -160,5 +160,7 @@ Check our these example projects:
 * Compose on iOS ([standalone](examples-standalone/compose-ios), [Gradle-based](examples-gradle/compose-ios)),
   Android ([standalone](examples-standalone/compose-android), [Gradle-based](examples-gradle/compose-android)),
   and desktop ([standalone](examples-standalone/compose-desktop), [Gradle-based](examples-gradle/compose-desktop))
+* Kotlin Multiplatform app template with [shared Compose UI](https://github.com/Kotlin/KMP-App-Template/tree/amper) 
+* and with [native Android and iOS UI](https://github.com/Kotlin/KMP-App-Template-Native/tree/amper)  
 * Gradle interop in the [Gradle-based Amper](examples-gradle/gradle-interop)
 * And other [standalone](examples-standalone) and [Gradle-based](examples-gradle) examples
