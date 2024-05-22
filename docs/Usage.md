@@ -19,7 +19,7 @@ a small file that downloads and runs the actual Amper CLI distribution.
 Depending on your operating system, use one of the following commands to download the wrapper script:
 Linux/macOS:
 ```
-curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.4.0-dev-581/cli-0.4.0-dev-581-wrapper.sh?download=true" && chmod +x amper
+curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.4.0-dev-581/cli-0.4.0-dev-581-wrapper?download=true" && chmod +x amper
 ```
 
 Windows powershell:
