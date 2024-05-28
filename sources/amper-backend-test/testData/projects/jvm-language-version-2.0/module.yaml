@@ -1,0 +1,7 @@
+product:
+  type: jvm/app
+
+settings:
+  kotlin:
+    languageVersion: 2.0
+    freeCompilerArgs: [ "-Werror" ]

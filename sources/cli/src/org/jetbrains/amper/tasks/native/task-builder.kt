@@ -5,124 +5,97 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
-import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-
-private fun getProductionSourcesForTestsCompileTaskName(module: PotatoModule, platform: Platform): TaskName {
-    val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, false)
-    return if (module.type.isApplication()) {
-        TaskName(compileTaskName.name + "Library")
-    } else {
-        compileTaskName
-    }
-}
 
 private fun isIosApp(platform: Platform, module: PotatoModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
 
 fun ProjectTaskRegistrar.setupNativeTasks() {
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
-        val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
-        // Don't create compilations for ios tests yet.
-        val isIosApp = isIosApp(platform, module)
-        if (!isIosApp || !isTest) {
+        val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
+        registerTask(
+            task = NativeCompileTask(
+                module = module,
+                platform = platform,
+                userCacheRoot = context.userCacheRoot,
+                taskOutputRoot = context.getTaskOutputPath(compileKLibTaskName),
+                executeOnChangedInputs = executeOnChangedInputs,
+                taskName = compileKLibTaskName,
+                tempRoot = context.projectTempRoot,
+                isTest = isTest,
+                terminal = context.terminal,
+                compilationType = KotlinCompilationType.LIBRARY,
+            ),
+            dependsOn = buildList {
+                add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
+                if (isTest) {
+                    add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                }
+            },
+        )
+        val needsLinkedExecutable = module.type.isApplication() || isTest
+        // iOS framework task is defined by the iOS task builder
+        if (needsLinkedExecutable && !isIosApp(platform, module)) {
+            val linkAppTaskName = NativeTaskType.Link.getTaskName(module, platform, isTest)
             registerTask(
                 NativeCompileTask(
                     module = module,
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
-                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
+                    taskOutputRoot = context.getTaskOutputPath(linkAppTaskName),
                     executeOnChangedInputs = executeOnChangedInputs,
-                    taskName = compileTaskName,
+                    taskName = linkAppTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
                     terminal = context.terminal,
-                    // Do native compilation of ios/app modules as libraries for ios apps to use it further in linking.
-                    compilationType = if (isIosApp) KotlinCompilationType.LIBRARY else null
+                    compilationType = KotlinCompilationType.BINARY,
                 ),
-                CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
-            )
-        }
-
-        if (!isIosApp && (module.type.isApplication() && !isTest)) {
-            // Application compilation generates executable file which is not usable for tests compilation
-            // Let's prepare separate klib, which will be linked to test code
-
-            registerTask(
-                NativeCompileTask(
-                    module = module,
-                    platform = platform,
-                    userCacheRoot = context.userCacheRoot,
-                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
-                    executeOnChangedInputs = executeOnChangedInputs,
-                    taskName = getProductionSourcesForTestsCompileTaskName(module, platform),
-                    tempRoot = context.projectTempRoot,
-                    isTest = false,
-                    compilationType = KotlinCompilationType.LIBRARY,
-                    terminal = context.terminal,
+                listOf(
+                    compileKLibTaskName,
+                    CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
                 ),
-                CommonTaskType.Dependencies.getTaskName(module, platform, false)
             )
         }
     }
 
     onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
-        val isIosApp = isIosApp(platform, module)
-        if (isTest && !isIosApp) {
-            registerDependency(
-                CommonTaskType.Compile.getTaskName(module, platform, true),
-                CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
-            )
-        } else {
-            // Two prod compile configurations, one is building an app, another is building klib for linking with tests
-            val compileTasks =
-                if (isIosApp) {
-                    setOf(CommonTaskType.Compile.getTaskName(module, platform, false))
-                } else setOf(
-                    CommonTaskType.Compile.getTaskName(module, platform, false),
-                    getProductionSourcesForTestsCompileTaskName(module, platform)
-                )
-
-            for (compileTaskName in compileTasks) {
-                registerDependency(
-                    compileTaskName,
-                    CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
-                )
-            }
-        }
+        registerDependency(
+            NativeTaskType.CompileKLib.getTaskName(module, platform, isTest),
+            NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+        )
     }
 
     onMain(Platform.NATIVE) { module, _, platform, _ ->
         // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
         if (isIosApp(platform, module)) return@onMain
 
-        val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
-        registerTask(
-            NativeRunTask(
-                module = module,
-                projectRoot = context.projectRoot,
-                taskName = runTaskName,
-                platform = platform,
-                commonRunSettings = context.commonRunSettings,
-                terminal = context.terminal,
-            ),
-            CommonTaskType.Compile.getTaskName(module, platform, false)
-        )
+        if (module.type.isApplication()) {
+            val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
+            registerTask(
+                NativeRunTask(
+                    module = module,
+                    projectRoot = context.projectRoot,
+                    taskName = runTaskName,
+                    platform = platform,
+                    commonRunSettings = context.commonRunSettings,
+                    terminal = context.terminal,
+                ),
+                NativeTaskType.Link.getTaskName(module, platform, isTest = false)
+            )
+        }
     }
 
     onTest(Platform.NATIVE) { module, _, platform, _ ->
         // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].
         if (isIosApp(platform, module)) return@onTest
 
-        val compileTestsTaskName = CommonTaskType.Compile.getTaskName(module, platform, true)
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
-
-        val sourcesForTestsCompileTaskName = getProductionSourcesForTestsCompileTaskName(module, platform)
 
         registerTask(
             NativeTestTask(
@@ -132,11 +105,12 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 platform = platform,
                 terminal = context.terminal,
             ),
-            compileTestsTaskName
-        )
-        registerDependency(
-            taskName = compileTestsTaskName,
-            dependsOn = sourcesForTestsCompileTaskName,
+            NativeTaskType.Link.getTaskName(module, platform, isTest = true)
         )
     }
+}
+
+enum class NativeTaskType(override val prefix: String) : PlatformTaskType {
+    CompileKLib("compile"),
+    Link("link"),
 }

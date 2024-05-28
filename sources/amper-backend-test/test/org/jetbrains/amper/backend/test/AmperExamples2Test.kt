@@ -79,8 +79,8 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         // main for Jvm (no test sources).
         kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 
-        // library + framework for Ios.
-        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(2)
+        // main/test klib + framework for Ios.
+        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(3)
     }
 
     @Test

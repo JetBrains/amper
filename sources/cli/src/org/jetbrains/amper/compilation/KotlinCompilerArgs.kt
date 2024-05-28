@@ -5,9 +5,12 @@
 package org.jetbrains.amper.compilation
 
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.BuildTask
 import java.io.File
 import java.nio.file.Files
@@ -20,10 +23,22 @@ import kotlin.io.path.writeText
 private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
+    fragments: List<Fragment>,
     compilerPlugins: List<CompilerPlugin>,
 ): List<String> = buildList {
     if (isMultiplatform) {
         add("-Xmulti-platform")
+
+        if (kotlinUserSettings.languageVersion >= KotlinVersion.Kotlin20) {
+            fragments.forEach { fragment ->
+                add("-Xfragments=${fragment.name}")
+                add("-Xfragment-sources=${fragment.name}:${fragment.src}")
+
+                fragment.fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.forEach {
+                    add("-Xfragment-refines=${fragment.name}:${it.target.name}")
+                }
+            }
+        }
     }
 
     add("-language-version")
@@ -73,6 +88,7 @@ internal fun kotlinJvmCompilerArgs(
     jdkHome: Path,
     outputPath: Path,
     friendPaths: List<Path>,
+    fragments: List<Fragment>,
 ): List<String> = buildList {
     if (userSettings.jvmRelease != null) {
         add("-Xjdk-release=${userSettings.jvmRelease.releaseNumber}")
@@ -93,7 +109,7 @@ internal fun kotlinJvmCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform, userSettings.kotlin, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(isMultiplatform, userSettings.kotlin, fragments, compilerPlugins))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
@@ -107,16 +123,16 @@ enum class KotlinCompilationType(val argName: String) {
     BINARY("program"),
     IOS_FRAMEWORK("framework");
 
-    fun output(root: Path, module: PotatoModule, platform: Platform): Path = when {
-        this == LIBRARY -> root.resolve("${module.userReadableName}.klib")
+    fun output(root: Path, module: PotatoModule, platform: Platform, isTest: Boolean): Path = when {
+        this == LIBRARY -> root.resolve("${moduleName(module, isTest)}.klib")
         this == IOS_FRAMEWORK -> root.resolve("kotlin.framework")
-        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> root.resolve("${module.userReadableName}.exe")
-        else -> root.resolve("${module.userReadableName}.kexe")
+        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> root.resolve("${moduleName(module, isTest)}.exe")
+        else -> root.resolve("${moduleName(module, isTest)}.kexe")
     }
 
-    fun moduleName(module: PotatoModule): String? = when(this) {
+    fun moduleName(module: PotatoModule, isTest: Boolean): String? = when(this) {
         IOS_FRAMEWORK -> null
-        else -> module.userReadableName
+        else -> if (isTest) module.userReadableName + "_test" else module.userReadableName
     }
 }
 
@@ -126,10 +142,11 @@ internal fun kotlinNativeCompilerArgs(
     compilerPlugins: List<CompilerPlugin>,
     entryPoint: String?,
     libraryPaths: List<Path>,
+    fragments: List<Fragment>,
     sourceFiles: List<Path>,
     outputPath: Path,
     compilationType: KotlinCompilationType,
-    include: Path?
+    include: Path?,
 ): List<String> = buildList {
     if (kotlinUserSettings.debug) {
         add("-g")
@@ -141,22 +158,23 @@ internal fun kotlinNativeCompilerArgs(
     add(compilationType.argName)
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
-    val moduleName = compilationType.moduleName(module)
+    val moduleName = compilationType.moduleName(module, isTest)
     if (moduleName != null) {
         add("-module-name")
         add(moduleName)
     }
 
-
     add("-target")
     add(platform.name.lowercase())
 
-    if (isTest) {
-        add("-generate-test-runner")
-    } else {
-        if (entryPoint != null) {
-            add("-entry")
-            add(entryPoint)
+    if (compilationType != KotlinCompilationType.LIBRARY) {
+        if (isTest) {
+            add("-generate-test-runner")
+        } else {
+            if (entryPoint != null) {
+                add("-entry")
+                add(entryPoint)
+            }
         }
     }
 
@@ -166,7 +184,7 @@ internal fun kotlinNativeCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, fragments, compilerPlugins))
 
     if (include != null) add("-Xinclude=${include.pathString}")
 
@@ -190,6 +208,7 @@ internal fun kotlinMetadataCompilerArgs(
     outputPath: Path,
     friendPaths: List<Path>,
     refinesPaths: List<Path>,
+    fragments: List<Fragment>,
     sourceFiles: List<Path>,
 ): List<String> = buildList {
     // TODO full module path including entire hierarchy? -Xshort-module-name)
@@ -210,7 +229,7 @@ internal fun kotlinMetadataCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, fragments, compilerPlugins))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)

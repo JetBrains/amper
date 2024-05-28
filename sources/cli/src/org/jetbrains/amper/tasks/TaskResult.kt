@@ -4,27 +4,22 @@
 
 package org.jetbrains.amper.tasks
 
-import kotlin.reflect.KClass
-
 interface TaskResult {
     val dependencies: List<TaskResult>
+}
 
-    companion object {
-        inline fun <reified R: TaskResult> TaskResult.walkDependenciesRecursively(): List<R> {
-            val result = mutableListOf<R>()
-            collectDependenciesRecursively(R::class, result)
-            return result
-        }
+/**
+ * Returns a sequence of all these results and their dependencies recursively, in an unspecified order.
+ */
+fun Iterable<TaskResult>.walkRecursively(): Sequence<TaskResult> =
+    asSequence().flatMap { it.walkDependenciesRecursively() + it }
 
-        fun <R: TaskResult> TaskResult.collectDependenciesRecursively(type: KClass<R>, result: MutableList<R>) {
-            for (dependency in dependencies) {
-                if (type.isInstance(dependency)) {
-                    @Suppress("UNCHECKED_CAST")
-                    result.add(dependency as R)
-                }
-
-                dependency.collectDependenciesRecursively(type, result)
-            }
-        }
+/**
+ * Returns a sequence of this [TaskResult]'s dependencies and their transitive dependencies, in an unspecified order.
+ */
+private fun TaskResult.walkDependenciesRecursively(): Sequence<TaskResult> = sequence {
+    dependencies.forEach {
+        yield(it)
+        yieldAll(it.walkDependenciesRecursively())
     }
 }

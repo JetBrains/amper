@@ -147,9 +147,21 @@ abstract class AmperIntegrationTestBase {
         CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
     }
 
+    protected fun assertEachKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+        kotlinJvmCompilationSpans.all().forEach { kotlinSpan ->
+            CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
+        }
+    }
+
     protected fun assertJavaCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         val javacSpan = javaCompilationSpans.assertSingle()
         CompilationSpanAssertions(javacSpan, "args").assertions()
+    }
+
+    protected fun assertEachKotlinNativeCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+        kotlinNativeCompilationSpans.all().forEach { kotlinSpan ->
+            CompilationSpanAssertions(kotlinSpan, "args").assertions()
+        }
     }
 }
 

@@ -18,6 +18,7 @@ import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -235,9 +236,9 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     fun `do not call kotlinc again if sources were not changed`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("language-version", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-language-version-1.9", backgroundScope = backgroundScope)
 
-        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
+        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
         assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
                     "STDOUT:\n" +
@@ -247,7 +248,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
         resetCollectors()
 
-        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
+        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
                 "Hello, world!"
@@ -257,8 +258,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     fun `kotlin compiler span`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("language-version", backgroundScope = backgroundScope)
-        AmperBackend(projectContext).runTask(TaskName(":language-version:runJvm"))
+        val projectContext = setupTestDataProject("jvm-language-version-1.9", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
                 "STDOUT:\n" +
@@ -267,9 +268,64 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
         assertKotlinJvmCompilationSpan {
             hasCompilerArgument("-language-version", "1.9")
-            hasAmperModule("language-version")
+            hasAmperModule("jvm-language-version-1.9")
         }
         assertLogContains(text = "main.kt:1:10 Parameter 'args' is never used", level = Level.WARN)
+    }
+
+    @Test
+    fun `jvm kotlin language version 2_0`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("jvm-language-version-2.0", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-2.0:runJvm"))
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello, world!"
+        assertInfoLogStartsWith(find)
+
+        assertKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "2.0")
+            hasAmperModule("jvm-language-version-2.0")
+        }
+    }
+
+    @Test
+    fun `native kotlin language version 2_0 compile`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("native-language-version-2.0", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).build()
+
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "2.0")
+        }
+    }
+
+    @Test
+    @WindowsOnly
+    fun `native kotlin language version 2_0 app run`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("native-language-version-2.0", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName(":app:runMingwX64"))
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello, native!"
+        assertInfoLogStartsWith(find)
+
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "2.0")
+        }
+    }
+
+    @Test
+    fun `multiplatform kotlin language version 2_0`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("multiplatform-language-version-2.0", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).build()
+
+        assertEachKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "2.0")
+        }
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "2.0")
+        }
     }
 
     @Test
@@ -300,7 +356,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     @Test
     fun `simple multiplatform cli should compile windows on any platform`() = runTestInfinitely {
         val projectContext = setupTestDataProject("simple-multiplatform-cli", backgroundScope = backgroundScope)
-        AmperBackend(projectContext).runTask(TaskName(":windows-cli:compileMingwX64"))
+        AmperBackend(projectContext).build(setOf(Platform.MINGW_X64))
 
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
             projectContext.buildOutputRoot.path.walk().any { it.name == "windows-cli.exe" }

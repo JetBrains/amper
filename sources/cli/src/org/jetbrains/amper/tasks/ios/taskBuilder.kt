@@ -10,10 +10,10 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
-import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.native.NativeCompileTask
+import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
 private fun isIosApp(platform: Platform, module: PotatoModule) =
@@ -42,7 +42,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 compilationType = KotlinCompilationType.IOS_FRAMEWORK,
             ),
             listOf(
-                CommonTaskType.Compile.getTaskName(module, platform, false),
+                NativeTaskType.CompileKLib.getTaskName(module, platform, false),
                 CommonTaskType.Dependencies.getTaskName(module, platform, false),
             )
         )
@@ -79,7 +79,7 @@ fun ProjectTaskRegistrar.setupIosTasks() {
 
         registerDependency(
             IosTaskType.Framework.getTaskName(module, platform, false),
-            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+            NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
         )
     }
 }

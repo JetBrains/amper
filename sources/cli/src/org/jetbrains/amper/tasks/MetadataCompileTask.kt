@@ -155,6 +155,7 @@ class MetadataCompileTask(
             outputPath = taskOutputRoot.path,
             friendPaths = friendPaths,
             refinesPaths = refinesPaths,
+            fragments = listOf(fragment),
             sourceFiles = listOf(sourceDirectory),
         )
         spanBuilder("kotlin-metadata-compilation")

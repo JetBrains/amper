@@ -1,0 +1,13 @@
+product:
+  type: macos/app
+  platforms: [ macosArm64 ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../shared
+
+settings:
+  native:
+    entryPoint: package1.main

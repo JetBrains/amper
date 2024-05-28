@@ -40,6 +40,8 @@ data class FilteredSpans(
             "Got ${matchingSpans.size} but expected no spans matching the filters: $filtersDescription"
         )
     }
+
+    fun all() = matchingSpans
 }
 
 fun OpenTelemetryCollectorExtension.spansNamed(name: String): FilteredSpans = filteredSpans.withName(name)

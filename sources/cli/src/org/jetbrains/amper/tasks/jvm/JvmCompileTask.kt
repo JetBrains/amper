@@ -116,7 +116,7 @@ class JvmCompileTask(
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val presentSources = fragments
+            val nonEmptySourceDirs = fragments
                 .map { it.src }
                 .filter {
                     when {
@@ -127,10 +127,10 @@ class JvmCompileTask(
                     }
                 }
 
-            if (presentSources.isNotEmpty()) {
+            if (nonEmptySourceDirs.isNotEmpty()) {
                 compileSources(
                     jdk = jdk,
-                    sourceDirectories = presentSources,
+                    sourceDirectories = nonEmptySourceDirs,
                     kotlinVersion = kotlinVersion,
                     userSettings = userSettings,
                     classpath = classpath,
@@ -244,12 +244,14 @@ class JvmCompileTask(
             jdkHome = jdk.homeDir,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
+            fragments = fragments,
             friendPaths = friendPaths,
         )
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAmperModule(module)
             .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
+            .setListAttribute("fragments", fragments.map { it.name })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .useWithScope {

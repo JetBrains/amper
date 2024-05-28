@@ -1,7 +1,1 @@
-/*
- * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
- */
-
-expect class World() {
-    fun get() : String
-}
+expect fun getWorld(): String

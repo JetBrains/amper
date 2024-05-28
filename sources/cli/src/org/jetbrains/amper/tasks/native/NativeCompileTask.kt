@@ -32,10 +32,9 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.BuildTask
-import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.TaskResult.Companion.walkDependenciesRecursively
+import org.jetbrains.amper.tasks.walkRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.ShellQuoting
@@ -58,7 +57,7 @@ class NativeCompileTask(
     private val tempRoot: AmperProjectTempRoot,
     private val terminal: Terminal,
     override val isTest: Boolean,
-    val compilationType: KotlinCompilationType? = null,
+    val compilationType: KotlinCompilationType,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
@@ -75,19 +74,12 @@ class NativeCompileTask(
             error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
 
-        // TODO exported dependencies. It's better to supported them in unified way across JVM and Native
-
-        val externalDependenciesTaskResult = dependenciesResult
+        // TODO The native compiler needs recursive dependencies
+        val externalDependencies = dependenciesResult.walkRecursively()
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .singleOrNull()
-            ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
-
-        // TODO Native compiler won't work without recursive dependencies, which we should correctly calculate in that case
-        val externalDependencies = (externalDependenciesTaskResult.compileClasspath +
-                dependenciesResult.flatMap {
-                    result -> result.walkDependenciesRecursively<ResolveExternalDependenciesTask.Result>().flatMap { it.compileClasspath }
-                })
+            .flatMap { it.compileClasspath }
             .distinct()
+            .toList()
         logger.warn("" +
                 "native compile ${module.userReadableName} -- collected external dependencies" +
                 if (externalDependencies.isNotEmpty()) "\n" else "" +
@@ -96,16 +88,17 @@ class NativeCompileTask(
 
         // TODO Rethink this approach.
         // Check if we are inside framework compilation, so there is connected dylib compilation.
-        val compileSameModule = ProjectTasksBuilder.Companion.CommonTaskType.Compile.getTaskName(module, platform, isTest)
+        val compileLibTaskForThisModule = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
         val includeDependency = dependenciesResult
             .filterIsInstance<TaskResult>()
-            .firstOrNull { it.taskName == compileSameModule }
+            .firstOrNull { it.taskName == compileLibTaskForThisModule }
         val includeArtifact = includeDependency?.artifact
 
         val compiledModuleDependencies = dependenciesResult
+            .walkRecursively()
             .filterIsInstance<TaskResult>()
-            .flatMap { it.walkDependenciesRecursively<TaskResult>() + it }
             .map { it.artifact }
+            .toList()
 
         // todo native resources are what exactly?
 
@@ -149,10 +142,7 @@ class NativeCompileTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val finalCompilationType = compilationType
-                ?: if (module.type.isLibrary() && !isTest) KotlinCompilationType.LIBRARY else KotlinCompilationType.BINARY
-
-            val artifact = finalCompilationType.output(taskOutputRoot.path, module, platform)
+            val artifact = compilationType.output(taskOutputRoot.path, module, platform, isTest)
 
             val libraryPaths = compiledModuleDependencies + externalDependencies.filter { !it.pathString.endsWith(".jar") }
 
@@ -174,16 +164,20 @@ class NativeCompileTask(
                     compilerPlugins = compilerPlugins,
                     entryPoint = entryPoint,
                     libraryPaths = libraryPaths,
-                    sourceFiles = rootsToCompile,
+                    // can't pass fragments if we have no sources, because empty.kt wouldn't be part of them (konan fails)
+                    fragments = if (existingSourceRoots.isEmpty()) emptyList() else fragments,
+                    // we don't want to pass sources if they were already compiled into a klib and passed as -Xinclude
+                    sourceFiles = if (includeArtifact == null) rootsToCompile else emptyList(),
                     outputPath = artifact,
-                    compilationType = finalCompilationType,
-                    include = includeArtifact
+                    compilationType = compilationType,
+                    include = includeArtifact,
                 )
 
                 withKotlinCompilerArgFile(args, tempRoot) { argFile ->
 
                     spanBuilder("konanc")
                         .setAmperModule(module)
+                        .setListAttribute("fragments", fragments.map { it.name })
                         .setListAttribute("args", args)
                         .setAttribute("version", kotlinVersion)
                         .useWithScope { span ->
