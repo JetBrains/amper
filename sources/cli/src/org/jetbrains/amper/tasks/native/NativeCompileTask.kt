@@ -27,7 +27,7 @@ import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.processes.ProcessOutputListener
+import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
@@ -209,15 +209,7 @@ class NativeCompileTask(
                                     "-Dfile.encoding=UTF-8",
                                     "-Dkonan.home=$kotlinNativeHome",
                                 ),
-                                outputListener = object : ProcessOutputListener {
-                                    override fun onStdoutLine(line: String) {
-                                        logger.info(line)
-                                    }
-
-                                    override fun onStderrLine(line: String) {
-                                        logger.error(line)
-                                    }
-                                },
+                                outputListener = LoggingProcessOutputListener(logger),
                             )
 
                             // TODO this is redundant with the java span of the external process run. Ideally, we
