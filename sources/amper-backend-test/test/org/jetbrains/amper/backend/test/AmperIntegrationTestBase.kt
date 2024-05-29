@@ -21,9 +21,10 @@ import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.diagnostics.amperModuleKey
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TestUtil
@@ -164,8 +165,6 @@ abstract class AmperIntegrationTestBase {
         }
     }
 }
-
-private val amperModuleKey = AttributeKey.stringKey("amper-module")
 
 fun FilteredSpans.withAmperModule(name: String) = withAttribute(amperModuleKey, name)
 

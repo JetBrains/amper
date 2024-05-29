@@ -6,14 +6,14 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment

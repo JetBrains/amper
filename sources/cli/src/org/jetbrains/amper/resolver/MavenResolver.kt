@@ -4,8 +4,10 @@
 
 package org.jetbrains.amper.resolver
 
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
@@ -17,8 +19,6 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.use
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap

@@ -8,13 +8,13 @@ import kotlinx.coroutines.runInterruptible
 import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperBuild
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
+import org.jetbrains.amper.core.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
-import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.suspendingRetryWithExponentialBackOff
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.junit.jupiter.api.extension.RegisterExtension

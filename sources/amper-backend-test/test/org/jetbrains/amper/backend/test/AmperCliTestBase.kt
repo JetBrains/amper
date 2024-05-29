@@ -5,8 +5,8 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava

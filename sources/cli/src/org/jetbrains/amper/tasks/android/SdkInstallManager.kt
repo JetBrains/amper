@@ -20,12 +20,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.coroutineScope
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.concurrency.withDoubleLock
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
+import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
+import org.jetbrains.amper.core.downloader.httpClient
 import org.jetbrains.amper.core.extract.ExtractOptions
-import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.extractFileToCacheLocation
-import org.jetbrains.amper.downloader.httpClient
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path

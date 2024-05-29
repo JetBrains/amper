@@ -13,8 +13,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
 import org.slf4j.MDC
 

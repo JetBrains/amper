@@ -6,8 +6,8 @@ package org.jetbrains.amper.resolver
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.UserReadableError
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.junit.jupiter.api.assertThrows

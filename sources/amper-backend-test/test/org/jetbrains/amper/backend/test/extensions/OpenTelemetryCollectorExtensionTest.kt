@@ -5,8 +5,8 @@
 package org.jetbrains.amper.backend.test.extensions
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.Test
 import kotlin.test.assertEquals

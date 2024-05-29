@@ -9,9 +9,9 @@ import io.github.classgraph.ClassGraph
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.use
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.TaskName

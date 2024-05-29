@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.downloader
+package org.jetbrains.amper.core.downloader
 
 import com.google.common.hash.Hashing
 import io.ktor.client.*
@@ -25,10 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.concurrency.StripedMutex
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.net.URI
@@ -218,7 +218,7 @@ object Downloader {
     private fun getTargetFile(cacheRoot: AmperUserCacheRoot, uriString: String): Path {
         val lastNameFromUri = uriString.substring(uriString.lastIndexOf('/') + 1)
         val hashString = hashString("${uriString}V${DOWNLOAD_CODE_VERSION}").substring(0, 10)
-        return cacheRoot.path.resolve("download.cache").resolve("${hashString}-${lastNameFromUri}")
+        return cacheRoot.downloadCache.resolve("${hashString}-${lastNameFromUri}")
     }
 
     internal fun hashString(s: String): String =

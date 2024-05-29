@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:Suppress("BlockingMethodInNonBlockingContext", "LoggingStringTemplateAsArgument")
@@ -23,9 +23,9 @@ import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.extract.readEntireFileToByteArray
 import org.jetbrains.amper.core.extract.writeFully
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer

@@ -5,14 +5,14 @@
 package org.jetbrains.amper.backend.test
 
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.generateUnifiedDiff
-import org.jetbrains.amper.util.OS
 import org.junit.jupiter.api.AssertionFailureBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -128,7 +128,7 @@ class AmperShellScriptsTest {
         assertTrue(unixWrapper.readText().count { it == '\r' } == 0,
             "Unix wrapper must not have \\r in line separators: $unixWrapper")
 
-        if (OS.isUnix) {
+        if (OsFamily.current.isUnix) {
             assertTrue("Unix wrapper must be executable: $unixWrapper") { unixWrapper.isExecutable() }
         }
     }
@@ -301,7 +301,7 @@ class AmperShellScriptsTest {
         outputAssertions(processOutput)
     }
 
-    private val cliScriptExtension = if (OS.isWindows) ".bat" else ""
+    private val cliScriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
 
     private val cliScript: Path by lazy {
         val script = shellScriptExampleProject.resolve("amper$cliScriptExtension")

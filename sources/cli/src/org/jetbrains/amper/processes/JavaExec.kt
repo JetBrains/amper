@@ -6,9 +6,9 @@ package org.jetbrains.amper.processes
 
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.Jdk
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.pathString

@@ -13,7 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import org.jetbrains.amper.util.OS
+import org.jetbrains.amper.core.system.OsFamily
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -25,17 +25,17 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.measureTime
 
 class ProcessesTest {
-    private val unknownCommandExitCode = if (OS.isWindows) 1 else 127
-    private val cancelledExitCode = if (OS.isWindows) 1 else 137
+    private val unknownCommandExitCode = if (OsFamily.current.isWindows) 1 else 127
+    private val cancelledExitCode = if (OsFamily.current.isWindows) 1 else 137
     private val loremIpsum1000 =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nibh odio, auctor non tincidunt eu, posuere vitae nisl. Sed lobortis gravida sapien, eget feugiat purus feugiat et. Fusce ullamcorper risus ac diam varius, ullamcorper molestie est aliquam. Ut dictum, tellus sit amet efficitur hendrerit, est dolor bibendum nunc, et lacinia sem erat nec lectus. Donec orci elit, feugiat in arcu vel, dictum ultricies diam. Nullam ut ultricies tortor. Sed a finibus tortor. Vestibulum et diam vitae orci hendrerit faucibus ac posuere leo. Nunc laoreet interdum euismod. Pellentesque ac porttitor enim. In malesuada pharetra orci in euismod. Quisque sit amet rutrum enim. Morbi ultrices blandit augue, non tincidunt sapien sagittis sit amet. Mauris id tempus tortor, vitae ullamcorper orci. Phasellus efficitur dolor mollis, mattis lacus quis, convallis elit. Phasellus dignissim, nibh a aliquam commodo, ipsum risus suscipit massa, et porta lacus eros nec felis. Nulla ante augue, elementum cras amet."
 
     @Test
     fun `awaitAndGetAllOutput should capture stdout and stderr`() = runBlocking(Dispatchers.IO) {
-        val command = when (OS.type) {
+        val command = when (OsFamily.current) {
             // there doesn't seem to be a way to have a line break in the middle of a single echo in Windows batch,
             // so we don't really test it here (https://stackoverflow.com/questions/132799)
-            OS.Type.Windows -> cmd("@echo line1&& @echo line2&& @echo break&& @echo hello stderr 1>&2")
+            OsFamily.Windows -> cmd("@echo line1&& @echo line2&& @echo break&& @echo hello stderr 1>&2")
             else -> binSh("printf 'line1\n'; printf 'line2\nbreak'; printf 'hello stderr' 1>&2")
         }
         val process = ProcessBuilder(command).start()
@@ -47,8 +47,8 @@ class ProcessesTest {
 
     @Test
     fun `awaitAndGetAllOutput should capture stderr in case of wrong nested command`() = runBlocking(Dispatchers.IO) {
-        val command = when (OS.type) {
-            OS.Type.Windows -> cmd("@echo line1 && not-a-command")
+        val command = when (OsFamily.current) {
+            OsFamily.Windows -> cmd("@echo line1 && not-a-command")
             else -> binSh("echo line1; not-a-command")
         }
         val process = ProcessBuilder(command).start()
@@ -57,8 +57,8 @@ class ProcessesTest {
         assertEquals("line1", result.stdout.trim())
         assertContains(result.stderr, "not-a-command")
 
-        val expectedError = when (OS.type) {
-            OS.Type.Windows -> "is not recognized as an internal or external command"
+        val expectedError = when (OsFamily.current) {
+            OsFamily.Windows -> "is not recognized as an internal or external command"
             else -> "not found"
         }
         assertContains(result.stderr, expectedError)
@@ -160,20 +160,20 @@ private fun assertTerminated(process: Process, message: String) {
     fail("$message. Killed afterwards: $testProcessTerminated")
 }
 
-private fun binSh(command: String): List<String> = when (OS.type) {
-    OS.Type.Windows -> listOf("bash.exe", "-c", command) // FIXME this relies on bash.exe in System32 (setup by WSL)
+private fun binSh(command: String): List<String> = when (OsFamily.current) {
+    OsFamily.Windows -> listOf("bash.exe", "-c", command) // FIXME this relies on bash.exe in System32 (setup by WSL)
     else -> listOf("/bin/sh", "-c", command)
 }
 
-private fun echoEnv(envVarName: String) = when (OS.type) {
-    OS.Type.Windows -> cmd("@echo %$envVarName%")
+private fun echoEnv(envVarName: String) = when (OsFamily.current) {
+    OsFamily.Windows -> cmd("@echo %$envVarName%")
     else -> binSh("echo \$$envVarName")
 }
 
-private fun echoLoop(n: Int, message: String) = when (OS.type) {
+private fun echoLoop(n: Int, message: String) = when (OsFamily.current) {
     // Weird hack on Windows just to trim the double quotes while keeping the command valid even with special chars.
     // This is an abuse of the /P flag of the set command.
-    OS.Type.Windows -> cmd("for /l %x in (1, 1, $n) do @echo|(@set /P dummy=\"$message\" && echo.)")
+    OsFamily.Windows -> cmd("for /l %x in (1, 1, $n) do @echo|(@set /P dummy=\"$message\" && echo.)")
     else -> binSh("for i in `seq 1 $n`; do echo '$message'; done")
 }
 

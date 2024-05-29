@@ -5,10 +5,11 @@
 package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.cli.JdkDownloader.Arch
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.Downloader
+import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.OsFamily
-import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.exists

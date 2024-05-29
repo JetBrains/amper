@@ -1,14 +1,14 @@
 /*
- * Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.downloader
+package org.jetbrains.amper.core.downloader
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import kotlinx.coroutines.delay
-import org.jetbrains.amper.diagnostics.tracer
-import org.jetbrains.amper.diagnostics.use
+import org.jetbrains.amper.core.tracer
+import org.jetbrains.amper.core.use
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.min

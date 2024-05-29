@@ -4,14 +4,10 @@
 
 package org.jetbrains.amper.compilation
 
-import org.jetbrains.amper.cli.AmperUserCacheRoot
-import org.jetbrains.amper.core.extract.ExtractOptions
-import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
+import org.jetbrains.amper.core.downloader.MAVEN_CENTRAL_REPOSITORY_URL
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
@@ -20,10 +16,6 @@ class KotlinCompilerDownloader(
     val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) {
-    companion object {
-        private const val MAVEN_CENTRAL_REPOSITORY_URL = "https://repo1.maven.org/maven2"
-        private const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
-    }
 
     private val mavenResolver = MavenResolver(userCacheRoot)
 
@@ -111,76 +103,6 @@ class KotlinCompilerDownloader(
             )
             return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())
         }.outputs
-
-    /**
-     * Downloads and extracts current system specific kotlin native.
-     * Returns null if kotlin native is not supported on current system/arch.
-     */
-    suspend fun downloadAndExtractKotlinNative(version: String): Path? {
-        // TODO should be forward-compatible in some way,
-        //  i.e. support new os/arch combinations if future kotlin version support them
-        //  probably the easiest way is to peek maven central page (could be cached!)
-        //  https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-native/1.9.22/
-        val packaging: String = when {
-            OsFamily.current.isMac || OsFamily.current.isLinux -> "tar.gz"
-            OsFamily.current.isWindows -> "zip"
-            else -> null
-        } ?: return null
-
-        val arch = DefaultSystemInfo.detect().arch
-        val classifier: String = when (OsFamily.current) {
-            OsFamily.MacOs -> {
-                when (arch) {
-                    Arch.X64 -> "macos-x86_64"
-                    Arch.Arm64 -> "macos-aarch64"
-                    else -> null
-                }
-            }
-
-            OsFamily.Windows -> when (arch) {
-                Arch.X64 -> "windows-x86_64"
-                else -> null
-            }
-
-            OsFamily.Linux,
-            OsFamily.FreeBSD,
-            OsFamily.Solaris -> when (arch) {
-                Arch.X64 -> "linux-x86_64"
-                else -> null
-            }
-        } ?: return null
-
-        return downloadAndExtractFromMaven(
-            mavenRepository = MAVEN_CENTRAL_REPOSITORY_URL,
-            groupId = KOTLIN_GROUP_ID,
-            artifactId = "kotlin-native-prebuilt",
-            version = version,
-            classifier = classifier,
-            packaging = packaging,
-            extractOptions = arrayOf(ExtractOptions.STRIP_ROOT),
-        )
-    }
-
-    private suspend fun downloadAndExtractFromMaven(
-        mavenRepository: String,
-        groupId: String,
-        artifactId: String,
-        version: String,
-        classifier: String? = null,
-        packaging: String,
-        vararg extractOptions: ExtractOptions,
-    ): Path {
-        val artifactUri = Downloader.getUriForMavenArtifact(
-            mavenRepository = mavenRepository,
-            groupId = groupId,
-            artifactId = artifactId,
-            version = version,
-            classifier = classifier,
-            packaging = packaging,
-        )
-        val downloadedArchive = Downloader.downloadFileToCacheLocation(artifactUri.toString(), userCacheRoot)
-        return extractFileToCacheLocation(downloadedArchive, userCacheRoot, *extractOptions)
-    }
 }
 
 /**

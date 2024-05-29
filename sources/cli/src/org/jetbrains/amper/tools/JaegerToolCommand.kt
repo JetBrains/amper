@@ -21,13 +21,13 @@ import kotlinx.coroutines.runInterruptible
 import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.core.downloader.Downloader
+import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
-import org.jetbrains.amper.downloader.Downloader
-import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.awaitAndGetAllOutput

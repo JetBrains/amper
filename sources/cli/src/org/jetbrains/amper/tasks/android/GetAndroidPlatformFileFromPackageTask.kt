@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks.android
 
-import org.jetbrains.amper.cli.AmperUserCacheRoot
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskName
 import java.nio.file.Path
