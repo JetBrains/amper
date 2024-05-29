@@ -822,15 +822,23 @@ class MavenDependency internal constructor(
                     && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value }
 
     suspend fun downloadDependencies(context: Context) {
-        files
+        // Be explicit here about "notDownloaded" list and do not turn it into a sequence, because
+        // [it.isDownloaded()] should be performed under lock when download starts.
+        val notDownloaded = files
             .filter {
                 // filter out sources/javadocs if those are not requested in settings
                 context.settings.downloadSources
-                        || (!"${it.nameWithoutExtension}.${it.extension}".let { name -> name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar") } )
+                        || (!"${it.nameWithoutExtension}.${it.extension}".let { name ->
+                    name.endsWith("-sources.jar") || name.endsWith(
+                        "-javadoc.jar"
+                    )
+                })
+            }.filter {
+                context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
+                        && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context))
             }
-            .filter { context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
-                    && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context)) }
-            .forEach { it.download(context) }
+
+        notDownloaded.forEach { it.download(context) }
     }
 }
 

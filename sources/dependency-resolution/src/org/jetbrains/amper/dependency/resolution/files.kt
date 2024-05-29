@@ -44,6 +44,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
+import kotlin.io.path.isDirectory
 import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -115,10 +116,26 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
         val pathFromVariant = fileFromVariant(dependency, name)?.let { location.resolve("${it.sha1}/${it.name}") }
         if (pathFromVariant != null) return pathFromVariant
         if (!location.exists()) return null
-        return Files.walk(location, 2).use { stream ->
-            stream.filter { it.name == name }.findAny().orElse(null)
-        }
+        return location.naiveSearchDepth2 { it.name == name }.firstOrNull()
     }
+
+    /**
+     * A very basic and stupid implementation of DFWalk for a file tree, since [Files.walk]
+     * sometimes does not notice directory changes.
+     * // TODO Need to redesign; See: [issue](https://youtrack.jetbrains.com/issue/AMPER-671/Redesign-resolution-files-downloading)
+     */
+    private fun Path.naiveSearchDepth2(shouldDescend: Boolean = true, filterBlock: (Path) -> Boolean): List<Path> =
+        buildList {
+            Files.list(this@naiveSearchDepth2)
+                .use {
+                    it.toList()
+                    .filter { it.exists() }
+                    .forEach {
+                        if (it.isDirectory() && shouldDescend) addAll(it.naiveSearchDepth2(false, filterBlock))
+                        if (filterBlock(it)) add(it)
+                    }
+                }
+        }
 
     override fun getTempPath(dependency: MavenDependency, name: String): Path =
         getLocation(dependency).resolve("~$name")
