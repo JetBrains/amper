@@ -7,7 +7,6 @@ package org.jetbrains.amper.core.downloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.Arch
-import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
 
@@ -33,19 +32,18 @@ suspend fun downloadAndExtractKotlinNative(
         else -> null
     } ?: return null
 
-    val arch = DefaultSystemInfo.detect().arch
     val classifier: String = when (OsFamily.current) {
-        OsFamily.MacOs -> when (arch) {
+        OsFamily.MacOs -> when (Arch.current) {
             Arch.X64 -> "macos-x86_64"
             Arch.Arm64 -> "macos-aarch64"
         }
 
-        OsFamily.Windows -> when (arch) {
+        OsFamily.Windows -> when (Arch.current) {
             Arch.X64 -> "windows-x86_64"
             else -> null
         }
 
-        OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> when (arch) {
+        OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> when (Arch.current) {
             Arch.X64 -> "linux-x86_64"
             else -> null
         }

@@ -39,7 +39,17 @@ enum class OsFamily(val value: String) {
 
 enum class Arch(val value: String) {
     X64("x64"),
-    Arm64("arm64")
+    Arm64("arm64");
+
+    companion object {
+        val current by lazy {
+            when (val arch = Platform.ARCH) {
+                "aarch64" -> Arm64
+                "x86-64" -> X64
+                else -> error("Unsupported architecture: $arch")
+            }
+        }
+    }
 }
 
 interface SystemInfo {
@@ -63,13 +73,7 @@ interface SystemInfo {
             }
         }
 
-        val arch = when (val arch = Platform.ARCH) {
-            "aarch64" -> Arch.Arm64
-            "x86-64" -> Arch.X64
-            else -> error("Unsupported architecture: $arch")
-        }
-
-        return Os(OsFamily.current, version, arch)
+        return Os(OsFamily.current, version, Arch.current)
     }
 }
 
