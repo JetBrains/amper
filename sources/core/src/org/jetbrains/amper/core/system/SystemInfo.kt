@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.core.system
 
+import com.sun.jna.Platform
 
 enum class OsFamily(val value: String) {
     Windows("windows"),
@@ -14,13 +15,12 @@ enum class OsFamily(val value: String) {
 
     companion object {
         val current by lazy {
-            val osName = System.getProperty("os.name").lowercase()
-            when {
-                osName.startsWith("windows") -> Windows
-                osName.startsWith("mac") -> MacOs
-                osName.startsWith("linux") -> Linux
-                osName.startsWith("freebsd") -> FreeBSD
-                osName.startsWith("sunos") -> Solaris
+            when(Platform.getOSType()) {
+                Platform.WINDOWS -> Windows
+                Platform.MAC -> MacOs
+                Platform.LINUX -> Linux
+                Platform.FREEBSD -> FreeBSD
+                Platform.SOLARIS -> Solaris
                 else -> error("Could not determine OS family")
             }
         }
@@ -63,8 +63,11 @@ interface SystemInfo {
             }
         }
 
-        val rawArch = System.getProperty("os.arch").lowercase()
-        val arch = if (rawArch.startsWith("aarch64")) Arch.Arm64 else Arch.X64
+        val arch = when (val arch = Platform.ARCH) {
+            "aarch64" -> Arch.Arm64
+            "x86-64" -> Arch.X64
+            else -> error("Unsupported architecture: $arch")
+        }
 
         return Os(OsFamily.current, version, arch)
     }
