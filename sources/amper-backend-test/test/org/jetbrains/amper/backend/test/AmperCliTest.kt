@@ -41,6 +41,34 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    fun `graceful failure on unknown task name`() = runTestInfinitely {
+        val r = runCli("jvm-kotlin-test-smoke", "task", "unknown", expectedExitCode = 1, assertEmptyStdErr = false)
+
+        val errorMessage = "ERROR: Task 'unknown' was not found in the project"
+
+        assertTrue("Expected stderr to contain the message: '$errorMessage'") {
+            errorMessage in r.stderr
+        }
+    }
+
+    @Test
+    fun `graceful failure on unknown task name with suggestions`() = runTestInfinitely {
+        val r = runCli("jvm-kotlin-test-smoke", "task", "compile", expectedExitCode = 1, assertEmptyStdErr = false)
+
+        val errorMessage = """
+            ERROR: Task 'compile' was not found in the project, maybe you meant one of:
+               :jvm-kotlin-test-smoke:compileJvm
+               :jvm-kotlin-test-smoke:compileJvmTest
+               :jvm-kotlin-test-smoke:compileMetadataJvm
+               :jvm-kotlin-test-smoke:compileMetadataJvmTest
+        """.trimIndent()
+
+        assertTrue("Expected stderr to contain the message:\n$errorMessage\n\nActual stderr:\n${r.stderr}") {
+            errorMessage in r.stderr
+        }
+    }
+
+    @Test
     fun modules() = runTestInfinitely {
         val r = runCli("simple-multiplatform-cli", "modules")
 

@@ -12,6 +12,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.tasks.TaskResult
@@ -49,6 +50,7 @@ class TaskExecutor(
     // Dispatch on default dispatcher, execute on tasks dispatcher
     // Task failures do not throw, instead all exceptions are returned as a map
     suspend fun run(tasksToRun: Set<TaskName>): Map<TaskName, Result<TaskResult>> = withContext(Dispatchers.Default) {
+        tasksToRun.forEach { assertTaskIsKnown(it) }
         val results = mutableMapOf<TaskName, Deferred<Result<TaskResult>>>()
         try {
             coroutineScope {
@@ -59,6 +61,19 @@ class TaskExecutor(
             results.mapValues { if (it.value.isCancelled) Result.failure(e) else it.value.await() }
         }
     }
+
+    private fun assertTaskIsKnown(taskName: TaskName) {
+        if (taskName !in graph.nameToTask.keys) {
+            val similarNames = findSimilarTaskNames(taskName).sorted()
+            val extraInfo = if (similarNames.isEmpty()) "" else ", maybe you meant one of:\n${similarNames.joinToString("\n").prependIndent("   ")}"
+            userReadableError("Task '${taskName.name}' was not found in the project$extraInfo")
+        }
+    }
+
+    private fun findSimilarTaskNames(taskName: TaskName): List<String> =
+        graph.nameToTask.keys
+            .map { it.name }
+            .filter { it.contains(taskName.name, ignoreCase = true) || taskName.name.contains(it, ignoreCase = true) }
 
     // TODO we need to re-evaluate task order execution later
     private suspend fun runTask(
