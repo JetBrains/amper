@@ -68,7 +68,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
 
         // TODO Dont compose ios app for non simulator platform, until signing is handled.
         val usedPlatforms = setOf(Platform.JVM, Platform.ANDROID, Platform.IOS_SIMULATOR_ARM64)
-        AmperBackend(projectContext).compile(usedPlatforms)
+        AmperBackend(projectContext).build(usedPlatforms)
 
         // main/test for Jvm + main/test * debug/release for Android.
         kotlinJvmCompilationSpans.withAmperModule("shared").assertTimes(6)
@@ -87,7 +87,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
     fun composeAndroid() = runTestInfinitely {
         AmperBackend(setupExampleProject("compose-android", backgroundScope = backgroundScope)).run {
             assertHasTasks(androidAppTasks)
-            compile()
+            build()
         }
         // debug + release
         kotlinJvmCompilationSpans.assertTimes(2)
@@ -98,7 +98,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
     fun composeDesktop() = runTestInfinitely {
         AmperBackend(setupExampleProject("compose-desktop", backgroundScope = backgroundScope)).run {
             assertHasTasks(jvmAppTasks)
-            compile()
+            build()
         }
 
         assertKotlinJvmCompilationSpan {

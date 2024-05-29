@@ -51,7 +51,7 @@ class MetadataCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
-): CompileTask {
+): BuildTask {
 
     override val platform: Platform = Platform.COMMON
     override val isTest: Boolean = fragment.isTest

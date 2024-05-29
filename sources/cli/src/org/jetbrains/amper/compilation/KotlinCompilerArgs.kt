@@ -8,7 +8,7 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.BuildTask
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -120,7 +120,7 @@ enum class KotlinCompilationType(val argName: String) {
     }
 }
 
-context(CompileTask)
+context(BuildTask)
 internal fun kotlinNativeCompilerArgs(
     kotlinUserSettings: KotlinUserSettings,
     compilerPlugins: List<CompilerPlugin>,

@@ -21,7 +21,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
@@ -76,7 +76,12 @@ class AmperBackend(val context: ProjectContext) {
         TaskExecutor(taskGraph, context.taskExecutionMode, progress)
     }
 
-    fun compile(platforms: Set<Platform>? = null) {
+    /**
+     * Called by the 'build' command. Compiles and links all code in the project.
+     *
+     * If [platforms] is specified, only compilation/linking for those platforms should be run.
+     */
+    fun build(platforms: Set<Platform>? = null) {
         if (platforms != null) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
@@ -92,7 +97,7 @@ class AmperBackend(val context: ProjectContext) {
         runBlocking {
             val taskNames = taskGraph
                 .tasks
-                .filterIsInstance<CompileTask>()
+                .filterIsInstance<BuildTask>()
                 .filter { platformsToCompile.contains(it.platform) }
                 .map { it.taskName }
                 .toSet()

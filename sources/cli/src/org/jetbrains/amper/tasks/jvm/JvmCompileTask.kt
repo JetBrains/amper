@@ -35,7 +35,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
-import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -67,7 +67,7 @@ class JvmCompileTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
-): CompileTask {
+): BuildTask {
 
     override val platform: Platform = Platform.JVM
 

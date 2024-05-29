@@ -382,7 +382,7 @@ private class BuildCommand : CliktCommand(name = "build", help = "Compile and li
     val platform by platformOption()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() = withBackend(commonOptions, commandName) { backend ->
-        backend.compile(platforms = if (platform.isEmpty()) null else platform.toSet())
+        backend.build(platforms = if (platform.isEmpty()) null else platform.toSet())
     }
 }
 

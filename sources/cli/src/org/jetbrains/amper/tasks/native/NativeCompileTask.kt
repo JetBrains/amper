@@ -31,7 +31,7 @@ import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
-import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -61,7 +61,7 @@ class NativeCompileTask(
     val compilationType: KotlinCompilationType? = null,
     private val kotlinCompilerDownloader: KotlinCompilerDownloader =
         KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
-): CompileTask {
+): BuildTask {
     init {
         require(platform.isLeaf)
         require(platform.isDescendantOf(Platform.NATIVE))

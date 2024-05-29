@@ -8,7 +8,10 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 
-interface CompileTask : Task {
+/**
+ * A task attached to the 'build' command.
+ */
+interface BuildTask : Task {
     val module: PotatoModule
     val isTest: Boolean
     val platform: Platform

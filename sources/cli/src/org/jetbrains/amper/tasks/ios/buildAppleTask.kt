@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.ios
 
 import com.github.ajalt.mordant.terminal.Terminal
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
-import io.opentelemetry.api.trace.Span
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -18,8 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.forClosure
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
-import org.jetbrains.amper.processes.ProcessResult
-import org.jetbrains.amper.tasks.CompileTask
+import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.native.NativeCompileTask
@@ -39,7 +37,7 @@ class BuildAppleTask(
     private val terminal: Terminal,
     override val taskName: TaskName,
     override val isTest: Boolean,
-) : CompileTask {
+) : BuildTask {
     private val prettyPlatform = platform.pretty
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
