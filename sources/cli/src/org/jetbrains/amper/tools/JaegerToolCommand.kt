@@ -22,15 +22,15 @@ import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
-import org.jetbrains.amper.util.OS
 import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -54,14 +54,14 @@ class JaegerToolCommand: CliktCommand(
 
         val os = DefaultSystemInfo.detect()
         val osString = when (os.family) {
-            SystemInfo.OsFamily.Windows -> "windows"
-            SystemInfo.OsFamily.Linux -> "linux"
-            SystemInfo.OsFamily.MacOs -> "darwin"
+            OsFamily.Windows -> "windows"
+            OsFamily.Linux -> "linux"
+            OsFamily.MacOs -> "darwin"
             else -> error("Unsupported OS: ${os.family}")
         }
         val archString = when (os.arch) {
-            SystemInfo.Arch.X64 -> "amd64"
-            SystemInfo.Arch.Arm64 -> "arm64"
+            Arch.X64 -> "amd64"
+            Arch.Arm64 -> "arm64"
         }
 
         // if port is not available, jaeger will report it by itself
@@ -72,7 +72,7 @@ class JaegerToolCommand: CliktCommand(
             val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, backend.context.userCacheRoot)
             val root = extractFileToCacheLocation(file, backend.context.userCacheRoot, ExtractOptions.STRIP_ROOT)
 
-            val executable = root.resolve("jaeger-all-in-one${if (os.family == SystemInfo.OsFamily.Windows) ".exe" else ""}")
+            val executable = root.resolve("jaeger-all-in-one${if (os.family == OsFamily.Windows) ".exe" else ""}")
             val cmd = listOf(executable.pathString) + toolArguments
 
             DeadLockMonitor.disable()
@@ -109,9 +109,9 @@ class JaegerToolCommand: CliktCommand(
 
     private suspend fun openBrowser(url: String, t: Terminal) {
         val cmd = when {
-            OS.isWindows -> listOf("rundll32", "url.dll,FileProtocolHandler", url)
-            OS.isLinux -> listOf("xdg-open", url)
-            OS.isMac -> listOf("open", url)
+            OsFamily.current.isWindows -> listOf("rundll32", "url.dll,FileProtocolHandler", url)
+            OsFamily.current.isLinux -> listOf("xdg-open", url)
+            OsFamily.current.isMac -> listOf("open", url)
             else -> return
         }
 

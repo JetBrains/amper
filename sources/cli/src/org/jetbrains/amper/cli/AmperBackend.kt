@@ -9,6 +9,7 @@ import io.github.classgraph.ClassGraph
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.Result
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.diagnostics.spanBuilder
 import org.jetbrains.amper.diagnostics.use
 import org.jetbrains.amper.engine.TaskExecutor
@@ -27,7 +28,6 @@ import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.OS
 import org.jetbrains.amper.util.PlatformUtil
 import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
@@ -86,7 +86,7 @@ class AmperBackend(val context: ProjectContext) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
 
-        val possibleCompilationPlatforms = if (OS.isMac) {
+        val possibleCompilationPlatforms = if (OsFamily.current.isMac) {
             Platform.leafPlatforms
         } else {
             // Apple targets could be compiled only on Mac OS X due to legal obstacles
@@ -195,7 +195,7 @@ class AmperBackend(val context: ProjectContext) {
 
         context.terminal.println("Project template successfully instantiated to $root")
         context.terminal.println()
-        val exe = if (OS.isWindows) "amper.bat build" else "./amper build"
+        val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
         context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 

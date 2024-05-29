@@ -5,8 +5,8 @@
 package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.cli.JdkDownloader.Arch
-import org.jetbrains.amper.cli.JdkDownloader.OS
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import java.net.URL
@@ -51,9 +51,9 @@ object JdkDownloader {
     private const val correttoJdkVersion = "21.0.1.12.1"
     private const val microsoftJdkVersion = "21.0.1"
 
-    suspend fun getJdk(userCacheRoot: AmperUserCacheRoot): Jdk = getJdk(userCacheRoot, OS.current, Arch.current)
+    suspend fun getJdk(userCacheRoot: AmperUserCacheRoot): Jdk = getJdk(userCacheRoot, OsFamily.current, Arch.current)
 
-    internal suspend fun getJdk(userCacheRoot: AmperUserCacheRoot, os: OS, arch: Arch): Jdk {
+    internal suspend fun getJdk(userCacheRoot: AmperUserCacheRoot, os: OsFamily, arch: Arch): Jdk {
         val downloadUri = jdkDownloadUrlFor(os, arch)
         val jdkArchive = Downloader.downloadFileToCacheLocation(downloadUri.toString(), userCacheRoot)
         val jdkExtracted = extractFileToCacheLocation(jdkArchive, userCacheRoot, ExtractOptions.STRIP_ROOT)
@@ -65,15 +65,15 @@ object JdkDownloader {
         return Jdk(homeDir = jdkHome, downloadUrl = downloadUri, version = hardcodedVersionFor(os, arch))
     }
 
-    private fun jdkDownloadUrlFor(os: OS, arch: Arch): URL =
+    private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch): URL =
         // No Corretto build for Windows Arm64, so use Microsoft's JDK
-        if (os == OS.WINDOWS && arch == Arch.ARM64) {
+        if (os == OsFamily.Windows && arch == Arch.ARM64) {
             microsoftJdkUrlWindowsArm64(hardcodedVersionFor(os, arch))
         } else {
             correttoJdkUrl(os, arch, hardcodedVersionFor(os, arch))
         }
     
-    private fun hardcodedVersionFor(os: OS, arch: Arch) = if (os == OS.WINDOWS && arch == Arch.ARM64) {
+    private fun hardcodedVersionFor(os: OsFamily, arch: Arch) = if (os == OsFamily.Windows && arch == Arch.ARM64) {
         microsoftJdkVersion
     } else {
         correttoJdkVersion
@@ -84,30 +84,11 @@ object JdkDownloader {
         URL("https://aka.ms/download-jdk/microsoft-jdk-$version-windows-aarch64.zip")
 
     // See releases: https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html
-    private fun correttoJdkUrl(os: OS, arch: Arch, version: String): URL {
-        val ext = if (os == OS.WINDOWS) "-jdk.zip" else ".tar.gz"
+    private fun correttoJdkUrl(os: OsFamily, arch: Arch, version: String): URL {
+        val ext = if (os == OsFamily.Windows) "-jdk.zip" else ".tar.gz"
         val osString: String = os.forCorrettoUrl()
         val archString: String = arch.forCorrettoUrl()
         return URL("https://corretto.aws/downloads/resources/$version/amazon-corretto-$version-$osString-$archString$ext")
-    }
-
-    internal enum class OS {
-        WINDOWS,
-        MACOSX,
-        LINUX;
-
-        companion object {
-            val current: OS
-                get() {
-                    val osName = System.getProperty("os.name").lowercase()
-                    return when {
-                        osName.startsWith("mac") -> MACOSX
-                        osName.startsWith("linux") -> LINUX
-                        osName.startsWith("windows") -> WINDOWS
-                        else -> throw IllegalStateException("Only Mac/Linux/Windows are supported now, current os: $osName")
-                    }
-                }
-        }
     }
 
     internal enum class Arch {
@@ -131,8 +112,10 @@ private fun Arch.forCorrettoUrl() = when (this) {
     Arch.ARM64 -> "aarch64"
 }
 
-private fun OS.forCorrettoUrl() = when (this) {
-    OS.WINDOWS -> "windows"
-    OS.MACOSX -> "macosx"
-    OS.LINUX -> "linux"
+private fun OsFamily.forCorrettoUrl() = when(this) {
+    OsFamily.Windows -> "windows"
+    OsFamily.MacOs -> "macosx"
+    OsFamily.Linux -> "linux"
+    OsFamily.FreeBSD -> "linux"
+    OsFamily.Solaris -> "linux"
 }

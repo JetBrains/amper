@@ -8,7 +8,7 @@ import com.google.common.hash.Hashing
 import com.sun.jna.Platform
 import one.profiler.AsyncProfiler
 import org.jetbrains.amper.core.extract.cleanDirectory
-import org.jetbrains.amper.util.OS
+import org.jetbrains.amper.core.system.OsFamily
 import org.slf4j.LoggerFactory
 import kotlin.io.path.createDirectories
 import kotlin.io.path.fileSize
@@ -19,10 +19,10 @@ import kotlin.io.path.writeBytes
 object AsyncProfilerMode {
     fun attachAsyncProfiler(logsDir: AmperBuildLogsRoot, buildOutputRoot: AmperBuildOutputRoot) {
         val platformId = getPlatformId()
-        val ext = when (OS.type) {
-            OS.Type.Windows -> ".dll"
-            OS.Type.Linux -> ".so"
-            OS.Type.Mac -> ".dylib"
+        val ext = when (OsFamily.current) {
+            OsFamily.Windows -> ".dll"
+            OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> ".so"
+            OsFamily.MacOs -> ".dylib"
         }
         val name = "libasyncProfiler$ext"
 
@@ -54,16 +54,16 @@ object AsyncProfilerMode {
 
     private fun getPlatformId(): String {
         val arch = Platform.ARCH
-        return when (OS.type) {
-            OS.Type.Mac -> "macos"
+        return when (OsFamily.current) {
+            OsFamily.MacOs -> "macos"
 
-            OS.Type.Windows -> when (arch) {
+            OsFamily.Windows -> when (arch) {
                 "x86-64" -> "windows"
                 "aarch64" -> "windows-aarch64"
                 else -> error("Unsupported Windows arch: $arch")
             }
 
-            OS.Type.Linux -> when (arch) {
+            OsFamily.Linux, OsFamily.Solaris, OsFamily.FreeBSD -> when (arch) {
                 "x86-64" -> "linux"
                 "aarch64" -> "linux-aarch64"
                 else -> error("Unsupported Linux arch: $arch")

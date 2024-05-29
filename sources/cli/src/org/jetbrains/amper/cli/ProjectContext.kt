@@ -8,13 +8,10 @@ import com.github.ajalt.mordant.terminal.Terminal
 import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
 import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.util.OS
-import org.jetbrains.amper.util.OS.Type.Linux
-import org.jetbrains.amper.util.OS.Type.Mac
-import org.jetbrains.amper.util.OS.Type.Windows
 import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.*
@@ -98,10 +95,10 @@ data class AmperUserCacheRoot(val path: Path) {
         fun fromCurrentUser(): AmperUserCacheRoot {
             val userHome = Path.of(System.getProperty("user.home"))
 
-            val localAppData = when (OS.type) {
-                Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path.of(it) } ?: (userHome / "AppData/Local")
-                Mac -> userHome / "Library/Caches"
-                Linux -> {
+            val localAppData = when (OsFamily.current) {
+                OsFamily.Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path.of(it) } ?: (userHome / "AppData/Local")
+                OsFamily.MacOs -> userHome / "Library/Caches"
+                OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> {
                     val xdgCacheHome = System.getenv("XDG_CACHE_HOME")
                     if (xdgCacheHome.isNullOrBlank()) userHome.resolve(".cache") else Path.of(xdgCacheHome)
                 }

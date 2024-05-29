@@ -6,7 +6,7 @@ package org.jetbrains.amper.android
 
 import com.android.SdkConstants
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -29,8 +29,8 @@ class AndroidSdkDetector(
 
     class DefaultSuggester : Suggester {
         override fun suggestSdkPath(): Path? = when (DefaultSystemInfo.detect().family) {
-            SystemInfo.OsFamily.Windows -> Path.of(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
-            SystemInfo.OsFamily.MacOs -> Path.of(System.getProperty("user.home")).resolve("Library/Android/sdk")
+            OsFamily.Windows -> Path.of(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
+            OsFamily.MacOs -> Path.of(System.getProperty("user.home")).resolve("Library/Android/sdk")
             else -> Path.of(System.getProperty("user.home")).resolve("Android/Sdk")
         }
     }

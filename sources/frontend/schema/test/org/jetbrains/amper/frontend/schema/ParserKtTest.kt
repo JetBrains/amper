@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.frontend.schema
 
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.TestSystemInfo
@@ -118,7 +120,7 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `common library replacement`() {
         aomTest(
             "17-compose-desktop-replacement",
-            TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.MacOs, "X", SystemInfo.Arch.X64))
+            TestSystemInfo(SystemInfo.Os(OsFamily.MacOs, "X", Arch.X64))
         )
     }
 
@@ -126,7 +128,7 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun `jvm library replacement`() {
         aomTest(
             "18-compose-desktop-jvm-replacement",
-            TestSystemInfo(SystemInfo.Os(SystemInfo.OsFamily.Linux, "3.14", SystemInfo.Arch.Arm64))
+            TestSystemInfo(SystemInfo.Os(OsFamily.Linux, "3.14", Arch.Arm64))
         )
     }
 

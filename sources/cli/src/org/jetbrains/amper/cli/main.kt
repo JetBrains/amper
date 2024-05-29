@@ -35,7 +35,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Platform
@@ -106,9 +106,9 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
         help = "Custom shared caches root " +
                 // see org.jetbrains.amper.cli.AmperUserCacheRoot.Companion.fromCurrentUser
                 when (DefaultSystemInfo.detect().family) {
-                    SystemInfo.OsFamily.Windows -> "(default: %LOCALAPPDATA%/Amper)"
-                    SystemInfo.OsFamily.Linux -> "(default: ~/.cache/Amper)"
-                    SystemInfo.OsFamily.MacOs -> "(default: ~/Library/Caches/Amper)"
+                    OsFamily.Windows -> "(default: %LOCALAPPDATA%/Amper)"
+                    OsFamily.Linux -> "(default: ~/.cache/Amper)"
+                    OsFamily.MacOs -> "(default: ~/Library/Caches/Amper)"
                     else -> ""
                 })
         .path(canBeFile = false)

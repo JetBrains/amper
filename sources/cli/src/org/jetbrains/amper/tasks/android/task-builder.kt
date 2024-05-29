@@ -12,8 +12,8 @@ import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
+import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
@@ -239,7 +239,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
     val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
-    val abi = if (DefaultSystemInfo.detect().arch == SystemInfo.Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
+    val abi = if (DefaultSystemInfo.detect().arch == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
             "system-images;android-$versionNumber;${DEFAULT_TAG.id};$abi",

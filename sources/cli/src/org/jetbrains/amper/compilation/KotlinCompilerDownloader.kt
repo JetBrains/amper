@@ -4,15 +4,16 @@
 
 package org.jetbrains.amper.compilation
 
-import com.sun.jna.Platform
 import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.downloader.Downloader
 import org.jetbrains.amper.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.OS
 import java.nio.file.Path
 
 class KotlinCompilerDownloader(
@@ -121,25 +122,30 @@ class KotlinCompilerDownloader(
         //  probably the easiest way is to peek maven central page (could be cached!)
         //  https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-native/1.9.22/
         val packaging: String = when {
-            OS.isMac || OS.isLinux -> "tar.gz"
-            OS.isWindows -> "zip"
+            OsFamily.current.isMac || OsFamily.current.isLinux -> "tar.gz"
+            OsFamily.current.isWindows -> "zip"
             else -> null
         } ?: return null
 
-        val classifier: String = when (OS.type) {
-            OS.Type.Mac -> when (Platform.ARCH) {
-                "x86-64" -> "macos-x86_64"
-                "aarch64" -> "macos-aarch64"
+        val arch = DefaultSystemInfo.detect().arch
+        val classifier: String = when (OsFamily.current) {
+            OsFamily.MacOs -> {
+                when (arch) {
+                    Arch.X64 -> "macos-x86_64"
+                    Arch.Arm64 -> "macos-aarch64"
+                    else -> null
+                }
+            }
+
+            OsFamily.Windows -> when (arch) {
+                Arch.X64 -> "windows-x86_64"
                 else -> null
             }
 
-            OS.Type.Windows -> when (Platform.ARCH) {
-                "x86-64" -> "windows-x86_64"
-                else -> null
-            }
-
-            OS.Type.Linux -> when (Platform.ARCH) {
-                "x86-64" -> "linux-x86_64"
+            OsFamily.Linux,
+            OsFamily.FreeBSD,
+            OsFamily.Solaris -> when (arch) {
+                Arch.X64 -> "linux-x86_64"
                 else -> null
             }
         } ?: return null
