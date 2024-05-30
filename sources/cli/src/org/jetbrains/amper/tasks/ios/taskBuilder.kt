@@ -71,17 +71,6 @@ fun ProjectTaskRegistrar.setupIosTasks() {
             dependsOn = listOf(buildTaskName)
         )
     }
-
-    // TODO Handle tests.
-    onCompileModuleDependency(Platform.IOS) { module, dependsOn, _, platform, isTest ->
-        if (!isIosApp(platform, module)) return@onCompileModuleDependency
-        if (isTest) return@onCompileModuleDependency
-
-        registerDependency(
-            IosTaskType.Framework.getTaskName(module, platform, false),
-            NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
-        )
-    }
 }
 
 internal enum class IosTaskType(override val prefix: String) : PlatformTaskType {
