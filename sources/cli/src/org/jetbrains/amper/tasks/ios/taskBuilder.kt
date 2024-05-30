@@ -12,7 +12,7 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.native.NativeCompileTask
+import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
@@ -28,8 +28,9 @@ fun ProjectTaskRegistrar.setupIosTasks() {
         if (isTest || buildType == BuildType.Release) return@onEachBuildType
 
         val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
+        val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, false)
         registerTask(
-            NativeCompileTask(
+            NativeLinkTask(
                 module = module,
                 platform = platform,
                 userCacheRoot = context.userCacheRoot,
@@ -37,12 +38,12 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 executeOnChangedInputs = eoci,
                 taskName = frameworkTaskName,
                 tempRoot = context.projectTempRoot,
-                terminal = context.terminal,
                 isTest = false,
                 compilationType = KotlinCompilationType.IOS_FRAMEWORK,
+                compileKLibTaskName = compileKLibTaskName,
             ),
             listOf(
-                NativeTaskType.CompileKLib.getTaskName(module, platform, false),
+                compileKLibTaskName,
                 CommonTaskType.Dependencies.getTaskName(module, platform, false),
             )
         )

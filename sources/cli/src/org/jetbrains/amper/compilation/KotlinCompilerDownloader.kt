@@ -16,7 +16,7 @@ import org.jetbrains.amper.util.OS
 import java.nio.file.Path
 
 class KotlinCompilerDownloader(
-    private val userCacheRoot: AmperUserCacheRoot,
+    val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) {
     companion object {

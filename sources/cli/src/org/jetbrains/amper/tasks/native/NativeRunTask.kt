@@ -44,10 +44,10 @@ class NativeRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         DeadLockMonitor.disable()
 
-        val compileTaskResult = dependenciesResult.filterIsInstance<NativeCompileTask.TaskResult>().singleOrNull()
+        val compileTaskResult = dependenciesResult.filterIsInstance<NativeLinkTask.TaskResult>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
-        val executable = compileTaskResult.artifact
+        val executable = compileTaskResult.linkedBinary
         val programArgs = commonRunSettings.programArgs
 
         return spanBuilder("native-run")

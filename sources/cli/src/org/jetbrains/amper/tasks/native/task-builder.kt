@@ -20,7 +20,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
         val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
         registerTask(
-            task = NativeCompileTask(
+            task = NativeCompileKlibTask(
                 module = module,
                 platform = platform,
                 userCacheRoot = context.userCacheRoot,
@@ -29,8 +29,6 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 taskName = compileKLibTaskName,
                 tempRoot = context.projectTempRoot,
                 isTest = isTest,
-                terminal = context.terminal,
-                compilationType = KotlinCompilationType.LIBRARY,
             ),
             dependsOn = buildList {
                 add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
@@ -44,7 +42,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         if (needsLinkedExecutable && !isIosApp(platform, module)) {
             val linkAppTaskName = NativeTaskType.Link.getTaskName(module, platform, isTest)
             registerTask(
-                NativeCompileTask(
+                NativeLinkTask(
                     module = module,
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
@@ -53,8 +51,8 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                     taskName = linkAppTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
-                    terminal = context.terminal,
                     compilationType = KotlinCompilationType.BINARY,
+                    compileKLibTaskName = compileKLibTaskName,
                 ),
                 listOf(
                     compileKLibTaskName,

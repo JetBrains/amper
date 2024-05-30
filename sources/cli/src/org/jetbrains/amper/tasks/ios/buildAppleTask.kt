@@ -20,7 +20,7 @@ import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.native.NativeCompileTask
+import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -42,8 +42,8 @@ class BuildAppleTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val nativeCompileTasksResults = dependenciesResult
-            .filterIsInstance<NativeCompileTask.TaskResult>()
-            .map { it.artifact }
+            .filterIsInstance<NativeLinkTask.TaskResult>()
+            .map { it.linkedBinary }
 
         val leafAppleFragment = module.leafFragments.first { it.platform == platform }
         val targetName = prettyPlatform
