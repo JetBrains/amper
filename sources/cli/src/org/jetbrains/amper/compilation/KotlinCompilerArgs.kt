@@ -123,11 +123,11 @@ enum class KotlinCompilationType(val argName: String) {
     BINARY("program"),
     IOS_FRAMEWORK("framework");
 
-    fun output(root: Path, module: PotatoModule, platform: Platform, isTest: Boolean): Path = when {
-        this == LIBRARY -> root.resolve("${moduleName(module, isTest)}.klib")
-        this == IOS_FRAMEWORK -> root.resolve("kotlin.framework")
-        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> root.resolve("${moduleName(module, isTest)}.exe")
-        else -> root.resolve("${moduleName(module, isTest)}.kexe")
+    fun outputFilename(module: PotatoModule, platform: Platform, isTest: Boolean): String = when {
+        this == LIBRARY -> "${moduleName(module, isTest)}.klib"
+        this == IOS_FRAMEWORK -> "kotlin.framework"
+        this == BINARY && platform.isDescendantOf(Platform.MINGW) -> "${moduleName(module, isTest)}.exe"
+        else -> "${moduleName(module, isTest)}.kexe"
     }
 
     fun moduleName(module: PotatoModule, isTest: Boolean): String? = when(this) {

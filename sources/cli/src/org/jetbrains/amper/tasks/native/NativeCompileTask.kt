@@ -136,7 +136,7 @@ class NativeCompileTask(
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val artifact = compilationType.output(taskOutputRoot.path, module, platform, isTest)
+            val artifact = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
             val libraryPaths = compiledModuleDependencies + externalDependencies.filter { !it.pathString.endsWith(".jar") }
 
