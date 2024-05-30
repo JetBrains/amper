@@ -111,12 +111,6 @@ class NativeCompileTask(
         val kotlinNativeHome = kotlinCompilerDownloader.downloadAndExtractKotlinNative(kotlinVersion)
             ?: error("kotlin native compiler is not available at this platform")
 
-        val ext = if (OS.isWindows) ".bat" else ""
-        val konancExecutable = kotlinNativeHome.resolve("bin").resolve("konanc$ext")
-        if (!konancExecutable.isExecutable()) {
-            error("kotlin native home does not have konanc executable at $konancExecutable")
-        }
-
         logger.info("native compile ${module.userReadableName} -- ${fragments.joinToString(" ") { it.name }}")
 
         // TODO this the is JDK to run konanc, what are the requirements?
