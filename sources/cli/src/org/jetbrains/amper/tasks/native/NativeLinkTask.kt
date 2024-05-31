@@ -7,13 +7,13 @@ package org.jetbrains.amper.tasks.native
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
-import org.jetbrains.amper.cli.AmperUserCacheRoot
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
 import org.jetbrains.amper.compilation.mergedKotlinSettings
+import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.TaskName
@@ -91,7 +91,7 @@ class NativeLinkTask(
 
             val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
-            val nativeCompiler = kotlinCompilerDownloader.downloadNativeCompiler(kotlinVersion)
+            val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
             val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
             val args = kotlinNativeCompilerArgs(
                 kotlinUserSettings = kotlinUserSettings,

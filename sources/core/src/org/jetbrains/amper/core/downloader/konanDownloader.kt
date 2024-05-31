@@ -18,6 +18,7 @@ const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
  * Downloads and extracts current system specific kotlin native.
  * Returns null if kotlin native is not supported on current system/arch.
  */
+// WARNING! Used in IDE.
 suspend fun downloadAndExtractKotlinNative(
     version: String,
     userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot.fromCurrentUser()

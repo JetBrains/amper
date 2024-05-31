@@ -4,16 +4,17 @@
 
 package org.jetbrains.amper.cli
 
-import org.jetbrains.amper.cli.JdkDownloader.Arch
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import java.net.URL
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+
 
 class Jdk(
     /**
@@ -68,13 +69,13 @@ object JdkDownloader {
 
     private fun jdkDownloadUrlFor(os: OsFamily, arch: Arch): URL =
         // No Corretto build for Windows Arm64, so use Microsoft's JDK
-        if (os == OsFamily.Windows && arch == Arch.ARM64) {
+        if (os == OsFamily.Windows && arch == Arch.Arm64) {
             microsoftJdkUrlWindowsArm64(hardcodedVersionFor(os, arch))
         } else {
             correttoJdkUrl(os, arch, hardcodedVersionFor(os, arch))
         }
-    
-    private fun hardcodedVersionFor(os: OsFamily, arch: Arch) = if (os == OsFamily.Windows && arch == Arch.ARM64) {
+
+    private fun hardcodedVersionFor(os: OsFamily, arch: Arch) = if (os == OsFamily.Windows && arch == Arch.Arm64) {
         microsoftJdkVersion
     } else {
         correttoJdkVersion
@@ -91,26 +92,11 @@ object JdkDownloader {
         val archString: String = arch.forCorrettoUrl()
         return URL("https://corretto.aws/downloads/resources/$version/amazon-corretto-$version-$osString-$archString$ext")
     }
-
-    internal enum class Arch {
-        X86_64,
-        ARM64;
-
-        companion object {
-            val current: Arch
-                get() {
-                    val arch = System.getProperty("os.arch").lowercase()
-                    if ("x86_64" == arch || "amd64" == arch) return X86_64
-                    if ("aarch64" == arch || "arm64" == arch) return ARM64
-                    throw IllegalStateException("Only X86_64 and ARM64 are supported, current arch: $arch")
-                }
-        }
-    }
 }
 
 private fun Arch.forCorrettoUrl() = when (this) {
-    Arch.X86_64 -> "x64"
-    Arch.ARM64 -> "aarch64"
+    Arch.X64 -> "x64"
+    Arch.Arm64 -> "aarch64"
 }
 
 private fun OsFamily.forCorrettoUrl() = when(this) {

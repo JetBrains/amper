@@ -8,10 +8,12 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
+import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.downloader.downloadAndExtractKotlinNative
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.diagnostics.spanBuilder
-import org.jetbrains.amper.diagnostics.useWithScope
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -21,7 +23,10 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.div
 
-suspend fun KotlinCompilerDownloader.downloadNativeCompiler(kotlinVersion: String): KotlinNativeCompiler {
+suspend fun downloadNativeCompiler(
+    kotlinVersion: String,
+    userCacheRoot: AmperUserCacheRoot
+): KotlinNativeCompiler {
     val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion)
         ?: error("kotlin native compiler is not available for the current platform")
 

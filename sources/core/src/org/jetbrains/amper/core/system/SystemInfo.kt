@@ -15,7 +15,7 @@ enum class OsFamily(val value: String) {
 
     companion object {
         val current by lazy {
-            when(Platform.getOSType()) {
+            when (Platform.getOSType()) {
                 Platform.WINDOWS -> Windows
                 Platform.MAC -> MacOs
                 Platform.LINUX -> Linux
@@ -54,7 +54,11 @@ enum class Arch(val value: String) {
 
 interface SystemInfo {
 
-    data class Os(val family: OsFamily, val version: String, val arch: Arch) {
+    data class Os(
+        val family: OsFamily,
+        val version: String,
+        val arch: Arch,
+    ) {
         val familyArch get() = "${family.value.lowercase()}-${arch.value.lowercase()}"
     }
 

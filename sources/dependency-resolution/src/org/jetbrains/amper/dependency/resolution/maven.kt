@@ -251,7 +251,7 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun List<Variant>.filterWithFallbackScope(scope: ResolutionScope) : List<Variant> {
+    private fun List<Variant>.filterWithFallbackScope(scope: ResolutionScope): List<Variant> {
         val scopeVariants = this.filter { scope.matches(it) }
         return scopeVariants.takeIf { it.withoutDocumentationAndMetadata.isNotEmpty() }
             ?: scope.fallback()?.let { fallbackScope ->
@@ -260,11 +260,12 @@ class MavenDependency internal constructor(
             ?: scopeVariants
     }
 
-    private fun List<Variant>.filterWithFallbackPlatform(platform: ResolutionPlatform) : List<Variant> {
+    private fun List<Variant>.filterWithFallbackPlatform(platform: ResolutionPlatform): List<Variant> {
         val platformVariants = this.filter { platform.type.matches(it) }
         return when {
             platformVariants.withoutDocumentationAndMetadata.isNotEmpty()
                     || platform.type.fallback == null -> platformVariants
+
             else -> this.filter { platform.type.fallback.matches(it) }
         }
     }
@@ -274,10 +275,10 @@ class MavenDependency internal constructor(
             (this.withoutDocumentationAndMetadata.size == 1) -> this
             else -> {
                 val usedAttributes = setOf(
-                  "org.gradle.category",
-                  "org.gradle.usage",
-                  "org.jetbrains.kotlin.native.target",
-                  "org.jetbrains.kotlin.platform.type",
+                    "org.gradle.category",
+                    "org.gradle.usage",
+                    "org.jetbrains.kotlin.native.target",
+                    "org.jetbrains.kotlin.platform.type",
                 )
                 val minUnusedAttrsCount = minOfOrNull { v ->
                     v.attributes.count { it.key !in usedAttributes }
@@ -300,8 +301,10 @@ class MavenDependency internal constructor(
         if (context.settings.platforms.isEmpty()) {
             throw AmperDependencyResolutionException("Target platform is not specified.")
         } else if (context.settings.platforms.singleOrNull() == ResolutionPlatform.COMMON) {
-            throw AmperDependencyResolutionException("Dependency resolution can not be run for COMMON platform. " +
-                    "Set of actual target platforms should be specified.")
+            throw AmperDependencyResolutionException(
+                "Dependency resolution can not be run for COMMON platform. " +
+                        "Set of actual target platforms should be specified."
+            )
         }
 
         if (context.settings.platforms.size == 1) {
@@ -336,7 +339,7 @@ class MavenDependency internal constructor(
 
             val (kotlinMetadataVariant, kmpMetadataFile) =
                 detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level)
-                ?: return  // children list is empty in case kmp common variant is not resolved
+                    ?: return  // children list is empty in case kmp common variant is not resolved
 
             resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
         }
@@ -370,7 +373,7 @@ class MavenDependency internal constructor(
         return false
     }
 
-    private fun Dependency.toMavenDependency(context: Context, moduleMetadata: Module) : MavenDependency? {
+    private fun Dependency.toMavenDependency(context: Context, moduleMetadata: Module): MavenDependency? {
         val resolvedVersion = version.resolve()
         if (resolvedVersion == null) {
             reportDependencyVersionResolutionFailure(this, moduleMetadata)
@@ -420,7 +423,12 @@ class MavenDependency internal constructor(
 
         val kmpMetadataDependencyFile = getDependencyFile(this, kotlinMetadataFile)
 
-        return (kotlinMetadataVariant to kmpMetadataDependencyFile).takeIf { it.second.isDownloadedOrDownload(level, context) }
+        return (kotlinMetadataVariant to kmpMetadataDependencyFile).takeIf {
+            it.second.isDownloadedOrDownload(
+                level,
+                context
+            )
+        }
             ?: run {
                 messages.asMutable() += Message(
                     "Kotlin metadata file ${kmpMetadataDependencyFile.nameWithoutExtension}.${kmpMetadataDependencyFile.extension} is required for $this",
@@ -467,7 +475,13 @@ class MavenDependency internal constructor(
                 .filter { it.name in sourceSetsIntersection }
                 .map {
                     async(Dispatchers.IO) {
-                        it.toDependencyFile(kmpMetadataFile, moduleMetadata, kotlinProjectStructureMetadata, context, level)
+                        it.toDependencyFile(
+                            kmpMetadataFile,
+                            moduleMetadata,
+                            kotlinProjectStructureMetadata,
+                            context,
+                            level
+                        )
                     }
                 }
         }.awaitAll()
@@ -519,16 +533,19 @@ class MavenDependency internal constructor(
     private fun getKotlinMetadataVariant(
         validVariants: List<Variant>,
         platform: ResolutionPlatform
-    ): Variant? =
-        validVariants.firstOrNull { it.isKotlinMetadata(platform) }
-            ?: run {
-                messages.asMutable() += Message(
-                    "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
-                            "but kotlin metadata is not found (none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
-                    severity = Severity.ERROR,
-                )
-                null
-            }
+    ): Variant? {
+        if (this.isKotlinTestAnnotations()) return null
+        val metadataVariants = validVariants.filter { it.isKotlinMetadata(platform) }
+        return metadataVariants.firstOrNull() ?: run {
+            messages.asMutable() += Message(
+                "More than a single variant provided for multiplatform dependency ${group}:${module}:${version}, " +
+                        "but kotlin metadata is not found (none of variants has attribute 'org.gradle.usage' equal to 'kotlin-metadata')",
+                severity = Severity.ERROR,
+            )
+
+            null
+        }
+    }
 
     companion object {
         // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
@@ -548,7 +565,8 @@ class MavenDependency internal constructor(
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
         val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
-            "sha1", null, context.settings.progress, context.resolutionCache, false, level)
+            "sha1", null, context.settings.progress, context.resolutionCache, false, level
+        )
             ?: kmpMetadataFile.getPath()?.let {
                 computeHash(it) { listOf(Hasher("sha1")) }.single().hash
             }
@@ -574,7 +592,8 @@ class MavenDependency internal constructor(
             kmpMetadataFile.dependency,
             "${kmpMetadataFile.dependency.module}-$sourceSetName",
             "klib",
-            kmpSourceSet = sourceSetName)
+            kmpSourceSet = sourceSetName
+        )
 
         val targetFileName = "$module-$sourceSetName-$version.klib"
 
@@ -715,6 +734,10 @@ class MavenDependency internal constructor(
             toCapability()
         )
 
+    // Skip metadata un-packaging for kotlin-test annotations.
+    private fun isKotlinTestAnnotations() =
+        group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-annotations-common"))
+
     private fun isKotlinTestJunit() =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
 
@@ -852,10 +875,13 @@ class MavenDependency internal constructor(
     private suspend fun DependencyFile.isDownloadedOrDownload(level: ResolutionLevel, context: Context) =
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
-    private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant> get() =
-        filterNot { it.attributes["org.gradle.category"] == "documentation" }
-            .filterNot { it.attributes["org.gradle.usage"] == "kotlin-api"
-                    && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value }
+    private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
+        get() =
+            filterNot { it.attributes["org.gradle.category"] == "documentation" }
+                .filterNot {
+                    it.attributes["org.gradle.usage"] == "kotlin-api"
+                            && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
+                }
 
     suspend fun downloadDependencies(context: Context) {
         val notDownloaded = files
