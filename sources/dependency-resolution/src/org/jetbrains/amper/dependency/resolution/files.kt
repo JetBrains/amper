@@ -191,7 +191,7 @@ open class DependencyFile(
     val nameWithoutExtension: String,
     val extension: String,
     val kmpSourceSet: String? = null,
-    private val fileCache: FileCache = dependency.fileCache,
+    private val fileCache: FileCache = dependency.settings.fileCache,
 ) {
 
     @Volatile
@@ -631,7 +631,7 @@ class SnapshotDependencyFile(
     dependency: MavenDependency,
     name: String,
     extension: String,
-    fileCache: FileCache = dependency.fileCache,
+    fileCache: FileCache = dependency.settings.fileCache,
 ) : DependencyFile(dependency, name, extension, fileCache = fileCache) {
 
     private val mavenMetadata by lazy {

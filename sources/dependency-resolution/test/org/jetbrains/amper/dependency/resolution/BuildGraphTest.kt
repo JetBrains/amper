@@ -21,6 +21,7 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
+            downloadSources = true,
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test:1.9.10
                 |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.10
@@ -36,6 +37,42 @@ class BuildGraphTest {
                 |kotlin-stdlib-common-1.9.10-sources.jar
                 |kotlin-stdlib-common-1.9.10.jar
                 |kotlin-test-1.9.10.jar""".trimMargin(),
+            root
+        )
+    }
+
+    @Test
+    fun `org_jetbrains_kotlin kotlin-test-annotations-common 2_0_0`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            platform = setOf(ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            expected = """root
+                |\--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0
+                |     \--- org.jetbrains.kotlin:kotlin-test:2.0.0
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.0
+            """.trimMargin()
+        )
+        assertFiles(
+            """kotlin-stdlib-commonMain-2.0.0.klib
+                |kotlin-test-annotationsCommonMain-2.0.0.klib
+                |kotlin-test-assertionsCommonMain-2.0.0.klib""".trimMargin(),
+            root
+        )
+    }
+
+    @Test
+    fun `org_jetbrains_kotlin kotlin-test-annotations-common 1_9_0`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            platform = setOf(ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            expected = """root
+                |\--- org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.0
+                |     \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
+            """.trimMargin()
+        )
+        assertFiles(
+            """kotlin-stdlib-common-1.9.0.jar
+                |kotlin-test-annotations-common-1.9.0.jar""".trimMargin(),
             root
         )
     }
@@ -68,6 +105,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
+            downloadSources = true,
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test:1.9.20
                 |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
@@ -77,6 +115,7 @@ class BuildGraphTest {
         assertFiles(
             """annotations-13.0-sources.jar
                 |annotations-13.0.jar
+                |kotlin-stdlib-1.9.20-sources.jar
                 |kotlin-stdlib-1.9.20.jar
                 |kotlin-test-1.9.20.jar""".trimMargin(),
             root
@@ -502,14 +541,11 @@ class BuildGraphTest {
             activity-1.6.0.aar
             annotation-1.3.0.jar
             annotation-experimental-1.3.0.aar
-            annotations-13.0-sources.jar
             annotations-13.0.jar
             appcompat-1.6.1.aar
             appcompat-resources-1.6.1.aar
-            collection-1.1.0-sources.jar
             collection-1.1.0.jar
             core-1.9.0.aar
-            core-common-2.1.0-sources.jar
             core-common-2.1.0.jar
             core-ktx-1.2.0.aar
             core-runtime-2.0.0.aar
@@ -518,13 +554,9 @@ class BuildGraphTest {
             drawerlayout-1.0.0.aar
             fragment-1.3.6.aar
             interpolator-1.0.0.aar
-            kotlin-stdlib-1.7.10-sources.jar
             kotlin-stdlib-1.7.10.jar
-            kotlin-stdlib-common-1.7.10-sources.jar
             kotlin-stdlib-common-1.7.10.jar
-            kotlin-stdlib-jdk7-1.6.0-sources.jar
             kotlin-stdlib-jdk7-1.6.0.jar
-            kotlin-stdlib-jdk8-1.6.0-sources.jar
             kotlin-stdlib-jdk8-1.6.0.jar
             kotlinx-coroutines-android-1.6.1.jar
             kotlinx-coroutines-core-jvm-1.6.1.jar
@@ -548,6 +580,7 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
+            downloadSources = true,
             expected = """root
                 |\--- com.google.guava:guava:33.0.0-android
                 |     +--- com.google.guava:failureaccess:1.0.2
@@ -559,7 +592,9 @@ class BuildGraphTest {
             """.trimMargin()
         )
         assertFiles(
-            """checker-qual-3.41.0.jar
+            """checker-qual-3.41.0-javadoc.jar
+                |checker-qual-3.41.0-sources.jar
+                |checker-qual-3.41.0.jar
                 |error_prone_annotations-2.23.0-sources.jar
                 |error_prone_annotations-2.23.0.jar
                 |failureaccess-1.0.2-sources.jar

@@ -143,7 +143,7 @@ internal fun Context.createOrReuseDependency(
     module: String,
     version: String
 ): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
-    MavenDependency(this.settings.fileCache, group, module, version)
+    MavenDependency(this.settings, group, module, version)
 }
 
 /**
@@ -156,7 +156,7 @@ internal fun Context.createOrReuseDependency(
  * @see [DependencyFile]
  */
 class MavenDependency internal constructor(
-    val fileCache: FileCache,
+    val settings: Settings,
     val group: String,
     val module: String,
     val version: String
@@ -187,7 +187,7 @@ class MavenDependency internal constructor(
 
     private val mutex = Mutex()
 
-    val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
+    private val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
         get() = buildList {
@@ -198,7 +198,7 @@ class MavenDependency internal constructor(
                 val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
                 val extension = if (it == "bundle") "jar" else it
                 add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
-                if (extension == "jar") {
+                if (extension == "jar" && settings.downloadSources) {
                     add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
                 }
             }
@@ -329,6 +329,11 @@ class MavenDependency internal constructor(
                 }
         } else {
             // Multiplatform case
+            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata)
+            if (processedAsSpecialCase) {
+                return
+            }
+
             val (kotlinMetadataVariant, kmpMetadataFile) =
                 detectKotlinMetadataLibrary(context, ResolutionPlatform.COMMON, moduleMetadata, level)
                 ?: return  // children list is empty in case kmp common variant is not resolved
@@ -337,6 +342,32 @@ class MavenDependency internal constructor(
         }
 
         state = level.state
+    }
+
+    /**
+     * Some pretty basic libraries that are used in KMP world mimic for a pure JVM libraries,
+     * those cases should be processed in a custom way.
+     *
+     * If this method returns true, it means such a library was detected and processed (library dependencies are registered to graph),
+     * no further processing by a usual way is needed.
+     *
+     * @return true, in case Kmp library that needs special treatment was detected and processed, false - otherwise
+     */
+    private fun processSpecialKmpLibraries(context: Context, moduleMetadata: Module): Boolean {
+        if (isKotlinTestAnnotationsCommon()) {
+            moduleMetadata
+                .variants
+                .flatMap {
+                    it.dependencies
+                }.mapNotNull {
+                    it.toMavenDependency(context, moduleMetadata)
+                }.let {
+                    children = it
+                }
+            return true
+        }
+
+        return false
     }
 
     private fun Dependency.toMavenDependency(context: Context, moduleMetadata: Module) : MavenDependency? {
@@ -547,7 +578,7 @@ class MavenDependency internal constructor(
 
         val targetFileName = "$module-$sourceSetName-$version.klib"
 
-        val targetPath = kmpMetadataFile.dependency.fileCache.amperCache
+        val targetPath = kmpMetadataFile.dependency.settings.fileCache.amperCache
             .resolve("kotlin/kotlinTransformedMetadataLibraries/")
             .resolve(group)
             .resolve(module)
@@ -687,6 +718,9 @@ class MavenDependency internal constructor(
     private fun isKotlinTestJunit() =
         group == "org.jetbrains.kotlin" && (module in setOf("kotlin-test-junit", "kotlin-test-junit5"))
 
+    private fun isKotlinTestAnnotationsCommon() =
+        group == "org.jetbrains.kotlin" && module == "kotlin-test-annotations-common"
+
     private fun Variant.isGuavaException() =
         isGuava() && capabilities.sortedBy { it.name } == listOf(
             Capability("com.google.collections", "google-collections", version),
@@ -733,6 +767,8 @@ class MavenDependency internal constructor(
             children = it
             state = level.state
         }
+
+
     }
 
     /**
@@ -822,16 +858,12 @@ class MavenDependency internal constructor(
                     && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value }
 
     suspend fun downloadDependencies(context: Context) {
-        // Be explicit here about "notDownloaded" list and do not turn it into a sequence, because
-        // [it.isDownloaded()] should be performed under lock when download starts.
         val notDownloaded = files
             .filter {
                 // filter out sources/javadocs if those are not requested in settings
                 context.settings.downloadSources
                         || (!"${it.nameWithoutExtension}.${it.extension}".let { name ->
-                    name.endsWith("-sources.jar") || name.endsWith(
-                        "-javadoc.jar"
-                    )
+                    name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar")
                 })
             }.filter {
                 context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage

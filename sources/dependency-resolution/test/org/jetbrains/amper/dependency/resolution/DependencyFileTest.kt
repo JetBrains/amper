@@ -43,8 +43,7 @@ class DependencyFileTest {
                 localRepositories = listOf(GradleLocalRepository(path))
             }
         }.use { context ->
-            val dependency =
-                MavenDependency(context.settings.fileCache, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
+            val dependency = MavenDependency(context.settings, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
             val extension = "module"
             val name = "${getNameWithoutExtension(dependency)}.$extension"
             val target = path.resolve(
@@ -74,7 +73,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "com.fasterxml.jackson.module", "jackson-module-kotlin", "2.15.2"
             )
             runBlocking {
@@ -98,7 +97,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.5.0"
             )
             runBlocking {
@@ -121,7 +120,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.7.3"
             )
             runBlocking {
@@ -154,7 +153,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.4.0"
             )
             runBlocking {
@@ -186,7 +185,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-datetime", "0.4.0"
             )
             runBlocking {
@@ -222,7 +221,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.7.3"
             )
             runBlocking {
@@ -346,7 +345,7 @@ class DependencyFileTest {
             }
         }.use { context ->
             val dependency = MavenDependency(
-                context.settings.fileCache,
+                context.settings,
                 "org.jetbrains.compose.ui", "ui", "1.5.10"
             )
             runBlocking {

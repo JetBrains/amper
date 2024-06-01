@@ -17,7 +17,7 @@ class MavenLocalRepositoryTest {
     @field:TempDir
     lateinit var temp: File
 
-    private val cache: MavenLocalRepository
+    private val mavenLocalRepository: MavenLocalRepository
         get() = MavenLocalRepository(temp.toPath())
 
     @Test
@@ -28,7 +28,7 @@ class MavenLocalRepositoryTest {
     @Test
     fun `guess path`() {
         val node = kotlinTest()
-        val path = runBlocking { cache.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
+        val path = runBlocking { mavenLocalRepository.guessPath(node, "${getNameWithoutExtension(node)}.jar") }
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -38,7 +38,7 @@ class MavenLocalRepositoryTest {
     @Test
     fun `get path`() {
         val sha1 = computeHash("sha1", randomString().toByteArray())
-        val path = runBlocking { cache.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1) }
+        val path = runBlocking { mavenLocalRepository.getPath(kotlinTest(), "${getNameWithoutExtension(kotlinTest())}.jar", sha1) }
         assertEquals(
             "org/jetbrains/kotlin/kotlin-test/1.9.10/kotlin-test-1.9.10.jar",
             path.relativeTo(temp.toPath()).toString().replace('\\', '/')
@@ -46,7 +46,9 @@ class MavenLocalRepositoryTest {
     }
 
     private fun kotlinTest() = MavenDependency(
-        FileCacheBuilder { localRepositories = listOf(cache) }.build(),
+        SettingsBuilder {
+            cache = { localRepositories = listOf(mavenLocalRepository) }
+        }.settings,
         "org.jetbrains.kotlin", "kotlin-test", "1.9.10"
     )
 
