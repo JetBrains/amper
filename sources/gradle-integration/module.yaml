@@ -21,7 +21,7 @@ dependencies:
   - org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.0
   - org.jetbrains.compose:compose-gradle-plugin:1.6.10
   - dev.gradleplugins:gradle-api:8.6: compile-only
-  - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.1
+  - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.2
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4
 
 test-dependencies:
