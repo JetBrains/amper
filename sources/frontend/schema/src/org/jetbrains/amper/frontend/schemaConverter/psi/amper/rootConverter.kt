@@ -28,6 +28,7 @@ import org.jetbrains.amper.frontend.schema.Meta
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.TaskSettings
@@ -35,6 +36,10 @@ import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperObject.convertProject() = Project().apply {
+    ::modules.convertChildScalarCollection { asAbsolutePath() }
+}
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertTemplate() = Template().apply {

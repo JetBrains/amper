@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.schema.Meta
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ModuleProduct
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.TaskSettings
@@ -33,6 +34,14 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun YAMLDocument.convertProject() = Project().apply {
+    val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
+    with(documentMapping) {
+        ::modules.convertChildScalarCollection { asAbsolutePath() }
+    }
+}
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLDocument.convertTemplate() = Template().apply {

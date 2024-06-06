@@ -12,10 +12,13 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.schema.Module
+import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertModule
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertProject
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertTemplate
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertModule
+import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertProject
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertTemplate
 import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLFile
@@ -27,10 +30,25 @@ internal data class ConvertCtx(
 )
 
 context(ProblemReporterContext, ConvertCtx)
+internal fun convertProject(file: VirtualFile): Project? = pathResolver.toPsiFile(file)?.let { convertProjectPsi(it) }
+
+context(ProblemReporterContext, ConvertCtx)
 internal fun convertModule(file: VirtualFile): Module? = pathResolver.toPsiFile(file)?.let { convertModulePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
+
+context(ProblemReporterContext, ConvertCtx)
+private fun convertProjectPsi(file: PsiFile): Project? {
+    // TODO Add reporting.
+    return ApplicationManager.getApplication().runReadAction(Computable {
+        when (file) {
+            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertProject()
+            is AmperFile -> file.convertProject()
+            else -> null
+        }
+    })
+}
 
 context(ProblemReporterContext, ConvertCtx)
 private fun convertModulePsi(file: PsiFile): Module? {
