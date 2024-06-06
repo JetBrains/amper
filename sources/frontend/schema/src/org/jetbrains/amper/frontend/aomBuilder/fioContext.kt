@@ -44,11 +44,6 @@ internal interface FioContext {
     val amperModuleFiles: List<VirtualFile>
 
     /**
-     * Parents of [amperModuleFiles].
-     */
-    val amperModuleDirs: List<VirtualFile>
-
-    /**
      * All gradle modules ([gradleModuleFiles]), that are found within [rootDir] hierarchy.
      */
     val gradleModules: Map<VirtualFile, DumbGradleModule>
@@ -95,8 +90,6 @@ internal open class DefaultFioContext(
         }
     }
 
-    override val amperModuleDirs: List<VirtualFile> by lazy { amperModuleFiles.map { it.parent } }
-
     override val gradleModules: Map<VirtualFile, DumbGradleModule> by lazy {
         buildMap {
             // TODO This seems wrong. We should be using the included projects from settings.gradle.kts, otherwise
@@ -104,7 +97,7 @@ internal open class DefaultFioContext(
             VfsUtilCore.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
                 override fun visitFile(file: VirtualFile): Boolean {
                     if (isIgnored(file)) return false
-                    if (file.parent in amperModuleDirs) return true
+                    if (file.parent in amperModuleFiles.map { it.parent }) return true
                     if (file.name in gradleModuleFiles) put(file.parent, DumbGradleModule(file))
                     return true
                 }
