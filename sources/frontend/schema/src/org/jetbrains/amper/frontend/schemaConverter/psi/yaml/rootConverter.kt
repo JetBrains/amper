@@ -35,7 +35,7 @@ import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
 
 context(ProblemReporterContext, ConvertCtx)
-fun YAMLDocument.convertTemplate() = Template().apply {
+internal fun YAMLDocument.convertTemplate() = Template().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         convertBase(this@apply)
@@ -43,7 +43,7 @@ fun YAMLDocument.convertTemplate() = Template().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun YAMLDocument.convertModule() = Module().apply {
+internal fun YAMLDocument.convertModule() = Module().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
@@ -62,7 +62,7 @@ fun YAMLDocument.convertModule() = Module().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun <T : Base> YAMLMapping.convertBase(base: T) = base.apply {
+private fun <T : Base> YAMLMapping.convertBase(base: T) = base.apply {
     ::repositories.convertChild { convertRepositories() }
 
     ::dependencies.convertModifierAware { value?.convertDependencies() }

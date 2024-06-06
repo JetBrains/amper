@@ -21,22 +21,22 @@ import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLFile
 
 // TODO Rethink.
-data class ConvertCtx(
+internal data class ConvertCtx(
     val baseFile: VirtualFile,
     val pathResolver: FrontendPathResolver
 )
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertModule(file: VirtualFile): Module? = pathResolver.toPsiFile(file)?.let { convertModulePsi(it) }
+internal fun convertModule(file: VirtualFile): Module? = pathResolver.toPsiFile(file)?.let { convertModulePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
+internal fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun convertModulePsi(file: PsiFile): Module? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
-        return@Computable when (file) {
+        when (file) {
             is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertModule()
             is AmperFile -> file.convertModule()
             else -> null
@@ -48,7 +48,7 @@ context(ProblemReporterContext, ConvertCtx)
 private fun convertTemplatePsi(file: PsiFile): Template? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
-        return@Computable when (file) {
+        when (file) {
             is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertTemplate()
             is AmperFile -> file.convertTemplate()
             else -> null

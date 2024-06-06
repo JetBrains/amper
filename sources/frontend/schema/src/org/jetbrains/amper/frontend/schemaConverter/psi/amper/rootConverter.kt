@@ -37,12 +37,12 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 
 
 context(ProblemReporterContext, ConvertCtx)
-fun AmperObject.convertTemplate() = Template().apply {
+internal fun AmperObject.convertTemplate() = Template().apply {
     convertBase(this@apply)
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun AmperObject.convertModule() = Module().apply {
+internal fun AmperObject.convertModule() = Module().apply {
     val documentMapping = this
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
@@ -62,7 +62,7 @@ fun AmperObject.convertModule() = Module().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun <T : Base> AmperObject.convertBase(base: T) = base.apply {
+private fun <T : Base> AmperObject.convertBase(base: T) = base.apply {
     ::repositories.convertChild { convertRepositories() }
 
     ::dependencies.convertModifierAware { value?.convertDependencies() }
