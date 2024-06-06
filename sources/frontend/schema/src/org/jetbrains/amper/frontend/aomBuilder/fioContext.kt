@@ -33,8 +33,9 @@ private fun FioContext.isIgnored(file: VirtualFile): Boolean {
 internal interface FioContext {
 
     /**
-     * `.amperignore` file parsed lines as paths, relative to [rootDir].
+     * `.amperignore` file parsed lines as paths.
      */
+    // TODO remove once project scope is implemented
     val ignorePaths: List<Path>
 
     /**
