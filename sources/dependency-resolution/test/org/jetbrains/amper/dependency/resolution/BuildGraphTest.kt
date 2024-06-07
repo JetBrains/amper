@@ -576,6 +576,30 @@ class BuildGraphTest {
     }
 
     @Test
+    fun `androidx_appcompat appcompat 1_6_1 many contexts`(testInfo: TestInfo) {
+        val repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"
+        val contexts = listOf(
+            context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
+            context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
+            context(platform = setOf(ResolutionPlatform.IOS_X64), repositories = repositories),
+            context(platform = setOf(ResolutionPlatform.IOS_ARM64), repositories = repositories),
+            context(platform = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64), repositories = repositories),
+        )
+
+        val root = ModuleDependencyNode(contexts.first(), "root",
+            contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) }
+        )
+
+        val resolver = Resolver()
+        runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+        root.verifyGraphConnectivity()
+        root.distinctBfsSequence().forEach {
+            val messages = it.messages.filter { "Downloaded from" !in it.text }
+            assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+        }
+    }
+
+    @Test
     fun `com_google_guava guava 33_0_0-android`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
@@ -1461,8 +1485,3 @@ private fun String.toRootNode(context: Context) = ModuleDependencyNode(context, 
 
 private fun List<String>.toRootNode(context: Context) =
     ModuleDependencyNode(context, "root", map { it.toMavenNode(context) })
-
-private fun String.toMavenNode(context: Context): MavenDependencyNode {
-    val (group, module, version) = split(":")
-    return MavenDependencyNode(context, group, module, version)
-}

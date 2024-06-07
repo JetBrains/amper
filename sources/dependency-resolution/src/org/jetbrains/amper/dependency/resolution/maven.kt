@@ -187,7 +187,7 @@ class MavenDependency internal constructor(
 
     private val mutex = Mutex()
 
-    private val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
+    internal val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
     val files
         get() = buildList {
@@ -203,6 +203,20 @@ class MavenDependency internal constructor(
                 }
             }
             sourceSetsFiles.let { addAll(it) }
+        }
+
+    /**
+     * The repository module/pom file was downloaded from.
+     * If we download module/pom file from some repository,
+     * then it would be optimal to try downloading resolved variants and hashes from the same repository first as well,
+     * instead of traversing the list in an original order.
+     */
+    @Volatile
+    internal var repository: String? = null
+        set(value) {
+            if (field == null && value != null) {
+                field = value
+            }
         }
 
     override fun toString(): String = "$group:$module:$version"
@@ -223,12 +237,13 @@ class MavenDependency internal constructor(
         val pomText = if (pom.isDownloadedOrDownload(level, context)) {
             pom.readText()
         } else {
-            // todo (AB) : It is not clear what happened (the error is too broad)
-            messages.asMutable() += Message(
-                "Pom required for $this",
-                settings.repositories.toString(),
-                if (level == ResolutionLevel.NETWORK) Severity.ERROR else Severity.WARNING,
-            )
+            if (level != ResolutionLevel.NETWORK) {
+                messages.asMutable() += Message(
+                    "Pom was not found for $this",
+                    settings.repositories.toString(),
+                    Severity.WARNING,
+                )
+            }
             null
         }
         // 2. If pom is missing or mentions metadata, use it.
@@ -238,11 +253,13 @@ class MavenDependency internal constructor(
                 return
             }
             if (pomText != null) {
-                messages.asMutable() += Message(
-                    "Pom provided but metadata required for $this",
-                    context.settings.repositories.toString(),
-                    if (level.state == ResolutionState.RESOLVED) Severity.ERROR else Severity.WARNING,
-                )
+                if (level != ResolutionLevel.NETWORK) {
+                    messages.asMutable() += Message(
+                        "Pom is resolved, but metadata was not found for $this",
+                        context.settings.repositories.toString(),
+                        Severity.WARNING,
+                    )
+                }
             }
         }
         // 3. If can't use metadata, use pom.
@@ -565,7 +582,7 @@ class MavenDependency internal constructor(
         val version = kmpMetadataFile.dependency.version
         // kmpMetadataFile hash
         val sha1 = kmpMetadataFile.getOrDownloadExpectedHash(
-            "sha1", null, context.settings.progress, context.resolutionCache, false, level
+            "sha1", null, context.settings.progress, context.resolutionCache, level
         )
             ?: kmpMetadataFile.getPath()?.let {
                 computeHash(it) { listOf(Hasher("sha1")) }.single().hash

@@ -33,6 +33,8 @@ class DRConcurrencyTest: BaseDRTest() {
             .resolve("androidx").resolve("annotation")
             .resolve("annotation-jvm").resolve("1.6.0")
             .resolve("annotation-jvm-1.6.0.module")
+
+        private const val annotationJvmCoordinates = "androidx.annotation:annotation-jvm:1.6.0"
     }
 
     /**
@@ -43,7 +45,35 @@ class DRConcurrencyTest: BaseDRTest() {
      * DR internal methods that compute file cache should be resilient to this.
      */
     @Test
-    fun `androidx_annotation annotation-jvm 1_6_0`(testInfo: TestInfo) {
+    fun `androidx_annotation annotation-jvm 1_6_0 computeHash`(testInfo: TestInfo) =
+        doConcurrencyTest(testInfo) {
+            annotationJvmPath.computeHash()
+        }
+
+    /**
+     * Check that read from downloaded file doesn't clash with downloading itself in a concurrent environment.
+     *
+     * There is a small interval of time after the file was downloaded and moved to target location and
+     * before lock on that file was released. Trying to read from file at that period of time would fail.
+     * DR internal methods that read from downloaded file cache should be resilient to this.
+     */
+    @Test
+    fun `androidx_annotation annotation-jvm 1_6_0 readText`(testInfo: TestInfo) =
+        doConcurrencyTest(testInfo) {
+            val context = context(
+                repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+                cacheRoot = cacheRoot)
+            annotationJvmCoordinates.toMavenNode(context).dependency.moduleFile.readText()
+        }
+
+    /**
+     * Check that read from downloaded file doesn't clash with reading the file itself.
+     *
+     * There is a small interval of time after the file was downloaded and moved to target location and
+     * before lock on that file was released. Trying to read from file at that period of time would fail.
+     * DR internal methods that read from downloaded file cache should be resilient to this.
+     */
+    fun doConcurrencyTest(testInfo: TestInfo, block: suspend (Path) -> Unit) {
         runBlocking {
             coroutineScope {
                 val testBody = async(Dispatchers.IO) {
@@ -51,6 +81,7 @@ class DRConcurrencyTest: BaseDRTest() {
                         println("########### Iteration $i ")
                         doTest(
                             testInfo,
+                            dependency = annotationJvmCoordinates,
                             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
                             cacheRoot = cacheRoot
                         )
@@ -64,7 +95,7 @@ class DRConcurrencyTest: BaseDRTest() {
                     while (!testBody.isCompleted) {
                         if (annotationJvmPath.exists()) {
                             try {
-                                annotationJvmPath.computeHash()
+                                block(annotationJvmPath)
                             } catch (e: NoSuchFileException) {
                                 // Ignore this exception since testBody could have removed the file at the end of the iteration
                                 continue

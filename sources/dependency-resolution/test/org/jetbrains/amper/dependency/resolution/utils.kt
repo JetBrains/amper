@@ -17,4 +17,7 @@ fun computeHash(algorithm: String, bytes: ByteArray): String {
     return hash.toHex()
 }
 
-
+internal fun String.toMavenNode(context: Context): MavenDependencyNode {
+    val (group, module, version) = split(":")
+    return MavenDependencyNode(context, group, module, version)
+}

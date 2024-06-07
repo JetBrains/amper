@@ -15,51 +15,84 @@ import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
+import kotlin.io.path.readText
 
-internal val logger = LoggerFactory.getLogger("fileUtils.kt")
+private val logger = LoggerFactory.getLogger("fileUtils.kt")
 
 fun interface Writer {
     fun write(data: ByteBuffer)
 }
-class Hasher(algorithm: String) {
+class Hasher(algorithm: String): Hash {
     private val digest = MessageDigest.getInstance(algorithm)
-    val algorithm: String = digest.algorithm
+    override val algorithm: String = digest.algorithm
     val writer: Writer = Writer(digest::update)
-    val hash: String by lazy { digest.digest().toHex() }
+    override val hash: String by lazy { digest.digest().toHex() }
+}
+
+interface Hash {
+    val algorithm: String
+    val hash: String
 }
 
 @OptIn(ExperimentalStdlibApi::class)
 fun ByteArray.toHex() = toHexString()
 
-suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> {
-    return withRetry(
-        retryOnException = {
-            when(it) {
-                // File doesn't exist - nothing to compute hash from, rethrow further.
-                is NoSuchFileException -> false
-
-                is IOException -> {
-                    // Retry until the file could be opened.
-                    // It could have been exclusively locked by DR for a very short period of time:
-                    // after downloaded file was moved from temp to target location (and thus became discoverable),
-                    // and before the process released file lock on that file (lock is hold on file moving)
-                    logger.debug("Cache computation was interrupted by ${it::class.simpleName}: ${it.message}")
-
-                    true
-                }
-                else -> false
-            }
+suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> =
+    fileChannelReadOperationWithRetry(
+        path,
+        { e -> retryFileOperationOnException(e, path) }
+    ) { fileChannel ->
+        hashersFn().also { hashers ->
+            fileChannel.readTo(hashers.map { it.writer })
         }
-    ) {
-        val hashers = hashersFn()
+    }
+
+suspend fun Path.readTextWithRetry(): String =
+    fileOperationWithRetry(this) { it.readText() }
+
+suspend fun <T> fileChannelReadOperationWithRetry(
+    path: Path,
+    retryOnException: (e: Exception) -> Boolean = { e -> retryFileOperationOnException(e, path) },
+    block:(FileChannel) -> T
+): T =
+    fileOperationWithRetry(path, retryOnException) { _ ->
+        FileChannel.open(path, StandardOpenOption.READ)
+            .use { block(it) }
+    }
+
+suspend fun <T> fileOperationWithRetry(
+    path: Path,
+    retryOnException: (e: Exception) -> Boolean = { e -> retryFileOperationOnException(e, path) },
+    block:(Path) -> T
+): T {
+    return withRetry(retryOnException = retryOnException) {
         withContext(Dispatchers.IO) {
-            FileChannel.open(path, StandardOpenOption.READ)
-        }.use { channel ->
-            channel.readTo(hashers.map { it.writer })
+            block(path)
         }
-        return@withRetry hashers
     }
 }
+
+fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
+    when (e) {
+        // File doesn't exist - nothing to operate on.
+        is NoSuchFileException -> false
+
+        is IOException -> {
+            // Retry until the file could be opened.
+            // It could have been exclusively locked by DR for a very short period of time:
+            // after downloaded file was moved from temp to target location (and thus became discoverable),
+            // and before the process released file lock on that file (lock is hold on file moving)
+            logger.debug(
+                "File operation was interrupted by {}: {} ({})",
+                e::class.simpleName, e.message, path
+            )
+
+            true
+        }
+
+        else -> false
+    }
+
 
 fun ReadableByteChannel.readTo(writers: Collection<Writer>): Long {
     var size = 0L

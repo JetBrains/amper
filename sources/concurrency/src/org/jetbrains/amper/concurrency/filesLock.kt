@@ -2,6 +2,7 @@ package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.withLock
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
@@ -28,6 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+private val logger = LoggerFactory.getLogger("fileLock.kt")
 
 private val filesLock = StripedMutex(stripeCount = 512)
 
@@ -53,7 +55,8 @@ suspend fun <T> withDoubleLock(
         // Second, lock locks a flagFile across all processes on the system
         FileChannel.open(file, *options)
             .use { fileChannel ->
-                fileChannel.lock().use {
+                val fileLock = fileChannel.lockWithRetry()
+                fileLock.use {
                     block(fileChannel)
                 }
             }
@@ -164,6 +167,22 @@ private suspend fun produceFileWithDoubleLock(
     )
 }
 
+suspend fun produceFileWithDoubleLock(
+    tempFilePath: suspend () -> Path,
+    returnAlreadyProducedWithoutLocking: Boolean = true,
+    getAlreadyProducedResult: suspend () -> Path?,
+    writeFileContent: suspend (FileChannel) -> Path?,
+) : Path? {
+    val temp = tempFilePath()
+
+    return produceResultWithDoubleLock(
+        temp.hashCode(), temp,
+        block = writeFileContent,
+        getAlreadyProducedResult = getAlreadyProducedResult,
+        returnAlreadyProducedWithoutLocking = returnAlreadyProducedWithoutLocking
+    )
+}
+
 /**
  * It locks on a non-reentrant coroutine Mutex first - getting exclusive access inside one JVM.
  * Then it acquires FileChannel lock to get exclusive access across all processes on the system.
@@ -215,15 +234,18 @@ private suspend fun <T> produceResultWithFileLock(
             return@produceResultWithFileLock try {
                 doWithFileLock(fileChannel, getAlreadyProducedFile, block, file)
             } catch (e: OverlappingFileLockException) {
+                logger.debug("OverlappingFileLockException from doWithFileLock on {}", file, e)
                 // Another process is already processing the file. Let's wait for it and then check the result.
                 delay(wait)
                 wait = (wait * 2).coerceAtMost(1000)
                 continue
             } catch (e: NoSuchFileException) {
                 // Another process deleted temp file before we were able to get the lock on it => Try again.
+                logger.debug("NoSuchFileException from doWithFileLock on {}", file, e)
                 produceResultWithFileLock(file, block, getAlreadyProducedFile)
             } catch (e: ClosedChannelException) {
                 // Another process deleted temp file before we were able to get the lock on it => Try again.
+                logger.debug("ClosedChannelException from doWithFileLock on {}", file, e)
                 produceResultWithFileLock(file, block, getAlreadyProducedFile)
             }
         }
@@ -238,11 +260,35 @@ private suspend fun <T> doWithFileLock(
 ): T {
     val fileLock = fileChannel.lockWithRetry()
     return fileLock.use {
+        logger.debug("### ${System.currentTimeMillis()} ${file.name}: locked")
         try {
-            getAlreadyProducedFile() ?: block(fileChannel)
-        } finally {
-            file.deleteIfExists()
+            getAlreadyProducedFile()
+                ?.also {
+                    file.deleteIfExistsWithLogging(
+                        "### ${ System.currentTimeMillis() } ${file.name}: Target file exists already, temp file was deleted under lock"
+                    )
+                }
+                ?: block(fileChannel) // temp file was moved inside the block to target file location - there is no need to delete it.
+        } catch (e: Throwable) {
+            file.deleteIfExistsWithLogging(
+                "### ${ System.currentTimeMillis() }  ${file.name}: Exception occurred, temp file was deleted under lock",
+                e
+            )
+            throw e
         }
+    }.also {
+        logger.debug("### ${System.currentTimeMillis()} {}: unlocked", file.name)
+    }
+}
+
+private fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
+    try {
+        deleteIfExists()
+        logger.debug(onSuccessMessage)
+    } catch (_t: Throwable) {
+        logger.debug("### ${ System.currentTimeMillis() } ${name}: failed to delete temp file under lock${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
+        // rethrow original exception
+        throw t ?: _t
     }
 }
 

@@ -31,29 +31,33 @@ class DependencyFileTest {
     private val amperPath: Path
         get() = temp.resolve(".amper").toPath()
 
-    private val gradlePath: Path
+    private val gradleLocalPath: Path
         get() = temp.resolve(".gradle").toPath()
+
+    private val mavenLocalPath: Path
+        get() = temp.resolve(".m2.cache").toPath()
+
+    private fun gradleLocalRepository() = GradleLocalRepository(gradleLocalPath)
+    private fun mavenLocalRepository() = MavenLocalRepository(mavenLocalPath)
 
     @Test
     fun `kotlin-test-1_9_20 module hash`() {
-        val path = gradlePath
+        val gradleLocalRepository = gradleLocalRepository()
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(GradleLocalRepository(path))
+                localRepositories = listOf(gradleLocalRepository)
             }
         }.use { context ->
             val dependency = MavenDependency(context.settings, "org.jetbrains.kotlin", "kotlin-test", "1.9.20")
             val extension = "module"
             val name = "${getNameWithoutExtension(dependency)}.$extension"
-            val target = path.resolve(
-                "${dependency.group}/${dependency.module}/${dependency.version}/3bf4b49eb37b4aca302f99bd99769f6e310bdb2/$name"
-            )
+            val target = gradleLocalRepository.getPath(dependency, name, "3bf4b49eb37b4aca302f99bd99769f6e310bdb2")
             Files.createDirectories(target.parent)
             Path.of("testData/metadata/json/module/$name").copyTo(target)
 
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(path) })
+            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(gradleLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
             val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
@@ -65,11 +69,10 @@ class DependencyFileTest {
 
     @Test
     fun `jackson-module-kotlin-2_15_2_jar hash`() {
-        val path = gradlePath
         Context {
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -87,13 +90,12 @@ class DependencyFileTest {
 
     @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
-        val path = gradlePath
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -110,13 +112,12 @@ class DependencyFileTest {
 
     @Test
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check metadata`() {
-        val path = gradlePath
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -131,7 +132,7 @@ class DependencyFileTest {
 
 
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), "jar")
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(path) })
+            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
             val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
@@ -143,13 +144,12 @@ class DependencyFileTest {
     @Test
     @Ignore
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
-        val path = gradlePath
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -164,7 +164,7 @@ class DependencyFileTest {
 
 
             val dependencyFile = DependencyFile(dependency, "${getNameWithoutExtension(dependency)}-all", "jar")
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(path) })
+            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
 
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
             val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
@@ -175,13 +175,12 @@ class DependencyFileTest {
 
 //    @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_4_0 empty module file`() {
-        val path = gradlePath
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_ARM64)
             repositories = listOf("https://fake-repository/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -197,7 +196,7 @@ class DependencyFileTest {
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), "module")
             val downloaded = runBlocking { dependencyFile.isDownloaded() }
             val hasMatchingChecksum = runBlocking { dependencyFile.hasMatchingChecksum(ResolutionLevel.LOCAL, context) }
-            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(path) })
+            assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(mavenLocalPath) })
             assertTrue(downloaded, "File must be downloaded as it was created above")
             assertTrue(hasMatchingChecksum, "File must have matching checksum as it was created above")
         }
@@ -217,7 +216,7 @@ class DependencyFileTest {
             repositories = listOf("https://repo.maven.apache.org/maven2/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(gradlePath))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(
@@ -327,7 +326,6 @@ class DependencyFileTest {
 
     @Test
     fun `org_jetbrains_compose_ui ui 1_5_10 kmp library resolution`() {
-        val path = gradlePath
         Context {
             platforms = setOf(
                 ResolutionPlatform.JVM,
@@ -341,7 +339,7 @@ class DependencyFileTest {
                 "https://repo.maven.apache.org/maven2/")
             cache = {
                 amperCache = amperPath
-                localRepositories = listOf(MavenLocalRepository(path))
+                localRepositories = listOf(mavenLocalRepository())
             }
         }.use { context ->
             val dependency = MavenDependency(

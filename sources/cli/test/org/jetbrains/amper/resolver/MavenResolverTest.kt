@@ -149,7 +149,8 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])
+                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
             """.trimIndent(),
             t.message
         )
@@ -230,8 +231,10 @@ class MavenResolverTest {
             """
                 Unable to resolve dependencies for test:
 
-                Pom required for org.tinylog:slf4j-tinylog:9999 ([https://repo1.maven.org/maven2])
-                Pom required for org.tinylog:xxx:9998 ([https://repo1.maven.org/maven2])
+                Unable to download checksums of file slf4j-tinylog-9999.pom for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file slf4j-tinylog-9999.module for dependency org.tinylog:slf4j-tinylog:9999 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file xxx-9998.pom for dependency org.tinylog:xxx:9998 (https://repo1.maven.org/maven2)
+                Unable to download checksums of file xxx-9998.module for dependency org.tinylog:xxx:9998 (https://repo1.maven.org/maven2)
             """.trimIndent(),
             t.message
         )

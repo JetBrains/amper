@@ -14,34 +14,30 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.jetbrains.amper.concurrency.Hash
 import org.jetbrains.amper.concurrency.Hasher
 import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
-import org.jetbrains.amper.concurrency.lockWithRetry
-import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.concurrency.fileOperationWithRetry
+import org.jetbrains.amper.concurrency.produceFileWithDoubleLock
+import org.jetbrains.amper.concurrency.readTextWithRetry
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.channels.OverlappingFileLockException
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
-import java.nio.file.NoSuchFileException
-import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.ZonedDateTime
 import kotlin.io.path.createDirectories
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.isDirectory
@@ -232,12 +228,11 @@ open class DependencyFile(
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
-        isLockAcquired: Boolean = false,
     ): Boolean {
         val path = getPath() ?: return false
         val hashers = path.computeHash()
         for (repository in repositories) {
-            val result = verify(hashers, repository, progress, cache, isLockAcquired = isLockAcquired, requestedLevel = level)
+            val result = verify(hashers, repository, progress, cache, requestedLevel = level)
             return when (result) {
                 VerificationResult.PASSED -> true
                 VerificationResult.FAILED -> false
@@ -247,152 +242,132 @@ open class DependencyFile(
         return level < ResolutionLevel.NETWORK
     }
 
-    suspend fun readText(): String = withContext(Dispatchers.IO) { getPath()?.readText() }
+    private suspend fun hasMatchingChecksum(expectedHash: Hash): Boolean {
+        val path = getPath() ?: return false
+        val actualHash = computeHash(path){ listOf(Hasher(expectedHash.algorithm)) }.single()
+        val result = checkHash(actualHash, expectedHash)
+        return result == VerificationResult.PASSED
+    }
+
+    suspend fun readText(): String = getPath()?.readTextWithRetry()
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
-
     suspend fun download(context: Context): Boolean =
-        download(context.settings.repositories, context.settings.progress, context.resolutionCache)
-
-    protected suspend fun download(
-        repositories: List<String>,
-        progress: Progress,
-        cache: Cache,
-        isLockAcquired: Boolean = false,
-        verify: Boolean = true,
-    ): Boolean = withContext(Dispatchers.IO) {
-        val temp = getTempFilePath()
-        return@withContext if (!isLockAcquired) {
-            temp.withLock {
-                downloadUnderFileLock(repositories, progress, cache, verify)
-            }
-        } else
-            downloadUnderFileLock(repositories, progress, cache, verify)
-    }
+        download(context.settings.repositories.ensureFirst(dependency.repository), context.settings.progress, context.resolutionCache, true)
 
     private suspend fun downloadUnderFileLock(
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
-        verify: Boolean = true,
-    ): Boolean {
-        val temp = getTempFilePath()
-        try {
-            temp.parent.createDirectories()
-            try {
-                return downloadUnderFileLock(
-                    temp,
-                    repositories,
-                    progress,
-                    cache,
-                    verify,
-                    StandardOpenOption.WRITE,
-                    StandardOpenOption.CREATE_NEW
-                )
-            } catch (e: FileAlreadyExistsException) {
-                return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
-            } catch (e: OverlappingFileLockException) {
-                return waitForFileLockReleaseAndCheckResult(temp, repositories, progress, cache, verify)
+        expectedHash: Hash?,
+    ): Path? {
+        return withContext(Dispatchers.IO) {
+            val temp = getTempFilePath()
+
+            produceFileWithDoubleLock(
+                tempFilePath = { getTempFilePath() },
+                getAlreadyProducedResult = {
+                    getPath()?.takeIf { isDownloadedWithVerification(expectedHash) }
+                }
+            ) { fileChannel ->
+                try {
+                    downloadAndVerifyHash(fileChannel, temp, repositories, progress, cache, expectedHash)
+                } catch (e: IOException) {
+                    dependency.messages.asMutable() += Message(
+                        "Unable to save downloaded file",
+                        e.toString(),
+                        Severity.ERROR,
+                        e,
+                    )
+                    return@produceFileWithDoubleLock null
+                }
             }
-        } catch (e: IOException) {
-            dependency.messages.asMutable() += Message(
-                "Unable to save downloaded file",
-                e.toString(),
-                Severity.ERROR,
-                e,
-            )
-            return false
         }
     }
 
     internal suspend fun DependencyFile.getTempFilePath() =
         getCacheDirectory().getTempPath(dependency, "$nameWithoutExtension.$extension")
 
-    private suspend fun waitForFileLockReleaseAndCheckResult(
-        temp: Path,
+
+
+    private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash?) =
+        isDownloaded() && (expectedHash == null || hasMatchingChecksum(expectedHash))
+
+    internal suspend fun download(
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
-        verify: Boolean
+        verify: Boolean,
     ): Boolean {
-        // Someone's already downloading the file. Let's wait for it and then check the result.
-        var wait = 10L
-        while (true) {
-            return try {
-                // Another process has created a file, but this process was faster to acquire a lock.
-                downloadUnderFileLock(temp, repositories, progress, cache, verify = verify, StandardOpenOption.WRITE)
-            } catch (e: OverlappingFileLockException) {
-                // The file is still being downloaded.
-                delay(wait)
-                wait = (wait * 2).coerceAtMost(1000)
-                continue
-            } catch (e: NoSuchFileException) {
-                // The file has been released and moved.
-                isDownloadWithVerification(verify, repositories, progress, cache)
+        val path = if (verify) {
+            val expectedHash = getOrDownloadExpectedHash(repositories, progress, cache)
+            if (expectedHash == null) {
+                dependency.messages.asMutable() += Message(
+                    "Unable to download checksums of file $nameWithoutExtension.$extension for dependency $dependency",
+                    repositories.joinToString(),
+                    Severity.ERROR,
+                )
+                return false
             }
+            if (isDownloadedWithVerification(expectedHash)) {
+                return true
+            }
+
+            val optimizedRepositories = repositories.ensureFirst(dependency.repository) // first, try the same repo hash was downloaded from
+            downloadUnderFileLock(optimizedRepositories, progress, cache, expectedHash)
+        } else {
+            if (isDownloadedWithVerification(null)) {
+                return true
+            }
+
+            downloadUnderFileLock(repositories, progress, cache, null)
         }
+
+        if (path == null && verify) {
+            dependency.messages.asMutable() += Message(
+                "Unable to download file $nameWithoutExtension.$extension for dependency $dependency",
+                repositories.joinToString(),
+                Severity.ERROR,
+            )
+        }
+
+        return path != null
     }
 
-    private suspend fun DependencyFile.isDownloadWithVerification(
-        verify: Boolean,
-        repositories: List<String>,
-        progress: Progress,
-        cache: Cache
-    ) = isDownloaded() && (!verify
-            || hasMatchingChecksum(ResolutionLevel.NETWORK, repositories, progress, cache, isLockAcquired = true))
-
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun downloadUnderFileLock(
-        temp: Path,
-        repositories: List<String>,
-        progress: Progress,
-        cache: Cache,
-        verify: Boolean,
-        vararg options: OpenOption,
-    ) =
-        FileChannel.open(temp, *options)
-            .use { fileChannel ->
-                val fileLock = fileChannel.lockWithRetry()
-                fileLock.use {
-                    try {
-                        if (isDownloadWithVerification(verify, repositories, progress, cache)) {
-                            true
-                        } else {
-                            downloadUnderFileLock(fileChannel, temp, repositories, progress, cache, verify)
-                        }
-                    } finally {
-                        temp.deleteIfExists()
-                    }
+    private fun List<String>.ensureFirst(repository: String?) =
+        repository?.let {
+            if (this[0] == repository || !this.contains(repository))
+                this
+            else
+                buildList {
+                    add(repository)
+                    addAll(this - repository)
                 }
-            }
+        } ?: this
 
     @Suppress("BlockingMethodInNonBlockingContext") // the whole method is called with Dispatchers.IO
-    private suspend fun downloadUnderFileLock(
+    private suspend fun downloadAndVerifyHash(
         channel: FileChannel,
         temp: Path,
         repositories: List<String>,
         progress: Progress,
         cache: Cache,
-        verify: Boolean,
-    ): Boolean {
+        expectedHash: Hash?,      // this should be passed for all files being downloaded, except when hash files are downloaded itself
+    ): Path? {
         for (repository in repositories) {
-            val hashers = createHashers().filter { verify || it.algorithm == "sha1" }.filterWellKnownBrokenHashes(repository)
+            val hasher = expectedHash?.let { Hasher(it.algorithm) }
+            val hashers = buildList {
+                hasher?.let { add(it) }                                        // for calculation of the given hash on download
+                if (hasher?.algorithm != "sha1") add(Hasher("sha1"))  // for calculation of `sha1` hash on download additionally
+            }
             val writers = hashers.map { it.writer } + Writer(channel::write)
             if (!download(writers, repository, progress, cache)) {
                 channel.truncate(0)
                 continue
             }
-            if (verify) {
-                val result = verify(hashers, repository, progress, cache, isLockAcquired = true)
+            if (hasher != null) {
+                val result = checkHash(hasher, expectedHash)
                 if (result > VerificationResult.PASSED) {
-                    if (result == VerificationResult.UNKNOWN) {
-                        dependency.messages.asMutable() += Message(
-                            "Unable to download checksums for $dependency",
-                            repository,
-                            Severity.ERROR,
-                        )
-                    }
-
                     channel.truncate(0)
                     continue
                 }
@@ -409,10 +384,17 @@ open class DependencyFile(
                 targetSha1.writeText(sha1)
                 temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
             } catch (e: FileAlreadyExistsException) {
-                if (repositories.any {
-                        shouldOverwrite(it, progress, cache, verify) { target.computeHash() }
-                    }) {
-                    temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                logger.debug("### $target already exists")
+                if (hasher != null
+                    && shouldOverwrite(cache, hasher, computeHash(target) { listOf(Hasher(hasher.algorithm)) }.single()))
+                {
+                    try {
+                        logger.debug("### $target will be replaced with new one")
+                        temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                    } catch (t: Throwable) {
+                        logger.debug("### $target was not replaced with new one", t)
+                        throw t
+                    }
                 }
             }
             logger.trace(
@@ -423,37 +405,28 @@ open class DependencyFile(
                 dependency.version,
                 target.parent
             )
-            onFileDownloaded(target)
+            onFileDownloaded(target, repository)
 
             dependency.messages.asMutable() += Message("Downloaded from $repository")
 
-            return true
+            return target
         }
-        return false
+        return null
     }
 
     fun interface HashersProvider : suspend () -> Collection<Hasher>
 
     protected open suspend fun shouldOverwrite(
-        repository: String,
-        progress: Progress,
         cache: Cache,
-        verify: Boolean,
-        hashersProvider: HashersProvider,
-    ): Boolean = verify && verify(
-        hashersProvider(),
-        repository,
-        progress,
-        cache,
-        isLockAcquired = true
-    ) > VerificationResult.PASSED
+        expectedHasher: Hasher?,
+        actualHash : Hasher
+    ): Boolean = expectedHasher != null && checkHash(actualHash,expectedHasher) > VerificationResult.PASSED
 
     private suspend fun verify(
         hashers: Collection<Hasher>,
         repository: String,
         progress: Progress,
         cache: Cache,
-        isLockAcquired: Boolean = false,
         requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
     ): VerificationResult {
         // Let's first check hashes available on disk.
@@ -461,7 +434,7 @@ open class DependencyFile(
             .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository).map { level to it } }
         for ((level, hasher) in levelToHasher) {
             val algorithm = hasher.algorithm
-            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, isLockAcquired = isLockAcquired, level)
+            val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, level)
                 ?: continue
             val actualHash = hasher.hash
             if (expectedHash != actualHash) {
@@ -478,11 +451,81 @@ open class DependencyFile(
         return VerificationResult.UNKNOWN
     }
 
-    private fun Collection<Hasher>.filterWellKnownBrokenHashes(repository: String) =
-        when {
-            repository == "https://plugins.gradle.org/m2/" -> filter { it.algorithm != "sha512" && it.algorithm != "sha256" }
-            else -> this
+    /**
+     * @return hash and repository where it was downloaded from (the latter is null if hash was found locally)
+     */
+    private suspend fun getOrDownloadExpectedHash(
+        repositories: List<String>,
+        progress: Progress,
+        cache: Cache,
+        requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
+    ): Hash? {
+        val hashers = createHashers()
+
+        // First, try to find cache locally
+        for (hasher in hashers) {
+            val algorithm = hasher.algorithm
+            val expectedHash = getOrDownloadExpectedHash(algorithm, null, progress, cache, ResolutionLevel.LOCAL)
+            if (expectedHash != null) {
+                return object : Hash {
+                    override val hash: String = expectedHash
+                    override val algorithm = algorithm
+                }
+            }
         }
+
+        // Then, try to download hash from given repositories
+        if (requestedLevel != ResolutionLevel.LOCAL) {
+            for (hasher in hashers) {
+                val algorithm = hasher.algorithm
+                for (repository in repositories) {
+                    if (!hasher.isWellKnownBrokenHashIn(repository)) {
+                        val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, requestedLevel)
+                        if (expectedHash != null) {
+                            return object : Hash {
+                                override val hash: String = expectedHash
+                                override val algorithm = algorithm
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
+    private fun checkHash(
+        hasher: Hasher,
+        expectedHash: Hash,
+    ): VerificationResult {
+        // Let's first check hashes available on disk.
+        val algorithm = hasher.algorithm
+        val actualHash = hasher.hash
+        if (expectedHash.algorithm != algorithm) {
+            throw IllegalStateException("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated")
+        } else if (expectedHash.hash != actualHash) {
+            dependency.messages.asMutable() += Message(
+                "Hashes don't match for $algorithm",
+                "expected: $expectedHash, actual: $actualHash",
+                Severity.ERROR,
+            )
+            return VerificationResult.FAILED
+        } else {
+            return VerificationResult.PASSED
+        }
+    }
+
+    private fun Collection<Hasher>.filterWellKnownBrokenHashes(repository: String) =
+        filterNot { it.isWellKnownBrokenHashIn(repository) }
+
+    private fun Hasher.isWellKnownBrokenHashIn(repository: String) : Boolean {
+        if (repository == "https://plugins.gradle.org/m2/") {
+            return algorithm == "sha512" || algorithm == "sha256"
+        }
+
+        return false
+    }
 
     enum class VerificationResult { PASSED, UNKNOWN, FAILED }
 
@@ -491,7 +534,6 @@ open class DependencyFile(
         repository: String?,
         progress: Progress,
         cache: Cache,
-        isLockAcquired: Boolean = false,
         level: ResolutionLevel = ResolutionLevel.NETWORK
     ): String? {
         val name = "$nameWithoutExtension.$extension"
@@ -512,7 +554,7 @@ open class DependencyFile(
         val hashFile = getDependencyFile(dependency, nameWithoutExtension, "$extension.$algorithm").takeIf {
             it.isDownloaded()
                     || level == ResolutionLevel.NETWORK
-                    && repository != null && it.download(listOf(repository), progress, cache, isLockAcquired = isLockAcquired, verify = false)
+                    && repository != null && it.download(listOf(repository), progress, cache, verify = false)
         }
         val hashFromRepository = hashFile?.readText()
         if (hashFromRepository != null) {
@@ -622,8 +664,9 @@ open class DependencyFile(
     ) =
         "$name.$extension"
 
-    internal open suspend fun onFileDownloaded(target: Path) {
-        path = target
+    internal open suspend fun onFileDownloaded(target: Path, repository: String? = null) {
+        this.path = target
+        this.dependency.repository = repository
     }
 }
 
@@ -697,7 +740,7 @@ class SnapshotDependencyFile(
     ): String {
         if (name != "maven-metadata" &&
             (mavenMetadata.isDownloaded()
-                    || mavenMetadata.download(listOf(repository), progress, cache, isLockAcquired = true, verify = false))
+                    || mavenMetadata.download(listOf(repository), progress, cache, verify = false))
         ) {
             getSnapshotVersion()
                 ?.let { name.replace(dependency.version, it) }
@@ -708,17 +751,12 @@ class SnapshotDependencyFile(
         return super.getNamePart(repository, name, extension, progress, cache)
     }
 
-    override suspend fun shouldOverwrite(
-        repository: String,
-        progress: Progress,
-        cache: Cache,
-        verify: Boolean,
-        hashersProvider: HashersProvider
-    ): Boolean = nameWithoutExtension == "maven-metadata"
-            || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
+    override suspend fun shouldOverwrite(cache: Cache, expectedHasher: Hasher?, actualHash: Hasher): Boolean =
+        nameWithoutExtension == "maven-metadata"
+                || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
 
-    override suspend fun onFileDownloaded(target: Path) {
-        super.onFileDownloaded(target)
+    override suspend fun onFileDownloaded(target: Path, repository: String?) {
+        super.onFileDownloaded(target, repository)
         if (nameWithoutExtension != "maven-metadata") {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }
         }
