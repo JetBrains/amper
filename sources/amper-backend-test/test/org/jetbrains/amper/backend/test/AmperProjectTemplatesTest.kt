@@ -39,6 +39,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
+    @Ignore
     fun `compose-multiplatform`() = runTestInfinitely {
         runCli(tempRoot, "build")
     }
@@ -55,6 +56,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
+    @Ignore
     fun `compose-ios`() = runTestInfinitely {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.

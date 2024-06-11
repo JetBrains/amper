@@ -1,5 +1,5 @@
 import SwiftUI
-import kotlin
+import composeKotlin
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> some UIViewController {

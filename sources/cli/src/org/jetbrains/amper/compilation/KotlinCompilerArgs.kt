@@ -125,15 +125,20 @@ enum class KotlinCompilationType(val argName: String) {
 
     fun outputFilename(module: PotatoModule, platform: Platform, isTest: Boolean): String = when {
         this == LIBRARY -> "${moduleName(module, isTest)}.klib"
-        this == IOS_FRAMEWORK -> "kotlin.framework"
+        this == IOS_FRAMEWORK -> run {
+            println("FOO: ${moduleName(module, isTest)}Kotlin.framework")
+            "${moduleName(module, isTest)}Kotlin.framework"
+        }
         this == BINARY && platform.isDescendantOf(Platform.MINGW) -> "${moduleName(module, isTest)}.exe"
         else -> "${moduleName(module, isTest)}.kexe"
     }
 
-    fun moduleName(module: PotatoModule, isTest: Boolean): String? = when(this) {
-        IOS_FRAMEWORK -> null
+    fun moduleName(module: PotatoModule, isTest: Boolean): String = when(this) {
+        IOS_FRAMEWORK -> if (isTest) module.nameWithoutDashes + "Test" else module.nameWithoutDashes
         else -> if (isTest) module.userReadableName + "_test" else module.userReadableName
     }
+
+    private val PotatoModule.nameWithoutDashes get() = userReadableName.replace("-", "").replace("_", "")
 }
 
 context(BuildTask)

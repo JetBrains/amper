@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import com.github.ajalt.mordant.terminal.Terminal
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
@@ -106,13 +107,16 @@ class BuildAppleTask(
                     .setListAttribute("args", xcodebuildArgs)
                     .useWithScope { span ->
                         // TODO Maybe we dont need output here?
-                        BuildPrimitives.runProcessAndGetOutput(
+                        val result = BuildPrimitives.runProcessAndGetOutput(
                             baseDir.toPath(),
                             *xcodebuildArgs.toTypedArray(),
                             span = span,
                             logCall = true,
                             outputListener = LoggingProcessOutputListener(logger),
                         )
+                        if (result.exitCode != 0) {
+                            userReadableError("xcodebuild invocation failed: \n${result.stderr}")
+                        }
                     }
 
                 return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(appPath.toPath()))
