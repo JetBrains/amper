@@ -22,9 +22,9 @@ import org.jetbrains.amper.concurrency.Hash
 import org.jetbrains.amper.concurrency.Hasher
 import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
-import org.jetbrains.amper.concurrency.fileOperationWithRetry
-import org.jetbrains.amper.concurrency.produceFileWithDoubleLock
+import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.readTextWithRetry
+import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
@@ -38,6 +38,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.time.ZonedDateTime
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.isDirectory
@@ -73,12 +74,12 @@ interface LocalRepository {
     fun guessPath(dependency: MavenDependency, name: String): Path?
 
     /**
-     * Returns a path to a temp file for a particular dependency.
+     * Returns a path to a temp directory for a particular dependency.
      *
-     * The file is downloaded to a temp location to be later moved to a permanent one provided by [getPath].
-     * Both paths should preferably be on the same files to allow atomic move.
+     * The file is downloaded to a temp directory to be later moved to a permanent one provided by [getPath].
+     * Both paths should preferably be on the same files drive to allow atomic move.
      */
-    fun getTempPath(dependency: MavenDependency, name: String): Path
+    fun getTempDir(dependency: MavenDependency): Path
 
     /**
      * Returns a path to a file on disk.
@@ -133,8 +134,7 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
                 }
         }
 
-    override fun getTempPath(dependency: MavenDependency, name: String): Path =
-        getLocation(dependency).resolve("~$name")
+    override fun getTempDir(dependency: MavenDependency): Path = getLocation(dependency)
 
     override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path {
         val location = getLocation(dependency)
@@ -162,7 +162,7 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
     override fun guessPath(dependency: MavenDependency, name: String): Path =
         repository.resolve(getLocation(dependency)).resolve(name)
 
-    override fun getTempPath(dependency: MavenDependency, name: String): Path = guessPath(dependency, "~$name")
+    override fun getTempDir(dependency: MavenDependency): Path = repository.resolve(getLocation(dependency))
 
     override fun getPath(dependency: MavenDependency, name: String, sha1: String): Path = guessPath(dependency, name)
 
@@ -194,12 +194,14 @@ open class DependencyFile(
     private var cacheDirectory: LocalRepository? = null
     private val mutex = Mutex()
 
+    internal val fileName = "$nameWithoutExtension.$extension"
+
     private suspend fun getCacheDirectory(): LocalRepository {
         if (cacheDirectory == null) {
             mutex.withLock {
                 if (cacheDirectory == null) {
                     cacheDirectory = fileCache.localRepositories.find {
-                        it.guessPath(dependency, "$nameWithoutExtension.$extension")?.exists() == true
+                        it.guessPath(dependency, fileName)?.exists() == true
                     } ?: fileCache.fallbackLocalRepository
                 }
             }
@@ -211,11 +213,11 @@ open class DependencyFile(
     private var path: Path? = null
 
     suspend fun getPath(): Path? = path ?: withContext(Dispatchers.IO) {
-        getCacheDirectory().guessPath(dependency, "$nameWithoutExtension.$extension")
+        getCacheDirectory().guessPath(dependency, fileName)
     }
 
     override fun toString(): String = runBlocking { getPath()?.toString() }
-        ?: "[missing path]/$nameWithoutExtension.$extension"
+        ?: "[missing path]/$fileName"
 
     open suspend fun isDownloaded(): Boolean = withContext(Dispatchers.IO) { getPath()?.exists() == true }
 
@@ -244,7 +246,7 @@ open class DependencyFile(
 
     private suspend fun hasMatchingChecksum(expectedHash: Hash): Boolean {
         val path = getPath() ?: return false
-        val actualHash = computeHash(path){ listOf(Hasher(expectedHash.algorithm)) }.single()
+        val actualHash = computeHash(path, expectedHash.algorithm)
         val result = checkHash(actualHash, expectedHash)
         return result == VerificationResult.PASSED
     }
@@ -262,16 +264,15 @@ open class DependencyFile(
         expectedHash: Hash?,
     ): Path? {
         return withContext(Dispatchers.IO) {
-            val temp = getTempFilePath()
-
-            produceFileWithDoubleLock(
-                tempFilePath = { getTempFilePath() },
+            produceResultWithDoubleLock(
+                tempDir = getTempDir(),
+                fileName,
                 getAlreadyProducedResult = {
                     getPath()?.takeIf { isDownloadedWithVerification(expectedHash) }
                 }
-            ) { fileChannel ->
+            ) { tempFilePath, fileChannel ->
                 try {
-                    downloadAndVerifyHash(fileChannel, temp, repositories, progress, cache, expectedHash)
+                    downloadAndVerifyHash(fileChannel, tempFilePath, repositories, progress, cache, expectedHash)
                 } catch (e: IOException) {
                     dependency.messages.asMutable() += Message(
                         "Unable to save downloaded file",
@@ -279,16 +280,14 @@ open class DependencyFile(
                         Severity.ERROR,
                         e,
                     )
-                    return@produceFileWithDoubleLock null
+                    return@produceResultWithDoubleLock null
                 }
             }
         }
     }
 
-    internal suspend fun DependencyFile.getTempFilePath() =
-        getCacheDirectory().getTempPath(dependency, "$nameWithoutExtension.$extension")
 
-
+    internal suspend fun DependencyFile.getTempDir() = getCacheDirectory().getTempDir(dependency)
 
     private suspend fun DependencyFile.isDownloadedWithVerification(expectedHash: Hash?) =
         isDownloaded() && (expectedHash == null || hasMatchingChecksum(expectedHash))
@@ -303,7 +302,7 @@ open class DependencyFile(
             val expectedHash = getOrDownloadExpectedHash(repositories, progress, cache)
             if (expectedHash == null) {
                 dependency.messages.asMutable() += Message(
-                    "Unable to download checksums of file $nameWithoutExtension.$extension for dependency $dependency",
+                    "Unable to download checksums of file $fileName for dependency $dependency",
                     repositories.joinToString(),
                     Severity.ERROR,
                 )
@@ -325,7 +324,7 @@ open class DependencyFile(
 
         if (path == null && verify) {
             dependency.messages.asMutable() += Message(
-                "Unable to download file $nameWithoutExtension.$extension for dependency $dependency",
+                "Unable to download file $fileName for dependency $dependency",
                 repositories.joinToString(),
                 Severity.ERROR,
             )
@@ -336,7 +335,7 @@ open class DependencyFile(
 
     private fun List<String>.ensureFirst(repository: String?) =
         repository?.let {
-            if (this[0] == repository || !this.contains(repository))
+            if (this.isEmpty() || this[0] == repository || !this.contains(repository))
                 this
             else
                 buildList {
@@ -376,27 +375,30 @@ open class DependencyFile(
             val sha1 = hashers.find { it.algorithm == "sha1" }?.hash
                 ?: throw AmperDependencyResolutionException("sha1 must be present among hashers")
 
-            val target = getCacheDirectory().getPath(dependency,"$nameWithoutExtension.$extension", sha1)
-            val targetSha1 = target.parent.resolve("${target.name}.sha1")
+            val target = getCacheDirectory().getPath(dependency,fileName, sha1)
 
             target.parent.createDirectories()
             try {
-                targetSha1.writeText(sha1)
-                temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE)
+                temp.moveTo(target)
             } catch (e: FileAlreadyExistsException) {
                 logger.debug("### $target already exists")
                 if (hasher != null
-                    && shouldOverwrite(cache, hasher, computeHash(target) { listOf(Hasher(hasher.algorithm)) }.single()))
+                    && shouldOverwrite(cache, hasher, computeHash(target, hasher.algorithm)))
                 {
                     try {
                         logger.debug("### $target will be replaced with new one")
-                        temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                        withRetryOnAccessDenied {
+                            temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                        }
                     } catch (t: Throwable) {
                         logger.debug("### $target was not replaced with new one", t)
                         throw t
                     }
+                } else {
+                    temp.deleteIfExists()
                 }
             }
+
             logger.trace(
                 "Downloaded file {} for the dependency {}:{}:{} was stored into {}",
                 target.name,
@@ -411,6 +413,9 @@ open class DependencyFile(
 
             return target
         }
+
+        temp.deleteIfExists()
+
         return null
     }
 
@@ -420,7 +425,7 @@ open class DependencyFile(
         cache: Cache,
         expectedHasher: Hasher?,
         actualHash : Hasher
-    ): Boolean = expectedHasher != null && checkHash(actualHash,expectedHasher) > VerificationResult.PASSED
+    ): Boolean = expectedHasher != null && checkHash(actualHash, expectedHasher) > VerificationResult.PASSED
 
     private suspend fun verify(
         hashers: Collection<Hasher>,
@@ -536,12 +541,11 @@ open class DependencyFile(
         cache: Cache,
         level: ResolutionLevel = ResolutionLevel.NETWORK
     ): String? {
-        val name = "$nameWithoutExtension.$extension"
         val hashFromVariant = when (algorithm) {
-            "sha512" -> fileFromVariant(dependency, name)?.sha512?.fixOldGradleHash(128)
-            "sha256" -> fileFromVariant(dependency, name)?.sha256?.fixOldGradleHash(64)
-            "sha1" -> fileFromVariant(dependency, name)?.sha1?.fixOldGradleHash(40)
-            "md5" -> fileFromVariant(dependency, name)?.md5?.fixOldGradleHash(32)
+            "sha512" -> fileFromVariant(dependency, fileName)?.sha512?.fixOldGradleHash(128)
+            "sha256" -> fileFromVariant(dependency, fileName)?.sha256?.fixOldGradleHash(64)
+            "sha1" -> fileFromVariant(dependency, fileName)?.sha1?.fixOldGradleHash(40)
+            "md5" -> fileFromVariant(dependency, fileName)?.md5?.fixOldGradleHash(32)
             else -> null
         }
         if (hashFromVariant != null) {

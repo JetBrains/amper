@@ -7,13 +7,13 @@ import java.io.IOException
 import java.nio.channels.ClosedChannelException
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
-import java.nio.channels.OverlappingFileLockException
 import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -22,6 +22,7 @@ import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -63,17 +64,10 @@ suspend fun <T> withDoubleLock(
     }
 }
 
-suspend fun <T> Path.withLock(owner: Any? = null, block: suspend () -> T) : T = withLock(this.hashCode(), owner, block)
-suspend fun <T> withLock(hash: Int, owner: Any? = null, block: suspend () -> T) : T =
+private suspend fun <T> withLock(hash: Int, owner: Any? = null, block: suspend () -> T) : T =
     filesLock.getLock(hash).withLock(owner) {
         block()
     }
-
-@Deprecated("Too low-level")
-suspend fun Path.holdsLock(owner: Any) : Boolean = holdsLock(this.hashCode(), owner)
-@Deprecated("Too low-level")
-suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash).holdsLock(owner)
-
 
 /**
  * Create a target file once and reuse it as a result of further invocations until its hash is valid.
@@ -81,15 +75,17 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
  * Method could be used safely from different JVM threads and from different processes.
  *
  * To achieve such concurrency safety, it does the following:
- * - creates a temporary file with the help of given lambda <code>tempFilePath<code>,
+ * - creates a temporary lock file inside the temp directory (resolved with the help of given lambda <code>tempDir<code>),
  * - takes JVM and inter-process locks on that file
- * - under the locks write content to the file with help of the given lambda (writeFileContent)
+ * - creates a temporary file inside temp directory
+ * - under the lock write content to that file with help of the given lambda (<code>writeFileContent<code>)
  * - after the file was successfully written to temp location, its sha1 hash is stored into the target file directory
  * - finally, temporary file is moved to the target file location.
  *
  * The following two restrictions are applied on the input parameters for correct locking logic:
- *  - different target files correspond to different temp files
- *  - the same temporary file is used for the given target file no matter how many times the method is called.
+ *  - [MUST] the same temporary directory is used for the given target file no matter how many times the method is called;
+ *  - [SHOULD] different target files with the same file names correspond to different temp directories
+ *             (if this is not met, some contention might be observed during downloading of such files)
  *
  * Note: Since the first lock is a non-reentrant coroutine Mutex,
  *  callers MUST not call locking methods defined in this utility file again from inside the lambda (writeFileContent) -
@@ -97,17 +93,15 @@ suspend fun holdsLock(hash: Int, owner: Any) : Boolean = filesLock.getLock(hash)
  */
 suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
-    tempFilePath: suspend () -> Path = {
+    tempDir: suspend () -> Path = {
         // todo (AB) : Add path checksum to avoid contention if different files have the same name but different paths.
-        Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper").resolve("~${target.name}")
+        Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper")
     },
-    returnAlreadyProducedWithoutLocking: Boolean = true,
-    writeFileContent: suspend (FileChannel) -> Boolean
-) : Path {
-    return produceFileWithDoubleLock(
-        target,
-        tempFilePath,
-        returnAlreadyProducedWithoutLocking,
+    writeFileContent: suspend (Path, FileChannel) -> Boolean
+) : Path? {
+    return produceResultWithDoubleLock(
+        tempDir(),
+        target.name,
         getAlreadyProducedResult = {
             // todo (AB) : replace with logic from ExecuteOnChange (hashes are too heavy)
             if (!target.exists()) {
@@ -118,7 +112,7 @@ suspend fun produceFileWithDoubleLockAndHash(
                     null
                 } else {
                     val expectedHash = hashFile.readText()
-                    val actualHash = computeHash(target){ listOf(Hasher("sha1")) }.single().hash
+                    val actualHash = computeHash(target,"sha1").hash
 
                     if (expectedHash != actualHash) {
                         null
@@ -128,8 +122,8 @@ suspend fun produceFileWithDoubleLockAndHash(
                 }
             }
         }
-    ) { fileChannel ->
-        writeFileContent(fileChannel)
+    ) { tempFilePath, fileChannel ->
+        val isSuccessfullyWritten = writeFileContent(tempFilePath, fileChannel)
             .also {
                 if (it) {
                     val hashFile = target.parent.resolve("${target.name}.sha1")
@@ -141,154 +135,137 @@ suspend fun produceFileWithDoubleLockAndHash(
                     hashFile.writeText(hasher.hash)
                 }
             }
+
+        if (isSuccessfullyWritten) {
+            target.parent.createDirectories()
+            tempFilePath.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        }
+
+        target.takeIf { isSuccessfullyWritten }
     }
 }
 
-private suspend fun produceFileWithDoubleLock(
-    target: Path,
-    tempFilePath: suspend () -> Path,
-    returnAlreadyProducedWithoutLocking: Boolean = true,
-    getAlreadyProducedResult: suspend () -> Path? = { target.takeIf { it.exists() } },
-    writeFileContent: suspend (FileChannel) -> Boolean,
-) : Path {
-    val temp = tempFilePath()
-
-    return produceResultWithDoubleLock(
-        target.hashCode(), temp,
-        block = {
-            if (writeFileContent(it)) {
-                target.parent.createDirectories()
-                temp.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-            }
-            target
-        },
-        getAlreadyProducedResult = getAlreadyProducedResult,
-        returnAlreadyProducedWithoutLocking = returnAlreadyProducedWithoutLocking
-    )
-}
-
-suspend fun produceFileWithDoubleLock(
-    tempFilePath: suspend () -> Path,
-    returnAlreadyProducedWithoutLocking: Boolean = true,
-    getAlreadyProducedResult: suspend () -> Path?,
-    writeFileContent: suspend (FileChannel) -> Path?,
-) : Path? {
-    val temp = tempFilePath()
-
-    return produceResultWithDoubleLock(
-        temp.hashCode(), temp,
-        block = writeFileContent,
-        getAlreadyProducedResult = getAlreadyProducedResult,
-        returnAlreadyProducedWithoutLocking = returnAlreadyProducedWithoutLocking
-    )
-}
-
 /**
- * It locks on a non-reentrant coroutine Mutex first - getting exclusive access inside one JVM.
- * Then it acquires FileChannel lock to get exclusive access across all processes on the system.
- * And then, holding those two locks, it executes the given block.
+ * Create a target file once and reuse it as a result of further invocations until it is resolved and returned by
+ * given function <code>getAlreadyProducedResult<code>
  *
- * Both locks are unlocked after method return.
+ * Method could be used safely from different JVM threads and from different processes.
+ *
+ * To achieve such concurrency safety, it does the following:
+ * - creates a temporary lock file inside the given temp directory (<code>tempDir<code>),
+ * - takes JVM and inter-process locks on that file
+ * - creates a temporary file inside temp directory
+ * - under the lock write content to that file with help of the given lambda (<code>block<code>)
+ * - finally, temporary lock file is removed
+ * - (temporary file with content is removed as well, but only in case exception was thrown from <code>block<code>,
+ *    otherwise it is a responsibility of given <code>block<code> to remove temp file)
+ *
+ * The following two restrictions are applied on the input parameters for correct locking logic:
+ *  - [MUST] the same temporary directory is used for the given target file no matter how many times the method is called
+ *           (in case target file is produced by given <code>block<code>);
+ *  - [SHOULD] different target files with the same file names correspond to different temp directories
+ *             (if this is not met, some contention might be observed during downloading of such files)
  *
  * Note: Since the first lock is a non-reentrant coroutine Mutex,
- *  callers MUST not call locking methods defined in this file again from inside the given block -
+ *  callers MUST not call locking methods defined in this utility file again from inside the lambda (writeFileContent) -
  *  that would lead to the hanging coroutine.
  */
-private suspend fun <T> produceResultWithDoubleLock(
-    hash: Int,
-    file: Path,
-    block: suspend (FileChannel) -> T,
-    returnAlreadyProducedWithoutLocking: Boolean = true,
-    getAlreadyProducedResult: suspend () -> T?
+suspend fun <T> produceResultWithDoubleLock(
+    tempDir: Path,
+    targetFileName: String,
+    getAlreadyProducedResult: suspend () -> T?,
+    block: suspend (Path, FileChannel) -> T,
 ) : T {
     // return already produced file without locking if allowed, otherwise proceed with file production
-    if (returnAlreadyProducedWithoutLocking) getAlreadyProducedResult()?.let { return it }
+    getAlreadyProducedResult()?.let { return it }
+
+    val tempLockFile = tempLockFile(tempDir, targetFileName)
 
     // First lock locks the stuff inside one JVM process
-    return withLock(hash) {
+    return withLock(tempLockFile.hashCode()) {
         // Second lock locks a flagFile across all processes on the system
-        produceResultWithFileLock(file, block, getAlreadyProducedResult)
+        produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
     }
 }
 
 private suspend fun <T> produceResultWithFileLock(
-    file: Path,
-    block: suspend (FileChannel) -> T,
-    getAlreadyProducedFile: suspend () -> T?
+    tempDir: Path,
+    targetFileName: String,
+    block: suspend (Path, FileChannel) -> T,
+    getAlreadyProducedResult: suspend () -> T?
 ) : T {
-    getAlreadyProducedFile()?.let { return it }
+    getAlreadyProducedResult()?.let { return it }
 
-    file.parent.createDirectories()
-
-    // Open temporary file channel
-    val fileChannel = FileChannel.open(
-        file,
-        StandardOpenOption.READ,
-        StandardOpenOption.WRITE,
-        StandardOpenOption.CREATE
-    )
-
-    fileChannel.use {
-        var wait = 10L
-        while (true) {
-            return@produceResultWithFileLock try {
-                doWithFileLock(fileChannel, getAlreadyProducedFile, block, file)
-            } catch (e: OverlappingFileLockException) {
-                logger.debug("OverlappingFileLockException from doWithFileLock on {}", file, e)
-                // Another process is already processing the file. Let's wait for it and then check the result.
-                delay(wait)
-                wait = (wait * 2).coerceAtMost(1000)
-                continue
-            } catch (e: NoSuchFileException) {
-                // Another process deleted temp file before we were able to get the lock on it => Try again.
-                logger.debug("NoSuchFileException from doWithFileLock on {}", file, e)
-                produceResultWithFileLock(file, block, getAlreadyProducedFile)
-            } catch (e: ClosedChannelException) {
-                // Another process deleted temp file before we were able to get the lock on it => Try again.
-                logger.debug("ClosedChannelException from doWithFileLock on {}", file, e)
-                produceResultWithFileLock(file, block, getAlreadyProducedFile)
-            }
+    while (true) {
+        return try {
+            // Open temporary lock file channel
+            doWithFileLock(tempDir, targetFileName, getAlreadyProducedResult, block)
+        } catch (e: NoSuchFileException) {
+            // Another process deleted temp file before we were able to get the lock on it => Try again.
+            logger.debug("NoSuchFileException from doWithFileLock on {}", e.file, e)
+            continue
+        } catch (e: ClosedChannelException) {
+            // Another process deleted temp file before we were able to get the lock on it => Try again.
+            logger.debug("ClosedChannelException from doWithFileLock on {}", targetFileName, e)
+            continue
         }
     }
 }
 
 private suspend fun <T> doWithFileLock(
-    fileChannel: FileChannel,
-    getAlreadyProducedFile: suspend () -> T?,
-    block: suspend (FileChannel) -> T,
-    file: Path
+    tempDir: Path,
+    targetFileName: String,
+    getAlreadyProducedResult: suspend () -> T?,
+    block: suspend (Path, FileChannel) -> T,
 ): T {
-    val fileLock = fileChannel.lockWithRetry()
-    return fileLock.use {
-        logger.debug("### ${System.currentTimeMillis()} ${file.name}: locked")
-        try {
-            getAlreadyProducedFile()
-                ?.also {
-                    file.deleteIfExistsWithLogging(
-                        "### ${ System.currentTimeMillis() } ${file.name}: Target file exists already, temp file was deleted under lock"
-                    )
-                }
-                ?: block(fileChannel) // temp file was moved inside the block to target file location - there is no need to delete it.
-        } catch (e: Throwable) {
-            file.deleteIfExistsWithLogging(
-                "### ${ System.currentTimeMillis() }  ${file.name}: Exception occurred, temp file was deleted under lock",
-                e
-            )
-            throw e
+
+    val tempLockFile = tempLockFile(tempDir, targetFileName)
+
+    tempLockFile.parent.createDirectories()
+
+    val lockFileChannel = FileChannel.open(
+        tempLockFile,
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE
+    )
+
+    return lockFileChannel.use {
+        val fileLock = lockFileChannel.lockWithRetry()
+        fileLock.use {
+            val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
+            val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
+
+            logger.debug("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
+            try {
+                getAlreadyProducedResult()
+                    ?: run {
+                        FileChannel.open(
+                            tempFile,
+                            StandardOpenOption.READ,
+                            StandardOpenOption.WRITE,
+                            StandardOpenOption.CREATE_NEW,
+                        ).use { fileChannel ->
+                            block(tempFile, fileChannel)
+                        }
+                    } // temp file was moved inside the block to target file location - there is no need to delete it.
+            } catch (t: Throwable) {
+                tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted under lock", t)
+                throw t
+            } finally {
+                tempLockFile.deleteIfExistsWithLogging("Exception occurred, temp lock file was deleted under lock")
+            }
         }
     }.also {
-        logger.debug("### ${System.currentTimeMillis()} {}: unlocked", file.name)
+        logger.debug("### ${System.currentTimeMillis()} {}: unlocked", tempLockFile.name)
     }
 }
 
 private fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
     try {
         deleteIfExists()
-        logger.debug(onSuccessMessage)
+        logger.debug("### ${ System.currentTimeMillis() } $name: $onSuccessMessage")
     } catch (_t: Throwable) {
-        logger.debug("### ${ System.currentTimeMillis() } ${name}: failed to delete temp file under lock${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
-        // rethrow original exception
-        throw t ?: _t
+        logger.debug("### ${ System.currentTimeMillis() } $name: failed to delete temp file under lock${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
     }
 }
 
@@ -333,3 +310,4 @@ internal suspend fun <T> withRetry(
     throw firstException!!
 }
 
+private fun tempLockFile(tmpDir: Path, targetFileName: String) = tmpDir.resolve("~${targetFileName}.amper.lock")

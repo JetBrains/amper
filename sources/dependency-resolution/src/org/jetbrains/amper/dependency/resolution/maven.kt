@@ -10,7 +10,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.jetbrains.amper.concurrency.Hasher
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceFileWithDoubleLockAndHash
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.AvailableAt
@@ -466,7 +465,7 @@ class MavenDependency internal constructor(
             readJarEntry(it, "META-INF/kotlin-project-structure-metadata.json")
         } ?: run {
             messages.asMutable() += Message(
-                "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension}",
+                "Can't resolve common library: META-INF/kotlin-project-structure-metadata.json is not found inside ${kmpMetadataFile.fileName}",
                 severity = Severity.ERROR
             )
             return
@@ -585,7 +584,7 @@ class MavenDependency internal constructor(
             "sha1", null, context.settings.progress, context.resolutionCache, level
         )
             ?: kmpMetadataFile.getPath()?.let {
-                computeHash(it) { listOf(Hasher("sha1")) }.single().hash
+                computeHash(it,"sha1").hash
             }
             ?: run {
                 messages.asMutable() += Message(
@@ -601,7 +600,7 @@ class MavenDependency internal constructor(
             sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level
         )
             ?: run {
-                logger.debug("SourceSet $sourceSetName for kotlin multiplatform library ${kmpMetadataFile.nameWithoutExtension}.${kmpMetadataFile.extension} is not found")
+                logger.debug("SourceSet $sourceSetName for kotlin multiplatform library ${kmpMetadataFile.fileName} is not found")
                 return null
             }
 
@@ -624,10 +623,10 @@ class MavenDependency internal constructor(
 
         produceFileWithDoubleLockAndHash(
             target = targetPath,
-            tempFilePath = { with(sourceSetFile) { getTempFilePath() } },
-        ) {
+            tempDir = { with(sourceSetFile) { getTempDir() } },
+        ) { _, fileChannel ->
             try {
-                copyJarEntryDirToJar(it, sourceSetName, kmpLibraryWithSourceSet)
+                copyJarEntryDirToJar(fileChannel, sourceSetName, kmpLibraryWithSourceSet)
                 true
             } catch (e: CancellationException) {
                 throw e
@@ -905,7 +904,7 @@ class MavenDependency internal constructor(
             .filter {
                 // filter out sources/javadocs if those are not requested in settings
                 context.settings.downloadSources
-                        || (!"${it.nameWithoutExtension}.${it.extension}".let { name ->
+                        || (!it.fileName.let { name ->
                     name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar")
                 })
             }.filter {

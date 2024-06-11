@@ -23,7 +23,8 @@ abstract class BaseDRTest {
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String? = null,
-        cacheRoot: Path = TestUtil.userCacheRoot
+        cacheRoot: Path = TestUtil.userCacheRoot,
+        filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
     ): DependencyNode {
         context(scope, platform, repositories, cacheRoot).use { context ->
             val root = dependency.toRootNode(context)
@@ -32,7 +33,7 @@ abstract class BaseDRTest {
             root.verifyGraphConnectivity()
             if (verifyMessages) {
                 root.distinctBfsSequence().forEach {
-                    val messages = it.messages.filter { "Downloaded from" !in it.text }
+                    val messages = it.messages.filterMessages()
                     assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
                 }
             }

@@ -37,6 +37,8 @@ interface Hash {
 @OptIn(ExperimentalStdlibApi::class)
 fun ByteArray.toHex() = toHexString()
 
+suspend fun computeHash(path: Path, algorithm: String): Hasher = computeHash(path) { listOf(Hasher(algorithm)) }.single()
+
 suspend fun computeHash(path: Path, hashersFn:() -> List<Hasher>): Collection<Hasher> =
     fileChannelReadOperationWithRetry(
         path,
@@ -71,6 +73,16 @@ suspend fun <T> fileOperationWithRetry(
         }
     }
 }
+
+suspend fun withRetryOnAccessDenied(block: suspend () -> Unit) = withRetry(
+    retryOnException = { e ->
+        when(e) {
+            is java.nio.file.AccessDeniedException -> true
+            else -> false
+        }
+    },
+    block = block
+)
 
 fun retryFileOperationOnException(e: Exception, path: Path): Boolean =
     when (e) {

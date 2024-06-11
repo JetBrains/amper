@@ -15,6 +15,7 @@ import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.appendText
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -23,7 +24,7 @@ import kotlin.test.Test
 import kotlin.test.fail
 
 @ExperimentalPathApi
-class DRConcurrencyTest: BaseDRTest() {
+class DRConcurrencyTest : BaseDRTest() {
 
     companion object {
         private val cacheRoot: Path = TestUtil.userCacheRoot
@@ -83,27 +84,35 @@ class DRConcurrencyTest: BaseDRTest() {
                             testInfo,
                             dependency = annotationJvmCoordinates,
                             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
-                            cacheRoot = cacheRoot
+                            cacheRoot = cacheRoot,
+                            filterMessages = {
+                                filter { "Downloaded from" !in it.text && "Hashes don't match for" !in it.text }
+                            }
                         )
-                        // The File is deleted to make it be downloaded again on the next iteration under the file lock.
+                        // The File is updated/deleted to make it be downloaded again on the next iteration under the file lock
+                        // (due to its absence or mismatching hashes).
                         // This is important because the test checks that hash computation and file locking don't clash.
-                        annotationJvmPath.deleteIfExists()
+                        if (i % 2 == 0) {
+                            annotationJvmPath.takeIf { it.exists() }?.also { it.appendText("XXX") }
+                        } else {
+                            annotationJvmPath.deleteIfExists()
+                        }
                     }
                 }
 
                 async(Dispatchers.IO) {
                     while (!testBody.isCompleted) {
-                        if (annotationJvmPath.exists()) {
-                            try {
+                        try {
+                            if (annotationJvmPath.exists()) {
                                 block(annotationJvmPath)
-                            } catch (e: NoSuchFileException) {
-                                // Ignore this exception since testBody could have removed the file at the end of the iteration
-                                continue
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                fail("Unexpected exception on cache computation", e)
                             }
+                        } catch (e: NoSuchFileException) {
+                            // Ignore this exception since testBody could have been removed the file at the end of the iteration
+                            continue
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            fail("Unexpected exception on cache computation", e)
                         }
                     }
                 }
