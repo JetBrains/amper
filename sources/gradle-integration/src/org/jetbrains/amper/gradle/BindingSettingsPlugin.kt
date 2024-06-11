@@ -43,23 +43,29 @@ class BindingSettingsPlugin : Plugin<Settings> {
 
             settings.gradle.knownModel = model
 
-            // Adjust compose plugin dynamically.
-            val chosenComposeVersion = chooseComposeVersion(model)
-            if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
-                settings.setupDynamicPlugins(
-                    "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
-                ) {
-                    mavenCentral()
-                    // For compose dev versions.
-                    maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
-                }
-            }
+            settings.setupComposePlugin(model)
 
             initProjects(settings, model)
 
             // Initialize plugins for each module.
             settings.gradle.beforeProject { project ->
                 configureProject(settings, project)
+            }
+        }
+    }
+
+    private fun Settings.setupComposePlugin(model: ModelWrapper) {
+        val chosenComposeVersion = chooseComposeVersion(model)
+        // We don't need to use the dynamic plugin mechanism if the user wants the embedded Compose version (because
+        // it's already on the classpath). Using dynamic plugins relies on unreliable internal Gradle APIs, which are
+        // absent in (or incompatible with) recent Gradle versions, so we only use this if absolutely necessary.
+        if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
+            setupDynamicPlugins(
+                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
+            ) {
+                mavenCentral()
+                // For compose dev versions.
+                maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
             }
         }
     }
