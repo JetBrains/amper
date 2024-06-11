@@ -6,54 +6,65 @@ package org.jetbrains.amper.gradle
 
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
+import org.gradle.api.GradleException
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
+import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedVersions
-import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import kotlin.io.path.extension
 
-
 /**
  * Gradle setting plugin, that is responsible for:
- * 1. Initializing gradle projects, based on a model.
+ * 1. Initializing gradle projects, based on the Amper model.
  * 2. Applying kotlin or KMP plugins.
  * 3. Associate gradle projects with modules.
  */
-class SettingsPluginRun(
-    private val settings: Settings,
-    private val model: Model,
-) {
+// This is registered via FQN from the resources in org.jetbrains.amper.settings.plugin.properties
+class BindingSettingsPlugin : Plugin<Settings> {
 
-    context(ProblemReporterContext)
-    fun run() {
-        settings.gradle.knownModel = model
-
-        // Adjust compose plugin dynamically.
-        val chosenComposeVersion = chooseComposeVersion(model)
-        if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
-            settings.setupDynamicPlugins(
-                "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
-            ) {
-                mavenCentral()
-                // For compose dev versions.
-                maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+    override fun apply(settings: Settings) {
+        val rootPath = settings.rootDir.toPath().toAbsolutePath()
+        with(SLF4JProblemReporterContext()) {
+            val modelResult = ModelInit.getModel(rootPath)
+            if (modelResult is Result.Failure<Model> || problemReporter.hasFatal) {
+                throw GradleException(problemReporter.getGradleError())
             }
-        }
 
-        initProjects(settings, model)
+            // Use [ModelWrapper] to cache and preserve links on [PotatoModule].
+            val model = ModelWrapper(modelResult.get())
 
-        // Initialize plugins for each module.
-        settings.gradle.beforeProject { project ->
-            configureProject(project)
+            settings.gradle.knownModel = model
+
+            // Adjust compose plugin dynamically.
+            val chosenComposeVersion = chooseComposeVersion(model)
+            if (chosenComposeVersion != null && chosenComposeVersion != UsedVersions.composeVersion) {
+                settings.setupDynamicPlugins(
+                    "org.jetbrains.compose:compose-gradle-plugin:$chosenComposeVersion",
+                ) {
+                    mavenCentral()
+                    // For compose dev versions.
+                    maven { it.setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+                }
+            }
+
+            initProjects(settings, model)
+
+            // Initialize plugins for each module.
+            settings.gradle.beforeProject { project ->
+                configureProject(settings, project)
+            }
         }
     }
 
-    private fun configureProject(project: Project) {
+    private fun configureProject(settings: Settings, project: Project) {
 
         // Dirty hack related with the same problem as here
         // https://github.com/JetBrains/compose-multiplatform/blob/b6e7ba750c54fddfd60c57b0a113d80873aa3992/gradle-plugins/compose/src/main/kotlin/org/jetbrains/compose/resources/ComposeResources.kt#L75
