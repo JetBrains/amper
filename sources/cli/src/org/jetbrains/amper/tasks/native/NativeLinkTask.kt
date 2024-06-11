@@ -7,8 +7,8 @@ package org.jetbrains.amper.tasks.native
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
@@ -42,8 +42,8 @@ class NativeLinkTask(
      * The name of the task that produces the klib for the sources of this module.
      */
     val compileKLibTaskName: TaskName,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
-        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
+    private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
+        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
     init {
         require(platform.isLeaf)
@@ -92,7 +92,7 @@ class NativeLinkTask(
             val artifactPath = taskOutputRoot.path.resolve(compilationType.outputFilename(module, platform, isTest))
 
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-            val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
+            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
             val args = kotlinNativeCompilerArgs(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,

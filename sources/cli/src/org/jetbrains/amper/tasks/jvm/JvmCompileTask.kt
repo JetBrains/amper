@@ -15,7 +15,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.CombiningKotlinLogger
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
+import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.asKotlinLogger
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
@@ -34,8 +34,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
-import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.BuildTask
+import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -65,8 +65,8 @@ class JvmCompileTask(
     private val terminal: Terminal,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
-        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
+    private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
+        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
 
     override val platform: Platform = Platform.JVM
@@ -221,7 +221,7 @@ class JvmCompileTask(
         friendPaths: List<Path>,
     ) {
         // TODO should we download this in a separate task?
-        val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinCompilerDownloader)
+        val compilationService = CompilationService.loadMaybeCachedImpl(compilerVersion, kotlinArtifactsDownloader)
 
         // TODO should we allow users to choose in-process vs daemon?
         // TODO settings for daemon JVM args?
@@ -235,7 +235,7 @@ class JvmCompileTask(
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
             .useLogger(CombiningKotlinLogger(logger.asKotlinLogger(), errorsCollector))
 
-        val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
+        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
 
         val compilerArgs = kotlinJvmCompilerArgs(
             isMultiplatform = isMultiplatform,

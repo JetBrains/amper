@@ -17,6 +17,16 @@ private fun isIosApp(platform: Platform, module: PotatoModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
 
 fun ProjectTaskRegistrar.setupNativeTasks() {
+    forWholeModel { model, eonci ->
+        registerTask(
+            task = CommonizeNativeDistributionTask(
+                model = model,
+                userCacheRoot = context.userCacheRoot,
+                executeOnChangedInputs = eonci,
+            )
+        )
+    }
+
     onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
         val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
         registerTask(

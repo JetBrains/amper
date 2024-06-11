@@ -7,8 +7,8 @@ package org.jetbrains.amper.tasks.native
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.downloadNativeCompiler
 import org.jetbrains.amper.compilation.kotlinNativeCompilerArgs
@@ -41,8 +41,8 @@ class NativeCompileKlibTask(
     override val taskName: TaskName,
     private val tempRoot: AmperProjectTempRoot,
     override val isTest: Boolean,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
-        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
+    private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
+        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
     init {
         require(platform.isLeaf)
@@ -101,7 +101,7 @@ class NativeCompileKlibTask(
             val tempFilesToDelete = mutableListOf<Path>()
 
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-            val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
+            val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
             try {
                 val existingSourceRoots = fragments.map { it.src }.filter { it.exists() }
                 val rootsToCompile = existingSourceRoots.ifEmpty {

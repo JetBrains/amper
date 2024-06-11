@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.compilation.KotlinCompilerDownloader
+import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinMetadataCompilerArgs
@@ -49,8 +49,8 @@ class MetadataCompileTask(
     private val taskOutputRoot: TaskOutputRoot,
     private val terminal: Terminal,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
-    private val kotlinCompilerDownloader: KotlinCompilerDownloader =
-        KotlinCompilerDownloader(userCacheRoot, executeOnChangedInputs),
+    private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
+        KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
 ): BuildTask {
 
     override val platform: Platform = Platform.COMMON
@@ -142,8 +142,8 @@ class MetadataCompileTask(
             return
         }
 
-        val compilerJars = kotlinCompilerDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
-        val compilerPlugins = kotlinCompilerDownloader.downloadCompilerPlugins(
+        val compilerJars = kotlinArtifactsDownloader.downloadKotlinCompilerEmbeddable(version = kotlinVersion)
+        val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(
             kotlinVersion = kotlinVersion,
             kotlinUserSettings = kotlinUserSettings,
         )

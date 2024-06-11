@@ -19,6 +19,7 @@ import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 
+typealias OnModelBlock = TaskGraphBuilder.(model: Model, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
 typealias OnModuleBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
 typealias OnFragmentBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, fragment: Fragment) -> Unit
 typealias OnPlatformBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform) -> Unit
@@ -34,6 +35,7 @@ enum class DependencyReason {
 }
 
 class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model) {
+    private val onModel: MutableList<OnModelBlock> = mutableListOf()
     private val onModule: MutableList<OnModuleBlock> = mutableListOf()
     private val onFragment: MutableList<OnFragmentBlock> = mutableListOf()
     private val onPlatform: MutableList<OnPlatformBlock> = mutableListOf()
@@ -44,6 +46,8 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         val sortedByPath = model.modules.sortedBy { (it.source as PotatoModuleFileSource).buildFile }
         val tasks = TaskGraphBuilder()
         val executeOnChangedInputs = ExecuteOnChangedInputs(context.buildOutputRoot)
+
+        onModel.forEach { it(tasks, model, executeOnChangedInputs) }
         for (module in sortedByPath) {
             onModule.forEach { it(tasks, module, executeOnChangedInputs) }
             
@@ -64,6 +68,13 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
             }
         }
         return tasks.build()
+    }
+
+    /**
+     * Called once for the whole model.
+     */
+    fun forWholeModel(block: OnModelBlock) {
+        onModel.add(block)
     }
 
     /**

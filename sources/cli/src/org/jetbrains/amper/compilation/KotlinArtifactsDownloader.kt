@@ -12,7 +12,7 @@ import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 
-class KotlinCompilerDownloader(
+class KotlinArtifactsDownloader(
     val userCacheRoot: AmperUserCacheRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) {
@@ -40,6 +40,15 @@ class KotlinCompilerDownloader(
     suspend fun downloadKotlinCompilerEmbeddable(version: String): List<Path> = downloadMavenArtifact(
         groupId = KOTLIN_GROUP_ID,
         artifactId = "kotlin-compiler-embeddable",
+        version = version,
+    )
+
+    /**
+     * Downloads the implementation of the embeddable Kotlin commonizer in the given [version].
+     */
+    suspend fun downloadKotlinCommonizerEmbeddable(version: String): List<Path> = downloadMavenArtifact(
+        groupId = KOTLIN_GROUP_ID,
+        artifactId = "kotlin-klib-commonizer-embeddable",
         version = version,
     )
 

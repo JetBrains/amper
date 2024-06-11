@@ -20,6 +20,7 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.util.ShellQuoting
 import org.slf4j.LoggerFactory
+import java.net.URLEncoder
 import java.nio.file.Path
 import kotlin.io.path.div
 
@@ -37,12 +38,17 @@ suspend fun downloadNativeCompiler(
 }
 
 class KotlinNativeCompiler(
-    private val kotlinNativeHome: Path,
+    val kotlinNativeHome: Path,
     private val kotlinVersion: String,
     private val jdk: Jdk,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(KotlinNativeCompiler::class.java)
+    }
+
+    val commonizedPath by lazy {
+        val encodedVersion = URLEncoder.encode(kotlinVersion, Charsets.UTF_8.name())
+        kotlinNativeHome / "klib" / "commonized" / encodedVersion
     }
 
     suspend fun compile(

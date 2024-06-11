@@ -31,7 +31,7 @@ internal data class CompilerPlugin(
     }
 }
 
-internal suspend fun KotlinCompilerDownloader.downloadCompilerPlugins(
+internal suspend fun KotlinArtifactsDownloader.downloadCompilerPlugins(
     kotlinVersion: String,
     kotlinUserSettings: KotlinUserSettings,
 ): List<CompilerPlugin> = coroutineScope {

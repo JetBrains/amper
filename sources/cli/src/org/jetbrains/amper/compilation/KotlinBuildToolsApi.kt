@@ -38,7 +38,7 @@ internal fun AmperProjectRoot.toKotlinProjectId(): ProjectId {
 @OptIn(ExperimentalBuildToolsApi::class)
 suspend fun CompilationService.Companion.loadMaybeCachedImpl(
     kotlinVersion: String,
-    downloader: KotlinCompilerDownloader,
+    downloader: KotlinArtifactsDownloader,
 ): CompilationService {
     val classLoader = KotlinBuildToolsClassLoaderCache.getOrPut(kotlinVersion) {
         val buildToolsImplJars = downloader.downloadKotlinBuildToolsImpl(kotlinVersion)
