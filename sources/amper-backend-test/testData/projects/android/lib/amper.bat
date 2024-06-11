@@ -10,11 +10,11 @@
 
 setlocal
 
-set amper_version=0.4.0-dev-599
+set amper_version=0.4.0-dev-600
 set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-set amper_sha256=3172f98189d37f64c80be2039d7bef4cb113ff8f018b97d74a4be594fe63a174
+set amper_sha256=5cece9e7ce7f7848b6b65f99a22a8e9ef6de904b03defc3f842cac350187faec
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
     set jvm_url=https://aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
