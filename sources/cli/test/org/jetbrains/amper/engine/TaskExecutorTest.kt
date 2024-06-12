@@ -87,6 +87,31 @@ class TaskExecutorTest {
     }
 
     @Test
+    fun executionCycle() {
+        // Given the task graph dependencies:
+        // D -> C
+        // C -> B
+        // B -> A
+        // A -> D
+        // it should fail
+
+        val builder = TaskGraphBuilder()
+        builder.registerTask(TestTask("D"), listOf(TaskName("C")))
+        builder.registerTask(TestTask("C"), listOf(TaskName("B")))
+        builder.registerTask(TestTask("B"), listOf(TaskName("A")))
+        builder.registerTask(TestTask("A"), listOf(TaskName("D")))
+        val graph = builder.build()
+        val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
+        val result = assertFailsWith(IllegalStateException::class) {
+            runBlocking {
+                executor.run(setOf(TaskName("D")))
+            }
+        }
+        assertEquals("Found a cycle in task execution graph:\n" +
+                "D -> C -> B -> A -> D", result.message)
+    }
+
+    @Test
     fun rootTasksExecuteInParallel() = runTest {
         val builder = TaskGraphBuilder()
         builder.registerTask(TestTask("A", waitForMaxParallelTasksCount = 3))

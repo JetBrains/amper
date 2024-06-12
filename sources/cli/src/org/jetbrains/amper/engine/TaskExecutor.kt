@@ -5,6 +5,7 @@
 package org.jetbrains.amper.engine
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -83,13 +84,6 @@ class TaskExecutor(
         taskResults: MutableMap<TaskName, Deferred<Result<TaskResult>>>,
         rootTaskDependencies: Set<TaskName>,
     ): Result<TaskResult> = withContext(Dispatchers.Default) {
-        // TODO slow, we can do better for sure
-        if (currentPath.contains(taskName)) {
-            error("Found a cycle in task execution graph:\n" +
-                    (currentPath + taskName).joinToString(" -> ") { it.name })
-        }
-        val newPath = currentPath + taskName
-
         fun taskDependencies(taskName: TaskName): Collection<TaskName> = when (taskName) {
             rootTaskName -> rootTaskDependencies
             else -> graph.dependencies[taskName] ?: emptySet()
@@ -104,7 +98,7 @@ class TaskExecutor(
                 val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")
                 progressListener.taskStarted(taskName).use {
                     MDC.put("amper-task-name", taskName.name)
-                    withContext(MDCContext()) {
+                    withContext(MDCContext() + CoroutineName("task:${taskName.name}")) {
                         task.run(dependenciesResult)
                     }
                 }
@@ -114,6 +108,13 @@ class TaskExecutor(
         coroutineScope {
             val results = taskDependencies(taskName)
                 .map { dependsOn ->
+                    // TODO slow, we can do better for sure
+                    if (currentPath.contains(dependsOn)) {
+                        error("Found a cycle in task execution graph:\n" +
+                                (currentPath + dependsOn).joinToString(" -> ") { it.name })
+                    }
+                    val newPath = currentPath + dependsOn
+
                     dependsOn to synchronized(taskResults) {
                         val existingResult = taskResults[dependsOn]
                         if (existingResult != null) {
@@ -127,7 +128,11 @@ class TaskExecutor(
                         }
                     }
                 }
-                .map { (dependsOn, deferredResult) -> dependsOn to deferredResult.await() }
+                .map { (dependsOn, deferredResult) ->
+                    withContext(CoroutineName("task:${taskName.name} waiting for ${dependsOn.name}")) {
+                        dependsOn to deferredResult.await()
+                    }
+                }
                 .map { (dependsOn, result) ->
                     result.getOrElse { ex ->
                         // terminate task execution since dependency failed
