@@ -13,6 +13,7 @@ data class TaskName(val name: String): Comparable<TaskName> {
 
     companion object {
         fun fromHierarchy(path: List<String>) = TaskName(path.joinToString(":", prefix = ":"))
-        fun fromHierarchy(vararg path: String) = fromHierarchy(path.toList())
+        fun moduleTask(module: PotatoModule, taskName: String) =
+            fromHierarchy(listOf(module.userReadableName, taskName))
     }
 }

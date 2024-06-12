@@ -19,7 +19,7 @@ internal fun PotatoModule.publicationCoordinates(platform: Platform): MavenCoord
 }
 
 private val PotatoModule.isJvmOnly
-    get() = targetLeafPlatforms == setOf(Platform.JVM) 
+    get() = targetLeafPlatforms == setOf(Platform.JVM)
 
 private fun PotatoModule.rootPublicationCoordinates(): MavenCoordinates {
     val commonFragment = fragments.find { !it.isTest && it.fragmentDependencies.isEmpty() }

@@ -39,12 +39,28 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             ),
             compileTaskName,
         )
+
+        // custom task roots
+        module.customTasks.forEach { customTask ->
+            customTask.addToModuleRootsFromCustomTask.forEach { add ->
+                if (platform.pathToParent.contains(add.platform) && isTest == add.isTest) {
+                    registerDependency(compileTaskName, dependsOn = customTask.name)
+                }
+            }
+        }
     }
 
     onCompileModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
         registerDependency(
             CommonTaskType.Compile.getTaskName(module, platform, isTest),
             CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+        )
+    }
+
+    onRuntimeModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
+        registerDependency(
+            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
+            CommonTaskType.RuntimeClasspath.getTaskName(dependsOn, platform, false)
         )
     }
 
@@ -59,7 +75,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                     commonRunSettings = context.commonRunSettings,
                     terminal = context.terminal,
                 ),
-                CommonTaskType.RuntimeClasspath.getTaskName(module, platform)
+                CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
             )
         }
         val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform)
@@ -100,6 +116,12 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             // TODO It should be optional to publish or not to publish sources
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
             registerDependency(publishTaskName, sourcesJarTaskName)
+
+            module.customTasks.forEach { customTask ->
+                if (customTask.publishArtifacts.isNotEmpty()) {
+                    registerDependency(publishTaskName, dependsOn = customTask.name)
+                }
+            }
         }
     }
 

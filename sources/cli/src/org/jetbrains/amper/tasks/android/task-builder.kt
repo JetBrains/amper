@@ -13,17 +13,18 @@ import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.tasks.jvm.JvmTestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -33,7 +34,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
     val androidSdkPath = context.androidHomeRoot.path
     onEachDescendantPlatformOf(Platform.ANDROID) { module, _, _ ->
         registerTask(
-            LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
+            LogcatTask(TaskName.moduleTask(module, "logcat")),
             CommonTaskType.Run.getTaskName(module, Platform.ANDROID, isTest = false, BuildType.Debug)
         )
 
@@ -116,6 +117,15 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             )
         )
 
+        registerTask(
+            JvmRuntimeClasspathTask(
+                module = module,
+                isTest = isTest,
+                taskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
+            ),
+            compileTaskName,
+        )
+
         setupAndroidBuildTasks(
             platform,
             module,
@@ -154,9 +164,9 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onTest(Platform.ANDROID) { module, _, platform, isTest, buildType ->
+    onTest(Platform.ANDROID) { module, _, platform, _, buildType ->
         // test
-        val testTaskName = CommonTaskType.Test.getTaskName(module, platform, isTest, buildType)
+        val testTaskName = CommonTaskType.Test.getTaskName(module, platform, true, buildType)
         registerTask(
             JvmTestTask(
                 module = module,
@@ -167,7 +177,10 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 taskOutputRoot = context.getTaskOutputPath(testTaskName),
                 terminal = context.terminal,
             ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
+            listOf(
+                CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
+                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
+            ),
         )
 
         registerDependency(

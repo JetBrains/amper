@@ -17,8 +17,8 @@ import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -520,6 +520,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   <version>1.6.3</version>
                   <scope>compile</scope>
                 </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>2.0.0</version>
+                  <scope>runtime</scope>
+                </dependency>
               </dependencies>
             </project>
         """.trimIndent(), pom.readText().trim())
@@ -584,6 +590,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                   <groupId>amper.test</groupId>
                   <artifactId>kmp-lib-jvm</artifactId>
                   <version>1.2.3</version>
+                  <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                  <groupId>org.jetbrains.kotlin</groupId>
+                  <artifactId>kotlin-stdlib</artifactId>
+                  <version>2.0.0</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>

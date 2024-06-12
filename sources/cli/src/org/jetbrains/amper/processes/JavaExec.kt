@@ -43,16 +43,16 @@ suspend fun Jdk.runJava(
         .setAttribute("java-executable", javaExecutable.pathString)
         .setAttribute("java-version", version)
         .setListAttribute("jvm-args", jvmArgs)
-        .setListAttribute("program-args", programArgs)
+        .setListAttribute("env-vars", environment.map { "${it.key}=${it.value}" }.sorted())
         .setAttribute("classpath", classpathStr)
         .setAttribute("main-class", mainClass)
         .useWithScope { span ->
             BuildPrimitives.runProcessAndGetOutput(
                 workingDir,
                 *command.toTypedArray(),
+                environment = environment,
                 span = span,
                 outputListener = outputListener,
-                environment = environment,
             )
         }
 }

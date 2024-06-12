@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.engine.TaskGraph
+import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Model
@@ -25,6 +26,7 @@ typealias OnFragmentBlock = TaskGraphBuilder.(module: PotatoModule, executeOnCha
 typealias OnPlatformBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform) -> Unit
 typealias OnTaskTypeBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform, isTest: Boolean) -> Unit
 typealias OnBuildTypeBlock = TaskGraphBuilder.(module: PotatoModule, executeOnChangedInputs: ExecuteOnChangedInputs, platform: Platform, isTest: Boolean, buildType: BuildType) -> Unit
+typealias OnCustomTaskBlock = TaskGraphBuilder.(customTaskDescription: CustomTaskDescription, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
 
 typealias OnDependencyPrecondition = (dependencyReason: DependencyReason) -> Boolean
 typealias OnTaskTypeDependencyBlock = TaskGraphBuilder.(module: PotatoModule, dependsOn: PotatoModule, dependencyReason: DependencyReason, platform: Platform, isTest: Boolean) -> Unit
@@ -41,6 +43,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     private val onPlatform: MutableList<OnPlatformBlock> = mutableListOf()
     private val onTaskType: MutableList<OnTaskTypeBlock> = mutableListOf()
     private val onBuildType: MutableList<OnBuildTypeBlock> = mutableListOf()
+    private val onCustomTask: MutableList<OnCustomTaskBlock> = mutableListOf()
 
     fun build(): TaskGraph {
         val sortedByPath = model.modules.sortedBy { (it.source as PotatoModuleFileSource).buildFile }
@@ -50,11 +53,11 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         onModel.forEach { it(tasks, model, executeOnChangedInputs) }
         for (module in sortedByPath) {
             onModule.forEach { it(tasks, module, executeOnChangedInputs) }
-            
+
             for (fragment in module.fragments) {
                 onFragment.forEach{ it(tasks, module, executeOnChangedInputs, fragment) }
             }
-            
+
             for (platform in module.targetLeafPlatforms) {
                 onPlatform.forEach { it(tasks, module, executeOnChangedInputs, platform) }
 
@@ -66,7 +69,14 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
                     }
                 }
             }
+
+            module.customTasks.forEach { customTask ->
+                onCustomTask.forEach { block ->
+                    block(tasks, customTask, executeOnChangedInputs)
+                }
+            }
         }
+
         return tasks.build()
     }
 
@@ -99,8 +109,15 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     }
 
     /**
+     * Called once for each custom task across all modules.
+     */
+    fun onCustomTask(block: OnCustomTaskBlock) {
+        onCustomTask.add(block)
+    }
+
+    /**
      * Called once for each leaf platform that is a descendant of the given [parentPlatform] in each module.
-     * 
+     *
      * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
     fun onEachDescendantPlatformOf(parentPlatform: Platform, block: OnPlatformBlock) {
@@ -123,7 +140,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     /**
      * Called once for each task type (main/test) of each leaf platform that is a descendant of the given
      * [parentPlatform], in each module.
-     * 
+     *
      * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
     fun onEachTaskType(parentPlatform: Platform, block: OnTaskTypeBlock) {
@@ -137,7 +154,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     /**
      * Called once for each leaf platform that is a descendant of the given [parentPlatform] in each module, but only
      * for the given task type (main/test).
-     * 
+     *
      * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
     fun onTaskType(parentPlatform: Platform, isTest: Boolean, block: OnTaskTypeBlock) {
@@ -160,7 +177,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     /**
      * Called once for each build type, task type (main/test), and leaf platform that is a descendant of the given
      * [parentPlatform] in each module.
-     * 
+     *
      * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
     fun onEachBuildType(parentPlatform: Platform, block: OnBuildTypeBlock) {
@@ -206,7 +223,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     /**
      * Called once for each descendant platform of the given [parentPlatform] in each module, but only for the 'main'
      * task type.
-     * 
+     *
      * If the module doesn't target any descendant platform of [parentPlatform], [block] is never called.
      */
     fun onMain(parentPlatform: Platform, block: OnTaskTypeBlock) {

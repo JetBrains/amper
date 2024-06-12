@@ -66,7 +66,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     fun simple() = runTest(timeout = 15.minutes) {
         val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
         System.setProperty(headlessEmulatorModePropertyName, "true")
-        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "runAndroidDebug")))
+        AmperBackend(projectContext).runTask("simple", "runAndroidDebug")
         val device = AndroidDebugBridge.getBridge().devices.first()
         assertStringInLogcat(device, "My Application")
     }
@@ -74,14 +74,14 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     @Test
     fun `simple tests debug`() = runTestInfinitely {
         val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
-        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestDebug")))
+        AmperBackend(projectContext).runTask("simple", "testAndroidTestDebug")
         assertStdoutContains("1 tests successful")
     }
 
     @Test
     fun `simple tests release`() = runTestInfinitely {
         val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
-        AmperBackend(projectContext).runTask(TaskName.fromHierarchy(listOf("simple", "testAndroidTestRelease")))
+        AmperBackend(projectContext).runTask("simple", "testAndroidTestRelease")
         assertStdoutContains("1 tests successful")
     }
 

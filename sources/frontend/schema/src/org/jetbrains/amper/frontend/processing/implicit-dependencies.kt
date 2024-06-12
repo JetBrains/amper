@@ -9,8 +9,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.ancestralPath
+import org.jetbrains.amper.frontend.aomBuilder.DefaultModule
 import org.jetbrains.amper.frontend.schema.JUnitVersion
 import org.jetbrains.amper.frontend.schema.serializationFormatNone
 
@@ -33,14 +33,10 @@ private fun kotlinxSerializationFormatDependency(format: String) = MavenDependen
 )
 
 /**
- * Returns a new module with some automatically-added implicit dependencies.
+ * Add automatically-added implicit dependencies to default module impl.
  */
-fun PotatoModule.withImplicitDependencies(): PotatoModule = object : PotatoModule by this {
-    override val fragments: List<Fragment>
-        get() = this@withImplicitDependencies.fragments.map { it.withImplicitDependencies() }
-    // Strange, but no implementation exception arises without this.
-    override val rootTestFragment: Fragment?
-        get() = super.rootTestFragment
+internal fun DefaultModule.addImplicitDependencies() {
+    fragments = fragments.map { it.withImplicitDependencies() }
 }
 
 private fun Fragment.withImplicitDependencies(): Fragment {

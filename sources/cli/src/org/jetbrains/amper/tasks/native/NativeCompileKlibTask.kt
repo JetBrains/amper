@@ -17,6 +17,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
@@ -24,6 +25,7 @@ import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.walkRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -92,7 +94,16 @@ class NativeCompileKlibTask(
         )
 
         val libraryPaths = compiledModuleDependencies + externalDependencies
-        val inputs = fragments.map { it.src } + libraryPaths
+
+        val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
+            .flatMap { result ->
+                result.moduleRoots
+                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
+                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
+            }
+
+        val sources = fragments.map { it.src } + customTasksSources
+        val inputs = sources + libraryPaths
 
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
@@ -104,7 +115,7 @@ class NativeCompileKlibTask(
             val nativeCompiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
             val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(kotlinVersion, kotlinUserSettings)
             try {
-                val existingSourceRoots = fragments.map { it.src }.filter { it.exists() }
+                val existingSourceRoots = sources.filter { it.exists() }
                 val rootsToCompile = existingSourceRoots.ifEmpty {
                     // konanc does not want to compile an application with zero sources files,
                     // but it's a perfectly valid situation where all code is in shared libraries

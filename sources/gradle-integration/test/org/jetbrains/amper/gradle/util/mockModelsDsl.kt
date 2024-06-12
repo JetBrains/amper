@@ -6,6 +6,7 @@ package org.jetbrains.amper.gradle.util
 
 import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.ClassBasedSet
+import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
@@ -31,6 +32,7 @@ class MockModel(
     val name: String
 ) : Model {
     override val modules = mutableListOf<PotatoModule>()
+
     fun module(buildFile: Path, builder: MockPotatoModule.() -> Unit) =
         MockPotatoModule(buildFile).apply(builder).apply { modules.add(this) }
 }
@@ -46,6 +48,7 @@ class MockPotatoModule(
     override val fragments = mutableListOf<MockFragment>()
     override val artifacts = mutableListOf<MockArtifact>()
     override val usedCatalog = null
+    override val customTasks: List<CustomTaskDescription> = emptyList()
 
     init {
         parts.add(MetaModulePart(layout = Layout.AMPER))

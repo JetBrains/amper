@@ -60,7 +60,7 @@ class FragmentBuilder(var name: String) {
                 get() = this@FragmentBuilder.name
             override val module: PotatoModule
                 get() = module
-            override val fragmentDependencies: List<FragmentLink> by lazy { 
+            override val fragmentDependencies: List<FragmentLink> by lazy {
                 this@FragmentBuilder.fragmentDependencies.resolveIn(module)
             }
             override val fragmentDependants: List<FragmentLink> by lazy {
@@ -132,6 +132,8 @@ class PotatoModuleBuilder(var name: String) {
                 get() = this@PotatoModuleBuilder.parts
             override val usedCatalog: VersionCatalog?
                 get() = null
+            override val customTasks: List<CustomTaskDescription>
+                get() = emptyList()
         }
     }
 }

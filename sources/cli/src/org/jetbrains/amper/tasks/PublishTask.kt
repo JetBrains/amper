@@ -33,11 +33,13 @@ import org.jetbrains.amper.maven.MavenCoordinates
 import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor
+import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempFile
+import kotlin.io.path.isRegularFile
 
 class PublishTask(
     override val taskName: TaskName,
@@ -119,7 +121,7 @@ class PublishTask(
 
         // Note: this will break if we have multiple dependency tasks with the same type, because we'll try to publish
         //  different files with identical artifact coordinates (including classifier).
-        return dependenciesResult.mapNotNull { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
+        return dependenciesResult.flatMap { it.toMavenArtifact(coords) } + pomPath.toMavenArtifact(coords)
     }
 
     private fun generatePomFile(module: PotatoModule, platform: Platform): Path {
@@ -133,9 +135,32 @@ class PublishTask(
     }
 
     private fun TaskResult.toMavenArtifact(coords: MavenCoordinates) = when (this) {
-        is JvmClassesJarTask.Result -> jarPath.toMavenArtifact(coords)
-        is SourcesJarTask.Result -> jarPath.toMavenArtifact(coords, classifier = "sources")
-        is Result -> null
+        is JvmClassesJarTask.Result -> listOf(jarPath.toMavenArtifact(coords))
+        is SourcesJarTask.Result -> listOf(jarPath.toMavenArtifact(coords, classifier = "sources"))
+        is CustomTask.Result -> {
+            artifactsToPublish.map { publish ->
+                // TODO wildcard matching support?
+                val path = outputDirectory.resolve(publish.pathWildcard).normalize()
+                if (!path.startsWith(outputDirectory)) {
+                    // Should not happen, task output is checked in CustomTask itself
+                    error("Task output relative path '${publish.pathWildcard}'" +
+                            "must be under task output '$outputDirectory', but got: $path")
+                }
+
+                if (!path.isRegularFile()) {
+                    // Should not happen, task output is checked in CustomTask itself
+                    error("Custom task artifact for publication was not found: $path")
+                }
+
+                path.toMavenArtifact(
+                    coords = coords,
+                    artifactId = publish.artifactId,
+                    classifier = publish.classifier,
+                    extension = publish.extension,
+                )
+            }
+        }
+        is Result -> emptyList()
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
 

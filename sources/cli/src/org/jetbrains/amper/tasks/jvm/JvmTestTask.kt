@@ -17,13 +17,12 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
-import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
@@ -62,13 +61,17 @@ class JvmTestTask(
 
         // test task depends on compile test task
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
-            ?: error("JvmCompileTask result it not found in dependencies")
+            ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
         if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
             return Result(dependenciesResult)
         }
 
-        val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
+        // test task depends on test jvm classpath task
+        val jvmRuntimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
+            ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies")
+
+        val testClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
         val testModuleClasspath = compileTask.classesOutputRoot
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)

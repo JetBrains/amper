@@ -4,31 +4,44 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.messages.BuildProblemImpl
+import org.jetbrains.amper.core.messages.BuildProblemSource
+import org.jetbrains.amper.core.messages.FileBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.SystemInfo
+import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
+import org.jetbrains.amper.frontend.CompositeString
+import org.jetbrains.amper.frontend.CompositeStringPart
+import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
+import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.api.withTraceFrom
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
 import org.jetbrains.amper.frontend.processing.CompositeVersionCatalog
+import org.jetbrains.amper.frontend.processing.addImplicitDependencies
 import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
-import org.jetbrains.amper.frontend.processing.withImplicitDependencies
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -39,6 +52,8 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
+import org.jetbrains.amper.frontend.schemaConverter.psi.convertCustomTask
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -94,11 +109,63 @@ internal fun doBuild(
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
-    // Build AOM from ISM.
-    return path2SchemaModule
+    val moduleTriples = path2SchemaModule
         .buildAom(fioCtx.gradleModules)
-        .map { it.withImplicitDependencies() }
-        .onEach { module -> AomSingleModuleDiagnosticFactories.forEach { with(it) { module.analyze() } } }
+        .onEach { triple -> triple.module.addImplicitDependencies() }
+
+    val moduleDir2module = moduleTriples
+        .associate { (path, _, module) -> path.parent to module }
+        .mapKeys { (k, _) -> k.toNioPath() }
+
+    fioCtx.amperCustomTaskFiles.mapNotNull { customTaskFile ->
+        val moduleTriple = moduleTriples.firstOrNull { it.buildFile.parent == customTaskFile.parent } ?: run {
+            problemReporter.reportMessage(BuildProblemImpl(
+                buildProblemId = "INVALID_CUSTOM_TASK_FILE_PATH",
+                source = object : FileBuildProblemSource {
+                    override val file: Path
+                        get() = customTaskFile.toNioPath()
+                },
+                message = "Unable to find module for custom task file: $customTaskFile",
+                level = Level.Error,
+            ))
+            return@mapNotNull null
+        }
+
+        val customTask = with(ConvertCtx(moduleTriple.buildFile.parent, pathResolver)) {
+            val node = convertCustomTask(customTaskFile)
+            if (node == null) {
+                problemReporter.reportMessage(BuildProblemImpl(
+                    buildProblemId = "INVALID_CUSTOM_TASK",
+                    source = object : FileBuildProblemSource {
+                        override val file: Path
+                            get() = customTaskFile.toNioPath()
+                    },
+                    message = "Invalid custom task format: $customTaskFile",
+                    level = Level.Error,
+                ))
+                return@mapNotNull null
+            }
+
+            val moduleResolver = { path: String ->
+                moduleDir2module[path.asAbsolutePath()]
+            }
+            buildCustomTask(customTaskFile, node, moduleTriple.module, moduleResolver) ?: return@mapNotNull null
+        }
+
+        return@mapNotNull moduleTriple.module to customTask
+    }
+        .groupBy { it.first }
+        .forEach { (defaultModule, list) -> defaultModule.customTasks = list.map { it.second } }
+
+    moduleTriples.onEach { triple ->
+        AomSingleModuleDiagnosticFactories.forEach { with(it) { triple.module.analyze() } }
+    }
+
+    // Fail fast if we have fatal errors.
+    if (problemReporter.hasFatal) return null
+
+    // Build AOM from ISM.
+    return moduleTriples.map { it.module }
 }
 
 /**
@@ -128,6 +195,180 @@ private fun addBuiltInCatalog(
     return compositeCatalog
 }
 
+context(ProblemReporterContext)
+private fun buildCustomTask(
+    virtualFile: VirtualFile,
+    node: CustomTaskNode,
+    module: PotatoModule,
+    moduleResolver: (String) -> PotatoModule?,
+): CustomTaskDescription? {
+    val buildProblemSource = object : FileBuildProblemSource {
+        override val file: Path
+            get() = virtualFile.toNioPath()
+    }
+
+    val name = virtualFile.name
+    val customTaskName = name.removeSuffix(amperCustomTaskSuffix).removeSuffix(yamlCustomTaskSuffix)
+    if (name == customTaskName) {
+        problemReporter.reportMessage(BuildProblemImpl(
+            buildProblemId = "INVALID_CUSTOM_TASK_FILE_NAME",
+            source = buildProblemSource,
+            message = "Invalid custom task file name (must end with $amperCustomTaskSuffix or $yamlCustomTaskSuffix): $name",
+            level = Level.Error,
+        ))
+        return null
+    }
+
+    val codeModule = moduleResolver(node.module.pathString)
+    if (codeModule == null) {
+        problemReporter.reportMessage(BuildProblemImpl(
+            buildProblemId = "UNKNOWN_MODULE",
+            source = buildProblemSource,
+            message = "Unresolved module reference: ${node.module.pathString}",
+            level = Level.Error,
+        ))
+        return null
+    }
+
+    return DefaultCustomTaskDescription(
+        name = TaskName.moduleTask(module, customTaskName),
+        source = virtualFile.toNioPath(),
+        origin = node,
+        type = node.type,
+        module = module,
+        jvmArguments = node.jvmArguments.orEmpty().map { parseStringWithReferences(it, buildProblemSource, moduleResolver) },
+        programArguments = node.programArguments.orEmpty().map { parseStringWithReferences(it, buildProblemSource, moduleResolver) },
+        environmentVariables = node.environmentVariables.orEmpty().mapValues { parseStringWithReferences(it.value, buildProblemSource, moduleResolver) },
+        dependsOn = node.dependsOn.orEmpty().map { TaskName(it) },
+        publishArtifacts = node.publishArtifact.orEmpty().map {
+            DefaultPublishArtifactFromCustomTask(
+                pathWildcard = it.path,
+                artifactId = it.artifactId,
+                classifier = it.classifier,
+                extension = it.extension,
+            )
+        },
+        customTaskCodeModule = codeModule,
+        addToModuleRootsFromCustomTask = node.addTaskOutputToSourceSet.orEmpty().mapNotNull {
+            val relativePath = it.taskOutputSubFolder.toNioPathOrNull()
+            if (relativePath == null) {
+                problemReporter.reportMessage(BuildProblemImpl(
+                    buildProblemId = "INVALID_TASK_OUTPUT_SUBFOLDER",
+                    source = buildProblemSource,
+                    message = "'taskOutputSubFolder' property is not a relative path",
+                    level = Level.Error,
+                ))
+                return@mapNotNull null
+            }
+
+            DefaultAddToModuleRootsFromCustomTask(
+                taskOutputRelativePath = relativePath,
+                isTest = it.addToTestSources,
+                type = AddToModuleRootsFromCustomTask.Type.SOURCES, // TODO
+                platform = Platform.JVM, // TODO
+            )
+        },
+    )
+}
+
+private val propertyReferenceRegex = Regex("\\$\\{(module\\(([./0-9a-zA-Z\\-_]+)\\)\\.)?([0-9a-zA-Z]+)}")
+private val unresolvedReferenceRegex1 = Regex("(?<!\\\\)\\$")
+private val unresolvedReferenceRegex2 = Regex("\\\\\\\\\\$")
+
+// TODO: This is not a real parser and it won't provide a good IDE support either
+// Please decide on an appropriate references syntax and rewrite
+context(ProblemReporterContext)
+internal fun parseStringWithReferences(
+    value: String,
+    source: BuildProblemSource,
+    moduleResolver: (String) -> PotatoModule?,
+): CompositeString {
+    var pos = 0
+    val result = mutableListOf<CompositeStringPart>()
+
+    fun addLiteralPart(part: String) {
+        if (unresolvedReferenceRegex1.containsMatchIn(part) || unresolvedReferenceRegex2.containsMatchIn(part)) {
+            problemReporter.reportMessage(BuildProblemImpl(
+                buildProblemId = "STR_REF_UNRESOLVED_TYPE",
+                source = source,
+                message = "Contains unresolved reference: $part",
+                level = Level.Error,
+            ))
+        }
+
+        val unescaped = part
+            .replace("\\\\", "\u0000")
+            .replace("\\$", "$")
+            .replace("\u0000", "\\")
+
+        result.add(CompositeStringPart.Literal(unescaped))
+    }
+
+    propertyReferenceRegex.findAll(value).forEach { match ->
+        val literalPart = value.substring(pos, match.range.first)
+        if (literalPart.isNotEmpty()) {
+            addLiteralPart(literalPart)
+        }
+        pos = match.range.last + 1
+
+        val (_, _, modulePath, propertyName) = match.groupValues
+
+        if (modulePath.isEmpty()) {
+            // current task property reference
+            val knownProperty = KnownCurrentTaskProperty.namesMap[propertyName]
+            if (knownProperty == null) {
+                problemReporter.reportMessage(BuildProblemImpl(
+                    buildProblemId = "STR_REF_UNKNOWN_CURRENT_TASK_PROPERTY",
+                    source = source,
+                    message = "Unknown current task property '$propertyName': ${match.value}",
+                    level = Level.Error,
+                ))
+                return@forEach
+            }
+
+            result.add(CompositeStringPart.CurrentTaskProperty(
+                property = knownProperty,
+                originalReferenceText = match.value,
+            ))
+        } else {
+            // module property reference
+            val knownPropertyName = KnownModuleProperty.namesMap[propertyName]
+            if (knownPropertyName == null) {
+                problemReporter.reportMessage(BuildProblemImpl(
+                    buildProblemId = "STR_REF_UNKNOWN_MODULE_PROPERTY",
+                    source = source,
+                    message = "Unknown property name '$propertyName': ${match.value}",
+                    level = Level.Error,
+                ))
+                return@forEach
+            }
+
+            val resolvedModule = moduleResolver(modulePath)
+            if (resolvedModule == null) {
+                problemReporter.reportMessage(BuildProblemImpl(
+                    buildProblemId = "STR_REF_UNKNOWN_MODULE",
+                    source = source,
+                    message = "Unknown module '$modulePath' referenced from '${match.value}'",
+                    level = Level.Error,
+                ))
+                return@forEach
+            }
+
+            result.add(CompositeStringPart.ModulePropertyReference(
+                referencedModule = resolvedModule,
+                property = knownPropertyName,
+                originalReferenceText = match.value,
+            ))
+        }
+    }
+
+    if (pos < value.length) {
+        addLiteralPart(value.substring(pos))
+    }
+
+    return CompositeString(parts = result)
+}
+
 private data class ModuleTriple(
     val buildFile: VirtualFile,
     val schemaModule: Module,
@@ -140,7 +381,7 @@ private data class ModuleTriple(
 context(ProblemReporterContext)
 private fun Map<VirtualFile, ModuleHolder>.buildAom(
     gradleModules: Map<VirtualFile, PotatoModule>,
-): List<PotatoModule> {
+): List<ModuleTriple> {
     val modules = mapNotNull { (mPath, holder) ->
         val noProduct = holder.module::product.unsafe == null
         if (noProduct || holder.module.product::type.unsafe == null) {
@@ -182,7 +423,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(
         }
     }
 
-    return modules.map { it.module }
+    return modules
 }
 
 private fun createArtifacts(

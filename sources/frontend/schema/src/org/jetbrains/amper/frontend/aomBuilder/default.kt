@@ -6,24 +6,35 @@ package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.CompositeString
+import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModulePart
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.classBasedSet
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
+import java.nio.file.Path
 
-data class DefaultModel(override val modules: List<PotatoModule>) : Model
+data class DefaultModel(
+    override val modules: List<PotatoModule>,
+) : Model
 
 context(ProblemReporterContext)
-open class DefaultModule(
+internal open class DefaultModule(
     override val userReadableName: String,
     override val type: ProductType,
     override val source: PotatoModuleSource,
@@ -32,22 +43,53 @@ open class DefaultModule(
 ) : PotatoModule {
     override var fragments = emptyList<Fragment>()
     override var artifacts = emptyList<Artifact>()
+    override var customTasks = emptyList<CustomTaskDescription>()
     override var parts = origin.convertModuleParts()
 }
 
+class DefaultPublishArtifactFromCustomTask(
+    override val pathWildcard: String,
+    override val artifactId: String,
+    override val classifier: String,
+    override val extension: String,
+): PublishArtifactFromCustomTask
+
+class DefaultAddToModuleRootsFromCustomTask(
+    override val taskOutputRelativePath: Path,
+    override val type: AddToModuleRootsFromCustomTask.Type,
+    override val isTest: Boolean,
+    override val platform: Platform,
+): AddToModuleRootsFromCustomTask
+
+context(ProblemReporterContext)
+class DefaultCustomTaskDescription(
+    override val name: TaskName,
+    override val source: Path,
+    override val origin: CustomTaskNode,
+    override val type: CustomTaskType,
+    override val module: PotatoModule,
+    override val jvmArguments: List<CompositeString>,
+    override val programArguments: List<CompositeString>,
+    override val environmentVariables: Map<String, CompositeString>,
+    override val dependsOn: List<TaskName>,
+    override val publishArtifacts: List<PublishArtifactFromCustomTask>,
+    override val customTaskCodeModule: PotatoModule,
+    override val addToModuleRootsFromCustomTask: List<AddToModuleRootsFromCustomTask>,
+) : CustomTaskDescription
+
 /**
- * Special kind of module, that appears only on
+ * Special kind of module that appears only on
  * internal module resolve failure.
  */
 context(ProblemReporterContext)
-class NotResolvedModule(
+internal class NotResolvedModule(
     userReadableName: String,
 ) : DefaultModule(
-    userReadableName,
-    ProductType.LIB,
-    PotatoModuleProgrammaticSource,
-    Module(),
-    null
+    userReadableName = userReadableName,
+    type = ProductType.LIB,
+    source = PotatoModuleProgrammaticSource,
+    origin = Module(),
+    usedCatalog = null,
 )
 
 class DefaultArtifact(
@@ -67,4 +109,5 @@ class DumbGradleModule(file: VirtualFile) : PotatoModule {
     override val artifacts = listOf<Artifact>()
     override val parts = classBasedSet<ModulePart<*>>()
     override val usedCatalog = null
+    override val customTasks: List<CustomTaskDescription> = emptyList()
 }

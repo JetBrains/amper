@@ -12,10 +12,11 @@ import kotlin.io.path.extension
 internal fun Path.toMavenArtifact(
     coords: MavenCoordinates,
     classifier: String = "",
+    artifactId: String? = null,
     extension: String = this.extension,
 ): Artifact = DefaultArtifact(
     coords.groupId,
-    coords.artifactId,
+    artifactId ?: coords.artifactId,
     classifier,
     extension,
     coords.version,

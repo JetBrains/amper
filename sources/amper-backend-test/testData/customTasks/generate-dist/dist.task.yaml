@@ -1,0 +1,6 @@
+type: jvm/external-task
+
+module: buildscript
+programArguments:
+  - ${outputDirectory}
+  - ${module(.).runtimeClasspathJvm}

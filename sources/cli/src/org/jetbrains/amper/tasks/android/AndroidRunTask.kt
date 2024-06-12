@@ -33,8 +33,9 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
-import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jetbrains.amper.util.fireProcessAndForget
+import org.jetbrains.amper.util.headlessEmulatorModePropertyName
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText

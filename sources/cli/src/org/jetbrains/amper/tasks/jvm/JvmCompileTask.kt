@@ -29,6 +29,7 @@ import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
@@ -37,6 +38,7 @@ import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
@@ -97,6 +99,19 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
         val classpath = immediateDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
+        val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
+            .flatMap { result ->
+                result.moduleRoots
+                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
+                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
+            }
+        val customTasksResources = dependenciesResult.filterIsInstance<CustomTask.Result>()
+            .flatMap { result ->
+                result.moduleRoots
+                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.RESOURCES }
+                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
+            }
+
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
@@ -108,15 +123,14 @@ class JvmCompileTask(
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
-        val sources = fragments.map { it.src.toAbsolutePath() }
-        val resources = fragments.map { it.resourcesPath.toAbsolutePath() }
+        val sources = fragments.map { it.src.toAbsolutePath() } + customTasksSources
+        val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + customTasksResources
         val inputs = sources + resources + classpath
 
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            val nonEmptySourceDirs = fragments
-                .map { it.src }
+            val nonEmptySourceDirs = sources
                 .filter {
                     when {
                         it.isDirectory() -> it.listDirectoryEntries().isNotEmpty()
@@ -139,7 +153,7 @@ class JvmCompileTask(
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
             }
 
-            val presentResources = fragments.map { it.resourcesPath }.filter { it.exists() }
+            val presentResources = resources.filter { it.exists() }
             for (resource in presentResources) {
                 logger.info("Copy resources from '$resource' to '${taskOutputRoot.path}'")
                 BuildPrimitives.copy(

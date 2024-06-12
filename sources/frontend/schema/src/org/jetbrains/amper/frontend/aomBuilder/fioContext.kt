@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
@@ -17,7 +15,12 @@ import kotlin.io.path.div
 private const val amperModuleFileName = "module.yaml"
 private const val moduleAmperFileName = "module.amper"
 private const val amperIgnoreFileName = ".amperignore"
+
+const val amperCustomTaskSuffix = ".task.amper"
+const val yamlCustomTaskSuffix = ".task.yaml"
+
 private fun VirtualFile.isModuleYaml() = name == amperModuleFileName || name == moduleAmperFileName
+private fun VirtualFile.isCustomTask() = name.endsWith(amperCustomTaskSuffix) || name.endsWith(yamlCustomTaskSuffix)
 
 private val gradleModuleFiles = setOf("build.gradle.kts", "build.gradle")
 
@@ -41,6 +44,11 @@ internal interface FioContext : VersionsCatalogFinder {
      * All amper module files ([amperModuleFileName]), that are found within [rootDir] hierarchy.
      */
     val amperModuleFiles: List<VirtualFile>
+
+    /**
+     * All custom tasks files, that are found within [rootDir] hierarchy.
+     */
+    val amperCustomTaskFiles: List<VirtualFile>
 
     /**
      * All gradle modules ([gradleModuleFiles]), that are found within [rootDir] hierarchy.
@@ -76,17 +84,11 @@ internal open class DefaultFioContext(root: VirtualFile) : FioContext {
             .map { rootDir.toNioPath() / it }
     }
 
-    override val amperModuleFiles: List<VirtualFile> by lazy {
-        buildList {
-            VfsUtilCore.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
-                override fun visitFile(file: VirtualFile): Boolean {
-                    if (isIgnored(file)) return false
-                    if (file.isModuleYaml()) add(file)
-                    return true
-                }
-            })
-        }
-    }
+    override val amperModuleFiles: List<VirtualFile>
+        get() = filesFromRoot.moduleFiles
+
+    override val amperCustomTaskFiles: List<VirtualFile>
+        get() = filesFromRoot.customTaskFiles
 
     override val gradleModules: Map<VirtualFile, DumbGradleModule> by lazy {
         buildMap {
@@ -101,6 +103,24 @@ internal open class DefaultFioContext(root: VirtualFile) : FioContext {
                 }
             })
         }
+    }
+
+    private class AmperFiles(val moduleFiles: List<VirtualFile>, val customTaskFiles: List<VirtualFile>)
+
+    private val filesFromRoot: AmperFiles by lazy {
+        val moduleFiles = mutableListOf<VirtualFile>()
+        val customTaskFiles = mutableListOf<VirtualFile>()
+
+        VfsUtilCore.visitChildrenRecursively(rootDir, object : VirtualFileVisitor<VirtualFile>() {
+            override fun visitFile(file: VirtualFile): Boolean {
+                if (isIgnored(file)) return false
+                if (file.isModuleYaml()) moduleFiles.add(file)
+                if (file.isCustomTask()) customTaskFiles.add(file)
+                return true
+            }
+        })
+
+        AmperFiles(moduleFiles = moduleFiles, customTaskFiles = customTaskFiles)
     }
 
     private val catalogFinder = GradleVersionsCatalogFinder(rootDir)
@@ -121,6 +141,8 @@ internal class SingleModuleFioContext(
             "This context type can only be created for a module file, got $moduleFile"
         }
     }
+
+    override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
 
     override val amperModuleFiles: List<VirtualFile> = if (isIgnored(moduleFile)) emptyList() else listOf(moduleFile)
 

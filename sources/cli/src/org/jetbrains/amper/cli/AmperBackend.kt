@@ -14,12 +14,12 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.BuildTask
@@ -33,13 +33,11 @@ import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 
-@OptIn(ExperimentalPathApi::class)
 class AmperBackend(val context: ProjectContext) {
     private val resolvedModel: Model by lazy {
         with(CliProblemReporterContext()) {

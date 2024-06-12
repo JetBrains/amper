@@ -13,7 +13,6 @@ import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.diagnostics.getAttribute
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
@@ -29,8 +28,6 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
 
     private fun setupIosTestProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext =
         setupTestProject(iosTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope)
-
-    private suspend fun AmperBackend.runTask(vararg parts: String) = runTask(TaskName.fromHierarchy(parts.toList()))
 
     private val xcodebuildSpans: FilteredSpans
         get() = openTelemetryCollector.spansNamed("xcodebuild")

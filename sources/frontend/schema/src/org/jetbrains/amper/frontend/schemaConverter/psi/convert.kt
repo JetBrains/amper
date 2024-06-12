@@ -11,12 +11,14 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertModule
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertProject
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertTemplate
+import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertCustomTask
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertModule
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertProject
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertTemplate
@@ -32,6 +34,9 @@ internal data class ConvertCtx(
     val baseFile: VirtualFile,
     val pathResolver: FrontendPathResolver
 )
+
+context(ProblemReporterContext, ConvertCtx)
+fun convertCustomTask(file: VirtualFile): CustomTaskNode? = pathResolver.toPsiFile(file)?.let { convertCustomTasksPsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun convertProject(file: VirtualFile): Project? = pathResolver.toPsiFile(file)?.let { convertProjectPsi(it) }
@@ -61,6 +66,17 @@ private fun convertModulePsi(file: PsiFile): Module? {
         when (file) {
             is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertModule()
             is AmperFile -> file.convertModule()
+            else -> null
+        }
+    })
+}
+
+context(ProblemReporterContext, ConvertCtx)
+private fun convertCustomTasksPsi(file: PsiFile): CustomTaskNode? {
+    return ApplicationManager.getApplication().runReadAction(Computable {
+        return@Computable when (file) {
+            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertCustomTask()
+            is AmperFile -> throw UnsupportedOperationException("Amper files are not yet supported")
             else -> null
         }
     })

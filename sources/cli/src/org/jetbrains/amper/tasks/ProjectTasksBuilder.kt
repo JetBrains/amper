@@ -6,15 +6,16 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.engine.TaskGraph
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
+import org.jetbrains.amper.tasks.custom.setupCustomTasks
 import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
@@ -28,18 +29,16 @@ internal interface TaskType {
 internal interface PlatformTaskType : TaskType {
 
     fun getTaskName(module: PotatoModule, platform: Platform, isTest: Boolean = false, buildType: BuildType? = null, suffix: String = ""): TaskName =
-        TaskName.fromHierarchy(
-            listOf(
-                module.userReadableName,
-                "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}$suffix"
-            )
+        TaskName.moduleTask(
+            module,
+            "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}$suffix",
         )
 }
 
 internal interface FragmentTaskType : TaskType {
 
     fun getTaskName(fragment: Fragment): TaskName =
-        TaskName.fromHierarchy(fragment.module.userReadableName, "$prefix${fragment.name.replaceFirstChar { it.uppercase() }}")
+        TaskName.moduleTask(fragment.module, "$prefix${fragment.name.replaceFirstChar { it.uppercase() }}")
 }
 
 class ProjectTasksBuilder(private val context: ProjectContext, private val model: Model) {
@@ -51,6 +50,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         builder.setupNativeTasks()
         builder.setupIosTasks()
         builder.setupCustomTaskDependencies()
+        builder.setupCustomTasks()
         return builder.build()
     }
 
@@ -116,13 +116,13 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         onEachModule { module, _ ->
             val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@onEachModule
             for ((taskName, taskSettings) in tasksSettings.settings) {
-                val thisModuleTaskName = TaskName.fromHierarchy(module.userReadableName, taskName)
+                val thisModuleTaskName = TaskName.moduleTask(module, taskName)
 
                 for (dependsOnTaskName in taskSettings.dependsOn) {
                     val dependsOnTask = if (dependsOnTaskName.startsWith(":")) {
                         TaskName(dependsOnTaskName)
                     } else {
-                        TaskName.fromHierarchy(module.userReadableName, dependsOnTaskName)
+                        TaskName.moduleTask(module, dependsOnTaskName)
                     }
 
                     registerDependency(thisModuleTaskName, dependsOnTask)
@@ -150,7 +150,12 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             CompileMetadata("compileMetadata"),
         }
 
-        internal fun ProjectContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =
+        /**
+         * The method is public, but a caveat applies: a task should not know about an output path of other tasks.
+         * All interaction between tasks should be around passing typed value in TaskResult inheritor,
+         * task properties, or module properties
+         */
+        fun ProjectContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =
             TaskOutputRoot(path = buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_"))
     }
 }

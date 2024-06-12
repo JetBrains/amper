@@ -6,4 +6,10 @@ package org.jetbrains.amper.tasks
 
 import java.nio.file.Path
 
-data class TaskOutputRoot(val path: Path)
+data class TaskOutputRoot(val path: Path) {
+    init {
+        require(path.isAbsolute) {
+            "Task output path should be always absolute: $path"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+type: jvm/external-task
+
+module: buildscript
+programArguments:
+  - DEMO-STRING
+  - ${outputDirectory}
+  - ${module(.).version}
+jvmArguments:
+  - -Dxxx=yyy
+environmentVariables:
+  AAA: BB
+
+addTaskOutputToSourceSet:
+  - taskOutputSubFolder: .
+    platform: jvm

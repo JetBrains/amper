@@ -76,6 +76,8 @@ enum class Platform(
 
     val topmostParentNoCommon by lazy { generateSequence(this) { it.parentNoCommon }.last() }
 
+    val pathToParent by lazy { generateSequence(this) { it.parent }.toSet() }
+
     val parentNoCommon by lazy { parent?.takeIf { it != COMMON } }
 
     companion object : EnumMap<Platform, String>(Platform::values, { pretty }) {

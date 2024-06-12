@@ -100,4 +100,5 @@ interface PotatoModule {
 
     val rootTestFragment: Fragment? get() = fragments.firstOrNull { it.isTest && it.fragmentDependencies.size == 1 }
 
+    val customTasks: List<CustomTaskDescription>
 }
