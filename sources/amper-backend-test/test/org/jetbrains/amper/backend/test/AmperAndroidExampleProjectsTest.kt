@@ -43,6 +43,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertFails
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -53,8 +54,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext =
-        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope)
+    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope, isEmptyAndroidHome: Boolean = false): ProjectContext =
+        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope, isEmptyAndroidHome = isEmptyAndroidHome)
 
     /**
      * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.
@@ -125,18 +126,29 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `should fail when license is not accepted`() = runTestInfinitely {
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope, isEmptyAndroidHome = true)
+
+        val throwable = assertFails {
+            AmperBackend(projectContext).build()
+        }
+
+        assertContains( throwable.message!!, "failed: There are some licenses have not been accepted for Android SDK.")
+    }
+
+    @Test
     fun `task graph is correct for downloading and installing android sdk components`() = runTestInfinitely {
         val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:resolveDependenciesAndroid, :simple:compileAndroidDebug")
         assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:acceptAndroidLicensesAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
         assertStdoutContains("task :simple:buildAndroidRelease -> :simple:resolveDependenciesAndroid, :simple:compileAndroidRelease")
         assertStdoutContains("task :simple:compileAndroidRelease -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:resolveDependenciesAndroid")
-        assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:acceptAndroidLicensesAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
 
         // transform dependencies
@@ -144,6 +156,23 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         assertStdoutContains("task :simple:transformDependenciesAndroid -> :simple:resolveDependenciesAndroid")
         // test
         assertStdoutContains("task :simple:transformDependenciesAndroidTest -> :simple:resolveDependenciesAndroidTest")
+
+        // to accept android sdk license, we need cmdline tools
+        assertStdoutContains("task :simple:checkAndroidSdkLicenseAndroid -> :simple:installCmdlineToolsAndroid")
+
+        // Android sdk components can be installed separately, we need to check android sdk licenses every time.
+        // Since scheduling ensures that only one instance of a task executed during the build, checking android sdk
+        // license will be performed only once
+        assertStdoutContains("task :simple:installBuildToolsAndroid -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installBuildToolsAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installEmulatorAndroid -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installEmulatorAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installPlatformAndroid -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installPlatformAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installPlatformToolsAndroid -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installPlatformToolsAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installSystemImageAndroid -> :simple:checkAndroidSdkLicenseAndroid")
+        assertStdoutContains("task :simple:installSystemImageAndroidTest -> :simple:checkAndroidSdkLicenseAndroid")
     }
 
     @AfterTest

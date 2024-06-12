@@ -5,8 +5,8 @@
 package org.jetbrains.amper.tasks.android
 
 import com.android.prefs.AndroidLocationsSingleton
+import com.android.sdklib.SystemImageTags.DEFAULT_TAG
 import com.android.sdklib.devices.Abi
-import com.android.sdklib.repository.targets.SystemImage.DEFAULT_TAG
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.ProjectContext
@@ -30,10 +30,8 @@ import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 
-private val androidSdkPath by lazy { AndroidSdkDetector.detectSdkPath() ?: error("Android SDK is not found") }
-
 fun ProjectTaskRegistrar.setupAndroidTasks() {
-
+    val androidSdkPath = context.androidHomeRoot.path
     onEachDescendantPlatformOf(Platform.ANDROID) { module, _, _ ->
         registerTask(
             LogcatTask(TaskName.fromHierarchy(listOf(module.userReadableName, "logcat"))),
@@ -41,11 +39,14 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
 
         registerTask(
-            AcceptAndroidSdkLicenseTask(
+            CheckAndroidSdkLicenseTask(
                 androidSdkPath,
-                AndroidTaskType.AcceptAndroidLicenses.getTaskName(module, Platform.ANDROID)
-            )
+                context.userCacheRoot,
+                AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+            ),
+            AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
         )
+        setupAndroidCommandlineTools(module, androidSdkPath, context.userCacheRoot)
     }
 
     onEachTaskType(Platform.ANDROID) { module, executeOnChangedInputs, _, isTest ->
@@ -60,14 +61,15 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
         setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
         setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
-        setupDownloadSystemImageTask(module, context.userCacheRoot, isTest)
+        setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
         registerTask(
             GetAndroidPlatformFileFromPackageTask(
                 "emulator",
                 androidSdkPath,
                 context.userCacheRoot,
                 AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
-            )
+            ),
+            AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
         )
     }
 
@@ -85,7 +87,6 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 AndroidTaskType.InstallBuildTools.getTaskName(module, platform, isTest),
                 AndroidTaskType.InstallPlatformTools.getTaskName(module, platform, isTest),
                 AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest),
-                AndroidTaskType.AcceptAndroidLicenses.getTaskName(module, Platform.ANDROID),
                 CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
             ),
             context.getTaskOutputPath(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType)),
@@ -155,7 +156,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onTest(Platform.ANDROID) {module, _, platform, isTest, buildType ->
+    onTest(Platform.ANDROID) { module, _, platform, isTest, buildType ->
         // test
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform, isTest, buildType)
         registerTask(
@@ -194,7 +195,8 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
                 userCacheRoot,
                 AndroidTaskType.InstallPlatform.getTaskName(module, Platform.ANDROID, isTest)
             )
-        )
+        ),
+        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 
@@ -211,7 +213,8 @@ private fun TaskGraphBuilder.setupDownloadBuildToolsTask(
             androidSdkPath,
             userCacheRoot,
             AndroidTaskType.InstallBuildTools.getTaskName(module, Platform.ANDROID, isTest)
-        )
+        ),
+        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 
@@ -228,12 +231,14 @@ private fun TaskGraphBuilder.setupDownloadPlatformToolsTask(
             androidSdkPath,
             userCacheRoot,
             AndroidTaskType.InstallPlatformTools.getTaskName(module, Platform.ANDROID, isTest)
-        )
+        ),
+        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 
 private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     module: PotatoModule,
+    androidSdkPath: Path,
     userCacheRoot: AmperUserCacheRoot,
     isTest: Boolean,
 ) {
@@ -246,7 +251,8 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
             androidSdkPath,
             userCacheRoot,
             AndroidTaskType.InstallSystemImage.getTaskName(module, Platform.ANDROID, isTest)
-        )
+        ),
+        AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
     )
 }
 
@@ -307,6 +313,21 @@ private fun TaskGraphBuilder.setupAndroidBuildTasks(
     )
 }
 
+private fun TaskGraphBuilder.setupAndroidCommandlineTools(
+    module: PotatoModule,
+    androidSdkPath: Path,
+    userCacheRoot: AmperUserCacheRoot
+) {
+    registerTask(
+        GetAndroidPlatformFileFromPackageTask(
+            "cmdline-tools;latest",
+            androidSdkPath = androidSdkPath,
+            userCacheRoot = userCacheRoot,
+            AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
+        )
+    )
+}
+
 private fun getAndroidFragment(module: PotatoModule, isTest: Boolean): LeafFragment? = module
     .fragments
     .filterIsInstance<LeafFragment>()
@@ -318,8 +339,9 @@ private enum class AndroidTaskType(override val prefix: String) : PlatformTaskTy
     InstallPlatform("installPlatform"),
     InstallSystemImage("installSystemImage"),
     InstallEmulator("installEmulator"),
+    InstallCmdlineTools("installCmdlineTools"),
     TransformDependencies("transformDependencies"),
+    CheckAndroidSdkLicense("checkAndroidSdkLicense"),
     Prepare("prepare"),
     Build("build"),
-    AcceptAndroidLicenses("acceptAndroidLicenses")
 }

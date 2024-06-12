@@ -36,7 +36,9 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.io.path.outputStream
+import kotlin.io.path.walk
 
 private const val androidRepositoryUrl = "https://dl.google.com/"
 private const val androidRepositoryBasePath = "/android/repository/"
@@ -137,6 +139,12 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         val xmlStream = httpClient.get(urlBuilder.build()).bodyAsChannel().toInputStream()
         xmlStream.unmarshal()
     }
+
+    fun checkSdkLicenses(): Boolean = androidSdkPath
+        .walk()
+        .filter { it.name == "package.xml" }
+        .map { it.toFile().inputStream().unmarshal<Repository>() }
+        .all { rep -> rep.localPackage.license.checkAccepted(androidSdkPath) }
 
     private fun writePackageXml(pkg: RemotePackage, localPackagePath: Path): LocalPackage {
         val localPackage = LocalPackageImpl.create(pkg)

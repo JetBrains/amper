@@ -6,6 +6,7 @@ package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
@@ -27,7 +28,7 @@ class ProjectContext private constructor(
     val taskExecutionMode: TaskExecutor.Mode,
     val mavenLocalRepository: MavenLocalRepository,
     val terminal: Terminal,
-
+    val androidHomeRoot: AndroidHomeRoot,
     /**
      * Background scope is terminated when project-related activities are finished (e.g., on Amper exit)
      */
@@ -42,6 +43,7 @@ class ProjectContext private constructor(
             userCacheRoot: AmperUserCacheRoot? = null,
             currentTopLevelCommand: String,
             backgroundScope: CoroutineScope,
+            androidHomeRoot: AndroidHomeRoot? = null,
         ): ProjectContext {
             require(currentTopLevelCommand.isNotBlank()) {
                 "currentTopLevelCommand should not be blank"
@@ -62,6 +64,10 @@ class ProjectContext private constructor(
                 .resolve("amper_${currentTimestamp}_$currentTopLevelCommand")
                 .also { it.createDirectories() }
 
+            val androidHomeRootNotNull = androidHomeRoot ?: AndroidHomeRoot(
+                AndroidSdkDetector.detectSdkPath() ?: error("Android SDK detector not found")
+            )
+
             return ProjectContext(
                 projectRoot = projectRoot,
                 buildOutputRoot = buildOutputRootNotNull,
@@ -73,6 +79,7 @@ class ProjectContext private constructor(
                 mavenLocalRepository = MavenLocalRepository(),
                 terminal = Terminal(),
                 backgroundScope = backgroundScope,
+                androidHomeRoot = androidHomeRootNotNull
             )
         }
     }
@@ -112,6 +119,17 @@ data class AmperProjectTempRoot(val path: Path) {
 }
 
 data class AmperProjectRoot(val path: Path) {
+    init {
+        require(path.isDirectory()) {
+            "Project root is not a directory: $path"
+        }
+        require(path.isAbsolute) {
+            "Project root is not an absolute path: $path"
+        }
+    }
+}
+
+data class AndroidHomeRoot(val path: Path) {
     init {
         require(path.isDirectory()) {
             "Project root is not a directory: $path"

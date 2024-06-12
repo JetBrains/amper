@@ -7,6 +7,8 @@ dependencies:
   # bump jupiter-api version for junit-5 since we use recent api than referenced from kotlin-test-junit5
   - org.junit.jupiter:junit-jupiter-api:5.10.2: exported
   - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3: exported
+  - ../core
+  - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
 
 apply:
   - ../common.module-template.yaml

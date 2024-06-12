@@ -11,6 +11,7 @@ import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.androidHome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -91,6 +92,7 @@ abstract class AmperCliTestBase {
                 "-javaagent:$kotlinxCoroutinesCore",
                 "-javaagent:$byteBuddyAgent",
             ),
+            environment = mapOf("ANDROID_HOME" to androidHome.pathString),
             outputListener = ProcessOutputListener.NOOP,
         )
 

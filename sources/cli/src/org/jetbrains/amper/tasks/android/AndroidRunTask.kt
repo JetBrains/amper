@@ -147,7 +147,7 @@ class AndroidRunTask(
                         mutableMapOf(),
                         true,
                         true,
-                        true
+                        true,
                     )
                 }
             runEmulator(emulatorExecutable, avd.name)

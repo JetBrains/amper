@@ -43,9 +43,9 @@ dependencies:
   - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
   - com.fasterxml.jackson.core:jackson-databind:2.16.0
   # for something else
-  - com.android.tools:sdklib:31.2.0
-  - com.android.tools:common:31.2.0
-  - com.android.tools:sdk-common:31.1.0
+  - com.android.tools:sdklib:31.6.0-alpha05
+  - com.android.tools:common:31.6.0-alpha05
+  - com.android.tools:sdk-common:31.6.0-alpha05
   - com.android.tools.ddms:ddmlib:25.3.0
   - com.github.ajalt.clikt:clikt:4.2.2
   - com.github.ajalt.mordant:mordant-jvm:2.4.0

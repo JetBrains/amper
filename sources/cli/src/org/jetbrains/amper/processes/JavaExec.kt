@@ -22,6 +22,7 @@ suspend fun Jdk.runJava(
     classpath: List<Path>,
     programArgs: List<String>,
     jvmArgs: List<String> = emptyList(),
+    environment: Map<String, String> = emptyMap(),
     outputListener: ProcessOutputListener,
 ): ProcessResult {
     val classpathStr = classpath.joinToString(File.pathSeparator) { it.pathString }
@@ -51,6 +52,7 @@ suspend fun Jdk.runJava(
                 *command.toTypedArray(),
                 span = span,
                 outputListener = outputListener,
+                environment = environment,
             )
         }
 }

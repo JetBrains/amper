@@ -21,6 +21,7 @@ import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -95,11 +96,17 @@ abstract class AmperIntegrationTestBase {
         copyToTemp: Boolean,
         programArgs: List<String> = emptyList(),
         backgroundScope: CoroutineScope,
+        isEmptyAndroidHome: Boolean = false,
     ): ProjectContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
+        val androidHomeRoot = if (isEmptyAndroidHome)
+            AndroidHomeRoot((TestUtil.sharedTestCaches / "empty-android-sdk").also { it.createDirectories() })
+        else
+            AndroidHomeRoot(TestUtil.androidHome)
+
         return ProjectContext.create(
             projectRoot = AmperProjectRoot(projectRoot),
             userCacheRoot = userCacheRoot,
@@ -107,6 +114,7 @@ abstract class AmperIntegrationTestBase {
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
             currentTopLevelCommand = "integration-test-base",
             backgroundScope = backgroundScope,
+            androidHomeRoot = androidHomeRoot
         )
     }
 
