@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.engine
 
+import org.jetbrains.amper.frontend.TaskName
+
 class TaskGraph(val nameToTask: Map<TaskName, Task>,
                 val dependencies: Map<TaskName, Set<TaskName>>) {
     val tasks = nameToTask.values

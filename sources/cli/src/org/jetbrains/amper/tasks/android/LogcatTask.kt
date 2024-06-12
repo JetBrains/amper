@@ -11,7 +11,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.slf4j.LoggerFactory
 
 class LogcatTask(override val taskName: TaskName) : Task {

@@ -4,6 +4,8 @@
 
 package org.jetbrains.amper.engine
 
+import org.jetbrains.amper.frontend.TaskName
+
 interface TaskProgressListener {
     fun taskStarted(taskName: TaskName): TaskProgressCookie
     interface TaskProgressCookie: AutoCloseable

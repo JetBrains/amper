@@ -5,7 +5,7 @@
 package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.TaskResult
 

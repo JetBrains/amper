@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 import org.slf4j.MDC
 

@@ -6,7 +6,7 @@ package org.jetbrains.amper.cli
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.engine.TaskGraph
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 
 class TaskGraphBuilder {
     // do not give access to the graph while it's being built

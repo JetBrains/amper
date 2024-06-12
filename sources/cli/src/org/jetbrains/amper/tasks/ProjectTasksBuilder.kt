@@ -6,7 +6,7 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.engine.TaskGraph
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModuleTasksPart

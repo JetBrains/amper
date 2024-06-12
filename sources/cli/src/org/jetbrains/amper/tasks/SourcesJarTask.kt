@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.jar.JarConfig

@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import kotlinx.coroutines.delay
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.tasks.TaskOutputRoot

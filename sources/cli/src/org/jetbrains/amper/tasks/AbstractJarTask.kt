@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jar.writeJar

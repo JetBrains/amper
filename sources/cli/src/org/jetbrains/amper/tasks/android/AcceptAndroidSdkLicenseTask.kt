@@ -6,8 +6,7 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
-import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.frontend.TaskName
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div

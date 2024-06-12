@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.engine
 
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
 
 interface Task {

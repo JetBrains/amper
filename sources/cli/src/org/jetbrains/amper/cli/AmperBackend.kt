@@ -14,7 +14,7 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
-import org.jetbrains.amper.engine.TaskName
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
