@@ -86,20 +86,6 @@ object Models : ModelInit {
         return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
     }
 
-    context(ProblemReporterContext)
-    override fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> =
-        when (val result: Result<MockModel> = getModel(modulePsiFile.virtualFile.toNioPath(), project)) {
-            is Result.Failure -> Result.failure(result.exception)
-            is Result.Success -> Result.success(result.value.modules.single())
-        }
-
-    context(ProblemReporterContext) override fun getTemplate(
-        templatePsiFile: PsiFile,
-        project: Project
-    ): ModelInit.TemplateHolder {
-        TODO("Not yet implemented")
-    }
-
     private val Path.moduleYaml: Path get() = resolve("module.yaml")
 
     // --- Models ----------------------------------------------------------------------------------------------------------

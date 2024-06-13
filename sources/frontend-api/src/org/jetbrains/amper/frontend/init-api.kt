@@ -67,25 +67,6 @@ interface ModelInit {
         fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
             return loadModelInitService(loader).flatMap { it.getModel(root, project = null) }
         }
-
-        context(ProblemReporterContext)
-        fun getModel(root: Path, project: Project? = null, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
-            return loadModelInitService(loader).flatMap { it.getModel(root, project) }
-        }
-
-        context(ProblemReporterContext)
-        fun getModule(root: PsiFile, project: Project, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<PotatoModule> {
-            return loadModelInitService(loader).flatMap { it.getModule(root, project) }
-        }
-
-        context(ProblemReporterContext)
-        fun getTemplate(
-            templatePath: PsiFile,
-            project: Project,
-            loader: ClassLoader = Thread.currentThread().contextClassLoader
-        ): TemplateHolder? = loadModelInitService(loader)
-            .map { it.getTemplate(templatePath, project) }
-            .getOrNull()
     }
 
     /**
@@ -96,9 +77,6 @@ interface ModelInit {
     context(ProblemReporterContext)
     fun getModel(root: Path, project: Project?): Result<Model>
 
-    context(ProblemReporterContext)
-    fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule>
-
     /**
      * Wrapper class to hold info about requested template.
      */
@@ -107,7 +85,4 @@ interface ModelInit {
         @UsedInIdePlugin
         val chosenCatalog: VersionCatalog?,
     )
-
-    context(ProblemReporterContext)
-    fun getTemplate(templatePsiFile: PsiFile, project: Project): TemplateHolder?
 }
