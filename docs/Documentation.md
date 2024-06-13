@@ -1579,7 +1579,7 @@ pluginManagement {
 
 plugins {
     // Add the plugin
-    id("org.jetbrains.amper.settings.plugin").version("0.3.1")
+    id("org.jetbrains.amper.settings.plugin").version("0.3.2-dev-582")
 }
 ```
 
