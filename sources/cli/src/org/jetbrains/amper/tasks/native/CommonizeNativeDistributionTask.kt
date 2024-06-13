@@ -14,8 +14,8 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.engine.TaskName
 import org.jetbrains.amper.frontend.Model
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.EmptyTaskResult
