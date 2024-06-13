@@ -29,8 +29,7 @@ interface ModelInit {
 
         context(ProblemReporterContext)
         @OptIn(NonIdealDiagnostic::class)
-        @UsedInIdePlugin
-        fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
+        private fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportMessage(
@@ -47,7 +46,7 @@ interface ModelInit {
             val modelName = System.getProperty(MODEL_NAME_PROPERTY)
                 ?: System.getenv(MODEL_NAME_ENV)
                 ?: "schema-based"
-//                ?: "plain"
+
             val service = services[modelName]
             return if (service == null) {
                 problemReporter.reportMessage(
