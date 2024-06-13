@@ -30,7 +30,7 @@ private fun FioContext.isIgnored(file: VirtualFile): Boolean {
 /**
  * Files context used to parse amper modules.
  */
-internal interface FioContext {
+internal interface FioContext : VersionsCatalogFinder {
 
     /**
      * `.amperignore` file parsed lines as paths.
@@ -47,6 +47,9 @@ internal interface FioContext {
      * All gradle modules ([gradleModuleFiles]), that are found within [rootDir] hierarchy.
      */
     val gradleModules: Map<VirtualFile, DumbGradleModule>
+}
+
+internal interface VersionsCatalogFinder {
 
     /**
      * Try to find catalog path for given module or template path.

@@ -73,7 +73,7 @@ internal fun doBuild(
             } ?: return@mapNotNull null
 
             // Choose catalogs.
-            val chosenCatalog = with(pathResolver) { tryGetCatalogFor(fioCtx, moduleFile, nonProcessed) }
+            val chosenCatalog = with(pathResolver) { fioCtx.tryGetCatalogFor(moduleFile, nonProcessed) }
 
             // Process module file.
             val processedModule = with(systemInfo) {
@@ -105,9 +105,8 @@ internal fun doBuild(
  * Try to find gradle catalog and compose it with built-in catalog.
  */
 context(ProblemReporterContext, FrontendPathResolver)
-internal fun tryGetCatalogFor(fioCtx: FioContext, file: VirtualFile, nonProcessed: Base): VersionCatalog {
-    val gradleCatalog = fioCtx.getCatalogPathFor(file)
-        ?.let { parseGradleVersionCatalog(it) }
+internal fun VersionsCatalogFinder.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
+    val gradleCatalog = getCatalogPathFor(file)?.let { parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
     return compositeCatalog
 }

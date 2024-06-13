@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.ModelInit
-import org.jetbrains.amper.frontend.aomBuilder.FioContext
+import org.jetbrains.amper.frontend.aomBuilder.VersionsCatalogFinder
 import org.jetbrains.amper.frontend.aomBuilder.tryGetCatalogFor
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.Module
@@ -18,19 +18,19 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 
 
 context(ProblemReporterContext, FrontendPathResolver)
-internal fun readTemplate(fioCtx: FioContext, file: VirtualFile): ModelInit.TemplateHolder? =
+internal fun readTemplate(catalogFinder: VersionsCatalogFinder, file: VirtualFile): ModelInit.TemplateHolder? =
     with(ConvertCtx(file.parent, this@FrontendPathResolver)) {
         val nonProcessed = convertTemplate(file) ?: return@with null
-        val chosenCatalog = tryGetCatalogFor(fioCtx, file, nonProcessed)
+        val chosenCatalog = catalogFinder.tryGetCatalogFor(file, nonProcessed)
     val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
     ModelInit.TemplateHolder(processed, chosenCatalog)
 }
 
 context(ProblemReporterContext, FrontendPathResolver)
-internal fun Module.readTemplatesAndMerge(fioCtx: FioContext): Module {
+internal fun Module.readTemplatesAndMerge(catalogFinder: VersionsCatalogFinder): Module {
     val readTemplates = apply
         ?.mapNotNull { loadVirtualFileOrNull(it) }
-        ?.mapNotNull { readTemplate(fioCtx, it)?.template } ?: emptyList()
+        ?.mapNotNull { readTemplate(catalogFinder, it)?.template } ?: emptyList()
     val toMerge = readTemplates + this
 
     val merged = toMerge.reduce { first, second -> first.merge(second, ::Template) }
