@@ -27,6 +27,7 @@ object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(ProblemReporterContext)
+    @UsedInIdePlugin
     override fun getModel(root: Path, project: Project?): Result<Model> {
         val pathResolver = FrontendPathResolver(project = project)
         val fioCtx = DefaultFioContext(pathResolver.loadVirtualFile(root))
