@@ -65,7 +65,8 @@ class ProjectContext private constructor(
                 .also { it.createDirectories() }
 
             val androidHomeRootNotNull = androidHomeRoot ?: AndroidHomeRoot(
-                AndroidSdkDetector.detectSdkPath() ?: error("Android SDK detector not found")
+                (AndroidSdkDetector.detectSdkPath() ?: error("Android SDK detector not found"))
+                    .also { it.createDirectories() }
             )
 
             return ProjectContext(

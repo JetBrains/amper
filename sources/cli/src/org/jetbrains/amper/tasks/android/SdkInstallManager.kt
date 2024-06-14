@@ -26,6 +26,7 @@ import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
 import org.jetbrains.amper.core.downloader.httpClient
 import org.jetbrains.amper.core.extract.ExtractOptions
+import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
@@ -80,7 +81,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
                     val repo = packageManifest.toFile().inputStream().unmarshal<Repository>()
                     repo.localPackage
                 } else {
-                    error("Package is corrupted: $packagePath")
+                    packagePath.emptyLocalPackage()
                 }
             } else {
                 installPackage(packagePath, localFileSystemPackagePath)
@@ -110,12 +111,19 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
                     val repo = packageManifest.toFile().inputStream().unmarshal<Repository>()
                     repo.localPackage
                 } else {
-                    error("Package is corrupted: $packagePath")
+                    packagePath.emptyLocalPackage()
                 }
             } else {
                 installSystemImage(packagePath, localFileSystemPackagePath)
             }
         }
+
+    private fun String.emptyLocalPackage(): com.android.repository.impl.generated.v2.LocalPackage {
+        logger.warn("Package is corrupted: $this")
+        val pkg = com.android.repository.impl.generated.v2.LocalPackage()
+        pkg.path = this
+        return pkg
+    }
 
     private suspend fun installSystemImage(packagePath: String, localPackagePath: Path): RepoPackage {
         val pkg = systemImages().remotePackage.firstOrNull { it.path == packagePath }
@@ -189,4 +197,8 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             ConsoleProgressIndicator()
         )
     }
+
+
+    private val logger = LoggerFactory.getLogger(javaClass)
+
 }
