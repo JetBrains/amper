@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
 import com.intellij.openapi.vfs.readText
+import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import java.nio.file.Path
 import kotlin.io.path.div
 
@@ -19,8 +20,6 @@ private const val amperIgnoreFileName = ".amperignore"
 private fun VirtualFile.isModuleYaml() = name == amperModuleFileName || name == moduleAmperFileName
 
 private val gradleModuleFiles = setOf("build.gradle.kts", "build.gradle")
-private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
-private const val gradleDirName = "gradle"
 
 private fun FioContext.isIgnored(file: VirtualFile): Boolean {
     val nioPath = file.fileSystem.getNioPath(file)?.toFile() ?: return false
@@ -60,14 +59,10 @@ internal interface VersionsCatalogFinder {
 /**
  * Default files context.
  */
-internal open class DefaultFioContext(
-    private val root: VirtualFile
-) : FioContext {
-    private val rootDir: VirtualFile by lazy {
-        root.takeIf { it.isDirectory }
-            ?: root.parent
-            ?: error("Should not call with a root without parent")
-    }
+internal open class DefaultFioContext(root: VirtualFile) : FioContext {
+    private val rootDir: VirtualFile = root.takeIf { it.isDirectory }
+        ?: root.parent
+        ?: error("Should not call with a root without parent")
 
     override val ignorePaths: List<Path> by lazy {
         rootDir.findChild(amperIgnoreFileName)
@@ -108,56 +103,26 @@ internal open class DefaultFioContext(
         }
     }
 
-    data class CatalogPathHolder(val path: VirtualFile?)
+    private val catalogFinder = GradleVersionsCatalogFinder(rootDir)
 
-    private val knownGradleCatalogs = mutableMapOf<VirtualFile, CatalogPathHolder>()
-
-    override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = knownGradleCatalogs
-        .computeIfAbsent(file) { CatalogPathHolder(it.findGradleCatalog()) }
-        .path
-
-    /**
-     * Find "libs.versions.toml" in every gradle directory between [this] path and [rootDir]
-     * with deeper files being the first.
-     */
-    private fun VirtualFile.findGradleCatalog(): VirtualFile? {
-        assert(VfsUtilCore.isAncestor(rootDir, this, true)) {
-            "Cannot call with the file $this that is outside of $rootDir)"
-        }
-        val currentDir = takeIf { it.isDirectory } ?: parent
-
-        // Directories from [this] to [rootDir], both ends including.
-        val directories = if (currentDir == rootDir) {
-            listOf(currentDir)
-        } else {
-            generateSequence(currentDir) { dir ->
-                dir.parent.takeIf { it != rootDir }
-            }.filter { it.isDirectory }.toList() + listOf(rootDir)
-        }
-
-        return directories.asSequence()
-            .mapNotNull { it.findChild(gradleDirName)?.findChild(gradleDefaultVersionCatalogName) }
-            .filter { !isIgnored(it) }
-            .firstOrNull()
-    }
+    override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = catalogFinder.getCatalogPathFor(file)
 }
 
 /**
  * Per-file context.
  */
-internal class ModuleFioContext(
-    virtualFile: VirtualFile,
-    project: Project,
-) : DefaultFioContext(requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }) {
+internal class SingleModuleFioContext(
+    moduleFile: VirtualFile,
+    projectRootDir: VirtualFile,
+) : DefaultFioContext(projectRootDir) {
 
-    private val requiredDir = if (virtualFile.isDirectory) virtualFile else virtualFile.parent
-
-    override val amperModuleFiles: List<VirtualFile> by lazy {
-        requiredDir.children
-            .filter { file -> file.isModuleYaml() && !isIgnored(file) }
+    init {
+        require(moduleFile.isModuleYaml()) {
+            "This context type can only be created for a module file, got $moduleFile"
+        }
     }
 
-    override val gradleModules: Map<VirtualFile, DumbGradleModule> by lazy {
-        emptyMap()
-    }
+    override val amperModuleFiles: List<VirtualFile> = if (isIgnored(moduleFile)) emptyList() else listOf(moduleFile)
+
+    override val gradleModules: Map<VirtualFile, DumbGradleModule> = emptyMap()
 }

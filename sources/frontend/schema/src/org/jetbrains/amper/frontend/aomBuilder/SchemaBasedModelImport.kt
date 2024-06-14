@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
@@ -15,6 +16,7 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.readTemplate
 import java.nio.file.Path
@@ -46,7 +48,8 @@ object SchemaBasedModelImport : ModelInit {
     context(ProblemReporterContext)
     @UsedInIdePlugin
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
-        val fioCtx = ModuleFioContext(modulePsiFile.virtualFile, project)
+        val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
+        val fioCtx = SingleModuleFioContext(modulePsiFile.virtualFile, projectRootDir)
         val pathResolver = FrontendPathResolver(project = project)
         val resultModules = doBuild(pathResolver, fioCtx)
             ?: return amperFailure()
@@ -60,10 +63,10 @@ object SchemaBasedModelImport : ModelInit {
     context(ProblemReporterContext)
     @UsedInIdePlugin
     fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? {
-        val templatePath = templatePsiFile.virtualFile
-        val fioCtx = ModuleFioContext(templatePath, project)
+        val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
+        val catalogFinder = GradleVersionsCatalogFinder(projectRootDir)
         return with(FrontendPathResolver(project = project)) {
-            readTemplate(fioCtx, templatePath)
+            readTemplate(catalogFinder, templatePsiFile.virtualFile)
         }
     }
 }
