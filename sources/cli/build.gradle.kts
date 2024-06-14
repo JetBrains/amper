@@ -10,7 +10,6 @@ import java.util.regex.Pattern
 
 plugins {
     `maven-publish`
-    id("org.jetbrains.kotlin.plugin.atomicfu") version "2.0.0"
 }
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)

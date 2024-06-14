@@ -27,7 +27,6 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.intellij.util.namedChildScope
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -38,8 +37,8 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
 import org.jetbrains.amper.tools.JdkToolCommands
@@ -47,6 +46,7 @@ import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import org.tinylog.Level
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -154,7 +154,7 @@ private suspend fun cancelAndWaitForScope(scope: CoroutineScope) {
     }
 }
 
-private val backendInitialized = atomic<Throwable?>(null)
+private val backendInitialized = AtomicReference<Throwable>(null)
 
 internal fun withBackend(
     commonOptions: RootCommand.CommonOptions,

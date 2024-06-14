@@ -4,8 +4,6 @@
 
 package org.jetbrains.amper.engine
 
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.update
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -14,6 +12,7 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskResult
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -96,12 +95,12 @@ class TaskExecutorTest {
         val graph = builder.build()
         val executor = TaskExecutor(graph, TaskExecutor.Mode.FAIL_FAST)
         executor.run(setOf(TaskName("A"), TaskName("B"), TaskName("C")))
-        assertEquals(3, maxParallelTasksCount.value)
+        assertEquals(3, maxParallelTasksCount.get())
     }
 
     private val executed = mutableListOf<String>()
-    private val tasksCount = atomic(0)
-    private val maxParallelTasksCount = atomic(0)
+    private val tasksCount = AtomicInteger(0)
+    private val maxParallelTasksCount = AtomicInteger(0)
     private inner class TestTask(
         val name: String,
         val delayMs: Long = 0,
@@ -113,7 +112,7 @@ class TaskExecutorTest {
 
         override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
             val currentTasksCount = tasksCount.incrementAndGet()
-            maxParallelTasksCount.update { max -> max(max, currentTasksCount) }
+            maxParallelTasksCount.updateAndGet { max -> max(max, currentTasksCount) }
             try {
                 synchronized(executed) {
                     executed.add(name)
@@ -121,7 +120,7 @@ class TaskExecutorTest {
                 if (waitForMaxParallelTasksCount != null) {
                     withTimeout(10.seconds) {
                         while (true) {
-                            if (maxParallelTasksCount.value == waitForMaxParallelTasksCount) {
+                            if (maxParallelTasksCount.get() == waitForMaxParallelTasksCount) {
                                 break
                             }
                             delay(10)
