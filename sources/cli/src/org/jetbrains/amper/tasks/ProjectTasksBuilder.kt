@@ -143,6 +143,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
             SourcesJar("sourcesJar"),
             Publish("publish"),
             Run("run"),
+            RuntimeClasspath("runtimeClasspath"),
             Test("test"),
         }
 

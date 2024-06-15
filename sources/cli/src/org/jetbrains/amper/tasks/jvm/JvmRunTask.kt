@@ -19,7 +19,6 @@ import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonRunSettings
-import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
@@ -47,8 +46,8 @@ class JvmRunTask(
             ?: error("Main Class was not found for ${module.userReadableName} in any of the following source directories:\n" +
                     fragments.joinToString("\n") { it.src.pathString })
 
-        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
-            ?: error("Could not find a single compile task in dependencies of $taskName")
+        val runtimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
+            ?: error("Could not find a single ${JvmRuntimeClasspathTask.Result::class.simpleName} in dependencies of ${taskName.name}")
 
         val jdk = JdkDownloader.getJdk(userCacheRoot)
 
@@ -67,7 +66,7 @@ class JvmRunTask(
         val result = jdk.runJava(
             workingDir = workingDir,
             mainClass = effectiveMainClassFqn,
-            classpath = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult),
+            classpath = runtimeClasspathTask.jvmRuntimeClasspath,
             programArgs = commonRunSettings.programArgs,
             jvmArgs = jvmArgs,
             outputListener = PrintToTerminalProcessOutputListener(terminal),

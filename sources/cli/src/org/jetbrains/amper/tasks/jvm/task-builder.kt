@@ -31,6 +31,15 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             ),
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
+
+        registerTask(
+            JvmRuntimeClasspathTask(
+                module = module,
+                isTest = isTest,
+                taskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
+            ),
+            compileTaskName,
+        )
     }
 
     onCompileModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
@@ -51,7 +60,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                     commonRunSettings = context.commonRunSettings,
                     terminal = context.terminal,
                 ),
-                CommonTaskType.Compile.getTaskName(module, platform)
+                CommonTaskType.RuntimeClasspath.getTaskName(module, platform)
             )
         }
         val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform)
@@ -109,6 +118,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             ),
             listOf(
                 CommonTaskType.Compile.getTaskName(module, platform, true),
+                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true),
             )
         )
 
