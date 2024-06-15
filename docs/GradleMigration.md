@@ -370,7 +370,7 @@ settings:
     compileSdk: 34
 ```
 
-See the [full list of supported settings](DSLReference#compose).
+See the [full list of supported settings](DSLReference.md#settings-and-test-settings).
 
 # Step 6. Optionally, switch to the Amper file layout
 
