@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks
 
-import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.Jdk
@@ -47,7 +46,6 @@ class MetadataCompileTask(
     private val fragment: Fragment,
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val terminal: Terminal,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
         KotlinArtifactsDownloader(userCacheRoot, executeOnChangedInputs),
@@ -56,7 +54,7 @@ class MetadataCompileTask(
     override val platform: Platform = Platform.COMMON
     override val isTest: Boolean = fragment.isTest
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         logger.info("compile metadata for '${module.userReadableName}' -- ${fragment.name}")
 
         // TODO Make kotlin version configurable in settings
@@ -68,7 +66,7 @@ class MetadataCompileTask(
         // TODO extract deps only for our fragment/platforms
         val mavenClasspath = dependencyResolutionResults.flatMap { it.compileClasspath }
 
-        val localDependencies = dependenciesResult.filterIsInstance<TaskResult>()
+        val localDependencies = dependenciesResult.filterIsInstance<Result>()
 
         // includes this module's fragment dependencies and other source fragment deps from other local modules
         val localClasspath = localDependencies.map { it.metadataOutputRoot }
@@ -112,7 +110,7 @@ class MetadataCompileTask(
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
         }
 
-        return TaskResult(
+        return Result(
             metadataOutputRoot = taskOutputRoot.path.toAbsolutePath(),
             dependencies = dependenciesResult,
             module = module,
@@ -120,7 +118,7 @@ class MetadataCompileTask(
         )
     }
 
-    private fun List<TaskResult>.findMetadataResultForFragment(f: Fragment) =
+    private fun List<Result>.findMetadataResultForFragment(f: Fragment) =
         // can't use identity check because some fragments are wrapped, and equals is not overridden
         firstOrNull { it.module.userReadableName == f.module.userReadableName && it.fragment.name == f.name }
             ?: error("Metadata compilation result not found for dependency fragment ${f.module.userReadableName}:" +
@@ -179,12 +177,12 @@ class MetadataCompileTask(
             }
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class Result(
+        override val dependencies: List<TaskResult>,
         val metadataOutputRoot: Path,
         val module: PotatoModule,
         val fragment: Fragment,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

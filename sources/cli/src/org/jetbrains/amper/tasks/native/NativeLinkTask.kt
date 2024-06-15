@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -50,7 +51,7 @@ class NativeLinkTask(
         require(platform.isDescendantOf(Platform.NATIVE))
     }
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
         }
@@ -59,7 +60,7 @@ class NativeLinkTask(
         }
 
         val moduleKLibCompilationResult = dependenciesResult
-            .filterIsInstance<NativeCompileKlibTask.TaskResult>()
+            .filterIsInstance<NativeCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
         val includeArtifact = moduleKLibCompilationResult.compiledKlib
@@ -111,16 +112,16 @@ class NativeLinkTask(
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifactPath))
         }.outputs.single()
 
-        return TaskResult(
+        return Result(
             dependencies = dependenciesResult,
             linkedBinary = artifact,
         )
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class Result(
+        override val dependencies: List<TaskResult>,
         val linkedBinary: Path,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

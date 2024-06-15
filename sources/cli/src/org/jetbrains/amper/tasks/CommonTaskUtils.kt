@@ -14,13 +14,13 @@ object CommonTaskUtils {
     //  also it depends on task hierarchy, which could be different from classpath
     //  but for demo it's fine
     //  I suggest to return to this task after our own dependency resolution engine
-    fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.TaskResult): List<Path> {
+    fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result): List<Path> {
         val result = mutableListOf<Path>()
         buildRuntimeClasspath(compileTaskResult, result)
         return result
     }
 
-    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.TaskResult, result: MutableList<Path>) {
+    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result, result: MutableList<Path>) {
         val externalClasspath =
             compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.Result>()
                 .flatMap { it.runtimeClasspath }
@@ -30,22 +30,22 @@ object CommonTaskUtils {
             }
         }
 
-        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
+        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.Result>()) {
             buildRuntimeClasspath(depCompileResult, result)
         }
 
         result.add(compileTaskResult.classesOutputRoot)
     }
 
-    fun getRuntimeClasses(compileTaskResult: JvmCompileTask.TaskResult): List<Path> {
-        val arrayDeque = ArrayDeque<JvmCompileTask.TaskResult>()
+    fun getRuntimeClasses(compileTaskResult: JvmCompileTask.Result): List<Path> {
+        val arrayDeque = ArrayDeque<JvmCompileTask.Result>()
         arrayDeque.add(compileTaskResult)
         return buildList {
             while (arrayDeque.isNotEmpty()) {
                 val current = arrayDeque.removeFirst()
                 add(current.classesOutputRoot)
 
-                for (depCompileResult in current.dependencies.filterIsInstance<JvmCompileTask.TaskResult>()) {
+                for (depCompileResult in current.dependencies.filterIsInstance<JvmCompileTask.Result>()) {
                     arrayDeque.add(depCompileResult)
                 }
             }

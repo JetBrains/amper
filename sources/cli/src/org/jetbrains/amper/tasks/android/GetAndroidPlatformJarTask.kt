@@ -18,7 +18,7 @@ class GetAndroidPlatformJarTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val result = getAndroidPlatformFileFromPackageTask
-            .run(dependenciesResult) as GetAndroidPlatformFileFromPackageTask.TaskResult
+            .run(dependenciesResult) as GetAndroidPlatformFileFromPackageTask.Result
         val classpath = result.outputs.map { it.resolve("android.jar") }
         return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, classpath)
     }

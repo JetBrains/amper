@@ -17,7 +17,7 @@ class JvmRuntimeClasspathTask(
     private val isTest: Boolean,
 ): Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
+        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
 
         val classpath = CommonTaskUtils.buildRuntimeClasspath(compileTask)

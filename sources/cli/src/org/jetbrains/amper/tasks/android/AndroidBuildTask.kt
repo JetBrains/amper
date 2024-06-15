@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -41,11 +42,11 @@ class AndroidBuildTask(
     override val taskName: TaskName,
 ) : Task {
     @OptIn(ExperimentalPathApi::class)
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val rootPath =
             (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
 
-        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
+        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val classes = CommonTaskUtils.getRuntimeClasses(compileTaskResult)
@@ -88,12 +89,11 @@ class AndroidBuildTask(
                     overwrite = true
                 )
             }
-        return TaskResult(dependenciesResult, executionResult.outputs)
+        return Task(dependenciesResult, executionResult.outputs)
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class Task(
+        override val dependencies: List<TaskResult>,
         val artifacts: List<Path>,
-    ) : org.jetbrains.amper.tasks.TaskResult
-
+    ) : TaskResult
 }

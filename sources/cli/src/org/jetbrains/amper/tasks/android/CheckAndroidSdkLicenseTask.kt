@@ -8,6 +8,7 @@ import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.TaskResult
 import java.nio.file.Path
 import kotlin.io.path.div
 
@@ -16,15 +17,15 @@ class CheckAndroidSdkLicenseTask(
     private val userCacheRoot: AmperUserCacheRoot,
     override val taskName: TaskName
 ): Task {
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         // Check the license
         if(!SdkInstallManager(userCacheRoot, androidSdkPath).checkSdkLicenses()) {
             userReadableError("There are some licenses have not been accepted for Android SDK. Run \"${androidSdkPath / "cmdline-tools" / "latest" / "bin" / "sdkmanager"} --licenses\" to review and accept them")
         }
-        return TaskResult(dependenciesResult)
+        return Result(dependenciesResult)
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    class Result(
+        override val dependencies: List<TaskResult>,
+    ) : TaskResult
 }

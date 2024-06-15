@@ -31,10 +31,10 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.tasks.RunTask
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jetbrains.amper.util.fireProcessAndForget
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -53,12 +53,12 @@ class AndroidRunTask(
 
     private val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(platform) }
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val adb = waitForAdbConnection()
         val androidFragment = fragments.singleOrNull() ?: error("Only one $platform fragment is expected")
 
         val emulatorExecutable = (dependenciesResult
-            .filterIsInstance<GetAndroidPlatformFileFromPackageTask.TaskResult>()
+            .filterIsInstance<GetAndroidPlatformFileFromPackageTask.Result>()
             .flatMap { it.outputs.filter { it.endsWith("emulator") } }.singleOrNull()
             ?: error("Emulator not found")).resolve("emulator")
 
@@ -66,7 +66,7 @@ class AndroidRunTask(
             .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
             .waitForProcess("com.android.externalstorage")
 
-        val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.TaskResult>()
+        val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.Task>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
         device.installPackage(apk.pathString, true, "--bypass-low-target-sdk-block")
 
@@ -77,7 +77,7 @@ class AndroidRunTask(
             NullOutputReceiver()
         )
 
-        return TaskResult(dependenciesResult, device)
+        return Result(dependenciesResult, device)
     }
 
     /**
@@ -195,10 +195,7 @@ class AndroidRunTask(
         return device
     }
 
-    data class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>, val device: IDevice) :
-        org.jetbrains.amper.tasks.TaskResult
-
-    private val logger = LoggerFactory.getLogger(javaClass)
+    data class Result(override val dependencies: List<TaskResult>, val device: IDevice) : TaskResult
 }
 
 private val xml = XML {

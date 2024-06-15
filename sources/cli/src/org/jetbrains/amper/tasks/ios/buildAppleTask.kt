@@ -43,7 +43,7 @@ class BuildAppleTask(
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val nativeCompileTasksResults = dependenciesResult
-            .filterIsInstance<NativeLinkTask.TaskResult>()
+            .filterIsInstance<NativeLinkTask.Result>()
             .map { it.linkedBinary }
 
         val leafAppleFragment = module.leafFragments.first { it.platform == platform }

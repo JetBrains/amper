@@ -7,7 +7,6 @@ package org.jetbrains.amper.tasks.android
 import com.android.prefs.AndroidLocationsSingleton
 import com.android.sdklib.SystemImageTags.DEFAULT_TAG
 import com.android.sdklib.devices.Abi
-import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
@@ -104,7 +103,6 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 fragments = fragments,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
-                terminal = context.terminal,
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,

@@ -24,7 +24,6 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 fragments = fragments,
                 userCacheRoot = context.userCacheRoot,
                 projectRoot = context.projectRoot,
-                terminal = context.terminal,
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.jvm
 
-import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
@@ -38,6 +37,7 @@ import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
@@ -62,7 +62,6 @@ class JvmCompileTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
     private val taskOutputRoot: TaskOutputRoot,
-    private val terminal: Terminal,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
@@ -71,7 +70,7 @@ class JvmCompileTask(
 
     override val platform: Platform = Platform.JVM
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         require(fragments.isNotEmpty()) {
             "fragments list is empty for jvm compile task, module=${module.userReadableName}"
         }
@@ -83,7 +82,7 @@ class JvmCompileTask(
             .singleOrNull()
             ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
-        val immediateDependencies = dependenciesResult.filterIsInstance<TaskResult>()
+        val immediateDependencies = dependenciesResult.filterIsInstance<Result>()
 
         val productionJvmCompileResult = if (isTest) {
             immediateDependencies.firstOrNull { it.module == module && !it.isTest }
@@ -152,7 +151,7 @@ class JvmCompileTask(
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(taskOutputRoot.path.toAbsolutePath()))
         }
 
-        return TaskResult(
+        return Result(
             classesOutputRoot = taskOutputRoot.path.toAbsolutePath(),
             dependencies = dependenciesResult,
             module = module,
@@ -330,17 +329,17 @@ class JvmCompileTask(
         return result.exitCode == 0
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class Result(
+        override val dependencies: List<TaskResult>,
         val classesOutputRoot: Path,
         val module: PotatoModule,
         val isTest: Boolean,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 
     class AdditionalClasspathProviderTaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+        override val dependencies: List<TaskResult>,
         val classpath: List<Path>
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

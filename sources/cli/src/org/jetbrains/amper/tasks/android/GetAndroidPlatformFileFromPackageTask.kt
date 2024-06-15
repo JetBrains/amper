@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.TaskResult
 import java.nio.file.Path
 
 class GetAndroidPlatformFileFromPackageTask(
@@ -15,16 +16,16 @@ class GetAndroidPlatformFileFromPackageTask(
     private val userCacheRoot: AmperUserCacheRoot,
     override val taskName: TaskName,
 ) : Task {
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val packagePath = SdkInstallManager(userCacheRoot, androidSdkPath).install(packageName).path
         val localFileSystemPackagePath = packagePath
             .split(";")
             .fold(androidSdkPath) { path, component -> path.resolve(component) }
-        return TaskResult(dependenciesResult, listOf(localFileSystemPackagePath))
+        return Result(dependenciesResult, listOf(localFileSystemPackagePath))
     }
 
-    data class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    data class Result(
+        override val dependencies: List<TaskResult>,
         val outputs: List<Path>
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 }

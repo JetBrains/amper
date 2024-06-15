@@ -12,15 +12,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.TaskResult
 import org.slf4j.LoggerFactory
 
 class LogcatTask(override val taskName: TaskName) : Task {
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): org.jetbrains.amper.tasks.TaskResult = coroutineScope {
+    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult = coroutineScope {
         val deferred = CompletableDeferred<Boolean>()
         val device: IDevice = dependenciesResult
-            .filterIsInstance<AndroidRunTask.TaskResult>()
+            .filterIsInstance<AndroidRunTask.Result>()
             .firstOrNull()
-            ?.device ?: return@coroutineScope TaskResult(dependenciesResult)
+            ?.device ?: return@coroutineScope Result(dependenciesResult)
         val logcatService = LogcatService(device)
         logcatService.startListening { message ->
             if (!isActive) {
@@ -40,11 +41,10 @@ class LogcatTask(override val taskName: TaskName) : Task {
         Runtime.getRuntime().addShutdownHook(Thread { deferred.complete(true) })
         deferred.await()
         logcatService.stopListening()
-        TaskResult(dependenciesResult)
+        Result(dependenciesResult)
     }
 
-    data class TaskResult(override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>) :
-        org.jetbrains.amper.tasks.TaskResult
+    data class Result(override val dependencies: List<TaskResult>) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

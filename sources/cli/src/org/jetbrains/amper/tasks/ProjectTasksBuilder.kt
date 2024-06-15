@@ -79,7 +79,6 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     module = module,
                     fragment = fragment,
                     userCacheRoot = context.userCacheRoot,
-                    terminal = context.terminal,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     executeOnChangedInputs = executeOnChangedInputs,
                 )

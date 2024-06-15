@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.walkRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -49,7 +50,7 @@ class NativeCompileKlibTask(
         require(platform.isDescendantOf(Platform.NATIVE))
     }
 
-    override suspend fun run(dependenciesResult: List<org.jetbrains.amper.tasks.TaskResult>): TaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         val fragments = module.fragments.filter {
             it.platforms.contains(platform) && it.isTest == isTest
         }
@@ -72,7 +73,7 @@ class NativeCompileKlibTask(
 
         val compiledModuleDependencies = dependenciesResult
             .walkRecursively()
-            .filterIsInstance<TaskResult>()
+            .filterIsInstance<Result>()
             .map { it.compiledKlib }
             .toList()
 
@@ -135,7 +136,7 @@ class NativeCompileKlibTask(
             return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(artifact))
         }.outputs.single()
 
-        return TaskResult(
+        return Result(
             dependencies = dependenciesResult,
             compiledKlib = artifact,
             dependencyKlibs = libraryPaths,
@@ -143,12 +144,12 @@ class NativeCompileKlibTask(
         )
     }
 
-    class TaskResult(
-        override val dependencies: List<org.jetbrains.amper.tasks.TaskResult>,
+    class Result(
+        override val dependencies: List<TaskResult>,
         val compiledKlib: Path,
         val dependencyKlibs: List<Path>,
         val taskName: TaskName,
-    ) : org.jetbrains.amper.tasks.TaskResult
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

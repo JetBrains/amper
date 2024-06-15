@@ -28,7 +28,7 @@ class JvmClassesJarTask(
 ) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
     override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> {
-        val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>()
+        val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
         require(compileTaskResults.isNotEmpty()) {
             "Call Jar task without any compilation dependency"
         }

@@ -50,7 +50,7 @@ class JvmTestTask(
 
     override val platform: Platform = Platform.JVM
 
-    override suspend fun run(dependenciesResult: List<TaskResult>): JvmTestTaskResult {
+    override suspend fun run(dependenciesResult: List<TaskResult>): Result {
         // https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar
         val junitConsoleUrl = Downloader.getUriForMavenArtifact(
             mavenRepository = "https://repo1.maven.org/maven2",
@@ -61,11 +61,11 @@ class JvmTestTask(
         ).toString()
 
         // test task depends on compile test task
-        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.TaskResult>().singleOrNull()
+        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("JvmCompileTask result it not found in dependencies")
         if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
-            return JvmTestTaskResult(dependenciesResult)
+            return Result(dependenciesResult)
         }
 
         val testClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
@@ -136,14 +136,14 @@ class JvmTestTask(
                         userReadableError("JVM tests failed for module '${module.userReadableName}' with exit code ${result.exitCode}$meaning (see errors above)")
                     }
 
-                    JvmTestTaskResult(dependenciesResult)
+                    Result(dependenciesResult)
                 }
         } finally {
             junitArgsFile.deleteExisting()
         }
     }
 
-    class JvmTestTaskResult(
+    class Result(
         override val dependencies: List<TaskResult>,
     ) : TaskResult
 }
