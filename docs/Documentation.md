@@ -607,7 +607,7 @@ The file layout is:
 ```
 
 
-Configure the module.yaml to use `gradle-kmp` file layout:
+Configure the `module.yaml` to use `gradle-kmp` file layout:
 ```yaml
 product: 
   type: lib
@@ -792,7 +792,7 @@ They differ from the regular modules in some important aspects:
 - There may be multiple Auxiliary modules for a single main module.
 - Auxiliary module have an implicit dependency on its main module.
 - Auxiliary module is a _friend_ to its main module and can see the internal declarations which are often needed for
-  white-box of grey-box testing.
+  white-box or grey-box testing.
 - Auxiliary module inherits settings from its main module.
 - Main module cannot depend on its Auxiliary module in `dependencies:` section, but can in `test-dependencies:` section.
 - Auxiliary module is not accessible from outside its main module, so other modules can't depend on Auxiliary modules.
@@ -1010,7 +1010,7 @@ From the user's point of view the joint compilation is transparent; they could s
 
 ### Platform qualifier
 
-Use the `@platform`-qualifier to mark platform-specific source folders and sections in the module.yaml files. 
+Use the `@platform`-qualifier to mark platform-specific source folders and sections in the `module.yaml` files. 
 You can use Kotlin Multiplatform [platform names](https://kotlinlang.org/docs/native-target-support.html) and families as `@platform`-qualifier.
 ```yaml
 dependencies:                   # common dependencies for all platforms
@@ -1404,10 +1404,10 @@ Platforms and variants in the file layout:
 
 ## Templates
 
-In modularized projects, there is often a need to have a certain common configuration for some or all or some modules.
+In modularized projects, there is often a need to have a certain common configuration for all or some modules.
 Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
-Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any module.yaml in the `apply:` section.
+Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any `module.yaml` in the `apply:` section.
 
 E.g. module.yaml:
 ```yaml
@@ -1436,7 +1436,7 @@ Templates are applied one by one, using the same rules as [platform-specific dep
 - Scalar values (strings,  numbers etc.) are overridden.
 - Mappings and lists are appended.
 
-Settings and dependencies from the module.yaml file are applied last. Position of the `apply:` section doesn't matter, o module.yaml file always have precedence E.g.
+Settings and dependencies from the `module.yaml` file are applied last. The position of the `apply:` section doesn't matter, the `module.yaml` file content always has precedence E.g.
 
 common.module-template.yaml:
 ```yaml
@@ -1532,17 +1532,17 @@ With a convention file layout:
 And extension.kt code:
 ```kotlin
 class MySourceProcessor : SourceProcessorExtension {
-    val replace : StringParameter
+    val replace: StringParameter
     val with: StringParameter
-    
-    override fun process(input : SourceInput, output: SourceOutput) {
+
+    override fun process(input: SourceInput, output: SourceOutput) {
         val replaced = input.readText().replaceAll(replace, with)
         output.writeText(replaced)
     }
 }
 ```
 
-The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluatig the project structure. And also compiler and execute arbitrary login defined in Kotlin file.     
+The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluating the project structure. And also compile and execute arbitrary login defined in Kotlin file.     
 
 ## Gradle-based projects
 
@@ -1639,7 +1639,7 @@ Read more on [writing Gradle tasks](https://docs.gradle.org/current/userguide/mo
 
 #### Using Gradle plugins
 
-It's possible to use any existing a Gradle plugin, e.g. a popular [SQLDelight](https://cashapp.github.io/sqldelight/2.0.0/multiplatform_sqlite/):
+It's possible to use any existing Gradle plugin, e.g. a popular [SQLDelight](https://cashapp.github.io/sqldelight/2.0.0/multiplatform_sqlite/):
 ```kotlin
 plugins { 
     id("app.cash.sqldelight") version "2.0.0"
@@ -1677,7 +1677,7 @@ plugins {
 #### Configuring settings in the Gradle build files
 
 You can change all Gradle project settings in gradle build files as usual. Configuration in `build.gradle*` file has
-precedence over `module.yml`. That means that a Gradle script can be used to tune/change the final configuration of your
+precedence over `module.yaml`. That means that a Gradle script can be used to tune/change the final configuration of your
 Amper module.
 
 E.g., the following Gradle script configures the working dir and the `mainClass` property: 
@@ -1705,7 +1705,7 @@ The default [module layout](#project-layout) suites best for the newly created m
 ```
 
 For migration of an existing Gradle project, there is a compatibility mode (see also [Gradle migration guide](GradleMigration.md)).
-To set the compatibility mode, add the following snippet to a module.yaml file:
+To set the compatibility mode, add the following snippet to a `module.yaml` file:
 ```yaml
 module:
   layout: gradle-kmp  # may be 'default', 'gradle-jvm', `gradle-kmp`
