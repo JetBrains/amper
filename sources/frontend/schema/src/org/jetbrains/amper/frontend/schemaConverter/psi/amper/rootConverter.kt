@@ -36,9 +36,9 @@ import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 
-context(ProblemReporterContext, ConvertCtx)
+context(ProblemReporterContext)
 internal fun AmperObject.convertProject() = Project().apply {
-    ::modules.convertChildScalarCollection { asAbsolutePath() }
+    ::modules.convertChildScalarCollection { textValue }
 }
 
 context(ProblemReporterContext, ConvertCtx)

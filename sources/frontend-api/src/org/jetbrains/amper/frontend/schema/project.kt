@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
-import java.nio.file.Path
 
 class Project : SchemaNode() {
 
@@ -20,5 +19,5 @@ class Project : SchemaNode() {
                 "For example, `./libs/*` will include the modules defined by `./libs/foo/module.yaml` and " +
                 "`./libs/bar/module.yaml` (if these module files exist)."
     )
-    var modules by nullableValue<List<Path>>()
+    var modules by value<List<String>>(default = emptyList())
 }

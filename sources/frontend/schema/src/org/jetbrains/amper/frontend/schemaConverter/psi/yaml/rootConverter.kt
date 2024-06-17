@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.AmperLayout
@@ -39,7 +40,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLDocument.convertProject() = Project().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
-        ::modules.convertChildScalarCollection { asAbsolutePath() }
+        ::modules.convertChildScalarCollection { textValue }
     }
 }
 
