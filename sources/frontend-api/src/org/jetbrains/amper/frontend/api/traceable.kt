@@ -12,17 +12,25 @@ import kotlin.reflect.KProperty0
  * A trace is a backreference that allows to determine the source of the model property/value.
  * It can be a PSI element, or a synthetic trace in case the property has been constructed programmatically.
  */
-sealed interface Trace
+sealed interface Trace {
+    val precedingValue: ValueBase<*>?
+}
 
 /**
  * Property with this trace originates from the node of a PSI tree, in most cases from the manifest file.
  */
-class PsiTrace(val psiElement: PsiElement) : Trace
+class PsiTrace(val psiElement: PsiElement, override val precedingValue: ValueBase<*>? = null) : Trace
 
 /**
  * Property with this trace originates from the version catalog provided by the toolchain.
  */
-class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace
+class BuiltinCatalogTrace(val catalog: VersionCatalog) : Trace {
+    override val precedingValue: ValueBase<*>? = null
+}
+
+fun <V> Trace.withPrecedingValue(precedingValue: ValueBase<V>?): Trace =
+    if (precedingValue != null && this is PsiTrace) PsiTrace(this.psiElement, precedingValue)
+    else this
 
 /**
  * An entity that can persist its trace.

@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.processing
 
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
+import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.ComposeSettings
@@ -182,19 +183,6 @@ private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
     targetProp(result.toCV())
 }
 
-private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
-    prop: T.() -> ValueBase<CV>,
-    toCV: List<V>.() -> CV,
-) {
-    // TODO Handle collection merge tuning here.
-    val targetProp = target.prop()
-    val baseValue = base.prop().withoutDefault
-    val overwriteValue = overwrite.prop().withoutDefault
-    val result = baseValue?.toMutableList() ?: mutableListOf()
-    result.addAll(overwriteValue ?: emptyList())
-    targetProp(result.toCV())
-}
-
 fun <T : Any, V> MergeCtx<T>.mergeScalar(
     prop: KProperty1<T, V>
 ) {
@@ -204,8 +192,8 @@ fun <T : Any, V> MergeCtx<T>.mergeScalar(
     val overwriteProp = prop.valueBase(overwrite)
     val overwriteValue = overwriteProp?.withoutDefault
     when {
-        overwriteValue != null -> targetProp(overwriteValue).also { it.trace = overwriteProp.trace }
-        baseValue != null -> targetProp(baseValue).also { it.trace = baseProp.trace }
+        overwriteValue != null -> targetProp(overwriteValue).withTraceFrom(overwriteProp, baseProp)
+        baseValue != null -> targetProp(baseValue).withTraceFrom(baseProp)
     }
 }
 
@@ -220,10 +208,17 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
     val overwriteValue = overwriteProp?.withoutDefault
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
-        baseValue != null && overwriteValue == null -> targetProp(baseValue).also { it.trace = baseProp.trace }
-        baseValue == null && overwriteValue != null -> targetProp(overwriteValue).also { it.trace = overwriteProp.trace }
+        baseValue != null && overwriteValue == null -> targetProp(baseValue).withTraceFrom(baseProp)
+        baseValue == null && overwriteValue != null -> targetProp(overwriteValue).withTraceFrom(overwriteProp)
         else -> Unit
     }
+}
+
+private fun <V> ValueBase<V>.withTraceFrom(
+    traceSource: ValueBase<V>,
+    overridesFrom: ValueBase<V>? = null
+): ValueBase<V> = this.also {
+    trace = traceSource.trace?.withPrecedingValue(overridesFrom)
 }
 
 fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = buildMap<K, V> {
