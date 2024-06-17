@@ -25,6 +25,10 @@ import org.jetbrains.yaml.psi.YAMLFile
 
 // TODO Rethink.
 internal data class ConvertCtx(
+    /**
+     * The base directory against which relative paths should be resolved.
+     * This is usually the containing directory of the file being resolved.
+     */
     val baseFile: VirtualFile,
     val pathResolver: FrontendPathResolver
 )
