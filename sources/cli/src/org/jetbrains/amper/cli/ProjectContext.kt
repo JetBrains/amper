@@ -133,10 +133,10 @@ data class AmperProjectRoot(val path: Path) {
 data class AndroidHomeRoot(val path: Path) {
     init {
         require(path.isDirectory()) {
-            "Project root is not a directory: $path"
+            "Android home is not a directory: $path"
         }
         require(path.isAbsolute) {
-            "Project root is not an absolute path: $path"
+            "Android home is not an absolute path: $path"
         }
     }
 }
