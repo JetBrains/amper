@@ -391,10 +391,10 @@ settings:
 `settings:compose:` configures the [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
 framework. Read more about [Compose configuration](Documentation.md#configuring-compose-multiplatform).
 
-| Attribute          | Description                                                    | Default  |
-|--------------------|----------------------------------------------------------------|----------|
-| `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins. | `false`  |
-| `version: string`  | The Compose plugin version.                                    | `1.5.10` |
+| Attribute          | Description                                                                                     | Default  |
+|--------------------|-------------------------------------------------------------------------------------------------|----------|
+| `enabled: boolean` | Enable Compose runtime, dependencies and the compiler plugins.                                  | `false`  |
+| `version: string`  | The Compose plugin version to use. Customizing the Compose version requires Gradle 8.6 or less. | `1.6.10` |
 
 Examples:
 
