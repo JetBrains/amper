@@ -19,6 +19,11 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.diagnostics.AomModelDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.readTemplate
+import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.frontend.project.GradleAmperProjectContext
+import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
+import org.jetbrains.amper.frontend.project.LegacyAutoDiscoveringProjectContext
+import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import java.nio.file.Path
 
 // The ServiceLoader mechanism requires a no-arg constructor, which doesn't work with Kotlin objects.
@@ -29,36 +34,71 @@ object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
 
     context(ProblemReporterContext)
+    @Suppress("DEPRECATION")
+    @Deprecated("Auto-discovery is deprecated. Use getStandaloneAmperModel() or getGradleAmperModel() instead.")
     @UsedInIdePlugin
     override fun getModel(root: Path, project: Project?): Result<Model> {
         val pathResolver = FrontendPathResolver(project = project)
-        val fioCtx = DefaultFioContext(pathResolver.loadVirtualFile(root))
-        val resultModules = doBuild(pathResolver, fioCtx)
+        val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver.loadVirtualFile(root))
+        return getModel(projectContext, pathResolver)
+    }
+
+    context(ProblemReporterContext)
+    fun getStandaloneAmperModel(projectRootDir: Path, ijProject: Project? = null): Result<Model> {
+        val pathResolver = FrontendPathResolver(project = ijProject)
+        val projectContext = with(pathResolver) {
+            StandaloneAmperProjectContext.create(rootDir = pathResolver.loadVirtualFile(projectRootDir))
+                ?: error("Invalid project root")
+        }
+        return getModel(projectContext, pathResolver)
+    }
+
+    context(ProblemReporterContext)
+    override fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model> {
+        val pathResolver = FrontendPathResolver(project = null)
+        val projectContext = GradleAmperProjectContext(
+            projectRootDir = pathResolver.loadVirtualFile(rootProjectDir),
+            subprojectDirs = subprojectDirs.map { pathResolver.loadVirtualFile(it) },
+        )
+        return getModel(projectContext, pathResolver)
+    }
+
+    context(ProblemReporterContext)
+    fun getModel(
+        projectContext: AmperProjectContext,
+        pathResolver: FrontendPathResolver = FrontendPathResolver(project = null),
+    ): Result<Model> {
+        val resultModules = doBuild(pathResolver, projectContext)
             ?: return amperFailure()
-        val model = DefaultModel(resultModules + fioCtx.gradleModules.values)
+        val model = DefaultModel(resultModules)
         AomModelDiagnosticFactories.forEach { diagnostic ->
             with(diagnostic) { model.analyze() }
         }
         return model.asAmperSuccess()
     }
 
+    // TODO find a better way to do this in the IDE
     /**
-     * @return Module parsed from file with all templates resolved
+     * This is a hack to analyze a single module from a wider project, to get diagnostics in the IDE editor.
+     *
+     * The returned module is parsed, and all templates resolved, but dependencies on other modules are unresolved.
+     * Since this is mostly used for diagnostics reported via the [ProblemReporterContext], the unresolved references
+     * are usually ignored.
      */
     context(ProblemReporterContext)
     @UsedInIdePlugin
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
         val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
-        val fioCtx = SingleModuleFioContext(modulePsiFile.virtualFile, projectRootDir)
+        val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, projectRootDir)
         val pathResolver = FrontendPathResolver(project = project)
-        val resultModules = doBuild(pathResolver, fioCtx)
+        val resultModules = doBuild(pathResolver, projectContext)
             ?: return amperFailure()
         return resultModules.singleOrNull()?.asAmperSuccess()
             ?: return amperFailure()
     }
 
     /**
-     * @return Module parsed from file with all templates resolved
+     * Processes the given [templatePsiFile] and reports issues via the [ProblemReporterContext].
      */
     context(ProblemReporterContext)
     @UsedInIdePlugin

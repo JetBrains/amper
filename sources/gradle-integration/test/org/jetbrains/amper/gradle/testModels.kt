@@ -5,7 +5,6 @@
 package org.jetbrains.amper.gradle
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.BuildProblemImpl
@@ -13,9 +12,9 @@ import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
@@ -42,7 +41,6 @@ class MockModelHandle(val name: String, val builder: MockModel.(Path) -> Unit)
  * A hack to pass behaviour (hence, model builders) from tests to plugin.
  */
 object Models : ModelInit {
-    private lateinit var root: Path
 
     private val modelsMap = mutableMapOf<String, MockModelHandle>()
 
@@ -55,8 +53,16 @@ object Models : ModelInit {
     override val name = "test"
 
     context(ProblemReporterContext)
-    @OptIn(NonIdealDiagnostic::class)
     override fun getModel(root: Path, project: Project?): Result<MockModel> {
+        return getGradleAmperModel(root, emptyList())
+    }
+
+    context(ProblemReporterContext)
+    @OptIn(NonIdealDiagnostic::class)
+    override fun getGradleAmperModel(
+        rootProjectDir: Path,
+        subprojectDirs: List<Path>,
+    ): Result<MockModel> {
         val modelName = getMockModelName()
         if (modelName == null) {
             problemReporter.reportMessage(
@@ -69,7 +75,6 @@ object Models : ModelInit {
             )
             return amperFailure()
         }
-        Models.root = root
         val modelHandle = modelsMap[modelName]
         if (modelHandle == null) {
             problemReporter.reportMessage(
@@ -83,7 +88,7 @@ object Models : ModelInit {
             return amperFailure()
         }
         val modelBuilder = modelHandle.builder
-        return Result.success(MockModel(modelHandle.name).apply { modelBuilder(root) })
+        return Result.success(MockModel(modelHandle.name).apply { modelBuilder(rootProjectDir) })
     }
 
     private val Path.moduleYaml: Path get() = resolve("module.yaml")

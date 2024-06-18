@@ -11,10 +11,8 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
-import org.jetbrains.amper.frontend.aomBuilder.DefaultFioContext
-import org.jetbrains.amper.frontend.aomBuilder.DumbGradleModule
-import org.jetbrains.amper.frontend.aomBuilder.FioContext
 import org.jetbrains.amper.frontend.old.helper.TestBase
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -72,13 +70,13 @@ class TestSystemInfo(
     override fun detect() = predefined
 }
 
-open class TestFioContext(
-    root: VirtualFile,
+open class TestProjectContext(
+    override val projectRootDir: VirtualFile,
     override val amperModuleFiles: List<VirtualFile>,
     val frontendPathResolver: FrontendPathResolver,
-) : FioContext by DefaultFioContext(root) {
-    override val ignorePaths: MutableList<Path> = mutableListOf()
-    override val gradleModules: Map<VirtualFile, DumbGradleModule> = mutableMapOf()
+) : AmperProjectContext {
+    override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
+    override val gradleBuildFilesWithoutAmper: List<VirtualFile> = emptyList()
     val path2catalog: MutableMap<VirtualFile, VirtualFile> = mutableMapOf()
     override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = path2catalog[file]
 }

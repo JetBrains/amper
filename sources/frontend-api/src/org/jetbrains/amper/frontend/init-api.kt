@@ -5,13 +5,10 @@
 package org.jetbrains.amper.frontend
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.flatMap
-import org.jetbrains.amper.core.getOrNull
-import org.jetbrains.amper.core.map
 import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
@@ -29,7 +26,7 @@ interface ModelInit {
 
         context(ProblemReporterContext)
         @OptIn(NonIdealDiagnostic::class)
-        private fun loadModelInitService(loader: ClassLoader): Result<ModelInit> {
+        private fun load(loader: ClassLoader): Result<ModelInit> {
             val services = ServiceLoader.load(ModelInit::class.java, loader).associateBy { it.name }
             if (services.isEmpty()) {
                 problemReporter.reportMessage(
@@ -65,7 +62,23 @@ interface ModelInit {
 
         context(ProblemReporterContext)
         fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
-            return loadModelInitService(loader).flatMap { it.getModel(root, project = null) }
+            return load(loader).flatMap { it.getModel(root, project = null) }
+        }
+
+        /**
+         * Initializes an Amper model in the context of a Gradle-based project.
+         *
+         * @param rootProjectDir The directory of the Gradle root project.
+         * @param subprojectDirs The directories of all Gradle subprojects declared in the Gradle settings.
+         * @param loader The ClassLoader from which to load the implementation of [ModelInit].
+         */
+        context(ProblemReporterContext)
+        fun getGradleAmperModel(
+            rootProjectDir: Path,
+            subprojectDirs: List<Path>,
+            loader: ClassLoader = Thread.currentThread().contextClassLoader,
+        ): Result<Model> {
+            return load(loader).flatMap { it.getGradleAmperModel(rootProjectDir, subprojectDirs) }
         }
     }
 
@@ -76,6 +89,15 @@ interface ModelInit {
 
     context(ProblemReporterContext)
     fun getModel(root: Path, project: Project?): Result<Model>
+
+    /**
+     * Initializes an Amper model in the context of a Gradle-based project.
+     *
+     * @param rootProjectDir The directory of the Gradle root project.
+     * @param subprojectDirs The directories of all Gradle subprojects declared in the Gradle settings.
+     */
+    context(ProblemReporterContext)
+    fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model>
 
     /**
      * Wrapper class to hold info about requested template.

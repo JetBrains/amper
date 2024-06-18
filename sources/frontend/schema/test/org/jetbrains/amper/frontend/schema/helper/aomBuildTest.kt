@@ -16,14 +16,14 @@ context(TestBase)
 fun aomTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
-    adjustCtx: TestFioContext.() -> Unit = {},
+    adjustCtx: TestProjectContext.() -> Unit = {},
 ) = BuildAomTestRun(caseName, systemInfo, baseTestResourcesPath, adjustCtx).doTest()
 
 open class BuildAomTestRun(
     caseName: String,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
     override val base: Path,
-    private val adjustCtx: TestFioContext.() -> Unit = {},
+    private val adjustCtx: TestProjectContext.() -> Unit = {},
 ) : BaseTestRun(caseName) {
     context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
@@ -35,7 +35,7 @@ open class BuildAomTestRun(
         // Read module.
         val buildDirFile = readCtx.loadVirtualFile(buildDir)
         val inputFile = readCtx.loadVirtualFile(inputPath)
-        val fioCtx = TestFioContext(buildDirFile, listOf(inputFile), readCtx)
+        val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
         val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
 

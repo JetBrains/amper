@@ -100,10 +100,10 @@ class DefaultArtifact(
     override val platforms = fragments.flatMap { it.platforms }.toSet()
 }
 
-class DumbGradleModule(file: VirtualFile) : PotatoModule {
-    override val userReadableName = file.parent.name
+class DumbGradleModule(val gradleBuildFile: VirtualFile) : PotatoModule {
+    override val userReadableName = gradleBuildFile.parent.name
     override val type = ProductType.LIB
-    override val source = PotatoModuleFileSource(file.toNioPath())
+    override val source = PotatoModuleFileSource(gradleBuildFile.toNioPath())
     override val origin = Module()
     override val fragments = listOf<Fragment>()
     override val artifacts = listOf<Artifact>()

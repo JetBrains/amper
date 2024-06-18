@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.catalogs
 
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.amper.frontend.aomBuilder.VersionsCatalogFinder
 
 private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
 private const val gradleDirName = "gradle"
@@ -16,7 +15,7 @@ internal class GradleVersionsCatalogFinder(
      * The root directory of the Amper project or the IntelliJ project.
      */
     private val rootDir: VirtualFile,
-) : VersionsCatalogFinder {
+) : VersionsCatalogProvider {
 
     // This wrapper allows to cache the absence of catalog too
     private data class CatalogPathResult(val path: VirtualFile?)
@@ -42,7 +41,12 @@ internal class GradleVersionsCatalogFinder(
             .takeWhile { it != rootDir } + rootDir
 
         return dirsUpToRoot
-            .mapNotNull { it.findChild(gradleDirName)?.findChild(gradleDefaultVersionCatalogName) }
+            .mapNotNull { findDefaultCatalogIn(it) }
             .firstOrNull()
+    }
+
+    companion object {
+        internal fun findDefaultCatalogIn(dir: VirtualFile) =
+            dir.findChild(gradleDirName)?.findChild(gradleDefaultVersionCatalogName)
     }
 }

@@ -32,6 +32,7 @@ import org.jetbrains.amper.frontend.VersionCatalog
 import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.api.withTraceFrom
+import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
@@ -42,6 +43,8 @@ import org.jetbrains.amper.frontend.processing.parseGradleVersionCatalog
 import org.jetbrains.amper.frontend.processing.readTemplatesAndMerge
 import org.jetbrains.amper.frontend.processing.replaceCatalogDependencies
 import org.jetbrains.amper.frontend.processing.replaceComposeOsSpecific
+import org.jetbrains.amper.frontend.project.AmperProjectContext
+import org.jetbrains.amper.frontend.project.customTaskName
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
@@ -73,22 +76,22 @@ private data class ModuleHolder(
 context(ProblemReporterContext)
 internal fun doBuild(
     pathResolver: FrontendPathResolver,
-    fioCtx: FioContext,
+    projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
     // Parse all module files and perform preprocessing (templates, catalogs, etc.)
-    val path2SchemaModule = fioCtx.amperModuleFiles
+    val path2SchemaModule = projectContext.amperModuleFiles
         .mapNotNull { moduleFile ->
             // Read initial module file.
             val nonProcessed = with(pathResolver) {
                 with(ConvertCtx(moduleFile.parent, pathResolver)) {
                     // TODO Report when file is not found.
-                    convertModule(moduleFile)?.readTemplatesAndMerge(fioCtx)
+                    convertModule(moduleFile)?.readTemplatesAndMerge(projectContext)
                 }
             } ?: return@mapNotNull null
 
             // Choose catalogs.
-            val chosenCatalog = with(pathResolver) { fioCtx.tryGetCatalogFor(moduleFile, nonProcessed) }
+            val chosenCatalog = with(pathResolver) { projectContext.tryGetCatalogFor(moduleFile, nonProcessed) }
 
             // Process module file.
             val processedModule = with(systemInfo) {
@@ -109,15 +112,16 @@ internal fun doBuild(
     // Fail fast if we have fatal errors.
     if (problemReporter.hasFatal) return null
 
+    val gradleModules = projectContext.gradleBuildFilesWithoutAmper.map { DumbGradleModule(it) }
     val moduleTriples = path2SchemaModule
-        .buildAom(fioCtx.gradleModules)
+        .buildAom(gradleModules)
         .onEach { triple -> triple.module.addImplicitDependencies() }
 
     val moduleDir2module = moduleTriples
         .associate { (path, _, module) -> path.parent to module }
         .mapKeys { (k, _) -> k.toNioPath() }
 
-    fioCtx.amperCustomTaskFiles.mapNotNull { customTaskFile ->
+    projectContext.amperCustomTaskFiles.mapNotNull { customTaskFile ->
         val moduleTriple = moduleTriples.firstOrNull { it.buildFile.parent == customTaskFile.parent } ?: run {
             problemReporter.reportMessage(BuildProblemImpl(
                 buildProblemId = "INVALID_CUSTOM_TASK_FILE_PATH",
@@ -165,14 +169,14 @@ internal fun doBuild(
     if (problemReporter.hasFatal) return null
 
     // Build AOM from ISM.
-    return moduleTriples.map { it.module }
+    return moduleTriples.map { it.module } + gradleModules
 }
 
 /**
  * Try to find gradle catalog and compose it with built-in catalog.
  */
 context(ProblemReporterContext, FrontendPathResolver)
-internal fun VersionsCatalogFinder.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
+internal fun VersionsCatalogProvider.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
     val gradleCatalog = getCatalogPathFor(file)?.let { parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
     return compositeCatalog
@@ -367,9 +371,7 @@ private data class ModuleTriple(
  * Build and resolve internal module dependencies.
  */
 context(ProblemReporterContext)
-private fun Map<VirtualFile, ModuleHolder>.buildAom(
-    gradleModules: Map<VirtualFile, PotatoModule>,
-): List<ModuleTriple> {
+private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGradleModule>): List<ModuleTriple> {
     val modules = mapNotNull { (mPath, holder) ->
         val noProduct = holder.module::product.unsafe == null
         if (noProduct || holder.module.product::type.unsafe == null) {
@@ -394,13 +396,13 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(
         )
     }
 
-    val moduleDir2module = (modules
-        .associate { (path, _, module) -> path.parent to module } + gradleModules)
-        .mapKeys { (k, _) -> k.toNioPath() }
+    val moduleDirToAmperModule = modules.associate { (path, _, module) -> path.parent.toNioPath() to module }
+    val moduleDirToGradleModule = gradleModules.associateBy { it.gradleBuildFile.parent.toNioPath() }
+    val moduleDirToModule = moduleDirToAmperModule + moduleDirToGradleModule
 
     modules.forEach { (modulePath, schemaModule, module) ->
         val seeds = schemaModule.buildFragmentSeeds()
-        val moduleFragments = createFragments(seeds, modulePath, module) { it.resolveInternalDependency(moduleDir2module) }
+        val moduleFragments = createFragments(seeds, modulePath, module) { it.resolveInternalDependency(moduleDirToModule) }
         val propagatedFragments = moduleFragments.withPropagatedSettings()
         val (leaves, testLeaves) = moduleFragments.filterIsInstance<DefaultLeafFragment>().partition { !it.isTest }
 
