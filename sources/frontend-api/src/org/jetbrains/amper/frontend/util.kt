@@ -4,30 +4,13 @@
 
 package org.jetbrains.amper.frontend
 
-import java.nio.file.Path
 import java.util.*
 import kotlin.collections.AbstractMap
 import kotlin.collections.ArrayDeque
-import kotlin.io.path.exists
-import kotlin.io.path.name
 import kotlin.reflect.KMutableProperty0
 
-
-private val prettyRegex = "_.".toRegex()
-fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
 fun String.doCapitalize() =
     this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
-fun String.camelMerge(other: String) = when {
-    isBlank() -> other
-    other.isBlank() -> this
-    else -> this + other.doCapitalize()
-}
-
-/**
- * Shortcut to find an instance of a class in some collection.
- */
-inline fun <reified T : Any> Collection<Any>.findInstance() = filterIsInstance<T>().firstOrNull()
 
 val PotatoModule.mavenRepositories: List<RepositoriesModulePart.Repository>
     get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()
@@ -108,11 +91,6 @@ fun Fragment.ancestralPath(): Sequence<Fragment> = sequence {
 infix fun <T : Any> KMutableProperty0<T>.trySet(value: T?) =
     value?.let { set(it) }
 
-
-fun String.prepareToNamespace(): String = listOf("+", "-").fold(this) { acc: String, symbol: String ->
-    acc.replace(symbol, "")
-}
-
 /**
  * Simple class to associate enum values by some string key.
  */
@@ -123,11 +101,6 @@ abstract class EnumMap<EnumT : Enum<EnumT>, KeyT>(
     val enumClass = valuesGetter().first()::class
     override val entries = valuesGetter().associateBy { it.key() }.entries
 }
-
-fun Path.isModuleYaml() = name == "module.yaml"
-
-val Path.amperIgnoreIfAny: Path?
-    get() = resolve(".amperignore").takeIf { it.exists() }
 
 /**
  * A class, that every enum, participating in
