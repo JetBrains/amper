@@ -1,4 +1,3 @@
-
 import org.jetbrains.amper.test.TestUtil
 import java.io.IOException
 import java.nio.file.FileVisitResult

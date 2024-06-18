@@ -1,4 +1,4 @@
-package com.example.sampleproject
+package com.jetbrains.sample.app
 
 import android.os.Bundle
 import androidx.activity.compose.setContent

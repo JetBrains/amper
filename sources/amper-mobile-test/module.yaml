@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+test-dependencies:
+  - ../test-base
+
+apply:
+  - ../common.module-template.yaml

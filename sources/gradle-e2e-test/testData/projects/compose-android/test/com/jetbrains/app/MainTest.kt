@@ -1,4 +1,4 @@
-package com.example.sampleproject
+package com.jetbrains.sample.app
 
 import kotlin.test.Test
 import kotlin.test.assertTrue

@@ -33,3 +33,4 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin").version("0.4.0-dev-613")
 }
+
