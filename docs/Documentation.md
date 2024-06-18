@@ -1534,11 +1534,12 @@ class MySourceProcessor : SourceProcessorExtension {
 }
 ```
 
-The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluating the project structure. And also compile and execute arbitrary login defined in Kotlin file.     
+The Amper engine would be able to quickly discover the DSL schema for `setting:my-source-processor:` when evaluating 
+the project structure, and also compile and execute arbitrary logic defined in the Kotlin file.
 
 ## Gradle-based projects
 
-> Gradle 8.6 is recommended. Gradle 8.7+ is not yet supported.
+> Gradle 8.6 is recommended. Gradle 8.7+ is supported, but customizing the Compose version is not possible in that case.
 
 In a Gradle-based project, instead of a `project.yaml` file you need a `settings.gradle.kts` file
 and a `gradle/wrapper/` folder in the project root:
