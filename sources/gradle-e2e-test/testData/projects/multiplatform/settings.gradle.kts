@@ -14,3 +14,7 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin")
 }
+
+include(":android-app")
+include(":jvm-app")
+include(":shared")

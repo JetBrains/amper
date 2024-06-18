@@ -14,3 +14,6 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin")
 }
+
+include(":ios-app")
+include(":shared")

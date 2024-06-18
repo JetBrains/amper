@@ -11,15 +11,19 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
+import org.gradle.api.invocation.Gradle
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.aomBuilder.chooseComposeVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
-import kotlin.io.path.extension
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 /**
  * Gradle setting plugin, that is responsible for:
@@ -31,25 +35,59 @@ import kotlin.io.path.extension
 class BindingSettingsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
-        val rootPath = settings.rootDir.toPath().toAbsolutePath()
         with(SLF4JProblemReporterContext()) {
-            val modelResult = ModelInit.getModel(rootPath)
-            if (modelResult is Result.Failure<Model> || problemReporter.hasFatal) {
-                throw GradleException(problemReporter.getGradleError())
+
+            // the class loader is different within projectsLoaded, and we need this one to load the ModelInit service
+            val gradleClassLoader = Thread.currentThread().contextClassLoader
+            settings.gradle.projectsLoaded { g ->
+                // at this point all projects have been created by settings.gradle.kts, but none were evaluated yet
+                val projects = settings.gradle.rootProject.allprojects
+
+                val modelResult = ModelInit.getGradleAmperModel(
+                    rootProjectDir = settings.rootDir.toPath().toAbsolutePath(),
+                    subprojectDirs = projects.map { it.projectDir.toPath().toAbsolutePath() },
+                    loader = gradleClassLoader,
+                )
+                if (modelResult is Result.Failure<Model> || problemReporter.hasFatal) {
+                    throw GradleException(problemReporter.getGradleError())
+                }
+
+
+                val model = modelResult.get()
+
+                settings.gradle.knownModel = model
+                setGradleProjectsToAmperModuleMappings(projects, model.modules, settings.gradle)
+
+                settings.setupComposePlugin(model)
+
+                projects.forEach { project ->
+                    if (project.amperModule != null) {
+                        configureProjectForAmper(project)
+                    } else if (project === project.rootProject) {
+                        // Even if the root project doesn't have a module.yaml file (and thus is not an Amper project),
+                        // subprojects using Kotlin/Native add the :commonizeNativeDistribution task to the root.
+                        // The IDE runs it, as well as native subproject builds.
+                        // Therefore, it needs mavenCentral to resolve kotlin-klib-commonizer-embeddable.
+                        project.repositories.mavenCentral()
+                    }
+                }
             }
+        }
+    }
 
-            val model = modelResult.get()
+    private fun setGradleProjectsToAmperModuleMappings(
+        projects: Set<Project>,
+        modules: List<PotatoModule>,
+        gradle: Gradle,
+    ) {
+        val amperModulesByDir = modules
+            .filter { it.hasAmperConfigFile() }
+            .associateBy { it.moduleDir.absolutePathString() }
 
-            settings.gradle.knownModel = model
-
-            settings.setupComposePlugin(model)
-
-            initProjects(settings, model)
-
-            // Initialize plugins for each module.
-            settings.gradle.beforeProject { project ->
-                configureProject(settings, project)
-            }
+        projects.forEach { project ->
+            val module = amperModulesByDir[project.projectDir.absolutePath] ?: return@forEach
+            project.amperModule = PotatoModuleWrapper(module)
+            gradle.moduleFilePathToProject[module.moduleDir] = project.path
         }
     }
 
@@ -69,7 +107,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun configureProject(settings: Settings, project: Project) {
+    private fun configureProjectForAmper(project: Project) {
 
         // Dirty hack related with the same problem as here
         // https://github.com/JetBrains/compose-multiplatform/blob/b6e7ba750c54fddfd60c57b0a113d80873aa3992/gradle-plugins/compose/src/main/kotlin/org/jetbrains/compose/resources/ComposeResources.kt#L75
@@ -88,20 +126,6 @@ class BindingSettingsPlugin : Plugin<Settings> {
                         }
                 }
             }
-        }
-
-        // Gradle projects that are not in the map aren't Amper projects (modules) anyway,
-        // so we can stop here
-        val connectedModule = settings.gradle.projectPathToModule[project.path] ?: run {
-            if (project.path == project.rootProject.path) {
-                // Add default repositories to the root project, it is required for further applying kmp plugin
-                project.repositories.addDefaultAmperRepositoriesForDependencies()
-            }
-            return
-        }
-        if (!connectedModule.hasAmperConfigFile()) {
-            // we don't want to alter non-Amper subprojects
-            return
         }
 
         // /!\ This overrides any user configuration from settings.gradle.kts
@@ -126,7 +150,8 @@ class BindingSettingsPlugin : Plugin<Settings> {
     }
 }
 
-private fun PotatoModuleWrapper.hasAmperConfigFile() = buildFile.extension == "yaml"
+private fun PotatoModule.hasAmperConfigFile() =
+    (source as? PotatoModuleFileSource)?.buildFile?.nameWithoutExtension == "module"
 
 private fun RepositoryHandler.addDefaultAmperRepositoriesForDependencies() {
     mavenCentral()

@@ -19,16 +19,12 @@ import java.nio.file.Path
 import kotlin.io.path.*
 
 /**
- * The `module.yaml` or Gradle build file of this module.
+ * The directory containing the Amper module file or Gradle build file of this module.
  */
-val PotatoModule.buildFile
-    get() = (source as PotatoModuleFileSource).buildFile
-
-/**
- * The directory containing the `module.yaml` or Gradle build file of this module.
- */
-val PotatoModule.moduleDir: Path
-    get() = buildFile.parent
+val PotatoModule.moduleDir
+    get() = (source as? PotatoModuleFileSource)?.moduleDir
+        ?: error("Cannot get the moduleDir of module '$userReadableName' because it doesn't have a file-based source " +
+                "(the source type is ${source::class.simpleName})")
 
 val BindingPluginPart.layout
     get() = (module.parts.find<MetaModulePart>()

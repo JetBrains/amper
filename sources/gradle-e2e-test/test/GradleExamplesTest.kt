@@ -62,6 +62,18 @@ class GradleExamplesTest : GradleE2ETestFixture(
         expectOutputToHave = listOf("BUILD SUCCESSFUL")
     )
 
+    // This root project task is run by IDEs when native targets are present, and broke in the past when Amper
+    // repositories were not added to the root project (AMPER-421). We keep it here for non-regressions.
+    // It is technically run in the other compose-multiplatform test, but only on macOS devices.
+    // This explicit test for :commonizeNativeDistribution allows to check it on non-macOS machines.
+    @Test
+    @KonanFolderLock
+    fun `compose-multiplatform commonizeNativeDistribution`() = test(
+        projectName = "compose-multiplatform",
+        ":commonizeNativeDistribution",
+        expectOutputToHave = listOf("BUILD SUCCESSFUL")
+    )
+
     @Test
     fun `compose-desktop build task`() = test(
         projectName = "compose-desktop",

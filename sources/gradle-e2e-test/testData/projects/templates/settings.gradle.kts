@@ -14,3 +14,7 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin")
 }
+
+include(":lib")
+include(":module1")
+include(":module2")

@@ -25,3 +25,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "compose-multiplatform-template"
+
+include(":androidApp")
+include(":desktopApp")
+include(":iosApp")
+include(":shared")

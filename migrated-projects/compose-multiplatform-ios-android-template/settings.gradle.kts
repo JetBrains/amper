@@ -16,3 +16,7 @@ plugins {
 }
 
 rootProject.name = "compose-multiplatform-ios-android-template"
+
+include(":androidApp")
+include(":iosApp")
+include(":shared")

@@ -10,3 +10,6 @@ pluginManagement {
 plugins {
     id("org.jetbrains.amper.settings.plugin")
 }
+
+include(":common-args")
+include(":platform-args")
