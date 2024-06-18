@@ -56,3 +56,8 @@ fun YAMLScalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
  */
 context(ConvertCtx)
 fun YAMLKeyValue.asAbsolutePath(): Path = keyText.asAbsolutePath()
+
+/**
+ * Creates a [TraceableString] from the text value of this [YAMLScalar].
+ */
+fun YAMLScalar.asTraceableString(): TraceableString = TraceableString(textValue).applyPsiTrace(this)

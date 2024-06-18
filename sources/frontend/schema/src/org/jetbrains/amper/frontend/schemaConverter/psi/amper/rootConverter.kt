@@ -39,7 +39,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 
 context(ProblemReporterContext)
 internal fun AmperObject.convertProject() = Project().apply {
-    ::modules.convertChildScalarCollection { textValue }
+    ::modules.convertChildScalarCollection { asTraceableString() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

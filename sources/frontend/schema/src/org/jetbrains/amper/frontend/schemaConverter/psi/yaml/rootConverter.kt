@@ -40,7 +40,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLDocument.convertProject() = Project().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
-        ::modules.convertChildScalarCollection { textValue }
+        ::modules.convertChildScalarCollection { asTraceableString() }
     }
 }
 

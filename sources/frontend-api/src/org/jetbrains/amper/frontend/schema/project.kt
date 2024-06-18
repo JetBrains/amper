@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 
 class Project : SchemaNode() {
 
@@ -19,5 +20,5 @@ class Project : SchemaNode() {
                 "For example, `./libs/*` will include the modules defined by `./libs/foo/module.yaml` and " +
                 "`./libs/bar/module.yaml` (if these module files exist)."
     )
-    var modules by value<List<String>>(default = emptyList())
+    var modules by value<List<TraceableString>>(default = emptyList())
 }

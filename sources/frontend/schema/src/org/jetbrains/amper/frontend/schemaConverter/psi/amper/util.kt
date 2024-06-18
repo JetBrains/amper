@@ -68,4 +68,9 @@ fun AmperLiteral.asAbsolutePath(): Path = textValue.asAbsolutePath()
 context(ConvertCtx)
 fun AmperProperty.asAbsolutePath(): Path = name!!.asAbsolutePath()
 
+/**
+ * Creates a [TraceableString] from the text value of this [AmperLiteral].
+ */
+fun AmperLiteral.asTraceableString(): TraceableString = TraceableString(textValue).applyPsiTrace(this)
+
 val AmperLiteral.textValue get() = StringUtil.unquoteString(text)
