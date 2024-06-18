@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.ComposeSettings
@@ -30,7 +31,7 @@ import org.jetbrains.yaml.psi.YAMLValue
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLKeyValue.convertSettings() =
-    asMappingNode()?.doConvertSettings()?.adjustTrace(this)
+    asMappingNode()?.doConvertSettings()?.applyPsiTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.doConvertSettings() = Settings().apply {

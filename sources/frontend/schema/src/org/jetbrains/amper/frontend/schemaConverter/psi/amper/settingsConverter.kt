@@ -9,6 +9,7 @@ import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.AmperValue
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.ComposeSettings
@@ -30,7 +31,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertSettings() =
-    doConvertSettings().adjustTrace(this)
+    doConvertSettings().applyPsiTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.doConvertSettings() = Settings().apply {

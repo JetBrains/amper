@@ -15,6 +15,7 @@ import com.intellij.amper.lang.impl.propertyList
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.AmperLayout
@@ -57,7 +58,7 @@ internal fun AmperObject.convertModule() = Module().apply {
                 it.name to (it.value as? AmperObject)
                     ?.collectionItems
                     ?.filterIsInstance<AmperLiteral>()
-                    ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
+                    ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
                     ?.toSet()
             }.orEmpty()
         }
@@ -114,7 +115,7 @@ private fun AmperProperty.convertProduct() = ModuleProduct().apply {
     when (val productNodeValue = this@convertProduct.value) {
         is AmperObject -> with(productNodeValue) {
             ::type.convertChildEnum(ProductType, isFatal = true, isLong = true)
-            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
+            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
         }
         is AmperLiteral -> ::type.convertSelf { productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true) }
         else -> productNodeValue?.let {
@@ -146,7 +147,7 @@ private fun AmperObjectElement.convertRepository(): Repository? = when (val valu
     is AmperProperty -> (value.value as? AmperObject)?.convertRepositoryFull() ?: (
             (value.nameElement as? AmperLiteral)?.convertRepositoryShort())
     else -> null
-}?.adjustTrace(this)
+}?.applyPsiTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun AmperLiteral.convertRepositoryShort() = Repository().apply {
@@ -193,7 +194,7 @@ private fun AmperLiteral.convertDependencyShort(): Dependency {
 
         textValue.startsWith(".") -> textValue.let { InternalDependency().apply { ::path.convertSelf { asAbsolutePath() } } }
         else -> textValue.let { ExternalMavenDependency().apply { ::coordinates.convertSelf { textValue } } }
-    }.adjustTrace(this)
+    }.applyPsiTrace(this)
 }
 
 context(ProblemReporterContext, ConvertCtx)
@@ -201,7 +202,7 @@ private fun AmperProperty.convertDependencyFull(): Dependency = when {
     name?.startsWith("$") == true -> convertCatalogDep()
     name?.startsWith(".") == true -> convertInternalDep()
     else -> convertExternalMavenDep()
-}.adjustTrace(this)
+}.applyPsiTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun AmperProperty.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {

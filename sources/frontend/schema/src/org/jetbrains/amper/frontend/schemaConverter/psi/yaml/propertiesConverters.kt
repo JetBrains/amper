@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.api.Traceable
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
@@ -27,8 +28,8 @@ fun <T> KProperty0<T>.convertSelf(
 ) {
     val calculated = newValue()
     valueBase?.invoke(calculated)
-    valueBase?.adjustTrace(this@YAMLPsiElement)
-    if (calculated is Traceable) calculated.adjustTrace(this@YAMLPsiElement)
+    valueBase?.applyPsiTrace(this@YAMLPsiElement)
+    if (calculated is Traceable) calculated.applyPsiTrace(this@YAMLPsiElement)
 }
 
 
@@ -43,8 +44,8 @@ fun <T> KProperty0<T>.convertChild(
     tryGetChildNode(name)?.let { child ->
         val newValue = convertValue(child)
         valueBase?.invoke(newValue)
-        valueBase?.adjustTrace(child)
-        if (newValue is Traceable) newValue.adjustTrace(child)
+        valueBase?.applyPsiTrace(child)
+        if (newValue is Traceable) newValue.applyPsiTrace(child)
     }
 }
 
@@ -59,8 +60,8 @@ fun <T> KProperty0<T>.convertChildValue(
     tryGetChildNode(name)?.let { childValue ->
         val newValue = convertValue(childValue)
         valueBase?.invoke(newValue)
-        valueBase?.adjustTrace(childValue)
-        if (newValue is Traceable) newValue.adjustTrace(childValue)
+        valueBase?.applyPsiTrace(childValue)
+        if (newValue is Traceable) newValue.applyPsiTrace(childValue)
     }
 }
 

@@ -4,20 +4,18 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
-
 
 /**
  * Extract all modifiers that are present within this scalar node.
@@ -26,7 +24,7 @@ fun YAMLKeyValue.extractModifiers(): Modifiers =
   keyText.substringAfter("@", "")
     .split("+")
     .filter { it.isNotBlank() }
-    .map { TraceableString(it).adjustTrace(key) }
+    .map { TraceableString(it).applyPsiTrace(key) }
     .toSet()
     .takeIf { it.isNotEmpty() } ?: noModifiers
 
@@ -58,10 +56,3 @@ fun YAMLScalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
  */
 context(ConvertCtx)
 fun YAMLKeyValue.asAbsolutePath(): Path = keyText.asAbsolutePath()
-
-/**
- * Adjust this element trace.
- */
-fun <T : Traceable> T.adjustTrace(it: PsiElement?) = apply { trace = it?.let(::PsiTrace) }
-
-

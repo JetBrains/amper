@@ -7,7 +7,7 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
-import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.AmperLayout
@@ -62,7 +62,7 @@ internal fun YAMLDocument.convertModule() = Module().apply {
             asSequenceNode()?.convertScalarKeyedMap {
                 asSequenceNode()
                     ?.asScalarSequenceNode()
-                    ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
+                    ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
                     ?.toSet()
             }
         }
@@ -120,7 +120,7 @@ private fun YAMLKeyValue.convertProduct() = ModuleProduct().apply {
     when (val productNodeValue = this@convertProduct.value) {
         is YAMLMapping -> with(productNodeValue) {
             ::type.convertChildEnum(ProductType, isFatal = true, isLong = true)
-            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.adjustTrace(this) }
+            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
         }
         is YAMLScalar -> ::type.convertSelf { productNodeValue.convertEnum(ProductType, isFatal = true, isLong = true) }
         else -> productNodeValue?.let {
@@ -152,7 +152,7 @@ private fun YAMLSequenceItem.convertRepository(): Repository? = when (val value 
     is YAMLScalar -> value.convertRepositoryShort()
     is YAMLMapping -> value.convertRepositoryFull()
     else -> null
-}?.adjustTrace(this.value)
+}?.applyPsiTrace(this.value)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLScalar.convertRepositoryShort() = Repository().apply {
@@ -197,7 +197,7 @@ private fun YAMLScalar.convertDependencyShort(): Dependency = when {
         textValue.let { CatalogDependency().apply { ::catalogKey.convertSelf { textValue.removePrefix("$") } } }
     textValue.startsWith(".") -> textValue.let { InternalDependency().apply { ::path.convertSelf { asAbsolutePath() } } }
     else -> textValue.let { ExternalMavenDependency().apply { ::coordinates.convertSelf { textValue } } }
-}.adjustTrace(this)
+}.applyPsiTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLMapping.convertDependencyFull(): Dependency? = when {
@@ -206,7 +206,7 @@ private fun YAMLMapping.convertDependencyFull(): Dependency? = when {
     keyValues.first()?.keyText?.startsWith("$") == true -> keyValues.first().convertCatalogDep()
     keyValues.first()?.keyText?.startsWith(".") == true -> keyValues.first().convertInternalDep()
     else -> keyValues.first().convertExternalMavenDep()
-}?.adjustTrace(this)
+}?.applyPsiTrace(this)
 
 context(ConvertCtx, ProblemReporterContext)
 private fun YAMLKeyValue.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {

@@ -52,3 +52,9 @@ class TraceableString(
 fun KProperty0<String>.toTraceableString(): TraceableString = TraceableString(get()).withTraceFrom(this.valueBase)
 
 fun <T : Traceable> T.withTraceFrom(other: Traceable?): T = apply { trace = other?.trace }
+
+/**
+ * Adds a trace to this [Traceable] pointing to the given [element], and returns this [Traceable] for chaining.
+ * If [element] is null, the trace is set to null.
+ */
+fun <T : Traceable> T.applyPsiTrace(element: PsiElement?) = apply { trace = element?.let(::PsiTrace) }

@@ -10,14 +10,12 @@ import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.amper.frontend.api.PsiTrace
-import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.Modifiers
-import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.yaml.psi.YAMLScalar
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
@@ -35,7 +33,7 @@ fun AmperProperty.extractModifiers(): Modifiers {
       is AmperContextBlock -> parentContext.contextNameList
       is AmperContextualStatement -> parentContext.contextNameList
       else -> emptyList()
-    }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).adjustTrace(it) } })
+    }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).applyPsiTrace(it) } })
     parentContext = PsiTreeUtil.getParentOfType(parentContext, AmperContextualElement::class.java, true)
   }
   return modifiers
@@ -69,11 +67,5 @@ fun AmperLiteral.asAbsolutePath(): Path = textValue.asAbsolutePath()
  */
 context(ConvertCtx)
 fun AmperProperty.asAbsolutePath(): Path = name!!.asAbsolutePath()
-
-/**
- * Adjust this element trace.
- */
-fun <T : Traceable> T.adjustTrace(it: PsiElement?) = apply { trace = it?.let(::PsiTrace) }
-
 
 val AmperLiteral.textValue get() = StringUtil.unquoteString(text)
