@@ -13,10 +13,10 @@ import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.BuildTask
@@ -37,7 +37,7 @@ class AmperBackend(val context: ProjectContext) {
             val model = spanBuilder("loading model")
                 .setAttribute("root", context.projectRoot.path.pathString)
                 .startSpan().use {
-                    when (val result = ModelInit.getModel(context.projectRoot.path)) {
+                    when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
                         is Result.Failure -> throw result.exception
                         is Result.Success -> result.value
                     }

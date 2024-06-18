@@ -20,7 +20,6 @@ import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
 import org.jetbrains.amper.cli.ProjectContext
@@ -107,7 +106,7 @@ abstract class AmperIntegrationTestBase {
             AndroidHomeRoot(TestUtil.androidHome)
 
         return ProjectContext.create(
-            projectRoot = AmperProjectRoot(projectRoot),
+            explicitProjectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(buildDir),
             commonRunSettings = CommonRunSettings(programArgs = programArgs),

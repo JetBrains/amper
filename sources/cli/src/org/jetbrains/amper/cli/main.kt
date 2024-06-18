@@ -15,7 +15,6 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
@@ -86,7 +85,6 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
 
     val root by option(help = "Amper project root")
         .path(mustExist = true, canBeFile = false, canBeDir = true)
-        .defaultLazy { Path(System.getProperty("user.dir")) }
 
     private val consoleLogLevel by option(
         "--log-level",
@@ -122,7 +120,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
 
     override fun run() {
         currentContext.obj = CommonOptions(
-            root = root,
+            explicitRoot = root,
             consoleLogLevel = consoleLogLevel,
             asyncProfiler = asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
@@ -131,7 +129,10 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
     }
 
     data class CommonOptions(
-        val root: Path,
+        /**
+         * The explicit project root provided by the user, or null if the root should be discovered.
+         */
+        val explicitRoot: Path?,
         val consoleLogLevel: Level,
         val asyncProfiler: Boolean,
         val sharedCachesRoot: Path?,
@@ -180,7 +181,7 @@ internal fun withBackend(
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
 
         val projectContext = ProjectContext.create(
-            projectRoot = AmperProjectRoot(commonOptions.root.toAbsolutePath()),
+            explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
             buildOutputRoot = commonOptions.buildOutputRoot?.let {
                 it.createDirectories()
                 AmperBuildOutputRoot(it.toAbsolutePath())
@@ -228,7 +229,8 @@ private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper
     val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
-        ProjectGenerator(terminal = Terminal()).initProject(template = template, directory = commonOptions.root)
+        val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
+        ProjectGenerator(terminal = Terminal()).initProject(template, directory)
     }
 }
 

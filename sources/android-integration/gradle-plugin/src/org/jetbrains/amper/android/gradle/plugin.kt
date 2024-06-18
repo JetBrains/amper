@@ -1,7 +1,6 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
-
 package org.jetbrains.amper.android.gradle
 
 import com.android.build.gradle.AppExtension
@@ -19,6 +18,8 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
+import org.jetbrains.amper.android.gradle.tooling.ApkPathToolingModelBuilder
+import org.jetbrains.amper.android.gradle.tooling.RClassToolingModelBuilder
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -27,9 +28,8 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
+import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.android.gradle.tooling.ApkPathToolingModelBuilder
-import org.jetbrains.amper.android.gradle.tooling.RClassToolingModelBuilder
 import java.io.File
 import java.nio.file.Path
 import javax.inject.Inject
@@ -203,11 +203,10 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
 
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
 
-        val loader = Thread.currentThread().contextClassLoader
         settings.gradle.settingsEvaluated {
             val request = Json.decodeFromString<AndroidBuildRequest>(extension.jsonData.get())
             settings.gradle.request = request
-            initProjects(request.root, settings, loader)
+            initProjects(request.root, settings)
         }
 
         settings.gradle.beforeProject { project ->
@@ -229,8 +228,14 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
     }
 
     context(SLF4JProblemReporterContext)
-    private fun initProjects(projectRoot: Path, settings: Settings, loader: ClassLoader) {
-        val model = when (val result = ModelInit.getModel(projectRoot, loader = loader)) {
+    private fun initProjects(projectRoot: Path, settings: Settings) {
+        // TODO Instead of importing the Amper model, we could pass the information we need from the Amper CLI.
+        //   The interface between the Amper CLI and the Gradle delegate project would be more clearly defined,
+        //   and we could use just the relevant subset of the data.
+        //   Some pieces of data might even have already been resolved/changed in the Amper CLI, such as dependencies.
+        //   and in that case we wouldn't want Gradle to re-read the Amper model files and get it wrong.
+        //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
+        val model = when (val result = SchemaBasedModelImport.getStandaloneAmperModel(projectRoot)) {
             is Result.Failure -> throw result.exception
             is Result.Success -> result.value
         }

@@ -1,0 +1,4 @@
+modules:
+  - "*-cli"
+  - shared
+  - utils
