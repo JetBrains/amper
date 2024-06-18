@@ -26,6 +26,7 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
+import com.github.ajalt.mordant.terminal.Terminal
 import com.intellij.util.namedChildScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +40,7 @@ import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
 import org.jetbrains.amper.tools.JdkToolCommands
@@ -229,9 +231,7 @@ private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper
     val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
-        withBackend(commonOptions, commandName) { backend ->
-            backend.initProject(template = template)
-        }
+        ProjectGenerator(terminal = Terminal()).initProject(template = template, directory = commonOptions.root)
     }
 }
 

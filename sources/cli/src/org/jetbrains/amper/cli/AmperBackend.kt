@@ -4,10 +4,7 @@
 
 package org.jetbrains.amper.cli
 
-import com.google.common.io.Files
-import io.github.classgraph.ClassGraph
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
@@ -29,13 +26,8 @@ import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
-import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 
 class AmperBackend(val context: ProjectContext) {
@@ -120,138 +112,6 @@ class AmperBackend(val context: ProjectContext) {
     fun showModules() {
         for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {
             context.terminal.println(moduleName)
-        }
-    }
-
-    fun initProject(template: String?) {
-        val allTemplateFiles = ClassGraph().acceptPaths("templates").scan().use { scanResult ->
-            scanResult.allResources.paths.map { pathString ->
-                check(pathString.startsWith("templates/")) {
-                    "Resource path must start with templates/: $pathString"
-                }
-                pathString
-            }
-        }
-
-        val allTemplateNames = allTemplateFiles.map {
-            Path.of(it).getName(1).pathString
-        }.distinct().sorted()
-
-        if (template == null) {
-            userReadableError(
-                "Please specify a template (template name substring is sufficient).\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}")
-        }
-
-        val root = context.projectRoot.path
-        if (root.exists() && !root.isDirectory()) {
-            userReadableError("Project root is not a directory: $root")
-        }
-
-        val matchedTemplates = allTemplateNames.filter {
-            it.contains(template, ignoreCase = true)
-        }
-
-        if (matchedTemplates.isEmpty()) {
-            userReadableError(
-                "No templates were found matching '$template'\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}"
-            )
-        }
-        if (matchedTemplates.size > 1) {
-            userReadableError(
-                "Multiple templates (${
-                    matchedTemplates.sorted().joinToString(" ")
-                }) were found matching '$template'\n\n" +
-                        "Available templates: ${allTemplateNames.joinToString(" ")}"
-            )
-        }
-
-        val matchedTemplate = matchedTemplates.single()
-        context.terminal.println("Extracting template '$matchedTemplate' to $root")
-
-        val resourcePrefix = "templates/$matchedTemplate/"
-        val templateFiles = allTemplateFiles
-            .filter { it.startsWith(resourcePrefix) }
-            .map { it to it.removePrefix(resourcePrefix) }
-        check(templateFiles.isNotEmpty()) {
-            "No files was found for template '$matchedTemplate'. All template files:\n" +
-                    allTemplateFiles.joinToString("\n")
-        }
-
-        checkTemplateFilesConflicts(templateFiles, root)
-
-        root.createDirectories()
-        for ((resourceName, relativeName) in templateFiles) {
-            val path = root.resolve(relativeName)
-            path.parent.createDirectories()
-            javaClass.classLoader.getResourceAsStream(resourceName)!!.use { stream ->
-                Files.asByteSink(path.toFile()).writeFrom(stream)
-            }
-        }
-        writeWrappers(root)
-
-        context.terminal.println("Project template successfully instantiated to $root")
-        context.terminal.println()
-        val exe = if (OsFamily.current.isWindows) "amper.bat build" else "./amper build"
-        context.terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
-    }
-
-    private data class AmperWrapper(
-        val fileName: String,
-        val resourceName: String,
-        val executable: Boolean,
-        val windowsLineEndings: Boolean,
-    )
-
-    private val wrappers = listOf(
-        AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true, windowsLineEndings = false),
-        AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false, windowsLineEndings = true),
-    )
-
-    private fun writeWrappers(root: Path) {
-        val sha256: String? = System.getProperty("amper.wrapper.dist.sha256")
-        if (sha256.isNullOrEmpty()) {
-            logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $root")
-            return
-        }
-
-        if (AmperBuild.isSNAPSHOT) {
-            logger.warn("Amper was compiled from sources in dev environment, skipping generating wrappers for $root")
-            return
-        }
-
-        for (w in wrappers) {
-            val path = root.resolve(w.fileName)
-
-            substituteTemplatePlaceholders(
-                input = javaClass.classLoader.getResourceAsStream(w.resourceName)!!.use { it.readAllBytes() }.decodeToString(),
-                outputFile = path,
-                placeholder = "@",
-                values = listOf(
-                    "AMPER_VERSION" to AmperBuild.BuildNumber,
-                    "AMPER_DIST_SHA256" to sha256,
-                ),
-                outputWindowsLineEndings = w.windowsLineEndings,
-            )
-
-            if (w.executable) {
-                val rc = path.toFile().setExecutable(true)
-                check(rc) {
-                    "Unable to make file executable: $rc"
-                }
-            }
-        }
-    }
-
-    private fun checkTemplateFilesConflicts(templateFiles: List<Pair<String, String>>, root: Path) {
-        val filesToCheck = templateFiles.map { it.second }
-        val alreadyExistingFiles = filesToCheck.filter { root.resolve(it).exists() }
-        if (alreadyExistingFiles.isNotEmpty()) {
-            userReadableError(
-                "Files already exist in the project root:\n" +
-                        alreadyExistingFiles.joinToString("\n").prependIndent("  ")
-            )
         }
     }
 
