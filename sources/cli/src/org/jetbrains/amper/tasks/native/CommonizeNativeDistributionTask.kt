@@ -54,39 +54,43 @@ class CommonizeNativeDistributionTask(
             .filterNot { it.singleOrNull()?.isLeaf == true }
             .toSet()
 
-        val sharedPlatformsAsString = sharedPlatformSets.joinToString(separator = ";") {
+        val sharedPlatforms = sharedPlatformSets.map {
             it.joinToString(prefix = "(", separator = ",", postfix = ")") { it.name.lowercase() }
-        }
+        }.toSet()
 
         val compiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
+        val cache = NativeDistributionCommonizerCache(compiler, true)
         val commonizerClasspath = kotlinDownloader.downloadKotlinCommonizerEmbeddable(kotlinVersion)
         // TODO Settings.
         val jdk = JdkDownloader.getJdk(userCacheRoot)
-        val commonizerArgs = buildList {
-            add("native-dist-commonize")
-            add("-distribution-path"); add(compiler.kotlinNativeHome.absolutePathString())
-            add("-output-path"); add(compiler.commonizedPath.absolutePathString())
-            add("-output-targets"); add(sharedPlatformsAsString)
-        }
 
-        // TODO Add caching.
-        spanBuilder("kotlin-native-distribution-commonize")
-            .setAttribute("compiler-version", kotlinVersion)
-            .setListAttribute("commonizer-args", commonizerArgs)
-            .useWithScope {
-                logger.info("Calling Kotlin commonizer...")
-                val result = jdk.runJava(
-                    workingDir = Path("."),
-                    mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
-                    classpath = commonizerClasspath,
-                    programArgs = commonizerArgs,
-                    jvmArgs = listOf(),
-                    outputListener = LoggingProcessOutputListener(logger),
-                )
-                if (result.exitCode != 0) {
-                    userReadableError("Kotlin commonizer invocation (see errors above)")
-                }
+        cache.writeCacheForUncachedTargets(sharedPlatforms) { todoOutputTargets ->
+            val commonizerArgs = buildList {
+                add("native-dist-commonize")
+                add("-distribution-path"); add(compiler.kotlinNativeHome.absolutePathString())
+                add("-output-path"); add(compiler.commonizedPath.absolutePathString())
+                add("-output-targets"); add(todoOutputTargets.joinToString(separator = ";"))
             }
+
+            // TODO Add caching.
+            spanBuilder("kotlin-native-distribution-commonize")
+                .setAttribute("compiler-version", kotlinVersion)
+                .setListAttribute("commonizer-args", commonizerArgs)
+                .useWithScope {
+                    logger.info("Calling Kotlin commonizer...")
+                    val result = jdk.runJava(
+                        workingDir = Path("."),
+                        mainClass = "org.jetbrains.kotlin.commonizer.cli.CommonizerCLI",
+                        classpath = commonizerClasspath,
+                        programArgs = commonizerArgs,
+                        jvmArgs = listOf(),
+                        outputListener = LoggingProcessOutputListener(logger),
+                    )
+                    if (result.exitCode != 0) {
+                        userReadableError("Kotlin commonizer invocation (see errors above)")
+                    }
+                }
+        }
 
         return EmptyTaskResult
     }
