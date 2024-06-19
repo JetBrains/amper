@@ -84,7 +84,7 @@ class AndroidBuildTask(
             ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
         }
         taskOutputPath.path.createDirectories()
-        val outputs = executionResult
+        executionResult
             .outputs
             .map {
                 it.copyToRecursively(
