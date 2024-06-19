@@ -207,18 +207,6 @@ private fun buildCustomTask(
             get() = virtualFile.toNioPath()
     }
 
-    val name = virtualFile.name
-    val customTaskName = name.removeSuffix(amperCustomTaskSuffix).removeSuffix(yamlCustomTaskSuffix)
-    if (name == customTaskName) {
-        problemReporter.reportMessage(BuildProblemImpl(
-            buildProblemId = "INVALID_CUSTOM_TASK_FILE_NAME",
-            source = buildProblemSource,
-            message = "Invalid custom task file name (must end with $amperCustomTaskSuffix or $yamlCustomTaskSuffix): $name",
-            level = Level.Error,
-        ))
-        return null
-    }
-
     val codeModule = moduleResolver(node.module.pathString)
     if (codeModule == null) {
         problemReporter.reportMessage(BuildProblemImpl(
@@ -231,7 +219,7 @@ private fun buildCustomTask(
     }
 
     return DefaultCustomTaskDescription(
-        name = TaskName.moduleTask(module, customTaskName),
+        name = TaskName.moduleTask(module, virtualFile.customTaskName()),
         source = virtualFile.toNioPath(),
         origin = node,
         type = node.type,

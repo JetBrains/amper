@@ -22,6 +22,17 @@ const val yamlCustomTaskSuffix = ".task.yaml"
 private fun VirtualFile.isModuleYaml() = name == amperModuleFileName || name == moduleAmperFileName
 private fun VirtualFile.isCustomTask() = name.endsWith(amperCustomTaskSuffix) || name.endsWith(yamlCustomTaskSuffix)
 
+/**
+ * Extract the custom task name from this custom task file name.
+ */
+internal fun VirtualFile.customTaskName(): String {
+    val taskName = name.removeSuffix(amperCustomTaskSuffix).removeSuffix(yamlCustomTaskSuffix)
+    if (name == taskName) {
+        error("File '$name' is not a custom task file")
+    }
+    return taskName
+}
+
 private val gradleModuleFiles = setOf("build.gradle.kts", "build.gradle")
 
 private fun FioContext.isIgnored(file: VirtualFile): Boolean {
