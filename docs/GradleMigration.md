@@ -40,7 +40,7 @@ pluginManagement {
         gradlePluginPortal()
         // add repositories:
         google()
-        maven("https://maven.pkg.jetbrains.space/public/p/amper/amper")
+        maven("https://packages.jetbrains.team/maven/p/amper/amper")
         maven("https://www.jetbrains.com/intellij-repository/releases")
         maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
     }
