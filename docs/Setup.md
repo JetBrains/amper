@@ -1,6 +1,6 @@
 ## Check your IDE
 
-* Use the latest [IntelliJ IDEA](https://www.jetbrains.com/idea/nextversion/) with Amper plugin for JVM and Android projects.
+* Use the latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) with Amper plugin for JVM and Android projects.
 * Use the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) for JVM, Android, and Kotlin Multiplatform projects.
  
 Fleet comes preconfigured with the Amper support. If you use IntelliJ IDEA, install the Amper plugin: ![](images/ij-plugin.png)
