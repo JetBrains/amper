@@ -15,6 +15,7 @@ import org.jetbrains.amper.test.TestUtil.androidHome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
+import java.lang.management.ManagementFactory
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
@@ -78,6 +79,7 @@ abstract class AmperCliTestBase {
         //  Probably even the wrapper itself
         val jdk = JdkDownloader.getJdk(AmperUserCacheRoot(TestUtil.userCacheRoot))
         val buildOutputRoot = tempRoot.resolve("build")
+        val isDebuggingTest = ManagementFactory.getRuntimeMXBean().inputArguments.any { it.startsWith("-agentlib:") }
 
         val result = jdk.runJava(
             workingDir = projectRoot,
@@ -87,13 +89,28 @@ abstract class AmperCliTestBase {
                 "--build-output",
                 buildOutputRoot.pathString,
             ) + args,
-            jvmArgs = listOf(
-                "-ea",
-                "-javaagent:$kotlinxCoroutinesCore",
-                "-javaagent:$byteBuddyAgent",
-            ),
+            jvmArgs = buildList {
+                add("-ea")
+                add("-javaagent:$kotlinxCoroutinesCore")
+                add("-javaagent:$byteBuddyAgent")
+
+                // When debugging tests, we run the Amper CLI with jdwp to be able to attach a debugger to it.
+                // The CLI process will wait for a debugger to attach on a dynamic port. You can click "Attach debugger"
+                // in the IDEA console to automatically launch and attach a remote debugger.
+                if (isDebuggingTest) {
+                    add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y")
+                }
+            },
             environment = mapOf("ANDROID_HOME" to androidHome.pathString),
-            outputListener = ProcessOutputListener.NOOP,
+            outputListener = object : ProcessOutputListener {
+                override fun onStdoutLine(line: String) {
+                    if ("Listening for transport dt_socket" in line) {
+                        // critical to see that the process stopped and to attach debugger from console output in IDEA
+                        println(line)
+                    }
+                }
+                override fun onStderrLine(line: String) = Unit
+            },
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
