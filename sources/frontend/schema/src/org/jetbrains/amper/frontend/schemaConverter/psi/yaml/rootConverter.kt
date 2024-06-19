@@ -36,7 +36,7 @@ import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 import org.jetbrains.yaml.psi.YAMLValue
 
-context(ProblemReporterContext, ConvertCtx)
+context(ProblemReporterContext)
 internal fun YAMLDocument.convertProject() = Project().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {

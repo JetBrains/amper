@@ -47,7 +47,7 @@ internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? = pathResolve
 context(ProblemReporterContext, ConvertCtx)
 internal fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
 
-context(ProblemReporterContext, ConvertCtx)
+context(ProblemReporterContext)
 private fun convertProjectPsi(file: PsiFile): Project? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
