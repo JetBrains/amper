@@ -39,10 +39,7 @@ class NativeTestTask(
         return spanBuilder("native-test")
             .setAttribute("executable", executable.pathString)
             .useWithScope { span ->
-                val workingDir = when (val source = module.source) {
-                    is PotatoModuleFileSource -> source.moduleDir
-                    PotatoModuleProgrammaticSource -> projectRoot.path
-                }
+                val workingDir = module.source.moduleDir ?: projectRoot.path
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
                     workingDir,

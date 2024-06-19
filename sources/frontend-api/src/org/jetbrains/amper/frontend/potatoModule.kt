@@ -9,15 +9,23 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 
-sealed interface PotatoModuleSource
+sealed interface PotatoModuleSource {
+    /**
+     * The directory containing the `module.yaml` or Gradle build file of the module.
+     * May be null for unresolved modules or programmatically generated modules.
+     */
+    val moduleDir: Path?
+}
 
-object PotatoModuleProgrammaticSource : PotatoModuleSource
+data object PotatoModuleProgrammaticSource : PotatoModuleSource {
+    override val moduleDir: Nothing? = null
+}
 
 data class PotatoModuleFileSource(val buildFile: Path) : PotatoModuleSource {
     /**
      * The directory containing the `module.yaml` or Gradle build file of the module.
      */
-    val moduleDir: Path
+    override val moduleDir: Path
         get() = buildFile.parent
 }
 

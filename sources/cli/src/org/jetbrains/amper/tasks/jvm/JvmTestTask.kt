@@ -108,12 +108,9 @@ class JvmTestTask(
             )
 
             // TODO should be customizable?
-            val workingDirectory = when (val source = module.source) {
-                // same directory as module.yaml
-                is PotatoModuleFileSource -> source.moduleDir
-                // no way of knowing, default to a safe choice
-                PotatoModuleProgrammaticSource -> projectRoot.path
-            }
+            // There is no way of knowing what the working dir should be for generated/unresolved test modules,
+            // the project root is a somewhat safe choice.
+            val workingDirectory = module.source.moduleDir ?: projectRoot.path
 
             return spanBuilder("junit-platform-console-standalone")
                 .setAttribute("junit-platform-console-standalone", junitConsole.pathString)

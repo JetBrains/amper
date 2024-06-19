@@ -58,10 +58,7 @@ class JvmRunTask(
         // TODO how to customize properties? -ea? -Xmx?
         val jvmArgs = listOf("-ea")
 
-        val workingDir = when (val source = module.source) {
-            is PotatoModuleFileSource -> source.moduleDir
-            PotatoModuleProgrammaticSource -> projectRoot.path
-        }
+        val workingDir = module.source.moduleDir ?: projectRoot.path
 
         val result = jdk.runJava(
             workingDir = workingDir,
