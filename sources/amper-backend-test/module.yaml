@@ -21,7 +21,7 @@ test-dependencies:
 
   - com.github.ajalt.clikt:clikt:4.2.2
 
-  - org.gradle:gradle-tooling-api:8.4: compile-only
+  - org.gradle:gradle-tooling-api:8.6: compile-only
   - com.android.tools.ddms:ddmlib:25.3.0: compile-only
 
 apply:

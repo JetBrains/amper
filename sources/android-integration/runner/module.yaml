@@ -8,7 +8,7 @@ apply:
 dependencies:
   - ../../core
   - ../android-integration-core: exported
-  - org.gradle:gradle-tooling-api:8.4: exported
+  - org.gradle:gradle-tooling-api:8.6: exported
 
 settings:
   kotlin:
