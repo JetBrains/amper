@@ -14,7 +14,7 @@ import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLValue
 
 context(ProblemReporterContext, ConvertCtx)
-fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
+internal fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         ::type.convertChildEnum(CustomTaskType)
@@ -31,7 +31,7 @@ fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
+private fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
     with(asMappingNode() ?: return@apply) {
         ::taskOutputSubFolder.convertChildScalar { textValue }
         ::addToTestSources.convertChildBoolean()
@@ -39,7 +39,7 @@ fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-fun YAMLValue.convertPublishArtifact() = PublishArtifactNode().apply {
+private fun YAMLValue.convertPublishArtifact() = PublishArtifactNode().apply {
     with(asMappingNode() ?: return@apply) {
         ::path.convertChildScalar { textValue }
         ::artifactId.convertChildScalar { textValue }

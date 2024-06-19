@@ -36,13 +36,13 @@ internal data class ConvertCtx(
 )
 
 context(ProblemReporterContext, ConvertCtx)
-fun convertCustomTask(file: VirtualFile): CustomTaskNode? = pathResolver.toPsiFile(file)?.let { convertCustomTasksPsi(it) }
-
-context(ProblemReporterContext, ConvertCtx)
 internal fun convertProject(file: VirtualFile): Project? = pathResolver.toPsiFile(file)?.let { convertProjectPsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun convertModule(file: VirtualFile): Module? = pathResolver.toPsiFile(file)?.let { convertModulePsi(it) }
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? = pathResolver.toPsiFile(file)?.let { convertCustomTasksPsi(it) }
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun convertTemplate(file: VirtualFile): Template? = pathResolver.toPsiFile(file)?.let { convertTemplatePsi(it) }
