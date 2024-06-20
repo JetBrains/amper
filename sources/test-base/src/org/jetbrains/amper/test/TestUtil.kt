@@ -23,10 +23,14 @@ import java.nio.file.Paths
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -124,6 +128,11 @@ object TestUtil {
             val fakeUserCacheRoot = AmperUserCacheRoot(sharedTestCaches)
             val fakeBuildOutputRoot = AmperBuildOutputRoot(sharedTestCaches)
 
+            val root = fakeUserCacheRoot.path / "android-sdk"
+
+            // If we leave them, the incremental state check will fail, and we'll reinstall all the tools.
+            removeTestRunLeftovers(root)
+
             val commandLineTools = suspendingRetryWithExponentialBackOff {
                 Downloader.downloadFileToCacheLocation(
                     url = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
@@ -137,12 +146,11 @@ object TestUtil {
                 "packages" to toolsToInstall.joinToString(" "),
             )
 
-            val root = ExecuteOnChangedInputs(fakeBuildOutputRoot).execute(
+            ExecuteOnChangedInputs(fakeBuildOutputRoot).execute(
                 "android-sdk",
                 configuration,
                 inputs = emptyList()
             ) {
-                val root = fakeUserCacheRoot.path / "android-sdk"
                 cleanDirectory(root)
 
                 extractZip(commandLineTools, root / "cmdline-tools", true)
@@ -162,6 +170,19 @@ object TestUtil {
             }.outputs.single()
 
             return@runBlocking root
+        }
+    }
+
+    @OptIn(ExperimentalPathApi::class)
+    private fun removeTestRunLeftovers(androidSdkHome: Path) {
+        // The latest command line tools are installed in this directory during test runs, despite our pre-install.
+        // Even we updated to the latest command line tools in our pre-install, this incrementality issue would come
+        // back at the next release, and is subtle to notice. This is not the way to detect that we need updates.
+        (androidSdkHome / "cmdline-tools" / "latest").deleteRecursively()
+
+        // When running tests, some .lock files are generated in the Android home and can be left over.
+        androidSdkHome.listDirectoryEntries("*.lock").forEach {
+            it.deleteExisting()
         }
     }
 
