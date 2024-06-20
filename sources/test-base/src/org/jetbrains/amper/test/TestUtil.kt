@@ -208,24 +208,24 @@ object TestUtil {
         }
     }
 
-    private suspend fun installToolIfMissing(jdk: Jdk, home: Path, pack: String) {
+    private suspend fun installToolIfMissing(jdk: Jdk, androidHome: Path, toolPackage: String) {
         val java = jdk.javaExecutable
-        val sdkManagerJar = home / "cmdline-tools" / "lib" / "sdkmanager-classpath.jar"
+        val sdkManagerJar = androidHome / "cmdline-tools" / "lib" / "sdkmanager-classpath.jar"
 
-        val sourceProperties = home.resolve(pack.replace(';', '/')) / "source.properties"
+        val sourceProperties = androidHome.resolve(toolPackage.replace(';', '/')) / "source.properties"
         if (sourceProperties.exists()) {
             return
         }
 
-        println("Installing '$pack' into '$home'")
+        println("Installing '$toolPackage' into '$androidHome'...")
 
         val cmd = listOf(
             java.pathString,
             "-cp",
             sdkManagerJar.pathString,
             "com.android.sdklib.tool.sdkmanager.SdkManagerCli",
-            "--sdk_root=$home",
-            pack
+            "--sdk_root=$androidHome",
+            toolPackage,
         )
         println("  running ${cmd.joinToString("|")}")
 
@@ -241,7 +241,7 @@ object TestUtil {
         }
 
         if (!sourceProperties.exists()) {
-            error("source.properties file '$sourceProperties' is missing after installing package '$pack'")
+            error("source.properties file '$sourceProperties' is missing after installing package '$toolPackage'")
         }
     }
 }
