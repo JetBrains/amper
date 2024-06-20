@@ -1,0 +1,1 @@
+fun fooB2() = "One Two"

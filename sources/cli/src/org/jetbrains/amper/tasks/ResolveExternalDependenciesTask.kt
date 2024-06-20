@@ -39,6 +39,8 @@ class ResolveExternalDependenciesTask(
     private val platform: Platform,
     private val fragments: List<Fragment>,
     private val fragmentsCompileModuleDependencies: List<PotatoModule>,
+    // todo (AB) : Dependencies should follow a declaration order
+    private val fragmentsRuntimeModuleDependencies: List<PotatoModule>,
     override val taskName: TaskName,
 ): Task {
 
@@ -55,9 +57,14 @@ class ResolveExternalDependenciesTask(
         val directCompileDependencies = fragments
             .flatMap { it.externalDependencies }
             .filterIsInstance<MavenDependency>()
-            // todo (AB) : Why compile deps only? what if there is a runtime direct dependency?
-            // todo (AB) : It should be passed to DR.resolve for runtime scope
             .filter { it.compile }
+            .map { it.coordinates }
+            .distinct()
+
+        val directRuntimeDependencies = fragments
+            .flatMap { it.externalDependencies }
+            .filterIsInstance<MavenDependency>()
+            .filter { it.runtime }
             .map { it.coordinates }
             .distinct()
 
@@ -69,7 +76,17 @@ class ResolveExternalDependenciesTask(
             .map { it.coordinates }
             .distinct()
 
-        val dependenciesToResolve = exportedDependencies + directCompileDependencies
+        val runtimeTransitiveDependencies = fragmentsRuntimeModuleDependencies
+            .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }
+            .flatMap { it.externalDependencies }
+            .filterIsInstance<MavenDependency>()
+            .filter { it.runtime }
+            .map { it.coordinates }
+            .distinct()
+
+        val compileDependenciesToResolve = exportedDependencies + directCompileDependencies
+
+        val runtimeDependenciesToResolve = directRuntimeDependencies + runtimeTransitiveDependencies
 
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
         // but the current implementation requires a full review of it
@@ -88,7 +105,8 @@ class ResolveExternalDependenciesTask(
 
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
-            .setListAttribute("dependencies", dependenciesToResolve)
+            .setListAttribute("dependencies", compileDependenciesToResolve)
+            .setListAttribute("runtimeDependencies", runtimeDependenciesToResolve)
             .setListAttribute("fragments", fragments.map { it.name }.sorted())
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
@@ -109,7 +127,8 @@ class ResolveExternalDependenciesTask(
 
                 val configuration = mapOf(
                     "userCacheRoot" to userCacheRoot.path.pathString,
-                    "dependencies" to dependenciesToResolve.joinToString("|"),
+                    "compileDependencies" to compileDependenciesToResolve.joinToString("|"),
+                    "runtimeDependencies" to runtimeDependenciesToResolve.joinToString("|"),
                     "repositories" to repositories.joinToString("|"),
                     "resolvePlatform" to resolvedPlatform.type.value,
                     "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
@@ -117,16 +136,18 @@ class ResolveExternalDependenciesTask(
 
                 val result = try {
                     val resolveSourceMoniker = "module ${module.userReadableName}"
+                    // todo (AB) : Resolve runtime and compile dependencies in one go
+                    // todo (AB) : (that guaranties the same versions are used for both)
                     executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
                         val compileClasspath = mavenResolver.resolve(
-                            coordinates = dependenciesToResolve,
+                            coordinates = compileDependenciesToResolve,
                             repositories = repositories,
                             scope = ResolutionScope.COMPILE,
                             platform = resolvedPlatform,
                             resolveSourceMoniker = resolveSourceMoniker,
                         ).toList()
                         val runtimeClasspath = mavenResolver.resolve(
-                            coordinates = dependenciesToResolve,
+                            coordinates = runtimeDependenciesToResolve,
                             repositories = repositories,
                             scope = ResolutionScope.RUNTIME,
                             platform = resolvedPlatform,
@@ -169,7 +190,7 @@ class ResolveExternalDependenciesTask(
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
-                        "${dependenciesToResolve.joinToString(" ")} -- " +
+                        "${compileDependenciesToResolve.joinToString(" ")} -- " +
                         "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                         "${repositories.joinToString(" ")} resolved to:\n${
                             compileClasspath.joinToString("\n") {
@@ -180,6 +201,10 @@ class ResolveExternalDependenciesTask(
                         }"
                 )
 
+                // todo (AB) : Dependencies should be return in an order corresponding to the order of input modules
+
+                // todo (AB) : output should contain placehoder for every module (in a correct place in the list!!!
+                // todo (AB) : It might be replaced with the path to compiled module later in order to form complete correctly ordered classpath)
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,

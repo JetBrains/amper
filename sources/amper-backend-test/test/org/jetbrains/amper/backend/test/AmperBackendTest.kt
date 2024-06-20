@@ -19,6 +19,10 @@ import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.CommonTaskUtils
+import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -944,6 +948,116 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 "macosMain/World.kt",
             )
         )
+    }
+
+    @Test
+    fun `jvm transitive dependencies`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("jvm-transitive-dependencies", backgroundScope = backgroundScope)
+
+        // 1. Check compile classpath
+        val result = AmperBackend(projectContext)
+            .runTask(TaskName(":app:resolveDependenciesJvm"))
+            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
+
+        assertNotNull(result, "unexpected result absence for :app:resolveDependenciesJvm")
+
+        assertEquals(
+            setOf(
+                // exported dependency of B1 (app -> B1)
+                "lombok-1.18.32.jar",
+                // exported dependency of C1 (app -> C1)
+                "tensorflow-lite-api-2.16.1.aar",
+                // exported dependency of C2_exp (app -> C1 -> C2_exp)
+                "simple-xml-safe-2.7.1.jar",
+                // exported dependency of C3_exp (app -> C1 -> C2_exp -> C3_exp)
+                "hamcrest-2.2.jar",
+                // exported dependency of D1_exp (app -> D1_exp)
+                "picocli-4.7.6.jar",
+                // exported dependency of E1_exp (app -> E1_exp)
+                "checker-qual-3.44.0.jar",
+                // exported dependency of E1_exp (app -> E1_exp -> E2_exp)
+                "jackson-core-2.17.1.jar"
+            ),
+            result.compileClasspath
+                // Filter out predefined Amper libraries
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
+                .map { it.name }
+                .toSet(),
+            "Unexpected list of resolved compile dependencies"
+        )
+
+        // 2. Check runtime classpath composed after compilation tasks finished
+        val compilationResult = AmperBackend(projectContext)
+            .runTask(TaskName(":app:compileJvm"))
+            ?.getOrNull() as? JvmCompileTask.Result
+
+        assertNotNull(compilationResult, "unexpected result absence for :app:compileJvm")
+
+        val runtimeClassPath = CommonTaskUtils.buildRuntimeClasspath(compilationResult)
+
+        val expectedRuntimeClasspath = setOf(
+            // dependencies of B1 (app -> B1)
+            "lombok-1.18.32.jar", "jcharset-2.1.jar",
+            // dependencies of B2 (app -> B2)
+            "tinylog-api-2.7.0.jar", "xml-apis-2.0.2.jar",
+            // dependencies of C1 (app -> C1)
+            "tensorflow-lite-api-2.16.1.aar", "slf4j-api-2.0.13.jar",
+            // :dependencies of C2_exp (app -> C1 -> C2_exp)
+            "simple-xml-safe-2.7.1.jar", "jakarta.activation-api-2.1.3.jar",
+            // :dependencies of C3_exp (app -> C1 -> C2_exp -> C3_exp)
+            "hamcrest-2.2.jar", "apiguardian-api-1.1.2.jar",
+            // :dependencies of D1_exp (app -> D1_exp)
+            "picocli-4.7.6.jar", "osgi.annotation-8.1.0.jar",
+            // :dependencies of D2 (app -> D1_exp -> D2)
+            "asm-9.7.jar", "annotations-24.1.0.jar",
+            // :dependencies of E1_exp (app -> E1_exp)
+            "checker-qual-3.44.0.jar", "jakarta.annotation-api-3.0.0.jar",
+            // :dependencies of E2_exp (app -> E1_exp -> E2_exp)
+            "jackson-core-2.17.1.jar", "objenesis-test-3.4.jar"
+        )
+
+        assertEquals(
+            expectedRuntimeClasspath,
+            result.runtimeClasspath
+                // Filter out predefined Amper libraries
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
+                .map { it.name }
+                .toSet(),
+            "Unexpected list of resolved direct runtime dependencies of JVM app module"
+        )
+
+        assertEquals(
+            expectedRuntimeClasspath,
+            runtimeClassPath
+                // Filter out predefined Amper libraries
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
+                // filtering out module source dependencies
+                .filterNot { it.name.startsWith("_") }
+                .map { it.name }
+                .toSet(),
+            "Unexpected list of resolved runtime dependencies"
+        )
+
+        val runtimeClasspathViaTask = AmperBackend(projectContext)
+            .runTask(TaskName(":app:runtimeClasspathJvm"))
+            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
+
+        assertNotNull(runtimeClasspathViaTask, "unexpected result absence for :app:runtimeClasspathJvm")
+
+        assertEquals(
+            expectedRuntimeClasspath,
+            runtimeClasspathViaTask.jvmRuntimeClasspath
+                // Filter out predefined Amper libraries
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
+                // filtering out module source dependencies
+                .filterNot { it.name.startsWith("_") }
+                .map { it.name }
+                .toSet(),
+            "Unexpected list of resolved runtime dependencies (via task)"
+        )
+
+        val find = "finished ':app:resolveDependenciesJvm' in"
+        assertInfoLogStartsWith(find)
     }
 
     private suspend fun withFileServer(wwwRoot: Path, authenticator: Authenticator? = null, block: suspend (baseUrl: String) -> Unit) {

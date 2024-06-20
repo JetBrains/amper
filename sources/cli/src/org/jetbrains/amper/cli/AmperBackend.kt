@@ -23,6 +23,7 @@ import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.PublishTask
 import org.jetbrains.amper.tasks.RunTask
+import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
@@ -96,7 +97,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    suspend fun runTask(taskName: TaskName) = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))
+    suspend fun runTask(taskName: TaskName): kotlin.Result<TaskResult>? = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
 
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {

@@ -442,7 +442,7 @@ open class DependencyFile(
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, level)
                 ?: continue
             val actualHash = hasher.hash
-            if (expectedHash != actualHash) {
+            if (!expectedHash.equals(actualHash, true)) {
                 dependency.messages.asMutable() += Message(
                     "Hashes don't match for $algorithm",
                     "expected: $expectedHash, actual: $actualHash",
@@ -509,10 +509,10 @@ open class DependencyFile(
         val actualHash = hasher.hash
         if (expectedHash.algorithm != algorithm) {
             throw IllegalStateException("Expected hash type is ${expectedHash.hash}, but $algorithm was calculated")
-        } else if (expectedHash.hash != actualHash) {
+        } else if (!expectedHash.hash.equals(actualHash,true)) {
             dependency.messages.asMutable() += Message(
                 "Hashes don't match for $algorithm",
-                "expected: $expectedHash, actual: $actualHash",
+                "expected: ${expectedHash.hash}, actual: $actualHash",
                 Severity.ERROR,
             )
             return VerificationResult.FAILED

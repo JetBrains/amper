@@ -58,6 +58,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
         onEachTaskType { module, executeOnChangedInputs, platform, isTest ->
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
+            val fragmentsRuntimeModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Runtime)
             registerTask(
                 ResolveExternalDependenciesTask(
                     module,
@@ -67,6 +68,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     // for test code, we resolve dependencies on union of test and prod dependencies
                     fragments = fragmentsIncludeProduction,
                     fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
+                    fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
                     taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
                 )
             )

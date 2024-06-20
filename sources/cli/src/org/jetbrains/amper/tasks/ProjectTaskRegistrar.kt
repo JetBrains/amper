@@ -242,87 +242,53 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
 
     fun onModuleDependency(
         platform: Platform,
-        precondition: OnDependencyPrecondition = { _ -> true },
+        dependencyReason: DependencyReason,
         block: OnTaskTypeDependencyBlock
     ) {
         onEachTaskType(platform) { module, _, actualPlatform, isTest ->
-            module.forModuleDependency(isTest, actualPlatform, precondition) {
-                block(module, it, DependencyReason.Compile, actualPlatform, isTest)
+            module.forModuleDependency(isTest, actualPlatform, dependencyReason) {
+                block(module, it, dependencyReason, actualPlatform, isTest)
             }
         }
     }
 
     fun onCompileModuleDependency(platform: Platform, block: OnTaskTypeDependencyBlock) {
-        onModuleDependency(platform, { it == DependencyReason.Compile }, block)
+        onModuleDependency(platform, DependencyReason.Compile, block)
     }
 
     fun onRuntimeModuleDependency(platform: Platform, block: OnTaskTypeDependencyBlock) {
-        onModuleDependency(platform, { it == DependencyReason.Runtime }, block)
+        onModuleDependency(platform, DependencyReason.Runtime, block)
     }
 
     fun onModuleDependency(
         platform: Platform,
-        precondition: OnDependencyPrecondition = { _ -> true },
+        dependencyReason: DependencyReason,
         block: OnBuildTypeDependencyBlock
     ) {
         onEachBuildType(platform) { module, _, actualPlatform, isTest, buildType ->
-            module.forModuleDependency(isTest, actualPlatform, precondition) {
-                block(module, it, DependencyReason.Compile, actualPlatform, isTest, buildType)
+            module.forModuleDependency(isTest, actualPlatform, dependencyReason) {
+                block(module, it, dependencyReason, actualPlatform, isTest, buildType)
             }
         }
     }
 
     fun onCompileModuleDependency(platform: Platform, block: OnBuildTypeDependencyBlock) {
-        onModuleDependency(platform, { it == DependencyReason.Compile }, block)
+        onModuleDependency(platform, DependencyReason.Compile, block)
     }
 
     fun onRuntimeModuleDependency(platform: Platform, block: OnBuildTypeDependencyBlock) {
-        onModuleDependency(platform, { it == DependencyReason.Runtime }, block)
+        onModuleDependency(platform, DependencyReason.Runtime, block)
     }
 
     private fun PotatoModule.forModuleDependency(
         isTest: Boolean,
         platform: Platform,
-        precondition: OnDependencyPrecondition = { _ -> true },
-        block: (dependency: PotatoModule) -> Unit
-    ) {
-        val fragmentsCompileModuleDependencies = fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
-        val fragmentsRuntimeModuleDependencies = fragmentsModuleDependencies(isTest, platform, DependencyReason.Runtime)
-        if (precondition(DependencyReason.Compile)) {
-            forModuleDependency(fragmentsCompileModuleDependencies, platform, DependencyReason.Compile) {
-                block(it)
-            }
-        }
-        if (precondition(DependencyReason.Runtime)) {
-            forModuleDependency(fragmentsRuntimeModuleDependencies, platform, DependencyReason.Runtime) {
-                block(it)
-            }
-        }
-    }
-
-    private fun forModuleDependency(
-        fragmentsCompileModuleDependencies: List<PotatoModule>,
-        platform: Platform,
         dependencyReason: DependencyReason,
         block: (dependency: PotatoModule) -> Unit
     ) {
-        for (compileModuleDependency in fragmentsCompileModuleDependencies) {
-            // direct dependencies
-            block(compileModuleDependency)
-
-            // exported dependencies
-            val exportedModuleDependencies = compileModuleDependency.fragments
-                .asSequence()
-                .filter { it.platforms.contains(platform) && !it.isTest }
-                .flatMap { it.externalDependencies }
-                .filterIsInstance<PotatoModuleDependency>()
-                .filter { it.dependencyReasonMatches(dependencyReason) && it.exported }
-                .map { it.module }
-                .toList()
-
-            for (exportedModuleDependency in exportedModuleDependencies) {
-                block(exportedModuleDependency)
-            }
+        val fragmentsModuleDependencies = fragmentsModuleDependencies(isTest, platform, dependencyReason)
+        for (moduleDependency in fragmentsModuleDependencies) {
+            block(moduleDependency)
         }
     }
 }
@@ -336,24 +302,25 @@ fun PotatoModule.fragmentsModuleDependencies(
     isTest: Boolean,
     platform: Platform,
     dependencyReason: DependencyReason,
-) = fragmentsTargeting(platform, includeTestFragments = isTest)
+    directDependencies: Boolean = true
+): List<PotatoModule> = fragmentsTargeting(platform, includeTestFragments = isTest)
     .flatMap { fragment -> fragment.externalDependencies.map { fragment to it } }
     .mapNotNull { (fragment, dependency) ->
         when (dependency) {
             is MavenDependency -> null
             is PotatoModuleDependency -> {
-                // runtime dependencies are not required to be in compile tasks graph
-                val targetProperty = when (dependencyReason) {
-                    DependencyReason.Compile -> dependency.compile
+                val includeDependency = when (dependencyReason) {
+                    // runtime only dependencies are not required to be in compile tasks graph
+                    DependencyReason.Compile -> (dependency.compile && (directDependencies || dependency.exported))
                     DependencyReason.Runtime -> dependency.runtime
                 }
-                if (targetProperty) {
-                    // TODO test with non-resolved dependency on module
+                if (includeDependency) {
                     val resolvedDependencyModule = dependency.module
-                    resolvedDependencyModule
-                } else {
-                    null
-                }
+                    listOf(resolvedDependencyModule) +
+                            resolvedDependencyModule.fragmentsModuleDependencies(
+                                isTest, platform, dependencyReason, directDependencies = false
+                            )
+                } else null
             }
 
             else -> error(
@@ -361,7 +328,7 @@ fun PotatoModule.fragmentsModuleDependencies(
                         "at module '${source}' fragment '${fragment.name}'"
             )
         }
-    }
+    }.flatten()
 
 /**
  * Returns all fragments in this module that target the given [platform].

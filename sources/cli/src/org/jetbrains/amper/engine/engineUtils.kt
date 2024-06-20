@@ -5,8 +5,9 @@
 package org.jetbrains.amper.engine
 
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.TaskResult
 
-suspend fun TaskExecutor.runTasksAndReportOnFailure(tasks: Set<TaskName>) {
+suspend fun TaskExecutor.runTasksAndReportOnFailure(tasks: Set<TaskName>): Map<TaskName, Result<TaskResult>> {
     val result = run(tasks)
     val exceptions = tasks
         .map { taskName -> result.getValue(taskName) }
@@ -16,4 +17,5 @@ suspend fun TaskExecutor.runTasksAndReportOnFailure(tasks: Set<TaskName>) {
         exceptions.drop(1).forEach { e -> firstException.addSuppressed(e) }
         throw firstException
     }
+    return result
 }

@@ -1,0 +1,10 @@
+product: jvm/app
+
+# Direct dependencies on other modules.
+# Corresponding test case checks that transitive dependencies are collected correctly
+dependencies:
+  - ../B1
+  - ../C1
+  - ../D1_exp: exported
+  - ../E1_exp: exported
+
