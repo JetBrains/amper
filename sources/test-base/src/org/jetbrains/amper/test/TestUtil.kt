@@ -173,6 +173,9 @@ object TestUtil {
     }
 
     private fun removeTestRunLeftovers(androidSdkHome: Path) {
+        if (!androidSdkHome.exists()) {
+            return
+        }
         // When running tests, some .lock files are generated in the Android home and can be left over.
         androidSdkHome.listDirectoryEntries("*.lock").forEach {
             it.deleteExisting()
