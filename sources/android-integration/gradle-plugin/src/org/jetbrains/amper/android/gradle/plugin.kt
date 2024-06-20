@@ -38,6 +38,7 @@ import javax.inject.Inject
 import javax.xml.stream.XMLEventFactory
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
+import kotlin.io.path.div
 import kotlin.io.path.isSameFileAs
 import kotlin.io.path.relativeTo
 
@@ -82,6 +83,9 @@ val PotatoModule.buildDir get() = buildFile.parent
 
 class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
+        val rootProjectBuildDir = project.rootProject.layout.buildDirectory.asFile.get().toPath()
+        val buildDir = rootProjectBuildDir / project.path.replace(":", "_")
+        project.layout.buildDirectory.set(buildDir.toFile())
         project.repositories.google()
         project.repositories.mavenCentral()
         project.gradle.projectPathToModule[project.path]?.let { module ->
