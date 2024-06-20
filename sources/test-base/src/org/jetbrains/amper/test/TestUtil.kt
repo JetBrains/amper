@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
+import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.Downloader
@@ -167,9 +168,10 @@ object TestUtil {
                     "d975f751698a77b662f1254ddbeed3901e976f5a"
                 )
 
+                val jdk = JdkDownloader.getJdk(fakeUserCacheRoot)
                 for (tool in toolsToInstall) {
                     suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
-                        installToolIfMissing(root, tool, fakeUserCacheRoot)
+                        installToolIfMissing(jdk, root, tool)
                     }
                 }
 
@@ -202,9 +204,8 @@ object TestUtil {
         }
     }
 
-    private suspend fun installToolIfMissing(home: Path, pack: String, userCacheRoot: AmperUserCacheRoot) {
-        val java = JdkDownloader.getJdk(userCacheRoot).javaExecutable
-
+    private suspend fun installToolIfMissing(jdk: Jdk, home: Path, pack: String) {
+        val java = jdk.javaExecutable
         val sdkManagerJar = home / "cmdline-tools" / "lib" / "sdkmanager-classpath.jar"
 
         val sourceProperties = home.resolve(pack.replace(';', '/')) / "source.properties"
