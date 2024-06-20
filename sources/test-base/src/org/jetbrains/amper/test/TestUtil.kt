@@ -127,10 +127,10 @@ object TestUtil {
             val fakeUserCacheRoot = AmperUserCacheRoot(sharedTestCaches)
             val fakeBuildOutputRoot = AmperBuildOutputRoot(sharedTestCaches)
 
-            val root = fakeUserCacheRoot.path / "android-sdk"
+            val androidSdkHome = fakeUserCacheRoot.path / "android-sdk"
 
             // If we leave them, the incremental state check will fail, and we'll reinstall all the tools.
-            removeTestRunLeftovers(root)
+            removeTestRunLeftovers(androidSdkHome)
 
             val commandLineTools = suspendingRetryWithExponentialBackOff {
                 Downloader.downloadFileToCacheLocation(
@@ -150,25 +150,25 @@ object TestUtil {
                 configuration,
                 inputs = emptyList()
             ) {
-                cleanDirectory(root)
+                cleanDirectory(androidSdkHome)
 
-                extractZip(commandLineTools, root / "cmdline-tools", true)
+                extractZip(commandLineTools, androidSdkHome / "cmdline-tools", true)
 
                 licensesToAccept.forEach { (name, hash) ->
-                    acceptAndroidLicense(root, name, hash)
+                    acceptAndroidLicense(androidSdkHome, name, hash)
                 }
 
                 val jdk = JdkDownloader.getJdk(fakeUserCacheRoot)
                 for (tool in toolsToInstall) {
                     suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
-                        installTool(jdk, root, tool)
+                        installTool(jdk, androidSdkHome, tool)
                     }
                 }
 
-                return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(root))
+                return@execute ExecuteOnChangedInputs.ExecutionResult(listOf(androidSdkHome))
             }.outputs.single()
 
-            return@runBlocking root
+            return@runBlocking androidSdkHome
         }
     }
 
@@ -192,8 +192,8 @@ object TestUtil {
         return cmdToolsPkgRevision
     }
 
-    private fun acceptAndroidLicense(androidHome: Path, name: String, hash: String) {
-        val licenseFile = androidHome / "licenses" / name
+    private fun acceptAndroidLicense(androidSdkHome: Path, name: String, hash: String) {
+        val licenseFile = androidSdkHome / "licenses" / name
         Files.createDirectories(licenseFile.parent)
 
         if (!licenseFile.isRegularFile() || licenseFile.readText() != hash) {
