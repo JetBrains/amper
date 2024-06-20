@@ -28,9 +28,6 @@ data class AndroidModuleData(
 
 @Serializable
 data class AndroidBuildRequest(
-    /**
-     * The root of the Amper project, which is necessary to parse a correct Amper model.
-     */
     @Serializable(with = PathAsStringSerializer::class)
     val root: Path,
     val phase: Phase,

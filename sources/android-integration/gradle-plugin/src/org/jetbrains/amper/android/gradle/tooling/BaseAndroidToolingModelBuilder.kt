@@ -26,18 +26,12 @@ abstract class BaseAndroidToolingModelBuilder: ToolingModelBuilder {
         val paths = buildList {
             while (stack.isNotEmpty()) {
                 val p = stack.removeFirst()
-                for (subproject in p.subprojects) {
-                    if (subproject !in alreadyTraversed) {
-                        stack.add(subproject)
-                        alreadyTraversed.add(subproject)
-                    }
-                }
                 if (p.path !in (request?.modules?.map { it.modulePath }?.toSet() ?: setOf())) {
                     continue
                 }
                 projectPathToModule[p.path] ?: continue
 
-                val androidExtension = p
+                val androidExtension = project
                     .extensions
                     .findByType(BaseExtension::class.java) ?: error("Android extension not found in project $project")
 
@@ -51,6 +45,13 @@ abstract class BaseAndroidToolingModelBuilder: ToolingModelBuilder {
                 val chosenVariants = variants.filter { variant -> buildTypesChosen.any { variant.name.startsWith(it) } }
 
                 chosenVariants.getArtifactsFromVariants().forEach { add(it) }
+
+                for (subproject in p.subprojects) {
+                    if (subproject !in alreadyTraversed) {
+                        stack.add(subproject)
+                        alreadyTraversed.add(subproject)
+                    }
+                }
             }
         }
         return buildResult(paths)

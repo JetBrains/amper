@@ -10,12 +10,11 @@ import org.jetbrains.amper.android.RClassAndroidBuildResult
 import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -37,31 +36,26 @@ class AndroidPrepareTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    private val projectRoot: AmperProjectRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val buildLogsRoot: AmperBuildLogsRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+        val rootPath =
+            (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
+
         val resolvedAndroidRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.runtimeClasspath }
-
-        val moduleGradlePath = module.gradlePath(projectRoot)
-        val androidModuleData = AndroidModuleData(
-            modulePath = moduleGradlePath,
-            moduleClasses = listOf(),
-            resolvedAndroidRuntimeDependencies = resolvedAndroidRuntimeDependencies.map {
-                ResolvedDependency("group", "artifact", "version", it)
-            },
-        )
+        val androidModuleData = AndroidModuleData(":", listOf(), resolvedAndroidRuntimeDependencies.map {
+            ResolvedDependency("group", "artifact", "version", it)
+        })
 
         val request = AndroidBuildRequest(
-            root = projectRoot.path,
-            phase = AndroidBuildRequest.Phase.Prepare,
-            modules = setOf(androidModuleData),
-            buildTypes = setOf(buildType.toAndroidRequestBuildType),
-            sdkDir = androidSdkPath,
-            targets = setOf(moduleGradlePath),
+            rootPath,
+            AndroidBuildRequest.Phase.Prepare,
+            setOf(androidModuleData),
+            setOf(buildType.toAndroidRequestBuildType),
+            sdkDir = androidSdkPath
         )
         val inputs = listOf((module.source as PotatoModuleFileSource).buildFile.parent.resolve("res").toAbsolutePath())
         val androidConfig = fragments.joinToString { it.settings.android.repr }

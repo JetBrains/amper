@@ -10,11 +10,11 @@ import org.jetbrains.amper.android.ApkPathAndroidBuildResult
 import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
-import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
@@ -37,33 +37,29 @@ class AndroidBuildTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    private val projectRoot: AmperProjectRoot,
     private val taskOutputPath: TaskOutputRoot,
     private val buildLogsRoot: AmperBuildLogsRoot,
     override val taskName: TaskName,
 ) : Task {
     @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
+        val rootPath =
+            (module.source as? PotatoModuleFileSource)?.buildFile?.parent ?: error("No build file ${module.source}")
+
         val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")
 
         val classes = CommonTaskUtils.getRuntimeClasses(compileTaskResult)
         val runtimeClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult)
-        val moduleGradlePath = module.gradlePath(projectRoot)
-        val androidModuleData = AndroidModuleData(
-            modulePath = moduleGradlePath,
-            moduleClasses = classes,
-            resolvedAndroidRuntimeDependencies = runtimeClasspath.map {
-                ResolvedDependency("group", "artifact", "version", it)
-            },
-        )
+        val androidModuleData = AndroidModuleData(":", classes, runtimeClasspath.map {
+            ResolvedDependency("group", "artifact", "version", it)
+        })
         val request = AndroidBuildRequest(
-            root = projectRoot.path,
-            phase = AndroidBuildRequest.Phase.Build,
-            modules = setOf(androidModuleData),
-            buildTypes = setOf(buildType.toAndroidRequestBuildType),
-            sdkDir = androidSdkPath,
-            targets = setOf(moduleGradlePath),
+            rootPath,
+            AndroidBuildRequest.Phase.Build,
+            setOf(androidModuleData),
+            setOf(buildType.toAndroidRequestBuildType),
+            sdkDir = androidSdkPath
         )
         val inputs = classes + runtimeClasspath
         val androidConfig = fragments.joinToString { it.settings.android.repr }
