@@ -18,18 +18,25 @@ import kotlin.test.assertContains
 // TODO review and merge with AmperExamples2Test
 // Runs examples-standalone under current backend
 class AmperExamples1Test: AmperCliTestBase() {
+
     @Test
-    @MacOnly
     fun `compose-multiplatform`() = runTestInfinitely {
-        // Some warnings are treated like errors.
+        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
+        // that are treated like errors.
         runCli(projectName, "build", assertEmptyStdErr = false)
-        // TODO Assert output
-        // TODO Also run ios simulator tests.
+        // Apple tests cannot run on all machines, so we don't run them in this test
         runCli(projectName, "test", "-p", "jvm", "-p", "android")
     }
 
     @Test
-    fun `compose-multiplatform_build-android`() = runTestInfinitely {
+    @MacOnly
+    fun `compose-multiplatform_apple-tests`() = runTestInfinitely {
+        // TODO run ios simulator tests.
+        // runCli(projectName, "test")
+    }
+
+    @Test
+    fun `compose-multiplatform_buildAndroidDebug`() = runTestInfinitely {
         runCli(projectName, "task", ":android-app:buildAndroidDebug") // check AMPER-529
     }
 
