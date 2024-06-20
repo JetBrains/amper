@@ -126,8 +126,8 @@ object TestUtil {
 
             val commandLineTools = suspendingRetryWithExponentialBackOff {
                 Downloader.downloadFileToCacheLocation(
-                    "https://dl.google.com/android/repository/commandlinetools-win-10406996_latest.zip",
-                    fakeUserCacheRoot,
+                    url = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
+                    userCacheRoot = fakeUserCacheRoot,
                 )
             }
 
