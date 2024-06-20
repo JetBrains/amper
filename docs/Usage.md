@@ -64,7 +64,7 @@ cd jvm
 
 See [the setup instructions](Setup.md) to configure your IDE and the environment.
 
-Open an Amper project as usual by pointing at the folder with the main `settings.gradle.kts` file:
+Open an Amper project as usual by [pointing at the root folder](https://www.jetbrains.com/guide/java/tutorials/import-project/open-project/).
 
 To run an application:
 
@@ -92,7 +92,7 @@ To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon
 ### Using Amper in Fleet
 See [the setup instructions](Setup.md) to configure your IDE and the environment.
 
-Open an Amper project as usual by pointing at the folder with the main settings.gradle.kts file:
+Open an Amper project as usual by [pointing at the root folder](https://www.jetbrains.com/help/fleet/workspace.html#-s4tcw2_13).
 
 To run an application:
 
