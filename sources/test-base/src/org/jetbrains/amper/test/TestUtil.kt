@@ -20,13 +20,11 @@ import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Properties
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -50,6 +48,7 @@ object TestUtil {
     )
 
     private val toolsToInstall = listOf(
+        "cmdline-tools;latest", // the tests download the latest anyway, so we pre-download it for our incrementality
         "platform-tools",
         "platforms;android-31",
         "platforms;android-33",
@@ -173,13 +172,7 @@ object TestUtil {
         }
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private fun removeTestRunLeftovers(androidSdkHome: Path) {
-        // The latest command line tools are installed in this directory during test runs, despite our pre-install.
-        // Even we updated to the latest command line tools in our pre-install, this incrementality issue would come
-        // back at the next release, and is subtle to notice. This is not the way to detect that we need updates.
-        (androidSdkHome / "cmdline-tools" / "latest").deleteRecursively()
-
         // When running tests, some .lock files are generated in the Android home and can be left over.
         androidSdkHome.listDirectoryEntries("*.lock").forEach {
             it.deleteExisting()
