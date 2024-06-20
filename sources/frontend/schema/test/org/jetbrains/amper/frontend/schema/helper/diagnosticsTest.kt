@@ -38,7 +38,7 @@ class DiagnosticsTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val cleared = readCtx.toPsiFile(inputFile)!!.text
 
-        doBuild(readCtx, TestProjectContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
+        doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
 
         // Collect errors.
         val errors = problemReporter.getDiagnostics(*levels)

@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.project
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.readText
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -16,6 +17,7 @@ private const val amperIgnoreFileName = ".amperignore"
 
 @Deprecated("Auto-discovery is deprecated. Use the StandaloneAmperProjectContext or GradleAmperProjectContext instead.")
 internal class LegacyAutoDiscoveringProjectContext(
+    override val frontendPathResolver: FrontendPathResolver,
     override val projectRootDir: VirtualFile,
 ) : AmperProjectContext {
 

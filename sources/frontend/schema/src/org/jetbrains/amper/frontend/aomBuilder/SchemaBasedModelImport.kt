@@ -39,36 +39,24 @@ object SchemaBasedModelImport : ModelInit {
     @UsedInIdePlugin
     override fun getModel(root: Path, project: Project?): Result<Model> {
         val pathResolver = FrontendPathResolver(project = project)
-        val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver.loadVirtualFile(root))
-        return getModel(projectContext, pathResolver)
+        val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver, pathResolver.loadVirtualFile(root))
+        return getModel(projectContext)
     }
 
     context(ProblemReporterContext)
     fun getStandaloneAmperModel(projectRootDir: Path, ijProject: Project? = null): Result<Model> {
-        val pathResolver = FrontendPathResolver(project = ijProject)
-        val projectContext = with(pathResolver) {
-            StandaloneAmperProjectContext.create(rootDir = pathResolver.loadVirtualFile(projectRootDir))
-                ?: error("Invalid project root")
-        }
-        return getModel(projectContext, pathResolver)
+        val projectContext = StandaloneAmperProjectContext.create(projectRootDir, ijProject)
+            ?: error("Invalid project root")
+        return getModel(projectContext)
     }
 
     context(ProblemReporterContext)
-    override fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model> {
-        val pathResolver = FrontendPathResolver(project = null)
-        val projectContext = GradleAmperProjectContext(
-            projectRootDir = pathResolver.loadVirtualFile(rootProjectDir),
-            subprojectDirs = subprojectDirs.map { pathResolver.loadVirtualFile(it) },
-        )
-        return getModel(projectContext, pathResolver)
-    }
+    override fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model> =
+        getModel(GradleAmperProjectContext.fromNio(rootProjectDir, subprojectDirs))
 
     context(ProblemReporterContext)
-    fun getModel(
-        projectContext: AmperProjectContext,
-        pathResolver: FrontendPathResolver = FrontendPathResolver(project = null),
-    ): Result<Model> {
-        val resultModules = doBuild(pathResolver, projectContext)
+    fun getModel(projectContext: AmperProjectContext): Result<Model> {
+        val resultModules = doBuild(projectContext)
             ?: return amperFailure()
         val model = DefaultModel(resultModules)
         AomModelDiagnosticFactories.forEach { diagnostic ->
@@ -89,9 +77,9 @@ object SchemaBasedModelImport : ModelInit {
     @UsedInIdePlugin
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
         val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
-        val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, projectRootDir)
         val pathResolver = FrontendPathResolver(project = project)
-        val resultModules = doBuild(pathResolver, projectContext)
+        val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, pathResolver, projectRootDir)
+        val resultModules = doBuild(projectContext)
             ?: return amperFailure()
         return resultModules.singleOrNull()?.asAmperSuccess()
             ?: return amperFailure()

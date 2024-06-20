@@ -37,7 +37,7 @@ open class BuildAomTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
-        val module = doBuild(readCtx, fioCtx, systemInfo)?.first()
+        val module = doBuild(fioCtx, systemInfo)?.first()
 
         // Check errors absence.
         assert(problemReporter.getDiagnostics().isEmpty()) {

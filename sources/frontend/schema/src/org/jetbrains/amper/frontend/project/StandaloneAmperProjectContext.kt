@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project as IJProject
 private val amperProjectFileNames = setOf("project.yaml", "project.amper")
 
 class StandaloneAmperProjectContext(
+    override val frontendPathResolver: FrontendPathResolver,
     override val projectRootDir: VirtualFile,
     override val amperModuleFiles: List<VirtualFile>,
 ) : AmperProjectContext {
@@ -56,13 +57,14 @@ class StandaloneAmperProjectContext(
             val frontendPathResolver = FrontendPathResolver(project)
             val result = preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start)) ?: return null
 
-            val potentialContext = with(frontendPathResolver) {
-                create(result.potentialRoot) ?: error("potentialRoot should point to a valid project root")
-            }
+            val potentialContext = create(result.potentialRoot, frontendPathResolver)
+                ?: error("potentialRoot should point to a valid project root")
+
             if (result.startModuleFile == null || result.startModuleFile in potentialContext.amperModuleFiles) {
                 return potentialContext
             }
             return StandaloneAmperProjectContext(
+                frontendPathResolver = frontendPathResolver,
                 projectRootDir = result.startModuleFile,
                 amperModuleFiles = listOf(result.startModuleFile),
             )
@@ -77,29 +79,33 @@ class StandaloneAmperProjectContext(
          * created.
          */
         context(ProblemReporterContext)
-        fun create(rootDir: Path, project: IJProject? = null): StandaloneAmperProjectContext? =
-            with(FrontendPathResolver(project = project)) {
-                create(loadVirtualFile(rootDir))
-            }
+        fun create(rootDir: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
+            val pathResolver = FrontendPathResolver(project = project)
+            return create(pathResolver.loadVirtualFile(rootDir), pathResolver)
+        }
 
         /**
          * Creates an [AmperProjectContext] for the specified [rootDir] based on the contained project or module file.
          * If there is no project file nor module file in the given directory, null is returned and the caller is
          * responsible for handling the situation (only the caller knows whether this is a valid situation).
          *
-         * The given [FrontendPathResolver] is used to resolve virtual files and PSI files.
+         * The given [frontendPathResolver] is used to resolve virtual files and PSI files.
          */
-        context(ProblemReporterContext, FrontendPathResolver)
-        fun create(rootDir: VirtualFile): StandaloneAmperProjectContext? {
+        context(ProblemReporterContext)
+        private fun create(
+            rootDir: VirtualFile,
+            frontendPathResolver: FrontendPathResolver
+        ): StandaloneAmperProjectContext? {
             val rootModuleFile = rootDir.findChildMatchingAnyOf(amperModuleFileNames)
 
-            val amperProject = parseAmperProject(rootDir)
+            val amperProject = with(frontendPathResolver) { parseAmperProject(rootDir) }
             if (rootModuleFile == null && amperProject == null) {
                 return null
             }
             val explicitProjectModuleFiles = amperProject?.modulePaths(rootDir) ?: emptyList()
 
             return StandaloneAmperProjectContext(
+                frontendPathResolver = frontendPathResolver,
                 projectRootDir = rootDir,
                 amperModuleFiles = listOfNotNull(rootModuleFile) + explicitProjectModuleFiles,
             )

@@ -73,7 +73,7 @@ class TestSystemInfo(
 open class TestProjectContext(
     override val projectRootDir: VirtualFile,
     override val amperModuleFiles: List<VirtualFile>,
-    val frontendPathResolver: FrontendPathResolver,
+    override val frontendPathResolver: FrontendPathResolver,
 ) : AmperProjectContext {
     override val amperCustomTaskFiles: List<VirtualFile> = emptyList()
     override val gradleBuildFilesWithoutAmper: List<VirtualFile> = emptyList()

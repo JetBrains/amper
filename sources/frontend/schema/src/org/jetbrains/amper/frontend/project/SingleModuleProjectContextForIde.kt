@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.project
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 
@@ -13,6 +14,7 @@ import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
  */
 internal class SingleModuleProjectContextForIde(
     moduleFile: VirtualFile,
+    override val frontendPathResolver: FrontendPathResolver,
     /**
      * The root directory of the Amper project or the IntelliJ project.
      */

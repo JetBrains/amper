@@ -75,7 +75,6 @@ private data class ModuleHolder(
  */
 context(ProblemReporterContext)
 internal fun doBuild(
-    pathResolver: FrontendPathResolver,
     projectContext: AmperProjectContext,
     systemInfo: SystemInfo = DefaultSystemInfo,
 ): List<PotatoModule>? {
@@ -83,15 +82,17 @@ internal fun doBuild(
     val path2SchemaModule = projectContext.amperModuleFiles
         .mapNotNull { moduleFile ->
             // Read initial module file.
-            val nonProcessed = with(pathResolver) {
-                with(ConvertCtx(moduleFile.parent, pathResolver)) {
+            val nonProcessed = with(projectContext.frontendPathResolver) {
+                with(ConvertCtx(moduleFile.parent, projectContext.frontendPathResolver)) {
                     // TODO Report when file is not found.
                     convertModule(moduleFile)?.readTemplatesAndMerge(projectContext)
                 }
             } ?: return@mapNotNull null
 
             // Choose catalogs.
-            val chosenCatalog = with(pathResolver) { projectContext.tryGetCatalogFor(moduleFile, nonProcessed) }
+            val chosenCatalog = with(projectContext.frontendPathResolver) {
+                projectContext.tryGetCatalogFor(moduleFile, nonProcessed)
+            }
 
             // Process module file.
             val processedModule = with(systemInfo) {
@@ -135,7 +136,7 @@ internal fun doBuild(
             return@mapNotNull null
         }
 
-        val customTask = with(ConvertCtx(moduleTriple.buildFile.parent, pathResolver)) {
+        val customTask = with(ConvertCtx(moduleTriple.buildFile.parent, projectContext.frontendPathResolver)) {
             val node = convertCustomTask(customTaskFile)
             if (node == null) {
                 problemReporter.reportMessage(BuildProblemImpl(
