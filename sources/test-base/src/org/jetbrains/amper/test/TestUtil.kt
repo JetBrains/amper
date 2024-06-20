@@ -162,7 +162,7 @@ object TestUtil {
                 val jdk = JdkDownloader.getJdk(fakeUserCacheRoot)
                 for (tool in toolsToInstall) {
                     suspendingRetryWithExponentialBackOff(backOffLimitMs = TimeUnit.MINUTES.toMillis(1)) {
-                        installToolIfMissing(jdk, root, tool)
+                        installTool(jdk, root, tool)
                     }
                 }
 
@@ -208,14 +208,9 @@ object TestUtil {
         }
     }
 
-    private suspend fun installToolIfMissing(jdk: Jdk, androidHome: Path, toolPackage: String) {
+    private suspend fun installTool(jdk: Jdk, androidHome: Path, toolPackage: String) {
         val java = jdk.javaExecutable
         val sdkManagerJar = androidHome / "cmdline-tools" / "lib" / "sdkmanager-classpath.jar"
-
-        val sourceProperties = androidHome.resolve(toolPackage.replace(';', '/')) / "source.properties"
-        if (sourceProperties.exists()) {
-            return
-        }
 
         println("Installing '$toolPackage' into '$androidHome'...")
 
@@ -238,10 +233,6 @@ object TestUtil {
             if (rc != 0) {
                 error("Android SdkManager failed with exit code $rc while executing: ${cmd.joinToString("|")}")
             }
-        }
-
-        if (!sourceProperties.exists()) {
-            error("source.properties file '$sourceProperties' is missing after installing package '$toolPackage'")
         }
     }
 }
