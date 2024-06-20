@@ -37,7 +37,7 @@ object SchemaBasedModelImport : ModelInit {
     @Suppress("DEPRECATION")
     @Deprecated("Auto-discovery is deprecated. Use getStandaloneAmperModel() or getGradleAmperModel() instead.")
     @UsedInIdePlugin
-    override fun getModel(root: Path, project: Project?): Result<Model> {
+    fun getModel(root: Path, project: Project?): Result<Model> {
         val pathResolver = FrontendPathResolver(project = project)
         val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver, pathResolver.loadVirtualFile(root))
         return getModel(projectContext)

@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend
 
-import com.intellij.openapi.project.Project
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.amperFailure
@@ -60,11 +59,6 @@ interface ModelInit {
             }
         }
 
-        context(ProblemReporterContext)
-        fun getModel(root: Path, loader: ClassLoader = Thread.currentThread().contextClassLoader): Result<Model> {
-            return load(loader).flatMap { it.getModel(root, project = null) }
-        }
-
         /**
          * Initializes an Amper model in the context of a Gradle-based project.
          *
@@ -86,9 +80,6 @@ interface ModelInit {
      * A way to distinguish different models.
      */
     val name: String
-
-    context(ProblemReporterContext)
-    fun getModel(root: Path, project: Project?): Result<Model>
 
     /**
      * Initializes an Amper model in the context of a Gradle-based project.

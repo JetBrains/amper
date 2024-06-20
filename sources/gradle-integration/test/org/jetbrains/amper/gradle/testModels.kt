@@ -53,11 +53,6 @@ object Models : ModelInit {
     override val name = "test"
 
     context(ProblemReporterContext)
-    override fun getModel(root: Path, project: Project?): Result<MockModel> {
-        return getGradleAmperModel(root, emptyList())
-    }
-
-    context(ProblemReporterContext)
     @OptIn(NonIdealDiagnostic::class)
     override fun getGradleAmperModel(
         rootProjectDir: Path,
