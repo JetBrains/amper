@@ -1,0 +1,8 @@
+product: jvm/app
+
+apply:
+  - ./setting-override-template.yaml
+
+settings:
+  compose:
+    <![Warning] Setting value is redundant. It's identical to the value inherited from setting-override-template.yaml!>enabled: true<!>

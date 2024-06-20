@@ -11,9 +11,19 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.test.Test
 
-class ComposeDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") {
+class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") {
     @Test
     fun `compose version when compose disabled`() {
         diagnosticsTest("compose-version-disabled", levels = arrayOf(Level.Warning))
+    }
+
+    @Test
+    fun `setting has default value`() {
+        diagnosticsTest("setting-has-default-value", levels = arrayOf(Level.Warning))
+    }
+
+    @Test
+    fun `setting overrides same value`() {
+        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Warning))
     }
 }
