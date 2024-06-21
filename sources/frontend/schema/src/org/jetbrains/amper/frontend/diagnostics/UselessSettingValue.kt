@@ -48,7 +48,7 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
 private class UselessSetting(
     private val settingProp: ValueBase<*>,
     private val precedingValue: ValueBase<*>?,
-) : PsiBuildProblem(Level.Warning) {
+) : PsiBuildProblem(Level.Redundancy) {
     override val element: PsiElement
         get() = settingProp.extractPsiElement()
 

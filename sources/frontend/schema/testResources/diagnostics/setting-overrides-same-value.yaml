@@ -5,4 +5,4 @@ apply:
 
 settings:
   compose:
-    <![Warning] Setting value is redundant. It's identical to the value inherited from setting-override-template.yaml!>enabled: true<!>
+    <![Redundancy] Setting value is redundant. It's identical to the value inherited from setting-override-template.yaml!>enabled: true<!>

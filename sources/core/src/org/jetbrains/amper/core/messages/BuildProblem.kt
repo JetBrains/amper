@@ -23,6 +23,12 @@ enum class Level {
      * Can finish import and build.
      */
     Warning,
+
+    /**
+     * Can finish import and build.
+     * Marks as a redundant declaration ("dead code" in the IDE, INFO level message in console)
+     */
+    Redundancy,
 }
 
 /**

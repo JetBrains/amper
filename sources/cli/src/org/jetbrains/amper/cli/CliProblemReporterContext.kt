@@ -34,6 +34,9 @@ class CliProblemReporterContext : ProblemReporterContext {
                     problemsWereReported.set(true)
                     fatalsWereReported.set(true)
                 }
+                Level.Redundancy -> {
+                    logger.info(renderMessage(message))
+                }
             }
         }
     }

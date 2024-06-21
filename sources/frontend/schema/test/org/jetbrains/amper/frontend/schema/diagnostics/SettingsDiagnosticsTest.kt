@@ -19,11 +19,11 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
 
     @Test
     fun `setting has default value`() {
-        diagnosticsTest("setting-has-default-value", levels = arrayOf(Level.Warning))
+        diagnosticsTest("setting-has-default-value", levels = arrayOf(Level.Redundancy))
     }
 
     @Test
     fun `setting overrides same value`() {
-        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Warning))
+        diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Redundancy))
     }
 }

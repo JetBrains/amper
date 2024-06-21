@@ -2,4 +2,4 @@ product: jvm/app
 
 settings:
   compose:
-    <![Warning] Setting value is redundant. It's identical to the default value!>enabled: false<!>
+    <![Redundancy] Setting value is redundant. It's identical to the default value!>enabled: false<!>

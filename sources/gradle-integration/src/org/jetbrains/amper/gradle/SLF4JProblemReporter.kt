@@ -29,6 +29,7 @@ internal class SLF4JProblemReporter(loggerClass: Class<*> = ProblemReporter::cla
             Level.Warning -> logger.warn(renderMessage(message))
             Level.Error -> logger.error(renderMessage(message))
             Level.Fatal -> logger.error(renderMessage(message))
+            Level.Redundancy -> logger.info(renderMessage(message))
         }
     }
 
