@@ -1,7 +1,7 @@
 ### Using the Gradle-based Amper version from the command line
 
 To learn how to add Amper to your existing Gradle project, 
-check the [documentation](Documentation.md#gradle-based-projects) and a [tutorial](GradleMigration.md).
+check the [documentation](Documentation.md#gradle-based-projects) and the [tutorial](GradleMigration.md).
 After adding Amper, you can use Gradle as usual.
 
 For example, to build and run the [JVM "Hello, World"](../examples-gradle/jvm) example:
@@ -16,8 +16,7 @@ See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_buildin
 
 #### Updating Gradle-based Amper to a newer version
 
-To learn which is the latest available Amper version, check the [readme](../README.md#amper) 
-or the [releases section](https://github.com/JetBrains/amper/releases) in GitHub.
+To find the latest Amper version, check the [releases section](https://github.com/JetBrains/amper/releases) in GitHub.
 
 Then, update the Amper plugin version in your `settings.gradle.kts` file: 
 
