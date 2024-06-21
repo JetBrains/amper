@@ -52,9 +52,6 @@ plugins {
 }
 
 rootProject.name = "my-project-name"
-
-// apply the plugin:
-plugins.apply("org.jetbrains.amper.settings.plugin")
 ```
 
 > After this step, the build might fail. That's OK, please proceed to the next step.

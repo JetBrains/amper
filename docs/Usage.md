@@ -1,6 +1,9 @@
 ### Using the Gradle-based Amper version from the command line
 
-In a [Gradle-based project](Documentation.md#gradle-based-projects), you can use Gradle as usual.
+To learn how to add Amper to your existing Gradle project, 
+check the [documentation](Documentation.md#gradle-based-projects) and a [tutorial](GradleMigration.md).
+After adding Amper, you can use Gradle as usual.
+
 For example, to build and run the [JVM "Hello, World"](../examples-gradle/jvm) example:
 ```
 cd jvm
@@ -10,6 +13,22 @@ See the [Gradle tutorial](https://docs.gradle.org/current/samples/sample_buildin
 
 > To use Amper with Kotlin Multiplatform (e.g. running on devices and simulators), [Fleet](#using-amper-in-fleet) is
 > recommended.
+
+#### Updating Gradle-based Amper to a newer version
+
+To learn which is the latest available Amper version, check the [readme](../README.md#amper) 
+or the [releases section](https://github.com/JetBrains/amper/releases) in GitHub.
+
+Then, update the Amper plugin version in your `settings.gradle.kts` file: 
+
+```kotlin
+// ...
+plugins {
+    // update the Amper plugin version here:
+    id("org.jetbrains.amper.settings.plugin").version("0.4.0-dev-613")
+}
+// ...
+```
 
 ### Using the standalone Amper version from the command line
 
@@ -59,6 +78,9 @@ cd jvm
 ./amper run 
 ```
 
+#### Updating standalone Amper to a newer version
+
+Use the same procedure as for [downloading Amper executables](#using-the-standalone-amper-version-from-the-command-line).
 
 ### Using Amper in IntelliJ IDEA
 
