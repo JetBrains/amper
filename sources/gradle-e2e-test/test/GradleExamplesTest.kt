@@ -4,7 +4,6 @@
 
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.io.path.walk
@@ -15,7 +14,6 @@ class GradleExamplesTest : GradleE2ETestFixture("../../examples-gradle/",
     runWithPluginClasspath = if (System.getenv("WITH_PLUGIN_CLASSPATH") != null) System.getenv("WITH_PLUGIN_CLASSPATH").toBoolean() else true  ) {
     @Test
     fun `check all example projects are tested`() {
-        @OptIn(ExperimentalPathApi::class)
         val testProjects = Path.of(pathToProjects).walk().filter {
             it.name.startsWith("settings.gradle", ignoreCase = true)
         }.map { it.parent }.sorted().toList()

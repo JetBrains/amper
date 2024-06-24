@@ -2,8 +2,6 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalPathApi::class)
-
 package org.jetbrains.amper.backend.test
 
 import com.android.ddmlib.AndroidDebugBridge
@@ -32,7 +30,6 @@ import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.div
 import kotlin.io.path.extension
 import kotlin.io.path.name

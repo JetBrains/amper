@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.opentest4j.FileInfo
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
@@ -39,7 +38,6 @@ import kotlin.test.assertTrue
  * Other tests use Amper from sources.
  * This is only test where wrappers may download the real Amper version from real location
  */
-@OptIn(ExperimentalPathApi::class)
 class AmperShellScriptsTest {
     @TempDir
     lateinit var tempDir: Path

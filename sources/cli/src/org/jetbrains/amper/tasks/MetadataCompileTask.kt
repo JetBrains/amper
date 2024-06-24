@@ -21,10 +21,10 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.friends
 import org.jetbrains.amper.frontend.refinedFragments
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -32,7 +32,6 @@ import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.extension
@@ -125,7 +124,6 @@ class MetadataCompileTask(
                     "${f.name} of this fragment ${module.userReadableName}:${fragment.name}. Actual results: " +
                     map { "${it.module.userReadableName}:${it.fragment.name}" })
 
-    @OptIn(ExperimentalPathApi::class)
     private suspend fun compileSources(
         jdk: Jdk,
         kotlinVersion: String,

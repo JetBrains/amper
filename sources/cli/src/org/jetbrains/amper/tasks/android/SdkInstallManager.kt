@@ -2,8 +2,6 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalPathApi::class)
-
 package org.jetbrains.amper.tasks.android
 
 import com.android.repository.api.ConsoleProgressIndicator
@@ -31,7 +29,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
 import javax.xml.bind.JAXBElement
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories

@@ -26,7 +26,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
@@ -347,7 +346,6 @@ options:${getExtractOptionsShortString(options)}
 """.toByteArray(StandardCharsets.UTF_8)
 }
 
-@OptIn(ExperimentalPathApi::class)
 fun cleanDirectory(directory: Path) {
     directory.createDirectories()
     directory.listDirectoryEntries().forEach {

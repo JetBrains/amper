@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -137,7 +136,6 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         expectOutputToHave = "BUILD SUCCESSFUL",
     )
 
-    @OptIn(ExperimentalPathApi::class)
     @Test
     fun `publish to maven local with custom artifact id`() {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")

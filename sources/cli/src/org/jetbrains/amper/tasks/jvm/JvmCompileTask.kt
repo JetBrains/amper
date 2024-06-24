@@ -28,18 +28,18 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
@@ -48,7 +48,6 @@ import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
@@ -173,7 +172,6 @@ class JvmCompileTask(
         )
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private suspend fun compileSources(
         jdk: Jdk,
         sourceDirectories: List<Path>,

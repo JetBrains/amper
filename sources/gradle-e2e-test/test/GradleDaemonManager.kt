@@ -12,7 +12,6 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.deleteRecursively
@@ -36,7 +35,6 @@ object GradleDaemonManager : BeforeEachCallback, AfterTestExecutionCallback {
     }
 
     // fun read: https://github.com/gradle/gradle/issues/12535
-    @OptIn(ExperimentalPathApi::class)
     private val filesOrDirectoriesToBeDeletedOnShutdown: MutableList<Path> by lazy {
         val list = Collections.synchronizedList(mutableListOf<Path>())
 

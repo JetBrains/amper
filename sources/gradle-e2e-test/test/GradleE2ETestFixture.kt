@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.CopyActionResult
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
@@ -114,7 +113,6 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         )
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private fun prepareTempDirWithProject(projectName: String, runWithPluginClasspath: Boolean): Path {
         val implementationDir = Path.of("../../sources").toAbsolutePath()
         val originalDir = Path.of("${pathToProjects}/$projectName")

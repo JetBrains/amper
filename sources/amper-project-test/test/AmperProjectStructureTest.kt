@@ -4,7 +4,6 @@ import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.visitFileTree
@@ -14,7 +13,6 @@ import kotlin.test.Test
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@OptIn(ExperimentalPathApi::class)
 class AmperProjectStructureTest {
     @Test
     fun sameVersionInEveryWrapper() {

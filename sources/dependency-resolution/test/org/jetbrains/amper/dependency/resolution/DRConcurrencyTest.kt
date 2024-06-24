@@ -14,7 +14,6 @@ import org.junit.jupiter.api.TestInfo
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.appendText
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
@@ -23,7 +22,6 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.fail
 
-@ExperimentalPathApi
 class DRConcurrencyTest : BaseDRTest() {
 
     companion object {

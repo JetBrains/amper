@@ -90,7 +90,6 @@ val KotlinSourceSet.closureSources: List<Path> get() = this.closure
     .map { it.toPath() }
     .filter { it.exists() }
 
-@OptIn(ExperimentalPathApi::class)
 internal fun findEntryPoint(
     sources: List<Path>,
     entryPointType: EntryPointType,

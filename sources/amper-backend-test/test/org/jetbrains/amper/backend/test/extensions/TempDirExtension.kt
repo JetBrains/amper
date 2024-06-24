@@ -16,13 +16,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.visitFileTree
 
-@OptIn(ExperimentalPathApi::class)
 class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
     private val pathRef = AtomicReference<Path>(null)
 

@@ -11,7 +11,6 @@ import java.util.jar.Attributes
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
@@ -89,7 +88,6 @@ private fun createManifest(config: JarConfig): Manifest = Manifest().apply {
  * Writes all files from the given [directory] (recursively) to this [JarOutputStream].
  * The path of the files within the jar is their original path relative to [directory].
  */
-@OptIn(ExperimentalPathApi::class)
 private fun JarOutputStream.writeDirContents(directory: JarInputDir, config: JarConfig) {
     directory.path.walk().sortedIf(config.reproducibleFileOrder).forEach {
         val relativePathInInputDir = it.relativeTo(directory.path)

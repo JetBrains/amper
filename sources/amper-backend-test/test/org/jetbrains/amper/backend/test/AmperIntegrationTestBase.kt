@@ -33,7 +33,6 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
@@ -125,7 +124,6 @@ abstract class AmperIntegrationTestBase {
         openTelemetryCollector.reset()
     }
 
-    @OptIn(ExperimentalPathApi::class)
     private fun Path.copyToTempRoot(): Path = (tempRoot / UUID.randomUUID().toString() / fileName.name).also { dir ->
         dir.createDirectories()
         copyToRecursively(target = dir, followLinks = true, overwrite = false)

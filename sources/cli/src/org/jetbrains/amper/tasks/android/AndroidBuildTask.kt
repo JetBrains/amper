@@ -25,7 +25,6 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -42,7 +41,6 @@ class AndroidBuildTask(
     private val buildLogsRoot: AmperBuildLogsRoot,
     override val taskName: TaskName,
 ) : Task {
-    @OptIn(ExperimentalPathApi::class)
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("Could not find a single compile task in dependencies of $taskName")

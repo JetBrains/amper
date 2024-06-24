@@ -6,7 +6,6 @@ package org.jetbrains.amper.jvm
 
 import org.jetbrains.amper.frontend.Fragment
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.PathWalkOption
 import kotlin.io.path.isDirectory
 import kotlin.io.path.name
@@ -33,7 +32,6 @@ internal fun List<Fragment>.findEffectiveJvmMainClass(): String? {
  * Finds the fist source file named `main.kt` (ignoring case), if any, and returns the corresponding fqn.
  * This is the convention defined in Amper documentation.
  */
-@OptIn(ExperimentalPathApi::class)
 private fun Fragment.findConventionalEntryPoint(): String? {
     if (!src.isDirectory()) {
         return null

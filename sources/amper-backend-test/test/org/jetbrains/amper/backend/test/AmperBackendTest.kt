@@ -1,8 +1,6 @@
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
-@file:OptIn(ExperimentalPathApi::class)
-
 package org.jetbrains.amper.backend.test
 
 import com.sun.net.httpserver.Authenticator
@@ -33,7 +31,6 @@ import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively

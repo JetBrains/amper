@@ -2,8 +2,6 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalPathApi::class)
-
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
@@ -49,7 +47,6 @@ import org.slf4j.LoggerFactory
 import org.tinylog.Level
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
@@ -253,7 +250,6 @@ private class CleanCommand : CliktCommand(name = "clean", help = "Remove project
 private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches", help = "Remove shared caches") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    @OptIn(ExperimentalPathApi::class)
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
             val root = backend.context.userCacheRoot

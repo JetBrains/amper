@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
@@ -24,7 +23,6 @@ abstract class TestBase(
         buildDir = Files.createTempDirectory(TestUtil.tempDir, "test-base")
     }
 
-    @OptIn(ExperimentalPathApi::class)
     @AfterEach
     fun afterEach() {
         buildDir.deleteRecursively()

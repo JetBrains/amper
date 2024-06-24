@@ -38,6 +38,7 @@ settings:
       - contextReceivers
     freeCompilerArgs:
       - -Xcontext-receivers
+    optIns: [ kotlin.io.path.ExperimentalPathApi ]
   junit:
     platformEnabled: true
 

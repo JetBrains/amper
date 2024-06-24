@@ -21,7 +21,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.pathString
 
@@ -88,7 +87,6 @@ object BuildPrimitives {
     }
 
     // defaults are selected for build system-stuff
-    @OptIn(ExperimentalPathApi::class)
     suspend fun copy(from: Path, to: Path, overwrite: Boolean = false, followLinks: Boolean = true) {
         // Do not change coroutine context, we want to stay in tasks pool
 

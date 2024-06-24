@@ -6,7 +6,6 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
@@ -21,7 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-@OptIn(ExperimentalPathApi::class)
 class AmperCliTest: AmperCliTestBase() {
     @Test
     fun smoke() = runTestInfinitely {
