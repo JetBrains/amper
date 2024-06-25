@@ -125,10 +125,7 @@ enum class KotlinCompilationType(val argName: String) {
 
     fun outputFilename(module: PotatoModule, platform: Platform, isTest: Boolean): String = when {
         this == LIBRARY -> "${moduleName(module, isTest)}.klib"
-        this == IOS_FRAMEWORK -> run {
-            println("FOO: ${moduleName(module, isTest)}Kotlin.framework")
-            "${moduleName(module, isTest)}Kotlin.framework"
-        }
+        this == IOS_FRAMEWORK -> "${moduleName(module, isTest)}Kotlin.framework"
         this == BINARY && platform.isDescendantOf(Platform.MINGW) -> "${moduleName(module, isTest)}.exe"
         else -> "${moduleName(module, isTest)}.kexe"
     }

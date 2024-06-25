@@ -9,7 +9,9 @@ import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 import kotlin.test.Ignore
@@ -21,7 +23,10 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     fun `kmp-lib`() = runTestInfinitely {
-        runCli(tempRoot, "build")
+        // Can't easily get rid of output associated with
+        // class 'World': expect and corresponding actual are declared in the same module, which will be prohibited in Kotlin 2.0.
+        // See https://youtrack.jetbrains.com/issue/KT-55177
+        runCli(tempRoot, "build", assertEmptyStdErr = false)
     }
 
     @Test
@@ -41,7 +46,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
     @MacOnly
     @Ignore
     fun `compose-multiplatform`() = runTestInfinitely {
-        runCli(tempRoot, "build")
+        runCli(tempRoot, "build", assertEmptyStdErr = false)
     }
 
     @Test
@@ -56,11 +61,14 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    @Ignore
     fun `compose-ios`() = runTestInfinitely {
+        // Move the module to "compose-ios" directory, since ios module name depends on amper module name.
+        val content = tempRoot.listDirectoryEntries()
+        val newRoot = tempRoot.resolve("compose-ios").createDirectories()
+        content.forEach { it.moveTo(tempRoot.resolve(it.name)) }
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
-        runCli(tempRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
+        runCli(newRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
     }
 
     @BeforeEach

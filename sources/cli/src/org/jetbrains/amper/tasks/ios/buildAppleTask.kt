@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import com.github.ajalt.mordant.terminal.Terminal
 import com.jetbrains.cidr.xcode.frameworks.buildSystem.BuildSettingNames
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.userReadableError
@@ -12,9 +11,9 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.forClosure
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
@@ -35,7 +34,6 @@ class BuildAppleTask(
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputPath: TaskOutputRoot,
-    private val terminal: Terminal,
     override val taskName: TaskName,
     override val isTest: Boolean,
 ) : BuildTask {
@@ -62,7 +60,7 @@ class BuildAppleTask(
         // TODO Add Assertion for apple platform.
         return with(FileConventions(module, taskOutputPath.path.toFile())) {
             val appPath = symRoot
-                .resolve("${buildType.variantName}-${platform.platform}")
+                .resolve("${buildType.variantName}-${platform.sdk}")
                 .resolve("${productName}.app")
 
             // TODO Add all other ios settings.
@@ -99,7 +97,7 @@ class BuildAppleTask(
                     this += "${BuildSettingNames.SYMROOT}=$symRootPathString"
                     this += "-arch"; this += platform.architecture
                     this += "-derivedDataPath"; this += derivedDataPathString
-                    this += "-sdk"; this += platform.platform
+                    this += "-sdk"; this += platform.sdk
                     this += "build"
                 }
                 spanBuilder("xcodebuild")

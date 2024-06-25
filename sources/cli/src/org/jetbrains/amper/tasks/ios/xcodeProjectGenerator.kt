@@ -113,7 +113,7 @@ fun FileConventions.doGenerateBuildableXcodeproj(
         if (frameworkDependencies.isNotEmpty()) {
             val frameworkSearchPaths = frameworkDependencies.map { it.parentFile.relativeToBase().path }
             variantSettings.mergeListSetting(
-                BuildSettingNames.FRAMEWORK_SEARCH_PATHS + "[arch=${fragment.platform.architecture}][sdk=${fragment.platform.platform}*]",
+                BuildSettingNames.FRAMEWORK_SEARCH_PATHS + "[arch=${fragment.platform.architecture}][sdk=${fragment.platform.sdk}*]",
                 frameworkSearchPaths.toList()
             )
         }
@@ -154,7 +154,7 @@ private fun FileConventions.addFrameworksStages(
     var copyFrameworksScript = "#!/bin/sh\nmkdir -p \"\$SRCROOT/${frameworksStagingPathString}\"\n"
 
     if (frameworkDependencies.isNotEmpty()) {
-        copyFrameworksScript += "if [ \"\$CONFIGURATION\" = \"${buildType.variantName}\" ] && [ \"\$ARCHS\" = \"${fragment.platform.architecture}\" ] && [ \"\$PLATFORM_NAME\" = \"${fragment.platform.platform}\" ]; then\n"
+        copyFrameworksScript += "if [ \"\$CONFIGURATION\" = \"${buildType.variantName}\" ] && [ \"\$ARCHS\" = \"${fragment.platform.architecture}\" ] && [ \"\$PLATFORM_NAME\" = \"${fragment.platform.sdk}\" ]; then\n"
         for (framework in frameworkDependencies) {
             embeddedFrameworks.add(framework.name)
             val symlinkPath = "\$SRCROOT/${frameworksStagingPathString}/${framework.name}"

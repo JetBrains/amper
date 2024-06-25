@@ -19,15 +19,14 @@ val BuildType.variantName get() = value.toLowerCase().capitalize()
 internal val Platform.architecture
     get() = when (this) {
         Platform.IOS_ARM64 -> "arm64"
-        Platform.IOS_X64 -> ""
+        Platform.IOS_X64 -> "x86_64"
         Platform.IOS_SIMULATOR_ARM64 -> "arm64"
         else -> error("Cannot determine apple architecture for $this")
     }
 
-internal val Platform.platform
+internal val Platform.sdk
     get() = when (this) {
-        Platform.IOS_ARM64 -> "iphoneos"
-        Platform.IOS_X64 -> "x86_64"
+        Platform.IOS_ARM64, Platform.IOS_X64 -> "iphoneos"
         Platform.IOS_SIMULATOR_ARM64 -> "iphonesimulator"
         else -> error("Cannot determine apple platform for $this")
     }

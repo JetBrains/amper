@@ -8,6 +8,7 @@ import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
@@ -24,6 +25,7 @@ private fun isIosApp(platform: Platform, module: PotatoModule) =
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
     onEachBuildType { module, eoci, platform, isTest, buildType ->
+        if (module.type != ProductType.IOS_APP) return@onEachBuildType
         if (!platform.isDescendantOf(Platform.IOS)) return@onEachBuildType
         if (isTest || buildType == BuildType.Release) return@onEachBuildType
 
@@ -56,7 +58,6 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 buildType = buildType,
                 executeOnChangedInputs = eoci,
                 taskOutputPath = context.getTaskOutputPath(buildTaskName),
-                terminal = context.terminal,
                 taskName = buildTaskName,
                 isTest = false,
             ),

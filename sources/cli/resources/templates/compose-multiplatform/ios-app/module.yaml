@@ -1,4 +1,6 @@
-product: ios/app
+product:
+  type: ios/app
+  platforms: [ iosSimulatorArm64 ]
 
 dependencies:
   - ../shared
