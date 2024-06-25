@@ -223,11 +223,13 @@ private suspend fun <T> doWithFileLock(
 
     tempLockFile.parent.createDirectories()
 
-    val lockFileChannel = FileChannel.open(
-        tempLockFile,
-        StandardOpenOption.WRITE,
-        StandardOpenOption.CREATE
-    )
+    val lockFileChannel = withRetryOnAccessDenied {
+        FileChannel.open(
+            tempLockFile,
+            StandardOpenOption.WRITE,
+            StandardOpenOption.CREATE
+        )
+    }
 
     return lockFileChannel.use {
         val fileLock = lockFileChannel.lockWithRetry()

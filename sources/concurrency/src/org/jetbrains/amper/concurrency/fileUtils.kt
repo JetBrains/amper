@@ -74,7 +74,7 @@ suspend fun <T> fileOperationWithRetry(
     }
 }
 
-suspend fun withRetryOnAccessDenied(block: suspend () -> Unit) = withRetry(
+suspend fun <T> withRetryOnAccessDenied(block: suspend () -> T): T = withRetry(
     retryOnException = { e ->
         when(e) {
             is java.nio.file.AccessDeniedException -> true
