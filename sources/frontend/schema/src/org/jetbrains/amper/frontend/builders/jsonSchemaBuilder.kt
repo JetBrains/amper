@@ -125,7 +125,7 @@ class JsonSchemaBuilder(
 
     private fun addProperty(prop: KProperty<*>, block: () -> String) {
         ctx.declaredProperties.compute(currentRoot.jsonDef) { _, old ->
-            old.orNew.apply { add(buildProperty(prop.name, block)) }
+            old.orNew.apply { add(buildProperty(prop, block)) }
         }
     }
 

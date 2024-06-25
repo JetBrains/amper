@@ -6,8 +6,11 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
+import org.jetbrains.amper.frontend.api.PlatformSpecific
+import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
@@ -24,12 +27,14 @@ enum class JUnitVersion(override val schemaValue: String, override val outdated:
 class Settings : SchemaNode() {
 
     @SchemaDoc("JVM platform-specific settings")
+    @PlatformSpecific(Platform.JVM)
     var jvm by value(::JvmSettings)
 
     @SchemaDoc("Kotlin language and the compiler settings")
     var kotlin by value(::KotlinSettings)
 
     @SchemaDoc("Android toolchain and platform settings")
+    @PlatformSpecific(Platform.ANDROID)
     var android by value(::AndroidSettings)
 
     @SchemaDoc("[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework." +
@@ -38,9 +43,11 @@ class Settings : SchemaNode() {
 
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
             "Read more about [testing support](#tests)")
+    @PlatformSpecific(Platform.JVM, Platform.ANDROID)
     var junit by value(JUnitVersion.JUNIT4)
 
     @SchemaDoc("iOS toolchain and platform settings")
+    @PlatformSpecific(Platform.IOS)
     var ios by value(::IosSettings)
 
     @SchemaDoc("Publishing settings")
@@ -50,6 +57,7 @@ class Settings : SchemaNode() {
     var kover by nullableValue<KoverSettings>()
 
     @SchemaDoc("Native applications settings")
+    @PlatformSpecific(Platform.NATIVE)
     var native by nullableValue<NativeSettings>()
 }
 
@@ -98,6 +106,7 @@ class IosSettings : SchemaNode() {
 
     @SchemaDoc("(Only for the library [product type](#product-types) " +
             "Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)")
+    @ProductTypeSpecific(ProductType.LIB)
     var framework by value(::IosFrameworkSettings)
 }
 

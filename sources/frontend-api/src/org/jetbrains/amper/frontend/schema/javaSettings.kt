@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
@@ -69,5 +70,6 @@ class JvmSettings : SchemaNode() {
     var release by nullableValue<JavaVersion>(JavaVersion.VERSION_17) // TODO discuss the default
 
     @SchemaDoc("(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application")
+    @ProductTypeSpecific(ProductType.JVM_APP)
     var mainClass by nullableValue<String>()
 }

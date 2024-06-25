@@ -8,7 +8,10 @@ import org.jetbrains.amper.core.forEachEndAware
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
+import org.jetbrains.amper.frontend.api.PlatformSpecific
+import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
@@ -39,13 +42,51 @@ fun buildModifierBasedCollection(
 """.trim()
 
 fun buildProperty(
-    name: String,
+    prop: KProperty<*>,
     block: () -> String,
 ) = """
-"$name": {
-  ${block().addIdentButFirst("  ")}
+"${prop.name}": {
+  ${extraData(prop)}${block().addIdentButFirst("  ")}
 }
 """.trim()
+
+private const val extraDataKey = "x-intellij-metadata"
+
+private fun extraData(prop: KProperty<*>): String {
+    val platformSpecific = prop.findAnnotation<PlatformSpecific>()
+    val productTypeSpecific = prop.findAnnotation<ProductTypeSpecific>()
+    val extraData = mutableMapOf<String, String>()
+    when {
+        platformSpecific != null && productTypeSpecific != null -> {
+            extraData[extraDataKey] = "{\"platforms\": [${
+                platformSpecific.platforms.joinToString {
+                    "\"${it.pretty}\""
+                }
+            }], \"productTypes\": [${
+                productTypeSpecific.productTypes.joinToString {
+                    "\"${it.value}\""
+                }
+            }]}"
+        }
+        platformSpecific != null -> {
+            extraData[extraDataKey] = "{\"platforms\": [${
+                platformSpecific.platforms.joinToString {
+                    "\"${it.pretty}\""
+                }
+            }]}"
+        }
+        productTypeSpecific != null -> {
+            extraData[extraDataKey] = "{\"productTypes\": [${
+                productTypeSpecific.productTypes.joinToString {
+                    "\"${it.value}\""
+                }
+            }]}"
+        }
+    }
+    return if (extraData.isNotEmpty()) {
+        extraData.entries.joinToString { "\"${it.key}\": ${it.value},\n".addIdentButFirst("  ") }
+    } else ""
+}
 
 fun buildSchemaCollection(
     uniqueElements: Boolean = true,
@@ -94,15 +135,16 @@ val KType.enumSchema
         val enumValues = enumClass.java.enumConstants
         val orderSensitive = enumClass.findAnnotation<EnumOrderSensitive>()
         val valueFilter = enumClass.findAnnotation<EnumValueFilter>()
-        val propertyToFilter = valueFilter?.let { f -> enumClass.memberProperties.firstOrNull { it.name == f.filterPropertyName } }
+        val propertyToFilter =
+            valueFilter?.let { f -> enumClass.memberProperties.firstOrNull { it.name == f.filterPropertyName } }
         enumValues
             .toList()
-            .run { if (orderSensitive?.reverse == true) asReversed() else this  }
+            .run { if (orderSensitive?.reverse == true) asReversed() else this }
             .filter { it !is SchemaEnum || !it.outdated }
             .filter {
                 propertyToFilter == null ||
-                !valueFilter.isNegated && propertyToFilter.getter.call(it) != false ||
-                valueFilter.isNegated && propertyToFilter.getter.call(it) != true
+                        !valueFilter.isNegated && propertyToFilter.getter.call(it) != false ||
+                        valueFilter.isNegated && propertyToFilter.getter.call(it) != true
             }
             .forEachEndAware<Any> { isEnd, it ->
                 append("\"${(it as? SchemaEnum)?.schemaValue ?: it}\"")

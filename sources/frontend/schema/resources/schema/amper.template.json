@@ -278,18 +278,22 @@
       "type": "object",
       "properties": {
         "android": {
+          "x-intellij-metadata": {"platforms": ["android"]},
           "$ref": "#/$defs/AndroidSettings"
         },
         "compose": {
           "$ref": "#/$defs/ComposeSettings"
         },
         "ios": {
+          "x-intellij-metadata": {"platforms": ["ios"]},
           "$ref": "#/$defs/IosSettings"
         },
         "junit": {
+          "x-intellij-metadata": {"platforms": ["jvm", "android"]},
           "enum": ["junit-4","junit-5","none"]
         },
         "jvm": {
+          "x-intellij-metadata": {"platforms": ["jvm"]},
           "$ref": "#/$defs/JvmSettings"
         },
         "kotlin": {
@@ -299,6 +303,7 @@
           "$ref": "#/$defs/KoverSettings"
         },
         "native": {
+          "x-intellij-metadata": {"platforms": ["native"]},
           "$ref": "#/$defs/NativeSettings"
         },
         "publishing": {
@@ -360,6 +365,7 @@
       "type": "object",
       "properties": {
         "framework": {
+          "x-intellij-metadata": {"productTypes": ["lib"]},
           "$ref": "#/$defs/IosFrameworkSettings"
         },
         "teamId": {
@@ -384,6 +390,7 @@
       "type": "object",
       "properties": {
         "mainClass": {
+          "x-intellij-metadata": {"productTypes": ["jvm/app"]},
           "type": "string"
         },
         "release": {
@@ -404,6 +411,7 @@
           "x-intellij-enum-order-sensitive": true
         },
         "debug": {
+          "x-intellij-metadata": {"platforms": ["native"]},
           "type": "boolean"
         },
         "freeCompilerArgs": {

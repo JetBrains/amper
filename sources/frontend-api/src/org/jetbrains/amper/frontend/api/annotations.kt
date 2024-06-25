@@ -4,6 +4,9 @@
 
 package org.jetbrains.amper.frontend.api
 
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.schema.ProductType
+
 /**
  * An annotation to specify documentation bundle entry.
  */
@@ -70,4 +73,24 @@ annotation class EnumOrderSensitive(
 annotation class EnumValueFilter(
     val filterPropertyName: String,
     val isNegated: Boolean = false
+)
+
+/**
+ * This annotation can be used for properties to mark them as platform-specific
+ * [platforms] The list of platforms, treated as an OR list
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PlatformSpecific(
+    vararg val platforms: Platform
+)
+
+/**
+ * This annotation can be used for properties to mark them as product type-specific
+ * [productTypes] The list of product types, treated as an OR list
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ProductTypeSpecific(
+    vararg val productTypes: ProductType
 )

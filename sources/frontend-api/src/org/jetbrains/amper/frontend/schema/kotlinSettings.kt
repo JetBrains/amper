@@ -5,8 +5,10 @@
 package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
+import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 
@@ -55,6 +57,7 @@ class KotlinSettings : SchemaNode() {
     var linkerOpts by nullableValue<List<String>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information")
+    @PlatformSpecific(Platform.NATIVE)
     var debug by value(true)
 
     @SchemaDoc("Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)")
