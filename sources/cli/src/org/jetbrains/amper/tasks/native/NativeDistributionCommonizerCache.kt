@@ -7,8 +7,8 @@
 package org.jetbrains.amper.tasks.native
 
 import org.jetbrains.amper.compilation.KotlinNativeCompiler
+import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.ObjectInputStream
 import java.io.Serializable
 import kotlin.io.path.createFile
 import kotlin.io.path.isDirectory
@@ -18,10 +18,7 @@ import kotlin.io.path.isDirectory
 // to preserve commonizer caching logic (with additional changes).
 // Yet it is not an ideal solution, but adding dependency on a related kotlin library is more support consuming.
 // See: [NativeDistributionCommonizerLock], [CommonizeNativeDistributionTask]
-class NativeDistributionCommonizerCache(
-    private val konan: KotlinNativeCompiler,
-    private val isCachingEnabled: Boolean,
-) : Serializable {
+class NativeDistributionCommonizerCache(private val konan: KotlinNativeCompiler) : Serializable {
 
     private val commonizedDir by lazy { konan.commonizedPath.toFile() }
 
@@ -49,11 +46,6 @@ class NativeDistributionCommonizerCache(
         lock.checkLocked(commonizedDir)
         logInfo("Calculating cache state for $outputTargets")
 
-        if (!isCachingEnabled) {
-            logInfo("Cache disabled")
-            return outputTargets
-        }
-
         val cachedOutputTargets = outputTargets
             .filter { outputTarget -> isCached(konan.commonizedPath.resolve(outputTarget).toFile()) }
             .onEach { outputTarget -> logInfo("Cache hit: $outputTarget already commonized") }
@@ -80,16 +72,13 @@ class NativeDistributionCommonizerCache(
 
     /**
      * Re-entrant lock implementation capable of locking a given output directory
-     * even between multiple process (Gradle Daemons)
+     * even between multiple processes.
      */
     @Transient
     private var lock = NativeDistributionCommonizerLock(commonizedDir, ::logInfo)
 
-    // TODO Add logger
-    private fun logInfo(message: String) = Unit
+    private fun logInfo(message: String) = logger.info(message)
 
-    private fun readObject(input: ObjectInputStream) {
-        input.defaultReadObject()
-        lock = NativeDistributionCommonizerLock(commonizedDir, ::logInfo)
-    }
+    private val logger = LoggerFactory.getLogger(javaClass)
+
 }

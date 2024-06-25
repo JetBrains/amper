@@ -58,8 +58,9 @@ class CommonizeNativeDistributionTask(
             it.joinToString(prefix = "(", separator = ",", postfix = ")") { it.name.lowercase() }
         }.toSet()
 
+        // TODO Maybe this should be separated into something more than a suspend function.
         val compiler = downloadNativeCompiler(kotlinVersion, userCacheRoot)
-        val cache = NativeDistributionCommonizerCache(compiler, true)
+        val cache = NativeDistributionCommonizerCache(compiler)
         val commonizerClasspath = kotlinDownloader.downloadKotlinCommonizerEmbeddable(kotlinVersion)
         // TODO Settings.
         val jdk = JdkDownloader.getJdk(userCacheRoot)
