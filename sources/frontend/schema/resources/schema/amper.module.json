@@ -55,6 +55,8 @@
       },
       "properties": {
         "aliases": {
+          "x-intellij-html-description": "Defines the names for the custom code sharing groups. [Read more](#aliases)",
+          "title": "Defines the names for the custom code sharing groups",
           "type": "array",
           "items": {
             "patternProperties": {
@@ -70,6 +72,8 @@
           }
         },
         "apply": {
+          "x-intellij-html-description": "Lists the templates applied to the module. [Read more](#templates)",
+          "title": "Lists the templates applied to the module",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -77,12 +81,18 @@
           }
         },
         "module": {
+          "x-intellij-html-description": "Configures various aspects of the module, such as file layout",
+          "title": "Configures various aspects of the module, such as file layout",
           "$ref": "#/$defs/Meta"
         },
         "product": {
+          "x-intellij-html-description": "Defines what should be produced out of the module. Read more about the [product types](#product-types)",
+          "title": "Defines what should be produced out of the module. Read more about the product types",
           "$ref": "#/$defs/ModuleProduct"
         },
         "dependencies": {
+          "x-intellij-html-description": "The list of modules and libraries necessary to build the Module. [Read more](#dependencies)",
+          "title": "The list of modules and libraries necessary to build the Module",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -100,6 +110,8 @@
           }
         },
         "repositories": {
+          "x-intellij-html-description": "The list of repositories used to look up and download the Module dependencies. [Read more](#managing-maven-repositories)",
+          "title": "The list of repositories used to look up and download the Module dependencies",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -107,9 +119,13 @@
           }
         },
         "settings": {
+          "x-intellij-html-description": "Configures the toolchains used in the build process. [Read more](#settings)",
+          "title": "Configures the toolchains used in the build process",
           "$ref": "#/$defs/Settings"
         },
         "tasks": {
+          "x-intellij-html-description": "Tasks settings. Experimental and will be replaced",
+          "title": "Tasks settings. Experimental and will be replaced",
           "type": "array",
           "items": {
             "patternProperties": {
@@ -120,6 +136,8 @@
           }
         },
         "test-dependencies": {
+          "x-intellij-html-description": "The dependencies necessary to build and run tests of the Module. [Read more](#dependencies)",
+          "title": "The dependencies necessary to build and run tests of the Module",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -137,6 +155,8 @@
           }
         },
         "test-settings": {
+          "x-intellij-html-description": "Configures the toolchains used in the build process of the module's tests. [Read more](#settings)",
+          "title": "Configures the toolchains used in the build process of the module's tests",
           "$ref": "#/$defs/Settings"
         }
       },
@@ -146,6 +166,8 @@
       "type": "object",
       "properties": {
         "layout": {
+          "x-intellij-html-description": "File layout of the module. [Read more](#file-layout-with-gradle-interop)",
+          "title": "File layout of the module",
           "enum": ["gradle-kmp","gradle-jvm","default"]
         }
       },
@@ -157,6 +179,8 @@
           "type": "object",
           "properties": {
             "platforms": {
+              "x-intellij-html-description": "What platforms to generate the product for",
+              "title": "What platforms to generate the product for",
               "type": "array",
               "uniqueItems": true,
               "items": {
@@ -164,6 +188,8 @@
               }
             },
             "type": {
+              "x-intellij-html-description": "What type of product to generate",
+              "title": "What type of product to generate",
               "enum": ["lib","jvm/app","android/app","ios/app","macos/app","linux/app","windows/app"],
               "x-intellij-enum-order-sensitive": true
             }
@@ -299,18 +325,28 @@
           "type": "object",
           "properties": {
             "credentials": {
+              "x-intellij-html-description": "Credentials for the authenticated repositories",
+              "title": "Credentials for the authenticated repositories",
               "$ref": "#/$defs/Credentials"
             },
             "id": {
+              "x-intellij-html-description": "The ID of the repository, used for to reference it. Defaults to the repository url",
+              "title": "The ID of the repository, used for to reference it. Defaults to the repository url",
               "type": "string"
             },
             "publish": {
+              "x-intellij-html-description": "Whether this repository can be used to publish artifacts",
+              "title": "Whether this repository can be used to publish artifacts",
               "type": "boolean"
             },
             "resolve": {
+              "x-intellij-html-description": "Whether this repository can be used to resolve artifacts",
+              "title": "Whether this repository can be used to resolve artifacts",
               "type": "boolean"
             },
             "url": {
+              "x-intellij-html-description": "The url of the repository",
+              "title": "The url of the repository",
               "type": "string"
             }
           },
@@ -325,12 +361,18 @@
       "type": "object",
       "properties": {
         "file": {
+          "x-intellij-html-description": "A relative path to a file with the credentials. Currently, only `*.property` files are supported",
+          "title": "A relative path to a file with the credentials. Currently, only `*.property` files are supported",
           "type": "string"
         },
         "passwordKey": {
+          "x-intellij-html-description": "A key in the file that holds the password",
+          "title": "A key in the file that holds the password",
           "type": "string"
         },
         "usernameKey": {
+          "x-intellij-html-description": "A key in the file that holds the username",
+          "title": "A key in the file that holds the username",
           "type": "string"
         }
       },
@@ -340,35 +382,53 @@
       "type": "object",
       "properties": {
         "android": {
+          "x-intellij-html-description": "Android toolchain and platform settings",
+          "title": "Android toolchain and platform settings",
           "x-intellij-metadata": {"platforms": ["android"]},
           "$ref": "#/$defs/AndroidSettings"
         },
         "compose": {
+          "x-intellij-html-description": "[Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) framework.Read more about [Compose configuration](#configuring-compose-multiplatform)",
+          "title": "Compose Multiplatform framework",
           "$ref": "#/$defs/ComposeSettings"
         },
         "ios": {
+          "x-intellij-html-description": "iOS toolchain and platform settings",
+          "title": "iOS toolchain and platform settings",
           "x-intellij-metadata": {"platforms": ["ios"]},
           "$ref": "#/$defs/IosSettings"
         },
         "junit": {
+          "x-intellij-html-description": "JUnit test runner on the JVM and Android platforms. Read more about [testing support](#tests)",
+          "title": "JUnit test runner on the JVM and Android platforms",
           "x-intellij-metadata": {"platforms": ["jvm", "android"]},
           "enum": ["junit-4","junit-5","none"]
         },
         "jvm": {
+          "x-intellij-html-description": "JVM platform-specific settings",
+          "title": "JVM platform-specific settings",
           "x-intellij-metadata": {"platforms": ["jvm"]},
           "$ref": "#/$defs/JvmSettings"
         },
         "kotlin": {
+          "x-intellij-html-description": "Kotlin language and the compiler settings",
+          "title": "Kotlin language and the compiler settings",
           "$ref": "#/$defs/KotlinSettings"
         },
         "kover": {
+          "x-intellij-html-description": "Kover settings for code coverage. Read more [about Kover](https://kotlin.github.io/kotlinx-kover/gradle-plugin/)",
+          "title": "Kover settings for code coverage. Read more about Kover",
           "$ref": "#/$defs/KoverSettings"
         },
         "native": {
+          "x-intellij-html-description": "Native applications settings",
+          "title": "Native applications settings",
           "x-intellij-metadata": {"platforms": ["native"]},
           "$ref": "#/$defs/NativeSettings"
         },
         "publishing": {
+          "x-intellij-html-description": "Publishing settings",
+          "title": "Publishing settings",
           "$ref": "#/$defs/PublishingSettings"
         }
       },
@@ -378,24 +438,36 @@
       "type": "object",
       "properties": {
         "applicationId": {
+          "x-intellij-html-description": "The ID for the application on a device and in the Google Play Store. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)",
+          "title": "The ID for the application on a device and in the Google Play Store",
           "type": "string"
         },
         "compileSdk": {
+          "x-intellij-html-description": "The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())",
+          "title": "The API level to compile the code. The code can use only the Android APIs up to that API level. )",
           "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "maxSdk": {
+          "x-intellij-html-description": "Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
+          "title": "Maximum API level on which the application can run",
           "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "minSdk": {
+          "x-intellij-html-description": "Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
+          "title": "Minimum API level needed to run the application",
           "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "namespace": {
+          "x-intellij-html-description": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)",
+          "title": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes",
           "type": "string"
         },
         "targetSdk": {
+          "x-intellij-html-description": "The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
+          "title": "The target API level for the application",
           "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         }
@@ -408,9 +480,13 @@
           "type": "object",
           "properties": {
             "enabled": {
+              "x-intellij-html-description": "Enable Compose runtime, dependencies and the compiler plugins",
+              "title": "Enable Compose runtime, dependencies and the compiler plugins",
               "type": "boolean"
             },
             "version": {
+              "x-intellij-html-description": "The Compose plugin version",
+              "title": "The Compose plugin version",
               "type": "string"
             }
           },
@@ -427,10 +503,14 @@
       "type": "object",
       "properties": {
         "framework": {
+          "x-intellij-html-description": "(Only for the library [product type](#product-types) Configure the generated framework to [share the common code with an Xcode project](https://kotlinlang.org/docs/multiplatform-mobile-understand-project-structure.html#ios-framework)",
+          "title": "Configure the generated framework to share the common code with an Xcode project",
           "x-intellij-metadata": {"productTypes": ["lib"]},
           "$ref": "#/$defs/IosFrameworkSettings"
         },
         "teamId": {
+          "x-intellij-html-description": "A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read [how to locate your team ID in Xcode](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), or use [KDoctor tool](https://github.com/Kotlin/kdoctor) (`kdoctor --team-ids`)",
+          "title": "A Team ID is a unique string assigned to your team by Apple.<br>It's necessary if you want to run/test on a Apple device.<br>Read how to locate your team ID in Xcode, or use KDoctor tool",
           "type": "string"
         }
       },
@@ -440,9 +520,13 @@
       "type": "object",
       "properties": {
         "basename": {
+          "x-intellij-html-description": "The name of the generated framework",
+          "title": "The name of the generated framework",
           "type": "string"
         },
         "isStatic": {
+          "x-intellij-html-description": "Whether to create a dynamically linked or statically linked framework",
+          "title": "Whether to create a dynamically linked or statically linked framework",
           "type": "boolean"
         }
       },
@@ -452,10 +536,14 @@
       "type": "object",
       "properties": {
         "mainClass": {
+          "x-intellij-html-description": "(Only for `jvm/app` [product type](#product-types)). The fully-qualified name of the class used to run the application",
+          "title": "The fully-qualified name of the class used to run the application",
           "x-intellij-metadata": {"productTypes": ["jvm/app"]},
           "type": "string"
         },
         "release": {
+          "x-intellij-html-description": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used.",
+          "title": "The minimum JVM release version that the code should be compatible with. This enforces compatibility on 3 levels. First, it is used as the target version for the bytecode generated from Kotlin and Java sources. Second, it limits the Java platform APIs available to Kotlin and Java sources. Third, it limits the Java language constructs in Java sources. If this is set to null, these constraints are not applied and the compiler defaults are used",
           "enum": ["25","24","23","22","21","17","11","8"],
           "x-intellij-enum-order-sensitive": true
         }
@@ -466,17 +554,25 @@
       "type": "object",
       "properties": {
         "allWarningsAsErrors": {
+          "x-intellij-html-description": "Turn any warnings into a compilation error",
+          "title": "Turn any warnings into a compilation error",
           "type": "boolean"
         },
         "apiVersion": {
+          "x-intellij-html-description": "Allow using declarations only from the specified version of Kotlin bundled libraries",
+          "title": "Allow using declarations only from the specified version of Kotlin bundled libraries",
           "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
           "x-intellij-enum-order-sensitive": true
         },
         "debug": {
+          "x-intellij-html-description": "(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information",
+          "title": "Enable emitting debug information",
           "x-intellij-metadata": {"platforms": ["native"]},
           "type": "boolean"
         },
         "freeCompilerArgs": {
+          "x-intellij-html-description": "Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly",
+          "title": "Pass any compiler option directly",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -491,6 +587,8 @@
           }
         },
         "languageVersion": {
+          "x-intellij-html-description": "Source compatibility with the specified version of Kotlin",
+          "title": "Source compatibility with the specified version of Kotlin",
           "enum": ["2.0","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"],
           "x-intellij-enum-order-sensitive": true
         },
@@ -502,6 +600,8 @@
           }
         },
         "optIns": {
+          "x-intellij-html-description": "Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name",
+          "title": "Usages of API that requires opt-in with a requirement annotation with the given fully qualified name",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -509,15 +609,23 @@
           }
         },
         "progressiveMode": {
+          "x-intellij-html-description": "Enable the [progressive mode for the compiler](https://kotlinlang.org/docs/compiler-reference.html#progressive)",
+          "title": "Enable the progressive mode for the compiler",
           "type": "boolean"
         },
         "serialization": {
+          "x-intellij-html-description": "Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)",
+          "title": "Configure the Kotlin serialization",
           "$ref": "#/$defs/SerializationSettings"
         },
         "suppressWarnings": {
+          "x-intellij-html-description": "Suppress the compiler from displaying warnings during compilation",
+          "title": "Suppress the compiler from displaying warnings during compilation",
           "type": "boolean"
         },
         "verbose": {
+          "x-intellij-html-description": "Enable verbose logging output which includes details of the compilation process",
+          "title": "Enable verbose logging output which includes details of the compilation process",
           "type": "boolean"
         }
       },
@@ -529,6 +637,8 @@
           "type": "object",
           "properties": {
             "format": {
+              "x-intellij-html-description": "Kotlin Serialization format",
+              "title": "Kotlin Serialization format",
               "type": "string"
             }
           },
@@ -548,6 +658,8 @@
           "type": "object",
           "properties": {
             "enabled": {
+              "x-intellij-html-description": "Enable code overage with Kover",
+              "title": "Enable code overage with Kover",
               "type": "boolean"
             },
             "html": {
@@ -600,6 +712,8 @@
       "type": "object",
       "properties": {
         "entryPoint": {
+          "x-intellij-html-description": "The fully-qualified name of the application's entry point function",
+          "title": "The fully-qualified name of the application's entry point function",
           "type": "string"
         }
       },
@@ -609,12 +723,18 @@
       "type": "object",
       "properties": {
         "group": {
+          "x-intellij-html-description": "Group ID of the published Maven artifact",
+          "title": "Group ID of the published Maven artifact",
           "type": "string"
         },
         "name": {
+          "x-intellij-html-description": "Artifact ID of the published Maven artifact",
+          "title": "Artifact ID of the published Maven artifact",
           "type": "string"
         },
         "version": {
+          "x-intellij-html-description": "Version of the published Maven artifact",
+          "title": "Version of the published Maven artifact",
           "type": "string"
         }
       },
@@ -624,6 +744,8 @@
       "type": "object",
       "properties": {
         "dependsOn": {
+          "x-intellij-html-description": "Adds to task dependencies",
+          "title": "Adds to task dependencies",
           "type": "array",
           "uniqueItems": true,
           "items": {

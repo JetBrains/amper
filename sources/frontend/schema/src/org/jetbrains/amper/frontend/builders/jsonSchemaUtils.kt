@@ -10,6 +10,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.EnumValueFilter
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
+import org.jetbrains.amper.frontend.api.SchemaDoc
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -53,9 +54,14 @@ fun buildProperty(
 private const val extraDataKey = "x-intellij-metadata"
 
 private fun extraData(prop: KProperty<*>): String {
+    val extraData = mutableMapOf<String, String>()
+    val documentation = prop.findAnnotation<SchemaDoc>()?.doc
+    if (!documentation.isNullOrBlank()) {
+        extraData["x-intellij-html-description"] = "\"$documentation\""
+        extraData["title"] = "\"${turnDocIntoShortForm(documentation)}\""
+    }
     val platformSpecific = prop.findAnnotation<PlatformSpecific>()
     val productTypeSpecific = prop.findAnnotation<ProductTypeSpecific>()
-    val extraData = mutableMapOf<String, String>()
     when {
         platformSpecific != null && productTypeSpecific != null -> {
             extraData[extraDataKey] = "{\"platforms\": [${
@@ -84,9 +90,17 @@ private fun extraData(prop: KProperty<*>): String {
         }
     }
     return if (extraData.isNotEmpty()) {
-        extraData.entries.joinToString { "\"${it.key}\": ${it.value},\n".addIdentButFirst("  ") }
+        extraData.entries.joinToString("") { "\"${it.key}\": ${it.value},\n".addIdentButFirst("  ") }
     } else ""
 }
+
+private fun turnDocIntoShortForm(documentation: String) = documentation.replace("[Read more]", "").replace(
+    Regex("\\([^)]*\\)"), ""
+).replace(
+    Regex("Read more about \\[([^]]*)]"), ""
+).replace(
+    Regex("\\[([^]]*)]"), { r -> r.groupValues.getOrNull(1) ?: "" }
+).trim().trimStart(')').trimStart('.').trimEnd('.').trim()
 
 fun buildSchemaCollection(
     uniqueElements: Boolean = true,
