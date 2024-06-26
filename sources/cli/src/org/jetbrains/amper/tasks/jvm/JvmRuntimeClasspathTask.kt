@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.jvm
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.CommonTaskUtils
+import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
 import java.nio.file.Path
 
@@ -20,7 +20,7 @@ class JvmRuntimeClasspathTask(
         val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
             ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
 
-        val classpath = CommonTaskUtils.buildRuntimeClasspath(compileTask)
+        val classpath = buildRuntimeClasspath(compileTask)
 
         return Result(
             jvmRuntimeClasspath = classpath,
@@ -28,6 +28,34 @@ class JvmRuntimeClasspathTask(
             isTest = isTest,
             dependencies = dependenciesResult,
         )
+    }
+
+    // TODO this not how classpath should be built, it does not preserve order
+    //  also will fail on conflicting dependencies
+    //  also it depends on task hierarchy, which could be different from classpath
+    //  but for demo it's fine
+    //  I suggest to return to this task after our own dependency resolution engine
+    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result): List<Path> {
+        val result = mutableListOf<Path>()
+        buildRuntimeClasspath(compileTaskResult, result)
+        return result
+    }
+
+    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result, result: MutableList<Path>) {
+        val externalClasspath =
+            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.Result>()
+                .flatMap { it.runtimeClasspath }
+        for (path in externalClasspath) {
+            if (!result.contains(path)) {
+                result.add(path)
+            }
+        }
+
+        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.Result>()) {
+            buildRuntimeClasspath(depCompileResult, result)
+        }
+
+        result.add(compileTaskResult.classesOutputRoot)
     }
 
     class Result(

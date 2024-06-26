@@ -17,9 +17,7 @@ import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.Disabled
@@ -984,13 +982,13 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         )
 
         // 2. Check runtime classpath composed after compilation tasks finished
-        val compilationResult = AmperBackend(projectContext)
-            .runTask(TaskName(":app:compileJvm"))
-            ?.getOrNull() as? JvmCompileTask.Result
+        val runtimeClasspathResult = AmperBackend(projectContext)
+            .runTask(TaskName(":app:runtimeClasspathJvm"))
+            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
 
-        assertNotNull(compilationResult, "unexpected result absence for :app:compileJvm")
+        assertNotNull(runtimeClasspathResult, "unexpected result absence for :app:runtimeClasspathJvm")
 
-        val runtimeClassPath = CommonTaskUtils.buildRuntimeClasspath(compilationResult)
+        val runtimeClassPath = runtimeClasspathResult.jvmRuntimeClasspath
 
         val expectedRuntimeClasspath = setOf(
             // dependencies of B1 (app -> B1)
