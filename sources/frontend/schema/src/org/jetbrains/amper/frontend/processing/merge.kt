@@ -208,6 +208,8 @@ fun <T : Any, V> MergeCtx<T>.mergeNodeProperty(
     val overwriteValue = overwriteProp?.withoutDefault
     when {
         baseValue != null && overwriteValue != null -> targetProp(baseValue.doMerge(overwriteValue))
+            .withTraceFrom(if (overwriteProp.withoutDefault != null) overwriteProp else baseProp,
+                overwriteProp.takeIf { it.withoutDefault != null })
         baseValue != null && overwriteValue == null -> targetProp(baseValue).withTraceFrom(baseProp)
         baseValue == null && overwriteValue != null -> targetProp(overwriteValue).withTraceFrom(overwriteProp)
         else -> Unit
