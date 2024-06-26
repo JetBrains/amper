@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms:
+    - jvm
+
+repositories:
+  - id: mavenLocal
+    url: mavenLocal
+    resolve: false
+    publish: true
+
+settings:
+  publishing:
+    group: amper.test
+    version: 1.0-FANCY

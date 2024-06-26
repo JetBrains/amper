@@ -12,8 +12,13 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import java.util.zip.ZipFile
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.readText
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
@@ -60,5 +65,25 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
         assertHavingFileByPrefix("generate-dist-jvm.jar")
         assertHavingFileByPrefix("kotlin-stdlib-")
         assertHavingFileByPrefix("kotlinx-datetime-jvm-")
+    }
+
+    @Test
+    fun `generate artifact for publishing`() = runTestInfinitely {
+        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val groupDir = m2repository.resolve("amper").resolve("test")
+        groupDir.deleteRecursively()
+
+        val projectContext = setupTestDataProject("generate-artifact-for-publishing", backgroundScope = backgroundScope)
+        AmperBackend(projectContext).runTask(TaskName(":generate-artifact-for-publishing:publishJvmToMavenLocal"))
+
+        val dir = groupDir.resolve("cli/1.0-FANCY")
+        assertEquals("DIST ZIP", dir.resolve("cli-1.0-FANCY-dist.zip").readText())
+
+        // pom is not expected to be generated
+        assertFalse(dir.resolve("cli-1.0-FANCY-dist.pom").exists())
+        assertFalse(dir.resolve("cli-1.0-FANCY.pom").exists())
+
+        // cleanup
+        groupDir.deleteRecursively()
     }
 }

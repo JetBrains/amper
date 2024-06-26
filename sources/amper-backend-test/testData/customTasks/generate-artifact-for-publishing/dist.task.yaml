@@ -1,0 +1,11 @@
+type: jvm/external-task
+
+module: buildscript
+programArguments:
+  - ${outputDirectory}
+
+publishArtifact:
+  - path: dist.zip
+    artifactId: cli
+    classifier: dist
+    extension: zip
