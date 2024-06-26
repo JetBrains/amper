@@ -15,10 +15,9 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.CommonTaskUtils
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
@@ -42,15 +41,14 @@ class AndroidBuildTask(
     override val taskName: TaskName,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val compileTaskResult = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
-            ?: error("Could not find a single compile task in dependencies of $taskName")
+        val runtimeClasspathTaskResult = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
+            ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies of $taskName")
+        val runtimeClasspath = runtimeClasspathTaskResult.jvmRuntimeClasspath
 
-        val classes = CommonTaskUtils.getRuntimeClasses(compileTaskResult)
-        val runtimeClasspath = CommonTaskUtils.buildRuntimeClasspath(compileTaskResult)
         val moduleGradlePath = module.gradlePath(projectRoot)
         val androidModuleData = AndroidModuleData(
             modulePath = moduleGradlePath,
-            moduleClasses = classes,
+            moduleClasses = listOf(),
             resolvedAndroidRuntimeDependencies = runtimeClasspath.map {
                 ResolvedDependency("group", "artifact", "version", it)
             },
@@ -63,10 +61,9 @@ class AndroidBuildTask(
             sdkDir = androidSdkPath,
             targets = setOf(moduleGradlePath),
         )
-        val inputs = classes + runtimeClasspath
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
-        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
+        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath) {
             val logFileName = UUID.randomUUID()
             val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stdout"
             val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stderr"

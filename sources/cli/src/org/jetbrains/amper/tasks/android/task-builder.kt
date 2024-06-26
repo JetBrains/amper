@@ -323,8 +323,7 @@ private fun TaskGraphBuilder.setupAndroidBuildTasks(
             buildAndroidTaskName,
         ),
         listOf(
-            CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
+            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
         )
     )
 }
