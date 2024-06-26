@@ -4,8 +4,8 @@
 
 package org.jetbrains.amper.tasks.jvm
 
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
 import org.jetbrains.amper.jar.JarInputDir
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
@@ -23,6 +23,7 @@ import kotlin.io.path.div
 class JvmClassesJarTask(
     override val taskName: TaskName,
     private val module: PotatoModule,
+    private val isTest: Boolean,
     private val taskOutputRoot: TaskOutputRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : AbstractJarTask(taskName, executeOnChangedInputs) {
@@ -36,7 +37,10 @@ class JvmClassesJarTask(
     }
 
     // TODO add version here?
-    override fun outputJarPath(): Path = taskOutputRoot.path / "${module.userReadableName}-jvm.jar"
+    override fun outputJarPath(): Path {
+        val testSuffix = if (isTest) "-test" else ""
+        return taskOutputRoot.path / "${module.userReadableName}$testSuffix-jvm.jar"
+    }
 
     override fun jarConfig(): JarConfig = JarConfig(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null

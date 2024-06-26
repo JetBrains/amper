@@ -1026,29 +1026,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             runtimeClassPath
                 // Filter out predefined Amper libraries
                 .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
-                // filtering out module source dependencies
-                .filterNot { it.name.startsWith("_") }
+                // filtering out module compile result
+                .filterNot { it.startsWith(projectContext.buildOutputRoot.path) }
                 .map { it.name }
                 .toSet(),
             "Unexpected list of resolved runtime dependencies"
-        )
-
-        val runtimeClasspathViaTask = AmperBackend(projectContext)
-            .runTask(TaskName(":app:runtimeClasspathJvm"))
-            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
-
-        assertNotNull(runtimeClasspathViaTask, "unexpected result absence for :app:runtimeClasspathJvm")
-
-        assertEquals(
-            expectedRuntimeClasspath,
-            runtimeClasspathViaTask.jvmRuntimeClasspath
-                // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
-                // filtering out module source dependencies
-                .filterNot { it.name.startsWith("_") }
-                .map { it.name }
-                .toSet(),
-            "Unexpected list of resolved runtime dependencies (via task)"
         )
 
         val find = "finished ':app:resolveDependenciesJvm' in"

@@ -29,7 +29,7 @@ class TaskExecutor(
         // verify all dependencies are resolved
         for ((taskName, dependsOn) in graph.dependencies) {
             if (!graph.nameToTask.containsKey(taskName)) {
-                error("Task '$taskName' does not exist, yet it defines dependencies")
+                error("Task '$taskName' does not exist, yet it depends on ${dependsOn.map { it.name }.sorted().joinToString()}")
             }
             for (dependency in dependsOn) {
                 if (!graph.nameToTask.containsKey(dependency)) {

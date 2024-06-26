@@ -19,8 +19,6 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -29,8 +27,9 @@ import org.jetbrains.amper.tasks.TestTask
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
+import java.util.jar.JarFile
 import kotlin.io.path.deleteExisting
-import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
@@ -59,10 +58,10 @@ class JvmTestTask(
             version = "1.10.1",
         ).toString()
 
-        // test task depends on compile test task
-        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
-            ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
-        if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
+        // test task depends on jar test task
+        val jarTask = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
+            ?: error("${JvmClassesJarTask::class.simpleName} result is not found in dependencies")
+        if (!jarHasClasses(jarTask.jarPath)) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
             return Result(dependenciesResult)
         }
@@ -72,7 +71,7 @@ class JvmTestTask(
             ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies")
 
         val testClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
-        val testModuleClasspath = compileTask.classesOutputRoot
+        val testModuleClasspath = jarTask.jarPath
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 
@@ -142,6 +141,11 @@ class JvmTestTask(
             junitArgsFile.deleteExisting()
         }
     }
+
+    private fun jarHasClasses(jarPath: Path): Boolean =
+        JarFile(jarPath.toFile(), false).use { jar ->
+            jar.entries().asSequence().any { it.name.endsWith(".class") }
+        }
 
     class Result(
         override val dependencies: List<TaskResult>,

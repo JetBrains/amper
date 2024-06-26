@@ -17,10 +17,7 @@ class JvmRuntimeClasspathTask(
     private val isTest: Boolean,
 ): Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
-            ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
-
-        val classpath = buildRuntimeClasspath(compileTask)
+        val classpath = buildRuntimeClasspath(dependenciesResult)
 
         return Result(
             jvmRuntimeClasspath = classpath,
@@ -35,27 +32,22 @@ class JvmRuntimeClasspathTask(
     //  also it depends on task hierarchy, which could be different from classpath
     //  but for demo it's fine
     //  I suggest to return to this task after our own dependency resolution engine
-    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result): List<Path> {
-        val result = mutableListOf<Path>()
-        buildRuntimeClasspath(compileTaskResult, result)
-        return result
-    }
-
-    private fun buildRuntimeClasspath(compileTaskResult: JvmCompileTask.Result, result: MutableList<Path>) {
-        val externalClasspath =
-            compileTaskResult.dependencies.filterIsInstance<ResolveExternalDependenciesTask.Result>()
-                .flatMap { it.runtimeClasspath }
-        for (path in externalClasspath) {
-            if (!result.contains(path)) {
-                result.add(path)
-            }
+    private fun buildRuntimeClasspath(dependenciesResult: List<TaskResult>): List<Path> {
+        val jarTasks = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>()
+        if (jarTasks.isEmpty()) {
+           error("${JvmClassesJarTask::class.simpleName} result is not found in dependencies")
         }
 
-        for (depCompileResult in compileTaskResult.dependencies.filterIsInstance<JvmCompileTask.Result>()) {
-            buildRuntimeClasspath(depCompileResult, result)
-        }
+        val dependenciesTask = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>().singleOrNull()
+            ?: error("${ResolveExternalDependenciesTask::class.simpleName} result is not found in dependencies")
 
-        result.add(compileTaskResult.classesOutputRoot)
+        val otherModulesRuntimeClasspathTasks = dependenciesResult.filterIsInstance<Result>()
+
+        val addToClasspath = dependenciesTask.runtimeClasspath +
+                otherModulesRuntimeClasspathTasks.flatMap { it.jvmRuntimeClasspath } +
+                jarTasks.map { it.jarPath }
+
+        return addToClasspath.distinct()
     }
 
     class Result(

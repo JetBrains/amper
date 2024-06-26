@@ -24,6 +24,7 @@ import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.tasks.jvm.JvmTestTask
@@ -119,14 +120,37 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             )
         )
 
+        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest, buildType)
+        registerTask(
+            JvmClassesJarTask(
+                taskName = jarTaskName,
+                module = module,
+                isTest = isTest,
+                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                executeOnChangedInputs = executeOnChangedInputs,
+            ),
+            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
+        )
+
+        val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
         registerTask(
             JvmRuntimeClasspathTask(
                 module = module,
                 isTest = isTest,
-                taskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
+                taskName = runtimeClasspathTaskName,
             ),
-            compileTaskName,
+            listOf(
+                CommonTaskType.Jar.getTaskName(module, Platform.ANDROID, isTest, buildType),
+                CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
+            )
         )
+
+        if (isTest) {
+            // test runtime classpath should include both test and prod jars
+            registerDependency(
+                runtimeClasspathTaskName,
+                CommonTaskType.Jar.getTaskName(module, platform, isTest = false, buildType = buildType))
+        }
 
         setupAndroidBuildTasks(
             platform,
@@ -144,6 +168,13 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         registerDependency(
             CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
             CommonTaskType.Compile.getTaskName(dependsOn, platform, false, buildType)
+        )
+    }
+
+    onRuntimeModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
+        registerDependency(
+            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
+            CommonTaskType.RuntimeClasspath.getTaskName(dependsOn, platform, false, buildType)
         )
     }
 
@@ -180,7 +211,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 terminal = context.terminal,
             ),
             listOf(
-                CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
+                CommonTaskType.Jar.getTaskName(module, platform, true, buildType),
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
             ),
         )

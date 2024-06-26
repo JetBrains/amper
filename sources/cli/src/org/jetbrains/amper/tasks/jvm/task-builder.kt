@@ -31,14 +31,37 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
 
+        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest)
+        registerTask(
+            JvmClassesJarTask(
+                taskName = jarTaskName,
+                module = module,
+                isTest = isTest,
+                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                executeOnChangedInputs = executeOnChangedInputs,
+            ),
+            CommonTaskType.Compile.getTaskName(module, platform, isTest),
+        )
+
+        val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
         registerTask(
             JvmRuntimeClasspathTask(
                 module = module,
                 isTest = isTest,
-                taskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
+                taskName = runtimeClasspathTaskName,
             ),
-            compileTaskName,
+            listOf(
+                CommonTaskType.Jar.getTaskName(module, platform, isTest),
+                CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
+            )
         )
+
+        if (isTest) {
+            // test runtime classpath should include both test and prod jars
+            registerDependency(
+                runtimeClasspathTaskName,
+                CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
+        }
 
         // custom task roots
         module.customTasks.forEach { customTask ->
@@ -64,7 +87,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         )
     }
 
-    onMain(Platform.JVM) { module, executeOnChangedInputs, platform, _ ->
+    onMain(Platform.JVM) { module, _, platform, _ ->
         if (module.type.isApplication()) {
             registerTask(
                 JvmRunTask(
@@ -78,16 +101,6 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
             )
         }
-        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform)
-        registerTask(
-            JvmClassesJarTask(
-                taskName = jarTaskName,
-                module = module,
-                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                executeOnChangedInputs = executeOnChangedInputs,
-            ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
-        )
 
         val publishRepositories = module.mavenRepositories.filter { it.publish }
         for (repository in publishRepositories) {
@@ -101,7 +114,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                     tempRoot = context.projectTempRoot,
                     mavenLocalRepository = context.mavenLocalRepository,
                 ),
-                jarTaskName,
+                CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
             )
 
             // Publish task should depend on publishing of modules which this module depends on
@@ -138,7 +151,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 terminal = context.terminal,
             ),
             listOf(
-                CommonTaskType.Compile.getTaskName(module, platform, true),
+                CommonTaskType.Jar.getTaskName(module, platform, true),
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true),
             )
         )

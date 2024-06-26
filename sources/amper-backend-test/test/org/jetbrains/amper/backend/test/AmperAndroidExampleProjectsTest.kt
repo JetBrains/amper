@@ -106,7 +106,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val aarPath = projectContext.getAarPath(taskName)
-        assertClassContainsInAar("org.example.namespace.Lib", aarPath)
+        assertFileContainsInAar("lib-jvm/org/example/namespace/Lib.class", aarPath)
         assertStringContainsInResources("My Library", aarPath)
     }
 
@@ -138,12 +138,12 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
         AmperBackend(projectContext).showTasks()
         // debug
-        assertStdoutContains("task :simple:buildAndroidDebug -> :simple:resolveDependenciesAndroid, :simple:compileAndroidDebug")
+        assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")
         assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
-        assertStdoutContains("task :simple:buildAndroidRelease -> :simple:resolveDependenciesAndroid, :simple:compileAndroidRelease")
+        assertStdoutContains("task :simple:buildAndroidRelease -> :simple:runtimeClasspathAndroid")
         assertStdoutContains("task :simple:compileAndroidRelease -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
@@ -240,7 +240,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         assertContains(typesInDexes.toList(), dalvikFqn)
     }
 
-    private fun assertClassContainsInAar(fqn: String, aarPath: Path): Path {
+    private fun assertFileContainsInAar(fileName: String, aarPath: Path): Path {
         val extractedAarPath = aarPath.parent.resolve("extractedAar")
         extractZip(aarPath, extractedAarPath, false)
 
@@ -255,8 +255,9 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
             .map { extractedAarPath.relativize(it) }
             .map { it.toString() }
             .map { it.replace("\\", "/") }
+            .toList()
 
-        assertContains(classesInJars.toList(), "classes/${fqn.replace(".", "/")}.class")
+        assertContains(classesInJars, fileName)
         return extractedAarPath
     }
 

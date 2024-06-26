@@ -23,15 +23,12 @@ fun main(args: Array<String>) {
     distFile.outputStream().buffered().let { ZipOutputStream(it) }.use { zipStream ->
         for (file in runtimeClasspath) {
             println("Writing $file to $distFile")
-            if (file.isRegularFile()) {
-                zipStream.putNextEntry(ZipEntry(file.name))
-                file.inputStream().use { input -> input.copyTo(zipStream) }
-            } else {
-                zipStream.putNextEntry(ZipEntry(file.name + ".jar"))
-                // in real life, we'll need to pack directory into zip and copy it to zipStream
-                // but here let's skip it and just write `file.name`
-                zipStream.write(file.name.toByteArray())
+            if (!file.isRegularFile()) {
+                error("Expected a regular file: $file")
             }
+
+            zipStream.putNextEntry(ZipEntry(file.name))
+            file.inputStream().use { input -> input.copyTo(zipStream) }
             zipStream.closeEntry()
         }
     }

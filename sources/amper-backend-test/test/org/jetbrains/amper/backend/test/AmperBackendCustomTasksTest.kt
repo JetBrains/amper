@@ -57,7 +57,7 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
                 "Zip output must contain one and only file named '$prefix*': [${names.joinToString(", ")}]")
         }
 
-        assertHavingFileByPrefix("_generate-dist_compileJvm.jar")
+        assertHavingFileByPrefix("generate-dist-jvm.jar")
         assertHavingFileByPrefix("kotlin-stdlib-")
         assertHavingFileByPrefix("kotlinx-datetime-jvm-")
     }
