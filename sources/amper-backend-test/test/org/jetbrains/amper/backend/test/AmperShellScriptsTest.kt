@@ -5,22 +5,29 @@
 package org.jetbrains.amper.backend.test
 
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.backend.test.extensions.HttpServerExtension
+import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.JdkDownloader
+import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.m2repository
 import org.jetbrains.amper.test.generateUnifiedDiff
 import org.junit.jupiter.api.AssertionFailureBuilder
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.opentest4j.FileInfo
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isExecutable
 import kotlin.io.path.name
@@ -33,29 +40,52 @@ import kotlin.io.path.writeText
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Shell scripts test Amper version which is already published and used in `amper-backend-test/testData/projects/shell-scripts`.
- * Other tests use Amper from sources.
- * This is only test where wrappers may download the real Amper version from real location
- */
 class AmperShellScriptsTest {
-    @TempDir
-    lateinit var tempDir: Path
+    @RegisterExtension
+    private val tempDirExtension = TempDirExtension()
+    private val tempDir: Path
+        get() = tempDirExtension.path
+
+    @RegisterExtension
+    private val httpServer = HttpServerExtension(m2repository)
+    private val cliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.BuildNumber}")
+    private val cliDist = cliDir.resolve("cli-${AmperBuild.BuildNumber}-dist.zip")
+        .also { check(it.exists()) }
 
     private val shellScriptExampleProject = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
 
+    @BeforeEach
+    fun prepareScript() {
+        val wrapperBat = cliDir.resolve("cli-${AmperBuild.BuildNumber}-wrapper.bat")
+        wrapperBat.copyTo(tempDir.resolve("amper.bat"))
+        assertTrue(wrapperBat.readText().count { it == '\r' } > 10,
+            "Windows wrapper must have \\r in line separators: $wrapperBat")
+
+        val wrapperSh = cliDir.resolve("cli-${AmperBuild.BuildNumber}-wrapper")
+        val targetSh = tempDir.resolve("amper")
+        wrapperSh.copyTo(targetSh)
+        targetSh.toFile().setExecutable(true)
+        assertTrue(wrapperSh.readText().count { it == '\r' } == 0,
+            "Unix wrapper must not have \\r in line separators: $wrapperSh")
+    }
+
+    /**
+     * It's expected on the start that wrappers and cli dist are published to maven local
+     */
     @Test
     fun `shell script does not download or extract on subsequent run`() {
-        val projectPath = shellScriptExampleProject
-        assertTrue { projectPath.isDirectory() }
+        val templatePath = shellScriptExampleProject
+        assertTrue { templatePath.isDirectory() }
 
-        val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
-        tempProjectRoot.createDirectories()
-        projectPath.copyToRecursively(tempProjectRoot, followLinks = false, overwrite = false)
+        templatePath.copyToRecursively(tempDir, followLinks = false, overwrite = false)
 
         val bootstrapCacheDir = tempDir.resolve("boot strap")
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("task", ":shell-scripts:runJvm")) { result ->
+        runBuild(
+            workingDir = tempDir,
+            bootstrapCacheDir = bootstrapCacheDir,
+            args = listOf("task", ":${tempDir.name}:runJvm"),
+        ) { result ->
             val output = result.stdout
 
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
@@ -71,7 +101,11 @@ class AmperShellScriptsTest {
             }
         }
 
-        runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("task", ":shell-scripts:runJvm")) { result ->
+        runBuild(
+            workingDir = tempDir,
+            bootstrapCacheDir = bootstrapCacheDir,
+            args = listOf("task", ":${tempDir.name}:runJvm"),
+        ) { result ->
             val output = result.stdout
 
             assertTrue("Process output must contain 'Hello for Shell Scripts Test'. Output:\n$output") {
@@ -85,6 +119,10 @@ class AmperShellScriptsTest {
             assertTrue("Process output must not have 'Extracting ' lines. Output:\n$output") {
                 output.lines().none { it.startsWith("Extracting ") }
             }
+        }
+
+        check(httpServer.requestedFiles.single() == cliDist) {
+            "Only one file should be requested '$cliDist'. Files requested: ${httpServer.requestedFiles}"
         }
     }
 
@@ -105,19 +143,6 @@ class AmperShellScriptsTest {
         runBuild(workingDir = tempProjectRoot, bootstrapCacheDir = bootstrapCacheDir, args = listOf("init", "multiplatform-cli")) {
         }
 
-        for (wrapperName in listOf("amper", "amper.bat")) {
-            val originalFile = shellScriptExampleProject.resolve(wrapperName)
-            val actualFile = tempProjectRoot.resolve(wrapperName)
-
-            if (!originalFile.readBytes().contentEquals(actualFile.readBytes())) {
-                AssertionFailureBuilder.assertionFailure()
-                    .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
-                    .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
-                    .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
-                    .buildAndThrow()
-            }
-        }
-
         val windowsWrapper = tempProjectRoot.resolve("amper.bat")
         val unixWrapper = tempProjectRoot.resolve("amper")
 
@@ -129,6 +154,19 @@ class AmperShellScriptsTest {
         if (OsFamily.current.isUnix) {
             assertTrue("Unix wrapper must be executable: $unixWrapper") { unixWrapper.isExecutable() }
         }
+
+        for (wrapperName in listOf("amper", "amper.bat")) {
+            val originalFile = tempDir.resolve(wrapperName)
+            val actualFile = tempProjectRoot.resolve(wrapperName)
+
+            if (!originalFile.readBytes().contentEquals(actualFile.readBytes())) {
+                AssertionFailureBuilder.assertionFailure()
+                    .message("Comparison failed:\n${generateUnifiedDiff(originalFile, actualFile)}")
+                    .expected(FileInfo(originalFile.absolutePathString(), originalFile.readBytes()))
+                    .actual(FileInfo(actualFile.absolutePathString(), actualFile.readBytes()))
+                    .buildAndThrow()
+            }
+        }
     }
 
     @Test
@@ -136,7 +174,7 @@ class AmperShellScriptsTest {
         val projectPath = shellScriptExampleProject
         assertTrue { projectPath.isDirectory() }
 
-        val tempProjectRoot = tempDir.resolve("p p").resolve(projectPath.name)
+        val tempProjectRoot = tempDir.resolve(projectPath.name)
         tempProjectRoot.createDirectories()
 
         tempProjectRoot.resolve("project.yaml").writeText("w1")
@@ -241,6 +279,9 @@ class AmperShellScriptsTest {
                 if (bootstrapCacheDir != null) {
                     it.environment()["AMPER_BOOTSTRAP_CACHE_DIR"] = bootstrapCacheDir.pathString
                 }
+
+                it.environment()["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
+                it.environment()["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
             }
             .command(cliScript.pathString, *args.toTypedArray())
             .start()
@@ -286,6 +327,9 @@ class AmperShellScriptsTest {
                 if (customJavaHome != null) {
                     it.environment()["AMPER_JAVA_HOME"] = customJavaHome.pathString
                 }
+
+                it.environment()["AMPER_DOWNLOAD_ROOT"] = httpServer.wwwRootUrl
+                it.environment()["AMPER_JRE_DOWNLOAD_ROOT"] = httpServer.cacheRootUrl
             }
             .command((customScript ?: cliScript).pathString, "--version")
             .start()
@@ -302,8 +346,9 @@ class AmperShellScriptsTest {
     private val cliScriptExtension = if (OsFamily.current.isWindows) ".bat" else ""
 
     private val cliScript: Path by lazy {
-        val script = shellScriptExampleProject.resolve("amper$cliScriptExtension")
-        assertTrue { script.isExecutable() }
+        val script = tempDir.resolve("amper$cliScriptExtension")
+        assertTrue("Script must exist: $script") { script.exists() }
+        assertTrue("Script must be executable: $script") { script.isExecutable() }
         script
     }
 }

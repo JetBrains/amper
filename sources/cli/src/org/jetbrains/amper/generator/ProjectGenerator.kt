@@ -97,14 +97,14 @@ internal class ProjectGenerator(private val terminal: Terminal) {
         terminal.println("Now you may build your project with '$exe' or open this folder in IDE with Amper plugin")
     }
 
-    private data class AmperWrapper(
+    data class AmperWrapper(
         val fileName: String,
         val resourceName: String,
         val executable: Boolean,
         val windowsLineEndings: Boolean,
     )
 
-    private val wrappers = listOf(
+    val wrappers = listOf(
         AmperWrapper(fileName = "amper", resourceName = "wrappers/amper.template.sh", executable = true, windowsLineEndings = false),
         AmperWrapper(fileName = "amper.bat", resourceName = "wrappers/amper.template.bat", executable = false, windowsLineEndings = true),
     )
@@ -113,11 +113,6 @@ internal class ProjectGenerator(private val terminal: Terminal) {
         val sha256: String? = System.getProperty("amper.wrapper.dist.sha256")
         if (sha256.isNullOrEmpty()) {
             logger.warn("Amper was not run from amper wrapper, skipping generating wrappers for $root")
-            return
-        }
-
-        if (AmperBuild.isSNAPSHOT) {
-            logger.warn("Amper was compiled from sources in dev environment, skipping generating wrappers for $root")
             return
         }
 

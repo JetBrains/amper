@@ -5,24 +5,40 @@
 @rem
 
 @rem Possible environment variables:
+@rem   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from
+@rem                              default: https://packages.jetbrains.team/maven/p/amper/amper
+@rem   AMPER_JRE_DOWNLOAD_ROOT    Url prefix to download Amper JRE from.
+@rem                              default: https:/
 @rem   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution, must end with \
 @rem   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 
 setlocal
 
+if defined AMPER_DOWNLOAD_ROOT (
+  set amper_download_root_defined=%AMPER_DOWNLOAD_ROOT%
+) else (
+  set amper_download_root_defined=https://packages.jetbrains.team/maven/p/amper/amper
+)
+
+if defined AMPER_JRE_DOWNLOAD_ROOT (
+  set amper_jre_download_root_defined=%AMPER_JRE_DOWNLOAD_ROOT%
+) else (
+  set amper_jre_download_root_defined=https:/
+)
+
 set amper_version=@AMPER_VERSION@
-set amper_url=https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
+set amper_url=%amper_download_root_defined%/org/jetbrains/amper/cli/%amper_version%/cli-%amper_version%-dist.zip
 
 @rem Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 set amper_sha256=@AMPER_DIST_SHA256@
 
 if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
-    set jvm_url=https://aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
+    set jvm_url=%amper_jre_download_root_defined%/aka.ms/download-jdk/microsoft-jdk-17.0.6-windows-aarch64.zip
     set jvm_file_name=microsoft-jdk-17.0.6-windows-aarch64
     set jvm_sha256=0a24e2382841387bad274ff70f0c3537e3eb3ceb47bc8bc5dc22626b2cb6a87c
 ) else (
     if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-        set jvm_url=https://corretto.aws/downloads/resources/17.0.6.10.1/amazon-corretto-17.0.6.10.1-windows-x64-jdk.zip
+        set jvm_url=%amper_jre_download_root_defined%/corretto.aws/downloads/resources/17.0.6.10.1/amazon-corretto-17.0.6.10.1-windows-x64-jdk.zip
         set jvm_file_name=amazon-corretto-17.0.6.10.1-windows-x64
         set jvm_sha256=27dfa7189763bf5bee6250baef22bb6f6032deebe0edd11f79495781cc7955fe
     ) else (

@@ -10,13 +10,18 @@
 #  We don't need full JDK here since we don't reuse this runtime for compilation/toolchain
 
 # Possible environment variables:
+#   AMPER_DOWNLOAD_ROOT        Maven repository to download Amper dist from.
+#                              default: https://packages.jetbrains.team/maven/p/amper/amper
+#   AMPER_JRE_DOWNLOAD_ROOT    Url prefix to download Amper JRE from.
+#                              default: https:/
 #   AMPER_BOOTSTRAP_CACHE_DIR  Cache directory to store extracted JRE and Amper distribution, must end with \
 #   AMPER_JAVA_HOME            JRE to run Amper itself (optional, does not affect compilation)
 
 set -e -u
 
 amper_version=@AMPER_VERSION@
-amper_url="https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
+amper_url="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
+amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
 amper_sha256=@AMPER_DIST_SHA256@
@@ -121,12 +126,12 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
   if [ "$sys" = "Darwin" ]; then
     case $jvm_arch in
     x86_64)
-      jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-x64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-x64"
       jvm_sha256=7eed832eb25b6bb9fed5172a02931804ed0bf65dc86a2ddc751aa7648bb35c43
       ;;
     arm64)
-      jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
+      jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-macosx-aarch64.tar.gz"
       jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-macosx-aarch64"
       jvm_sha256=8a0c542e78e47cb5de1db40763692d55b977f1d0b31c5f0ebf2dd426fa33a2f4
       ;;
@@ -142,12 +147,12 @@ if [ "x${AMPER_JAVA_HOME:-}" = "x" ]; then
     jvm_arch=$(linux$(getconf LONG_BIT) uname -m)
     case $jvm_arch in
       x86_64)
-        jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
+        jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-x64.tar.gz"
         jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-x64"
         jvm_sha256=0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62
         ;;
       aarch64)
-        jvm_url="https://corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
+        jvm_url="$amper_jre_download_root/corretto.aws/downloads/resources/$corretto_version/amazon-corretto-$corretto_version-linux-aarch64.tar.gz"
         jvm_target_dir="$amper_cache_dir/amazon-corretto-$corretto_version-linux-aarch64"
         jvm_sha256=8141bc6ea84ce103a040128040c2f527418a6aa3849353dcfa3cf77488524499
         ;;

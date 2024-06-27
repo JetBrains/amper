@@ -75,6 +75,9 @@ object TestUtil {
 
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
+    val m2 = Path.of(System.getProperty("user.home"), ".m2")
+    val m2repository = m2.resolve("repository")
+
     // Shared between different runs of testing
     // on developer's machine: some place under working copy, assuming it won't be cleared after every test run
     // on TeamCity: shared place on build agent which will be fully deleted if TeamCity lacks space on that agent

@@ -100,15 +100,25 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
             "Missing placeholders [${missingPlaceholders.joinToString(" ")}] in template file $inputFile"
         }
 
+        result = result
+            .split('\n')
+            .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
+
         val escapedPlaceHolder = Pattern.quote(placeholder)
         val regex = Regex("$escapedPlaceHolder.+$escapedPlaceHolder")
         val unsubstituted = result
             .splitToSequence('\n')
             .mapIndexed { line, s -> "line ${line + 1}: $s" }
             .filter(regex::containsMatchIn)
-            .joinToString(if (outputWindowsLineEndings) "\r\n" else "\n")
+            .joinToString("\n")
         check (unsubstituted.isBlank()) {
             "Some template parameters were left unsubstituted in template file $inputFile:\n$unsubstituted"
+        }
+
+        if (outputWindowsLineEndings) {
+            check(result.count { it == '\r' } > 10) {
+                "Windows line endings must be in the result after substituting for $inputFile"
+            }
         }
 
         Files.createDirectories(outputFile.parent)

@@ -5,6 +5,7 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.m2repository
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -204,7 +205,6 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     fun publish() = runTestInfinitely {
-        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
