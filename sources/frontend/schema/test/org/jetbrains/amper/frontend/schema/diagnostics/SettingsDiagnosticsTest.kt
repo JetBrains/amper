@@ -36,4 +36,9 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     fun `android settings jvm ios lib`() {
         diagnosticsTest("android-settings-jvm-ios-lib", levels = arrayOf(Level.Warning))
     }
+
+    @Test
+    fun `setting main class with lib`() {
+        diagnosticsTest("setting-main-class-with-lib", levels = arrayOf(Level.Warning))
+    }
 }
