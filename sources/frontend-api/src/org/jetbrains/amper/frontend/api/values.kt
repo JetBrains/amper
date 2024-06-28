@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -126,6 +125,11 @@ sealed class ValueBase<T>(
             myValue = newValue
             if (newValue is Traceable) {
                 trace = newValue.trace
+            }
+            if (newValue is Map<*,*>) {
+                (newValue.entries.singleOrNull()?.value as? Traceable)?.let {
+                    trace = it.trace
+                }
             }
         }
         return this
