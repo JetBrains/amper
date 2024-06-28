@@ -1,0 +1,9 @@
+product:
+  type: lib
+  platforms: [jvm, iosX64]
+
+settings:
+  ios:
+    teamId: aaa
+  <![Warning] This setting cannot be applied to platforms iosX64, jvm. Supported platforms are: android!>android<!>:
+    applicationId: aaa

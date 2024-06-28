@@ -1,0 +1,5 @@
+product: jvm/app
+
+settings:
+  <![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: ios!>ios<!>:
+    teamId: aaa

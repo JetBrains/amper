@@ -26,4 +26,14 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     fun `setting overrides same value`() {
         diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Redundancy))
     }
+
+    @Test
+    fun `ios setting jvm app`() {
+        diagnosticsTest("ios-setting-jvm-app", levels = arrayOf(Level.Warning))
+    }
+
+    @Test
+    fun `android settings jvm ios lib`() {
+        diagnosticsTest("android-settings-jvm-ios-lib", levels = arrayOf(Level.Warning))
+    }
 }
