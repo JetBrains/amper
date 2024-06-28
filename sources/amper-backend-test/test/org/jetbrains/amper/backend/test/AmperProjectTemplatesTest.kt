@@ -14,7 +14,6 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.moveTo
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 
@@ -44,7 +43,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    @Ignore
     fun `compose-multiplatform`() = runTestInfinitely {
         runCli(tempRoot, "build", assertEmptyStdErr = false)
     }
