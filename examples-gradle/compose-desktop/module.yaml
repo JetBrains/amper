@@ -9,4 +9,4 @@ settings:
   compose: enabled
 
 module:
-  layout: gradle-jvm
+  layout: default
