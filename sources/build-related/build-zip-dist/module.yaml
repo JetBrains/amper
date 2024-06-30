@@ -1,0 +1,13 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../tasks
+
+apply:
+  - ../../common.module-template.yaml
+
+settings:
+  jvm:
+    mainClass: BuildCliDistTask

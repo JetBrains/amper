@@ -1,0 +1,20 @@
+type: jvm/external-task
+
+module: ../build-related/build-zip-dist
+programArguments:
+  - ${outputDirectory}
+  - ${module(.).runtimeClasspathJvm}
+
+publishArtifact:
+  - path: cli.zip
+    artifactId: cli
+    classifier: dist
+    extension: zip
+  - path: amper
+    artifactId: cli
+    classifier: wrapper
+    extension: sh
+  - path: amper.bat
+    artifactId: cli
+    classifier: wrapper
+    extension: bat
