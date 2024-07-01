@@ -1,7 +1,0 @@
-product:
-  type: lib
-  platforms: [jvm]
-
-settings:
-  jvm:
-    <![Warning] This setting cannot be applied to a product type lib. Supported product types are: jvm/app!>mainClass<!>: Foo

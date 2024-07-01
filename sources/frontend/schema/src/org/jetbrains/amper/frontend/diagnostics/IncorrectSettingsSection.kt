@@ -29,8 +29,10 @@ object IncorrectSettingsLocation: AomSingleModuleDiagnosticFactory {
 
     context(ProblemReporterContext) override fun PotatoModule.analyze() {
         val reportedPlaces = mutableSetOf<Trace?>()
-        val allPlatforms = fragments.flatMap { it.platforms.map { it.leaves } }.flatten().toSet()
         fragments.forEach { fragment ->
+            // relevant setting fragments - those that are defined in the same section
+            val allPlatforms = fragments.filter { it.settings.trace == fragment.settings.trace }
+                .flatMap { it.platforms.map { it.leaves } }.flatten().toSet()
             object : SchemaValuesVisitor() {
                 override fun visitValue(valueBase: ValueBase<*>) {
                     valueBase.property.findAnnotation<PlatformSpecific>()?.let {

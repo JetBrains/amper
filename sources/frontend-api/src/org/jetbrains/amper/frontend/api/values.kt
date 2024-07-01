@@ -126,11 +126,6 @@ sealed class ValueBase<T>(
             if (newValue is Traceable) {
                 trace = newValue.trace
             }
-            if (newValue is Map<*,*>) {
-                (newValue.entries.singleOrNull()?.value as? Traceable)?.let {
-                    trace = it.trace
-                }
-            }
         }
         return this
     }

@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.aomBuilder
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.ancestralPath
+import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.processing.merge
 import org.jetbrains.amper.frontend.schema.Settings
 
@@ -21,6 +22,7 @@ private fun Fragment.withMergedSettingsFromAncestors(): Fragment {
     // the merge operation mutates the receiver, so we need to start from a new Settings() instance,
     // otherwise we'll modify the original fragment settings and this may affect other resolutions
     val mergedSettings = ancestralPath.map { it.settings }.fold(Settings(), Settings::merge)
+        .withTraceFrom(ancestralPath.lastOrNull { it.settings.trace != null }?.settings)
     return createResolvedAdapter(mergedSettings)
 }
 

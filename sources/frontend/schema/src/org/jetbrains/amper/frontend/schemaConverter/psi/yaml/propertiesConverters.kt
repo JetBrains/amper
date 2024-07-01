@@ -6,6 +6,8 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.valueBase
@@ -136,18 +138,29 @@ fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
     noModifiersEntry: T? = null,
     convertValue: YAMLKeyValue.() -> T?,
 ) {
-    val newValue = buildMap {
-        if (noModifiersEntry != null) put(noModifiers, noModifiersEntry)
-        keyValues
-            .filter { it.keyText.startsWith(name) }
-            .forEach {
-                val modifiers = it.extractModifiers()
-                // Skip those, that we failed to convert.
-                convertValue(it)?.let {
-                    newValue -> put(modifiers, newValue)
-                }
+    val newValue = TraceableMap<Modifiers, T>()
+    if (noModifiersEntry != null) newValue.put(noModifiers, noModifiersEntry)
+    keyValues
+        .filter { it.keyText.startsWith(name) }
+        .forEach {
+            val modifiers = it.extractModifiers()
+            // Skip those that we failed to convert.
+            convertValue(it)?.let { v ->
+                newValue.put(modifiers, v)
             }
-    }
-
+        }
     valueBase?.invoke(newValue)
+}
+
+private class TraceableMap<K, V> : HashMap<K, V>(), Traceable {
+    private val traces = mutableListOf<Trace>()
+
+    override var trace: Trace?
+        get() = traces.filterIsInstance<PsiTrace>().distinctBy { it.psiElement }.singleOrNull()
+        set(value) { if (value is PsiTrace) { traces.clear(); traces.add(value) } }
+
+    override fun put(key: K, value: V): V? {
+        if (value is Traceable) value.trace?.let { traces.add(it) }
+        return super.put(key, value)
+    }
 }
