@@ -14,5 +14,5 @@ settings@android:
     applicationId: aaa
 
 settings@jvm:
-  <![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: android!><![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: android!>android<!><!>:
+  <![Warning] This setting cannot be applied to platforms jvm. Supported platforms are: android!>android<!>:
     applicationId: aaa
