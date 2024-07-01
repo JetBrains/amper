@@ -1,0 +1,17 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+test-dependencies:
+  - ../cli
+  - ../core
+  - ../test-base
+
+tasks:
+  testJvm:
+    # android gradle plugin is required for Android part of backend
+    # fully built zip cli dist is required for wrapper tests and it's published to maven local
+    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal, :cli:publishJvmToMavenLocal ]

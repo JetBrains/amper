@@ -19,7 +19,11 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
+import org.jetbrains.amper.test.LinuxOnly
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
+import org.jetbrains.amper.test.WindowsOnly
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level

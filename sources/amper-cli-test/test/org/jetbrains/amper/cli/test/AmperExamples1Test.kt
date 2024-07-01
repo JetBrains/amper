@@ -2,16 +2,16 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.backend.test
+package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.pathString
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 

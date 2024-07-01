@@ -10,4 +10,15 @@ tasks.withType<Test> {
     for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
         dependsOn(task)
     }
+
+    // To build CLI dist used for CLI integration tests
+    val distTaskName = "unpackedDistribution"
+    val distTasks = rootProject.getTasksByName(distTaskName, true).also {
+        check(it.isNotEmpty()) {
+            "Unable to find '$distTaskName' task by name"
+        }
+    }
+    for (task in distTasks) {
+        dependsOn(task)
+    }
 }

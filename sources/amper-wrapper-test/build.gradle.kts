@@ -7,6 +7,7 @@ tasks.withType<Test> {
     maxHeapSize = "4G"
 
     // To build&publish Android gradle plugin to mavenLocal
+    // To build&publish cli dist required for wrapper tests
     for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
         dependsOn(task)
     }

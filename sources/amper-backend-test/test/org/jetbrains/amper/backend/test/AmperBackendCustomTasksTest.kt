@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
 import java.util.zip.ZipFile
 import kotlin.io.path.deleteRecursively

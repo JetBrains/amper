@@ -18,7 +18,6 @@ import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtensi
 import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
 import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
-import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
@@ -27,6 +26,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.amperModuleKey
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.tasks.CommonRunSettings
+import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level

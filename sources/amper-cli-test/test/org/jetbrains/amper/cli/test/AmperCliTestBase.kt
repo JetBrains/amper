@@ -2,14 +2,14 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.backend.test
+package org.jetbrains.amper.cli.test
 
-import org.jetbrains.amper.backend.test.extensions.TempDirExtension
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
+import org.jetbrains.amper.test.TempDirExtension
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.androidHome
 import org.junit.jupiter.api.BeforeEach

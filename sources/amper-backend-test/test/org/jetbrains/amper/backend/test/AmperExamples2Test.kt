@@ -8,7 +8,9 @@ import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
+import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.test.Test

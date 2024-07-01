@@ -1,0 +1,17 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+apply:
+  - ../common.module-template.yaml
+
+test-dependencies:
+  - ../cli
+  - ../core
+  - ../test-base
+
+tasks:
+  testJvm:
+    # android gradle plugin is required for Android part of backend
+    # unpacked dist is required for running tests based on AmperCliTestBase
+    dependsOn: [ :gradle-plugin:publishJvmToMavenLocal, :cli:unpackedDist ]
