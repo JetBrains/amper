@@ -12,7 +12,6 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -22,12 +21,12 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
         get() = "setting.value.overrides.nothing"
 
     context(ProblemReporterContext) override fun PotatoModule.analyze() {
-        val reportedPlaces = mutableSetOf<Trace>()
+        val reportedPlaces = mutableSetOf<PsiElement>()
         val visitor = object : SchemaValuesVisitor() {
             override fun visitValue(it: ValueBase<*>) {
                 val psiTrace = it.trace as? PsiTrace
                 val precedingValue = psiTrace?.precedingValue
-                if (psiTrace != null && reportedPlaces.add(psiTrace)) {
+                if (psiTrace != null && reportedPlaces.add(psiTrace.psiElement)) {
                     val isDefault = precedingValue == null && it.value == it.default?.value
                     if (isDefault || precedingValue?.value == it.value) {
                         problemReporter.reportMessage(
@@ -56,10 +55,28 @@ private class UselessSetting(
         UselessSettingValue.diagnosticId
 
     override val message: String
-        get() =  if (precedingValue?.trace == null) SchemaBundle.message(
-            messageKey = "setting.value.is.same.as.default",
-        ) else SchemaBundle.message(
-            messageKey = "setting.value.is.same.as.base",
-            (precedingValue.trace as? PsiTrace)?.psiElement?.containingFile?.name
-        )
+        get() = when  {
+            precedingValue?.trace == null -> SchemaBundle.message(
+                messageKey = "setting.value.is.same.as.default",
+            )
+            isInheritedFromCommon() -> SchemaBundle.message(
+                messageKey = "setting.value.is.same.as.common",
+            )
+            else -> SchemaBundle.message(
+                messageKey = "setting.value.is.same.as.base",
+                formatLocation()
+            )
+        }
+
+    private fun formatLocation(): String? {
+        val precedingPsiElement = (precedingValue?.trace as? PsiTrace)?.psiElement ?: return "default"
+        if (precedingPsiElement.containingFile?.name != "module.yaml"
+            && precedingPsiElement.containingFile?.name != "module.amper") {
+            return precedingPsiElement.containingFile?.name
+        }
+        return precedingPsiElement.containingFile.parent?.name
+    }
+
+    private fun isInheritedFromCommon() =
+        (settingProp.trace as? PsiTrace)?.psiElement?.containingFile == (precedingValue?.trace as? PsiTrace)?.psiElement?.containingFile
 }

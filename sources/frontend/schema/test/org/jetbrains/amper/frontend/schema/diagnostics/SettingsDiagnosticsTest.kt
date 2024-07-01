@@ -41,4 +41,9 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     fun `setting main class with lib`() {
         diagnosticsTest("setting-main-class-with-lib", levels = arrayOf(Level.Warning))
     }
+
+    @Test
+    fun `settings context specificity`() {
+        diagnosticsTest("settings-context-specificity", levels = arrayOf(Level.Warning))
+    }
 }

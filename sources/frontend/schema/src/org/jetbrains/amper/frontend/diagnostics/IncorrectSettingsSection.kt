@@ -16,7 +16,6 @@ import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.ProductTypeSpecific
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
-import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
@@ -28,7 +27,7 @@ object IncorrectSettingsLocation: AomSingleModuleDiagnosticFactory {
         get() = "settings.incorrect.section"
 
     context(ProblemReporterContext) override fun PotatoModule.analyze() {
-        val reportedPlaces = mutableSetOf<Trace?>()
+        val reportedPlaces = mutableSetOf<PsiElement>()
         fragments.forEach { fragment ->
             // relevant setting fragments - those that are defined in the same section
             val allPlatforms = fragments.filter { it.settings.trace == fragment.settings.trace }
@@ -39,7 +38,7 @@ object IncorrectSettingsLocation: AomSingleModuleDiagnosticFactory {
                         if (it.platforms.flatMap { it.leaves }.intersect(allPlatforms).isEmpty()
                             && valueBase.withoutDefault != null
                             && valueBase.trace is PsiTrace
-                            && reportedPlaces.add(valueBase.trace)) {
+                            && reportedPlaces.add((valueBase.trace as PsiTrace).psiElement)) {
                             problemReporter.reportMessage(
                                 IncorrectSettingsSection(valueBase,
                                     SchemaBundle.message("settings.incorrect.platform",
@@ -52,7 +51,7 @@ object IncorrectSettingsLocation: AomSingleModuleDiagnosticFactory {
                         if (!it.productTypes.contains(fragment.module.type)
                             && valueBase.withoutDefault != null
                             && valueBase.trace is PsiTrace
-                            && reportedPlaces.add(valueBase.trace)) {
+                            && reportedPlaces.add((valueBase.trace as PsiTrace).psiElement)) {
                             problemReporter.reportMessage(
                                 IncorrectSettingsSection(valueBase, SchemaBundle.message("settings.incorrect.product.type",
                                     fragment.module.type.value,
