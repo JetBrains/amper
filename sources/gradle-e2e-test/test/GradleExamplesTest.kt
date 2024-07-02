@@ -10,8 +10,10 @@ import kotlin.io.path.walk
 import kotlin.reflect.full.declaredFunctions
 import kotlin.test.fail
 
-class GradleExamplesTest : GradleE2ETestFixture("../../examples-gradle/",
-    runWithPluginClasspath = if (System.getenv("WITH_PLUGIN_CLASSPATH") != null) System.getenv("WITH_PLUGIN_CLASSPATH").toBoolean() else true  ) {
+class GradleExamplesTest : GradleE2ETestFixture(
+    pathToProjects = "../../examples-gradle/",
+    runWithPluginClasspath = System.getenv("WITH_PLUGIN_CLASSPATH")?.toBooleanStrict() ?: true,
+) {
     @Test
     fun `check all example projects are tested`() {
         val testProjects = Path.of(pathToProjects).walk().filter {
