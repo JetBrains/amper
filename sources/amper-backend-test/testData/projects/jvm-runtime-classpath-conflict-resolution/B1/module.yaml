@@ -1,0 +1,6 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - commons-io:commons-io:2.16.1

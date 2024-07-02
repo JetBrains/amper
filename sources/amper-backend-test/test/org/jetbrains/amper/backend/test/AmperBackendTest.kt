@@ -1041,6 +1041,25 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         assertInfoLogStartsWith(find)
     }
 
+    @Test
+    fun `jvm runtime classpath conflict resolution`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution", backgroundScope = backgroundScope)
+
+        val result = AmperBackend(projectContext)
+            .runTask(TaskName(":B2:resolveDependenciesJvm"))
+            ?.getOrNull() as? ResolveExternalDependenciesTask.Result
+            ?: error("unexpected result absence for :B2:resolveDependenciesJvm")
+
+        // should be only one version of commons-io, the highest version
+        assertEquals(
+            listOf("commons-io-2.16.1.jar"),
+            result.runtimeClasspath
+                .map { it.name }
+                .filter { !it.startsWith("annotations-") && !it.startsWith("kotlin-stdlib-") },
+            "Unexpected list of resolved runtime dependencies"
+        )
+    }
+
     private suspend fun withFileServer(wwwRoot: Path, authenticator: Authenticator? = null, block: suspend (baseUrl: String) -> Unit) {
         val httpServer = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 10)
         try {
