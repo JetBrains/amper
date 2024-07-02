@@ -28,8 +28,12 @@ class StandaloneAmperProjectContext(
     override val amperModuleFiles: List<VirtualFile>,
 ) : AmperProjectContext {
 
-    // TODO should we really discover them like this?
-    override val amperCustomTaskFiles: List<VirtualFile> = projectRootDir.filterDescendants { it.isAmperCustomTaskFile() }
+    override val amperCustomTaskFiles: List<VirtualFile> by lazy {
+        amperModuleFiles
+            .map { it.parent }
+            .flatMap { it.children.toList() }
+            .filter { it.isAmperCustomTaskFile() }
+    }
 
     override val gradleBuildFilesWithoutAmper: List<VirtualFile> = emptyList()
 
