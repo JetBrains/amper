@@ -189,8 +189,10 @@ esac
 
 # do not call gradlew if nothing changed
 current_state() {
-  find "$script_dir" '(' -name build -o -name .git -o -name .idea ')' -prune -o -type f -print0 | \
+  # scan sources directory
+  find "$script_dir/.." '(' -name build -o -name .git -o -name .idea ')' -prune -o -type f -print0 | \
    xargs -0 stat "${stat_format[@]}"
+  stat "${stat_format[@]}" "$script_dir/../../project.yaml"
 }
 
 up_to_date_file="$script_dir/build/up-to-date-from-sources-wrapper.txt"
