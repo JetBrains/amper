@@ -448,8 +448,8 @@ my.private.repository.password=...
 
 If some repositories are defined in `settings.gradle.kts` using a `dependencyResolutionManagement` block, they are only
 taken into account by pure Gradle subprojects, and don't affect Amper modules. If you want to define repositories in a
-central place for Amper modules, you can use a `repositories` list in a [template
-file](#templates) and apply this template to your modules.
+central place for Amper modules, you can use a `repositories` list in a [template file](#templates) and apply this
+template to your modules.
 
 Technical explanation: in Gradle, adding any repository at the subproject level will by default discard the repositories
 configured in the settings (unless a different Gradle
@@ -1549,7 +1549,7 @@ the project structure, and also compile and execute arbitrary logic defined in t
 
 > Gradle 8.6 is recommended. Gradle 8.7+ is supported, but customizing the Compose version is not possible in that case.
 
-In a Gradle-based project, instead of a `project.yaml` file you need a `settings.gradle.kts` file
+In a Gradle-based project, instead of a `project.yaml` file, you need a `settings.gradle.kts` file
 and a `gradle/wrapper/` folder in the project root:
 ```
 |-gradle/...

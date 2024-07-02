@@ -13,8 +13,9 @@ Check the [setup instructions](Setup.md).
 
 Note, that:
 * JDK 17+ is required. Make sure you have it installed and selected in the IDE. 
-* Gradle 8.6 is recommended. Gradle 8.7+ is not currently supported. 
-  To make sure your project uses the corresponding Gradle version, 
+* Gradle 8.6 is recommended. Gradle 8.7+ is supported, but in that case customizing the Compose framework version is 
+  not possible. 
+  To make sure your project uses the desired Gradle version, 
   check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
 
 ### Step 1. Configure settings.gradle.kts
