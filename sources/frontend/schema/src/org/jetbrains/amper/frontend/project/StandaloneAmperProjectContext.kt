@@ -186,7 +186,7 @@ private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> 
 
 context(ProblemReporterContext)
 private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableString): VirtualFile? {
-    val moduleDir = findChild(relativeModulePath.value)
+    val moduleDir = findFileByRelativePath(relativeModulePath.value)
     if (moduleDir == null) {
         SchemaBundle.reportBundleError(
             value = relativeModulePath,
