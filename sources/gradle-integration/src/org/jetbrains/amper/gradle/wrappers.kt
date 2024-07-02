@@ -8,19 +8,8 @@ import org.jetbrains.amper.frontend.Artifact
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.LeafFragment
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-
-/**
- * A class, that caches [modules] and also, adds
- * some other functionality.
- */
-data class ModelWrapper(
-    val model: Model,
-) : Model {
-    override val modules = ArrayList(model.modules)
-}
 
 class PotatoModuleWrapper(
     private val passedModule: PotatoModule

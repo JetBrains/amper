@@ -38,8 +38,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
                 throw GradleException(problemReporter.getGradleError())
             }
 
-            // Use [ModelWrapper] to cache and preserve links on [PotatoModule].
-            val model = ModelWrapper(modelResult.get())
+            val model = modelResult.get()
 
             settings.gradle.knownModel = model
 
@@ -54,7 +53,7 @@ class BindingSettingsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun Settings.setupComposePlugin(model: ModelWrapper) {
+    private fun Settings.setupComposePlugin(model: Model) {
         val chosenComposeVersion = chooseComposeVersion(model)
         // We don't need to use the dynamic plugin mechanism if the user wants the embedded Compose version (because
         // it's already on the classpath). Using dynamic plugins relies on unreliable internal Gradle APIs, which are
