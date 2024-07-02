@@ -20,6 +20,15 @@ import kotlin.test.assertContains
 class AmperProjectTemplatesTest: AmperCliTestBase() {
     // Please add as many checks as possible to template tests
 
+    @BeforeEach
+    fun createFromTemplateAndBuild() {
+        if (testInfo.tags.contains(SUPPLEMENTAL_TAG)) return
+
+        runBlocking {
+            runCli(tempRoot, "init", currentTestName)
+        }
+    }
+
     @Test
     fun `kmp-lib`() = runTestInfinitely {
         // Can't easily get rid of output associated with
@@ -67,15 +76,6 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         runCli(newRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
-    }
-
-    @BeforeEach
-    fun createFromTemplateAndBuild() {
-        if (testInfo.tags.contains(SUPPLEMENTAL_TAG)) return
-
-        runBlocking {
-            runCli(tempRoot, "init", currentTestName)
-        }
     }
 
     @Test
