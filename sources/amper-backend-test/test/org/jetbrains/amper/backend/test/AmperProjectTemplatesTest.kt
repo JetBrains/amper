@@ -63,7 +63,7 @@ class AmperProjectTemplatesTest: AmperCliTestBase() {
         // Move the module to "compose-ios" directory, since ios module name depends on amper module name.
         val content = tempRoot.listDirectoryEntries()
         val newRoot = tempRoot.resolve("compose-ios").createDirectories()
-        content.forEach { it.moveTo(tempRoot.resolve(it.name)) }
+        content.forEach { it.moveTo(newRoot.resolve(it.name)) }
         // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         runCli(newRoot, "build", "-p", "iosSimulatorArm64", assertEmptyStdErr = false)
