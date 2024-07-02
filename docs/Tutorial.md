@@ -52,8 +52,7 @@ Copy the following files from a [template project](../examples-standalone/new-pr
 > Copy the following files from a [template project](../examples-gradle/new-project-template):
 >
 > - [settings.gradle.kts](../examples-gradle/new-project-template/settings.gradle.kts),
-> - [gradlew](../examples-gradle/new-project-template/gradlew)
-    > and [gradlew.bat](../examples-gradle/new-project-template/gradlew.bat),
+> - [gradlew](../examples-gradle/new-project-template/gradlew) and [gradlew.bat](../examples-gradle/new-project-template/gradlew.bat),
 > - [gradle](../examples-gradle/new-project-template/gradle) folder
 > ```
 > |-gradle/...
@@ -114,7 +113,7 @@ Documentation:
 ### Step 3. Add tests
 
 Now let’s add some tests. Amper configures the testing framework automatically,
-we only need to add a test code into the `test/` folder:
+we only need to add some test code into the `test/` folder:
 
 ```
 |-src/
@@ -265,7 +264,7 @@ After that add the module to the `project.yaml` file:
 ```yaml
 modules:
   - ./jvm-app
-  - ./lib
+  - ./shared
 ```
 Read more about the [project layout](Documentation.md#project-layout)
 
