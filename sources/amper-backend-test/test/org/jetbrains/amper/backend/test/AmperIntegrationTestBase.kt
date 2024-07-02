@@ -6,6 +6,7 @@
 
 package org.jetbrains.amper.backend.test
 
+import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.CoroutineScope
@@ -112,7 +113,8 @@ abstract class AmperIntegrationTestBase {
             commonRunSettings = CommonRunSettings(programArgs = programArgs),
             currentTopLevelCommand = "integration-test-base",
             backgroundScope = backgroundScope,
-            androidHomeRoot = androidHomeRoot
+            androidHomeRoot = androidHomeRoot,
+            terminal = Terminal(),
         )
     }
 

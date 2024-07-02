@@ -180,6 +180,16 @@ internal fun withBackend(
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
 
+        val terminal = Terminal()
+
+        if (setupEnvironment) {
+            terminal.println(AmperBuild.banner)
+            CliEnvironmentInitializer.setupConsoleLogging(
+                consoleLogLevel = commonOptions.consoleLogLevel,
+                terminal = terminal,
+            )
+        }
+
         val projectContext = ProjectContext.create(
             explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
             buildOutputRoot = commonOptions.buildOutputRoot?.let {
@@ -194,19 +204,15 @@ internal fun withBackend(
             commonRunSettings = commonRunSettings,
             taskExecutionMode = taskExecutionMode,
             backgroundScope = backgroundScope,
+            terminal = terminal,
         )
 
         if (setupEnvironment) {
             CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
             CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-            CliEnvironmentInitializer.setupLogging(
-                logsRoot = projectContext.buildLogsRoot,
-                consoleLogLevel = commonOptions.consoleLogLevel,
-                terminal = projectContext.terminal,
-            )
+            CliEnvironmentInitializer.setupFileLogging(projectContext.buildLogsRoot)
 
             // TODO output version, os and some env to log file only
-            projectContext.terminal.println(AmperBuild.banner)
             val printableLogsPath = projectContext.buildLogsRoot.path.toString().replaceWhitespaces()
             projectContext.terminal.println("Logs are in file://$printableLogsPath")
             projectContext.terminal.println()

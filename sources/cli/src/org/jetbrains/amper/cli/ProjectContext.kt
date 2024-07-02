@@ -49,6 +49,7 @@ class ProjectContext private constructor(
             userCacheRoot: AmperUserCacheRoot? = null,
             currentTopLevelCommand: String,
             backgroundScope: CoroutineScope,
+            terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
         ): ProjectContext {
             require(currentTopLevelCommand.isNotBlank()) {
@@ -87,7 +88,7 @@ class ProjectContext private constructor(
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
                 mavenLocalRepository = MavenLocalRepository(),
-                terminal = Terminal(),
+                terminal = terminal,
                 backgroundScope = backgroundScope,
                 androidHomeRoot = androidHomeRootNotNull
             )
