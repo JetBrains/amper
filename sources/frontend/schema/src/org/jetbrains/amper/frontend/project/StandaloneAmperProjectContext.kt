@@ -69,7 +69,7 @@ class StandaloneAmperProjectContext(
             }
             return StandaloneAmperProjectContext(
                 frontendPathResolver = frontendPathResolver,
-                projectRootDir = result.startModuleFile,
+                projectRootDir = result.startModuleFile.parent,
                 amperModuleFiles = listOf(result.startModuleFile),
             )
         }
