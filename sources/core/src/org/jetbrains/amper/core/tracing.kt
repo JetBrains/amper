@@ -28,7 +28,8 @@ inline fun <T> Span.use(operation: (Span) -> T): T {
         return operation(this)
     }
     catch (e: CancellationException) {
-        // TODO record span as canceled?
+        setAttribute("cancelled", true)
+        setStatus(StatusCode.ERROR)
         throw e
     }
     catch (e: Throwable) {
