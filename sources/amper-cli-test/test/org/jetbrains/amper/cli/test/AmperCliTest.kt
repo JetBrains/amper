@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.m2repository
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
@@ -11,6 +12,7 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.div
 import kotlin.io.path.fileSize
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -72,16 +74,14 @@ class AmperCliTest: AmperCliTestBase() {
     fun modules() = runTestInfinitely {
         val r = runCli("simple-multiplatform-cli", "modules")
 
-        val modulesList = r.stdout.lines().dropWhile { it.isNotBlank() }
-
-        assertEquals("""
-            jvm-cli
-            linux-cli
-            macos-cli
-            shared
-            utils
-            windows-cli
-        """.trimIndent(), modulesList.filter { it.isNotBlank() }.joinToString("\n"))
+        assertModulesList(r, listOf(
+            "jvm-cli",
+            "linux-cli",
+            "macos-cli",
+            "shared",
+            "utils",
+            "windows-cli",
+        ))
     }
 
     @Test
@@ -226,6 +226,32 @@ class AmperCliTest: AmperCliTestBase() {
                 artifactName/maven-metadata-local.xml
             """.trimIndent(), files.joinToString("\n")
         )
+    }
+
+    @Test
+    fun `single-module project under an unrelated project`() = runTestInfinitely {
+        val resultNested = runCli(testDataRoot / "nested-project-root" / "nested-project", "modules")
+        assertModulesList(resultNested, listOf("nested-project"))
+
+        val resultRoot = runCli(testDataRoot / "nested-project-root", "modules")
+        assertModulesList(resultRoot, listOf("included-module"))
+    }
+
+    @Test
+    fun `project including a deep module`() = runTestInfinitely {
+        val result = runCli(testDataRoot / "project-root-deep-inclusion", "modules")
+        assertModulesList(result, listOf("deep-module"))
+    }
+
+    @Test
+    fun `project with both top-level and nested modules`() = runTestInfinitely {
+        val result = runCli(testDataRoot / "top-level-and-nested-modules", "modules")
+        assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
+    }
+
+    private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
+        val modules = modulesCommandResult.stdout.lines().dropWhile { it.isNotBlank() }.filter { it.isNotBlank() }
+        return assertEquals(expectedModules, modules)
     }
 
     override val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
