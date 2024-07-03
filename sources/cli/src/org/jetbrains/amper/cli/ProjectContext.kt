@@ -56,7 +56,14 @@ class ProjectContext private constructor(
                 "currentTopLevelCommand should not be blank"
             }
 
-            val amperProjectContext = with(CliProblemReporterContext()) { createProjectContext(explicitProjectRoot) }
+            val amperProjectContext = with(CliProblemReporterContext()) {
+                createProjectContext(explicitProjectRoot).also {
+                    if (problemReporter.wereProblemsReported()) {
+                        userReadableError("failed to detect Amper project root, refer to the errors above")
+                    }
+                }
+            }
+
             val rootPath = amperProjectContext.projectRootDir.toNioPath()
 
             val buildOutputRootNotNull = buildOutputRoot ?: run {
