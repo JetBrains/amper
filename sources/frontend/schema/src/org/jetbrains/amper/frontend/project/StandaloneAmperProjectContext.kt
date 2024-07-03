@@ -192,7 +192,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
             value = relativeModulePath,
             messageKey = "project.module.dir.0.does.not.exist",
             relativeModulePath.value,
-            level = Level.Warning,
+            level = Level.Error,
         )
         return null
     }
@@ -202,7 +202,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
             value = relativeModulePath,
             messageKey = "project.module.dir.0.has.no.module.file",
             relativeModulePath.value,
-            level = Level.Warning,
+            level = Level.Error,
         )
     }
     return moduleFile
