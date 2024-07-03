@@ -23,12 +23,12 @@ import org.jetbrains.amper.android.gradle.tooling.RClassToolingModelBuilder
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
-import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.io.File
 import java.nio.file.Path
@@ -235,7 +235,9 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         //   Some pieces of data might even have already been resolved/changed in the Amper CLI, such as dependencies.
         //   and in that case we wouldn't want Gradle to re-read the Amper model files and get it wrong.
         //   Also, it would avoid parsing all modules files in the entire project for each delegated Gradle build.
-        val model = when (val result = SchemaBasedModelImport.getStandaloneAmperModel(projectRoot)) {
+        val projectContext = StandaloneAmperProjectContext.create(projectRoot, project = null)
+            ?: error("Invalid project root passed to the delegated Android Gradle build: $projectRoot")
+        val model = when (val result = SchemaBasedModelImport.getModel(projectContext)) {
             is Result.Failure -> throw result.exception
             is Result.Success -> result.value
         }

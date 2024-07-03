@@ -35,18 +35,17 @@ object SchemaBasedModelImport : ModelInit {
 
     context(ProblemReporterContext)
     @Suppress("DEPRECATION")
-    @Deprecated("Auto-discovery is deprecated. Use getStandaloneAmperModel() or getGradleAmperModel() instead.")
+    @Deprecated(
+        message = "Auto-discovery is deprecated. Create an AmperProjectContext and use getModel(context) instead.",
+        replaceWith = ReplaceWith(
+            expression = "this.getModel(StandaloneAmperProjectContext.create(root, project))",
+            imports = ["org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext"],
+        ),
+    )
     @UsedInIdePlugin
     fun getModel(root: Path, project: Project?): Result<Model> {
         val pathResolver = FrontendPathResolver(project = project)
         val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver, pathResolver.loadVirtualFile(root))
-        return getModel(projectContext)
-    }
-
-    context(ProblemReporterContext)
-    fun getStandaloneAmperModel(projectRootDir: Path, ijProject: Project? = null): Result<Model> {
-        val projectContext = StandaloneAmperProjectContext.create(projectRootDir, ijProject)
-            ?: error("Invalid project root")
         return getModel(projectContext)
     }
 
