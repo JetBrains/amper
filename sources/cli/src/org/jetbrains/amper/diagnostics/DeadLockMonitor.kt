@@ -71,8 +71,10 @@ object DeadLockMonitor {
         }
     }
 
+    // Disable deadlock monitor for now as it leads to flaky tests sometimes
+    // TODO probably enable it only for real amper runs?
     @Volatile
-    private var disabled = false
+    private var disabled = true
 
     private val considerDeadInterval = 1.minutes
     private val checkInterval = considerDeadInterval / 2
