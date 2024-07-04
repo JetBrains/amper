@@ -4,6 +4,9 @@ product:
 
 test-dependencies:
   - ../test-base
+  - ../cli
+  - ../core
+  - com.github.ajalt.clikt:clikt:4.2.2
 
 apply:
   - ../common.module-template.yaml

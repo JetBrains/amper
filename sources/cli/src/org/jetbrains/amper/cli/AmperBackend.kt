@@ -14,6 +14,7 @@ import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.engine.runTasksAndReportOnFailure
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
@@ -109,6 +110,8 @@ class AmperBackend(val context: ProjectContext) {
             })
         }
     }
+
+    fun modules(): List<PotatoModule> = resolvedModel.modules
 
     fun showModules() {
         for (moduleName in resolvedModel.modules.map { it.userReadableName }.sorted()) {
