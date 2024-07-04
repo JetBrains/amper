@@ -55,6 +55,15 @@ object SchemaBasedModelImport : ModelInit {
      * are usually ignored.
      */
     context(ProblemReporterContext)
+    @Deprecated(
+        message = "This returns a partially incorrect module with unresolved references to other modules. " +
+            "Also, custom tasks and version catalog references might be incorrect. " +
+            "Prefer using diagnoseAmperModuleFile() with a real project context.",
+        replaceWith = ReplaceWith(
+            expression = "diagnoseAmperModuleFile(modulePsiFile, this@ProblemReporterContext.problemReporter, context)",
+            imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperModuleFile"],
+        ),
+    )
     @UsedInIdePlugin
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
         val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
@@ -70,6 +79,14 @@ object SchemaBasedModelImport : ModelInit {
      * Processes the given [templatePsiFile] and reports issues via the [ProblemReporterContext].
      */
     context(ProblemReporterContext)
+    @Deprecated(
+        message = "This returns a template with potentially incorrect version catalog references." +
+                "Prefer using diagnoseAmperTemplateFile() with a real project context.",
+        replaceWith = ReplaceWith(
+            expression = "diagnoseAmperTemplateFile(modulePsiFile, this@ProblemReporterContext.problemReporter, context)",
+            imports = ["org.jetbrains.amper.frontend.diagnostics.diagnoseAmperTemplateFile"],
+        ),
+    )
     @UsedInIdePlugin
     fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? {
         val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }

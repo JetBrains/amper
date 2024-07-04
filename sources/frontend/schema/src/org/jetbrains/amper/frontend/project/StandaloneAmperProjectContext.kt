@@ -99,7 +99,7 @@ class StandaloneAmperProjectContext(
          * The given [frontendPathResolver] is used to resolve virtual files and PSI files.
          */
         context(ProblemReporterContext)
-        private fun create(
+        internal fun create(
             rootDir: VirtualFile,
             frontendPathResolver: FrontendPathResolver
         ): StandaloneAmperProjectContext? {
