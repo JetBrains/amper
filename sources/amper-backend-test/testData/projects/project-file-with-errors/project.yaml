@@ -1,0 +1,6 @@
+modules:
+  - valid
+  - ./does-not-exist
+  - ./does/not/exist
+  - not-a-dir
+  - not-a-module

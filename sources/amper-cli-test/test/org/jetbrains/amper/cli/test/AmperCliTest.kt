@@ -20,6 +20,7 @@ import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.io.path.writeText
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -247,6 +248,37 @@ class AmperCliTest: AmperCliTestBase() {
     fun `project with both top-level and nested modules`() = runTestInfinitely {
         val result = runCli(testDataRoot / "top-level-and-nested-modules", "modules")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))
+    }
+
+    @Test
+    fun `project file with path errors`() = runTestInfinitely {
+        val r = runCli(
+            backendTestProjectName = "project-file-with-errors",
+            "tasks",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        assertContains(r.stderr, "project.yaml:3:5: Unresolved path \"./does-not-exist\"")
+        assertContains(r.stderr, "project.yaml:4:5: Unresolved path \"./does/not/exist\"")
+        assertContains(r.stderr, "project.yaml:5:5: \"not-a-dir\" is not a directory")
+        assertContains(r.stderr, "project.yaml:6:5: Directory \"not-a-module\" doesn't contain an Amper module file")
+        assertContains(r.stderr, "ERROR: aborting because there were errors in the Amper project file, please see above")
+    }
+
+    @Test
+    fun `invalid project root`() = runTestInfinitely {
+        val explicitRoot = testDataRoot.resolve("invalid-project-root")
+        val r = runCli(
+            backendTestProjectName = "invalid-project-root",
+            "--root",
+            explicitRoot.pathString,
+            "tasks",
+            expectedExitCode = 1,
+            assertEmptyStdErr = false,
+        )
+        val expected = "ERROR: The given path '$explicitRoot' is not a valid Amper project root " +
+                "directory. Make sure you have a project file or a module file at the root of your Amper project."
+        assertEquals(expected, r.stderr.trim())
     }
 
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {

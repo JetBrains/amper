@@ -59,7 +59,7 @@ class ProjectContext private constructor(
             val amperProjectContext = with(CliProblemReporterContext()) {
                 createProjectContext(explicitProjectRoot).also {
                     if (problemReporter.wereProblemsReported()) {
-                        userReadableError("failed to detect Amper project root, refer to the errors above")
+                        userReadableError("aborting because there were errors in the Amper project file, please see above")
                     }
                 }
             }
