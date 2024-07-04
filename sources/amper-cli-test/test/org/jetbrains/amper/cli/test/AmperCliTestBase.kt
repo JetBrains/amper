@@ -162,7 +162,15 @@ abstract class AmperCliTestBase {
     }
 
     private val libRoot: Path by lazy {
-        val unpackedLibRoot = TestUtil.amperCheckoutRoot.resolve("sources/cli/build/unpackedDistribution/lib")
+        val distRoot = System.getProperty("amper.unpacked.dist.root")?.let { Path.of(it) }
+            ?: run {
+                // TODO this should be passed via system properties set in test settings
+                // ref https://youtrack.jetbrains.com/issue/AMPER-253/Design-custom-tasks#focus=Comments-27-9984817.0-0
+                TestUtil.amperCheckoutRoot.resolve("build/tasks/_cli_unpackedDist/dist")
+            }
+
+        val unpackedLibRoot = distRoot.resolve("lib")
+
         check(unpackedLibRoot.isDirectory()) {
             "Not a directory: $unpackedLibRoot"
         }
