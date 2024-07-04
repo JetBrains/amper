@@ -193,7 +193,16 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (moduleDir == null) {
         SchemaBundle.reportBundleError(
             value = relativeModulePath,
-            messageKey = "project.module.dir.0.does.not.exist",
+            messageKey = "project.module.path.0.was.not.found",
+            relativeModulePath.value,
+            level = Level.Error,
+        )
+        return null
+    }
+    if (!moduleDir.isDirectory) {
+        SchemaBundle.reportBundleError(
+            value = relativeModulePath,
+            messageKey = "project.module.path.0.is.not.a.directory",
             relativeModulePath.value,
             level = Level.Error,
         )
