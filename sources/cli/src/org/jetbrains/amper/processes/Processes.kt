@@ -99,10 +99,11 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
             }
         } catch (e: IOException) {
             // If the process is killed externally on unix systems, the stream is eagerly closed,
-            // and reading from the sequence throws an IOException with "Stream closed" message.
+            // and reading from the sequence throws an IOException with "Stream closed" message,
+            // sometimes capitalized as "Stream Closed".
             // This check is brittle, but it's kind of the only way to account for this situation
             // by considering this exception as the end of the process output instead of crashing.
-            if (e.message == "Stream closed") {
+            if (e.message.equals("Stream closed", ignoreCase = true)) {
                 return sb.toString()
             }
             throw e
