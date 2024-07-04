@@ -191,8 +191,8 @@ class AmperShellScriptsTest {
         ) { result ->
             assertEquals("""
                 ERROR: Files already exist in the project root:
-                  project.yaml
                   jvm-cli/module.yaml
+                  project.yaml
             """.trimIndent(),
                 result.stderr
                     .replace("\r", "")

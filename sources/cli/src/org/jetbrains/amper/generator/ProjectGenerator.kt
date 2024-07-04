@@ -145,7 +145,7 @@ internal class ProjectGenerator(private val terminal: Terminal) {
         if (alreadyExistingFiles.isNotEmpty()) {
             userReadableError(
                 "Files already exist in the project root:\n" +
-                        alreadyExistingFiles.joinToString("\n").prependIndent("  ")
+                        alreadyExistingFiles.sorted().joinToString("\n").prependIndent("  ")
             )
         }
     }
