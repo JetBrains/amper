@@ -22,8 +22,6 @@ import org.jetbrains.amper.frontend.processing.readTemplate
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.GradleAmperProjectContext
 import org.jetbrains.amper.frontend.project.SingleModuleProjectContextForIde
-import org.jetbrains.amper.frontend.project.LegacyAutoDiscoveringProjectContext
-import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import java.nio.file.Path
 
 // The ServiceLoader mechanism requires a no-arg constructor, which doesn't work with Kotlin objects.
@@ -32,22 +30,6 @@ internal class SchemaBasedModelImportServiceProxy : ModelInit by SchemaBasedMode
 
 object SchemaBasedModelImport : ModelInit {
     override val name = "schema-based"
-
-    context(ProblemReporterContext)
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "Auto-discovery is deprecated. Create an AmperProjectContext and use getModel(context) instead.",
-        replaceWith = ReplaceWith(
-            expression = "this.getModel(StandaloneAmperProjectContext.create(root, project))",
-            imports = ["org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext"],
-        ),
-    )
-    @UsedInIdePlugin
-    fun getModel(root: Path, project: Project?): Result<Model> {
-        val pathResolver = FrontendPathResolver(project = project)
-        val projectContext = LegacyAutoDiscoveringProjectContext(pathResolver, pathResolver.loadVirtualFile(root))
-        return getModel(projectContext)
-    }
 
     context(ProblemReporterContext)
     override fun getGradleAmperModel(rootProjectDir: Path, subprojectDirs: List<Path>): Result<Model> =
