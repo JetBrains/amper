@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.condition.OS
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -5,6 +6,9 @@ import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -90,13 +94,13 @@ open class TestBase {
 
     fun assembleTargetApp(projectDir: File) {
         listOf("assemble").forEach { task ->
-            val gradlewFile = File("../../gradlew")
-            if (gradlewFile.exists()) {
+            val gradlewPath = if (OS.current() == OS.WINDOWS) Path("../../gradlew.bat") else Path("../../gradlew")
+            if (gradlewPath.exists()) {
                 println("Executing '$task' in ${projectDir.name}")
-                val processBuilder = ProcessBuilder("/bin/sh", "-c", "${gradlewFile.absolutePath} $task")
-                processBuilder.directory(projectDir)
+                val process = ProcessBuilder(gradlewPath.absolutePathString(), task)
+                    .directory(projectDir)
                     .redirectErrorStream(true)
-                val process = processBuilder.start()
+                    .start()
                 println("Started './gradlew $task' with process id: ${process.pid()} in ${projectDir.name}")
                 process.apply {
                     inputStream.bufferedReader().use { reader ->

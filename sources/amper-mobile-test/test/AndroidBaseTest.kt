@@ -1,7 +1,6 @@
-import java.io.BufferedReader
+import org.junit.jupiter.api.condition.OS
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStreamReader
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -137,10 +136,11 @@ open class AndroidBaseTest : TestBase() {
 
     private fun assembleTestApp() {
         val stdout = ByteArrayOutputStream()
+        val gradlewPath = if (OS.current() == OS.WINDOWS) "../../gradlew.bat" else "../../gradlew"
 
         executeCommand(
             command = listOf(
-                "../../gradlew",
+                gradlewPath,
                 "-p",
                 "../gradle-e2e-test/testData/projects/test-apk",
                 "createDebugAndroidTestApk"
