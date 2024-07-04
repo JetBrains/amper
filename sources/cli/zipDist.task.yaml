@@ -13,7 +13,7 @@ publishArtifact:
   - path: amper
     artifactId: cli
     classifier: wrapper
-    extension: sh
+    extension: ""
   - path: amper.bat
     artifactId: cli
     classifier: wrapper
