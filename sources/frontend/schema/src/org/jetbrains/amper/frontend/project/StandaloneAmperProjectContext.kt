@@ -5,6 +5,7 @@
 package org.jetbrains.amper.frontend.project
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
@@ -22,6 +23,7 @@ import com.intellij.openapi.project.Project as IJProject
 
 private val amperProjectFileNames = setOf("project.yaml", "project.amper")
 
+@UsedInIdePlugin
 class StandaloneAmperProjectContext(
     override val frontendPathResolver: FrontendPathResolver,
     override val projectRootDir: VirtualFile,
@@ -57,6 +59,7 @@ class StandaloneAmperProjectContext(
          * The given IntelliJ [project] is used to access the VFS. If null, a mock project will be created.
          */
         context(ProblemReporterContext)
+        @UsedInIdePlugin
         fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             val result = preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start)) ?: return null
