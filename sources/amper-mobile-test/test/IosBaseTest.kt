@@ -1,6 +1,6 @@
 import java.io.*
 
-open class iOSBaseTest(): TestBase() {
+open class iOSBaseTest : TestBase() {
 
     private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {
         val appFile = File("iOSTestsAssets/app/Debug-iphonesimulator/iosApp.app")

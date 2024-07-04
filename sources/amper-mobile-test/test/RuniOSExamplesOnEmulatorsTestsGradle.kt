@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class RuniOSExamplesOnEmulatorsTestsGradle() : iOSBaseTest() {
+class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
 
     @Test
     fun composeiOSAppGradle() = testRunnerGradle(

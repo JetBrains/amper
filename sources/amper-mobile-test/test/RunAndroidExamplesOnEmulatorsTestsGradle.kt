@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class RunAndroidExamplesOnEmulatorsTestsGradle() : AndroidBaseTest() {
+class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
 
     @Test
     fun composeAndroidAppGradle() = testRunnerGradle(

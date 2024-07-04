@@ -7,7 +7,7 @@ import java.io.InputStreamReader
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-open class AndroidBaseTest():TestBase() {
+open class AndroidBaseTest : TestBase() {
     val sessionInfoPath = "./scripts/device.session.json"
 
     private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {

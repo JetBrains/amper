@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class RuniOSExamplesOnEmulatorsTestsStandalone() : iOSBaseTest() {
+class RuniOSExamplesOnEmulatorsTestsStandalone : iOSBaseTest() {
 
     @Test
     fun composeiOSAppStandalone() = testRunnerPure(
