@@ -7,6 +7,3 @@ dependencies:
 
 settings:
   compose: enabled
-
-module:
-  layout: default
