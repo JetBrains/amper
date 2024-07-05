@@ -258,8 +258,9 @@ class AmperCliTest: AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
-        assertContains(r.stdout, "project.yaml:7:5: Glob pattern \"glob-with-no-matches-at-all/*\" doesn't match any Amper module directory")
-        assertContains(r.stdout, "project.yaml:8:5: Glob pattern \"not-a-modul?\" doesn't match any Amper module directory")
+        assertContains(r.stdout, "project.yaml:7:5: Glob pattern \"glob-with-no-matches-at-all/*\" doesn't match any Amper module directory under the project root")
+        assertContains(r.stdout, "project.yaml:8:5: Glob pattern \"not-a-modul?\" doesn't match any Amper module directory under the project root")
+        assertContains(r.stdout, "project.yaml:12:5: The root module is included by default")
 
         assertContains(r.stderr, "project.yaml:3:5: Unresolved path \"./does-not-exist\"")
         assertContains(r.stderr, "project.yaml:4:5: Unresolved path \"./does/not/exist\"")
@@ -271,6 +272,7 @@ class AmperCliTest: AmperCliTestBase() {
         assertContains(r.stderr, "project.yaml:10:5: Invalid glob pattern \"broken[z-a]syntax\": Invalid range near index 7\n" +
                 "broken[z-a]syntax\n" +
                 "       ^")
+        assertContains(r.stderr, "project.yaml:11:5: Directory \"../jvm-default-compiler-settings\" is not under the project root")
         assertContains(r.stderr, "ERROR: aborting because there were errors in the Amper project file, please see above")
     }
 

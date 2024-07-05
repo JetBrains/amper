@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.project
 
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.messages.Level
@@ -201,7 +202,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     if (moduleDir == null) {
         SchemaBundle.reportBundleError(
             value = relativeModulePath,
-            messageKey = "project.module.path.0.was.not.found",
+            messageKey = "project.module.path.0.unresolved",
             relativeModulePath.value,
             level = Level.Error,
         )
@@ -224,6 +225,23 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
             relativeModulePath.value,
             level = Level.Error,
         )
+        return null
+    }
+    if (moduleDir.url == url) {
+        SchemaBundle.reportBundleError(
+            value = relativeModulePath,
+            messageKey = "project.module.root.is.included.by.default",
+            level = Level.Redundancy,
+        )
+    }
+    if (!VfsUtilCore.isAncestor(this, moduleDir, false)) {
+        SchemaBundle.reportBundleError(
+            value = relativeModulePath,
+            messageKey = "project.module.dir.0.is.not.under.root",
+            relativeModulePath.value,
+            level = Level.Error,
+        )
+        return null
     }
     return moduleFile
 }
