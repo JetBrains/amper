@@ -1,5 +1,12 @@
 ### Using the Gradle-based Amper version from the command line
 
+> To use the Gradle-based version of Amper: 
+> * JDK 17+ is required. 
+> * Gradle 8.6 is recommended. Gradle 8.7+ is supported, but in that case 
+  [customizing the Compose framework version is not possible yet](https://youtrack.jetbrains.com/issue/AMPER-443). 
+  To make sure your project uses the desired Gradle version, 
+  check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
+
 To learn how to add Amper to your existing Gradle project, 
 check the [documentation](Documentation.md#gradle-based-projects) and the [tutorial](GradleMigration.md).
 After adding Amper, you can use Gradle as usual.
@@ -31,10 +38,12 @@ plugins {
 
 ### Using the standalone Amper version from the command line
 
-To use the Amper CLI, you need to download the wrapper script to your project's root folder. The wrapper script is
+> The standalone version of Amper is a self-containing executable that can be downloaded using the standard OS tools.
+
+To use the Amper CLI, you need to download the Amper executable script to your project's root folder. The script is
 a small file that downloads and runs the actual Amper CLI distribution.
 
-Depending on your operating system, use one of the following commands to download the wrapper script:
+Depending on your operating system, use one of the following commands to download the script:
 Linux/macOS:
 ```
 curl -fsSL -o amper "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.4.0-dev-635/cli-0.4.0-dev-635-wrapper?download=true" && chmod +x amper
@@ -45,7 +54,7 @@ Windows powershell:
 Invoke-WebRequest -Uri https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/0.4.0-dev-635/cli-0.4.0-dev-635-wrapper.bat?download=true -OutFile amper.bat
 ```
 
-Alternatively, you can use any other method to download the wrapper script from the Maven repository, as long as you
+Alternatively, you can use any other method to download the script from the Maven repository, as long as you
 save it with the correct name and extension.
 
 After that, run the Amper script to explore what is possible using Amper CLI:
@@ -61,8 +70,8 @@ Windows powershell:
 ./amper.bat --help
 ```
 
-> The first time you run the wrapper script, it will take some time to download the JDK and Amper CLI distribution.
-Subsequent runs will be faster, as the downloaded files will be cached locally.
+> The first time you run the Amper script, it will take some time to download the JDK and Amper CLI distribution.
+> Subsequent runs will be faster, as the downloaded files will be cached locally.
 
 Useful commands:
 - `amper init` to create a new Amper project
@@ -82,6 +91,9 @@ cd jvm
 Use the same procedure as for [downloading Amper executables](#using-the-standalone-amper-version-from-the-command-line).
 
 ### Using Amper in IntelliJ IDEA
+
+> The latest [IntelliJ IDEA EAP](https://www.jetbrains.com/idea/nextversion/) can be used to work with 
+> JVM and Android projects.
 
 See [the setup instructions](Setup.md) to configure your IDE and the environment.
 
@@ -111,7 +123,11 @@ To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon
 
 
 ### Using Amper in Fleet
-See [the setup instructions](Setup.md) to configure your IDE and the environment.
+
+> the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) can be used to work with
+> JVM, Android and Multiplatform projects.
+
+* See [the setup instructions](Setup.md) to configure your IDE and the environment.
 
 Open an Amper project as usual by [pointing at the root folder](https://www.jetbrains.com/help/fleet/workspace.html#-s4tcw2_13).
 

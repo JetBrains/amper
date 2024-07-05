@@ -1689,6 +1689,27 @@ application {
 }
 ```
 
+#### Configuring C-interop using the Gradle build file
+
+Use the following configuration to add C-interopn in a Gradle-based Amper: 
+
+```kotlin
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
+kotlin {
+  targets.filterIsInstance<KotlinNativeTarget>().forEach {
+    it.compilations.getByName("main").cinterops {
+      val libcurl by creating {
+        // ...
+      }
+    }
+  }
+}
+```
+
+Read more on C-interop configuration in
+the [Kotlin/Native documentation](https://kotlinlang.org/docs/native-app-with-c-and-libcurl.html#add-interoperability-to-the-build-process).
+
 #### File layout with Gradle interop
 
 The default [module layout](#project-layout) suites best for the newly created modules:  

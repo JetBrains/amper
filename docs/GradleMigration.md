@@ -9,14 +9,7 @@ If you are looking for more detailed info on Gradle interop, check [the document
 
 ### Before you start
 
-Check the [setup instructions](Setup.md).
-
-Note, that:
-* JDK 17+ is required. Make sure you have it installed and selected in the IDE. 
-* Gradle 8.6 is recommended. Gradle 8.7+ is supported, but in that case customizing the Compose framework version is 
-  not possible. 
-  To make sure your project uses the desired Gradle version, 
-  check the `./gradle/wrapper/gradle-wrapper.properties` in the root of your project.
+Check the [setup](Setup.md) and the [usage](Usage.md#using-the-gradle-based-amper-version-from-the-command-line) instructions.
 
 ### Step 1. Configure settings.gradle.kts
 
