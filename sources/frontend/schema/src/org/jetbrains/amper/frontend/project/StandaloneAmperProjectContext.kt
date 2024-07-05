@@ -18,6 +18,8 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertProject
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.nio.file.PathMatcher
+import java.util.regex.PatternSyntaxException
 import kotlin.io.path.relativeTo
 import com.intellij.openapi.project.Project as IJProject
 
@@ -179,15 +181,18 @@ private val globChars = setOf('*', '?', '{', '}', '[', ']', ',')
 private fun String.isPotentialGlob() = any { it in globChars }
 
 context(ProblemReporterContext)
-private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> {
-    // short-circuit if there are no glob patterns, to avoid walking the file system unnecessarily
-    if (modules.none { it.value.isPotentialGlob() }) {
-        return modules.mapNotNull { projectRootDir.resolveModuleFileOrNull(relativeModulePath = it) }
+private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> =
+    modules.flatMap { modulePathOrGlob ->
+        projectRootDir.resolveMatchingModuleFiles(modulePathOrGlob)
     }
-    // TODO report warning if a glob doesn't match anything?
-    val moduleFileNamesPattern = amperModuleFileNames.joinToString(",")
-    val moduleFilesGlobs = modules.map { dirGlob -> "${dirGlob.value.normalizeGlob()}/{$moduleFileNamesPattern}" }
-    return projectRootDir.resolveGlobsRecursively(moduleFilesGlobs)
+
+context(ProblemReporterContext)
+private fun VirtualFile.resolveMatchingModuleFiles(relativeModulePathOrGlob: TraceableString): List<VirtualFile> {
+    // avoid walking the file tree if it's just a plain path (not a glob)
+    if (!relativeModulePathOrGlob.value.isPotentialGlob()) {
+        return listOfNotNull(resolveModuleFileOrNull(relativeModulePathOrGlob))
+    }
+    return resolveModuleFilesRecursively(relativeModulePathOrGlob)
 }
 
 context(ProblemReporterContext)
@@ -223,6 +228,46 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
     return moduleFile
 }
 
+context(ProblemReporterContext)
+private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableString): List<VirtualFile> {
+    val moduleFileNamesPattern = amperModuleFileNames.joinToString(",")
+    val moduleFilesGlob = "${moduleDirGlob.value.normalizeGlob()}/{$moduleFileNamesPattern}"
+    val moduleFilesGlobMatcher = try {
+        FileSystems.getDefault().getPathMatcher("glob:$moduleFilesGlob")
+    } catch (e: PatternSyntaxException) {
+        reportInvalidGlob(moduleDirGlob, moduleFilesGlob)
+        return emptyList()
+    }
+    val matchingModuleFiles = resolveMatchingDescendants(moduleFilesGlobMatcher)
+    if (matchingModuleFiles.isEmpty()) {
+        SchemaBundle.reportBundleError(
+            value = moduleDirGlob,
+            messageKey = "project.module.glob.0.matches.nothing",
+            moduleDirGlob.value,
+            level = Level.Redundancy,
+        )
+    }
+    return matchingModuleFiles
+}
+
+context(ProblemReporterContext)
+private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFilesGlob: String) {
+    try {
+        // we want to generate a glob syntax error for the exact user-provided string, not our own construction
+        FileSystems.getDefault().getPathMatcher("glob:${moduleDirGlob.value}")
+        // If the user glob succeeds on its own, we have a bug in our code which creates an invalid glob for module files
+        error("Invalid glob '$generatedModuleFilesGlob' constructed internally for a valid user-provided glob '${moduleDirGlob.value}'")
+    } catch (e: PatternSyntaxException) {
+        SchemaBundle.reportBundleError(
+            value = moduleDirGlob,
+            messageKey = "project.module.glob.0.is.invalid.1",
+            moduleDirGlob.value,
+            e.message ?: "(no additional information)",
+            level = Level.Error,
+        )
+    }
+}
+
 // Regular path normalization doesn't work with globs, because they contain invalid characters (e.g. '*').
 // We do need to normalize to some extent, at least for frequently used elements like './' or '/' suffix.
 // More advanced cases like '/../' can be added later.
@@ -231,21 +276,16 @@ private fun String.normalizeGlob(): String = removePrefix("./")
     .removeSuffix("/.")
     .removeSuffix("/")
 
-private fun VirtualFile.resolveGlobsRecursively(globs: List<String>): List<VirtualFile> {
+/**
+ * Returns the list of descendants of this [VirtualFile] matching the given [matcher].
+ */
+private fun VirtualFile.resolveMatchingDescendants(matcher: PathMatcher): List<VirtualFile> {
     val base = this.toNioPath()
-    val matchers = globs.map { glob ->
-        FileSystems.getDefault().getPathMatcher("glob:$glob")
-    }
-    val matchingFiles = mutableListOf<VirtualFile>()
 
-    // We cannot skip the subtree when we have a match, because other modules could be deeper in it.
+    // We cannot skip the subtree when we have a match, because other matches could be deeper in it.
     // The most obvious example: `**` should match `foo`, `foo/bar`, `foo/bar/baz`
-    forEachDescendant { file ->
+    return filterDescendants { file ->
         val pathToTest = file.toNioPath().relativeTo(base).normalize()
-        if (matchers.any { it.matches(pathToTest) }) {
-            matchingFiles.add(file)
-        }
-        true
+        matcher.matches(pathToTest)
     }
-    return matchingFiles
 }

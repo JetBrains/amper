@@ -4,3 +4,7 @@ modules:
   - ./does/not/exist
   - not-a-dir
   - not-a-module
+  - glob-with-no-matches-at-all/*
+  - not-a-modul? # matches some dirs, but none with a module.yaml in it
+  - broken[syntax
+  - broken[z-a]syntax

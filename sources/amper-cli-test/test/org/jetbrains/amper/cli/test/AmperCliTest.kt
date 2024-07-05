@@ -258,10 +258,19 @@ class AmperCliTest: AmperCliTestBase() {
             expectedExitCode = 1,
             assertEmptyStdErr = false,
         )
+        assertContains(r.stdout, "project.yaml:7:5: Glob pattern \"glob-with-no-matches-at-all/*\" doesn't match any Amper module directory")
+        assertContains(r.stdout, "project.yaml:8:5: Glob pattern \"not-a-modul?\" doesn't match any Amper module directory")
+
         assertContains(r.stderr, "project.yaml:3:5: Unresolved path \"./does-not-exist\"")
         assertContains(r.stderr, "project.yaml:4:5: Unresolved path \"./does/not/exist\"")
         assertContains(r.stderr, "project.yaml:5:5: \"not-a-dir\" is not a directory")
         assertContains(r.stderr, "project.yaml:6:5: Directory \"not-a-module\" doesn't contain an Amper module file")
+        assertContains(r.stderr, "project.yaml:9:5: Invalid glob pattern \"broken[syntax\": Missing '] near index 12\n" +
+                "broken[syntax\n" +
+                "            ^")
+        assertContains(r.stderr, "project.yaml:10:5: Invalid glob pattern \"broken[z-a]syntax\": Invalid range near index 7\n" +
+                "broken[z-a]syntax\n" +
+                "       ^")
         assertContains(r.stderr, "ERROR: aborting because there were errors in the Amper project file, please see above")
     }
 
