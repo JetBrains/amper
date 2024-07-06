@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -45,6 +46,10 @@ class CustomTask(
 
         val codeModule = custom.customTaskCodeModule
         val fragments = codeModule.fragments
+
+        check(codeModule.type == ProductType.JVM_APP) {
+            "Custom task module '${codeModule.userReadableName}' should have 'jvm/app' type"
+        }
 
         val effectiveMainClassFqn = fragments.findEffectiveJvmMainClass()
             ?: error("Main Class was not found for ${codeModule.userReadableName} in any of the following " +

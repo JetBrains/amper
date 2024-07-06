@@ -1,6 +1,4 @@
-product:
-  type: lib
-  platforms: [ jvm ]
+product: jvm/app
 
 dependencies:
   - ../tasks
