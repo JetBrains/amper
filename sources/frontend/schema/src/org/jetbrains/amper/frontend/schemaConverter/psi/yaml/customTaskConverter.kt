@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.customTaskSchema.AddTaskOutputToSourceSetNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.customTaskSchema.PublishArtifactNode
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
@@ -33,6 +34,7 @@ internal fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
 context(ProblemReporterContext, ConvertCtx)
 private fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
     with(asMappingNode() ?: return@apply) {
+        ::sourceSet.convertChildEnum(CustomTaskSourceSetType)
         ::taskOutputSubFolder.convertChildScalar { textValue }
         ::addToTestSources.convertChildBoolean()
     }

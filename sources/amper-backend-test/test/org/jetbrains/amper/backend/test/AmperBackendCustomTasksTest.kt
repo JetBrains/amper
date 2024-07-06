@@ -50,6 +50,19 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `generate resources`() = runTestInfinitely {
+        val projectContext = setupTestDataProject("generate-resources", backgroundScope = backgroundScope)
+        val backend = AmperBackend(projectContext)
+        backend.showTasks()
+        backend.runTask(TaskName(":generate-resources:runJvm"))
+        assertInfoLogStartsWith(
+            "Process exited with exit code 0\n" +
+                    "STDOUT:\n" +
+                    "Resources OK"
+        )
+    }
+
+    @Test
     fun `generate dist`() = runTestInfinitely {
         val projectContext = setupTestDataProject("generate-dist", backgroundScope = backgroundScope)
         val taskName = TaskName(":generate-dist:dist")

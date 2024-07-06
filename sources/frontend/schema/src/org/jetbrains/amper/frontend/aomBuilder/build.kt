@@ -34,6 +34,7 @@ import org.jetbrains.amper.frontend.api.unsafe
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
+import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.diagnostics.AomSingleModuleDiagnosticFactories
 import org.jetbrains.amper.frontend.diagnostics.IsmDiagnosticFactories
 import org.jetbrains.amper.frontend.processing.BuiltInCatalog
@@ -257,7 +258,10 @@ private fun buildCustomTask(
             DefaultAddToModuleRootsFromCustomTask(
                 taskOutputRelativePath = relativePath,
                 isTest = it.addToTestSources,
-                type = AddToModuleRootsFromCustomTask.Type.SOURCES, // TODO
+                type = when (it.sourceSet) {
+                    CustomTaskSourceSetType.SOURCES -> AddToModuleRootsFromCustomTask.Type.SOURCES
+                    CustomTaskSourceSetType.RESOURCES -> AddToModuleRootsFromCustomTask.Type.RESOURCES
+                },
                 platform = Platform.JVM, // TODO
             )
         },

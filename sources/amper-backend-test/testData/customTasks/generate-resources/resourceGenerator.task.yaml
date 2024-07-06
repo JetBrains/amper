@@ -1,0 +1,13 @@
+type: jvm/external-task
+
+module: buildscript
+programArguments:
+  - ${outputDirectory}
+
+addTaskOutputToSourceSet:
+  - taskOutputSubFolder: subDir
+    platform: jvm
+    sourceSet: resources
+  - taskOutputSubFolder: build.properties
+    platform: jvm
+    sourceSet: resources

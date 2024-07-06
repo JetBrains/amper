@@ -9,6 +9,8 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 
 @SchemaDoc("Add folder from ")
 class AddTaskOutputToSourceSetNode: SchemaNode() {
+    var sourceSet by value<CustomTaskSourceSetType>(CustomTaskSourceSetType.SOURCES)
+
     @SchemaDoc("Use this folder from task output to add to sources of current module")
     var taskOutputSubFolder by value<String>()
 
