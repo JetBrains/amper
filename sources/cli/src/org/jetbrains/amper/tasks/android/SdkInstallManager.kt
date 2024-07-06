@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.android
 
 import com.android.repository.api.ConsoleProgressIndicator
+import com.android.repository.api.License
 import com.android.repository.api.LocalPackage
 import com.android.repository.api.RemotePackage
 import com.android.repository.api.RepoManager
@@ -146,11 +147,13 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
     private suspend fun HttpClient.getRepository(url: Url): Repository =
         get(url).bodyAsChannel().toInputStream().use { it.unmarshal<Repository>() }
 
-    fun checkSdkLicenses(): Boolean = androidSdkPath
+    fun findUnacceptedSdkLicenses(): List<License> = androidSdkPath
         .walk()
         .filter { it.name == "package.xml" }
-        .map { it.readRepository() }
-        .all { rep -> rep.localPackage.license.checkAccepted(androidSdkPath) }
+        .map { it.readRepository().localPackage.license }
+        .filterNot { license -> license.checkAccepted(androidSdkPath) }
+        .distinctBy { it.id }
+        .toList()
 
     private fun writePackageXml(pkg: RemotePackage, localPackagePath: Path): LocalPackage {
         val localPackage = LocalPackageImpl.create(pkg)

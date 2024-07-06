@@ -95,13 +95,13 @@ abstract class AmperIntegrationTestBase {
         copyToTemp: Boolean,
         programArgs: List<String> = emptyList(),
         backgroundScope: CoroutineScope,
-        isEmptyAndroidHome: Boolean = false,
+        useEmptyAndroidHome: Boolean = false,
     ): ProjectContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
-        val androidHomeRoot = if (isEmptyAndroidHome)
+        val androidHomeRoot = if (useEmptyAndroidHome)
             AndroidHomeRoot((TestUtil.sharedTestCaches / "empty-android-sdk").also { it.createDirectories() })
         else
             AndroidHomeRoot(TestUtil.androidHome)

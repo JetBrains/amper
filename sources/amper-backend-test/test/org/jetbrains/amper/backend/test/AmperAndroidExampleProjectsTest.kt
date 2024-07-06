@@ -42,6 +42,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -53,8 +54,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope, isEmptyAndroidHome: Boolean = false): ProjectContext =
-        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope, isEmptyAndroidHome = isEmptyAndroidHome)
+    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope, useEmptyAndroidHome: Boolean = false): ProjectContext =
+        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope, useEmptyAndroidHome = useEmptyAndroidHome)
 
     /**
      * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.
@@ -126,13 +127,20 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
 
     @Test
     fun `should fail when license is not accepted`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope, isEmptyAndroidHome = true)
+        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope, useEmptyAndroidHome = true)
 
         val throwable = assertFails {
             AmperBackend(projectContext).build()
         }
 
-        assertContains( throwable.message!!, "failed: There are some licenses have not been accepted for Android SDK.")
+        val sdkmanagerPath = TestUtil.sharedTestCaches / "empty-android-sdk/cmdline-tools/latest/bin/sdkmanager"
+
+        val expectedError = """
+            Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted for Android SDK:
+             - android-sdk-license
+            Run "$sdkmanagerPath --licenses" to review and accept them
+        """.trimIndent()
+        assertEquals(throwable.message, expectedError)
     }
 
     @Test
