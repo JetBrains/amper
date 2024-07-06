@@ -161,7 +161,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         return localPackage
     }
 
-    private fun <T> InputStream.unmarshal(): T = SchemaModuleUtil.unmarshal(
+    private inline fun <reified T> InputStream.unmarshal(): T = SchemaModuleUtil.unmarshal(
         this,
         listOf(
             AndroidSdkHandler.getRepositoryModule(),
