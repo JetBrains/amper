@@ -13,6 +13,7 @@ import com.android.repository.api.Repository
 import com.android.repository.impl.meta.LocalPackageImpl
 import com.android.repository.impl.meta.SchemaModuleUtil
 import com.android.sdklib.repository.AndroidSdkHandler
+import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -34,6 +35,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
 import kotlin.io.path.walk
@@ -75,8 +77,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             if (localFileSystemPackagePath.exists()) {
                 val packageManifest = localFileSystemPackagePath / "package.xml"
                 if (packageManifest.exists()) {
-                    val repo = packageManifest.toFile().inputStream().unmarshal<Repository>()
-                    repo.localPackage
+                    packageManifest.readRepository().localPackage
                 } else {
                     packagePath.emptyLocalPackage()
                 }
@@ -105,8 +106,7 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
             if (localFileSystemPackagePath.exists()) {
                 val packageManifest = localFileSystemPackagePath / "package.xml"
                 if (packageManifest.exists()) {
-                    val repo = packageManifest.toFile().inputStream().unmarshal<Repository>()
-                    repo.localPackage
+                    packageManifest.readRepository().localPackage
                 } else {
                     packagePath.emptyLocalPackage()
                 }
@@ -133,22 +133,23 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         return writePackageXml(pkg, localPackagePath)
     }
 
-    suspend fun packages(): Repository = coroutineScope {
-        val urlBuilder = androidRepositoryUrlBuilder.appendPathSegments("/repository2-3.xml")
-        val xmlStream = httpClient.get(urlBuilder.build()).bodyAsChannel().toInputStream()
-        xmlStream.unmarshal()
+    suspend fun packages(): Repository {
+        val url = androidRepositoryUrlBuilder.appendPathSegments("/repository2-3.xml").build()
+        return httpClient.getRepository(url)
     }
 
-    suspend fun systemImages(): Repository = coroutineScope {
-        val urlBuilder = androidSystemImagesRepositoryUrlBuilder.appendPathSegments("/sys-img2-3.xml")
-        val xmlStream = httpClient.get(urlBuilder.build()).bodyAsChannel().toInputStream()
-        xmlStream.unmarshal()
+    suspend fun systemImages(): Repository {
+        val url = androidSystemImagesRepositoryUrlBuilder.appendPathSegments("/sys-img2-3.xml").build()
+        return httpClient.getRepository(url)
     }
+
+    private suspend fun HttpClient.getRepository(url: Url): Repository =
+        get(url).bodyAsChannel().toInputStream().use { it.unmarshal<Repository>() }
 
     fun checkSdkLicenses(): Boolean = androidSdkPath
         .walk()
         .filter { it.name == "package.xml" }
-        .map { it.toFile().inputStream().unmarshal<Repository>() }
+        .map { it.readRepository() }
         .all { rep -> rep.localPackage.license.checkAccepted(androidSdkPath) }
 
     private fun writePackageXml(pkg: RemotePackage, localPackagePath: Path): LocalPackage {
@@ -157,9 +158,11 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         val repo = factory.createRepositoryType()
         repo.setLocalPackage(localPackage)
         repo.addLicense(pkg.license)
-        (localPackagePath / "package.xml").outputStream().marshal(factory.generateRepository(repo))
+        (localPackagePath / "package.xml").outputStream().use { it.marshal(factory.generateRepository(repo)) }
         return localPackage
     }
+
+    private fun Path.readRepository(): Repository = inputStream().use { it.unmarshal<Repository>() }
 
     private inline fun <reified T> InputStream.unmarshal(): T = SchemaModuleUtil.unmarshal(
         this,
@@ -195,7 +198,5 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         )
     }
 
-
     private val logger = LoggerFactory.getLogger(javaClass)
-
 }
