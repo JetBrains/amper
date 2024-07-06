@@ -1,0 +1,10 @@
+type: jvm/external-task
+
+module: ../build-related/generate-build-properties
+programArguments:
+  - ${outputDirectory}
+
+addTaskOutputToSourceSet:
+  - taskOutputSubFolder: build.properties
+    sourceSet: resources
+    platform: jvm

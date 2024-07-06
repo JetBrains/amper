@@ -11,6 +11,7 @@ modules:
   - sources/android-integration/runner
   - sources/build-related/build-unpacked-dist
   - sources/build-related/build-zip-dist
+  - sources/build-related/generate-build-properties
   - sources/build-related/tasks
   - sources/cli
   - sources/concurrency
