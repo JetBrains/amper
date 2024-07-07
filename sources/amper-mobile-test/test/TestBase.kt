@@ -30,18 +30,14 @@ open class TestBase {
         val destinationProjectPath = destinationBasePath.resolve(projectName)
 
         try {
-            if (!destinationBasePath.exists()) {
-                destinationBasePath.createDirectories()
-            }
+            destinationBasePath.createDirectories()
 
             // TODO why not just sourceDir.copyToRecursively(destinationProjectPath)?
             Files.walk(sourceDir).use { stream ->
                 stream.forEach { source ->
                     val destination = destinationProjectPath.resolve(sourceDir.relativize(source))
                     if (source.isDirectory()) {
-                        if (!destination.exists()) {
-                            destination.createDirectories()
-                        }
+                        destination.createDirectories()
                     } else {
                         source.copyTo(destination, StandardCopyOption.REPLACE_EXISTING)
                     }

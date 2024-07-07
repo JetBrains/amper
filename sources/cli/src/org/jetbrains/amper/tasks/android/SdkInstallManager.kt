@@ -56,9 +56,7 @@ private val androidSystemImagesRepositoryUrlBuilder: URLBuilder
 class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private val androidSdkPath: Path) {
 
     init {
-        if (!androidSdkPath.exists()) {
-            androidSdkPath.createDirectories()
-        }
+        androidSdkPath.createDirectories()
     }
 
     suspend fun install(packagePath: String): RepoPackage {
