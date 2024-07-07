@@ -4,10 +4,11 @@
 
 import com.intellij.util.io.sha256Hex
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
 import kotlin.io.path.createDirectories
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 plugins {
     `maven-publish`
@@ -80,8 +81,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
         values: List<Pair<String, String>>,
         outputWindowsLineEndings: Boolean = false,
     ) {
-        var result = Files.readString(inputFile)
-            .replace("\r", "")
+        var result = inputFile.readText().replace("\r", "")
 
         val missingPlaceholders = mutableListOf<String>()
         for ((name, value) in values) {
@@ -123,7 +123,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
         }
 
         outputFile.parent.createDirectories()
-        Files.writeString(outputFile, result)
+        outputFile.writeText(result)
     }
 
     @TaskAction
