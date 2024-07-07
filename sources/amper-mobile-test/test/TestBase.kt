@@ -3,14 +3,11 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.copyTo
+import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -30,18 +27,7 @@ open class TestBase {
 
         try {
             destinationBasePath.createDirectories()
-
-            // TODO why not just sourceDir.copyToRecursively(destinationProjectPath)?
-            Files.walk(sourceDir).use { stream ->
-                stream.forEach { source ->
-                    val destination = destinationProjectPath.resolve(sourceDir.relativize(source))
-                    if (source.isDirectory()) {
-                        destination.createDirectories()
-                    } else {
-                        source.copyTo(destination, StandardCopyOption.REPLACE_EXISTING)
-                    }
-                }
-            }
+            sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
         } catch (ex: IOException) {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
