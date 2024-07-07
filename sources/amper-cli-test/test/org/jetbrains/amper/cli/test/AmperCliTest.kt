@@ -8,6 +8,8 @@ import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.m2repository
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -25,6 +27,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
     @Test
     fun smoke() = runTestInfinitely {
