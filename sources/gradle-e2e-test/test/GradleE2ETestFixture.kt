@@ -8,10 +8,10 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.CopyActionResult
 import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -121,7 +121,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
         assertTrue(originalDir.exists(), "Test project not found at $originalDir")
 
         // prepare data
-        val tempDir = Files.createTempFile(TestUtil.tempDir, "test-", "-$projectName")
+        val tempDir = createTempFile(TestUtil.tempDir, "test-", "-$projectName")
         tempDir.deleteExisting()
         GradleDaemonManager.deleteFileOrDirectoryOnExit(tempDir)
 

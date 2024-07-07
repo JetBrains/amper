@@ -7,9 +7,9 @@ package org.jetbrains.amper.frontend.old.helper
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 
@@ -20,7 +20,7 @@ abstract class TestBase(
 
     @BeforeEach
     fun beforeEach() {
-        buildDir = Files.createTempDirectory(TestUtil.tempDir, "test-base")
+        buildDir = createTempDirectory(TestUtil.tempDir, "test-base")
     }
 
     @AfterEach

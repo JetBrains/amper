@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
+import kotlin.io.path.createDirectories
 
 plugins {
     `maven-publish`
@@ -121,7 +122,7 @@ abstract class ProcessAmperScriptTask : DefaultTask() {
             }
         }
 
-        Files.createDirectories(outputFile.parent)
+        outputFile.parent.createDirectories()
         Files.writeString(outputFile, result)
     }
 

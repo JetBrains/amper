@@ -8,7 +8,10 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -20,26 +23,27 @@ open class TestBase {
     fun copyProject(projectName: String, sourceDirectory: String) {
         val sourceDir = Paths.get(sourceDirectory).resolve(projectName)
 
-        if (!Files.exists(sourceDir)) {
+        if (!sourceDir.exists()) {
             throw IllegalArgumentException("Source directory does not exist: $sourceDir")
         }
 
         val destinationProjectPath = destinationBasePath.resolve(projectName)
 
         try {
-            if (!Files.exists(destinationBasePath)) {
-                Files.createDirectories(destinationBasePath)
+            if (!destinationBasePath.exists()) {
+                destinationBasePath.createDirectories()
             }
 
+            // TODO why not just sourceDir.copyToRecursively(destinationProjectPath)?
             Files.walk(sourceDir).use { stream ->
                 stream.forEach { source ->
                     val destination = destinationProjectPath.resolve(sourceDir.relativize(source))
-                    if (Files.isDirectory(source)) {
-                        if (!Files.exists(destination)) {
-                            Files.createDirectories(destination)
+                    if (source.isDirectory()) {
+                        if (!destination.exists()) {
+                            destination.createDirectories()
                         }
                     } else {
-                        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING)
+                        source.copyTo(destination, StandardCopyOption.REPLACE_EXISTING)
                     }
                 }
             }

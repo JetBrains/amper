@@ -27,20 +27,20 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.FileVisitResult
-import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
-import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFileAttributes
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readAttributes
+import kotlin.io.path.visitFileTree
 import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
@@ -62,7 +62,7 @@ class ExecuteOnChangedInputs(
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
         .useWithScope { span ->
 
-        Files.createDirectories(stateRoot)
+        stateRoot.createDirectories()
 
         // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
         val stateFile = stateRoot.resolve(
@@ -183,7 +183,7 @@ class ExecuteOnChangedInputs(
                 )
             }
         } catch (t: Throwable) {
-            Files.deleteIfExists(stateFile)
+            stateFile.deleteIfExists()
             throw t
         }
     }
@@ -298,33 +298,34 @@ class ExecuteOnChangedInputs(
                 fun processDirectory(current: Path) {
                     var childrenCount = 0
 
-                    // Use Files.walkFileTree to get both file name AND file attributes at the same time
-                    // This will be much faster on OSes where you can get both, e.g., Windows
-                    Files.walkFileTree(current, emptySet(), Int.MAX_VALUE, object : SimpleFileVisitor<Path>() {
-                        override fun preVisitDirectory(subdir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                            if (current == subdir) return FileVisitResult.CONTINUE
+                    // Using Path.visitFileTree to get both file name AND file attributes at the same time.
+                    // This is much faster on OSes where you can get both, e.g., Windows.
+                    current.visitFileTree {
+                        onPreVisitDirectory { subdir, attrs ->
+                            if (current == subdir) {
+                                return@onPreVisitDirectory FileVisitResult.CONTINUE
+                            }
 
                             childrenCount += 1
                             processDirectory(subdir)
-                            return FileVisitResult.SKIP_SUBTREE
+                            FileVisitResult.SKIP_SUBTREE
                         }
 
-                        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                        onVisitFile { file, attrs ->
                             childrenCount += 1
 
                             addFile(file, attrs)
 
-                            return FileVisitResult.CONTINUE
+                            FileVisitResult.CONTINUE
                         }
 
-                        override fun postVisitDirectory(dir: Path?, exc: IOException?): FileVisitResult {
+                        onPostVisitDirectory { dir, exc ->
                             if (exc != null) {
                                 throw exc
                             }
-
-                            return FileVisitResult.CONTINUE
+                            FileVisitResult.CONTINUE
                         }
-                    })
+                    }
 
                     if (childrenCount == 0) {
                         files[current.pathString] = "EMPTY DIR"

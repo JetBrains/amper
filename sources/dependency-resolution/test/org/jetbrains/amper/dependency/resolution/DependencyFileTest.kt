@@ -8,12 +8,13 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 import java.util.jar.JarFile
 import java.util.zip.ZipEntry
+import kotlin.io.path.Path
 import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
@@ -53,8 +54,8 @@ class DependencyFileTest {
             val extension = "module"
             val name = "${getNameWithoutExtension(dependency)}.$extension"
             val target = gradleLocalRepository.getPath(dependency, name, "3bf4b49eb37b4aca302f99bd99769f6e310bdb2")
-            Files.createDirectories(target.parent)
-            Path.of("testData/metadata/json/module/$name").copyTo(target)
+            target.parent.createDirectories()
+            Path("testData/metadata/json/module/$name").copyTo(target)
 
             val dependencyFile = DependencyFile(dependency, getNameWithoutExtension(dependency), extension)
             assertTrue(runBlocking { dependencyFile.getPath()!!.startsWith(gradleLocalPath) })

@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.test
 
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.*
 
 @Suppress("unused")
 object TeamCityHelper {
@@ -28,8 +28,8 @@ object TeamCityHelper {
                 throw RuntimeException("TeamCity system property " + name + "was not found while running under TeamCity")
             }
 
-            val file = Path.of(value)
-            if (!Files.isDirectory(file)) {
+            val file = Path(value)
+            if (!file.isDirectory()) {
                 throw RuntimeException("TeamCity system property $name contains non existent directory: $file")
             }
 
@@ -53,8 +53,8 @@ object TeamCityHelper {
         if (systemPropertiesFile == null || systemPropertiesFile.isEmpty()) {
             throw RuntimeException("TeamCity environment variable $systemPropertiesEnvName was not found while running under TeamCity")
         }
-        val file = Path.of(systemPropertiesFile)
-        if (!Files.exists(file)) {
+        val file = Path(systemPropertiesFile)
+        if (!file.exists()) {
             throw RuntimeException("TeamCity system properties file is not found: $file")
         }
         loadPropertiesFile(file)
@@ -72,15 +72,15 @@ object TeamCityHelper {
         if (value.isNullOrEmpty()) {
             throw RuntimeException("TeamCity system property '$propertyName is not found")
         }
-        val file = Path.of(value)
-        if (!Files.exists(file)) {
+        val file = Path(value)
+        if (!file.exists()) {
             throw RuntimeException("TeamCity configuration properties file was not found: $file")
         }
         loadPropertiesFile(file)
     }
 
     private fun loadPropertiesFile(file: Path): Map<String, String> {
-        return Files.newBufferedReader(file).use { val properties = Properties(); properties.load(it); properties }
+        return file.bufferedReader().use { val properties = Properties(); properties.load(it); properties }
             .map { (k, v) -> k as String to v as String }
             .toMap()
     }

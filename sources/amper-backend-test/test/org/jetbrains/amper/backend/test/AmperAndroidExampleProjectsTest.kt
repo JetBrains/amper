@@ -30,7 +30,6 @@ import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.extension
@@ -199,7 +198,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     private fun getThemeReferenceFromAndroidManifest(extractedApkPath: Path): Int {
         val decodedXml = BinaryXmlParser.decodeXml(
             "AndroidManifest.xml",
-            Files.readAllBytes(extractedApkPath / "AndroidManifest.xml")
+            (extractedApkPath / "AndroidManifest.xml").readBytes()
         )
         val decodedXmlString = decodedXml.decodeToString()
         val groups = "android:theme=\"@ref/(.*)\"".toRegex().find(decodedXmlString)

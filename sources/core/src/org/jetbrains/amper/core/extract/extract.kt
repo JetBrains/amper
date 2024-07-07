@@ -12,7 +12,6 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.jetbrains.amper.concurrency.withDoubleLock
 import org.slf4j.LoggerFactory
-import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -26,10 +25,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.*
 
 
 // initially from intellij:community/platform/build-scripts/downloader/src/org/jetbrains/intellij/build/dependencies/BuildDependenciesDownloader.kt
@@ -72,20 +68,20 @@ suspend fun extractFileWithFlag(
         // Update file modification time to maintain FIFO caches i.e.
         // in persistent cache folder on TeamCity agent
         val now = FileTime.from(Instant.now())
-        Files.setLastModifiedTime(targetDirectory, now)
-        Files.setLastModifiedTime(flagFile2, now)
+        targetDirectory.setLastModifiedTime(now)
+        flagFile2.setLastModifiedTime(now)
         return@withContext
     }
 
-    if (Files.exists(targetDirectory)) {
-        check(Files.isDirectory(targetDirectory)) { "Target '$targetDirectory' exists, but it's not a directory. Please delete it manually" }
+    if (targetDirectory.exists()) {
+        check(targetDirectory.isDirectory()) { "Target '$targetDirectory' exists, but it's not a directory. Please delete it manually" }
         cleanDirectory(targetDirectory)
     }
 
     LOG.info("Extracting $archiveFile to $targetDirectory")
-    Files.createDirectories(targetDirectory)
+    targetDirectory.createDirectories()
 
-    val filesAfterCleaning = Files.newDirectoryStream(targetDirectory).use { it.toList() }
+    val filesAfterCleaning = targetDirectory.listDirectoryEntries()
     check(filesAfterCleaning.isEmpty()) {
         "Target directory $targetDirectory is not empty after cleaning: ${filesAfterCleaning.joinToString(" ")}"
     }
@@ -186,7 +182,7 @@ private fun extractTarBasedArchive(
     stripRoot: Boolean,
     decompressor: (InputStream) -> InputStream
 ) {
-    TarArchiveInputStream(decompressor(BufferedInputStream(Files.newInputStream(archiveFile)))).use { archive ->
+    TarArchiveInputStream(decompressor(archiveFile.inputStream().buffered())).use { archive ->
         genericExtract(archiveFile, object : ArchiveContent {
             @get:Throws(IOException::class)
             override val nextEntry: Entry?
@@ -270,12 +266,12 @@ private fun genericExtract(archiveFile: Path, archive: ArchiveContent, target: P
         val type: Entry.Type = entry.type
         val entryPath = converter.getOutputPath(entry.name, type == Entry.Type.DIR) ?: continue
         if (type == Entry.Type.DIR) {
-            Files.createDirectories(entryPath)
+            entryPath.createDirectories()
             createdDirs.add(entryPath)
         } else {
             val parent = entryPath.parent
             if (createdDirs.add(parent)) {
-                Files.createDirectories(parent)
+                parent.createDirectories()
             }
             if (type == Entry.Type.SYMLINK) {
                 val relativeSymlinkTarget = Path.of(entry.linkTarget!!)
@@ -293,17 +289,17 @@ private fun genericExtract(archiveFile: Path, archive: ArchiveContent, target: P
                 }
                 if (isWindows) {
                     // On Windows symlink creation is still gated by various registry keys
-                    if (Files.isRegularFile(resolvedTarget)) {
-                        Files.copy(resolvedTarget, entryPath, StandardCopyOption.REPLACE_EXISTING)
+                    if (resolvedTarget.isRegularFile()) {
+                        resolvedTarget.copyTo(entryPath, StandardCopyOption.REPLACE_EXISTING)
                     }
                 } else {
-                    Files.createSymbolicLink(entryPath, relativeSymlinkTarget)
+                    entryPath.createSymbolicLinkPointingTo(relativeSymlinkTarget)
                 }
             } else if (type == Entry.Type.FILE) {
                 entry.inputStream.use { fs -> Files.copy(fs, entryPath, StandardCopyOption.REPLACE_EXISTING) }
                 if (isPosixFs && entry.isExecutable) {
                     @Suppress("SpellCheckingInspection")
-                    Files.setPosixFilePermissions(entryPath, PosixFilePermissions.fromString("rwxr-xr-x"))
+                    entryPath.setPosixFilePermissions(PosixFilePermissions.fromString("rwxr-xr-x"))
                 }
             } else {
                 throw IllegalStateException("Unknown entry type: $type")
@@ -359,7 +355,7 @@ private fun checkFlagFile(
     targetDirectory: Path,
     options: Array<out ExtractOptions>
 ): Boolean {
-    if (!Files.isDirectory(targetDirectory)) {
+    if (!targetDirectory.isDirectory()) {
         return false
     }
     val existingContent = flagChannel.readEntireFileToByteArray()

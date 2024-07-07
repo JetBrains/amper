@@ -34,14 +34,13 @@ import java.math.BigInteger
 import java.net.URI
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.*
-import kotlin.io.path.pathString
+import kotlin.io.path.*
 
 // initially from intellij:community/platform/build-scripts/downloader/src/ktor.kt
 
@@ -59,7 +58,7 @@ object Downloader {
         val lock = fileLocks.getLock(targetPath.hashCode())
         lock.lock()
         try {
-            if (Files.exists(target)) {
+            if (target.exists()) {
                 Span.current().addEvent(
                     "use asset from cache", Attributes.of(
                         AttributeKey.stringKey("url"), url,
@@ -70,7 +69,7 @@ object Downloader {
                 // update file modification time to maintain FIFO caches, i.e., in persistent cache folder on TeamCity agent
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
-                        Files.setLastModifiedTime(target, FileTime.from(Instant.now()))
+                        target.setLastModifiedTime(FileTime.from(Instant.now()))
                     } catch (t: Throwable) {
                         LoggerFactory.getLogger(javaClass).warn("Unable to update mtime: $target", t)
                     }
@@ -86,10 +85,10 @@ object Downloader {
                     // save to the same disk to ensure that move will be atomic and not as a copy
                     val tempFile = target.parent
                         .resolve("${target.fileName}-${(Instant.now().epochSecond - 1634886185).toString(36)}-${Instant.now().nano.toString(36)}".take(255))
-                    Files.deleteIfExists(tempFile)
+                    tempFile.deleteIfExists()
                     // Add a hook, so interruption won't leave garbage files.
                     tempFile.toFile().deleteOnExit()
-                    Files.createDirectories(target.parent)
+                    target.parent.createDirectories()
                     try {
                         // each io.ktor.client.HttpClient.config call creates a new client
                         // extract common configuration to prevent excessive client creation
@@ -154,8 +153,8 @@ object Downloader {
                                 }
                                 .forEach(builder::append)
                             builder.append('\n')
-                            if (Files.exists(tempFile)) {
-                                Files.newInputStream(tempFile).use { inputStream ->
+                            if (tempFile.exists()) {
+                                tempFile.inputStream().use { inputStream ->
                                     // yes, not trying to guess encoding
                                     // string constructor should be exception-free, so at worse, we'll get some random characters
                                     builder.append(inputStream.readNBytes(1024).toString(StandardCharsets.UTF_8))
@@ -166,17 +165,12 @@ object Downloader {
 
                         val contentLength = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
                         check(contentLength > 0) { "Header '${HttpHeaders.ContentLength}' is missing or zero for $url" }
-                        val fileSize = Files.size(tempFile)
+                        val fileSize = tempFile.fileSize()
                         check(fileSize == contentLength) {
                             "Wrong file length after downloading uri '$url' to '$tempFile': expected length $contentLength " +
                                     "from ${HttpHeaders.ContentLength} header, but got $fileSize on disk"
                         }
-                        Files.move(
-                            tempFile,
-                            target,
-                            StandardCopyOption.ATOMIC_MOVE,
-                            StandardCopyOption.REPLACE_EXISTING,
-                        )
+                        tempFile.moveTo(target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                     } catch (httpException: HttpStatusException) {
                         if (httpException.statusCode == 404) {
                             // do not retry 404
@@ -185,7 +179,7 @@ object Downloader {
                             throw httpException
                         }
                     } finally {
-                        Files.deleteIfExists(tempFile)
+                        tempFile.deleteIfExists()
                     }
                 }
 

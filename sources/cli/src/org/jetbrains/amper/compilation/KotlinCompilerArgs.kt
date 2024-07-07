@@ -13,11 +13,11 @@ import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.tasks.BuildTask
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
+import kotlin.io.path.createTempFile
 import kotlin.io.path.writeText
 
 private fun kotlinCommonCompilerArgs(
@@ -253,7 +253,7 @@ inline fun <R> withKotlinCompilerArgFile(args: List<String>, tempRoot: AmperProj
     }
 
     tempRoot.path.createDirectories()
-    val argFile = Files.createTempFile(tempRoot.path, "kotlin-args-", ".txt")
+    val argFile = createTempFile(tempRoot.path, "kotlin-args-", ".txt")
     return try {
         argFile.writeText(argString)
         block(argFile)

@@ -26,9 +26,9 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.jar.JarFile
+import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
@@ -90,7 +90,7 @@ class JvmTestTask(
             "--reports-dir=${reportsDir}",
         )
 
-        val junitArgsFile = Files.createTempFile(tempRoot.path, "junit-args-", ".txt")
+        val junitArgsFile = createTempFile(tempRoot.path, "junit-args-", ".txt")
         junitArgsFile.writeText(junitArgs.joinToString("\n") { arg ->
             "\"${arg.replace("\\", "\\\\").replace("\"", "\\\"")}\""
         })

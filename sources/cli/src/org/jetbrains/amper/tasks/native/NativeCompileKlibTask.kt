@@ -29,8 +29,8 @@ import org.jetbrains.amper.tasks.custom.CustomTask
 import org.jetbrains.amper.tasks.walkRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
-import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
@@ -119,7 +119,7 @@ class NativeCompileKlibTask(
                 val rootsToCompile = existingSourceRoots.ifEmpty {
                     // konanc does not want to compile an application with zero sources files,
                     // but it's a perfectly valid situation where all code is in shared libraries
-                    val emptyKotlinFile = Files.createTempFile(tempRoot.path, "empty", ".kt")
+                    val emptyKotlinFile = createTempFile(tempRoot.path, "empty", ".kt")
                         .also { tempFilesToDelete.add(it) }
                     listOf(emptyKotlinFile)
                 }

@@ -9,10 +9,10 @@ import org.tinylog.core.LogEntry
 import org.tinylog.core.LogEntryValue
 import org.tinylog.writers.FileWriter
 import org.tinylog.writers.Writer
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.concurrent.Volatile
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 
@@ -37,7 +37,7 @@ class DynamicFileWriter(private val properties: Map<String, String>): Writer {
             return d.requiredLogEntryValues
         }
 
-        val tempFile = Files.createTempFile("log-conf", "")
+        val tempFile = createTempFile("log-conf", "")
         val tempWriter = FileWriter(properties + mapOf("file" to tempFile.pathString))
         try {
             return tempWriter.requiredLogEntryValues

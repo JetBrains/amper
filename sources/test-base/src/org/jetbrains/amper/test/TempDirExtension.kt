@@ -11,10 +11,10 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -27,7 +27,7 @@ class TempDirExtension : Extension, BeforeEachCallback, AfterEachCallback {
         get() = pathRef.get()!!
 
     override fun beforeEach(context: ExtensionContext?) {
-        pathRef.set(Files.createTempDirectory(TestUtil.tempDir, "test-dir"))
+        pathRef.set(createTempDirectory(TestUtil.tempDir, "test-dir"))
     }
 
     override fun afterEach(context: ExtensionContext?) {

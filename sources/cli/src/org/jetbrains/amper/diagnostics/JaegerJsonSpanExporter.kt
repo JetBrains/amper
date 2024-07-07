@@ -17,13 +17,13 @@ import org.jetbrains.amper.concurrency.withReentrantLock
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.createDirectories
 
 // based on community/platform/diagnostic/telemetry.exporters/src/JaegerJsonSpanExporter.kt
 
@@ -40,8 +40,7 @@ class JaegerJsonSpanExporter(
   private val lock = Mutex()
 
   init {
-    val parent = file.parent
-    Files.createDirectories(parent)
+    file.parent.createDirectories()
 
     fileChannel = FileChannel.open(file, EnumSet.of(StandardOpenOption.CREATE,
                                                     StandardOpenOption.WRITE,

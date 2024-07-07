@@ -20,12 +20,12 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.ByteArrayInputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.div
@@ -79,7 +79,7 @@ object TestUtil {
 
     val amperSourcesRoot = amperCheckoutRoot / "sources"
 
-    val m2 = Path.of(System.getProperty("user.home"), ".m2")
+    val m2 = Path(System.getProperty("user.home"), ".m2")
     val m2repository = m2.resolve("repository")
 
     // Shared between different runs of testing
@@ -97,7 +97,7 @@ object TestUtil {
             amperCheckoutRoot / "shared test caches"
         }
 
-        Files.createDirectories(dir)
+        dir.createDirectories()
     }
 
     // Always run tests in a directory with a space in the name, tests quoting in a lot of places
@@ -112,7 +112,7 @@ object TestUtil {
         } else {
             amperCheckoutRoot / "build" / "tests temp"
         }
-        Files.createDirectories(dir)
+        dir.createDirectories()
         println("Temp dir for tests: $dir")
         dir
     }
@@ -204,7 +204,7 @@ object TestUtil {
 
     private fun acceptAndroidLicense(androidSdkHome: Path, name: String, hash: String) {
         val licenseFile = androidSdkHome / "licenses" / name
-        Files.createDirectories(licenseFile.parent)
+        licenseFile.parent.createDirectories()
 
         if (!licenseFile.isRegularFile() || licenseFile.readText() != hash) {
             licenseFile.writeText(hash)

@@ -1,7 +1,9 @@
 package org.jetbrains.amper.util
 
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
+import kotlin.io.path.createDirectories
 
 fun String.ensureEndsWith(suffix: String) =
     if (!endsWith(suffix)) (this + suffix) else this
@@ -49,6 +51,6 @@ fun substituteTemplatePlaceholders(
         result = result.replace("\n", "\r\n")
     }
 
-    java.nio.file.Files.createDirectories(outputFile.parent)
-    java.nio.file.Files.writeString(outputFile, result)
+    outputFile.parent.createDirectories()
+    Files.writeString(outputFile, result)
 }

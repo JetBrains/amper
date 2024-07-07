@@ -9,18 +9,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.yaml.snakeyaml.Yaml
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitor
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.Path
+import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
+import kotlin.io.path.visitFileTree
 import kotlin.io.path.writeText
 import kotlin.test.assertTrue
 
@@ -110,8 +108,8 @@ private fun copyDirectory(source: Path, target: Path) {
 
             val relativeName = sourceFile.relativeTo(source)
             val targetFile = target.resolve(relativeName)
-            Files.createDirectories(targetFile.parent)
-            Files.copy(sourceFile, targetFile)
+            targetFile.parent.createDirectories()
+            sourceFile.copyTo(targetFile)
         }
 
         return
@@ -122,31 +120,31 @@ private fun copyDirectory(source: Path, target: Path) {
 
 private fun collectFilesToCopy(source: Path): List<Path> {
     val result = mutableListOf<Path>()
-    Files.walkFileTree(source, object : FileVisitor<Path> {
-        override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+    source.visitFileTree {
+        onPreVisitDirectory { dir, _ ->
             if (dir.name == "build" || dir.name == ".gradle" || dir.name == ".git" || dir.name == "shared test caches") {
-                return FileVisitResult.SKIP_SUBTREE
+                FileVisitResult.SKIP_SUBTREE
+            } else {
+                FileVisitResult.CONTINUE
             }
-
-            return FileVisitResult.CONTINUE
         }
 
-        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+        onVisitFile { file, _ ->
             // may vanish
             if (!file.name.contains(".attach_pid")) {
                 result.add(file)
             }
-            return FileVisitResult.CONTINUE
+            FileVisitResult.CONTINUE
         }
 
-        override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult {
+        onVisitFileFailed { _, exc ->
             throw exc
         }
 
-        override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
+        onPostVisitDirectory { _, exc ->
             if (exc != null) throw exc
-            return FileVisitResult.CONTINUE
+            FileVisitResult.CONTINUE
         }
-    })
+    }
     return result
 }
