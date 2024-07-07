@@ -333,8 +333,7 @@ private fun getExpectedFlagFileContent(
     targetDirectory: Path,
     options: Array<out ExtractOptions>
 ): ByteArray {
-    var numberOfTopLevelEntries: Long
-    Files.list(targetDirectory).use { stream -> numberOfTopLevelEntries = stream.count() }
+    val numberOfTopLevelEntries = targetDirectory.listDirectoryEntries().size
     return """$EXTRACT_CODE_VERSION
 ${archiveFile.toRealPath(LinkOption.NOFOLLOW_LINKS)}
 topLevelEntries:$numberOfTopLevelEntries
