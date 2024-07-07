@@ -4,9 +4,9 @@
 
 package org.jetbrains.amper.compilation
 
-import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.kotlin.buildtools.api.CompilationService
 import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
 import org.jetbrains.kotlin.buildtools.api.KotlinLogger
@@ -66,7 +66,7 @@ private object KotlinBuildToolsClassLoaderCache {
         // ConcurrentMap.getOrPut guarantees atomic insert but doesn't guarantee that createClassLoader() will only be
         // called once, so without locking we could download the dependency twice and then discard one classloader
         // without closing it. The JDK computeIfAbsent() would solve this problem but doesn't support suspend functions.
-        stripedMutex.getLock(kotlinVersion.hashCode()).withLock {
+        stripedMutex.withLock(kotlinVersion.hashCode()) {
             classLoaders.getOrPut(kotlinVersion) { createClassLoader() }
         }
 }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
 import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.util.*
@@ -170,7 +171,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
      * seen node. Can be called concurrently with any node, including those sharing the same key.
      */
     suspend fun registerAndDetectConflicts(node: DependencyNode): Boolean =
-        conflictDetectionMutexByKey.getLock(node.key.hashCode()).withLock {
+        conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
             val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableListOf() }
             similarNodes.add(node) // register the node for potential future conflict resolution
             if (node.key in conflictedKeys) {

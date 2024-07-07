@@ -26,6 +26,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.amper.concurrency.StripedMutex
+import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
@@ -55,9 +56,7 @@ object Downloader {
     ): Path {
         val target = getTargetFile(userCacheRoot, url)
         val targetPath = target.toString()
-        val lock = fileLocks.getLock(targetPath.hashCode())
-        lock.lock()
-        try {
+        fileLocks.withLock(targetPath.hashCode()) {
             if (target.exists()) {
                 Span.current().addEvent(
                     "use asset from cache", Attributes.of(
@@ -185,8 +184,6 @@ object Downloader {
 
                 target
             }
-        } finally {
-            lock.unlock()
         }
     }
 

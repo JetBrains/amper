@@ -52,7 +52,7 @@ suspend fun <T> withDoubleLock(
     block: suspend (FileChannel) -> T
 ) : T {
     // First lock locks the stuff inside one JVM process
-    return withLock(hash, owner) {
+    return filesLock.withLock(hash, owner) {
         // Second, lock locks a flagFile across all processes on the system
         FileChannel.open(file, *options)
             .use { fileChannel ->
@@ -63,11 +63,6 @@ suspend fun <T> withDoubleLock(
             }
     }
 }
-
-private suspend fun <T> withLock(hash: Int, owner: Any? = null, block: suspend () -> T) : T =
-    filesLock.getLock(hash).withLock(owner) {
-        block()
-    }
 
 /**
  * Create a target file once and reuse it as a result of further invocations until its hash is valid.
@@ -182,7 +177,7 @@ suspend fun <T> produceResultWithDoubleLock(
     val tempLockFile = tempLockFile(tempDir, targetFileName)
 
     // First lock locks the stuff inside one JVM process
-    return withLock(tempLockFile.hashCode()) {
+    return filesLock.withLock(tempLockFile.hashCode()) {
         // Second lock locks a flagFile across all processes on the system
         produceResultWithFileLock(tempDir, targetFileName, block, getAlreadyProducedResult)
     }
