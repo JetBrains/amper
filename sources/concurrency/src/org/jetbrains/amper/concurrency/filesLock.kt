@@ -1,7 +1,6 @@
 package org.jetbrains.amper.concurrency
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.channels.ClosedChannelException
@@ -35,32 +34,43 @@ private val logger = LoggerFactory.getLogger("fileLock.kt")
 private val filesLock = StripedMutex(stripeCount = 512)
 
 /**
- * It locks on a non-reentrant coroutine Mutex first - getting exclusive access inside one JVM.
- * Then it acquires FileChannel lock to get exclusive access across all processes on the system.
- * And then, holding those two locks, it executes the given block.
+ * Executes the given [block] under a double lock:
+ * * a non-reentrant coroutine Mutex for the given [hash], getting exclusive access inside one JVM
+ * * a FileChannel lock on the given [file], getting exclusive access across all processes on the system
  *
  * Both locks are unlocked after method return.
  *
- * Note: Since the first lock is a non-reentrant coroutine Mutex,
- * callers MUST not call withDoubleLock again from inside the given block - that would lead to the hanging coroutine.
+ * The block is passed the [FileChannel] used to lock the given [file], if further inspection of the file is needed
+ * while under the lock.
+ *
+ * Note: Since the first lock is a non-reentrant coroutine Mutex, callers MUST not call withDoubleLock again from
+ * inside the given [block], that would make the current coroutine hang.
  */
 suspend fun <T> withDoubleLock(
     hash: Int,
     file: Path,
     owner: Any? = null,
     options: Array<out OpenOption> = arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE),
-    block: suspend (FileChannel) -> T
+    block: suspend (lockFileChannel: FileChannel) -> T
 ) : T {
     // First lock locks the stuff inside one JVM process
     return filesLock.withLock(hash, owner) {
         // Second, lock locks a flagFile across all processes on the system
-        FileChannel.open(file, *options)
-            .use { fileChannel ->
-                val fileLock = fileChannel.lockWithRetry()
-                fileLock.use {
-                    block(fileChannel)
-                }
-            }
+        file.withFileChannelLock(*options) {
+            block(it)
+        }
+    }
+}
+
+private suspend inline fun <T> Path.withFileChannelLock(vararg options: OpenOption, block: (FileChannel) -> T): T {
+    // Files can sometimes be inaccessible for a short time right after a removal.
+    val lockFileChannel = withRetryOnAccessDenied {
+        FileChannel.open(this, *options)
+    }
+    return lockFileChannel.use { fileChannel ->
+        fileChannel.lockWithRetry().use {
+            block(fileChannel)
+        }
     }
 }
 
@@ -218,39 +228,28 @@ private suspend fun <T> doWithFileLock(
 
     tempLockFile.parent.createDirectories()
 
-    val lockFileChannel = withRetryOnAccessDenied {
-        FileChannel.open(
-            tempLockFile,
-            StandardOpenOption.WRITE,
-            StandardOpenOption.CREATE
-        )
-    }
+    return tempLockFile.withFileChannelLock(StandardOpenOption.WRITE, StandardOpenOption.CREATE) {
+        val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
+        val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
 
-    return lockFileChannel.use {
-        val fileLock = lockFileChannel.lockWithRetry()
-        fileLock.use {
-            val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
-            val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
-
-            logger.debug("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
-            try {
-                getAlreadyProducedResult()
-                    ?: run {
-                        FileChannel.open(
-                            tempFile,
-                            StandardOpenOption.READ,
-                            StandardOpenOption.WRITE,
-                            StandardOpenOption.CREATE_NEW,
-                        ).use { fileChannel ->
-                            block(tempFile, fileChannel)
-                        }
-                    } // temp file was moved inside the block to target file location - there is no need to delete it.
-            } catch (t: Throwable) {
-                tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted under lock", t)
-                throw t
-            } finally {
-                tempLockFile.deleteIfExistsWithLogging("Exception occurred, temp lock file was deleted under lock")
-            }
+        logger.debug("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
+        try {
+            getAlreadyProducedResult()
+                ?: run {
+                    FileChannel.open(
+                        tempFile,
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.CREATE_NEW,
+                    ).use { fileChannel ->
+                        block(tempFile, fileChannel)
+                    }
+                } // temp file was moved inside the block to target file location - there is no need to delete it.
+        } catch (t: Throwable) {
+            tempFile.deleteIfExistsWithLogging("Exception occurred, temp file was deleted under lock", t)
+            throw t
+        } finally {
+            tempLockFile.deleteIfExistsWithLogging("Exception occurred, temp lock file was deleted under lock")
         }
     }.also {
         logger.debug("### ${System.currentTimeMillis()} {}: unlocked", tempLockFile.name)
@@ -266,7 +265,7 @@ private fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwabl
     }
 }
 
-suspend fun FileChannel.lockWithRetry(): FileLock? =
+private suspend fun FileChannel.lockWithRetry(): FileLock? =
     withRetry(
         retryOnException = { e ->
             e is IOException && e.message?.contains("Resource deadlock avoided") == true
