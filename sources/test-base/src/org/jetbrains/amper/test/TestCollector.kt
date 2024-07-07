@@ -11,8 +11,10 @@ import io.opentelemetry.context.ContextKey
 import io.opentelemetry.extension.kotlin.asContextElement
 import io.opentelemetry.sdk.trace.data.SpanData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import org.slf4j.MDC
 import org.tinylog.core.LogEntry
 import org.tinylog.jul.JulTinylogBridge
 import java.util.UUID
@@ -39,31 +41,36 @@ class TestCollector(val backgroundScope: CoroutineScope) {
     fun cleatTerminalRecording() = terminalRecorder.clearOutput()
 
     companion object {
+        private const val MDC_KEY = "test-collector"
         fun runTestWithCollector(timeout: Duration = Duration.INFINITE, block: suspend TestCollector.() -> Unit) {
             val id = UUID.randomUUID().toString()
 
             runTest(timeout = timeout) {
                 val testCollector = TestCollector(backgroundScope = backgroundScope)
 
-                withContext(Context.current().with(KEY, CurrentCollector(id)).asContextElement()) {
-                    val listener = Consumer<SpanData> {
-                        if (Context.current().get(KEY)?.id == id) {
-                            testCollector.addSpan(it)
+                MDC.putCloseable(MDC_KEY, id).use {
+                    withContext(Context.current().with(KEY, CurrentCollector(id)).asContextElement() + MDCContext()) {
+                        val listener = Consumer<SpanData> {
+                            if (Context.current().get(KEY)?.id == id) {
+                                testCollector.addSpan(it)
+                            }
                         }
-                    }
-                    val logListener = object : TestInterceptorWriter.Listener {
-                        override fun onLogEntry(logEntry: LogEntry) {
-                            testCollector.addLogEntry(logEntry)
+                        val logListener = object : TestInterceptorWriter.Listener {
+                            override fun onLogEntry(logEntry: LogEntry) {
+                                if (logEntry.context[MDC_KEY] == id) {
+                                    testCollector.addLogEntry(logEntry)
+                                }
+                            }
                         }
-                    }
 
-                    OpenTelemetryCollector.addListener(listener)
-                    TestInterceptorWriter.addListener(logListener)
-                    try {
-                        block(testCollector)
-                    } finally {
-                        OpenTelemetryCollector.removeListener(listener)
-                        TestInterceptorWriter.removeListener(logListener)
+                        OpenTelemetryCollector.addListener(listener)
+                        TestInterceptorWriter.addListener(logListener)
+                        try {
+                            block(testCollector)
+                        } finally {
+                            OpenTelemetryCollector.removeListener(listener)
+                            TestInterceptorWriter.removeListener(logListener)
+                        }
                     }
                 }
             }

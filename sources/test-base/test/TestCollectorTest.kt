@@ -64,8 +64,12 @@ class TestCollectorTest {
 
     @Test
     fun tinylogLogger() = runTestWithCollector {
-        org.tinylog.Logger.info("tinylog info" as Any)
-        org.tinylog.Logger.warn("tinylog warn" as Any)
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                org.tinylog.Logger.info("tinylog info" as Any)
+                org.tinylog.Logger.warn("tinylog warn" as Any)
+            }
+        }
 
         val entries = logEntries.sortedBy { it.message }
         assertEquals(2, entries.size)
