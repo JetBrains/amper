@@ -4,7 +4,6 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -16,12 +15,12 @@ import kotlin.io.path.isDirectory
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
-val destinationBasePath = Paths.get("tempProjects")
+val destinationBasePath = Path("tempProjects")
 
 open class TestBase {
 
     fun copyProject(projectName: String, sourceDirectory: String) {
-        val sourceDir = Paths.get(sourceDirectory).resolve(projectName)
+        val sourceDir = Path(sourceDirectory).resolve(projectName)
 
         if (!sourceDir.exists()) {
             throw IllegalArgumentException("Source directory does not exist: $sourceDir")

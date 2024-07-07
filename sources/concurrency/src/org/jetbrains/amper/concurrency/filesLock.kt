@@ -10,11 +10,11 @@ import java.nio.channels.FileLock
 import java.nio.file.NoSuchFileException
 import java.nio.file.OpenOption
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -95,7 +95,7 @@ suspend fun produceFileWithDoubleLockAndHash(
     target: Path,
     tempDir: suspend () -> Path = {
         // todo (AB) : Add path checksum to avoid contention if different files have the same name but different paths.
-        Paths.get(System.getProperty("java.io.tmpdir")).resolve(".amper")
+        Path(System.getProperty("java.io.tmpdir")).resolve(".amper")
     },
     writeFileContent: suspend (Path, FileChannel) -> Boolean
 ) : Path? {

@@ -21,7 +21,6 @@ import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
@@ -92,7 +91,7 @@ object TestUtil {
             check(!persistentCachePath.isNullOrBlank()) {
                 "'agent.persistent.cache' system property is required under TeamCity"
             }
-            Paths.get(persistentCachePath) / "amper build"
+            Path(persistentCachePath) / "amper build"
         } else {
             amperCheckoutRoot / "shared test caches"
         }

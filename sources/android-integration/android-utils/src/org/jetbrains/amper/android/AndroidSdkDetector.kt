@@ -8,7 +8,7 @@ import com.android.SdkConstants
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
-import java.nio.file.Paths
+import kotlin.io.path.Path
 
 class AndroidSdkDetector(
     private val suggesters: List<Suggester> = buildList {
@@ -24,7 +24,7 @@ class AndroidSdkDetector(
     }
 
     class EnvironmentVariableSuggester(private val environmentVariableName: String) : Suggester {
-        override fun suggestSdkPath(): Path? = System.getenv(environmentVariableName)?.let { Paths.get(it) }
+        override fun suggestSdkPath(): Path? = System.getenv(environmentVariableName)?.let { Path(it) }
     }
 
     class DefaultSuggester : Suggester {
