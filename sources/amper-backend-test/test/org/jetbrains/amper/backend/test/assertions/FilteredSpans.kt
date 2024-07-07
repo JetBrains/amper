@@ -6,7 +6,7 @@ package org.jetbrains.amper.backend.test.assertions
 
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
-import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtension
+import org.jetbrains.amper.test.TestCollector
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -44,9 +44,9 @@ data class FilteredSpans(
     fun all() = matchingSpans
 }
 
-fun OpenTelemetryCollectorExtension.spansNamed(name: String): FilteredSpans = filteredSpans.withName(name)
+fun TestCollector.spansNamed(name: String): FilteredSpans = filteredSpans.withName(name)
 
-private val OpenTelemetryCollectorExtension.filteredSpans: FilteredSpans
+private val TestCollector.filteredSpans: FilteredSpans
     get() = FilteredSpans(spans, emptyList())
 
 fun FilteredSpans.withName(name: String): FilteredSpans = filter("name='$name'") { it.name == name }

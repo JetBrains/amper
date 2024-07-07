@@ -4,13 +4,13 @@
 
 package org.jetbrains.amper.backend.test
 
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
 import java.util.zip.ZipFile
 import kotlin.io.path.deleteRecursively
@@ -26,21 +26,19 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
     private val testDataRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/customTasks")
 
-    private fun setupTestDataProject(
+    private fun TestCollector.setupTestDataProject(
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
-        backgroundScope: CoroutineScope,
     ): ProjectContext = setupTestProject(
         testDataRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
-        backgroundScope = backgroundScope,
     )
 
     @Test
-    fun `generate versions file`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("generate-versions-file", backgroundScope = backgroundScope)
+    fun `generate versions file`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("generate-versions-file")
         AmperBackend(projectContext).runTask(TaskName(":generate-versions-file:runJvm"))
         assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
@@ -50,8 +48,8 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `generate resources`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("generate-resources", backgroundScope = backgroundScope)
+    fun `generate resources`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("generate-resources")
         val backend = AmperBackend(projectContext)
         backend.showTasks()
         backend.runTask(TaskName(":generate-resources:runJvm"))
@@ -63,8 +61,8 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `generate dist`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("generate-dist", backgroundScope = backgroundScope)
+    fun `generate dist`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("generate-dist")
         val taskName = TaskName(":generate-dist:dist")
         AmperBackend(projectContext).runTask(taskName)
         val output = projectContext.getTaskOutputPath(taskName)
@@ -82,12 +80,12 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `generate artifact for publishing`() = runTestInfinitely {
+    fun `generate artifact for publishing`() = runTestWithCollector {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
-        val projectContext = setupTestDataProject("generate-artifact-for-publishing", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("generate-artifact-for-publishing")
         AmperBackend(projectContext).runTask(TaskName(":generate-artifact-for-publishing:publishJvmToMavenLocal"))
 
         val dir = groupDir.resolve("cli/1.0-FANCY")

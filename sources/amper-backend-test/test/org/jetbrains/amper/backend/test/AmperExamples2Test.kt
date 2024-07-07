@@ -3,16 +3,15 @@
  */
 package org.jetbrains.amper.backend.test
 
-import kotlinx.coroutines.CoroutineScope
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
-import kotlin.io.path.name
 import kotlin.test.Test
 
 // TODO: review and merged with AmperExamples1Test test suite
@@ -21,13 +20,13 @@ import kotlin.test.Test
 class AmperExamples2Test : AmperIntegrationTestBase() {
     private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
-    private fun setupExampleProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext {
-        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true, backgroundScope = backgroundScope)
+    private fun TestCollector.setupExampleProject(testProjectName: String): ProjectContext {
+        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
     }
 
     @Test
-    fun jvm() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm", backgroundScope = backgroundScope)).run {
+    fun jvm() = runTestWithCollector {
+        AmperBackend(setupExampleProject("jvm")).run {
             assertHasTasks(jvmAppTasks)
             runApplication()
         }
@@ -43,9 +42,9 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         }
         assertStdoutContains("Hello, World!")
 
-        resetCollectors()
+        cleatTerminalRecording()
 
-        AmperBackend(setupExampleProject("jvm", backgroundScope = backgroundScope)).test()
+        AmperBackend(setupExampleProject("jvm")).test()
         assertStdoutContains("Test run finished")
         assertStdoutContains("1 tests successful")
         assertStdoutContains("0 tests failed")
@@ -54,8 +53,8 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
 
     @Test
     @MacOnly
-    fun `compose-multiplatform`() = runTestInfinitely {
-        val projectContext = setupExampleProject("compose-multiplatform", backgroundScope = backgroundScope)
+    fun `compose-multiplatform`() = runTestWithCollector {
+        val projectContext = setupExampleProject("compose-multiplatform")
         AmperBackend(projectContext).run {
             assertHasTasks(
                 jvmBaseTasks + jvmTestTasks +
@@ -86,32 +85,26 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun composeAndroid() = runTestInfinitely {
-        AmperBackend(setupExampleProject("compose-android", backgroundScope = backgroundScope)).run {
+    fun composeAndroid() = runTestWithCollector {
+        AmperBackend(setupExampleProject("compose-android")).run {
             assertHasTasks(androidAppTasks)
             build()
         }
+
         // debug + release
         kotlinJvmCompilationSpans.assertTimes(2)
         ConnectorServices.reset()
     }
 
     @Test
-    fun composeDesktop() = runTestInfinitely {
-        AmperBackend(setupExampleProject("compose-desktop", backgroundScope = backgroundScope)).run {
+    fun composeDesktop() = runTestWithCollector {
+        AmperBackend(setupExampleProject("compose-desktop")).run {
             assertHasTasks(jvmAppTasks)
             build()
         }
 
         assertKotlinJvmCompilationSpan {
             hasCompilerArgumentStartingWith("-Xplugin=")
-        }
-    }
-
-    private fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
-        showTasks()
-        tasks.forEach { task ->
-            assertStdoutContains(":${module ?: context.projectRoot.path.name}:$task")
         }
     }
 }

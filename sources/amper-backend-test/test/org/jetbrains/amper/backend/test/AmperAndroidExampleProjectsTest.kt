@@ -13,20 +13,16 @@ import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceFile
 import com.google.devrel.gmscore.tools.apk.arsc.BinaryResourceIdentifier
 import com.google.devrel.gmscore.tools.apk.arsc.ResourceTableChunk
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.job
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.OnNonCI
+import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
@@ -53,8 +49,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun setupAndroidTestProject(testProjectName: String, backgroundScope: CoroutineScope, useEmptyAndroidHome: Boolean = false): ProjectContext =
-        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, backgroundScope = backgroundScope, useEmptyAndroidHome = useEmptyAndroidHome)
+    private fun TestCollector.setupAndroidTestProject(testProjectName: String, useEmptyAndroidHome: Boolean = false): ProjectContext =
+        setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, useEmptyAndroidHome = useEmptyAndroidHome)
 
     /**
      * Not running this test in CI for a while, because there is no nested hardware virtualization on the agents.
@@ -62,8 +58,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     @Test
     @OnNonCI
     @Ignore
-    fun simple() = runTest(timeout = 15.minutes) {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+    fun simple() = runTestWithCollector(timeout = 15.minutes) {
+        val projectContext = setupAndroidTestProject("simple")
         System.setProperty(headlessEmulatorModePropertyName, "true")
         AmperBackend(projectContext).runTask("simple", "runAndroidDebug")
         val device = AndroidDebugBridge.getBridge().devices.first()
@@ -71,22 +67,22 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `simple tests debug`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+    fun `simple tests debug`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext).runTask("simple", "testAndroidTestDebug")
         assertStdoutContains("1 tests successful")
     }
 
     @Test
-    fun `simple tests release`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+    fun `simple tests release`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext).runTask("simple", "testAndroidTestRelease")
         assertStdoutContains("1 tests successful")
     }
 
     @Test
-    fun `apk contains dependencies`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+    fun `apk contains dependencies`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple")
         val taskName = TaskName.fromHierarchy(listOf("simple", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
@@ -94,8 +90,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `appcompat compiles successfully and contains dependencies`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("appcompat", backgroundScope = backgroundScope)
+    fun `appcompat compiles successfully and contains dependencies`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
@@ -103,8 +99,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `lib contains lib code and resources`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("lib", backgroundScope = backgroundScope)
+    fun `lib contains lib code and resources`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("lib")
         val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val aarPath = projectContext.getAarPath(taskName)
@@ -113,8 +109,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("appcompat", backgroundScope = backgroundScope)
+    fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
         val apkPath = projectContext.getApkPath(taskName)
@@ -125,8 +121,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `should fail when license is not accepted`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope, useEmptyAndroidHome = true)
+    fun `should fail when license is not accepted`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple", useEmptyAndroidHome = true)
 
         val throwable = assertFails {
             AmperBackend(projectContext).build()
@@ -143,8 +139,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `task graph is correct for downloading and installing android sdk components`() = runTestInfinitely {
-        val projectContext = setupAndroidTestProject("simple", backgroundScope = backgroundScope)
+    fun `task graph is correct for downloading and installing android sdk components`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple")
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")
@@ -228,10 +224,6 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .firstOrNull() ?: fail("Apk not found")
 
 
-    private suspend fun waitAndAssertSubstringInOutput(substring: String) {
-        stdoutCollector.lines.takeWhile { substring !in it }.collect()
-    }
-
     private fun ProjectContext.getTaskOutputPath(taskName: TaskName): Path =
         buildOutputRoot.path / "tasks" / taskName.name.replace(':', '_')
 
@@ -270,10 +262,10 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         return extractedAarPath
     }
 
-    private suspend fun TestScope.assertStringInLogcat(device: IDevice, value: String) {
+    private suspend fun TestCollector.assertStringInLogcat(device: IDevice, value: String) {
         val deferred = CompletableDeferred(false)
         device.executeShellCommand("logcat -d -v long", object : MultiLineReceiver() {
-            override fun isCancelled(): Boolean = coroutineContext.job.isCancelled
+            override fun isCancelled(): Boolean = backgroundScope.coroutineContext.job.isCancelled
 
             override fun processNewLines(lines: Array<out String>) {
                 if (lines.any { it.contains(value) }) {

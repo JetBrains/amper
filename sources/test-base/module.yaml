@@ -6,7 +6,15 @@ dependencies:
   - io.github.java-diff-utils:java-diff-utils:4.12: exported
   # bump jupiter-api version for junit-5 since we use recent api than referenced from kotlin-test-junit5
   - org.junit.jupiter:junit-jupiter-api:5.10.2: exported
-  - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3: exported
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0: exported
+  - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0: exported
+  - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0: exported
+  - io.opentelemetry:opentelemetry-sdk:1.32.0: exported
+  - $libs.slf4jApi: exported
+  - org.tinylog:tinylog-impl:2.6.2: exported
+  - com.github.ajalt.clikt:clikt:4.2.2: exported
+  - org.tinylog:slf4j-tinylog:2.6.2
+  - org.tinylog:jul-tinylog:2.6.2
   - ../core
   - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
 

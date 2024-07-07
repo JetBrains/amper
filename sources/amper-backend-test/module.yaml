@@ -6,11 +6,6 @@ dependencies:
   - ../core
   - ../cli
   - ../core-intellij
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-  - io.opentelemetry:opentelemetry-sdk:1.32.0
-  - org.tinylog:tinylog-impl:2.6.2
-  - $libs.slf4jApi
-  - org.tinylog:jul-tinylog:2.6.2
 
 test-dependencies:
   - ../test-base
@@ -18,8 +13,6 @@ test-dependencies:
   - com.android.tools.apkparser:apkanalyzer:31.2.0
   - com.android.tools.apkparser:binary-resources:31.2.0
   - com.google.guava:guava:33.0.0-jre
-
-  - com.github.ajalt.clikt:clikt:4.2.2
 
   - org.gradle:gradle-tooling-api:8.6: compile-only
   - com.android.tools.ddms:ddmlib:25.3.0: compile-only

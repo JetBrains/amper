@@ -28,6 +28,7 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.PlatformUtil
+import org.jetbrains.annotations.TestOnly
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
@@ -100,6 +101,9 @@ class AmperBackend(val context: ProjectContext) {
 
     suspend fun runTask(taskName: TaskName): kotlin.Result<TaskResult>? = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
 
+    @TestOnly
+    fun tasks() = taskGraph.tasks.toList()
+
     fun showTasks() {
         for (taskName in taskGraph.tasks.map { it.taskName }.sortedBy { it.name }) {
             context.terminal.println(buildString {
@@ -111,6 +115,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
+    @TestOnly
     fun modules(): List<PotatoModule> = resolvedModel.modules
 
     fun showModules() {

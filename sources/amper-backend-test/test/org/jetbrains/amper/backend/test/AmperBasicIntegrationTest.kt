@@ -3,14 +3,13 @@
  */
 package org.jetbrains.amper.backend.test
 
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import java.nio.file.Path
-import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -22,13 +21,13 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     private val exampleProjectsRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun setupExampleProject(testProjectName: String, backgroundScope: CoroutineScope): ProjectContext {
-        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true, backgroundScope = backgroundScope)
+    private fun TestCollector.setupExampleProject(testProjectName: String): ProjectContext {
+        return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
     }
 
     @Test
-    fun `jvm-default-compiler-settings`() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm-default-compiler-settings", backgroundScope = backgroundScope)).run {
+    fun `jvm-default-compiler-settings`() = runTestWithCollector {
+        AmperBackend(setupExampleProject("jvm-default-compiler-settings")).run {
             assertHasTasks(jvmAppTasks + jvmTestTasks)
             runApplication()
         }
@@ -43,8 +42,8 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm-explicit-compiler-settings`() = runTestInfinitely {
-        AmperBackend(setupExampleProject("jvm-explicit-compiler-settings", backgroundScope = backgroundScope)).run {
+    fun `jvm-explicit-compiler-settings`() = runTestWithCollector {
+        AmperBackend(setupExampleProject("jvm-explicit-compiler-settings")).run {
             assertHasTasks(jvmAppTasks + jvmTestTasks)
             runApplication()
         }
@@ -60,9 +59,9 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm-failed-test`() = runTestInfinitely {
+    fun `jvm-failed-test`() = runTestWithCollector {
         val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
-            AmperBackend(setupExampleProject("jvm-failed-test", backgroundScope = backgroundScope)).test()
+            AmperBackend(setupExampleProject("jvm-failed-test")).test()
         }
         assertEquals(
             "Task ':jvm-failed-test:testJvm' failed: JVM tests failed for module 'jvm-failed-test' with exit code 1 (see errors above)",
@@ -73,8 +72,8 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `multi-module`() = runTestInfinitely {
-        val projectContext = setupExampleProject("multi-module", backgroundScope = backgroundScope)
+    fun `multi-module`() = runTestWithCollector {
+        val projectContext = setupExampleProject("multi-module")
 
         AmperBackend(projectContext).run {
             assertHasTasks(jvmAppTasks, module = "app")
@@ -86,17 +85,10 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
         kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
         assertStdoutContains("Hello, World!")
 
-        resetCollectors()
+        cleatTerminalRecording()
 
         AmperBackend(projectContext).test()
         assertStdoutContains("Test run finished after")
-    }
-
-    private fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
-        showTasks()
-        tasks.forEach { task ->
-            assertStdoutContains(":${module ?: context.projectRoot.path.name}:$task")
-        }
     }
 }
 

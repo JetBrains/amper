@@ -6,19 +6,13 @@
 
 package org.jetbrains.amper.backend.test
 
-import com.github.ajalt.mordant.terminal.Terminal
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.trace.data.SpanData
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.backend.test.assertions.FilteredSpans
 import org.jetbrains.amper.backend.test.assertions.assertHasAttribute
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.assertions.withAttribute
-import org.jetbrains.amper.backend.test.extensions.LogCollectorExtension
-import org.jetbrains.amper.backend.test.extensions.OpenTelemetryCollectorExtension
-import org.jetbrains.amper.backend.test.extensions.StdStreamCollectorExtension
-import org.jetbrains.amper.backend.test.extensions.StderrCollectorExtension
-import org.jetbrains.amper.backend.test.extensions.StdoutCollectorExtension
+import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
@@ -28,6 +22,7 @@ import org.jetbrains.amper.diagnostics.amperModuleKey
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.test.TempDirExtension
+import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.tinylog.Level
@@ -63,26 +58,14 @@ abstract class AmperIntegrationTestBase {
         path
     }
 
-    @RegisterExtension
-    protected val logCollector = LogCollectorExtension()
+    protected val TestCollector.kotlinJvmCompilationSpans: FilteredSpans
+        get() = spansNamed("kotlin-compilation")
 
-    @RegisterExtension
-    protected val stdoutCollector: StdStreamCollectorExtension = StdoutCollectorExtension()
+    protected val TestCollector.javaCompilationSpans: FilteredSpans
+        get() = spansNamed("javac")
 
-    @RegisterExtension
-    protected val stderrCollector: StdStreamCollectorExtension = StderrCollectorExtension()
-
-    @RegisterExtension
-    protected val openTelemetryCollector = OpenTelemetryCollectorExtension()
-
-    protected val kotlinJvmCompilationSpans: FilteredSpans
-        get() = openTelemetryCollector.spansNamed("kotlin-compilation")
-
-    protected val javaCompilationSpans: FilteredSpans
-        get() = openTelemetryCollector.spansNamed("javac")
-
-    protected val kotlinNativeCompilationSpans: FilteredSpans
-        get() = openTelemetryCollector.spansNamed("konanc")
+    protected val TestCollector.kotlinNativeCompilationSpans: FilteredSpans
+        get() = spansNamed("konanc")
 
     private val userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot)
 
@@ -90,11 +73,10 @@ abstract class AmperIntegrationTestBase {
         CliEnvironmentInitializer.setup()
     }
 
-    protected fun setupTestProject(
+    protected fun TestCollector.setupTestProject(
         testProjectPath: Path,
         copyToTemp: Boolean,
         programArgs: List<String> = emptyList(),
-        backgroundScope: CoroutineScope,
         useEmptyAndroidHome: Boolean = false,
     ): ProjectContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
@@ -114,15 +96,8 @@ abstract class AmperIntegrationTestBase {
             currentTopLevelCommand = "integration-test-base",
             backgroundScope = backgroundScope,
             androidHomeRoot = androidHomeRoot,
-            terminal = Terminal(),
+            terminal = terminal,
         )
-    }
-
-    protected fun resetCollectors() {
-        logCollector.reset()
-        stdoutCollector.reset()
-        stderrCollector.reset()
-        openTelemetryCollector.reset()
     }
 
     private fun Path.copyToTempRoot(): Path = (tempRoot / UUID.randomUUID().toString() / fileName.name).also { dir ->
@@ -130,45 +105,58 @@ abstract class AmperIntegrationTestBase {
         copyToRecursively(target = dir, followLinks = true, overwrite = false)
     }
 
-    protected fun assertInfoLogStartsWith(msgPrefix: String) = assertLogStartsWith(msgPrefix, level = Level.INFO)
+    protected fun TestCollector.assertInfoLogStartsWith(msgPrefix: String) = assertLogStartsWith(msgPrefix, level = Level.INFO)
 
-    protected fun assertLogStartsWith(msgPrefix: String, level: Level) {
+    protected fun TestCollector.assertLogStartsWith(msgPrefix: String, level: Level) {
         assertTrue("Log message with level=$level and starting with '$msgPrefix' was not found") {
-            logCollector.entries.any { it.level == level && it.message.startsWith(msgPrefix) }
+            logEntries.any { it.level == level && it.message.startsWith(msgPrefix) }
         }
     }
 
-    protected fun assertLogContains(text: String, level: Level) {
+    protected fun TestCollector.assertLogContains(text: String, level: Level) {
         assertTrue("Log message with level=$level and containing '$text' was not found") {
-            logCollector.entries.any { it.level == level && text in it.message }
+            logEntries.any { it.level == level && text in it.message }
         }
     }
 
-    protected fun assertStdoutContains(text: String) {
+    protected fun TestCollector.assertStdoutContains(text: String) {
         assertTrue("No line in stdout contains the text '$text'") {
-            stdoutCollector.capturedText().lineSequence().any { text in it }
+            terminalRecorder.stdout().lineSequence().any { text in it }
         }
     }
 
-    protected fun assertKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+    protected fun TestCollector.assertKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         val kotlinSpan = kotlinJvmCompilationSpans.assertSingle()
         CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
     }
 
-    protected fun assertEachKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+    protected fun TestCollector.assertEachKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         kotlinJvmCompilationSpans.all().forEach { kotlinSpan ->
             CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()
         }
     }
 
-    protected fun assertJavaCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+    protected fun TestCollector.assertJavaCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         val javacSpan = javaCompilationSpans.assertSingle()
         CompilationSpanAssertions(javacSpan, "args").assertions()
     }
 
-    protected fun assertEachKotlinNativeCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
+    protected fun TestCollector.assertEachKotlinNativeCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         kotlinNativeCompilationSpans.all().forEach { kotlinSpan ->
             CompilationSpanAssertions(kotlinSpan, "args").assertions()
+        }
+    }
+
+    fun AmperBackend.assertHasTasks(tasks: Iterable<String>, module: String? = null) {
+        val taskNames = tasks().map { it.taskName.name }.toSortedSet()
+        tasks.forEach { task ->
+            val expectedTaskName = ":${module ?: context.projectRoot.path.name}:$task"
+            assertTrue(
+                "Task named '$expectedTaskName' should be present, but found only:\n" +
+                        taskNames.joinToString("\n")
+            ) {
+                taskNames.contains(expectedTaskName)
+            }
         }
     }
 }

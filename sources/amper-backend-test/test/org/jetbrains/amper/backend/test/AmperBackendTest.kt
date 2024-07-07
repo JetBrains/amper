@@ -7,7 +7,6 @@ import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.BasicAuthenticator
 import com.sun.net.httpserver.HttpServer
 import io.opentelemetry.api.common.AttributeKey
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
@@ -21,8 +20,9 @@ import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.test.LinuxOnly
 import org.jetbrains.amper.test.MacOnly
+import org.jetbrains.amper.test.TestCollector
+import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
-import org.jetbrains.amper.test.TestUtil.runTestInfinitely
 import org.jetbrains.amper.test.WindowsOnly
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -63,24 +63,24 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @RegisterExtension
     private val errorCollectorExtension = ErrorCollectorExtension()
 
-    private fun setupTestDataProject(
+    private fun TestCollector.setupTestDataProject(
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
-        backgroundScope: CoroutineScope,
     ): ProjectContext = setupTestProject(
         testDataRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
-        backgroundScope = backgroundScope,
     )
 
     @Test
-    fun `jvm kotlin-test smoke test`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-kotlin-test-smoke", backgroundScope = backgroundScope)
+    fun `jvm kotlin-test smoke test`() = runTestWithCollector {
+        val projectContext = setupTestDataProject(
+            "jvm-kotlin-test-smoke",
+        )
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-smoke:testJvm"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         // not captured by default...
@@ -96,12 +96,12 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm kotlin test no tests`() = runTestInfinitely {
+    fun `jvm kotlin test no tests`() = runTestWithCollector {
         // Testing a module should fail if there are some test sources, but no tests were found
         // for example it'll automatically fail if you run your tests with TestNG, but specified JUnit in settings
         // see `native test no tests`
 
-        val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-kotlin-test-no-tests")
         val exception = assertFailsWith<TaskExecutor.TaskExecutionFailed> {
             AmperBackend(projectContext).test()
         }
@@ -111,11 +111,11 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     @WindowsOnly
     @Ignore("AMPER-474")
-    fun `native test no tests`() = runTestInfinitely {
+    fun `native test no tests`() = runTestWithCollector {
         // Testing a module should fail if there are some test sources, but no tests were found
         // see `jvm kotlin test no tests`
 
-        val projectContext = setupTestDataProject("native-test-no-tests", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("native-test-no-tests")
         val exception = assertFailsWith<UserReadableError> {
             AmperBackend(projectContext).test()
         }
@@ -125,21 +125,21 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     @WindowsOnly
     @Ignore("AMPER-475")
-    fun `native test app test`() = runTestInfinitely {
+    fun `native test app test`() = runTestWithCollector {
         // Testing a module should fail if there are some test sources, but no tests were found
         // see `jvm kotlin test no tests`
 
-        val projectContext = setupTestDataProject("native-test-app-test", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("native-test-app-test")
         AmperBackend(projectContext).test()
         // TODO assert that some test was actually run
     }
 
     @Test
-    fun `jvm kotlin test no test sources`() = runTestInfinitely {
+    fun `jvm kotlin test no test sources`() = runTestWithCollector {
         // Testing a module should not fail if there are no test sources at all
         // but warn about it
 
-        val projectContext = setupTestDataProject("jvm-kotlin-test-no-test-sources", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-kotlin-test-no-test-sources")
         AmperBackend(projectContext).runTask(TaskName(":jvm-kotlin-test-no-test-sources:testJvm"))
         assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
     }
@@ -147,25 +147,24 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     @Test
     @WindowsOnly
     @Ignore("AMPER-476")
-    fun `native test no test sources`() = runTestInfinitely {
+    fun `native test no test sources`() = runTestWithCollector {
         // Testing a module should not fail if there are no test sources at all
         // but warn about it
 
-        val projectContext = setupTestDataProject("native-test-no-test-sources", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("native-test-no-test-sources")
         val amperBackend = AmperBackend(projectContext)
-        amperBackend.showTasks()
         amperBackend.runTask(TaskName(":native-test-no-test-sources:testMingwX64"))
         assertLogStartsWith("No test classes, skipping test execution for module 'jvm-kotlin-test-no-test-sources'", Level.WARN)
     }
 
     @Test
-    fun `jvm run tests only from test fragment`() = runTestInfinitely {
+    fun `jvm run tests only from test fragment`() = runTestWithCollector {
         // asserts that ATest.smoke is run, but SrcTest.smoke isn't
 
-        val projectContext = setupTestDataProject("jvm-test-classpath", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-test-classpath")
         AmperBackend(projectContext).runTask(TaskName(":jvm-test-classpath:testJvm"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[         1 tests successful      ]"), stdout)
@@ -178,8 +177,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm jar task with main class`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("java-kotlin-mixed", backgroundScope = backgroundScope)
+    fun `jvm jar task with main class`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("java-kotlin-mixed")
         AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:jarJvm"))
 
         val jarPath = projectContext.buildOutputRoot.path.resolve("tasks/_java-kotlin-mixed_jarJvm/java-kotlin-mixed-jvm.jar")
@@ -203,8 +202,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm kotlin serialization support without explicit dependency`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("kotlin-serialization-default", backgroundScope = backgroundScope)
+    fun `jvm kotlin serialization support without explicit dependency`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("kotlin-serialization-default")
         AmperBackend(projectContext).runTask(TaskName(":kotlin-serialization-default:runJvm"))
 
         assertInfoLogStartsWith(
@@ -215,8 +214,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `get jvm resource from dependency`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-resources", backgroundScope = backgroundScope)
+    fun `get jvm resource from dependency`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-resources")
         AmperBackend(projectContext).runTask(TaskName(":two:runJvm"))
 
         assertInfoLogStartsWith(
@@ -227,21 +226,22 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm test fragment dependencies`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-test-fragment-dependencies", backgroundScope = backgroundScope)
+    fun `jvm test fragment dependencies`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-test-fragment-dependencies")
         AmperBackend(projectContext).runTask(TaskName(":root:testJvm"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("junit-platform-console-standalone").assertSingle()
+        val testLauncherSpan = spansNamed("junit-platform-console-standalone").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("FromExternalDependencies:OneTwo FromProject:MyUtil"), stdout)
     }
 
     @Test
-    fun `do not call kotlinc again if sources were not changed`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-language-version-1.9", backgroundScope = backgroundScope)
+    fun `do not call kotlinc again if sources were not changed`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-language-version-1.9")
 
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
+
         assertInfoLogStartsWith(
             "Process exited with exit code 0\n" +
                     "STDOUT:\n" +
@@ -249,7 +249,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         )
         kotlinJvmCompilationSpans.assertSingle()
 
-        resetCollectors()
+        clearSpans()
+        clearLogEntries()
 
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
         val find = "Process exited with exit code 0\n" +
@@ -260,8 +261,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `kotlin compiler span`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-language-version-1.9", backgroundScope = backgroundScope)
+    fun `kotlin compiler span`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-language-version-1.9")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-1.9:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
@@ -277,8 +278,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `jvm kotlin language version 2_0`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-language-version-2.0", backgroundScope = backgroundScope)
+    fun `jvm kotlin language version 2_0`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-language-version-2.0")
         AmperBackend(projectContext).runTask(TaskName(":jvm-language-version-2.0:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
@@ -293,8 +294,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `native kotlin language version 2_0 compile`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("native-language-version-2.0", backgroundScope = backgroundScope)
+    fun `native kotlin language version 2_0 compile`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("native-language-version-2.0")
         AmperBackend(projectContext).build()
 
         assertEachKotlinNativeCompilationSpan {
@@ -304,8 +305,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
     @Test
     @WindowsOnly
-    fun `native kotlin language version 2_0 app run`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("native-language-version-2.0", backgroundScope = backgroundScope)
+    fun `native kotlin language version 2_0 app run`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("native-language-version-2.0")
         AmperBackend(projectContext).runTask(TaskName(":app:runMingwX64"))
 
         val find = "Process exited with exit code 0\n" +
@@ -319,8 +320,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `multiplatform kotlin language version 2_0`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("multiplatform-language-version-2.0", backgroundScope = backgroundScope)
+    fun `multiplatform kotlin language version 2_0`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("multiplatform-language-version-2.0")
         AmperBackend(projectContext).build()
 
         assertEachKotlinJvmCompilationSpan {
@@ -332,8 +333,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `mixed java kotlin`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("java-kotlin-mixed", backgroundScope = backgroundScope)
+    fun `mixed java kotlin`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("java-kotlin-mixed")
         AmperBackend(projectContext).runTask(TaskName(":java-kotlin-mixed:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
@@ -343,8 +344,8 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `simple multiplatform cli on jvm`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars, backgroundScope = backgroundScope)
+    fun `simple multiplatform cli on jvm`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":jvm-cli:runJvm"))
 
         val find = """Process exited with exit code 0
@@ -357,8 +358,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `simple multiplatform cli should compile windows on any platform`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", backgroundScope = backgroundScope)
+    fun `simple multiplatform cli should compile windows on any platform`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).build(setOf(Platform.MINGW_X64))
 
         assertTrue("build must generate a 'windows-cli.exe' file somewhere") {
@@ -367,8 +368,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm exported dependencies`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-exported-dependencies", backgroundScope = backgroundScope)
+    fun `jvm exported dependencies`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-exported-dependencies")
         AmperBackend(projectContext).runTask(TaskName(":cli:runJvm"))
 
         val find = "Process exited with exit code 0\n" +
@@ -379,8 +380,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli on mac`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars, backgroundScope = backgroundScope)
+    fun `simple multiplatform cli on mac`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":macos-cli:runMacosArm64"))
 
         val find = """Process exited with exit code 0
@@ -394,11 +395,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli lib test on mac`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", backgroundScope = backgroundScope)
+    fun `simple multiplatform cli lib test on mac`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMacosArm64"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
+        val testLauncherSpan = spansNamed("native-test").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
@@ -407,13 +408,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @MacOnly
-    fun `simple multiplatform cli app test on mac`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", backgroundScope = backgroundScope)
+    fun `simple multiplatform cli app test on mac`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         val amperBackend = AmperBackend(projectContext)
-        amperBackend.showTasks()
         amperBackend.runTask(TaskName(":macos-cli:testMacosArm64"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
+        val testLauncherSpan = spansNamed("native-test").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTestFromMacOsCli.doTest"), stdout)
@@ -422,11 +422,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @WindowsOnly
-    fun `simple multiplatform cli test on windows`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", backgroundScope = backgroundScope)
+    fun `simple multiplatform cli test on windows`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli")
         AmperBackend(projectContext).runTask(TaskName(":shared:testMingwX64"))
 
-        val testLauncherSpan = openTelemetryCollector.spansNamed("native-test").assertSingle()
+        val testLauncherSpan = spansNamed("native-test").assertSingle()
         val stdout = testLauncherSpan.getAttribute(AttributeKey.stringKey("stdout"))
 
         assertTrue(stdout.contains("[       OK ] WorldTest.doTest"), stdout)
@@ -435,10 +435,9 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @LinuxOnly
-    fun `simple multiplatform cli on linux`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars, backgroundScope = backgroundScope)
+    fun `simple multiplatform cli on linux`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         val backend = AmperBackend(projectContext)
-        backend.showTasks()
         backend.runTask(TaskName(":linux-cli:runLinuxX64"))
 
         val find = """Process exited with exit code 0
@@ -451,12 +450,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish to maven local`() = runTestInfinitely {
+    fun `jvm publish to maven local`() = runTestWithCollector {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
-        val projectContext = setupTestDataProject("jvm-publish", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-publish")
         val backend = AmperBackend(projectContext)
         backend.runTask(TaskName(":jvm-publish:publishJvmToMavenLocal"))
 
@@ -535,12 +534,12 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish multi-module to maven local`() = runTestInfinitely {
+    fun `jvm publish multi-module to maven local`() = runTestWithCollector {
         val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
-        val projectContext = setupTestDataProject("jvm-publish-multimodule", backgroundScope = backgroundScope)
+        val projectContext = setupTestDataProject("jvm-publish-multimodule")
         val backend = AmperBackend(projectContext)
         backend.runTask(TaskName(":main-lib:publishJvmToMavenLocal"))
 
@@ -607,11 +606,11 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish to http no authentication`() = runTestInfinitely {
+    fun `jvm publish to http no authentication`() = runTestWithCollector {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
 
         withFileServer(www) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true, backgroundScope = backgroundScope)
+            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
             val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
             moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -657,7 +656,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish to http password authentication`() = runTestInfinitely {
+    fun `jvm publish to http password authentication`() = runTestWithCollector {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
         val authenticator = object : BasicAuthenticator("www-realm") {
             override fun checkCredentials(username: String, password: String): Boolean {
@@ -666,7 +665,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         }
 
         withFileServer(www, authenticator) { baseUrl ->
-            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true, backgroundScope = backgroundScope)
+            val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
             val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
             moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -712,7 +711,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish adds to maven-metadata xml`() = runTestInfinitely {
+    fun `jvm publish adds to maven-metadata xml`() = runTestWithCollector {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
         val authenticator = object : BasicAuthenticator("www-realm") {
             override fun checkCredentials(username: String, password: String): Boolean {
@@ -723,7 +722,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         withFileServer(www, authenticator) { baseUrl ->
             // deploy version 2.2
             run {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true, backgroundScope = backgroundScope)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl))
@@ -732,7 +731,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             }
             // deploy version 2.3
             run {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true, backgroundScope = backgroundScope)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", "2.3"))
@@ -762,7 +761,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm publish handles snapshot versioning`() = runTestInfinitely {
+    fun `jvm publish handles snapshot versioning`() = runTestWithCollector {
         val www = tempRoot.resolve("www-root").also { it.createDirectories() }
         val authenticator = object : BasicAuthenticator("www-realm") {
             override fun checkCredentials(username: String, password: String): Boolean {
@@ -772,7 +771,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         withFileServer(www, authenticator) { baseUrl ->
             suspend fun deployVersion(version: String) {
-                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true, backgroundScope = backgroundScope)
+                val projectContext = setupTestDataProject("jvm-publish", copyToTemp = true)
 
                 val moduleYaml = projectContext.projectRoot.path.resolve("module.yaml")
                 moduleYaml.writeText(moduleYaml.readText().replace("REPO_URL", baseUrl).replace("2.2", version))
@@ -852,8 +851,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     @WindowsOnly
-    fun `simple multiplatform cli on windows`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars, backgroundScope = backgroundScope)
+    fun `simple multiplatform cli on windows`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = argumentsWithSpecialChars)
         AmperBackend(projectContext).runTask(TaskName(":windows-cli:runMingwX64"))
 
         val find = """Process exited with exit code 0
@@ -866,8 +865,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `custom task dependencies`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("custom-task-dependencies", backgroundScope = backgroundScope)
+    fun `custom task dependencies`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("custom-task-dependencies")
         AmperBackend(projectContext).showTasks()
 
         assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :utils:testJvm, :main-lib:testJvm, :main-lib:jarJvm, :main-lib:sourcesJarJvm")
@@ -881,8 +880,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     )
 
     @Test
-    fun `simple multiplatform cli sources jars`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList(), backgroundScope = backgroundScope)
+    fun `simple multiplatform cli sources jars`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
         val backend = AmperBackend(projectContext)
 
         val sourcesJarJvm = TaskName(":shared:sourcesJarJvm")
@@ -950,8 +949,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm transitive dependencies`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-transitive-dependencies", backgroundScope = backgroundScope)
+    fun `jvm transitive dependencies`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-transitive-dependencies")
 
         // 1. Check compile classpath
         val result = AmperBackend(projectContext)
@@ -987,8 +986,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         // 2. Check runtime classpath composed after compilation tasks finished
         val runtimeClasspathResult = AmperBackend(projectContext)
-            .runTask(TaskName(":app:runtimeClasspathJvm"))
-            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
+                .runTask(TaskName(":app:runtimeClasspathJvm"))
+                ?.getOrNull() as? JvmRuntimeClasspathTask.Result
 
         assertNotNull(runtimeClasspathResult, "unexpected result absence for :app:runtimeClasspathJvm")
 
@@ -1042,8 +1041,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
     }
 
     @Test
-    fun `jvm runtime classpath conflict resolution`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution", backgroundScope = backgroundScope)
+    fun `jvm runtime classpath conflict resolution`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("jvm-runtime-classpath-conflict-resolution")
 
         val result = AmperBackend(projectContext)
             .runTask(TaskName(":B2:resolveDependenciesJvm"))
@@ -1122,8 +1121,8 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Disabled("Metadata compilation doesn't 100% work at the moment, because we need DR to support multi-platform dependencies")
     @Test
-    fun `simple multiplatform cli metadata`() = runTestInfinitely {
-        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList(), backgroundScope = backgroundScope)
+    fun `simple multiplatform cli metadata`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("simple-multiplatform-cli", programArgs = emptyList())
         val backend = AmperBackend(projectContext)
 
         val compileMetadataJvmMain = TaskName(":shared:compileMetadataJvm")
