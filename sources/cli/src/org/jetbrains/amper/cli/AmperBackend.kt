@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.cli
 
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.OsFamily
@@ -74,7 +73,7 @@ class AmperBackend(val context: ProjectContext) {
      *
      * If [platforms] is specified, only compilation/linking for those platforms should be run.
      */
-    fun build(platforms: Set<Platform>? = null) {
+    suspend fun build(platforms: Set<Platform>? = null) {
         if (platforms != null) {
             logger.info("Compiling for platforms: ${platforms.map { it.name }.sorted().joinToString(" ")}")
         }
@@ -87,16 +86,14 @@ class AmperBackend(val context: ProjectContext) {
         }
 
         val platformsToCompile: Set<Platform> = platforms ?: possibleCompilationPlatforms
-        runBlocking {
-            val taskNames = taskGraph
-                .tasks
-                .filterIsInstance<BuildTask>()
-                .filter { platformsToCompile.contains(it.platform) }
-                .map { it.taskName }
-                .toSet()
-            logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")
-            taskExecutor.runTasksAndReportOnFailure(taskNames)
-        }
+        val taskNames = taskGraph
+            .tasks
+            .filterIsInstance<BuildTask>()
+            .filter { platformsToCompile.contains(it.platform) }
+            .map { it.taskName }
+            .toSet()
+        logger.info("Selected tasks to compile: ${taskNames.sortedBy { it.name }.joinToString(" ") { it.name }}")
+        taskExecutor.runTasksAndReportOnFailure(taskNames)
     }
 
     suspend fun runTask(taskName: TaskName): kotlin.Result<TaskResult>? = taskExecutor.runTasksAndReportOnFailure(setOf(taskName))[taskName]
@@ -124,7 +121,7 @@ class AmperBackend(val context: ProjectContext) {
         }
     }
 
-    fun publish(modules: Set<String>?, repositoryId: String) {
+    suspend fun publish(modules: Set<String>?, repositoryId: String) {
         require(modules == null || modules.isNotEmpty())
 
         if (modules != null) {
@@ -153,12 +150,10 @@ class AmperBackend(val context: ProjectContext) {
         context.terminal.println("Tasks that will be executed:\n" +
             publishTasks.sorted().joinToString("\n"))
 
-        runBlocking {
-            taskExecutor.runTasksAndReportOnFailure(publishTasks)
-        }
+        taskExecutor.runTasksAndReportOnFailure(publishTasks)
     }
 
-    fun test(moduleName: String? = null, platforms: Set<Platform>? = null) {
+    suspend fun test(moduleName: String? = null, platforms: Set<Platform>? = null) {
         require(platforms == null || platforms.isNotEmpty())
 
         if (moduleName != null && resolvedModel.modules.none { it.userReadableName == moduleName }) {
@@ -189,12 +184,10 @@ class AmperBackend(val context: ProjectContext) {
             userReadableError("No test tasks were found for specified module and platform filters")
         }
 
-        runBlocking {
-            taskExecutor.runTasksAndReportOnFailure(testTasks)
-        }
+        taskExecutor.runTasksAndReportOnFailure(testTasks)
     }
 
-    fun runApplication(moduleName: String? = null, platform: Platform? = null, buildType: BuildType? = BuildType.Debug) {
+    suspend fun runApplication(moduleName: String? = null, platform: Platform? = null, buildType: BuildType? = BuildType.Debug) {
         val moduleToRun = if (moduleName != null) {
             resolvedModel.modules.firstOrNull { it.userReadableName == moduleName }
                 ?: userReadableError("Unable to resolve module by name '$moduleName'.\n\nAvailable modules: ${availableModulesString()}")
@@ -241,7 +234,7 @@ class AmperBackend(val context: ProjectContext) {
                 """.trimIndent())
         }
 
-        runBlocking { runTask(task.taskName) }
+        runTask(task.taskName)
     }
 
     private fun availableModulesString() =
