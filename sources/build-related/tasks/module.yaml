@@ -9,7 +9,3 @@ dependencies:
 
 apply:
   - ../../common.module-template.yaml
-
-settings:
-  jvm:
-    mainClass: BuildUnpackedDistTask
