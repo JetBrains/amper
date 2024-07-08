@@ -49,7 +49,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         )
         val needsLinkedExecutable = module.type.isApplication() || isTest
         // iOS framework task is defined by the iOS task builder
-        if (needsLinkedExecutable && !isIosApp(platform, module)) {
+        if (needsLinkedExecutable && (isTest || !isIosApp(platform, module))) {
             val linkAppTaskName = NativeTaskType.Link.getTaskName(module, platform, isTest)
             registerTask(
                 NativeLinkTask(

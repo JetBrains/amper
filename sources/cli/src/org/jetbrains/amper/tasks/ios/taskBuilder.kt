@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -17,61 +16,75 @@ import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
-private fun isIosApp(platform: Platform, module: PotatoModule) =
-    platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
-
 /**
- * Setup apple related tasks.
+ * Set up apple-related tasks.
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
     onEachBuildType { module, eoci, platform, isTest, buildType ->
-        if (module.type != ProductType.IOS_APP) return@onEachBuildType
-        if (!platform.isDescendantOf(Platform.IOS)) return@onEachBuildType
-        if (isTest || buildType == BuildType.Release) return@onEachBuildType
+        val ctx = this@setupIosTasks.context
 
-        val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
-        val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, false)
-        registerTask(
-            NativeLinkTask(
+        fun configureTestTasks() = registerTask(
+            task = IosKotlinTestTask(
+                taskName = CommonTaskType.Test.getTaskName(module, platform),
                 module = module,
+                projectRoot = ctx.projectRoot,
+                terminal = ctx.terminal,
                 platform = platform,
-                userCacheRoot = context.userCacheRoot,
-                taskOutputRoot = context.getTaskOutputPath(frameworkTaskName),
-                executeOnChangedInputs = eoci,
-                taskName = frameworkTaskName,
-                tempRoot = context.projectTempRoot,
-                isTest = false,
-                compilationType = KotlinCompilationType.IOS_FRAMEWORK,
-                compileKLibTaskName = compileKLibTaskName,
             ),
-            listOf(
-                compileKLibTaskName,
-                CommonTaskType.Dependencies.getTaskName(module, platform, false),
+            dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+        )
+
+        fun configureMainTasks() {
+            val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
+            val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, false)
+            registerTask(
+                task = NativeLinkTask(
+                    module = module,
+                    platform = platform,
+                    userCacheRoot = ctx.userCacheRoot,
+                    taskOutputRoot = ctx.getTaskOutputPath(frameworkTaskName),
+                    executeOnChangedInputs = eoci,
+                    taskName = frameworkTaskName,
+                    tempRoot = ctx.projectTempRoot,
+                    isTest = false,
+                    compilationType = KotlinCompilationType.IOS_FRAMEWORK,
+                    compileKLibTaskName = compileKLibTaskName,
+                ),
+                dependsOn = listOf(
+                    compileKLibTaskName,
+                    CommonTaskType.Dependencies.getTaskName(module, platform, false)
+                )
             )
-        )
 
-        val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
-        registerTask(
-            task = BuildAppleTask(
-                platform = platform,
-                module = module,
-                buildType = buildType,
-                executeOnChangedInputs = eoci,
-                taskOutputPath = context.getTaskOutputPath(buildTaskName),
-                taskName = buildTaskName,
-                isTest = false,
-            ),
-            dependsOn = listOf(frameworkTaskName)
-        )
+            val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
+            registerTask(
+                task = BuildAppleTask(
+                    platform = platform,
+                    module = module,
+                    buildType = buildType,
+                    executeOnChangedInputs = eoci,
+                    taskOutputPath = ctx.getTaskOutputPath(buildTaskName),
+                    taskName = buildTaskName,
+                    isTest = false,
+                ),
+                dependsOn = listOf(frameworkTaskName)
+            )
 
-        val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
-        registerTask(
-            task = RunAppleTask(
-                runTaskName,
-                context.getTaskOutputPath(runTaskName),
-            ),
-            dependsOn = listOf(buildTaskName)
-        )
+            val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
+            registerTask(
+                task = RunAppleTask(runTaskName, ctx.getTaskOutputPath(runTaskName)),
+                dependsOn = listOf(buildTaskName)
+            )
+        }
+
+        when {
+            module.type != ProductType.IOS_APP -> return@onEachBuildType
+            !platform.isDescendantOf(Platform.IOS) -> return@onEachBuildType
+            isTest && buildType == BuildType.Release -> return@onEachBuildType
+            isTest && buildType == BuildType.Debug -> configureTestTasks()
+            buildType == BuildType.Release -> return@onEachBuildType
+            else -> configureMainTasks()
+        }
     }
 }
 
