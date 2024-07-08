@@ -81,7 +81,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         kotlinJvmCompilationSpans.withAmperModule("jvm-app").assertSingle()
 
         // main/test klib + framework for Ios.
-        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(3)
+        kotlinNativeCompilationSpans.withAmperModule("ios-app").assertTimes(4)
     }
 
     @Test
@@ -120,6 +120,7 @@ private val iosAppTasks = iosLibraryTasks + listOf(
     "frameworkIosSimulatorArm64",
     "buildIosAppIosSimulatorArm64",
     "runIosAppIosSimulatorArm64",
+    "testIosSimulatorArm64",
 )
 
 private val androidBaseTasks = listOf(
