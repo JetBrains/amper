@@ -1,3 +1,4 @@
 modules:
   - compose
   - interop
+  - simpleTests

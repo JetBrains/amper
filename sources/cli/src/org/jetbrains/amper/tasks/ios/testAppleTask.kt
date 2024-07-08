@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
+import org.jetbrains.amper.processes.setProcessResultAttributes
 import org.jetbrains.amper.tasks.BaseTaskResult
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask
@@ -35,12 +36,13 @@ class IosKotlinTestTask(
         val executable = compileTaskResult.linkedBinary
         val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
 
-        return spanBuilder("ios-native-test")
+        return spanBuilder("ios-kotlin-test")
             .setAttribute("executable", executable.pathString)
             .useWithScope { span ->
                 bootAndWaitSimulator(chosenDevice.deviceId)
 
                 val spawnTestsCommand = listOfNotNull(
+                    XCRUN_EXECUTABLE,
                     "simctl",
                     "spawn",
                     chosenDevice.deviceId,
@@ -56,9 +58,12 @@ class IosKotlinTestTask(
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )
+                span.setProcessResultAttributes(result)
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }
+
+                shutdownDevice(chosenDevice.deviceId)
                 BaseTaskResult(dependenciesResult)
             }
     }

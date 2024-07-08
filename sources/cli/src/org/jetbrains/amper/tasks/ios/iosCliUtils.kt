@@ -19,12 +19,16 @@ data class Device(val deviceId: String, val status: String)
 private const val AVAILABLE_DEVICES_FILTER = "available"
 const val AWAIT_ATTEMPTS = 10
 const val AWAIT_TIME: Long = 1000
+const val XCRUN_EXECUTABLE = "/usr/bin/xcrun"
 
 suspend fun installAppOnDevice(deviceId: String, appPath: Path) =
     xcrun("simctl", "install", deviceId, appPath.pathString)
 
 suspend fun launchAppOnDevice(deviceId: String, bundleId: String) =
     xcrun("simctl", "launch", deviceId, bundleId)
+
+suspend fun shutdownDevice(deviceId: String) =
+    xcrun("simctl", "shutdown", deviceId)
 
 suspend fun queryDevices(
     filter: String = AVAILABLE_DEVICES_FILTER
@@ -53,10 +57,16 @@ suspend fun queryDevices(
         .map { Device(it.groupValues[1], it.groupValues[2].lowercase(Locale.getDefault())) }
 }
 
-suspend fun bootAndWaitSimulator(deviceId: String) {
+suspend fun bootAndWaitSimulator(
+    deviceId: String,
+    headless: Boolean = true,
+) {
+    val command = if (headless) arrayOf("xcrun", "simctl", "boot", deviceId)
+    else arrayOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
+
     BuildPrimitives.runProcessAndGetOutput(
         Path("."),
-        "open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId,
+        *command,
         logCall = true,
         outputListener = LoggingProcessOutputListener(logger),
     )
@@ -80,7 +90,7 @@ private suspend fun xcrun(
     listener: ProcessOutputListener = LoggingProcessOutputListener(logger),
 ) = BuildPrimitives.runProcessAndGetOutput(
     Path("."),
-    "/usr/bin/xcrun", *args,
+    XCRUN_EXECUTABLE, *args,
     logCall = logCall,
     outputListener = listener,
 ).stdout.lines()

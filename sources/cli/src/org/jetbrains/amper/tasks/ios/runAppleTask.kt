@@ -20,7 +20,7 @@ class RunAppleTask(
         taskOutputPath.path.createDirectories()
         val builtApp = dependenciesResult.requireSingleDependency<BuildAppleTask.Result>()
         val chosenDevice = queryDevices().firstOrNull() ?: error("No available device")
-        bootAndWaitSimulator(chosenDevice.deviceId)
+        bootAndWaitSimulator(chosenDevice.deviceId, headless = false)
         installAppOnDevice(chosenDevice.deviceId, builtApp.appPath)
         launchAppOnDevice(chosenDevice.deviceId, builtApp.bundleId)
         return BaseTaskResult()

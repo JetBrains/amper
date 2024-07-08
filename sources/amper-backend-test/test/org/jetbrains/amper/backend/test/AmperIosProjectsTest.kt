@@ -18,6 +18,7 @@ import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AmperIosProjectsTest : AmperIntegrationTestBase() {
 
@@ -31,10 +32,17 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
     private val TestCollector.xcodebuildSpans: FilteredSpans
         get() = spansNamed("xcodebuild")
 
+    private val TestCollector.iosKotlinTests: FilteredSpans
+        get() = spansNamed("ios-kotlin-test")
+
     private val TestCollector.konancSpans: FilteredSpans
         get() = spansNamed("konanc")
 
-    private fun FilteredSpans.assertZeroExitCode(times: Int = 1) = assertTimes(times).forEach {
+    private fun FilteredSpans.assertZeroExitCode() = assertSingle().apply {
+        assertEquals(0, getAttribute(AttributeKey.longKey("exit-code")))
+    }
+
+    private fun FilteredSpans.assertZeroExitCode(times: Int) = assertTimes(times).forEach {
         assertEquals(0, it.getAttribute(AttributeKey.longKey("exit-code")))
     }
 
@@ -113,4 +121,16 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         AmperBackend(projectContext).build(setOf(Platform.IOS_SIMULATOR_ARM64))
         xcodebuildSpans.assertZeroExitCode()
     }
+
+    @Test
+    @MacOnly
+    fun `run kotlin tests in simulator`() = runTestWithCollector {
+        val projectName = "simpleTests"
+        val task = "testIosSimulatorArm64"
+        val projectContext = setupIosTestProject(projectName)
+        AmperBackend(projectContext).runTask(projectName, task)
+        val testsStdOut = iosKotlinTests.assertZeroExitCode().getAttribute(AttributeKey.stringKey("stdout"))
+        assertTrue(testsStdOut.contains("##teamcity[testSuiteFinished name='SimpleTestsKt']"))
+    }
+
 }
