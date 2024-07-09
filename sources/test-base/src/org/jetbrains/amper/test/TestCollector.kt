@@ -38,7 +38,7 @@ class TestCollector(val backgroundScope: CoroutineScope) {
 
     val terminalRecorder = TerminalRecorder()
     val terminal: Terminal = Terminal(terminalRecorder)
-    fun cleatTerminalRecording() = terminalRecorder.clearOutput()
+    fun clearTerminalRecording() = terminalRecorder.clearOutput()
 
     companion object {
         private const val MDC_KEY = "test-collector"
@@ -70,6 +70,8 @@ class TestCollector(val backgroundScope: CoroutineScope) {
                         } finally {
                             OpenTelemetryCollector.removeListener(listener)
                             TestInterceptorWriter.removeListener(logListener)
+
+                            println(testCollector.terminalRecorder.output())
                         }
                     }
                 }

@@ -85,7 +85,7 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
         kotlinJvmCompilationSpans.withAmperModule("shared").assertSingle()
         assertStdoutContains("Hello, World!")
 
-        cleatTerminalRecording()
+        clearTerminalRecording()
 
         AmperBackend(projectContext).test()
         assertStdoutContains("Test run finished after")

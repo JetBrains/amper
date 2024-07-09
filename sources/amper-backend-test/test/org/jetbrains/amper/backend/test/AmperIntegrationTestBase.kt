@@ -120,7 +120,7 @@ abstract class AmperIntegrationTestBase {
     }
 
     protected fun TestCollector.assertStdoutContains(text: String) {
-        assertTrue("No line in stdout contains the text '$text'") {
+        assertTrue("No line in stdout contains the text '$text':\n" + terminalRecorder.stdout().trim()) {
             terminalRecorder.stdout().lineSequence().any { text in it }
         }
     }

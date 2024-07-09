@@ -42,7 +42,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
         }
         assertStdoutContains("Hello, World!")
 
-        cleatTerminalRecording()
+        clearTerminalRecording()
 
         AmperBackend(setupExampleProject("jvm")).test()
         assertStdoutContains("Test run finished")
