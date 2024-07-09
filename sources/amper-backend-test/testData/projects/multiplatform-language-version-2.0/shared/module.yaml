@@ -6,5 +6,5 @@ apply:
   - ../common.module-template.yaml
 
 dependencies:
-  - ../utils: exported
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.5.0: exported
+  - ../utils
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.5.0

@@ -72,11 +72,19 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    onCompileModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
+    onRuntimeModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
         registerDependency(
             NativeTaskType.CompileKLib.getTaskName(module, platform, isTest),
             NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
         )
+
+        val needsLinkedExecutable = module.type.isApplication() || isTest
+        if (needsLinkedExecutable && (isTest || !isIosApp(platform, module))) {
+            registerDependency(
+                NativeTaskType.Link.getTaskName(module, platform, isTest),
+                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+            )
+        }
     }
 
     onMain(Platform.NATIVE) { module, _, platform, _ ->
@@ -114,6 +122,11 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 terminal = context.terminal,
             ),
             NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+        )
+
+        registerDependency(
+            NativeTaskType.Link.getTaskName(module, platform, isTest = true),
+            NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false),
         )
     }
 }

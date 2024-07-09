@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -59,11 +60,22 @@ class NativeLinkTask(
             error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
 
+        val externalRuntimeDependencies = dependenciesResult
+            .filterIsInstance<ResolveExternalDependenciesTask.Result>()
+            .flatMap { it.runtimeClasspath } // recursive compiler dependencies (direct + nested exported)
+            .distinct()
+            .filter { !it.pathString.endsWith(".jar") }
+            .toList()
+
         val moduleKLibCompilationResult = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
             .firstOrNull { it.taskName == compileKLibTaskName }
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
         val includeArtifact = moduleKLibCompilationResult.compiledKlib
+
+        val runtimeDependencies = dependenciesResult
+            .filterIsInstance<NativeCompileKlibTask.Result>()
+            .filter { it.taskName != compileKLibTaskName }
 
         // TODO kotlin version settings
         val kotlinVersion = UsedVersions.kotlinVersion
@@ -86,7 +98,7 @@ class NativeLinkTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = listOf(includeArtifact) + moduleKLibCompilationResult.dependencyKlibs
+        val inputs = listOf(includeArtifact) + runtimeDependencies.map { it.compiledKlib }
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
@@ -98,7 +110,7 @@ class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = moduleKLibCompilationResult.dependencyKlibs,
+                libraryPaths = runtimeDependencies.map { it.compiledKlib } + externalRuntimeDependencies,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),
                 sourceFiles = emptyList(),

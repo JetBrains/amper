@@ -154,12 +154,12 @@ class TaskExecutorTest {
                 }
                 delay(delayMs)
                 if (throwException) error("throw")
-                return TestTaskResult(taskName, dependenciesResult)
+                return TestTaskResult(taskName)
             } finally {
                 tasksCount.decrementAndGet()
             }
         }
     }
 
-    private class TestTaskResult(val taskName: TaskName, override val dependencies: List<TaskResult>) : TaskResult
+    private class TestTaskResult(val taskName: TaskName) : TaskResult
 }
