@@ -94,7 +94,7 @@ class CustomTask(
             }
 
             if (!path.exists()) {
-                userReadableError("After running a custom task '${custom.name}' output file or folder '$path'" +
+                userReadableError("After running a custom task '${custom.name.name}' output file or folder '$path'" +
                         "is not found, but required for module source sets")
             }
         }
@@ -109,7 +109,7 @@ class CustomTask(
             }
 
             if (!path.isRegularFile()) {
-                userReadableError("After running a custom task '${custom.name}' output file or folder '$path'" +
+                userReadableError("After running a custom task '${custom.name.name}' output file or folder '$path'" +
                         "is not found, but required for publishing")
             }
         }
