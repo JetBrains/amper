@@ -118,7 +118,6 @@ class CustomTask(
             outputDirectory = taskOutputRoot.path,
             artifactsToPublish = custom.publishArtifacts,
             moduleRoots = custom.addToModuleRootsFromCustomTask,
-            dependencies = dependenciesResult,
         )
     }
 
@@ -174,7 +173,6 @@ class CustomTask(
         val outputDirectory: Path,
         val artifactsToPublish: List<PublishArtifactFromCustomTask>,
         val moduleRoots: List<AddToModuleRootsFromCustomTask>,
-        override val dependencies: List<TaskResult>,
     ): TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

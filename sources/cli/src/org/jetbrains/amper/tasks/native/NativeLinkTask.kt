@@ -73,7 +73,7 @@ class NativeLinkTask(
 
         val entryPoints = if (module.type.isApplication()) {
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
-        } else emptyList()
+        } else emptyList<String>()
         if (entryPoints.size > 1) {
             error("Multiple entry points defined for module ${module.userReadableName} fragments ${fragments.userReadableList()}: ${entryPoints.joinToString()}")
         }
@@ -113,13 +113,11 @@ class NativeLinkTask(
         }.outputs.single()
 
         return Result(
-            dependencies = dependenciesResult,
             linkedBinary = artifact,
         )
     }
 
     class Result(
-        override val dependencies: List<TaskResult>,
         val linkedBinary: Path,
     ) : TaskResult
 

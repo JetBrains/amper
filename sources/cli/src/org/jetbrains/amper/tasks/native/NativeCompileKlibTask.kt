@@ -26,7 +26,6 @@ import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.custom.CustomTask
-import org.jetbrains.amper.tasks.walkRecursively
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -61,9 +60,9 @@ class NativeCompileKlibTask(
         }
 
         // TODO The native compiler needs recursive dependencies
-        val externalDependencies = dependenciesResult.walkRecursively()
+        val externalDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.compileClasspath }
+            .flatMap { it.compileClasspath } // recursive compiler dependencies (direct + nested exported)
             .distinct()
             .filter { !it.pathString.endsWith(".jar") }
             .toList()
@@ -74,7 +73,6 @@ class NativeCompileKlibTask(
         )
 
         val compiledModuleDependencies = dependenciesResult
-            .walkRecursively()
             .filterIsInstance<Result>()
             .map { it.compiledKlib }
             .toList()
@@ -148,7 +146,6 @@ class NativeCompileKlibTask(
         }.outputs.single()
 
         return Result(
-            dependencies = dependenciesResult,
             compiledKlib = artifact,
             dependencyKlibs = libraryPaths,
             taskName = taskName,
@@ -156,7 +153,6 @@ class NativeCompileKlibTask(
     }
 
     class Result(
-        override val dependencies: List<TaskResult>,
         val compiledKlib: Path,
         val dependencyKlibs: List<Path>,
         val taskName: TaskName,

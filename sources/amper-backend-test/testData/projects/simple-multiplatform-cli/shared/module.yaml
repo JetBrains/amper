@@ -3,8 +3,8 @@ product:
   platforms: [ jvm, linuxArm64, linuxX64, macosArm64, mingwX64 ]
 
 dependencies:
-  - ../utils
-  - org.jetbrains.kotlinx:kotlinx-datetime:0.5.0
+  - ../utils: exported
+  - org.jetbrains.kotlinx:kotlinx-datetime:0.5.0: exported
 
 settings:
   kotlin:

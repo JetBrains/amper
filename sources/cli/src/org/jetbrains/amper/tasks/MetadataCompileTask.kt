@@ -111,7 +111,6 @@ class MetadataCompileTask(
 
         return Result(
             metadataOutputRoot = taskOutputRoot.path.toAbsolutePath(),
-            dependencies = dependenciesResult,
             module = module,
             fragment = fragment,
         )
@@ -176,7 +175,6 @@ class MetadataCompileTask(
     }
 
     class Result(
-        override val dependencies: List<TaskResult>,
         val metadataOutputRoot: Path,
         val module: PotatoModule,
         val fragment: Fragment,

@@ -173,7 +173,6 @@ class JvmCompileTask(
 
         return Result(
             classesOutputRoot = taskOutputRoot.path.toAbsolutePath(),
-            dependencies = dependenciesResult,
             module = module,
             isTest = isTest,
         )
@@ -349,7 +348,6 @@ class JvmCompileTask(
     }
 
     class Result(
-        override val dependencies: List<TaskResult>,
         val classesOutputRoot: Path,
         val module: PotatoModule,
         val isTest: Boolean,

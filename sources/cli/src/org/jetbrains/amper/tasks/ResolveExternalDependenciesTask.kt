@@ -62,13 +62,13 @@ class ResolveExternalDependenciesTask(
         val resolvedPlatform = platform.toResolutionPlatform()
         if (resolvedPlatform == null) {
             logger.error("${module.userReadableName}: Non-leaf platform $platform is not supported for resolving external dependencies")
-            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
         } else if (resolvedPlatform != ResolutionPlatform.JVM
             && resolvedPlatform != ResolutionPlatform.ANDROID
             && resolvedPlatform.nativeTarget == null
         ) {
             logger.error("${module.userReadableName}: $platform is not yet supported for resolving external dependencies")
-            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList(), dependencies = dependenciesResult)
+            return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
         }
 
         return spanBuilder("resolve-dependencies")
@@ -169,7 +169,6 @@ class ResolveExternalDependenciesTask(
                 Result(
                     compileClasspath = compileClasspath,
                     runtimeClasspath = runtimeClasspath,
-                    dependencies = dependenciesResult
                 )
             }
 
@@ -178,9 +177,9 @@ class ResolveExternalDependenciesTask(
     private val Message.message: String
         get() = "$text ($extra)"
 
-    class Result(override val dependencies: List<TaskResult>,
-                 val compileClasspath: List<Path>,
-                 val runtimeClasspath: List<Path>,
+    class Result(
+        val compileClasspath: List<Path>,
+        val runtimeClasspath: List<Path>,
     ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)

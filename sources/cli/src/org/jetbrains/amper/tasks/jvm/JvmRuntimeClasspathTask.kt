@@ -23,7 +23,6 @@ class JvmRuntimeClasspathTask(
             jvmRuntimeClasspath = classpath,
             module = module,
             isTest = isTest,
-            dependencies = dependenciesResult,
         )
     }
 
@@ -41,8 +40,9 @@ class JvmRuntimeClasspathTask(
         val dependenciesTask = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>().singleOrNull()
             ?: error("${ResolveExternalDependenciesTask::class.simpleName} result is not found in dependencies")
 
-        val moduleDependenciesJars = dependenciesResult.filterIsInstance<Result>()
-            .flatMap { it.dependencies.filterIsInstance<JvmClassesJarTask.Result>().map { it.jarPath } }
+        val moduleDependenciesJars = dependenciesResult
+            .filterIsInstance<JvmClassesJarTask.Result>()
+            .map { it.jarPath }
 
         val addToClasspath = jarTasks.map { it.jarPath } +
                 moduleDependenciesJars +
@@ -55,6 +55,5 @@ class JvmRuntimeClasspathTask(
         val jvmRuntimeClasspath: List<Path>,
         val module: PotatoModule,
         val isTest: Boolean,
-        override val dependencies: List<TaskResult>,
     ): TaskResult
 }
