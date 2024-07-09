@@ -111,7 +111,7 @@ class PublishTask(
             repositorySystem.deploy(repositorySession, deployRequest)
         }
 
-        return Result(dependenciesResult)
+        return Result()
     }
 
     private fun createArtifactsToDeploy(dependenciesResult: List<TaskResult>): List<Artifact> {
@@ -164,7 +164,7 @@ class PublishTask(
         else -> error("Unsupported dependency result: ${javaClass.name}")
     }
 
-    class Result(override val dependencies: List<TaskResult>) : TaskResult
+    class Result() : TaskResult
 
     companion object {
         private val container: PlexusContainer by lazy {

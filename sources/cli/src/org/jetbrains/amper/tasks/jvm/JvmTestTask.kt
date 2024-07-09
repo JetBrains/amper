@@ -63,7 +63,7 @@ class JvmTestTask(
             ?: error("${JvmClassesJarTask::class.simpleName} result is not found in dependencies")
         if (!jarHasClasses(jarTask.jarPath)) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
-            return Result(dependenciesResult)
+            return Result()
         }
 
         // test task depends on test jvm classpath task
@@ -135,7 +135,7 @@ class JvmTestTask(
                         userReadableError("JVM tests failed for module '${module.userReadableName}' with exit code ${result.exitCode}$meaning (see errors above)")
                     }
 
-                    Result(dependenciesResult)
+                    Result()
                 }
         } finally {
             junitArgsFile.deleteExisting()
@@ -147,7 +147,5 @@ class JvmTestTask(
             jar.entries().asSequence().any { it.name.endsWith(".class") }
         }
 
-    class Result(
-        override val dependencies: List<TaskResult>,
-    ) : TaskResult
+    class Result() : TaskResult
 }

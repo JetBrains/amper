@@ -20,6 +20,6 @@ class GetAndroidPlatformJarTask(
         val result = getAndroidPlatformFileFromPackageTask
             .run(dependenciesResult) as GetAndroidPlatformFileFromPackageTask.Result
         val classpath = result.outputs.map { it.resolve("android.jar") }
-        return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, classpath)
+        return JvmCompileTask.AdditionalClasspathProviderTaskResult(classpath)
     }
 }

@@ -130,9 +130,7 @@ class BuildAppleTask(
     class Result(
         val bundleId: String,
         val appPath: Path,
-    ) : TaskResult {
-        override val dependencies = emptyList<TaskResult>()
-    }
+    ) : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

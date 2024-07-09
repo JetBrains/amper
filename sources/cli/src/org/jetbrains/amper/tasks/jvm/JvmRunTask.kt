@@ -78,9 +78,7 @@ class JvmRunTask(
             logger.info(message)
         }
 
-        return object : TaskResult {
-            override val dependencies: List<TaskResult> = dependenciesResult
-        }
+        return object : TaskResult {}
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)

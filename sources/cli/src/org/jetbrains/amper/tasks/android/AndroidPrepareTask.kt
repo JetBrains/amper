@@ -83,6 +83,6 @@ class AndroidPrepareTask(
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
 
-        return JvmCompileTask.AdditionalClasspathProviderTaskResult(dependenciesResult, result.outputs)
+        return JvmCompileTask.AdditionalClasspathProviderTaskResult(result.outputs)
     }
 }

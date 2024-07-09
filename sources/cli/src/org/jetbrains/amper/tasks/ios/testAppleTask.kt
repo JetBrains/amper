@@ -64,7 +64,7 @@ class IosKotlinTestTask(
                 }
 
                 shutdownDevice(chosenDevice.deviceId)
-                BaseTaskResult(dependenciesResult)
+                BaseTaskResult()
             }
     }
 }

@@ -78,7 +78,7 @@ class AndroidRunTask(
             NullOutputReceiver()
         )
 
-        return Result(dependenciesResult, device)
+        return Result(device)
     }
 
     /**
@@ -196,7 +196,7 @@ class AndroidRunTask(
         return device
     }
 
-    data class Result(override val dependencies: List<TaskResult>, val device: IDevice) : TaskResult
+    data class Result(val device: IDevice) : TaskResult
 }
 
 private val xml = XML {

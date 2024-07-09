@@ -25,7 +25,7 @@ abstract class AbstractJarTask(
     protected abstract fun outputJarPath(): Path
     protected abstract fun jarConfig(): JarConfig
 
-    protected abstract fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): Result
+    protected abstract fun createResult(jarPath: Path): Result
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val inputDirs = getInputDirs(dependenciesResult)
@@ -42,11 +42,10 @@ abstract class AbstractJarTask(
             outputJarPath.createParentDirectories().writeJar(inputDirs, jarConfig)
             ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputJarPath))
         }
-        return createResult(dependenciesResult, outputJarPath)
+        return createResult(outputJarPath)
     }
 
     abstract class Result(
-        override val dependencies: List<TaskResult>,
         val jarPath: Path,
     ) : TaskResult
 }

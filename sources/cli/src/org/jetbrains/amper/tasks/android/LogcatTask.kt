@@ -21,7 +21,7 @@ class LogcatTask(override val taskName: TaskName) : Task {
         val device: IDevice = dependenciesResult
             .filterIsInstance<AndroidRunTask.Result>()
             .firstOrNull()
-            ?.device ?: return@coroutineScope Result(dependenciesResult)
+            ?.device ?: return@coroutineScope Result()
         val logcatService = LogcatService(device)
         logcatService.startListening { message ->
             if (!isActive) {
@@ -41,10 +41,10 @@ class LogcatTask(override val taskName: TaskName) : Task {
         Runtime.getRuntime().addShutdownHook(Thread { deferred.complete(true) })
         deferred.await()
         logcatService.stopListening()
-        Result(dependenciesResult)
+        Result()
     }
 
-    data class Result(override val dependencies: List<TaskResult>) : TaskResult
+    class Result : TaskResult
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

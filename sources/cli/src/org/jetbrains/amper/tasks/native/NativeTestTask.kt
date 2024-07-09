@@ -49,9 +49,7 @@ class NativeTestTask(
                     userReadableError("Kotlin/Native $platform tests failed for module '${module.userReadableName}' with exit code ${result.exitCode} (see errors above)")
                 }
 
-                object : TaskResult {
-                    override val dependencies: List<TaskResult> = dependenciesResult
-                }
+                object : TaskResult {}
             }
     }
 }

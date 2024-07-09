@@ -354,7 +354,6 @@ class JvmCompileTask(
     ) : TaskResult
 
     class AdditionalClasspathProviderTaskResult(
-        override val dependencies: List<TaskResult>,
         val classpath: List<Path>
     ) : TaskResult
 

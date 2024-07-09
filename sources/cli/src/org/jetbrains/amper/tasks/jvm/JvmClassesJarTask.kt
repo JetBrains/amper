@@ -46,9 +46,9 @@ class JvmClassesJarTask(
         mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null
     )
 
-    override fun createResult(dependenciesResult: List<TaskResult>, jarPath: Path): AbstractJarTask.Result =
-        Result(dependenciesResult, jarPath)
+    override fun createResult(jarPath: Path): AbstractJarTask.Result =
+        Result(jarPath)
 
-    class Result(dependencies: List<TaskResult>, jarPath: Path) :
-        AbstractJarTask.Result(dependencies, jarPath)
+    class Result(jarPath: Path) :
+        AbstractJarTask.Result(jarPath)
 }

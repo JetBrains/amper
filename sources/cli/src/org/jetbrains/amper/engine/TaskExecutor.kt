@@ -90,9 +90,7 @@ class TaskExecutor(
         }
 
         suspend fun runTask(taskName: TaskName, dependenciesResult: List<TaskResult>): TaskResult = when (taskName) {
-            rootTaskName -> object : TaskResult {
-                override val dependencies: List<TaskResult> = dependenciesResult
-            }
+            rootTaskName -> object : TaskResult {}
 
             else -> {
                 val task = graph.nameToTask[taskName] ?: error("Unable to find task by name: ${taskName.name}")

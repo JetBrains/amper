@@ -88,11 +88,10 @@ class AndroidBuildTask(
                     overwrite = true
                 )
             }
-        return Task(dependenciesResult, executionResult.outputs)
+        return Task(executionResult.outputs)
     }
 
     class Task(
-        override val dependencies: List<TaskResult>,
         val artifacts: List<Path>,
     ) : TaskResult
 }

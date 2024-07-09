@@ -26,10 +26,8 @@ class CheckAndroidSdkLicenseTask(
                     "$licensesListText\n" +
                     "Run \"$licensesCommand\" to review and accept them")
         }
-        return Result(dependenciesResult)
+        return Result()
     }
 
-    class Result(
-        override val dependencies: List<TaskResult>,
-    ) : TaskResult
+    class Result() : TaskResult
 }

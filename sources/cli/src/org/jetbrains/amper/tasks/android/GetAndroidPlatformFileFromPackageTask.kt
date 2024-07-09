@@ -21,11 +21,10 @@ class GetAndroidPlatformFileFromPackageTask(
         val localFileSystemPackagePath = packagePath
             .split(";")
             .fold(androidSdkPath) { path, component -> path.resolve(component) }
-        return Result(dependenciesResult, listOf(localFileSystemPackagePath))
+        return Result(listOf(localFileSystemPackagePath))
     }
 
     data class Result(
-        override val dependencies: List<TaskResult>,
         val outputs: List<Path>
     ) : TaskResult
 }

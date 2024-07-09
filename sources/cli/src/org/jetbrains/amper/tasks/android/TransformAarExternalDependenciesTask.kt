@@ -26,6 +26,6 @@ class TransformAarExternalDependenciesTask(
                 val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
                 ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
             }
-        return AdditionalClasspathProviderTaskResult(dependenciesResult, executionResult.outputs)
+        return AdditionalClasspathProviderTaskResult(executionResult.outputs)
     }
 }

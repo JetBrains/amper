@@ -72,9 +72,7 @@ class NativeRunTask(
 
                 // TODO Should non-zero exit code fail the task somehow?
 
-                object : TaskResult {
-                    override val dependencies: List<TaskResult> = dependenciesResult
-                }
+                object : TaskResult {}
             }
     }
 
