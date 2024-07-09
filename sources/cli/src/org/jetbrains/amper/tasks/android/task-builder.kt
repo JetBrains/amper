@@ -174,7 +174,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
     onRuntimeModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
         registerDependency(
             CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
-            CommonTaskType.RuntimeClasspath.getTaskName(dependsOn, platform, false, buildType)
+            CommonTaskType.Jar.getTaskName(dependsOn, platform, false, buildType)
         )
     }
 

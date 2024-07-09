@@ -39,7 +39,7 @@ class Context(
      * equality here because `MavenDependency` instances are reused just like nodes.
      *
      * Note: if conflict resolution occurs, the key is untouched, and we still consider nodes based on their "desired"
-     * version. This way, whenever another node would be created for the exact same version, it will also benefit from
+     * version. This way, whenever another node is created for the exact same version, it will also benefit from
      * the conflict resolution.
      */
     private val nodesByMavenDependency: MutableMap<MavenDependency, MavenDependencyNode> = ConcurrentHashMap(),
@@ -49,9 +49,14 @@ class Context(
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>): Context = Context(settings, resolutionCache, nodesByMavenDependency).apply {
+    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<String>? = null): Context = Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency).apply {
         nodeParents.addAll(parentNodes)
     }
+
+    private fun Settings.withRepositories(repositories: List<String>?): Settings =
+        if (repositories != null && repositories.toSet() != this@withRepositories.repositories.toSet()) {
+            this@withRepositories.copy(repositories = repositories)
+        } else this@withRepositories
 
     /**
      * Creates a new [MavenDependencyNode] corresponding to the given Maven [dependency] (in its desired version), or
@@ -62,10 +67,10 @@ class Context(
      * might be different from that of the given [dependency], but its "desired" [MavenDependencyNode.version] is
      * guaranteed to match.
      */
-    internal fun getOrCreateNode(dependency: MavenDependency, parentNode: DependencyNode): MavenDependencyNode =
+    fun getOrCreateNode(dependency: MavenDependency, parentNode: DependencyNode?): MavenDependencyNode =
         nodesByMavenDependency
             .computeIfAbsent(dependency) { MavenDependencyNode(templateContext = this, dependency) }
-            .apply { context.nodeParents.add(parentNode) }
+            .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
     override fun close() {
         resolutionCache.close()
@@ -91,7 +96,6 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
-    var downloadSources: Boolean = false
 
     init {
         apply(init)
@@ -104,8 +108,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
             platforms,
             repositories,
             FileCacheBuilder(cache).build(),
-            conflictResolutionStrategies,
-            downloadSources
+            conflictResolutionStrategies
         )
 }
 
@@ -146,7 +149,6 @@ data class Settings(
     val repositories: List<String>,
     val fileCache: FileCache,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
-    val downloadSources: Boolean
 )
 
 /**
@@ -178,7 +180,7 @@ enum class Severity {
  * The parents of the node holding this context.
  */
 // TODO this should probably be an internal property of the dependency node instead of stored in the nodeCache
-internal val Context.nodeParents: MutableList<DependencyNode>
+val Context.nodeParents: MutableList<DependencyNode>
     get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
         CopyOnWriteArrayList()
     }

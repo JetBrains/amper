@@ -3,6 +3,7 @@ product:
   platforms: [ jvm ]
 
 dependencies:
+  - ../concurrency
   - ../core
   - ../cli
   - ../core-intellij

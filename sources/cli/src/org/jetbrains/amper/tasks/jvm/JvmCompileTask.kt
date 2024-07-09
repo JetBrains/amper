@@ -83,10 +83,10 @@ class JvmCompileTask(
             .singleOrNull()
             ?: error("Expected one and only one dependency on (${ResolveExternalDependenciesTask.Result::class.java.simpleName}) input, but got: ${dependenciesResult.joinToString { it.javaClass.simpleName }}")
 
-        val immediateDependencies = dependenciesResult.filterIsInstance<Result>()
+        val compileModuleDependencies = dependenciesResult.filterIsInstance<Result>()
 
         val productionJvmCompileResult = if (isTest) {
-            immediateDependencies.firstOrNull { it.module == module && !it.isTest }
+            compileModuleDependencies.firstOrNull { it.module == module && !it.isTest }
                 ?: error("jvm compilation result from production compilation result was not found for module=${module.userReadableName}, task=$taskName")
         } else null
 
@@ -96,7 +96,7 @@ class JvmCompileTask(
         val kotlinVersion = UsedVersions.kotlinVersion
 
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
-        val classpath = immediateDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
+        val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
             .flatMap { result ->

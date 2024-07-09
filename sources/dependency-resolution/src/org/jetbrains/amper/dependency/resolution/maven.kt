@@ -46,7 +46,7 @@ import kotlin.reflect.KProperty
  *
  * It's a responsibility of the caller to set a parent for this node if none was provided via the constructor.
  *
- * @see [ModuleDependencyNode]
+ * @see [DependencyNodeHolder]
  */
 class MavenDependencyNode internal constructor(
     templateContext: Context,
@@ -98,9 +98,13 @@ class MavenDependencyNode internal constructor(
     override val messages: List<Message>
         get() = dependency.messages
 
-    override suspend fun resolveChildren(level: ResolutionLevel) = dependency.resolveChildren(context, level)
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {
+        if (transitive) {
+            dependency.resolveChildren(context, level)
+        }
+    }
 
-    override suspend fun downloadDependencies() = dependency.downloadDependencies(context)
+    override suspend fun downloadDependencies(downloadSources: Boolean) = dependency.downloadDependencies(context, downloadSources)
 
     override fun toString(): String = if (dependency.version == version) {
         dependency.toString()
@@ -137,7 +141,7 @@ class PropertyWithDependency<in T, out V, D>(
     }
 }
 
-internal fun Context.createOrReuseDependency(
+fun Context.createOrReuseDependency(
     group: String,
     module: String,
     version: String
@@ -188,20 +192,32 @@ class MavenDependency internal constructor(
 
     internal val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
-    val files
-        get() = buildList {
-            variants.flatMap { it.files }.forEach {
-                add(getDependencyFile(this@MavenDependency, it))
-            }
+
+    private val _files: List<DependencyFile>
+        get() = files()
+
+    fun files(withSources: Boolean = false) =
+        buildList {
+            variants
+                .let { if (withSources) it else it.withoutDocumentationAndMetadata }
+                .flatMap { it.files }
+                .forEach {
+                    add(getDependencyFile(this@MavenDependency, it))
+                }
             packaging?.takeIf { it != "pom" }?.let {
                 val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
                 val extension = if (it == "bundle") "jar" else it
                 add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
-                if (extension == "jar" && settings.downloadSources) {
+                if (extension == "jar" && withSources) {
                     add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
                 }
             }
             sourceSetsFiles.let { addAll(it) }
+        }.let { files ->
+            if (withSources)
+                files
+            else
+                files.filterNot { it.fileName.endsWith("-sources.jar") || it.fileName.endsWith("-javadoc.jar") }
         }
 
     /**
@@ -296,10 +312,10 @@ class MavenDependency internal constructor(
                     "org.jetbrains.kotlin.native.target",
                     "org.jetbrains.kotlin.platform.type",
                 )
-                val minUnusedAttrsCount = minOfOrNull { v ->
+                val minUnusedAttrsCount = this.minOfOrNull { v ->
                     v.attributes.count { it.key !in usedAttributes }
                 }
-                this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount }
+                this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount}
                     .let {
                         if (it.withoutDocumentationAndMetadata.size == 1) {
                             it
@@ -339,6 +355,7 @@ class MavenDependency internal constructor(
             }
             // One platform case
             validVariants
+                .withoutDocumentationAndMetadata
                 .flatMap {
                     it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
                 }.mapNotNull {
@@ -723,7 +740,6 @@ class MavenDependency internal constructor(
             // todo (AB) : Why filtering against capabilities?
             .filter { it.capabilities.isEmpty() || it.capabilities == listOf(toCapability()) || it.isOneOfExceptions() }
             .filter { nativeTargetMatches(it, platform) }
-            .let { if (settings.downloadSources) it else it.withoutDocumentationAndMetadata }
 
         val validVariants = initiallyFilteredVariants
             .filterWithFallbackPlatform(platform)
@@ -892,22 +908,18 @@ class MavenDependency internal constructor(
         isDownloaded() && hasMatchingChecksum(level, context) || level == ResolutionLevel.NETWORK && download(context)
 
     private val Collection<Variant>.withoutDocumentationAndMetadata: List<Variant>
-        get() =
-            filterNot { it.attributes["org.gradle.category"] == "documentation" }
-                .filterNot {
-                    it.attributes["org.gradle.usage"] == "kotlin-api"
-                            && it.attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
-                }
+        get() = filterNot { it.isDocumentationOrMetadata }
 
-    suspend fun downloadDependencies(context: Context) {
-        val notDownloaded = files
+    private val Variant.isDocumentationOrMetadata: Boolean
+        get() =
+            attributes["org.gradle.category"] == "documentation"
+                    ||
+                    attributes["org.gradle.usage"] == "kotlin-api"
+                    && attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
+
+    suspend fun downloadDependencies(context: Context, downloadSources: Boolean = false) {
+        val notDownloaded = files(downloadSources)
             .filter {
-                // filter out sources/javadocs if those are not requested in settings
-                context.settings.downloadSources
-                        || (!it.fileName.let { name ->
-                    name.endsWith("-sources.jar") || name.endsWith("-javadoc.jar")
-                })
-            }.filter {
                 context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
                         && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context))
             }

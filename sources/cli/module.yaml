@@ -13,7 +13,7 @@ dependencies:
   - ../core-intellij
   - ../frontend-api: exported
   - ../frontend/schema
-  - ../dependency-resolution
+  - ../frontend/dr
   - ../android-integration/runner
   - ../android-integration/android-utils
   - org.jetbrains:ij-parsing-core:0.3.154

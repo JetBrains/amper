@@ -232,7 +232,7 @@ private suspend fun <T> doWithFileLock(
         val tempFileNameSuffix = UUID.randomUUID().toString().let { it.substring(0, min(8, it.length))}
         val tempFile = tempDir.resolve("~${targetFileName}.$tempFileNameSuffix")
 
-        logger.debug("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
+        logger.trace("### ${System.currentTimeMillis()} ${tempLockFile.name}: locked")
         try {
             getAlreadyProducedResult()
                 ?: run {
@@ -252,14 +252,14 @@ private suspend fun <T> doWithFileLock(
             tempLockFile.deleteIfExistsWithLogging("Exception occurred, temp lock file was deleted under lock")
         }
     }.also {
-        logger.debug("### ${System.currentTimeMillis()} {}: unlocked", tempLockFile.name)
+        logger.trace("### ${System.currentTimeMillis()} {}: unlocked", tempLockFile.name)
     }
 }
 
 private fun Path.deleteIfExistsWithLogging(onSuccessMessage: String, t: Throwable? = null) {
     try {
         deleteIfExists()
-        logger.debug("### ${ System.currentTimeMillis() } $name: $onSuccessMessage")
+        logger.trace("### ${ System.currentTimeMillis() } $name: $onSuccessMessage")
     } catch (_t: Throwable) {
         logger.debug("### ${ System.currentTimeMillis() } $name: failed to delete temp file under lock${ t?.let { "(After ${it::class.simpleName})" } ?: "" }", _t)
     }
@@ -275,7 +275,7 @@ private suspend fun FileChannel.lockWithRetry(): FileLock? =
     }
 
 // todo (AB): 10 seconds is not enough
-internal suspend fun <T> withRetry(
+suspend fun <T> withRetry(
     retryCount: Int = 50,
     retryInterval: Duration = 200.milliseconds,
     retryOnException: (e: Exception) -> Boolean = { true },

@@ -10,120 +10,93 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
-import org.jetbrains.amper.dependency.resolution.ModuleDependencyNode
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.Resolver
 import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
+import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
+import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.io.path.exists
-import kotlin.io.path.name
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
     suspend fun resolve(
-        coordinates: Collection<String>,
-        repositories: Collection<String>,
+        coordinates: List<String>,
+        repositories: List<String>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: ResolutionPlatform = ResolutionPlatform.JVM,
         resolveSourceMoniker: String,
-    ): Collection<Path> = spanBuilder("mavenResolve")
+    ): List<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .setAttribute("repositories", repositories.joinToString(" "))
-        .setAttribute("scope", scope.toString())
-        .setAttribute("platform", platform.toString())
+        .setAttribute("scope", scope.name)
+        .setAttribute("platform", platform.name)
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
         .startSpan().use { span ->
-            val acceptedRepositories = mutableListOf<String>()
-            for (url in repositories) {
-                @Suppress("HttpUrlsUsage")
-                if (url.startsWith("http://")) {
-                    // TODO: Special --insecure-http-repositories option or some flag in project.yaml
-                    // to acknowledge http:// usage
-
-                    // report only once per `url`
-                    if (alreadyReportedHttpRepositories.put(url, true) == null) {
-                        logger.warn("http:// repositories are not secure and should not be used: $url")
-                    }
-
-                    continue
-                }
-
-                if (!url.startsWith("https://")) {
-
-                    // report only once per `url`
-                    if (alreadyReportedNonHttpsRepositories.put(url, true) == null) {
-                        logger.warn("Non-https repositories are not supported, skipping url: $url")
-                    }
-
-                    continue
-                }
-
-                acceptedRepositories.add(url)
-            }
-
-            return Context {
-                this.cache = {
-                    amperCache = userCacheRoot.path.resolve(".amper")
-                    localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
-                }
-                this.repositories = acceptedRepositories.toList()
+            val context = Context {
+                this.cache = getCliDefaultFileCacheBuilder(userCacheRoot)
+                this.repositories = repositories
                 this.scope = scope
                 this.platforms = setOf(platform)
-                this.downloadSources = false
-            }.use { context ->
-                val root = ModuleDependencyNode(
-                    context,
-                    "root",
-                    coordinates.map {
-                        val (group, module, version) = it.split(":")
-                        MavenDependencyNode(context, group, module, version)
-                    }
-                )
-                val resolver = Resolver()
-                resolver.buildGraph(root)
-                resolver.downloadDependencies(root)
+            }
 
-                val files = mutableSetOf<Path>()
-                val errorNodes = mutableListOf<DependencyNode>()
-                for (node in root.distinctBfsSequence()) {
-                    if (node is MavenDependencyNode) {
-                        node.dependency
-                            .files
-                            .mapNotNull { it.getPath() }
-                            .filterNot { it.name.endsWith("-sources.jar") || it.name.endsWith("-javadoc.jar") }
-                            .forEach { file ->
-                                check(file.exists()) {
-                                    "File '$file' was returned from dependency resolution, but is missing on disk"
-                                }
-                                files.add(file)
-                            }
-                    }
-                    if (node.messages.any { it.severity == Severity.ERROR }) {
-                        errorNodes.add(node)
+            val root = DependencyNodeHolder(
+                name = "root",
+                children = coordinates.map {
+                    val (group, module, version) = it.split(":")
+                    MavenDependencyNode(context, group, module, version)
+                }
+            )
+
+            resolve(root, resolveSourceMoniker)
+
+            val files = root.dependencyPaths()
+            return files
+        }
+
+    suspend fun resolve(
+        root: DependencyNodeHolder,
+        resolveSourceMoniker: String,
+    ) = spanBuilder("mavenResolve")
+        .setAttribute("coordinates", root.getExternalDependencies().joinToString(" "))
+        .also { builder -> root.children.firstOrNull()?.let{
+            builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
+            it.context.settings.platforms.singleOrNull()?.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
+        }}
+        .startSpan().use { span ->
+            with(moduleDependenciesResolver) {
+                root.resolveDependencies(ResolutionDepth.GRAPH_FULL, downloadSources = false)
+            }
+
+            val errorNodes = mutableListOf<DependencyNode>()
+            for (node in root.distinctBfsSequence()) {
+                if (node.messages.any { it.severity == Severity.ERROR }) {
+                    errorNodes.add(node)
+                }
+            }
+
+            if (errorNodes.isNotEmpty()) {
+                val errors = errorNodes.flatMap { it.messages }.filter { it.severity == Severity.ERROR }
+
+                for (error in errors) {
+                    span.recordException(error.exception ?: MavenResolverException(error.message))
+                    DoNotLogToTerminalCookie.use {
+                        logger.error(error.message, error.exception)
                     }
                 }
-                if (errorNodes.isNotEmpty()) {
-                    val errors = errorNodes.flatMap { it.messages }.filter { it.severity == Severity.ERROR }
 
-                    for (error in errors) {
-                        span.recordException(error.exception ?: MavenResolverException(error.message))
-                        DoNotLogToTerminalCookie.use {
-                            logger.error(error.message, error.exception)
-                        }
-                    }
-
-                    userReadableError(
-                        "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
-                                errors.joinToString("\n") { it.message })
-                }
-                files
+                userReadableError(
+                    "Unable to resolve dependencies for $resolveSourceMoniker:\n\n" +
+                            errors.joinToString("\n") { it.message })
             }
         }
 
@@ -131,9 +104,34 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         get() = "$text ($extra)"
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
-    private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
 }
 
 class MavenResolverException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+internal fun DependencyNode.getExternalDependencies(directOnly: Boolean = false): List<MavenCoordinates> {
+    val dependenciesList = mutableListOf<MavenCoordinates>()
+    fillExternalDependencies(dependenciesList, directOnly)
+    return dependenciesList
+}
+
+private fun DependencyNode.fillExternalDependencies(dependenciesList: MutableList<MavenCoordinates>, directOnly: Boolean = false) {
+    children.forEach {
+        when(it) {
+            is MavenDependencyNode -> {
+                val coordinates = it.mavenCoordinates()
+                if (!dependenciesList.contains(coordinates)) dependenciesList.add(coordinates)
+            }
+            is ModuleDependencyNodeWithModule -> {
+                if (!directOnly) {
+                    it.fillExternalDependencies(dependenciesList, directOnly)
+                }
+            }
+        }
+    }
+}
+
+fun getCliDefaultFileCacheBuilder(userCacheRoot: AmperUserCacheRoot):  FileCacheBuilder.() -> Unit = {
+    amperCache = userCacheRoot.path.resolve(".amper")
+    localRepositories = listOf(MavenLocalRepository(userCacheRoot.path.resolve(".m2.cache")))
+}
+

@@ -14,8 +14,6 @@ import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.CommonRunSettings

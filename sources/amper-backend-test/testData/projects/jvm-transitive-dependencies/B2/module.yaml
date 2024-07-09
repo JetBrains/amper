@@ -4,5 +4,5 @@ product:
 
 dependencies:
   - org.tinylog:tinylog-api:2.7.0: exported
-  - xml-apis:xml-apis:2.0.2
+  - org.apache.commons:commons-text:1.12.0
 

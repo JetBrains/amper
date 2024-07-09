@@ -29,7 +29,7 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
-import org.jetbrains.amper.maven.MavenCoordinates
+import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.maven.toMavenArtifact
 import org.jetbrains.amper.maven.writePomFor

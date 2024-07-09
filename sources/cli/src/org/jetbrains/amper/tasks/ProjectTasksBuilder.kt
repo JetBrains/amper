@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
+import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.custom.setupCustomTasks
@@ -57,8 +58,8 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
     private fun ProjectTaskRegistrar.setupCommonTasks() {
         onEachTaskType { module, executeOnChangedInputs, platform, isTest ->
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
-            val fragmentsCompileModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Compile)
-            val fragmentsRuntimeModuleDependencies = module.fragmentsModuleDependencies(isTest, platform, DependencyReason.Runtime)
+            val fragmentsCompileModuleDependencies = module.buildDependenciesGraph(isTest, platform, DependencyReason.Compile, context.userCacheRoot)
+            val fragmentsRuntimeModuleDependencies = module.buildDependenciesGraph(isTest, platform, DependencyReason.Runtime, context.userCacheRoot)
             registerTask(
                 ResolveExternalDependenciesTask(
                     module,

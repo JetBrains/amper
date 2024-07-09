@@ -959,32 +959,35 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         assertNotNull(result, "unexpected result absence for :app:resolveDependenciesJvm")
 
+        // Comparing the lists since the order of libraries on classpath is important
         assertEquals(
-            setOf(
-                // exported dependency of B1 (app -> B1)
-                "lombok-1.18.32.jar",
-                // exported dependency of C1 (app -> C1)
-                "tensorflow-lite-api-2.16.1.aar",
-                // exported dependency of C2_exp (app -> C1 -> C2_exp)
-                "simple-xml-safe-2.7.1.jar",
-                // exported dependency of C3_exp (app -> C1 -> C2_exp -> C3_exp)
-                "hamcrest-2.2.jar",
+            listOf(
+                // 1. At first, follow direct dependencies of exported module dependencies
                 // exported dependency of D1_exp (app -> D1_exp)
                 "picocli-4.7.6.jar",
                 // exported dependency of E1_exp (app -> E1_exp)
                 "checker-qual-3.44.0.jar",
+                // 2. Then, direct dependencies of not-exported module dependencies
+                // exported dependency of B1 (app -> B1)
+                "lombok-1.18.32.jar",
+                // exported dependency of C1 (app -> C1)
+                "tensorflow-lite-api-2.16.1.aar",
+                // 3. Then, direct dependencies of exported module dependencies of the second layer (keeping order of the first layer)
                 // exported dependency of E1_exp (app -> E1_exp -> E2_exp)
-                "jackson-core-2.17.1.jar"
-            ),
+                "jackson-core-2.17.1.jar",
+                // exported dependency of C2_exp (app -> C1 -> C2_exp)
+                "simple-xml-safe-2.7.1.jar",
+                // 3. Then, direct dependencies of exported module dependencies of the third layer
+                "hamcrest-2.2.jar",
+        ),
             result.compileClasspath
                 // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
-                .map { it.name }
-                .toSet(),
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
+                .map { it.name },
             "Unexpected list of resolved compile dependencies"
         )
 
-        // 2. Check runtime classpath composed after compilation tasks finished
+        // 2. Check runtime classpath composed after compilation tasks are finished
         val runtimeClasspathResult = AmperBackend(projectContext)
                 .runTask(TaskName(":app:runtimeClasspathJvm"))
                 ?.getOrNull() as? JvmRuntimeClasspathTask.Result
@@ -993,34 +996,39 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         val runtimeClassPath = runtimeClasspathResult.jvmRuntimeClasspath
 
-        val expectedRuntimeClasspath = setOf(
+        val expectedRuntimeClasspath = listOf(
+            // 1. At first, follow direct dependencies of exported module dependencies:
+            // dependencies of D1_exp (app -> D1_exp)
+            "picocli-4.7.6.jar", "osgi.annotation-8.1.0.jar",
+            // dependencies of E1_exp (app -> E1_exp)
+            "checker-qual-3.44.0.jar", "jakarta.annotation-api-3.0.0.jar",
+            // 2. Then, direct dependencies of not-exported module dependencies:
             // dependencies of B1 (app -> B1)
             "lombok-1.18.32.jar", "jcharset-2.1.jar",
-            // dependencies of B2 (app -> B2)
-            "tinylog-api-2.7.0.jar", "xml-apis-2.0.2.jar",
             // dependencies of C1 (app -> C1)
             "tensorflow-lite-api-2.16.1.aar", "slf4j-api-2.0.13.jar",
-            // :dependencies of C2_exp (app -> C1 -> C2_exp)
+            // 3. Then, direct dependencies of the exported module dependencies (the 2-nd layer, keeping order of the first layer):
+            // dependencies of D2 (app -> D1_exp -> D2)
+            "asm-9.7.jar", /*"annotations-24.1.0.jar",*/
+            // dependencies of E2_exp (app -> E1_exp -> E2_exp)
+            "jackson-core-2.17.1.jar", "objenesis-test-3.4.jar",
+            // dependencies of B2 (app -> B1 -> B2)
+            "tinylog-api-2.7.0.jar", "commons-text-1.12.0.jar",
+            // dependencies of C2_exp (app -> C1 -> C2_exp)
             "simple-xml-safe-2.7.1.jar", "jakarta.activation-api-2.1.3.jar",
-            // :dependencies of C3_exp (app -> C1 -> C2_exp -> C3_exp)
+            // 4. Then, direct dependencies of exported module dependencies (the 4-th layer):
+            // dependencies of (app -> B1 -> B2 -> "commons-text-1.12.0.jar")
+            "commons-lang3-3.14.0.jar",
+            // dependencies of C3_exp (app -> C1 -> C2_exp -> C3_exp)
             "hamcrest-2.2.jar", "apiguardian-api-1.1.2.jar",
-            // :dependencies of D1_exp (app -> D1_exp)
-            "picocli-4.7.6.jar", "osgi.annotation-8.1.0.jar",
-            // :dependencies of D2 (app -> D1_exp -> D2)
-            "asm-9.7.jar", "annotations-24.1.0.jar",
-            // :dependencies of E1_exp (app -> E1_exp)
-            "checker-qual-3.44.0.jar", "jakarta.annotation-api-3.0.0.jar",
-            // :dependencies of E2_exp (app -> E1_exp -> E2_exp)
-            "jackson-core-2.17.1.jar", "objenesis-test-3.4.jar"
         )
 
         assertEquals(
             expectedRuntimeClasspath,
             result.runtimeClasspath
                 // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
-                .map { it.name }
-                .toSet(),
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
+                .map { it.name },
             "Unexpected list of resolved direct runtime dependencies of JVM app module"
         )
 
@@ -1028,12 +1036,29 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
             expectedRuntimeClasspath,
             runtimeClassPath
                 // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name == "annotations-13.0.jar" }
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
                 // filtering out module compile result
                 .filterNot { it.startsWith(projectContext.buildOutputRoot.path) }
-                .map { it.name }
-                .toSet(),
+                .map { it.name },
             "Unexpected list of resolved runtime dependencies"
+        )
+
+        val runtimeClasspathViaTask = AmperBackend(projectContext)
+            .runTask(TaskName(":app:runtimeClasspathJvm"))
+            ?.getOrNull() as? JvmRuntimeClasspathTask.Result
+
+        assertNotNull(runtimeClasspathViaTask, "unexpected result absence for :app:runtimeClasspathJvm")
+
+        // Check correct module order in runtime classpath
+        val modules = listOf("app", "D1_exp", "E1_exp", "B1", "C1", "D2", "E2_exp", "B2", "C2_exp", "C3_exp").map { "$it-jvm.jar"}
+
+        assertEquals(
+            modules + expectedRuntimeClasspath,
+            runtimeClasspathViaTask.jvmRuntimeClasspath
+                // Filter out predefined Amper libraries
+                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
+                .map { it.name },
+            "Unexpected list of resolved runtime dependencies (via task)"
         )
 
         val find = "finished ':app:resolveDependenciesJvm' in"

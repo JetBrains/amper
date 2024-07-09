@@ -9,20 +9,22 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
+import org.jetbrains.amper.dependency.resolution.Message
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
+import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.resolver.MavenResolver
-import org.jetbrains.amper.resolver.toResolutionPlatform
+import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
@@ -38,9 +40,9 @@ class ResolveExternalDependenciesTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val platform: Platform,
     private val fragments: List<Fragment>,
-    private val fragmentsCompileModuleDependencies: List<PotatoModule>,
+    private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModule,
     // todo (AB) : Dependencies should follow a declaration order
-    private val fragmentsRuntimeModuleDependencies: List<PotatoModule>,
+    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModule,
     override val taskName: TaskName,
 ): Task {
 
@@ -53,40 +55,6 @@ class ResolveExternalDependenciesTask(
             .filter { it.resolve }
             .map { it.url }
             .distinct()
-
-        val directCompileDependencies = fragments
-            .flatMap { it.externalDependencies }
-            .filterIsInstance<MavenDependency>()
-            .filter { it.compile }
-            .map { it.coordinates }
-            .distinct()
-
-        val directRuntimeDependencies = fragments
-            .flatMap { it.externalDependencies }
-            .filterIsInstance<MavenDependency>()
-            .filter { it.runtime }
-            .map { it.coordinates }
-            .distinct()
-
-        val exportedDependencies = fragmentsCompileModuleDependencies
-            .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }
-            .flatMap { it.externalDependencies }
-            .filterIsInstance<MavenDependency>()
-            .filter { it.compile && it.exported }
-            .map { it.coordinates }
-            .distinct()
-
-        val runtimeTransitiveDependencies = fragmentsRuntimeModuleDependencies
-            .flatMap { module -> module.fragments.filter { it.platforms.contains(platform) && !it.isTest } }
-            .flatMap { it.externalDependencies }
-            .filterIsInstance<MavenDependency>()
-            .filter { it.runtime }
-            .map { it.coordinates }
-            .distinct()
-
-        val compileDependenciesToResolve = exportedDependencies + directCompileDependencies
-
-        val runtimeDependenciesToResolve = directRuntimeDependencies + runtimeTransitiveDependencies
 
         // order in compileDependencies is important (classpath is generally (and unfortunately!) order-dependent),
         // but the current implementation requires a full review of it
@@ -105,8 +73,8 @@ class ResolveExternalDependenciesTask(
 
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
-            .setListAttribute("dependencies", compileDependenciesToResolve)
-            .setListAttribute("runtimeDependencies", runtimeDependenciesToResolve)
+            .setListAttribute("dependencies", fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() })
+            .setListAttribute("runtimeDependencies", fragmentsRuntimeModuleDependencies.getExternalDependencies().map { it.toString() })
             .setListAttribute("fragments", fragments.map { it.name }.sorted())
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
@@ -120,15 +88,14 @@ class ResolveExternalDependenciesTask(
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
-                            "${directCompileDependencies.sorted().joinToString(" ")} -- " +
-                            exportedDependencies.sorted().joinToString(" ") + " -- " +
+                            "${fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() }.joinToString(" ")} -- " +
                             "resolvePlatform=${resolvedPlatform.type.value} nativeTarget=${resolvedPlatform.nativeTarget}"
                 )
 
                 val configuration = mapOf(
                     "userCacheRoot" to userCacheRoot.path.pathString,
-                    "compileDependencies" to compileDependenciesToResolve.joinToString("|"),
-                    "runtimeDependencies" to runtimeDependenciesToResolve.joinToString("|"),
+                    "compileDependencies" to fragmentsCompileModuleDependencies.getExternalDependencies().joinToString("|"),
+                    "runtimeDependencies" to fragmentsRuntimeModuleDependencies.getExternalDependencies().joinToString("|"),
                     "repositories" to repositories.joinToString("|"),
                     "resolvePlatform" to resolvedPlatform.type.value,
                     "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
@@ -136,23 +103,19 @@ class ResolveExternalDependenciesTask(
 
                 val result = try {
                     val resolveSourceMoniker = "module ${module.userReadableName}"
-                    // todo (AB) : Resolve runtime and compile dependencies in one go
-                    // todo (AB) : (that guaranties the same versions are used for both)
+                    val root = DependencyNodeHolder(
+                        name = "root",
+                        children = listOf(fragmentsCompileModuleDependencies, fragmentsRuntimeModuleDependencies),
+                    )
                     executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
-                        val compileClasspath = mavenResolver.resolve(
-                            coordinates = compileDependenciesToResolve,
-                            repositories = repositories,
-                            scope = ResolutionScope.COMPILE,
-                            platform = resolvedPlatform,
+                        mavenResolver.resolve(
+                            root = root,
                             resolveSourceMoniker = resolveSourceMoniker,
-                        ).toList()
-                        val runtimeClasspath = mavenResolver.resolve(
-                            coordinates = runtimeDependenciesToResolve,
-                            repositories = repositories,
-                            scope = ResolutionScope.RUNTIME,
-                            platform = resolvedPlatform,
-                            resolveSourceMoniker = resolveSourceMoniker,
-                        ).toList()
+                        )
+
+                        val compileClasspath = root.children[0].dependencyPaths()
+                        val runtimeClasspath = root.children[1].dependencyPaths()
+
                         return@execute ExecuteOnChangedInputs.ExecutionResult(
                             (compileClasspath + runtimeClasspath).toSet().sorted(),
                             outputProperties = mapOf(
@@ -169,10 +132,10 @@ class ResolveExternalDependenciesTask(
                                 "fragments: ${fragments.userReadableList()}\n" +
                                 "repositories:\n${repositories.joinToString("\n").prependIndent("  ")}\n" +
                                 "direct dependencies:\n${
-                                    directCompileDependencies.sorted().joinToString("\n").prependIndent("  ")
+                                    fragmentsCompileModuleDependencies.getExternalDependencies(true).joinToString("\n").prependIndent("  ")
                                 }\n" +
-                                "exported dependencies:\n${
-                                    exportedDependencies.sorted().joinToString("\n").prependIndent("  ")
+                                "all dependencies:\n${
+                                    fragmentsCompileModuleDependencies.getExternalDependencies().joinToString("\n").prependIndent("  ")
                                 }\n" +
                                 "platform: $resolvedPlatform" +
                                 (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
@@ -190,7 +153,7 @@ class ResolveExternalDependenciesTask(
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
-                        "${compileDependenciesToResolve.joinToString(" ")} -- " +
+                        "${fragmentsCompileModuleDependencies.getExternalDependencies().joinToString(" ")} -- " +
                         "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                         "${repositories.joinToString(" ")} resolved to:\n${
                             compileClasspath.joinToString("\n") {
@@ -201,8 +164,6 @@ class ResolveExternalDependenciesTask(
                         }"
                 )
 
-                // todo (AB) : Dependencies should be return in an order corresponding to the order of input modules
-
                 // todo (AB) : output should contain placehoder for every module (in a correct place in the list!!!
                 // todo (AB) : It might be replaced with the path to compiled module later in order to form complete correctly ordered classpath)
                 Result(
@@ -211,7 +172,11 @@ class ResolveExternalDependenciesTask(
                     dependencies = dependenciesResult
                 )
             }
+
     }
+
+    private val Message.message: String
+        get() = "$text ($extra)"
 
     class Result(override val dependencies: List<TaskResult>,
                  val compileClasspath: List<Path>,

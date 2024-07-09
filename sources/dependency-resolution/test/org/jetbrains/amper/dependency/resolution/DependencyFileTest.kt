@@ -90,6 +90,152 @@ class DependencyFileTest {
     }
 
     @Test
+    fun `skiko-awt-runtime-macos-arm64-0_8_4_jar hash`() {
+        Context {
+            cache = {
+                amperCache = amperPath
+                localRepositories = listOf(mavenLocalRepository())
+
+            }
+            repositories = listOf(
+                "https://repo1.maven.org/maven2",
+                "https://maven.google.com",
+                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+            )
+            platforms = setOf(ResolutionPlatform.IOS_ARM64)
+        }.use { context ->
+            val dependency = MavenDependency(
+                context.settings,
+                "org.jetbrains.skiko", "skiko-awt-runtime-macos-arm64", "0.8.4"
+            )
+            val root = MavenDependencyNode(context, dependency)
+            runBlocking {
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
+            }
+            root.distinctBfsSequence().forEach {
+                val messages = it.messages.filter { "Downloaded from" !in it.text }
+                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+            }
+        }
+    }
+
+    @Test
+    fun `skiko-0_8_4_jar macOS platforms`() {
+        Context {
+            cache = {
+                amperCache = amperPath
+                localRepositories = listOf(mavenLocalRepository())
+            }
+            repositories = listOf(
+                "https://repo1.maven.org/maven2",
+                "https://maven.google.com",
+                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+            )
+            platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_ARM64)
+        }.use { context ->
+            val dependency = MavenDependency(
+                context.settings,
+                "org.jetbrains.skiko", "skiko", "0.8.4"
+            )
+            val root = MavenDependencyNode(context, dependency)
+            runBlocking {
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
+            }
+            root.distinctBfsSequence().forEach {
+                val messages = it.messages.filter { "Downloaded from" !in it.text }
+                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+            }
+        }
+    }
+
+    @Test
+    fun `compose-multiplatform isosimulatorarm64`() {
+        for (i in 1..10) {
+        Context {
+            cache = {
+                amperCache = amperPath
+                localRepositories = listOf(MavenLocalRepository(mavenLocalPath.resolve(UUID.randomUUID().toString())))
+            }
+            repositories = listOf(
+                "https://repo1.maven.org/maven2",
+                "https://maven.google.com",
+                "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+            )
+            platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
+        }.use { context ->
+            val root = DependencyNodeHolder(
+                "root",
+                listOf(
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.compose.foundation", "foundation", "1.6.10"
+                        ), null
+                    ),
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.compose.material3", "material3", "1.6.10"
+                        ), null
+                    ),
+                    context.getOrCreateNode(
+                        context.createOrReuseDependency(
+                            "org.jetbrains.kotlin", "kotlin-stdlib", "2.0.0"
+                        ), null
+                    ),
+                ),
+                context
+            )
+            runBlocking {
+                val resolver = Resolver()
+                resolver.buildGraph(root)
+                resolver.downloadDependencies(root)
+            }
+            root.distinctBfsSequence().forEach {
+                val messages = it.messages.filter { "Downloaded from" !in it.text }
+                assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+            }
+        }
+        }
+    }
+
+    @Test
+    fun `skiko-0_8_4_jar iossimulatorarm64`() {
+        for (i in 1..10) {
+            Context {
+                cache = {
+                    amperCache = amperPath
+                    localRepositories = listOf(mavenLocalRepository())
+                }
+                repositories = listOf(
+                    "https://repo1.maven.org/maven2",
+                    "https://maven.google.com",
+                    "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+                )
+                platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
+                scope = ResolutionScope.RUNTIME
+            }.use { context ->
+                val dependency = MavenDependency(
+                    context.settings,
+                    "org.jetbrains.skiko", "skiko", "0.8.4"
+                )
+                val root = MavenDependencyNode(context, dependency)
+                runBlocking {
+                    val resolver = Resolver()
+                    resolver.buildGraph(root)
+                    resolver.downloadDependencies(root)
+                }
+                root.distinctBfsSequence().forEach {
+                    val messages = it.messages.filter { "Downloaded from" !in it.text }
+                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
+                }
+            }
+        }
+    }
+
+    @Test
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
@@ -232,12 +378,12 @@ class DependencyFileTest {
 
             assertEquals(
                 setOf("commonMain", "concurrentMain"),
-                dependency.files.map{ it.kmpSourceSet }.toSet(),
+                dependency.files().map{ it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
 
             val sourceSetFiles = runBlocking {
-                dependency.files.associate { it.kmpSourceSet!! to it.getPath()!! }
+                dependency.files().associate { it.kmpSourceSet!! to it.getPath()!! }
             }
 
             // check sourceSet files content validity
@@ -354,7 +500,7 @@ class DependencyFileTest {
             assertTrue(errors.isEmpty(), "There must be no errors: $errors")
 
             assertEquals(setOf("commonMain"),
-                dependency.files.map{ it.kmpSourceSet }.toSet(),
+                dependency.files().map{ it.kmpSourceSet }.toSet(),
                 "Unexpected list of resolved source sets"
             )
         }

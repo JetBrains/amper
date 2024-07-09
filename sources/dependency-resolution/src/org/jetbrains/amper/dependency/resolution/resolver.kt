@@ -10,14 +10,17 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
 import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.exists
 
 /**
  * This is the entry point to the library.
@@ -43,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * ).buildGraph().downloadDependencies().root
  * ```
  *
- * @see ModuleDependencyNode
+ * @see DependencyNodeHolder
  * @see MavenDependencyNode
  * @see Context
  */
@@ -58,7 +61,7 @@ class Resolver {
      * @param level whether resolution should be performed with (default) or without network access
      * @return current instance
      */
-    suspend fun buildGraph(root: DependencyNode, level: ResolutionLevel = ResolutionLevel.NETWORK) {
+    suspend fun buildGraph(root: DependencyNode, level: ResolutionLevel = ResolutionLevel.NETWORK, transitive: Boolean = true) {
         val conflictResolver = ConflictResolver(root.context.settings.conflictResolutionStrategies)
 
         // Contains all nodes that we resolved (we populated the children of their internal dependency), and for which
@@ -72,7 +75,7 @@ class Resolver {
         while(nodesToResolve.isNotEmpty()) {
             coroutineScope {
                 nodesToResolve.forEach { node ->
-                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
+                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes, transitive)
                 }
             }
 
@@ -94,12 +97,13 @@ class Resolver {
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
+        transitive: Boolean
     ) {
         // If a conflict causes the cancellation of all jobs, and this cancellation happens between the moment when the new
         // job is launched and the moment it is registered for tracking, we could miss the cancellation.
         // This is ok because the launched job will then check for conflicts and end almost immediately.
         val job = launch {
-            resolveRecursively(level, conflictResolver, resolvedNodes)
+            resolveRecursively(level, conflictResolver, resolvedNodes, transitive)
         }
         // This ensures the job is removed from the list upon completion even in cases where it is canceled
         // before it even starts. We can't achieve this with a try-finally inside the coroutine itself.
@@ -114,6 +118,7 @@ class Resolver {
         level: ResolutionLevel,
         conflictResolver: ConflictResolver,
         resolvedNodes: MutableSet<DependencyNode>,
+        transitive: Boolean
     ) {
         if (this in resolvedNodes) {
             return // skipping already resolved node
@@ -129,13 +134,13 @@ class Resolver {
                 return // we don't want to resolve conflicted candidates in this wave
             }
 
-            resolveChildren(level)
+            resolveChildren(level, transitive)
             coroutineScope {
                 children.forEach { node ->
-                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes)
+                    node.launchRecursiveResolution(level, conflictResolver, resolvedNodes, transitive)
                 }
             }
-            // We track that we finished resolving this node, because some resolutions can be canceled half-way through
+            // We track that we finished resolving this node because some resolutions can be canceled half-way through
             // in case of conflicts
             resolvedNodes.add(this)
         }
@@ -144,15 +149,25 @@ class Resolver {
     /**
      * Downloads dependencies of all nodes by traversing a dependency graph.
      */
-    suspend fun downloadDependencies(node: DependencyNode) {
+    suspend fun downloadDependencies(node: DependencyNode, downloadSources: Boolean = false) {
         coroutineScope {
             node
                 .distinctBfsSequence()
                 .distinctBy { it.key }
-                .forEach { launch(downloadDispatcher) { it.downloadDependencies() } }
+                .forEach {
+                    val asyncDownloading = async {
+                        it.downloadDependencies(downloadSources)
+                    }
+                    downloadSemaphore.acquire()
+                    asyncDownloading.invokeOnCompletion {
+                        downloadSemaphore.release()
+                    }
+                }
         }
     }
 }
+
+val downloadSemaphore = Semaphore(5)
 
 private class ConflictResolver(val conflictResolutionStrategies: List<ConflictResolutionStrategy>) {
     /**
@@ -254,12 +269,12 @@ interface DependencyNode {
      * @see Message
      * @see Severity
      */
-    suspend fun resolveChildren(level: ResolutionLevel)
+    suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean)
 
     /**
      * Ensures that the dependency-relevant files are on disk, according to settings.
      */
-    suspend fun downloadDependencies()
+    suspend fun downloadDependencies(downloadSources: Boolean = false)
 
     /**
      * Returns a sequence of distinct nodes using BFS starting at (and including) this node.
@@ -269,15 +284,18 @@ interface DependencyNode {
      * even though conflict resolution should make them point to the same dependency version internally eventually.
      *
      * This sequence is guaranteed to be finite, as it prunes the graph when encountering duplicates (and thus cycles).
+     *
+     * Sequence might be filtered by given childrenPredicate.
+     * If it returns true, the node and related subgraph are skipped from the sequence.
      */
-    fun distinctBfsSequence(): Sequence<DependencyNode> = sequence {
+    fun distinctBfsSequence(childrenPredicate: (DependencyNode) -> Boolean = { true }): Sequence<DependencyNode> = sequence {
         val queue = LinkedList(listOf(this@DependencyNode))
         val visited = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
             val node = queue.remove()
             yield(node)
             visited.add(node)
-            queue.addAll(node.children.filter { it !in visited })
+            queue.addAll(node.children.filter { it !in visited && childrenPredicate(it) })
         }
     }
 
@@ -289,12 +307,15 @@ interface DependencyNode {
     private fun prettyPrint(
         builder: StringBuilder,
         indent: StringBuilder = StringBuilder(),
-        visited: MutableSet<Key<*>> = mutableSetOf(),
+        visited: MutableSet<Pair<Key<*>, String?>> = mutableSetOf(),
         addLevel: Boolean = false,
     ) {
         builder.append(indent).append(toString())
 
-        val seen = !visited.add(key)
+        // key doesn't include a version on purpose,
+        // but different nodes referencing the same MavenDependency result in the same dependencies
+        // => add no need to distinguish those while pretty printing
+        val seen = !visited.add(key to (this as? MavenDependencyNode)?.dependency?.toString())
         if (seen && children.isNotEmpty()) {
             builder.append(" (*)")
         }
@@ -322,6 +343,25 @@ interface DependencyNode {
             it.prettyPrint(builder, indent, visited, addAnotherLevel)
             indent.setLength(indent.length - 5)
         }
+    }
+
+    suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
+        val files = mutableSetOf<Path>()
+        for (node in distinctBfsSequence()) {
+            if (node is MavenDependencyNode) {
+                node.dependency
+                    .files()
+                    .mapNotNull { it.getPath() }
+                    .forEach { file ->
+                        check(file.exists()) {
+                            "File '$file' was returned from dependency resolution, but is missing on disk"
+                        }
+                        files.add(file)
+                    }
+            }
+            nodeBlock(node)
+        }
+        return files.toList()
     }
 }
 

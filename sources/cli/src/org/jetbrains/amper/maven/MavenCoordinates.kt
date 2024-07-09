@@ -7,9 +7,8 @@ package org.jetbrains.amper.maven
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.util.targetLeafPlatforms
-
-internal data class MavenCoordinates(val groupId: String, val artifactId: String, val version: String)
 
 internal fun PotatoModule.publicationCoordinates(platform: Platform): MavenCoordinates = when {
     // for JVM-only libraries, we use the root publication format (without -jvm suffix)

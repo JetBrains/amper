@@ -4,16 +4,12 @@
 
 package org.jetbrains.amper.dependency.resolution
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -24,11 +20,17 @@ import org.jetbrains.amper.concurrency.Writer
 import org.jetbrains.amper.concurrency.computeHash
 import org.jetbrains.amper.concurrency.produceResultWithDoubleLock
 import org.jetbrains.amper.concurrency.readTextWithRetry
+import org.jetbrains.amper.concurrency.withRetry
 import org.jetbrains.amper.concurrency.withRetryOnAccessDenied
 import org.jetbrains.amper.dependency.resolution.metadata.json.module.File
 import org.jetbrains.amper.dependency.resolution.metadata.xml.parseMetadata
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.net.URI
+import java.net.http.HttpClient.Redirect
+import java.net.http.HttpClient.Version
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.FileAlreadyExistsException
@@ -36,7 +38,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
+import java.time.Duration
 import java.time.ZonedDateTime
+import javax.net.ssl.SSLContext
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -49,11 +53,6 @@ import kotlin.io.path.writeText
 
 
 internal val logger = LoggerFactory.getLogger("files.kt")
-
-@OptIn(ExperimentalCoroutinesApi::class)
-internal val downloadDispatcher by lazy {
-    Dispatchers.IO.limitedParallelism(10)
-}
 
 /**
  * Provides mapping between [MavenDependency] and a location on disk.
@@ -419,8 +418,6 @@ open class DependencyFile(
         return null
     }
 
-    fun interface HashersProvider : suspend () -> Collection<Hasher>
-
     protected open suspend fun shouldOverwrite(
         cache: Cache,
         expectedHasher: Hasher?,
@@ -586,26 +583,19 @@ open class DependencyFile(
         writers: Collection<Writer>,
         repository: String,
         progress: Progress,
-        cache: Cache,
+        cache: Cache
     ): Boolean {
         logger.trace("Trying to download $nameWithoutExtension from $repository")
 
         val client = cache.computeIfAbsent(httpClientKey) {
-            HttpClient(CIO) {
-                engine {
-                    requestTimeout = 60000
-                }
-                install(HttpRequestRetry) {
-                    retryOnServerErrors(maxRetries = 3)
-                    retryOnException(maxRetries = 3, retryOnTimeout = true)
-                    exponentialDelay()
-                }
-                install(HttpTimeout) {
-                    connectTimeoutMillis = 10000
-                    requestTimeoutMillis = 60000
-                    socketTimeoutMillis = 10000
-                }
-            }
+            java.net.http.HttpClient.newBuilder()
+                .version(Version.HTTP_1_1)
+                .followRedirects(Redirect.NORMAL)
+                .sslContext(SSLContext.getDefault())
+                .connectTimeout(Duration.ofSeconds(20))
+//                .proxy(ProxySelector.of(InetSocketAddress("proxy.example.com", 80)))
+//                .authenticator(Authenticator.getDefault())
+                .build()
         }
         val name = getNamePart(repository, nameWithoutExtension, extension, progress, cache)
         val url = repository.trimEnd('/') +
@@ -614,43 +604,59 @@ open class DependencyFile(
                 "/${dependency.version}" +
                 "/$name"
         try {
-            val response = client.get(url)
-            when (val status = response.status) {
-                HttpStatusCode.OK -> {
-                    val expectedSize = fileFromVariant(dependency, name)?.size
-                        ?: response.contentLength().takeIf { it != -1L }
-                    val size = response.bodyAsChannel().readTo(writers)
-                    if (expectedSize != null && size != expectedSize) {
-                        throw IOException(
-                            "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
-                        )
+            // todo (AB) : Use exponential retry here
+            return withRetry(retryCount = 3,
+                retryOnException = { e ->
+                    e is IOException
+                }
+            ) {
+                val request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMinutes(2))
+                    .GET()
+                    .build()
+
+                val future = client.sendAsync(request, BodyHandlers.ofInputStream())
+                val response = future.await()
+
+                when (val status = response.statusCode()) {
+                    200 -> {
+                        val expectedSize = fileFromVariant(dependency, name)?.size
+                            ?: response.headers().firstValueAsLong(HttpHeaders.ContentLength)
+                                .takeIf{ it.isPresent && it.asLong != -1L }?.asLong
+                        val size = response.body().toByteReadChannel().readTo(writers)
+                        if (expectedSize != null && size != expectedSize) {
+                            throw IOException(
+                                "Content length doesn't match for $url. Expected: $expectedSize, actual: $size"
+                            )
+                        }
+
+                        if (logger.isDebugEnabled) {
+                            logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
+                        } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
+                            // Reports downloaded dependency to INFO (visible to user by default)
+                            logger.info("Downloaded $url")
+                        }
+
+                        true
                     }
 
-                    if (logger.isDebugEnabled) {
-                        logger.debug("Downloaded {} for the dependency {}:{}:{}", url, dependency.group, dependency.module, dependency.version)
-                    } else if (extension.substringAfterLast(".") !in hashAlgorithms) {
-                        // Reports downloaded dependency to INFO (visible to user by default)
-                        logger.info("Downloaded $url")
+                    404 -> {
+                        logger.debug("Not found URL: $url")
+                        false
                     }
-
-                    return true
+                    else -> throw IOException(
+                        "Unexpected response code for $url. " +
+                                "Expected: ${HttpStatusCode.OK.value}, actual: $status"
+                    )
                 }
-
-                HttpStatusCode.NotFound -> {
-                    logger.debug("Not found URL: $url")
-                    return false
-                }
-                else -> throw IOException(
-                    "Unexpected response code for $url. " +
-                            "Expected: ${HttpStatusCode.OK.value}, actual: $status"
-                )
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.warn("$repository: Failed to download", e)
+            logger.warn("$repository: Failed to download $url", e)
             dependency.messages.asMutable() += Message(
-                "Unable to reach $url",
+                "Unable to reach $url (${client.hashCode()})",
                 e.toString(),
                 Severity.ERROR,
                 e,
@@ -792,4 +798,4 @@ private suspend fun ByteReadChannel.readTo(writers: Collection<Writer>): Long {
     return size
 }
 
-private val httpClientKey = Key<HttpClient>("httpClient")
+private val httpClientKey = Key<java.net.http.HttpClient>("httpClient")

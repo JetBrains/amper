@@ -21,7 +21,7 @@ class AmperExamples1Test: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform`() = runTestInfinitely {
-        // Temporary disable stdErr assertions because linking and xcodebuild produce some warnings
+        // Temporarily disable stdErr assertions because linking and xcodebuild produce some warnings
         // that are treated like errors.
         runCli(projectName, "build", assertEmptyStdErr = false)
         // Apple tests cannot run on all machines, so we don't run them in this test

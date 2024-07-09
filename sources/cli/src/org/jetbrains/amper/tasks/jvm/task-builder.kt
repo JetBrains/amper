@@ -83,7 +83,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
     onRuntimeModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
         registerDependency(
             CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
-            CommonTaskType.RuntimeClasspath.getTaskName(dependsOn, platform, false)
+            CommonTaskType.Jar.getTaskName(dependsOn, platform, false)
         )
     }
 

@@ -14,8 +14,6 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.TestTask

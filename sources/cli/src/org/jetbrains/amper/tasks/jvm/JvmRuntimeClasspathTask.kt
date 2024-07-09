@@ -41,24 +41,14 @@ class JvmRuntimeClasspathTask(
         val dependenciesTask = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>().singleOrNull()
             ?: error("${ResolveExternalDependenciesTask::class.simpleName} result is not found in dependencies")
 
-        val jars = mutableListOf<JvmClassesJarTask.Result>()
-        collectJars(dependenciesResult, jars)
+        val moduleDependenciesJars = dependenciesResult.filterIsInstance<Result>()
+            .flatMap { it.dependencies.filterIsInstance<JvmClassesJarTask.Result>().map { it.jarPath } }
 
-        val addToClasspath = dependenciesTask.runtimeClasspath +
-                jars.map { it.jarPath } +
-                jarTasks.map { it.jarPath }
+        val addToClasspath = jarTasks.map { it.jarPath } +
+                moduleDependenciesJars +
+                dependenciesTask.runtimeClasspath
 
         return addToClasspath.distinct()
-    }
-
-    private fun collectJars(dependenciesResult: List<TaskResult>, result: MutableList<JvmClassesJarTask.Result>) {
-        for (taskResult in dependenciesResult) {
-            if (taskResult is JvmClassesJarTask.Result) {
-                result.add(taskResult)
-            }
-
-            collectJars(taskResult.dependencies, result)
-        }
     }
 
     class Result(

@@ -6,7 +6,7 @@ apply:
   - ../../common.module-template.yaml
 
 dependencies:
-  - ../../frontend-api
+  - ../../frontend-api: exported
   - ../../core
   - ../../frontend/plain/toml-psi
   - ../../frontend/plain/yaml-psi

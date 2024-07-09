@@ -13,10 +13,10 @@ package org.jetbrains.amper.dependency.resolution
  * 
  * @see [MavenDependencyNode]
  */
-class ModuleDependencyNode(
-    templateContext: Context,
+open class DependencyNodeHolder(
     val name: String,
-    override val children: List<DependencyNode>,
+    final override val children: List<DependencyNode>,
+    templateContext: Context = Context(),
     parentNodes: List<DependencyNode> = emptyList(),
 ) : DependencyNode {
 
@@ -25,12 +25,12 @@ class ModuleDependencyNode(
     }
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<ModuleDependencyNode>(name)
+    override val key: Key<*> = Key<DependencyNodeHolder>(name)
     override val messages: List<Message> = listOf()
 
     override fun toString(): String = name
 
-    override suspend fun resolveChildren(level: ResolutionLevel) {}
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) {}
 
-    override suspend fun downloadDependencies() {}
+    override suspend fun downloadDependencies(downloadSources: Boolean) {}
 }

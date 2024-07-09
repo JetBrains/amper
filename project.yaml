@@ -19,6 +19,7 @@ modules:
   - sources/core-intellij
   - sources/dependency-resolution
   - sources/frontend-api
+  - sources/frontend/dr
   - sources/frontend/plain/amper-psi
   - sources/frontend/plain/parserutil-stub
   - sources/frontend/plain/toml-psi

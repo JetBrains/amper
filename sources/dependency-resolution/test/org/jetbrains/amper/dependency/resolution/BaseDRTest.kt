@@ -10,7 +10,6 @@ import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.TestInfo
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.name
 import kotlin.test.assertTrue
 
 abstract class BaseDRTest {
@@ -71,18 +70,8 @@ abstract class BaseDRTest {
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         kotlin.test.assertEquals(expected, root.prettyPrint().trimEnd())
 
-    private fun assertFiles(files: String, root: DependencyNode) {
-        root.distinctBfsSequence()
-            .mapNotNull { it as? MavenDependencyNode }
-            .flatMap { it.dependency.files }
-            .mapNotNull { runBlocking { it.getPath()?.name } }
-            .sorted()
-            .toSet()
-            .let { kotlin.test.assertEquals(files, it.joinToString("\n")) }
-    }
-
     protected fun List<String>.toRootNode(context: Context) =
-        ModuleDependencyNode(context, "root", map { it.toMavenNode(context) })
+        DependencyNodeHolder(name ="root", children = map { it.toMavenNode(context) })
 
     private fun String.toMavenNode(context: Context): MavenDependencyNode {
         val (group, module, version) = split(":")
@@ -90,7 +79,7 @@ abstract class BaseDRTest {
     }
 
 
-    private fun String.toRootNode(context: Context) = ModuleDependencyNode(context, "root", listOf(toMavenNode(context)))
+    private fun String.toRootNode(context: Context) = DependencyNodeHolder(name ="root", children = listOf(toMavenNode(context)))
 
     companion object {
         internal val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
