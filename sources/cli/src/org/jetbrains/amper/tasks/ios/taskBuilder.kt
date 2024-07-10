@@ -14,6 +14,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.NativeTaskType
+import org.jetbrains.amper.tasks.native.isIosApp
 import org.jetbrains.amper.util.BuildType
 
 /**
@@ -84,6 +85,24 @@ fun ProjectTaskRegistrar.setupIosTasks() {
             isTest && buildType == BuildType.Debug -> configureTestTasks()
             buildType == BuildType.Release -> return@onEachBuildType
             else -> configureMainTasks()
+        }
+    }
+
+    onRuntimeModuleDependency(Platform.IOS) { module, dependsOn, _, platform, isTest, buildType ->
+        val configureLinkTask = when {
+            module.type != ProductType.IOS_APP -> false
+            !platform.isDescendantOf(Platform.IOS) -> false
+            isTest && buildType == BuildType.Release -> false
+            isTest && buildType == BuildType.Debug -> false /*configureTestTasks()*/
+            buildType == BuildType.Release -> false
+            else -> true
+        }
+
+        if (configureLinkTask) {
+            registerDependency(
+                IosTaskType.Framework.getTaskName(module, platform, false, buildType),
+                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+            )
         }
     }
 }
