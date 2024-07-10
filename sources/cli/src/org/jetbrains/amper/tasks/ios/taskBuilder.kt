@@ -14,7 +14,6 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.NativeTaskType
-import org.jetbrains.amper.tasks.native.isIosApp
 import org.jetbrains.amper.util.BuildType
 
 /**
