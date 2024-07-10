@@ -23,16 +23,24 @@ fun ProjectTaskRegistrar.setupIosTasks() {
     onEachBuildType { module, eoci, platform, isTest, buildType ->
         val ctx = this@setupIosTasks.context
 
-        fun configureTestTasks() = registerTask(
-            task = IosKotlinTestTask(
-                taskName = CommonTaskType.Test.getTaskName(module, platform),
-                module = module,
-                projectRoot = ctx.projectRoot,
-                terminal = ctx.terminal,
-                platform = platform,
-            ),
-            dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
-        )
+        fun configureTestTasks() {
+            registerTask(
+                task = IosKotlinTestTask(
+                    taskName = CommonTaskType.Test.getTaskName(module, platform),
+                    module = module,
+                    projectRoot = ctx.projectRoot,
+                    terminal = ctx.terminal,
+                    platform = platform,
+                ),
+                dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
+            )
+
+            registerDependency(
+                NativeTaskType.Link.getTaskName(module, platform, isTest = true),
+                NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false),
+            )
+        }
+
 
         fun configureMainTasks() {
             val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
