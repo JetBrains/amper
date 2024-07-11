@@ -62,10 +62,11 @@ class NativeCompileKlibTask(
         // TODO The native compiler needs recursive dependencies
         val externalDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.runtimeClasspath } // recursive compiler dependencies (direct + nested exported)
+            .flatMap { it.compileClasspath } // compiler dependencies including transitive
             .distinct()
             .filter { !it.pathString.endsWith(".jar") }
             .toList()
+
         logger.warn("" +
                 "native compile ${module.userReadableName} -- collected external dependencies" +
                 if (externalDependencies.isNotEmpty()) "\n" else "" +

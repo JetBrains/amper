@@ -62,7 +62,7 @@ class NativeLinkTask(
 
         val externalRuntimeDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
-            .flatMap { it.runtimeClasspath } // recursive compiler dependencies (direct + nested exported)
+            .flatMap { it.compileClasspath } // recursive compiler dependencies (direct + nested exported)
             .distinct()
             .filter { !it.pathString.endsWith(".jar") }
             .toList()

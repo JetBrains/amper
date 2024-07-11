@@ -9,17 +9,17 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
-import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.mavenRepositories
@@ -41,8 +41,7 @@ class ResolveExternalDependenciesTask(
     private val platform: Platform,
     private val fragments: List<Fragment>,
     private val fragmentsCompileModuleDependencies: ModuleDependencyNodeWithModule,
-    // todo (AB) : Dependencies should follow a declaration order
-    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModule,
+    private val fragmentsRuntimeModuleDependencies: ModuleDependencyNodeWithModule?,
     override val taskName: TaskName,
 ): Task {
 
@@ -74,7 +73,7 @@ class ResolveExternalDependenciesTask(
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
             .setListAttribute("dependencies", fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() })
-            .setListAttribute("runtimeDependencies", fragmentsRuntimeModuleDependencies.getExternalDependencies().map { it.toString() })
+            .setListAttribute("runtimeDependencies", fragmentsRuntimeModuleDependencies?.getExternalDependencies()?.map { it.toString() } ?: emptyList<String>())
             .setListAttribute("fragments", fragments.map { it.name }.sorted())
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
@@ -95,26 +94,30 @@ class ResolveExternalDependenciesTask(
                 val configuration = mapOf(
                     "userCacheRoot" to userCacheRoot.path.pathString,
                     "compileDependencies" to fragmentsCompileModuleDependencies.getExternalDependencies().joinToString("|"),
-                    "runtimeDependencies" to fragmentsRuntimeModuleDependencies.getExternalDependencies().joinToString("|"),
+                    "runtimeDependencies" to (fragmentsRuntimeModuleDependencies?.getExternalDependencies()?.joinToString("|") ?: ""),
                     "repositories" to repositories.joinToString("|"),
                     "resolvePlatform" to resolvedPlatform.type.value,
                     "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
                 )
 
                 val result = try {
-                    val resolveSourceMoniker = "module ${module.userReadableName}"
-                    val root = DependencyNodeHolder(
-                        name = "root",
-                        children = listOf(fragmentsCompileModuleDependencies, fragmentsRuntimeModuleDependencies),
-                    )
                     executeOnChangedInputs.execute(taskName.name, configuration, emptyList()) {
+                        val resolveSourceMoniker = "module ${module.userReadableName}"
+                        val root = DependencyNodeHolder(
+                            name = "root",
+                            children = listOfNotNull(
+                                fragmentsCompileModuleDependencies,
+                                fragmentsRuntimeModuleDependencies
+                            ),
+                        )
+
                         mavenResolver.resolve(
                             root = root,
                             resolveSourceMoniker = resolveSourceMoniker,
                         )
 
                         val compileClasspath = root.children[0].dependencyPaths()
-                        val runtimeClasspath = root.children[1].dependencyPaths()
+                        val runtimeClasspath = if (root.children.size == 2) root.children[1].dependencyPaths() else emptyList()
 
                         return@execute ExecuteOnChangedInputs.ExecutionResult(
                             (compileClasspath + runtimeClasspath).toSet().sorted(),

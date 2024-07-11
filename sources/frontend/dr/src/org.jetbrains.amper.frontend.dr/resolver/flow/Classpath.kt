@@ -5,10 +5,9 @@
 package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import org.jetbrains.amper.dependency.resolution.Context
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
-import org.jetbrains.amper.dependency.resolution.nodeParents
 import org.jetbrains.amper.frontend.DefaultScopedNotation
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
@@ -21,7 +20,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 
 /**
  * Performs the initial resolution of module classpath dependencies.
- * The resulting graph contains a node for every module dependency
+ * The resulting graph contains a node for every compile module dependency
  * as well as direct maven dependencies of that module.
  *
  * It doesn't download anything.
@@ -65,16 +64,16 @@ internal class Classpath(
 
         val moduleContext = parentContext.copyWithNewNodeCache(emptyList(), this.getValidRepositories())
 
-        val platform = moduleContext.settings.platforms.single().toPlatform()
+        val resolutionPlatform = moduleContext.settings.platforms.single()
         val scope = moduleContext.settings.scope
 
-        val dependencies = fragmentsTargeting(platform, includeTestFragments = isTest)
-            .flatMap { it.toDependencyNode(scope, directDependencies, moduleContext, visitedModules, isTest) }
+        val dependencies = fragmentsTargeting(resolutionPlatform.toPlatform(), includeTestFragments = isTest)
+            .flatMap { it.toDependencyNode(scope, resolutionPlatform, directDependencies, moduleContext, visitedModules, isTest) }
             .sortedByDescending { it.notation?.exported ?: false }
 
         val node = ModuleDependencyNodeWithModule(
             module = this,
-            name = "${this.userReadableName}:${scope.name}:${platform.name}",
+            name = "${this.userReadableName}:${scope.name}:${resolutionPlatform.toPlatform().name}",
             notation = notation,
             children = dependencies
         )
@@ -84,6 +83,7 @@ internal class Classpath(
 
     private fun Fragment.toDependencyNode(
         scope: ResolutionScope,
+        platform: ResolutionPlatform,
         directDependencies: Boolean,
         moduleContext: Context,
         visitedModules: MutableSet<PotatoModule>,
@@ -94,7 +94,7 @@ internal class Classpath(
             .mapNotNull { dependency ->
                 when (dependency) {
                     is MavenDependency -> {
-                        val includeDependency = dependency.shouldBeAdded(scope, directDependencies)
+                        val includeDependency = dependency.shouldBeAdded(scope, platform, directDependencies)
                         if (includeDependency) {
                             dependency.toFragmentDirectDependencyNode(this, moduleContext)
                         } else null
@@ -103,7 +103,7 @@ internal class Classpath(
                     is PotatoModuleDependency -> {
                         val resolvedDependencyModule = dependency.module
                         if (!visitedModules.contains(resolvedDependencyModule)) {
-                            val includeDependency = dependency.shouldBeAdded(scope, directDependencies)
+                            val includeDependency = dependency.shouldBeAdded(scope, platform, directDependencies)
                             if (includeDependency) {
                                 resolvedDependencyModule.fragmentsModuleDependencies(
                                     isTest, moduleContext, directDependencies = false, notation = dependency, visitedModules = visitedModules
@@ -124,14 +124,17 @@ internal class Classpath(
 
     private fun DefaultScopedNotation.shouldBeAdded(
         scope: ResolutionScope,
-        directDependencies: Boolean
+        platform: ResolutionPlatform,
+        directDependencies: Boolean,
     ): Boolean =
         when (scope) {
-            // runtime-only dependencies are not required to be in the compile tasks graph
-            ResolutionScope.COMPILE -> (compile && (directDependencies || exported))
+            // compilation classpath graph contains direct and exported transitive dependencies,
+            // for native platforms compilation classpath graph contains all transitive none-exported dependencies as well,
+            // because native compilation (and linking) depends on entire transitive dependencies.
+            // runtime-only dependencies are not included in the compilation classpath graph
+            ResolutionScope.COMPILE -> compile && (directDependencies || exported || (platform.nativeTarget != null))
             ResolutionScope.RUNTIME -> runtime
         }
-
 
     /**
      * Returns all fragments in this module that target the given [platform].
