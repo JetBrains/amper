@@ -12,6 +12,8 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.ios.IosTaskType
+import org.jetbrains.amper.util.BuildType
 
 private fun isIosApp(platform: Platform, module: PotatoModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
@@ -43,16 +45,15 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
             dependsOn = buildList {
                 add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
                 if (isTest) {
+                    // todo (AB) : Check if this is required for test KLib compilation
                     add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
                 }
             },
         )
-        val needsLinkedExecutable = module.type.isApplication() || isTest
-        // iOS framework task is defined by the iOS task builder
-        if (needsLinkedExecutable && (isTest || !isIosApp(platform, module))) {
-            val linkAppTaskName = NativeTaskType.Link.getTaskName(module, platform, isTest)
+        if (needsLinkedExecutable(module, isTest)) {
+            val (linkAppTaskName, compilationType) = getNativeLinkTaskDetails(platform, module, isTest)
             registerTask(
-                NativeLinkTask(
+                task = NativeLinkTask(
                     module = module,
                     platform = platform,
                     userCacheRoot = context.userCacheRoot,
@@ -61,13 +62,16 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                     taskName = linkAppTaskName,
                     tempRoot = context.projectTempRoot,
                     isTest = isTest,
-                    compilationType = KotlinCompilationType.BINARY,
+                    compilationType = compilationType,
                     compileKLibTaskName = compileKLibTaskName,
                 ),
-                listOf(
-                    compileKLibTaskName,
-                    CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
-                ),
+                dependsOn = buildList {
+                    add(compileKLibTaskName)
+                    add(CommonTaskType.Dependencies.getTaskName(module, platform, false))
+                    if (isTest) {
+                        add(NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false))
+                    }
+                }
             )
         }
     }
@@ -78,10 +82,9 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
             NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
         )
 
-        val needsLinkedExecutable = module.type.isApplication() || isTest
-        if (needsLinkedExecutable && (isTest || !isIosApp(platform, module))) {
+        if (needsLinkedExecutable(module, isTest)) {
             registerDependency(
-                NativeTaskType.Link.getTaskName(module, platform, isTest),
+                getNativeLinkTaskName(platform, module, isTest),
                 NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
             )
         }
@@ -123,12 +126,24 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
             ),
             NativeTaskType.Link.getTaskName(module, platform, isTest = true)
         )
-
-        registerDependency(
-            NativeTaskType.Link.getTaskName(module, platform, isTest = true),
-            NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false),
-        )
     }
+}
+
+private fun needsLinkedExecutable(module: PotatoModule, isTest: Boolean) =
+    module.type.isApplication() || isTest
+
+private fun getNativeLinkTaskName(platform: Platform, module: PotatoModule, isTest: Boolean) =
+    getNativeLinkTaskDetails(platform, module, isTest).first
+
+private fun getNativeLinkTaskDetails(
+    platform: Platform,
+    module: PotatoModule,
+    isTest: Boolean
+) = when {
+    isIosApp(platform, module) && !isTest ->
+        IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug) to KotlinCompilationType.IOS_FRAMEWORK
+    else ->
+        NativeTaskType.Link.getTaskName(module, platform, isTest) to KotlinCompilationType.BINARY
 }
 
 enum class NativeTaskType(override val prefix: String) : PlatformTaskType {

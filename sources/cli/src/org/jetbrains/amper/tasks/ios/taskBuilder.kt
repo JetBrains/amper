@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.ios
 
-import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.ProductType
@@ -12,7 +11,6 @@ import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.native.NativeLinkTask
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
@@ -34,36 +32,9 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 ),
                 dependsOn = NativeTaskType.Link.getTaskName(module, platform, isTest = true)
             )
-
-            registerDependency(
-                NativeTaskType.Link.getTaskName(module, platform, isTest = true),
-                NativeTaskType.CompileKLib.getTaskName(module, platform, isTest = false),
-            )
         }
 
-
         fun configureMainTasks() {
-            val frameworkTaskName = IosTaskType.Framework.getTaskName(module, platform, false, buildType)
-            val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, false)
-            registerTask(
-                task = NativeLinkTask(
-                    module = module,
-                    platform = platform,
-                    userCacheRoot = ctx.userCacheRoot,
-                    taskOutputRoot = ctx.getTaskOutputPath(frameworkTaskName),
-                    executeOnChangedInputs = eoci,
-                    taskName = frameworkTaskName,
-                    tempRoot = ctx.projectTempRoot,
-                    isTest = false,
-                    compilationType = KotlinCompilationType.IOS_FRAMEWORK,
-                    compileKLibTaskName = compileKLibTaskName,
-                ),
-                dependsOn = listOf(
-                    compileKLibTaskName,
-                    CommonTaskType.Dependencies.getTaskName(module, platform, false)
-                )
-            )
-
             val buildTaskName = IosTaskType.BuildIosApp.getTaskName(module, platform)
             registerTask(
                 task = BuildAppleTask(
@@ -75,7 +46,9 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                     taskName = buildTaskName,
                     isTest = false,
                 ),
-                dependsOn = listOf(frameworkTaskName)
+                dependsOn = listOf(
+                    IosTaskType.Framework.getTaskName(module, platform, false, buildType)
+                )
             )
 
             val runTaskName = IosTaskType.RunIosApp.getTaskName(module, platform)
@@ -92,24 +65,6 @@ fun ProjectTaskRegistrar.setupIosTasks() {
             isTest && buildType == BuildType.Debug -> configureTestTasks()
             buildType == BuildType.Release -> return@onEachBuildType
             else -> configureMainTasks()
-        }
-    }
-
-    onRuntimeModuleDependency(Platform.IOS) { module, dependsOn, _, platform, isTest, buildType ->
-        val configureLinkTask = when {
-            module.type != ProductType.IOS_APP -> false
-            !platform.isDescendantOf(Platform.IOS) -> false
-            isTest && buildType == BuildType.Release -> false
-            isTest && buildType == BuildType.Debug -> false /*configureTestTasks()*/
-            buildType == BuildType.Release -> false
-            else -> true
-        }
-
-        if (configureLinkTask) {
-            registerDependency(
-                IosTaskType.Framework.getTaskName(module, platform, false, buildType),
-                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
-            )
         }
     }
 }
