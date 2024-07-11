@@ -8,7 +8,3 @@ apply:
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
   - $libs.slf4jApi
-  - io.opentelemetry:opentelemetry-api:1.32.0: exported
-  - io.opentelemetry:opentelemetry-sdk:1.32.0: exported
-  - io.opentelemetry:opentelemetry-sdk-trace:1.32.0: exported
-  - io.opentelemetry:opentelemetry-extension-kotlin:1.32.0: exported
