@@ -60,7 +60,7 @@ class NativeLinkTask(
             error("Zero fragments in module ${module.userReadableName} for platform $platform isTest=$isTest")
         }
 
-        val externalRuntimeDependencies = dependenciesResult
+        val externalDependencies = dependenciesResult
             .filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath } // compiler dependencies including transitive
             .distinct()
@@ -73,7 +73,7 @@ class NativeLinkTask(
             ?: error("The result of the klib compilation task (${compileKLibTaskName.name}) was not found")
         val includeArtifact = moduleKLibCompilationResult.compiledKlib
 
-        val runtimeDependencies = dependenciesResult
+        val compileKLibDependencies = dependenciesResult
             .filterIsInstance<NativeCompileKlibTask.Result>()
             .filter { it.taskName != compileKLibTaskName }
 
@@ -98,7 +98,7 @@ class NativeLinkTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val inputs = listOf(includeArtifact) + runtimeDependencies.map { it.compiledKlib }
+        val inputs = listOf(includeArtifact) + compileKLibDependencies.map { it.compiledKlib }
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
@@ -110,7 +110,7 @@ class NativeLinkTask(
                 kotlinUserSettings = kotlinUserSettings,
                 compilerPlugins = compilerPlugins,
                 entryPoint = entryPoint,
-                libraryPaths = runtimeDependencies.map { it.compiledKlib } + externalRuntimeDependencies,
+                libraryPaths = compileKLibDependencies.map { it.compiledKlib } + externalDependencies,
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),
                 sourceFiles = emptyList(),
