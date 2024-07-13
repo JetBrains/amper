@@ -125,6 +125,12 @@ abstract class AmperIntegrationTestBase {
         }
     }
 
+    protected fun TestCollector.assertStdoutDoesNotContain(text: String) {
+        assertTrue("No line in stdout should contain the text '$text':\n" + terminalRecorder.stdout().trim()) {
+            terminalRecorder.stdout().lineSequence().none { text in it }
+        }
+    }
+
     protected fun TestCollector.assertKotlinJvmCompilationSpan(assertions: CompilationSpanAssertions.() -> Unit = {}) {
         val kotlinSpan = kotlinJvmCompilationSpans.assertSingle()
         CompilationSpanAssertions(kotlinSpan, "compiler-args").assertions()

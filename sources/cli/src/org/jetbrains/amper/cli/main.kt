@@ -16,6 +16,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.options.transformAll
@@ -336,7 +337,8 @@ private class ModulesCommand : CliktCommand(name = "modules", help = "Show modul
 private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
     val platform by platformOption()
     val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
-    val module by option("-m", "--module", help = "specific module to check, the option could be repeated to check several modules")
+    val includeModules by option("-m", "--include-module", help = "specific module to check, the option could be repeated to check several modules").multiple()
+    val excludeModules by option("--exclude-module", help = "specific module to exclude, the option could be repeated to exclude several modules").multiple()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         if (filter != null) {
@@ -351,7 +353,8 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
         ) { backend ->
             backend.test(
                 platforms = platform.ifEmpty { null }?.toSet(),
-                moduleName = module,
+                includeModules = if (includeModules.isNotEmpty()) includeModules.toSet() else null,
+                excludeModules = excludeModules.toSet(),
             )
         }
     }

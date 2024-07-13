@@ -153,12 +153,19 @@ class AmperBackend(val context: ProjectContext) {
         taskExecutor.runTasksAndReportOnFailure(publishTasks)
     }
 
-    suspend fun test(moduleName: String? = null, platforms: Set<Platform>? = null) {
+    suspend fun test(
+        includeModules: Set<String>? = null,
+        platforms: Set<Platform>? = null,
+        excludeModules: Set<String> = emptySet(),
+    ) {
         require(platforms == null || platforms.isNotEmpty())
 
-        if (moduleName != null && resolvedModel.modules.none { it.userReadableName == moduleName }) {
-            userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
-                    "Available modules: ${availableModulesString()}")
+        val moduleNamesToCheck = (includeModules ?: emptySet()) + excludeModules
+        for (moduleName in moduleNamesToCheck) {
+            if (resolvedModel.modules.none { it.userReadableName == moduleName }) {
+                userReadableError("Unable to resolve module by name '$moduleName'.\n\n" +
+                        "Available modules: ${availableModulesString()}")
+            }
         }
 
         if (platforms != null) {
@@ -173,15 +180,34 @@ class AmperBackend(val context: ProjectContext) {
             }
         }
 
-        val testTasks = taskGraph.tasks
-            .filterIsInstance<TestTask>()
-            .filter { moduleName == null || moduleName == it.module.userReadableName }
+        val allTestTasks = taskGraph.tasks.filterIsInstance<TestTask>()
+        if (allTestTasks.isEmpty()) {
+            userReadableError("No test tasks were found in the entire project")
+        }
+
+        val platformTestTasks = allTestTasks
             .filter { platforms == null || platforms.contains(it.platform) }
+        if (platforms != null && platformTestTasks.isEmpty()) {
+            userReadableError("No test tasks were found for platforms: " +
+                    platforms.map { it.name }.sorted().joinToString(" ")
+            )
+        }
+
+        val includedTestTasks = if (includeModules != null) {
+            platformTestTasks.filter { task -> includeModules.contains(task.module.userReadableName) }
+        } else {
+            platformTestTasks
+        }
+        if (includedTestTasks.isEmpty()) {
+            userReadableError("No test tasks were found for specified include filters")
+        }
+
+        val testTasks = includedTestTasks
+            .filter { task -> !excludeModules.contains(task.module.userReadableName) }
             .map { it.taskName }
             .toSet()
-
         if (testTasks.isEmpty()) {
-            userReadableError("No test tasks were found for specified module and platform filters")
+            userReadableError("No test tasks were found after applying exclude filters")
         }
 
         taskExecutor.runTasksAndReportOnFailure(testTasks)

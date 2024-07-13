@@ -96,6 +96,26 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `jvm exclude test module`() = runTestWithCollector {
+        val projectContext = setupTestDataProject(
+            "jvm-multimodule-tests",
+        )
+        val backend = AmperBackend(projectContext)
+        backend.test()
+
+        // all tests run
+        assertStdoutContains("Hello from test 1")
+        assertStdoutContains("Hello from test 2")
+
+        clearTerminalRecording()
+
+        // tests from module 1 aren't run
+        backend.test(excludeModules = setOf("one"))
+        assertStdoutDoesNotContain("Hello from test 1")
+        assertStdoutContains("Hello from test 2")
+    }
+
+    @Test
     fun `jvm kotlin test no tests`() = runTestWithCollector {
         // Testing a module should fail if there are some test sources, but no tests were found
         // for example it'll automatically fail if you run your tests with TestNG, but specified JUnit in settings
