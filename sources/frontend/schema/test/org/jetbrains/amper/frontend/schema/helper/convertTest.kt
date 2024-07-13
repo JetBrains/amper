@@ -17,7 +17,7 @@ context(TestBase)
 fun convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
     ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath, expectedModule).doTest()
 
-class ConvertTestRun(
+private class ConvertTestRun(
     caseName: String,
     private val expectedErrors: String = "",
     override val base: Path,
@@ -26,7 +26,9 @@ class ConvertTestRun(
     context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
         val module = with(ctx) {
-            val pathResolver = FrontendPathResolver()
+            val pathResolver = FrontendPathResolver(
+                intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
+            )
             val inputParentFile = pathResolver.loadVirtualFile(inputPath.parent)
             val inputFile = pathResolver.loadVirtualFile(inputPath)
             with(ConvertCtx(inputParentFile, pathResolver)) {
