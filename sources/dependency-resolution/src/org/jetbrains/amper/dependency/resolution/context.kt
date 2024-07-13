@@ -49,11 +49,11 @@ class Context(
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<String>? = null): Context = Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency).apply {
+    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<Repository>? = null): Context = Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency).apply {
         nodeParents.addAll(parentNodes)
     }
 
-    private fun Settings.withRepositories(repositories: List<String>?): Settings =
+    private fun Settings.withRepositories(repositories: List<Repository>?): Settings =
         if (repositories != null && repositories.toSet() != this@withRepositories.repositories.toSet()) {
             this@withRepositories.copy(repositories = repositories)
         } else this@withRepositories
@@ -93,7 +93,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
     var progress: Progress = Progress()
     var scope: ResolutionScope = ResolutionScope.COMPILE
     var platforms: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM)
-    var repositories: List<String> = listOf("https://repo1.maven.org/maven2")
+    var repositories: List<Repository> = listOf(Repository("https://repo1.maven.org/maven2"))
     var cache: FileCacheBuilder.() -> Unit = {}
     var conflictResolutionStrategies: List<HighestVersionStrategy> = listOf(HighestVersionStrategy())
 
@@ -146,7 +146,7 @@ data class Settings(
     val progress: Progress,
     val scope: ResolutionScope,
     val platforms: Set<ResolutionPlatform>,
-    val repositories: List<String>,
+    val repositories: List<Repository>,
     val fileCache: FileCache,
     val conflictResolutionStrategies: List<ConflictResolutionStrategy>,
 )
@@ -184,3 +184,16 @@ val Context.nodeParents: MutableList<DependencyNode>
     get() = nodeCache.computeIfAbsent(Key<MutableList<DependencyNode>>("parentNodes")) {
         CopyOnWriteArrayList()
     }
+
+
+data class Repository(
+    val url: String,
+    val userName: String? = null,
+    val password: String? = null,
+) {
+    override fun toString(): String {
+        return url
+    }
+}
+
+fun List<String>.toRepositories() = map { Repository(it) }

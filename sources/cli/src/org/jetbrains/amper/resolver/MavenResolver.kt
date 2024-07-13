@@ -15,6 +15,7 @@ import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
+import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Severity
@@ -31,7 +32,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
     suspend fun resolve(
         coordinates: List<String>,
-        repositories: List<String>,
+        repositories: List<Repository>,
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: ResolutionPlatform = ResolutionPlatform.JVM,
         resolveSourceMoniker: String,

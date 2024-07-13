@@ -101,7 +101,7 @@ class DependencyFileTest {
                 "https://repo1.maven.org/maven2",
                 "https://maven.google.com",
                 "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-            )
+            ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_ARM64)
         }.use { context ->
             val dependency = MavenDependency(
@@ -132,7 +132,7 @@ class DependencyFileTest {
                 "https://repo1.maven.org/maven2",
                 "https://maven.google.com",
                 "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-            )
+            ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64, ResolutionPlatform.IOS_ARM64)
         }.use { context ->
             val dependency = MavenDependency(
@@ -164,7 +164,7 @@ class DependencyFileTest {
                 "https://repo1.maven.org/maven2",
                 "https://maven.google.com",
                 "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-            )
+            ).toRepositories()
             platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
         }.use { context ->
             val root = DependencyNodeHolder(
@@ -213,7 +213,7 @@ class DependencyFileTest {
                     "https://repo1.maven.org/maven2",
                     "https://maven.google.com",
                     "https://maven.pkg.jetbrains.space/public/p/compose/dev"
-                )
+                ).toRepositories()
                 platforms = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64)
                 scope = ResolutionScope.RUNTIME
             }.use { context ->
@@ -239,7 +239,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_5_0 with extra slash`() {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_X64)
-            repositories = listOf("https://repo.maven.apache.org/maven2/")
+            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())
@@ -261,7 +261,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_coroutines_core 1_7_3 check metadata`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf("https://repo.maven.apache.org/maven2/")
+            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())
@@ -293,7 +293,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx_datetime 0_4_0`() {
         Context {
             platforms = setOf(ResolutionPlatform.JVM, ResolutionPlatform.ANDROID)
-            repositories = listOf("https://repo.maven.apache.org/maven2/")
+            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())
@@ -324,7 +324,7 @@ class DependencyFileTest {
     fun `org_jetbrains_kotlinx kotlinx-datetime 0_4_0 empty module file`() {
         Context {
             platforms = setOf(ResolutionPlatform.MACOS_ARM64)
-            repositories = listOf("https://fake-repository/")
+            repositories = listOf("https://fake-repository/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())
@@ -360,7 +360,7 @@ class DependencyFileTest {
                 ResolutionPlatform.IOS_X64,
             )
             scope = ResolutionScope.RUNTIME
-            repositories = listOf("https://repo.maven.apache.org/maven2/")
+            repositories = listOf("https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())
@@ -483,7 +483,7 @@ class DependencyFileTest {
                 )
             scope = ResolutionScope.RUNTIME
             repositories = listOf(
-                "https://repo.maven.apache.org/maven2/")
+                "https://repo.maven.apache.org/maven2/").toRepositories()
             cache = {
                 amperCache = amperPath
                 localRepositories = listOf(mavenLocalRepository())

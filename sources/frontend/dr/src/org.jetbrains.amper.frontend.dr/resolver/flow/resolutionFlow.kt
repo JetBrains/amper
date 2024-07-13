@@ -7,6 +7,7 @@ import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
+import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
@@ -58,43 +59,45 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         return getOrCreateNode(mavenDependency,null)
     }
 
-    fun PotatoModule.getValidRepositories(): List<String> {
-        val acceptedRepositories = mutableListOf<String>()
-        for (url in repositories()) {
+    fun PotatoModule.getValidRepositories(): List<Repository> {
+        val acceptedRepositories = mutableListOf<Repository>()
+        for (repository in repositories()) {
             @Suppress("HttpUrlsUsage")
-            if (url.startsWith("http://")) {
+            if (repository.url.startsWith("http://")) {
                 // TODO: Special --insecure-http-repositories option or some flag in project.yaml
                 // to acknowledge http:// usage
 
                 // report only once per `url`
-                if (alreadyReportedHttpRepositories.put(url, true) == null) {
-                    logger.warn("http:// repositories are not secure and should not be used: $url")
+                if (alreadyReportedHttpRepositories.put(repository.url, true) == null) {
+                    logger.warn("http:// repositories are not secure and should not be used: ${repository.url}")
                 }
 
                 continue
             }
 
-            if (!url.startsWith("https://")) {
+            if (!repository.url.startsWith("https://")) {
 
                 // report only once per `url`
-                if (alreadyReportedNonHttpsRepositories.put(url, true) == null) {
-                    logger.warn("Non-https repositories are not supported, skipping url: $url")
+                if (alreadyReportedNonHttpsRepositories.put(repository.url, true) == null) {
+                    logger.warn("Non-https repositories are not supported, skipping url: ${repository.url}")
                 }
 
                 continue
             }
 
-            acceptedRepositories.add(url)
+            acceptedRepositories.add(repository)
         }
 
         return acceptedRepositories
     }
 
-    private fun PotatoModule.repositories() = parts
-        .filterIsInstance<RepositoriesModulePart>()
-        .firstOrNull()
-        ?.mavenRepositories
-        ?.map { it.url } ?: defaultRepositories
+    private fun PotatoModule.repositories(): List<Repository> =
+        parts
+            .filterIsInstance<RepositoriesModulePart>()
+            .firstOrNull()
+            ?.mavenRepositories
+            ?.map { Repository(it.url, it.userName, it.password) }
+            ?: defaultRepositories.map { Repository(it)}
 
     companion object {
         private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()

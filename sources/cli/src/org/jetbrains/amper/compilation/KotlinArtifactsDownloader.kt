@@ -8,6 +8,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
 import org.jetbrains.amper.core.downloader.MAVEN_CENTRAL_REPOSITORY_URL
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
@@ -106,7 +107,7 @@ class KotlinArtifactsDownloader(
             val coordinates = "$groupId:$artifactId:$version"
             val resolved = mavenResolver.resolve(
                 coordinates = listOf(coordinates),
-                repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL),
+                repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories(),
                 scope = ResolutionScope.RUNTIME,
                 resolveSourceMoniker = coordinates,
             )

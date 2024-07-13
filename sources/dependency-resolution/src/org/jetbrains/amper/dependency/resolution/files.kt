@@ -30,6 +30,7 @@ import java.net.URI
 import java.net.http.HttpClient.Redirect
 import java.net.http.HttpClient.Version
 import java.net.http.HttpRequest
+import java.net.http.HttpRequest.Builder
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -40,6 +41,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.time.Duration
 import java.time.ZonedDateTime
+import java.util.Base64
 import javax.net.ssl.SSLContext
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -226,7 +228,7 @@ open class DependencyFile(
 
     private suspend fun hasMatchingChecksum(
         level: ResolutionLevel,
-        repositories: List<String>,
+        repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
     ): Boolean {
@@ -254,10 +256,10 @@ open class DependencyFile(
         ?: throw AmperDependencyResolutionException("Path doesn't exist, download the file first")
 
     suspend fun download(context: Context): Boolean =
-        download(context.settings.repositories.ensureFirst(dependency.repository), context.settings.progress, context.resolutionCache, true)
+        download(context.settings.repositories.ensureFirst(dependency.repository) , context.settings.progress, context.resolutionCache, true)
 
     private suspend fun downloadUnderFileLock(
-        repositories: List<String>,
+        repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
         expectedHash: Hash?,
@@ -292,7 +294,7 @@ open class DependencyFile(
         isDownloaded() && (expectedHash == null || hasMatchingChecksum(expectedHash))
 
     internal suspend fun download(
-        repositories: List<String>,
+        repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
         verify: Boolean,
@@ -332,9 +334,9 @@ open class DependencyFile(
         return path != null
     }
 
-    private fun List<String>.ensureFirst(repository: String?) =
+    private fun List<Repository>.ensureFirst(repository: Repository?) =
         repository?.let {
-            if (this.isEmpty() || this[0] == repository || !this.contains(repository))
+            if (this.isEmpty() || this[0].url == repository.url || !this.map{ it.url }.contains(repository.url))
                 this
             else
                 buildList {
@@ -347,7 +349,7 @@ open class DependencyFile(
     private suspend fun downloadAndVerifyHash(
         channel: FileChannel,
         temp: Path,
-        repositories: List<String>,
+        repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
         expectedHash: Hash?,      // this should be passed for all files being downloaded, except when hash files are downloaded itself
@@ -426,14 +428,14 @@ open class DependencyFile(
 
     private suspend fun verify(
         hashers: Collection<Hasher>,
-        repository: String,
+        repository: Repository,
         progress: Progress,
         cache: Cache,
         requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
     ): VerificationResult {
         // Let's first check hashes available on disk.
         val levelToHasher = setOf(ResolutionLevel.LOCAL, requestedLevel)
-            .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository).map { level to it } }
+            .flatMap { level -> hashers.filterWellKnownBrokenHashes(repository.url).map { level to it } }
         for ((level, hasher) in levelToHasher) {
             val algorithm = hasher.algorithm
             val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, level)
@@ -457,7 +459,7 @@ open class DependencyFile(
      * @return hash and repository where it was downloaded from (the latter is null if hash was found locally)
      */
     private suspend fun getOrDownloadExpectedHash(
-        repositories: List<String>,
+        repositories: List<Repository>,
         progress: Progress,
         cache: Cache,
         requestedLevel: ResolutionLevel = ResolutionLevel.NETWORK
@@ -481,7 +483,7 @@ open class DependencyFile(
             for (hasher in hashers) {
                 val algorithm = hasher.algorithm
                 for (repository in repositories) {
-                    if (!hasher.isWellKnownBrokenHashIn(repository)) {
+                    if (!hasher.isWellKnownBrokenHashIn(repository.url)) {
                         val expectedHash = getOrDownloadExpectedHash(algorithm, repository, progress, cache, requestedLevel)
                         if (expectedHash != null) {
                             return object : Hash {
@@ -533,7 +535,7 @@ open class DependencyFile(
 
     internal suspend fun getOrDownloadExpectedHash(
         algorithm: String,
-        repository: String?,
+        repository: Repository?,
         progress: Progress,
         cache: Cache,
         level: ResolutionLevel = ResolutionLevel.NETWORK
@@ -581,7 +583,7 @@ open class DependencyFile(
 
     private suspend fun download(
         writers: Collection<Writer>,
-        repository: String,
+        repository: Repository,
         progress: Progress,
         cache: Cache
     ): Boolean {
@@ -598,7 +600,7 @@ open class DependencyFile(
                 .build()
         }
         val name = getNamePart(repository, nameWithoutExtension, extension, progress, cache)
-        val url = repository.trimEnd('/') +
+        val url = repository.url.trimEnd('/') +
                 "/${dependency.group.replace('.', '/')}" +
                 "/${dependency.module}" +
                 "/${dependency.version}" +
@@ -612,6 +614,7 @@ open class DependencyFile(
             ) {
                 val request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    .withBasicAuth(repository)
                     .timeout(Duration.ofMinutes(2))
                     .GET()
                     .build()
@@ -665,8 +668,19 @@ open class DependencyFile(
         return false
     }
 
+    private fun Builder.withBasicAuth(repository: Repository): Builder = also {
+        if (repository.userName != null && repository.password != null) {
+            header("Authorization", getBasicAuthenticationHeader(repository.userName, repository.password))
+        }
+    }
+
+    private fun getBasicAuthenticationHeader(username: String, password: String): String {
+        val valueToEncode = "$username:$password"
+        return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.toByteArray())
+    }
+
     protected open suspend fun getNamePart(
-        repository: String,
+        repository: Repository,
         name: String,
         extension: String,
         progress: Progress,
@@ -674,7 +688,7 @@ open class DependencyFile(
     ) =
         "$name.$extension"
 
-    internal open suspend fun onFileDownloaded(target: Path, repository: String? = null) {
+    internal open suspend fun onFileDownloaded(target: Path, repository: Repository? = null) {
         this.path = target
         this.dependency.repository = repository
     }
@@ -742,7 +756,7 @@ class SnapshotDependencyFile(
     }
 
     override suspend fun getNamePart(
-        repository: String,
+        repository: Repository,
         name: String,
         extension: String,
         progress: Progress,
@@ -765,7 +779,7 @@ class SnapshotDependencyFile(
         nameWithoutExtension == "maven-metadata"
                 || getVersionFile()?.takeIf { it.exists() }?.readText() != getSnapshotVersion()
 
-    override suspend fun onFileDownloaded(target: Path, repository: String?) {
+    override suspend fun onFileDownloaded(target: Path, repository: Repository?) {
         super.onFileDownloaded(target, repository)
         if (nameWithoutExtension != "maven-metadata") {
             getSnapshotVersion()?.let { getVersionFile()?.writeText(it) }

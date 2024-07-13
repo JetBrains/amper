@@ -60,7 +60,7 @@ class DRConcurrencyTest : BaseDRTest() {
     fun `androidx_annotation annotation-jvm 1_6_0 readText`(testInfo: TestInfo) =
         doConcurrencyTest(testInfo) {
             val context = context(
-                repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
+                repositories = (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com").toRepositories(),
                 cacheRoot = cacheRoot)
             annotationJvmCoordinates.toMavenNode(context).dependency.moduleFile.readText()
         }

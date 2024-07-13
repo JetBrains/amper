@@ -10,6 +10,7 @@ import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
+import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -34,7 +35,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
-                repositories = listOf("https://repo1.maven.org/maven2"),
+                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                 resolveSourceMoniker = "test",
             )
         }
@@ -60,7 +61,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
-                repositories = listOf("https://repo1.maven.org/maven2"),
+                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                 resolveSourceMoniker = "test",
             )
         }
@@ -78,7 +79,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"),
-                repositories = listOf("https://repo1.maven.org/maven2"),
+                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 platform = ResolutionPlatform.MINGW_X64,
                 resolveSourceMoniker = "test",
@@ -103,7 +104,7 @@ class MavenResolverTest {
         val result = runBlocking {
             resolver.resolve(
                 coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
-                repositories = listOf("https://repo1.maven.org/maven2"),
+                repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                 scope = ResolutionScope.RUNTIME,
                 resolveSourceMoniker = "test",
             )
@@ -140,7 +141,7 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
-                    repositories = listOf("https://repo1.maven.org/maven2"),
+                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                     resolveSourceMoniker = "test",
                 )
             }
@@ -165,7 +166,7 @@ class MavenResolverTest {
         val macosX64 = resolver.resolve(
             coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
             platform = ResolutionPlatform.MACOS_X64,
-            repositories = listOf("https://repo1.maven.org/maven2"),
+            repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
             resolveSourceMoniker = "test",
         )
         assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
@@ -177,7 +178,7 @@ class MavenResolverTest {
                 resolver.resolve(
                     coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
                     platform = ResolutionPlatform.MACOS_ARM64,
-                    repositories = listOf("https://repo1.maven.org/maven2"),
+                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                     resolveSourceMoniker = "test",
                 )
             }
@@ -199,7 +200,7 @@ class MavenResolverTest {
                 repositories = listOf(
                     "https://cache-redirector.jetbrains.com/repo1.maven.org/maven2",
                     "https://repo.gradle.org/gradle/libs-releases",
-                ),
+                ).toRepositories(),
                 scope = ResolutionScope.COMPILE,
                 resolveSourceMoniker = "test",
             )
@@ -222,7 +223,7 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
-                    repositories = listOf("https://repo1.maven.org/maven2"),
+                    repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                     resolveSourceMoniker = "test",
                 )
             }

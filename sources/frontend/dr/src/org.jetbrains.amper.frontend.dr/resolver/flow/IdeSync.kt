@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.dr.resolver.flow
 
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
+import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Fragment
@@ -71,7 +72,7 @@ internal class IdeSync(
         return node
     }
 
-    private fun Fragment.toGraph(repositories: List<String>, fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
+    private fun Fragment.toGraph(repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): List<DirectFragmentDependencyNodeHolder> {
         val dependencies = externalDependencies.filterIsInstance<MavenDependency>()
 
         val sharedModuleDependencies = if (platforms.size != 1)
@@ -105,7 +106,7 @@ internal class IdeSync(
         return allMavenDeps
     }
 
-    private fun MavenDependency.toGraph(fragment: Fragment, repositories: List<String>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
+    private fun MavenDependency.toGraph(fragment: Fragment, repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
         val context = contextMap.computeIfAbsent(
             ContextKey(
                 // Todo (AB) : Prefer COMPILE here (and don't use Ide module dependencies as a runtime classpath)

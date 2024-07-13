@@ -227,7 +227,7 @@ class MavenDependency internal constructor(
      * instead of traversing the list in an original order.
      */
     @Volatile
-    internal var repository: String? = null
+    internal var repository: Repository? = null
         set(value) {
             if (field == null && value != null) {
                 field = value

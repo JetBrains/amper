@@ -25,7 +25,7 @@ abstract class BaseDRTest {
         cacheRoot: Path = TestUtil.userCacheRoot,
         filterMessages: List<Message>.() -> List<Message> = { filter { "Downloaded from" !in it.text } }
     ): DependencyNode {
-        context(scope, platform, repositories, cacheRoot).use { context ->
+        context(scope, platform, repositories.toRepositories(), cacheRoot).use { context ->
             val root = dependency.toRootNode(context)
             val resolver = Resolver()
             runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
@@ -44,7 +44,7 @@ abstract class BaseDRTest {
     protected fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: ResolutionPlatform = ResolutionPlatform.JVM,
-        repositories: List<String> = REDIRECTOR_MAVEN2,
+        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
         cacheRoot: Path = TestUtil.userCacheRoot
     ) = Context{
         this.scope = scope

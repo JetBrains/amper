@@ -575,7 +575,7 @@ class BuildGraphTest {
 
     @Test
     fun `androidx_appcompat appcompat 1_6_1 many contexts`(testInfo: TestInfo) {
-        val repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2"
+        val repositories = (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
@@ -994,6 +994,30 @@ class BuildGraphTest {
         )
     }
 
+//    @Test
+//    fun `jetbrains_ring_bundle bundle-api 2_0_65`(testInfo: TestInfo) {
+//        val root = doTestImpl(
+//            testInfo,
+//            scope = ResolutionScope.RUNTIME,
+//            platform = setOf(ResolutionPlatform.JVM),
+//            repositories = listOf(Repository("https://packages.jetbrains.team/maven/p/bnd/internal",
+//                "Alexey.Barsov",
+//                "set-test-password"
+//            )),
+//            expected = """root
+//                |\--- jetbrains.ring.bundle:bundle-api:2.0.65
+//                |     \--- org.jetbrains:annotations:13.0
+//            """.trimMargin()
+//        )
+//
+//        assertFiles("""
+//            annotations-13.0.jar
+//            bundle-api-2.0.65.jar
+//            """.trimIndent(),
+//            root
+//        )
+//    }
+
     @Test
     fun `org_jetbrains_compose_material3 material3-uikitarm64 1_6_10`(testInfo: TestInfo) {
         doTest(
@@ -1397,6 +1421,16 @@ class BuildGraphTest {
         repositories: List<String> = REDIRECTOR_MAVEN2,
         verifyMessages: Boolean = true,
         @Language("text") expected: String
+    ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected)
+
+    private fun doTestImpl(
+        testInfo: TestInfo,
+        dependency: String = testInfo.nameToDependency(),
+        scope: ResolutionScope = ResolutionScope.COMPILE,
+        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
+        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
+        verifyMessages: Boolean = true,
+        @Language("text") expected: String
     ): DependencyNode {
         context(scope, platform, repositories).use { context ->
             val root = dependency.toRootNode(context)
@@ -1417,7 +1451,7 @@ class BuildGraphTest {
     private fun context(
         scope: ResolutionScope = ResolutionScope.COMPILE,
         platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<String> = REDIRECTOR_MAVEN2
+        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories()
     ) = Context {
         this.scope = scope
         this.platforms = platform
