@@ -19,30 +19,24 @@ val sessionInfoPath by extra { "$buildDir/device.session.json" }
 val amperBuildNumber = AmperBuild.BuildNumber // Assume AmperBuild.BuildNumber is accessible and holds a value
 
 tasks.withType<Test>().configureEach {
-    if (name != "runEmulatorTests") {
-        systemProperties["junit.jupiter.execution.parallel.enabled"] = true
-        systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = true
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
 
-        for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
-            dependsOn(task)
-        }
+    for (task in rootProject.getTasksByName("publishToMavenLocal", true)) {
+        dependsOn(task)
+    }
 
-        useJUnitPlatform()
+    useJUnitPlatform()
 
-        val inBootstrapMode: String? by project
-        inBootstrapMode?.let {
-            if (it == "true") {
-                filter {
-                    excludeTestsMatching("*BootstrapTest*")
-                }
+    val inBootstrapMode: String? by project
+    inBootstrapMode?.let {
+        if (it == "true") {
+            filter {
+                excludeTestsMatching("*BootstrapTest*")
             }
         }
-        maxHeapSize = "4g"
-
-        exclude { include ->
-            include.file.name.contains("GradleEmulatorTests")
-        }
     }
+    maxHeapSize = "4g"
 }
 
 
