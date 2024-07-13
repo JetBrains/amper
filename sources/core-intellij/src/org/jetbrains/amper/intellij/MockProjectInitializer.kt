@@ -46,6 +46,10 @@ import org.toml.lang.psi.impl.TomlASTFactory
 open class IntelliJApplicationConfigurator {
     open fun registerApplicationExtensions(application: MockApplication) {}
     open fun registerProjectExtensions(project: MockProject) {}
+
+    companion object {
+        val EMPTY = IntelliJApplicationConfigurator()
+    }
 }
 
 object MockProjectInitializer {
@@ -54,8 +58,16 @@ object MockProjectInitializer {
 
     private var latestConfigurator: IntelliJApplicationConfigurator? = null
 
+    @Synchronized
     fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigurator): Project {
-        if (ApplicationManager.getApplication() != null && latestConfigurator == intelliJApplicationConfigurator) {
+        val latest = latestConfigurator
+        if (latest != null && latest !== intelliJApplicationConfigurator) {
+            error("Only one configurator can be used at a time.\n" +
+            "old: ${latest.javaClass.name} $latest,\n" +
+                    "new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator")
+        }
+
+        if (ApplicationManager.getApplication() != null) {
             // Init application and factory in standalone non-IDE environment only
             return ourProject
         }

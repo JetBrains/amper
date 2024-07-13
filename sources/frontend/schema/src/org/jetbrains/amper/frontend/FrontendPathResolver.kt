@@ -24,7 +24,7 @@ class FrontendPathResolver(
      * Can be used to register additional extension points needed only for tests (e.g., to modify PSI).
      */
     @TestOnly
-    private val intelliJApplicationConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator(),
+    private val intelliJApplicationConfigurator: IntelliJApplicationConfigurator = IntelliJApplicationConfigurator.EMPTY,
 ) {
 
     val project: Project by lazy {
