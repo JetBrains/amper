@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.test
 
+import com.github.ajalt.mordant.rendering.AnsiLevel
 import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.terminal.TerminalRecorder
 import io.opentelemetry.context.Context
@@ -36,7 +37,7 @@ class TestCollector(val backgroundScope: CoroutineScope) {
         get() = synchronized(collectedLogEntries) { collectedLogEntries.toList() }
     fun clearLogEntries() = synchronized(collectedLogEntries) { collectedLogEntries.clear() }
 
-    val terminalRecorder = TerminalRecorder()
+    val terminalRecorder = TerminalRecorder(ansiLevel = AnsiLevel.NONE)
     val terminal: Terminal = Terminal(terminalRecorder)
     fun clearTerminalRecording() = terminalRecorder.clearOutput()
 
