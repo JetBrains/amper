@@ -96,8 +96,10 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
         ?.mavenRepositories
         ?.map { it.url } ?: defaultRepositories
 
-    private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
-    private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
+    companion object {
+        private val alreadyReportedHttpRepositories = ConcurrentHashMap<String, Boolean>()
+        private val alreadyReportedNonHttpsRepositories = ConcurrentHashMap<String, Boolean>()
+    }
 }
 
 private val defaultRepositories = listOf(
