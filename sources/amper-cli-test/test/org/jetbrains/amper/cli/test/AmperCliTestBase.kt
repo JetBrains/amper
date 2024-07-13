@@ -10,6 +10,7 @@ import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.test.TempDirExtension
+import org.jetbrains.amper.test.TestReporterExtension
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.androidHome
 import org.junit.jupiter.api.BeforeEach
@@ -26,6 +27,9 @@ import kotlin.test.assertTrue
 abstract class AmperCliTestBase {
     @RegisterExtension
     private val tempDirExtension = TempDirExtension()
+
+    @RegisterExtension
+    private val testReporter = TestReporterExtension()
 
     protected val tempRoot: Path by lazy {
         // Always run tests in a directory with space, tests quoting in a lot of places
@@ -131,8 +135,12 @@ abstract class AmperCliTestBase {
             )
         }
 
-        // TODO export to junit test reporter in the future
-        println("Result of running Amper CLI with '${args.toList()}' on $projectRoot:\n$stdout")
+        val message = "Result of running Amper CLI with '${args.toList()}' on $projectRoot:\n$stdout\n$stderr"
+
+        println(message)
+        // it should be enough to publish to junit reporter, but IDEA runner does not pick it up
+        // if tests were run from Gradle
+        testReporter.publishEntry(message)
 
         return result
     }
