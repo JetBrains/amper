@@ -1691,7 +1691,7 @@ application {
 
 #### Configuring C-interop using the Gradle build file
 
-Use the following configuration to add C-interopn in a Gradle-based Amper: 
+Use the following configuration to add C-interop in a Gradle-based Amper project:
 
 ```kotlin
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -1707,7 +1707,7 @@ kotlin {
 }
 ```
 
-Read more on C-interop configuration in
+Read more about C-interop configuration in
 the [Kotlin/Native documentation](https://kotlinlang.org/docs/native-app-with-c-and-libcurl.html#add-interoperability-to-the-build-process).
 
 #### File layout with Gradle interop

@@ -98,13 +98,13 @@ tasks.
 
 ## Usage
 
-### What are Amper requirements?
+### What are the requirements to use Amper?
 
-To use Amper in the command line:
+To use Amper on the command line:
 
-* Standalone version of Amper is self-containing. See
+* The standalone version of Amper is self-containing. See
   the [usage instructions](Usage.md#using-the-standalone-amper-version-from-the-command-line).
-* Gradle-based version requires JDK 17+ and Gradle 8.6. See
+* Gradle-based Amper projects require JDK 17+ and Gradle 8.6. See
   the [usage instructions](Usage.md#using-the-gradle-based-amper-version-from-the-command-line).
 
 To use Amper in the IDE:
@@ -122,7 +122,7 @@ You have several options:
   or [Gradle-based](../examples-gradle) projects.
 * Read [the blog post](https://blog.jetbrains.com/amper/2024/05/amper-update-may-2024/#setting-up-projects-from-scratch)
   to learn how to create a project from scratch using the IDE.
-* Generate a project from a template using the `amper init` command of the standalone Amper version.
+* Generate a project from a template using the `amper init` command with standalone Amper.
 
 ### How do I create a multi-module project in Amper?
 

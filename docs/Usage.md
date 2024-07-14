@@ -124,7 +124,7 @@ To run tests use the same 'run' (![](images/ij-run-gutter-icon.png)) gutter icon
 
 ### Using Amper in Fleet
 
-> the latest [JetBrains Fleet](https://www.jetbrains.com/fleet/) can be used to work with
+> The latest version of [JetBrains Fleet](https://www.jetbrains.com/fleet/) can be used to work with
 > JVM, Android and Multiplatform projects.
 
 * See [the setup instructions](Setup.md) to configure your IDE and the environment.
