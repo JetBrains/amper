@@ -9,10 +9,11 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.intellij.util.io.awaitExit
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.RootCommand
+import org.jetbrains.amper.cli.getUserCacheRoot
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.cli.withBackend
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
 import kotlin.io.path.isExecutable
@@ -25,8 +26,8 @@ class JdkToolCommand(private val name: String) : CliktCommand(
     private val toolArguments by argument(name = "tool arguments").multiple()
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun run() = withBackend(commonOptions, commandName) { backend ->
-        val jdk = JdkDownloader.getJdk(backend.context.userCacheRoot)
+    override fun run() = runBlocking {
+        val jdk = JdkDownloader.getJdk(getUserCacheRoot(commonOptions))
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {

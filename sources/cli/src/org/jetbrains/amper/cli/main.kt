@@ -181,7 +181,7 @@ internal fun withBackend(
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
 
-        val terminal = Terminal()
+        val terminal = createTerminalForCli()
 
         if (setupEnvironment) {
             terminal.println(AmperBuild.banner)
@@ -197,10 +197,7 @@ internal fun withBackend(
                 it.createDirectories()
                 AmperBuildOutputRoot(it.toAbsolutePath())
             },
-            userCacheRoot = commonOptions.sharedCachesRoot?.let {
-                it.createDirectories()
-                AmperUserCacheRoot(it.toAbsolutePath())
-            },
+            userCacheRoot = getUserCacheRoot(commonOptions),
             currentTopLevelCommand = currentCommand,
             commonRunSettings = commonRunSettings,
             taskExecutionMode = taskExecutionMode,
@@ -228,6 +225,20 @@ internal fun withBackend(
 
         cancelAndWaitForScope(backgroundScope)
     }
+}
+
+internal fun getUserCacheRoot(commonOptions: RootCommand.CommonOptions): AmperUserCacheRoot {
+    val customCachesRoot = commonOptions.sharedCachesRoot
+    return if (customCachesRoot != null) {
+        customCachesRoot.createDirectories()
+        AmperUserCacheRoot(customCachesRoot.toAbsolutePath())
+    } else {
+        AmperUserCacheRoot.fromCurrentUser()
+    }
+}
+
+internal fun createTerminalForCli(): Terminal {
+    return Terminal()
 }
 
 private fun String.replaceWhitespaces() = replace(" ", "%20")

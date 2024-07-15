@@ -46,7 +46,7 @@ class ProjectContext private constructor(
             taskExecutionMode: TaskExecutor.Mode = TaskExecutor.Mode.FAIL_FAST,
             commonRunSettings: CommonRunSettings = CommonRunSettings(),
             buildOutputRoot: AmperBuildOutputRoot? = null,
-            userCacheRoot: AmperUserCacheRoot? = null,
+            userCacheRoot: AmperUserCacheRoot,
             currentTopLevelCommand: String,
             backgroundScope: CoroutineScope,
             terminal: Terminal,
@@ -71,8 +71,6 @@ class ProjectContext private constructor(
                 AmperBuildOutputRoot(defaultBuildDir)
             }
 
-            val userCacheRootNotNull = userCacheRoot ?: AmperUserCacheRoot.fromCurrentUser()
-
             val tempDir = buildOutputRootNotNull.path.resolve("temp").also { it.createDirectories() }
 
             val currentTimestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())
@@ -91,7 +89,7 @@ class ProjectContext private constructor(
                 buildOutputRoot = buildOutputRootNotNull,
                 projectTempRoot = AmperProjectTempRoot(tempDir),
                 buildLogsRoot = AmperBuildLogsRoot(logsDir),
-                userCacheRoot = userCacheRootNotNull,
+                userCacheRoot = userCacheRoot,
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
                 mavenLocalRepository = MavenLocalRepository(),
