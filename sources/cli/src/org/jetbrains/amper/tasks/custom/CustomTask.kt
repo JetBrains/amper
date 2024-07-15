@@ -9,7 +9,6 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.CompositeString
@@ -29,6 +28,7 @@ import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
@@ -44,7 +44,11 @@ class CustomTask(
         get() = custom.name
 
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        cleanDirectory(taskOutputRoot.path)
+        // do not clean custom task output
+        // it's a responsibility of the custom task itself right now
+        // in the future, we want to automatically track what's accessed by custom task and
+        // call it only if something changed on subsequent runs
+        taskOutputRoot.path.createDirectories()
 
         val codeModule = custom.customTaskCodeModule
         val fragments = codeModule.fragments
