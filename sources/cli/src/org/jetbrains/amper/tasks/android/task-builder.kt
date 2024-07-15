@@ -110,6 +110,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,
+                tempRoot = context.projectTempRoot,
             ),
             listOf(
                 AndroidTaskType.TransformDependencies.getTaskName(module, platform),

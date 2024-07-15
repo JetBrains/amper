@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.BuildPrimitives
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
@@ -34,6 +35,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
+import org.jetbrains.amper.processes.withJavaArgFile
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
@@ -63,6 +65,7 @@ class JvmCompileTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
     private val taskOutputRoot: TaskOutputRoot,
+    private val tempRoot: AmperProjectTempRoot,
     override val taskName: TaskName,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
@@ -147,6 +150,7 @@ class JvmCompileTask(
                     userSettings = userSettings,
                     classpath = classpath,
                     friendPaths = listOfNotNull(productionJvmCompileResult?.classesOutputRoot),
+                    tempRoot = tempRoot,
                 )
             } else {
                 logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
@@ -185,6 +189,7 @@ class JvmCompileTask(
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         friendPaths: List<Path>,
+        tempRoot: AmperProjectTempRoot,
     ) {
         for (friendPath in friendPaths) {
             require(classpath.contains(friendPath)) {
@@ -221,6 +226,7 @@ class JvmCompileTask(
                 userSettings = userSettings,
                 classpath = classpath + kotlinClassesPath,
                 javaSourceFiles = javaFilesToCompile,
+                tempRoot = tempRoot,
             )
             if (!javacSuccess) {
                 userReadableError("Java compilation failed (see errors above)")
@@ -301,6 +307,7 @@ class JvmCompileTask(
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
         javaSourceFiles: List<Path>,
+        tempRoot: AmperProjectTempRoot,
     ): Boolean {
         val javacArgs = buildList {
             if (userSettings.jvmRelease != null) {
@@ -329,22 +336,24 @@ class JvmCompileTask(
 
             addAll(javaSourceFiles.map { it.pathString })
         }
-        val javacCommand = listOf(jdk.javacExecutable.pathString) + javacArgs
 
-        val result = spanBuilder("javac")
-            .setAmperModule(module)
-            .setListAttribute("args", javacArgs)
-            .setAttribute("jdk-home", jdk.homeDir.pathString)
-            .setAttribute("version", jdk.version)
-            .useWithScope { span ->
-                BuildPrimitives.runProcessAndGetOutput(
-                    jdk.homeDir,
-                    *javacCommand.toTypedArray(),
-                    span = span,
-                    outputListener = LoggingProcessOutputListener(logger),
-                )
-            }
-        return result.exitCode == 0
+        withJavaArgFile(tempRoot, javacArgs) { argsFile ->
+            val result = spanBuilder("javac")
+                .setAmperModule(module)
+                .setListAttribute("args", javacArgs)
+                .setAttribute("jdk-home", jdk.homeDir.pathString)
+                .setAttribute("version", jdk.version)
+                .useWithScope { span ->
+                    BuildPrimitives.runProcessAndGetOutput(
+                        jdk.homeDir,
+                        jdk.javacExecutable.pathString,
+                        "@${argsFile.pathString}",
+                        span = span,
+                        outputListener = LoggingProcessOutputListener(logger),
+                    )
+                }
+            return result.exitCode == 0
+        }
     }
 
     class Result(

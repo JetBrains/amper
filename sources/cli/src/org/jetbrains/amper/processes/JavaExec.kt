@@ -44,7 +44,7 @@ suspend fun Jdk.runJava(
         addAll(programArgs)
     }
 
-    return withArgFile(tempRoot, args) { argFile ->
+    return withJavaArgFile(tempRoot, args) { argFile ->
         return spanBuilder("java-exec")
             .setAttribute("java-executable", javaExecutable.pathString)
             .setAttribute("java-version", version)
@@ -65,7 +65,7 @@ suspend fun Jdk.runJava(
     }
 }
 
-private inline fun <R> withArgFile(tempRoot: AmperProjectTempRoot, args: List<String>, block: (Path) -> R): R {
+inline fun <R> withJavaArgFile(tempRoot: AmperProjectTempRoot, args: List<String>, block: (Path) -> R): R {
     tempRoot.path.createDirectories()
     val argFile = createTempFile(tempRoot.path, "kotlin-args-", ".txt")
     return try {

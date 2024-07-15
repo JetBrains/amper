@@ -27,6 +27,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 taskOutputRoot = context.getTaskOutputPath(compileTaskName),
                 taskName = compileTaskName,
                 executeOnChangedInputs = executeOnChangedInputs,
+                tempRoot = context.projectTempRoot,
             ),
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
