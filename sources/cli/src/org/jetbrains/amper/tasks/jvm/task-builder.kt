@@ -97,6 +97,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                     taskName = CommonTaskType.Run.getTaskName(module, platform),
                     commonRunSettings = context.commonRunSettings,
                     terminal = context.terminal,
+                    tempRoot = context.projectTempRoot,
                 ),
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform),
             )

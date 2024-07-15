@@ -4,13 +4,18 @@
 
 package org.jetbrains.amper.processes
 
+import com.intellij.execution.CommandLineWrapperUtil
 import org.jetbrains.amper.BuildPrimitives
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempFile
+import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 
 /**
@@ -24,11 +29,10 @@ suspend fun Jdk.runJava(
     jvmArgs: List<String> = emptyList(),
     environment: Map<String, String> = emptyMap(),
     outputListener: ProcessOutputListener,
+    tempRoot: AmperProjectTempRoot,
 ): ProcessResult {
     val classpathStr = classpath.joinToString(File.pathSeparator) { it.pathString }
-    val command = buildList {
-        add(javaExecutable.pathString)
-
+    val args = buildList {
         if (classpath.isNotEmpty()) {
             add("-cp")
             add(classpathStr)
@@ -39,20 +43,35 @@ suspend fun Jdk.runJava(
 
         addAll(programArgs)
     }
-    return spanBuilder("java-exec")
-        .setAttribute("java-executable", javaExecutable.pathString)
-        .setAttribute("java-version", version)
-        .setListAttribute("jvm-args", jvmArgs)
-        .setListAttribute("env-vars", environment.map { "${it.key}=${it.value}" }.sorted())
-        .setAttribute("classpath", classpathStr)
-        .setAttribute("main-class", mainClass)
-        .useWithScope { span ->
-            BuildPrimitives.runProcessAndGetOutput(
-                workingDir,
-                *command.toTypedArray(),
-                environment = environment,
-                span = span,
-                outputListener = outputListener,
-            )
-        }
+
+    return withArgFile(tempRoot, args) { argFile ->
+        return spanBuilder("java-exec")
+            .setAttribute("java-executable", javaExecutable.pathString)
+            .setAttribute("java-version", version)
+            .setListAttribute("jvm-args", jvmArgs)
+            .setListAttribute("env-vars", environment.map { "${it.key}=${it.value}" }.sorted())
+            .setAttribute("classpath", classpathStr)
+            .setAttribute("main-class", mainClass)
+            .useWithScope { span ->
+                BuildPrimitives.runProcessAndGetOutput(
+                    workingDir,
+                    javaExecutable.pathString,
+                    "@${argFile.pathString}",
+                    environment = environment,
+                    span = span,
+                    outputListener = outputListener,
+                )
+            }
+    }
+}
+
+private inline fun <R> withArgFile(tempRoot: AmperProjectTempRoot, args: List<String>, block: (Path) -> R): R {
+    tempRoot.path.createDirectories()
+    val argFile = createTempFile(tempRoot.path, "kotlin-args-", ".txt")
+    return try {
+        CommandLineWrapperUtil.writeArgumentsFile(argFile.toFile(), args, Charsets.UTF_8)
+        block(argFile)
+    } finally {
+        argFile.deleteExisting()
+    }
 }

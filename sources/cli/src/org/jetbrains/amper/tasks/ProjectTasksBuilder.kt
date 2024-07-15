@@ -87,6 +87,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     executeOnChangedInputs = executeOnChangedInputs,
+                    tempRoot = context.projectTempRoot,
                 )
             )
             // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)

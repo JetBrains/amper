@@ -25,6 +25,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
                 model = model,
                 userCacheRoot = context.userCacheRoot,
                 executeOnChangedInputs = eonci,
+                tempRoot = context.projectTempRoot,
             )
         )
     }

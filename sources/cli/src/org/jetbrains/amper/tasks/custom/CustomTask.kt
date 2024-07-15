@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks.custom
 
 import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
@@ -36,6 +37,7 @@ class CustomTask(
     private val custom: CustomTaskDescription,
     private val taskOutputRoot: TaskOutputRoot,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val tempRoot: AmperProjectTempRoot,
     private val terminal: Terminal,
 ): Task {
     override val taskName: TaskName
@@ -73,6 +75,7 @@ class CustomTask(
             jvmArgs = custom.jvmArguments.map { interpolateString(it, dependenciesResult) },
             environment = custom.environmentVariables.map { it.key to interpolateString(it.value, dependenciesResult) }.toMap(),
             outputListener = PrintToTerminalProcessOutputListener(terminal),
+            tempRoot = tempRoot,
         )
 
         // Move into runJava and under runJava span?

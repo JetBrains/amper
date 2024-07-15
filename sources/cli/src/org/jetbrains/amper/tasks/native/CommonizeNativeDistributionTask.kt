@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.tasks.native
 
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
@@ -32,6 +33,7 @@ import kotlin.io.path.absolutePathString
 class CommonizeNativeDistributionTask(
     private val model: Model,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val tempRoot: AmperProjectTempRoot,
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     companion object {
@@ -86,6 +88,7 @@ class CommonizeNativeDistributionTask(
                         programArgs = commonizerArgs,
                         jvmArgs = listOf(),
                         outputListener = LoggingProcessOutputListener(logger),
+                        tempRoot = tempRoot,
                     )
                     if (result.exitCode != 0) {
                         userReadableError("Kotlin commonizer invocation (see errors above)")

@@ -6,15 +6,14 @@ package org.jetbrains.amper.tasks.jvm
 
 import com.github.ajalt.mordant.terminal.Terminal
 import org.jetbrains.amper.cli.AmperProjectRoot
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.DeadLockMonitor
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
-import org.jetbrains.amper.frontend.PotatoModuleFileSource
-import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
@@ -30,6 +29,7 @@ class JvmRunTask(
     override val module: PotatoModule,
     private val userCacheRoot: AmperUserCacheRoot,
     private val projectRoot: AmperProjectRoot,
+    private val tempRoot: AmperProjectTempRoot,
     private val terminal: Terminal,
     private val commonRunSettings: CommonRunSettings,
 ) : RunTask {
@@ -67,6 +67,7 @@ class JvmRunTask(
             programArgs = commonRunSettings.programArgs,
             jvmArgs = jvmArgs,
             outputListener = PrintToTerminalProcessOutputListener(terminal),
+            tempRoot = tempRoot,
         )
 
         val message = "Process exited with exit code ${result.exitCode}" +

@@ -6,6 +6,7 @@ package org.jetbrains.amper.tasks
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
@@ -44,6 +45,7 @@ class MetadataCompileTask(
     override val module: PotatoModule,
     private val fragment: Fragment,
     private val userCacheRoot: AmperUserCacheRoot,
+    private val tempRoot: AmperProjectTempRoot,
     private val taskOutputRoot: TaskOutputRoot,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val kotlinArtifactsDownloader: KotlinArtifactsDownloader =
@@ -101,6 +103,7 @@ class MetadataCompileTask(
                     classpath = classpath,
                     friendPaths = friendPaths,
                     refinesPaths = refinesPaths,
+                    tempRoot = tempRoot,
                 )
             } else {
                 logger.info("Sources for fragment '${fragment.name}' of module '${module.userReadableName}' are missing, skipping compilation")
@@ -131,6 +134,7 @@ class MetadataCompileTask(
         classpath: List<Path>,
         friendPaths: List<Path>,
         refinesPaths: List<Path>,
+        tempRoot: AmperProjectTempRoot,
     ) {
         val kotlinSourceFiles = sourceDirectory.walk().filter { it.extension == "kt" }.toList()
         if (kotlinSourceFiles.isEmpty()) {
@@ -167,6 +171,7 @@ class MetadataCompileTask(
                     programArgs = compilerArgs,
                     jvmArgs = listOf(),
                     outputListener = LoggingProcessOutputListener(logger),
+                    tempRoot = tempRoot,
                 )
                 if (result.exitCode != 0) {
                     userReadableError("Kotlin metadata compilation failed (see errors above)")

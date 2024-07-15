@@ -19,6 +19,7 @@ fun ProjectTaskRegistrar.setupCustomTasks() {
                 taskOutputRoot = context.getTaskOutputPath(description.name),
                 userCacheRoot = context.userCacheRoot,
                 terminal = context.terminal,
+                tempRoot = context.projectTempRoot,
             ),
             dependsOn = listOf(
                 CommonTaskType.RuntimeClasspath.getTaskName(description.customTaskCodeModule, Platform.JVM)

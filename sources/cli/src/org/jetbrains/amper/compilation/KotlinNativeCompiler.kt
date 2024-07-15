@@ -85,6 +85,7 @@ class KotlinNativeCompiler(
                             "-Dkonan.home=$kotlinNativeHome",
                         ),
                         outputListener = LoggingProcessOutputListener(logger),
+                        tempRoot = tempRoot,
                     )
 
                     // TODO this is redundant with the java span of the external process run. Ideally, we

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.cli.test
 
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.processes.ProcessOutputListener
@@ -115,6 +116,7 @@ abstract class AmperCliTestBase {
                 }
                 override fun onStderrLine(line: String) = Unit
             },
+            tempRoot = AmperProjectTempRoot(tempRoot),
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
