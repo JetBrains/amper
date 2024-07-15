@@ -13,6 +13,7 @@ import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
@@ -26,7 +27,8 @@ class JdkToolCommand(private val name: String) : CliktCommand(
 
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         val jdk = JdkDownloader.getJdk(backend.context.userCacheRoot)
-        val toolPath = jdk.javaExecutable.resolveSibling(name)
+        val ext = if (OsFamily.current.isWindows) ".exe" else ""
+        val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {
             userReadableError("Tool is not present or not executable: $toolPath")
         }

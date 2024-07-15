@@ -202,6 +202,17 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    fun `tool jdk jstack runs`() = runTestInfinitely {
+        val p = tempRoot.resolve("new").also { it.createDirectories() }
+        val result = runCli(p, "tool", "jdk", "jstack", ProcessHandle.current().pid().toString())
+
+        val requiredSubstring = "Full thread dump"
+        assertTrue("stdout should contain '$requiredSubstring':\n${result.stdout}") {
+            result.stdout.contains(requiredSubstring)
+        }
+    }
+
+    @Test
     fun `init won't replace existing files`() = runTestInfinitely {
         val p = tempRoot.resolve("new").also { it.createDirectories() }
         val exampleFile = p.resolve("jvm-cli/module.yaml").also { it.createParentDirectories() }
