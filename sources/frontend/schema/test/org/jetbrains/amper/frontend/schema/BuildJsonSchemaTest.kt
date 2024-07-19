@@ -23,4 +23,9 @@ class BuildJsonSchemaTest : TestBase() {
     fun `build template doc test`(): Unit = doTestWithInput("amper.template", ".json", Path("resources").resolve("schema")) {
         StringWriter().apply { JsonSchemaBuilder.writeSchema(Template::class, this) }.toString()
     }
+
+    @Test
+    fun `build project doc test`(): Unit = doTestWithInput("amper.project", ".json", Path("resources").resolve("schema")) {
+        StringWriter().apply { JsonSchemaBuilder.writeSchema(Project::class, this) }.toString()
+    }
 }
