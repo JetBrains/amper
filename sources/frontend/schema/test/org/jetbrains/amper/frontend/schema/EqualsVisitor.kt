@@ -272,6 +272,8 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
           "group of publishing settings with key $settingsKey differs")
         assertValueEquals(publishingSettings::version, otherSettings::publishing.withoutDefault?.run { ::version },
           "version of publishing settings with key $settingsKey differs")
+        assertValueEquals(publishingSettings::name, otherSettings::publishing.withoutDefault?.run { ::name },
+          "name of publishing settings with key $settingsKey differs")
       } ?: assertNull(otherSettings::publishing.withoutDefault, "publishing settings with key $settingsKey are presented")
 
       settings::kover.withoutDefault?.let { koverSettings ->
