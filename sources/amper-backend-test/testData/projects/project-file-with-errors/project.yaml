@@ -8,5 +8,7 @@ modules:
   - not-a-modul? # matches some dirs, but none with a module.yaml in it
   - broken[syntax
   - broken[z-a]syntax
-  - ../jvm-default-compiler-settings
-  - ./
+  - broken[syntax/with/**
+  - forbidden/**/recursive
+  - ../jvm-default-compiler-settings # out of root
+  - ./ # redundant root module

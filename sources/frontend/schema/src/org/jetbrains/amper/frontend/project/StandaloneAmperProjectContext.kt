@@ -256,6 +256,15 @@ private fun VirtualFile.resolveModuleFilesRecursively(moduleDirGlob: TraceableSt
         reportInvalidGlob(moduleDirGlob, moduleFilesGlob)
         return emptyList()
     }
+    if ("**" in moduleDirGlob.value) {
+        SchemaBundle.reportBundleError(
+            value = moduleDirGlob,
+            messageKey = "project.module.glob.0.double.star.not.supported",
+            moduleDirGlob.value,
+            level = Level.Error,
+        )
+        return emptyList()
+    }
     val matchingModuleFiles = resolveMatchingDescendants(moduleFilesGlobMatcher)
     if (matchingModuleFiles.isEmpty()) {
         SchemaBundle.reportBundleError(
