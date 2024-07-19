@@ -212,46 +212,49 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 )
             }
 
-            val publishRepositories = module.mavenRepositories.filter { it.publish }
-            for (repository in publishRepositories) {
-                val publishTaskSuffix = "To${repository.id.doCapitalize()}"
-                val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = publishTaskSuffix)
-                tasks.registerTask(
-                    PublishTask(
-                        taskName = publishTaskName,
-                        module = module,
-                        targetRepository = repository,
-                        tempRoot = context.projectTempRoot,
-                    ),
-                    dependsOn = listOf(
-                        CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
-                        // we need dependencies to get publication coordinate overrides (e.g. -jvm variant)
-                        CommonTaskType.Dependencies.getTaskName(module, platform, isTest = false),
-                    )
-                )
-
-                // Publish task should depend on publishing of modules which this module depends on
-                // TODO It could be optional in the future by, e.g., introducing an option to `publish` command
-                val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !it.isTest }
-                val thisModuleDependencies =
-                    thisModuleFragments.flatMap { it.externalDependencies }.filterIsInstance<LocalModuleDependency>()
-                for (moduleDependency in thisModuleDependencies) {
-                    val dependencyPublishTaskName =
-                        CommonTaskType.Publish.getTaskName(
-                            moduleDependency.module,
-                            platform,
-                            suffix = publishTaskSuffix
+            if (module.fragments.any { it.settings.publishing.enabled }) {
+                val publishRepositories = module.mavenRepositories.filter { it.publish }
+                for (repository in publishRepositories) {
+                    val publishTaskSuffix = "To${repository.id.doCapitalize()}"
+                    val publishTaskName = CommonTaskType.Publish.getTaskName(module, platform, suffix = publishTaskSuffix)
+                    tasks.registerTask(
+                        PublishTask(
+                            taskName = publishTaskName,
+                            module = module,
+                            targetRepository = repository,
+                            tempRoot = context.projectTempRoot,
+                        ),
+                        dependsOn = listOf(
+                            CommonTaskType.Jar.getTaskName(module, platform, isTest = false),
+                            // we need dependencies to get publication coordinate overrides (e.g. -jvm variant)
+                            CommonTaskType.Dependencies.getTaskName(module, platform, isTest = false),
                         )
-                    tasks.registerDependency(publishTaskName, dependencyPublishTaskName)
-                }
+                    )
 
-                // TODO It should be optional to publish or not to publish sources
-                val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
-                tasks.registerDependency(publishTaskName, sourcesJarTaskName)
+                    // Publish task should depend on publishing of modules which this module depends on
+                    // TODO It could be optional in the future by, e.g., introducing an option to `publish` command
+                    val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !it.isTest }
+                    val thisModuleDependencies = thisModuleFragments
+                        .flatMap { it.externalDependencies }
+                        .filterIsInstance<LocalModuleDependency>()
+                    for (moduleDependency in thisModuleDependencies) {
+                        val dependencyPublishTaskName =
+                            CommonTaskType.Publish.getTaskName(
+                                moduleDependency.module,
+                                platform,
+                                suffix = publishTaskSuffix
+                            )
+                        tasks.registerDependency(publishTaskName, dependencyPublishTaskName)
+                    }
 
-                module.customTasks.forEach { customTask ->
-                    if (customTask.publishArtifacts.isNotEmpty()) {
-                        tasks.registerDependency(publishTaskName, dependsOn = customTask.name)
+                    // TODO It should be optional to publish or not to publish sources
+                    val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
+                    tasks.registerDependency(publishTaskName, sourcesJarTaskName)
+
+                    module.customTasks.forEach { customTask ->
+                        if (customTask.publishArtifacts.isNotEmpty()) {
+                            tasks.registerDependency(publishTaskName, dependsOn = customTask.name)
+                        }
                     }
                 }
             }

@@ -103,6 +103,9 @@
     "lombok" : {
       "enabled(DefaultCtx)" : "false(DefaultCtx)"
     },
+    "publishing" : {
+      "enabled(DefaultCtx)" : "true(DefaultCtx)"
+    },
     "springBoot" : {
       "enabled(DefaultCtx)" : "false(DefaultCtx)",
       "version(DefaultCtx)" : "3.4.3(DefaultCtx)"

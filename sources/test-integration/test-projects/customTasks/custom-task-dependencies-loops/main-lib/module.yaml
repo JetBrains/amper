@@ -11,6 +11,10 @@ repositories:
 dependencies:
   - ../utils
 
+settings:
+  publishing:
+    enabled: true
+
 tasks:
   publishJvmToMavenLocal:
     dependsOn: [:utils:testJvm, testJvm]

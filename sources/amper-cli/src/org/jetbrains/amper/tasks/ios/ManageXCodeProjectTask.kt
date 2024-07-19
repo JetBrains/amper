@@ -317,7 +317,7 @@ class ManageXCodeProjectTask(
     }
 
     private fun inferDefaultAppBundleId(): String = listOfNotNull(
-        module.rootFragment.settings.publishing?.group?.takeIf { it.isNotBlank() },
+        module.rootFragment.settings.publishing.group?.takeIf { it.isNotBlank() },
         module.userReadableName.takeIf { it.isNotBlank() }
     ).joinToString(".")
 

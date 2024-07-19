@@ -1567,6 +1567,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "x-intellij-html-description": "Enable publication of the module to Maven repositories",
+          "title": "Enable publication of the module to Maven repositories"
+        },
         "group": {
           "type": "string",
           "x-intellij-html-description": "Group ID of the published Maven artifact",

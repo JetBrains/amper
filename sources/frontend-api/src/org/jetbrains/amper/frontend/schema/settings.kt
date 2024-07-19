@@ -62,7 +62,7 @@ class Settings : SchemaNode() {
     var ios by value(::IosSettings)
 
     @SchemaDoc("Publishing settings")
-    var publishing by nullableValue<PublishingSettings>()
+    var publishing by value(::PublishingSettings)
 
     @GradleSpecific("kover is not yet supported")
     @Misnomers("coverage")
@@ -188,9 +188,15 @@ class IosFrameworkSettings : SchemaNode() {
 
 class PublishingSettings : SchemaNode() {
 
+    @PlatformAgnostic
+    @SchemaDoc("Enable publication of the module to Maven repositories")
+    var enabled by value(default = true) // FIXME this is only for the transition and should be made 'false'
+
+    @PlatformAgnostic
     @SchemaDoc("Group ID of the published Maven artifact")
     var group by nullableValue<String>()
 
+    @PlatformAgnostic
     @SchemaDoc("Version of the published Maven artifact")
     var version by nullableValue<String>()
 

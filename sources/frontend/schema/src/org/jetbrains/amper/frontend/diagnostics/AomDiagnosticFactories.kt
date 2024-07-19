@@ -8,6 +8,7 @@ val AomModelDiagnosticFactories: List<AomModelDiagnosticFactory> = listOf(
     InconsistentComposeVersion,
     JvmReleaseLowerThanDependencies,
     ModuleDependencyLoopFactory,
+    PublishingSettingsMissingInDependencies,
 )
 
 val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> = listOf(

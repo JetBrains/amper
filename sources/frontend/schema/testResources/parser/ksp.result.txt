@@ -138,7 +138,12 @@ Fragments:
         enabled: <default> false
       }
       native: <default> null
-      publishing: <default> null
+      publishing: <default> {
+        enabled: <default> true
+        group: <default> null
+        name: <default> null
+        version: <default> null
+      }
       springBoot: <default> {
         enabled: <default> false
         version: <default> 3.4.3
@@ -286,7 +291,12 @@ Fragments:
         enabled: <default> false
       }
       native: <default> null
-      publishing: <default> null
+      publishing: <default> {
+        enabled: <default> true
+        group: <default> null
+        name: <default> null
+        version: <default> null
+      }
       springBoot: <default> {
         enabled: <default> false
         version: <default> 3.4.3
@@ -431,7 +441,12 @@ Fragments:
         enabled: <default> false
       }
       native: <default> null
-      publishing: <default> null
+      publishing: <default> {
+        enabled: <default> true
+        group: <default> null
+        name: <default> null
+        version: <default> null
+      }
       springBoot: <default> {
         enabled: <default> false
         version: <default> 3.4.3
@@ -578,7 +593,12 @@ Fragments:
         enabled: <default> false
       }
       native: <default> null
-      publishing: <default> null
+      publishing: <default> {
+        enabled: <default> true
+        group: <default> null
+        name: <default> null
+        version: <default> null
+      }
       springBoot: <default> {
         enabled: <default> false
         version: <default> 3.4.3

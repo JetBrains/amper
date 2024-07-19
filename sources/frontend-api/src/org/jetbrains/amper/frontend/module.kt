@@ -113,3 +113,10 @@ fun AmperModule.fragmentsTargeting(platforms: Set<Platform>, includeTestFragment
 
 fun AmperModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
     fragmentsTargeting(setOf(platform), includeTestFragments)
+
+/**
+ * Returns whether maven publishing is enabled for this module.
+ */
+// We don't have to go through all fragments, the InconsistentPublishingSettings factory already checked
+// that all fragments have the same publishing settings.
+fun AmperModule.hasPublishingConfigured() = fragments.first().settings.publishing.enabled
