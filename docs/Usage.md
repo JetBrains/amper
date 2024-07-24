@@ -29,6 +29,16 @@ Then, update the Amper plugin version in your `settings.gradle.kts` file:
 
 ```kotlin
 // ...
+pluginManagement {
+    repositories {
+        // check Amper repositories:
+        google()
+        maven("https://packages.jetbrains.team/maven/p/amper/amper")
+        maven("https://www.jetbrains.com/intellij-repository/releases")
+        maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+    }
+}
+// ...
 plugins {
     // update the Amper plugin version here:
     id("org.jetbrains.amper.settings.plugin").version("0.4.0-dev-613")
