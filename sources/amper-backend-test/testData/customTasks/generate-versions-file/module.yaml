@@ -1,5 +1,8 @@
 product: jvm/app
 
 settings:
+  kotlin:
+    # using generated source sets currently doesn't work with language version 2.0 (AMPER-879)
+    languageVersion: 1.9
   publishing:
     version: 1.0-FANCY

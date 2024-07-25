@@ -125,6 +125,7 @@ class JvmCompileTask(
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
+        // FIXME: we need to add those custom task sources as fragments too, to support K2 properly (see AMPER-879)
         val sources = fragments.map { it.src.toAbsolutePath() } + customTasksSources
         val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + customTasksResources
         val inputs = sources + resources + classpath
@@ -267,7 +268,7 @@ class JvmCompileTask(
             jdkHome = jdk.homeDir,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
-            fragments = fragments,
+            fragments = fragments, // FIXME: fragments here are missing generated sources from custom tasks (see AMPER-879)
             friendPaths = friendPaths,
         )
 

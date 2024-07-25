@@ -33,8 +33,8 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
 
         // testing some default compiler arguments
         assertKotlinJvmCompilationSpan {
-            hasCompilerArgument("-language-version", "1.9")
-            hasCompilerArgument("-api-version", "1.9")
+            hasCompilerArgument("-language-version", "2.0")
+            hasCompilerArgument("-api-version", "2.0")
             hasCompilerArgument("-Xjdk-release=17")
         }
         assertJavaCompilationSpan {

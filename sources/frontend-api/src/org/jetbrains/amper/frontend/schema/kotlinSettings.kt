@@ -36,7 +36,7 @@ class KotlinSettings : SchemaNode() {
     var serialization by nullableValue<SerializationSettings>()
 
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
-    var languageVersion by value(KotlinVersion.Kotlin19)
+    var languageVersion by value(KotlinVersion.Kotlin20)
 
     @SchemaDoc("Allow using declarations only from the specified version of Kotlin bundled libraries")
     var apiVersion by value { languageVersion }

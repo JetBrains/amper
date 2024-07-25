@@ -1,0 +1,12 @@
+product:
+  type: jvm/app
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../shared
+
+settings:
+  jvm:
+    mainClass: package1.Program1Kt

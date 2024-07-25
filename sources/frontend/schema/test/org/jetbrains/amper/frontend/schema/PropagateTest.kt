@@ -100,7 +100,7 @@ class PropagateTest {
         val resolvedModule = module.withPropagatedSettings()
 
         val jvmFragment = assertSingleFragment(resolvedModule, "jvm")
-        assertEquals(KotlinVersion.Kotlin19, jvmFragment.settings.kotlin.apiVersion)
+        assertEquals(KotlinVersion.Kotlin20, jvmFragment.settings.kotlin.apiVersion)
     }
 
     @Test

@@ -34,11 +34,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -88,11 +88,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -137,11 +137,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -189,11 +189,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -239,11 +239,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -292,11 +292,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -342,11 +342,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -395,11 +395,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -445,11 +445,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false
@@ -497,11 +497,11 @@ Fragments:
       }
       kotlin: <default> {
         allWarningsAsErrors: <default> false
-        apiVersion: <default> 1.9
+        apiVersion: <default> 2.0
         debug: <default> true
         freeCompilerArgs: <default> null
         languageFeatures: <default> null
-        languageVersion: <default> 1.9
+        languageVersion: <default> 2.0
         linkerOpts: <default> null
         optIns: <default> null
         progressiveMode: <default> false

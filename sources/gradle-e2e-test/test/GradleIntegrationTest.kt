@@ -46,7 +46,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     fun `jvm-release-8-using-9-apis`() = test(
         projectName = "jvm-release-8-using-9-apis",
         "assemble",
-        expectOutputToHave = "Unresolved reference: of", // for List.of()
+        expectOutputToHave = "Unresolved reference 'of'", // for List.of()
         shouldSucceed = false,
     )
 
@@ -54,7 +54,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
     fun `jvm-release-11-using-17-apis`() = test(
         projectName = "jvm-release-11-using-17-apis",
         "assemble",
-        expectOutputToHave = "Unresolved reference: InstantSource",
+        expectOutputToHave = "Unresolved reference 'InstantSource'",
         shouldSucceed = false,
     )
 

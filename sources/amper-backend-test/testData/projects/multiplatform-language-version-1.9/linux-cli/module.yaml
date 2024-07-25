@@ -1,0 +1,13 @@
+product:
+  type: linux/app
+  platforms: [ linuxArm64, linuxX64 ]
+
+apply:
+  - ../common.module-template.yaml
+
+dependencies:
+  - ../shared
+
+settings:
+  native:
+    entryPoint: package1.main

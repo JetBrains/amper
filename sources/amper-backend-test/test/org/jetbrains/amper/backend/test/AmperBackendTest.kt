@@ -314,6 +314,32 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `native kotlin language version 1_9 compile`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("native-language-version-1.9")
+        AmperBackend(projectContext).build()
+
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
+        }
+    }
+
+    @Test
+    @WindowsOnly
+    fun `native kotlin language version 1_9 app run`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("native-language-version-1.9")
+        AmperBackend(projectContext).runTask(TaskName(":app:runMingwX64"))
+
+        val find = "Process exited with exit code 0\n" +
+                "STDOUT:\n" +
+                "Hello, native!"
+        assertInfoLogStartsWith(find)
+
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
+        }
+    }
+
+    @Test
     fun `native kotlin language version 2_0 compile`() = runTestWithCollector {
         val projectContext = setupTestDataProject("native-language-version-2.0")
         AmperBackend(projectContext).build()
@@ -336,6 +362,19 @@ class AmperBackendTest : AmperIntegrationTestBase() {
 
         assertEachKotlinNativeCompilationSpan {
             hasCompilerArgument("-language-version", "2.0")
+        }
+    }
+
+    @Test
+    fun `multiplatform kotlin language version 1_9`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("multiplatform-language-version-1.9")
+        AmperBackend(projectContext).build()
+
+        assertEachKotlinJvmCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
+        }
+        assertEachKotlinNativeCompilationSpan {
+            hasCompilerArgument("-language-version", "1.9")
         }
     }
 
