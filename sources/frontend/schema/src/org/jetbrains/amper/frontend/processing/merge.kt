@@ -22,6 +22,7 @@ import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.TaskSettings
+import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.TraceableMap
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 
@@ -223,7 +224,7 @@ private fun <V> ValueBase<V>.withTraceFrom(
     trace = traceSource.trace?.withPrecedingValue(overridesFrom)
 }
 
-fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = buildMap<K, V> {
+fun <K, V> Map<K, V>.mergeMap(overwrite: Map<K, V>?, merge: V.(V) -> V) = TraceableMap<K, V>().apply {
     putAll(this@mergeMap)
     overwrite?.forEach { (k, v) ->
         val old = this[k]

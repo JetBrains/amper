@@ -152,7 +152,7 @@ fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
     valueBase?.invoke(newValue)
 }
 
-private class TraceableMap<K, V> : HashMap<K, V>(), Traceable {
+class TraceableMap<K, V> : HashMap<K, V>(), Traceable {
     private val traces = mutableListOf<Trace>()
 
     override var trace: Trace?

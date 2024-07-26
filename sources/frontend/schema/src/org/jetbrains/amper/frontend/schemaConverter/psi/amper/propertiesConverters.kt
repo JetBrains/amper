@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
+import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.TraceableMap
 import kotlin.reflect.KProperty0
 
 
@@ -138,7 +139,7 @@ fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
     noModifiersEntry: T? = null,
     convertValue: AmperProperty.() -> T?,
 ) {
-    val newValue = buildMap {
+    val newValue = TraceableMap<Modifiers, T>().apply {
         if (noModifiersEntry != null) put(noModifiers, noModifiersEntry)
         propertyList
             .filter { it.name?.startsWith(name) == true }
