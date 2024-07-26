@@ -35,7 +35,6 @@ import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.fireProcessAndForget
 import org.jetbrains.amper.util.headlessEmulatorModePropertyName
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -65,7 +64,7 @@ class AndroidRunTask(
 
         val device = adb
             .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
-            .waitForProcess("com.android.externalstorage")
+            .waitForBootCompleted()
 
         val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.Task>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
@@ -206,13 +205,13 @@ private val xml = XML {
     }
 }
 
-private suspend fun IDevice.waitForProcess(process: String, interval: Duration = 10.milliseconds): IDevice {
+private suspend fun IDevice.waitForBootCompleted(interval: Duration = 10.milliseconds): IDevice {
     flow {
         while (true) {
-            emit(executeShellCommandAndGetOutput("ps -A"))
+            emit(executeShellCommandAndGetOutput("getprop sys.boot_completed"))
             delay(interval)
         }
-    }.first { it.contains(process) }
+    }.first { it.contains("1") }
     return this
 }
 
