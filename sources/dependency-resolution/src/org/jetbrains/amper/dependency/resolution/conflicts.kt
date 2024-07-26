@@ -5,6 +5,7 @@
 package org.jetbrains.amper.dependency.resolution
 
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.jetbrains.amper.dependency.resolution.metadata.json.module.Version
 
 /**
  * Defines a conflict on a group of nodes with the same key and provides a way to resolve it.
@@ -16,18 +17,18 @@ interface ConflictResolutionStrategy {
      * @return `true` if the strategy is able to find and resolve conflicts for the provided [candidates].
      * They are guaranteed to have the same [Key].
      */
-    fun isApplicableFor(candidates: List<DependencyNode>): Boolean
+    fun isApplicableFor(candidates: Collection<DependencyNode>): Boolean
 
     /**
      * @return `true` if [candidates] have conflicts among them.
      */
-    fun seesConflictsIn(candidates: List<DependencyNode>): Boolean
+    fun seesConflictsIn(candidates: Collection<DependencyNode>): Boolean
 
     /**
      * Resolves conflicts among [candidates] by changing their state and returns `true` on success.
      * Returning `false` immediately interrupts the resolution process.
      */
-    fun resolveConflictsIn(candidates: List<DependencyNode>): Boolean
+    fun resolveConflictsIn(candidates: Collection<DependencyNode>): Boolean
 }
 
 /**
@@ -39,16 +40,21 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
     /**
      * @return `true` if all candidates are [MavenDependencyNode]s.
      */
-    override fun isApplicableFor(candidates: List<DependencyNode>): Boolean =
-        candidates.all { it is MavenDependencyNode }
+    override fun isApplicableFor(candidates: Collection<DependencyNode>): Boolean =
+        candidates.all { it is MavenDependencyNode || it is MavenDependencyConstraintNode }
 
     /**
      * @return `true` if dependencies have different versions according to [ComparableVersion].
      */
-    override fun seesConflictsIn(candidates: List<DependencyNode>): Boolean =
+    override fun seesConflictsIn(candidates: Collection<DependencyNode>): Boolean =
         candidates.asSequence()
-            .map { it as MavenDependencyNode }
-            .map { it.dependency.version }
+            .mapNotNull {
+                when(it) {
+                    is MavenDependencyNode -> it.dependency.version
+                    is MavenDependencyConstraintNode -> it.dependencyConstraint.version.resolve()
+                    else -> null
+                }
+            }
             .distinct()
             .distinctBy { ComparableVersion(it) }
             .take(2)
@@ -59,14 +65,29 @@ class HighestVersionStrategy : ConflictResolutionStrategy {
      *
      * @return always `true`
      */
-    override fun resolveConflictsIn(candidates: List<DependencyNode>): Boolean {
-        val dependency = candidates.asSequence()
-            .map { it as MavenDependencyNode }
-            .map { it.dependency }
-            .distinctBy { it.version }
-            .maxBy { ComparableVersion(it.version) }
-        candidates.asSequence().map { it as MavenDependencyNode }.forEach {
-            it.dependency = it.context.createOrReuseDependency(it.group, it.module, dependency.version)
+    override fun resolveConflictsIn(candidates: Collection<DependencyNode>): Boolean {
+        val resolvedVersion = candidates.asSequence()
+            .mapNotNull {
+                when(it) {
+                    is MavenDependencyNode -> it.dependency.version
+                    is MavenDependencyConstraintNode -> it.dependencyConstraint.version.resolve()
+                    else -> null
+                }
+            }
+            .distinct()
+            .maxBy { ComparableVersion(it) }
+
+        candidates.asSequence().forEach {
+            when(it) {
+                // todo (AB) don't align strictly constraint
+                is MavenDependencyNode -> {
+                    it.dependency = it.context.createOrReuseDependency(it.group, it.module, resolvedVersion)
+                }
+                is MavenDependencyConstraintNode -> {
+                    it.dependencyConstraint = it.context.createOrReuseDependencyConstraint(it.group, it.module, Version(requires = resolvedVersion))
+                }
+                else -> null
+            }
         }
         return true
     }

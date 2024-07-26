@@ -89,12 +89,15 @@ class MavenDependencyNode internal constructor(
                     .getOrCreateNode(it, this)
                     // skip children that form cyclic dependencies
                     .takeIf { !it.isDescendantOf(it) }
+            } + thisRef.dependency.dependencyConstraints.map {
+                thisRef.context.getOrCreateConstraintNode(it, this)
             }
         },
         dependencyProvider = { thisRef ->
             thisRef.dependency.children
         }
     )
+
     override val messages: List<Message>
         get() = dependency.messages
 
@@ -115,6 +118,40 @@ class MavenDependencyNode internal constructor(
     private fun DependencyNode.isDescendantOf(parent: DependencyNode): Boolean {
         return parents.any { it.key == parent.key }
                 || parents.any { it.isDescendantOf(parent) }
+    }
+}
+
+class MavenDependencyConstraintNode internal constructor(
+    templateContext: Context,
+    dependencyConstraint: MavenDependencyConstraint,
+    parentNodes: List<DependencyNode> = emptyList(),
+) : DependencyNode {
+
+    @Volatile
+    var dependencyConstraint: MavenDependencyConstraint = dependencyConstraint
+        set(value) {
+            assert(group == value.group) { "Groups don't match. Expected: $group, actual: ${value.group}" }
+            assert(module == value.module) { "Modules don't match. Expected: $module, actual: ${value.module}" }
+            field = value
+        }
+
+    val group: String = dependencyConstraint.group
+    val module: String = dependencyConstraint.module
+    val version: Version = dependencyConstraint.version
+
+    override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
+    override val key: Key<*> = Key<MavenDependency>("$group:$module") // reusing the same key as MavenDependencyNode
+    override val children: List<DependencyNode> = emptyList()
+    override val messages: List<Message> = emptyList()
+
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) { }
+
+    override suspend fun downloadDependencies(downloadSources: Boolean) { }
+
+    override fun toString(): String = if (dependencyConstraint.version == version) {
+        "constraint:$group:$module:$version"
+    } else {
+        "constraint:$group:$module:$version -> ${dependencyConstraint.version}"
     }
 }
 
@@ -148,6 +185,20 @@ fun Context.createOrReuseDependency(
 ): MavenDependency = this.resolutionCache.computeIfAbsent(Key<MavenDependency>("$group:$module:$version")) {
     MavenDependency(this.settings, group, module, version)
 }
+
+internal fun Context.createOrReuseDependencyConstraint(
+    group: String,
+    module: String,
+    version: Version
+): MavenDependencyConstraint = this.resolutionCache.computeIfAbsent(Key<MavenDependencyConstraint>("$group:$module:$version")) {
+    MavenDependencyConstraint(group, module, version)
+}
+
+data class MavenDependencyConstraint(
+    val group: String,
+    val module: String,
+    val version: Version
+)
 
 /**
  * An actual Maven dependency that can be resolved, that is, populated with children according to the requested
@@ -184,6 +235,10 @@ class MavenDependency internal constructor(
 
     @Volatile
     var children: List<MavenDependency> = listOf()
+        private set
+
+    @Volatile
+    internal var dependencyConstraints: List<MavenDependencyConstraint> = listOf()
         private set
 
     val messages: List<Message> = CopyOnWriteArrayList()
@@ -356,12 +411,22 @@ class MavenDependency internal constructor(
             // One platform case
             validVariants
                 .withoutDocumentationAndMetadata
-                .flatMap {
-                    it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
-                }.mapNotNull {
-                    it.toMavenDependency(context, moduleMetadata)
-                }.let {
-                    children = it
+                .let { variants ->
+                    variants.flatMap {
+                        it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
+                    }.mapNotNull {
+                        it.toMavenDependency(context, moduleMetadata)
+                    }.let {
+                        children = it
+                    }
+
+                    variants.flatMap {
+                        it.dependencyConstraints
+                    }.mapNotNull {
+                        it.toMavenDependencyConstraint(context)
+                    }.let {
+                        dependencyConstraints = it
+                    }
                 }
         } else {
             // Multiplatform case
@@ -393,12 +458,22 @@ class MavenDependency internal constructor(
         if (isKotlinTestAnnotationsCommon()) {
             moduleMetadata
                 .variants
-                .flatMap {
-                    it.dependencies
-                }.mapNotNull {
-                    it.toMavenDependency(context, moduleMetadata)
-                }.let {
-                    children = it
+                .let {
+                    it.flatMap {
+                        it.dependencies
+                    }.mapNotNull {
+                        it.toMavenDependency(context, moduleMetadata)
+                    }.let {
+                        children = it
+                    }
+
+                    it.flatMap {
+                        it.dependencyConstraints
+                    }.mapNotNull {
+                        it.toMavenDependencyConstraint(context)
+                    }.let {
+                        dependencyConstraints = it
+                    }
                 }
             return true
         }
@@ -406,13 +481,33 @@ class MavenDependency internal constructor(
         return false
     }
 
-    private fun Dependency.toMavenDependency(context: Context, moduleMetadata: Module): MavenDependency? {
+    private fun Dependency.toMavenDependencyConstraint(context: Context): MavenDependencyConstraint? {
+        return context.createOrReuseDependencyConstraint(group, module, version)
+    }
+
+    private fun Dependency.toMavenDependency(context: Context, errorMessageBuilder: (String) -> String): MavenDependency? {
+        val resolvedVersion = resolveVersion(errorMessageBuilder)
+        return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion) }
+    }
+
+    private fun Dependency.toMavenDependency(context: Context, module: Module): MavenDependency? {
+        return toMavenDependency(context) { versionError ->
+            "Module ${module.component.group}:${module.component.module}:${module.component.version} " +
+                    "depends on ${this@toMavenDependency.group}:${this@toMavenDependency.module}, but its version could not be resolved:" +
+                    " $versionError"
+        }
+    }
+
+    private fun Dependency.resolveVersion(errorMessageBuilder: (String) -> String): String? {
         val resolvedVersion = version.resolve()
         if (resolvedVersion == null) {
-            reportDependencyVersionResolutionFailure(this, moduleMetadata)
+            messages.asMutable() += Message(
+                text = errorMessageBuilder("neither 'requires' nor 'prefers' nor 'strictly' attributes are defined"),
+                severity = Severity.ERROR
+            )
             return null
         }
-        return context.createOrReuseDependency(group, module, resolvedVersion)
+        return resolvedVersion
     }
 
     private suspend fun parseModuleMetadata(context: Context, level: ResolutionLevel): Module? {
@@ -538,19 +633,15 @@ class MavenDependency internal constructor(
                     val dependencyModule = parts[1]
                     kotlinMetadataVariant.dependencies
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
-                        ?.version
-                        ?.resolve()
-                        ?.let { context.createOrReuseDependency(dependencyGroup, dependencyModule, it) }
-                        ?: run {
-                            messages.asMutable() += Message(
-                                "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
-                                        " but its version could not be determined from module file ${moduleFile.getPath()}",
-                                severity = Severity.ERROR,
-                            )
-                            null
+                        ?.toMavenDependency(context) { versionErrorMessage ->
+                            "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
+                                    " but its version could not be determined from corresponding module file, " +
+                                    " $versionErrorMessage"
                         }
-                }
+               }
             }
+
+        // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
     }
 
     private fun getKotlinMetadataFile(kotlinMetadataVariant: Variant) =
@@ -578,11 +669,6 @@ class MavenDependency internal constructor(
 
             null
         }
-    }
-
-    companion object {
-        // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
-        private fun Version.resolve() = strictly ?: requires ?: prefers
     }
 
     // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
@@ -931,3 +1017,14 @@ class MavenDependency internal constructor(
 internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
 
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
+
+// todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
+internal fun Version.resolve() = strictly?.takeIf { !it.isInterval() }
+    ?: requires?.takeIf { !it.isInterval() }
+    ?: prefers?.takeIf { !it.isInterval() }
+
+private fun String.isInterval() = startsWith("[") || startsWith("]")
+
+// todo (AB) :
+// - interval are not implemented and we need to warn/show error to user about it
+// - now nstrictly is treated as requires, should be supported properly

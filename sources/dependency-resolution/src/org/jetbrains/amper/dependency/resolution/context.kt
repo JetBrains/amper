@@ -43,15 +43,18 @@ class Context(
      * the conflict resolution.
      */
     private val nodesByMavenDependency: MutableMap<MavenDependency, MavenDependencyNode> = ConcurrentHashMap(),
+    private val constraintsByMavenDependency: MutableMap<MavenDependencyConstraint, MavenDependencyConstraintNode> = ConcurrentHashMap(),
 ) : Closeable {
 
     constructor(block: SettingsBuilder.() -> Unit = {}) : this(SettingsBuilder(block).settings)
 
     val nodeCache: Cache = Cache()
 
-    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<Repository>? = null): Context = Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency).apply {
-        nodeParents.addAll(parentNodes)
-    }
+    fun copyWithNewNodeCache(parentNodes: List<DependencyNode>, repositories: List<Repository>? = null): Context =
+        Context(settings.withRepositories(repositories), resolutionCache, nodesByMavenDependency, constraintsByMavenDependency)
+            .apply {
+                nodeParents.addAll(parentNodes)
+            }
 
     private fun Settings.withRepositories(repositories: List<Repository>?): Settings =
         if (repositories != null && repositories.toSet() != this@withRepositories.repositories.toSet()) {
@@ -70,6 +73,11 @@ class Context(
     fun getOrCreateNode(dependency: MavenDependency, parentNode: DependencyNode?): MavenDependencyNode =
         nodesByMavenDependency
             .computeIfAbsent(dependency) { MavenDependencyNode(templateContext = this, dependency) }
+            .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
+
+    fun getOrCreateConstraintNode(dependencyConstraint: MavenDependencyConstraint, parentNode: DependencyNode?): MavenDependencyConstraintNode =
+        constraintsByMavenDependency
+            .computeIfAbsent(dependencyConstraint) { MavenDependencyConstraintNode(templateContext = this, dependencyConstraint) }
             .apply { parentNode?.let { context.nodeParents.add(parentNode) } }
 
     override fun close() {

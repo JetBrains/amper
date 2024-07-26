@@ -14,8 +14,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
-import org.jetbrains.amper.dependency.resolution.ResolutionLevel.LOCAL
-import org.jetbrains.amper.dependency.resolution.ResolutionState.UNSURE
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -71,7 +69,7 @@ class Resolver {
         // new resolution of their ancestors. This is why it's ok to mark a parent as resolved in that case.
         val resolvedNodes = ConcurrentHashMap.newKeySet<DependencyNode>()
 
-        var nodesToResolve = listOf(root)
+        var nodesToResolve = setOf(root)
         while(nodesToResolve.isNotEmpty()) {
             coroutineScope {
                 nodesToResolve.forEach { node ->
@@ -121,11 +119,17 @@ class Resolver {
         transitive: Boolean
     ) {
         if (this in resolvedNodes) {
+            // Register this node and its children to the conflictResolver,
+            // since it might be a resolved node from the canceled resolution
+            // All nodes resolved during the canceled resolution were unregistered from conflict resolver.
+            // So, they should be re-registered there as soon as those nodes are started using in a graph again.
+            conflictResolver.registerAndDetectConflictsWithChildren(this)
             return // skipping already resolved node
         }
         resolutionMutex.withLock {
             // maybe a concurrent job has resolved this node already
-            if (this in resolvedNodes) {
+            if (this in resolvedNodes)   {
+                conflictResolver.registerAndDetectConflictsWithChildren(this)
                 return
             }
 
@@ -135,6 +139,7 @@ class Resolver {
             }
 
             resolveChildren(level, transitive)
+
             coroutineScope {
                 children.forEach { node ->
                     node.launchRecursiveResolution(level, conflictResolver, resolvedNodes, transitive)
@@ -152,7 +157,7 @@ class Resolver {
     suspend fun downloadDependencies(node: DependencyNode, downloadSources: Boolean = false) {
         coroutineScope {
             node
-                .distinctBfsSequence()
+                .distinctBfsSequence { it !is MavenDependencyConstraintNode }
                 .distinctBy { it.key }
                 .forEach {
                     val asyncDownloading = async {
@@ -164,6 +169,8 @@ class Resolver {
                     }
                 }
         }
+
+        // todo (AB) : Close contexts (and thus related http clients - check that those are removed from context - not only closed)
     }
 }
 
@@ -173,28 +180,86 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
     /**
      * Maps each key (group:artifact) to the list of "similar" nodes that have that same key, and thus are potential
      * sources of dependency conflicts.
-     * The map needs to be thread-safe because we only protect with a mutex per-dependency key (two dependencies with
+     * The map needs to be thread-safe because we only protect it with a mutex per-dependency key (two dependencies with
      * different keys can access the map at the same time).
      * The list values, however, aren't thread-safe, but they are key-specific.
      */
-    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableList<DependencyNode>>()
+    private val similarNodesByKey = ConcurrentHashMap<Key<*>, MutableSet<DependencyNode>>()
     private val conflictedKeys = ConcurrentHashMap.newKeySet<Key<*>>()
     private val conflictDetectionMutexByKey = StripedMutex(64)
 
     /**
-     * Registers this node for potential conflict resolution, and returns whether it already conflicts with a previously
+     * Registers this node and all its children transitively for potential conflict resolution
+     * if the node has not been seen yet.
+     * Can be called concurrently with any node, including those sharing the same key.
+     */
+    suspend fun registerAndDetectConflictsWithChildren(node: DependencyNode) {
+        conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
+            val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
+
+            if (similarNodes.contains(node)) {
+                return
+            }
+        }
+
+        // Node is not known to conflict resolver, register it together with all children transitively
+        node.distinctBfsSequence().forEach {
+            registerAndDetectConflicts(it)
+        }
+    }
+
+    /**
+     * Unregister all nodes that are no longer reachable from the root of the graph after conflicts were resolved.
+     * It is called non-concurrently at the end of resolution iteration after resolution finished and before conflicting nodes
+     * are started resolving on the next iteration.
+     *
+     * As a result of conflict resolution, nodes may start referencing another version of maven dependency with a different list of children.
+     * Old children could be no longer referenced by any node in a graph,
+     * such nodes (both dependencies and dependencyConstraints) should no longer influence conflict resolution logic.
+     */
+    private suspend fun unregisterOrphanNodes(nodes: Collection<DependencyNode>) {
+        nodes.flatMap {
+            it.distinctBfsSequence {
+                // the only parent leads to the unregistered top node
+                // => the node could be unregistered as well with all children
+                it.parents.size == 1
+                        // all parents lead to one of the unregistered top nodes
+                        // => the node could be unregistered as well with all children
+                        || !it.isThereAPathToTopBypassing(nodes)
+                // otherwise, the node is referenced from some resolved non-conflicted node
+                // => it should be kept with all children (avoid unregistering)
+            }
+        }.forEach {
+            conflictDetectionMutexByKey.withLock(it.key.hashCode()) {
+                val similarNodes = similarNodesByKey.computeIfAbsent(it.key) { mutableSetOf() }
+                similarNodes.remove(it)
+            }
+        }
+    }
+
+    private fun DependencyNode.isThereAPathToTopBypassing(nodes: Collection<DependencyNode>): Boolean {
+        if (parents.isEmpty()) return true // we reach the root
+
+        val filteredParents = parents.intersect(nodes)
+        if (filteredParents.isEmpty()) return false // node has parents, but all of them are among those we should bypass along the way to root
+
+        return filteredParents.any { it.isThereAPathToTopBypassing(nodes) }
+    }
+
+    /**
+     * Registers this node for potential conflict resolution and returns whether it already conflicts with a previously
      * seen node. Can be called concurrently with any node, including those sharing the same key.
      */
     suspend fun registerAndDetectConflicts(node: DependencyNode): Boolean =
         conflictDetectionMutexByKey.withLock(node.key.hashCode()) {
-            val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableListOf() }
+            val similarNodes = similarNodesByKey.computeIfAbsent(node.key) { mutableSetOf() }
             similarNodes.add(node) // register the node for potential future conflict resolution
             if (node.key in conflictedKeys) {
                 return true
             }
             if (similarNodes.size > 1 && similarNodes.containsConflicts()) {
                 conflictedKeys += node.key
-                // We don't want to keep resolving conflicting nodes, because it's potentially pointless.
+                // We don't want to keep resolving conflicting nodes because it's potentially pointless.
                 // They will be resolved in the next wave.
                 similarNodes.forEach { it.resolutionJobs.forEach(Job::cancel) }
                 return true
@@ -202,7 +267,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
             return false
         }
 
-    private fun List<DependencyNode>.containsConflicts() = conflictResolutionStrategies.any {
+    private fun Collection<DependencyNode>.containsConflicts() = conflictResolutionStrategies.any {
         it.isApplicableFor(this) && it.seesConflictsIn(this)
     }
 
@@ -210,7 +275,7 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
      * Resolves conflicts and returns the nodes that must be resolved as a result.
      * Must not be called concurrently with [registerAndDetectConflicts].
      */
-    suspend fun resolveConflicts(): List<DependencyNode> = coroutineScope {
+    suspend fun resolveConflicts(): Set<DependencyNode> = coroutineScope {
         conflictingNodes()
             .map { candidates ->
                 async {
@@ -218,22 +283,26 @@ private class ConflictResolver(val conflictResolutionStrategies: List<ConflictRe
                     if (resolved) {
                         candidates
                     } else {
-                        emptyList()
+                        emptySet()
                     }
                 }
             }
             .awaitAll()
-            .flatten()
-            .also { conflictedKeys.clear() }
+            .flatten<DependencyNode>()
+            .also {
+                unregisterOrphanNodes(it)
+                conflictedKeys.clear()
+            }
+            .toSet()
     }
 
-    private fun conflictingNodes(): List<List<DependencyNode>> = conflictedKeys.map { key ->
+    private fun conflictingNodes(): List<Set<DependencyNode>> = conflictedKeys.map { key ->
         similarNodesByKey[key] ?: throw AmperDependencyResolutionException("Nodes are missing for ${key.name}")
     }
 
-    private fun List<DependencyNode>.resolveConflict(): Boolean {
+    private fun Collection<DependencyNode>.resolveConflict(): Boolean {
         val strategy = conflictResolutionStrategies.find { it.isApplicableFor(this) && it.seesConflictsIn(this) }
-            ?: return true // if no strategy sees the conflict, there is no conflict so it is considered resolved
+            ?: return true // if no strategy sees the conflict, there is no conflict, so it is considered resolved
         return strategy.resolveConflictsIn(this)
     }
 }
@@ -333,16 +402,20 @@ interface DependencyNode {
             }
         }
 
-        children.forEachIndexed { i, it ->
-            val addAnotherLevel = i < children.size - 1
-            if (addAnotherLevel) {
-                indent.append("+--- ")
-            } else {
-                indent.append("\\--- ")
+        children
+            .filterNot { it is MavenDependencyConstraintNode }
+            .let { filteredNodes ->
+                filteredNodes.forEachIndexed { i, it ->
+                    val addAnotherLevel = i < filteredNodes.size - 1
+                    if (addAnotherLevel) {
+                        indent.append("+--- ")
+                    } else {
+                        indent.append("\\--- ")
+                    }
+                    it.prettyPrint(builder, indent, visited, addAnotherLevel)
+                    indent.setLength(indent.length - 5)
+                }
             }
-            it.prettyPrint(builder, indent, visited, addAnotherLevel)
-            indent.setLength(indent.length - 5)
-        }
     }
 
     suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {

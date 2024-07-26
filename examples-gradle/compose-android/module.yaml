@@ -4,7 +4,7 @@ dependencies:
   - $compose.foundation
   - $compose.material3
   - androidx.activity:activity-compose:1.7.2 # integration compose with activities
-  - androidx.appcompat:appcompat:1.6.1 # we need special type of activity
+  - androidx.appcompat:appcompat:1.6.1 # we need a special type of activity
 
 settings:
   compose: enabled

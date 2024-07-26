@@ -37,7 +37,7 @@ class AmperExamples1Test: AmperCliTestBase() {
 
     @Test
     fun `compose-multiplatform_buildAndroidDebug`() = runTestInfinitely {
-        runCli(projectName, "task", ":android-app:buildAndroidDebug") // check AMPER-529
+        runCli(projectName, "task", ":android-app:buildAndroidDebug")
     }
 
     @Test

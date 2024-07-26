@@ -66,7 +66,8 @@ internal data class Dependency(
     val module: String,
     val version: Version,
     val attributes: Map<String, String> = mapOf(),
-    val endorseStrictVersions: Boolean? = null
+    val endorseStrictVersions: Boolean? = null,
+    val reason: String? = null,
 )
 
 @Serializable
@@ -85,7 +86,7 @@ internal data class Capability(
 )
 
 @Serializable
-internal data class Version(
+data class Version(
     val strictly: String? = null,
     val requires: String? = null,
     val prefers: String? = null,
