@@ -6,10 +6,10 @@ dependencies:
   # Compose integration with Android activities
   - androidx.activity:activity-compose:1.7.2
   - androidx.appcompat:appcompat:1.6.1
-  # Todo (AB) : Remove dependency on androidx.collection:collection-ktx after [AMPER-571] merged to master
-  # [AMPER-529] Workaround: org.jetbrains.compose.foundation:foundation:1.6.10 depends on androidx.compose.ui:ui-unit-android:1.6.4
+  # [AMPER-529] Workaround: org.jetbrains.compose.foundation:foundation:1.6.10
+  # depends on androidx.compose.ui:ui-unit-android:1.6.4,
   # that in turn depends on androidx.collection:collection-ktx:1.2.0 which is outdated
-  # and incompatible with another dependency androidx.collection:collection-jvm:1.4.0
+  # and incompatible with another dependency: androidx.collection:collection-jvm:1.4.0
   - androidx.collection:collection-ktx:1.4.0
 
 settings:
