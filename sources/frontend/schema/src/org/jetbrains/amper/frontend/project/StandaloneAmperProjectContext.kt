@@ -183,9 +183,9 @@ private fun String.isPotentialGlob() = any { it in globChars }
 
 context(ProblemReporterContext)
 private fun Project.modulePaths(projectRootDir: VirtualFile): List<VirtualFile> =
-    modules.flatMap { modulePathOrGlob ->
-        projectRootDir.resolveMatchingModuleFiles(modulePathOrGlob)
-    }
+    modules
+        .flatMap { modulePathOrGlob -> projectRootDir.resolveMatchingModuleFiles(modulePathOrGlob) }
+        .distinct() // TODO report error/warning for duplicates
 
 context(ProblemReporterContext)
 private fun VirtualFile.resolveMatchingModuleFiles(relativeModulePathOrGlob: TraceableString): List<VirtualFile> {
@@ -233,6 +233,7 @@ private fun VirtualFile.resolveModuleFileOrNull(relativeModulePath: TraceableStr
             messageKey = "project.module.root.is.included.by.default",
             level = Level.Redundancy,
         )
+        return null
     }
     if (!VfsUtilCore.isAncestor(this, moduleDir, false)) {
         SchemaBundle.reportBundleError(
