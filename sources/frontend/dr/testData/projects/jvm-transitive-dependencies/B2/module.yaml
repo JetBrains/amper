@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - org.tinylog:tinylog-api:2.7.0: exported
+  - org.apache.commons:commons-text:1.12.0
+

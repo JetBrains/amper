@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.core
 
-import org.jetbrains.amper.core.*
 import org.jetbrains.amper.core.Result.Companion.failure
 import org.jetbrains.amper.core.Result.Companion.success
 import org.junit.jupiter.api.assertThrows

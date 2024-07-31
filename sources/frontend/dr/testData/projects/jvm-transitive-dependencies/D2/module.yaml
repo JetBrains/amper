@@ -1,0 +1,8 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - org.ow2.asm:asm:9.7: exported
+  - org.jetbrains:annotations:24.1.0
+

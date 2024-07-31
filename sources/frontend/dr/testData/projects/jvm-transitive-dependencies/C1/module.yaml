@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../C2_exp: exported
+  - org.tensorflow:tensorflow-lite-api:2.16.1: exported
+  - org.slf4j:slf4j-api:2.0.13
+
+

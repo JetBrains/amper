@@ -30,9 +30,9 @@ sealed interface PsiBuildProblemSource : FileBuildProblemSource {
     override val file: Path
         get() = psiElement.containingFile?.originalFile?.virtualFile?.toNioPathOrNull() ?: error(NO_VIRTUAL_FILE_ERROR)
 
-    class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource
+    data class FileSystemLike internal constructor(override val psiElement: PsiFileSystemItem) : PsiBuildProblemSource
 
-    class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource, FileWithRangesBuildProblemSource {
+    data class Element internal constructor(override val psiElement: PsiElement) : PsiBuildProblemSource, FileWithRangesBuildProblemSource {
         override val range: LineAndColumnRange
             get() = getLineAndColumnRangeInPsiFile(psiElement)
 

@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../E2_exp: exported
+  - org.checkerframework:checker-qual:3.44.0: exported
+  - jakarta.annotation:jakarta.annotation-api:3.0.0
+
+

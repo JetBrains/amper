@@ -1,0 +1,10 @@
+product:
+  type: lib
+  platforms: [ jvm ]
+
+dependencies:
+  - ../C3_exp: exported
+  - com.carrotsearch.thirdparty:simple-xml-safe:2.7.1: exported
+  - jakarta.activation:jakarta.activation-api:2.1.3
+
+

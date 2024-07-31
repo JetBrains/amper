@@ -5,6 +5,10 @@ product:
 apply:
   - ../../common.module-template.yaml
 
+test-dependencies:
+  - ../../core
+  - ../../test-base
+
 #repositories:
 #  - https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases
 #  - https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies
