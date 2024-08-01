@@ -15,6 +15,7 @@ import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import kotlin.reflect.jvm.javaField
 
 object UselessSettingValue : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId
@@ -26,8 +27,8 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
             override fun visitValue(it: ValueBase<*>) {
                 val psiTrace = it.trace as? PsiTrace
                 val precedingValue = psiTrace?.precedingValue
-                if (psiTrace != null && reportedPlaces.add(psiTrace.psiElement)) {
-                    val isDefault = precedingValue == null && it.value == it.default?.value
+                val isDefault = precedingValue == null && it.value == it.default?.value
+                if (psiTrace != null && reportedPlaces.add(psiTrace.psiElement) && accepts(it, isDefault)) {
                     if (isDefault || precedingValue?.value == it.value) {
                         problemReporter.reportMessage(
                             UselessSetting(it, precedingValue)
@@ -35,6 +36,14 @@ object UselessSettingValue : AomSingleModuleDiagnosticFactory {
                     }
                 }
                 super.visitValue(it)
+            }
+
+            private fun accepts(base: ValueBase<*>, isDefault: Boolean): Boolean {
+                // a hack for the serialization settings section,
+                // its presence changes semantics, so we don't report "useless" defaults for it,
+                // see https://youtrack.jetbrains.com/issue/AMPER-910 for details
+                return !isDefault
+                        || base.property.javaField?.declaringClass?.canonicalName != "org.jetbrains.amper.frontend.schema.SerializationSettings"
             }
         }
         fragments.forEach { fragment ->

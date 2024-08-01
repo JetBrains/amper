@@ -23,6 +23,11 @@ class SettingsDiagnosticsTest : TestBase(Path("testResources") / "diagnostics") 
     }
 
     @Test
+    fun `no redundancy for kotlin serialization format`() {
+        diagnosticsTest("setting-no-redundancy-kotlin-serialization", levels = arrayOf(Level.Redundancy))
+    }
+
+    @Test
     fun `setting overrides same value`() {
         diagnosticsTest("setting-overrides-same-value", levels = arrayOf(Level.Redundancy))
     }
