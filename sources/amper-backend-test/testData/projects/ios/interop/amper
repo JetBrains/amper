@@ -19,12 +19,12 @@
 
 set -e -u
 
-amper_version=0.5.0-dev-799
+amper_version=0.5.0-dev-808
 amper_url="${AMPER_DOWNLOAD_ROOT:-https://packages.jetbrains.team/maven/p/amper/amper}/org/jetbrains/amper/cli/$amper_version/cli-$amper_version-dist.zip"
 amper_jre_download_root="${AMPER_JRE_DOWNLOAD_ROOT:-https:/}"
 
 # Establish chain of trust from here by specifying exact checksum of Amper distribution to be run
-amper_sha256=7c1e3870703ca7445adda7914b2493a315c13e1c70136c7216139a67a04f6f2a
+amper_sha256=def3388604e7bfa36b57777cbe372c6e19a866b5074f06f156c007c58eea4109
 
 script_dir="$(dirname -- "$0")"
 script_dir="$(cd -- "$script_dir" && pwd)"
