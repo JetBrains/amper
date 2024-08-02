@@ -1641,6 +1641,106 @@ class BuildGraphTest {
         """.trimIndent(), root, true)
     }
 
+    @Test
+    fun `check method distinctBfsSequence`() {
+        val repositories =
+            (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
+        val context = context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories)
+
+        val root = DependencyNodeHolder(
+            "root",
+            listOf(
+                DependencyNodeHolder("module1", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context))),
+                DependencyNodeHolder("module2", listOf("androidx.appcompat:appcompat:1.6.1".toMavenNode(context))),
+            )
+        )
+
+        val resolver = Resolver()
+        runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
+        root.verifyGraphConnectivity()
+
+        // 2. Checking the absence of duplicates.
+        root.distinctBfsSequence()
+            .groupBy { it }
+            .filter { it.value.size > 1 }
+            .let {
+                assertTrue(it.isEmpty(),
+                    "Duplicated nodes: ${ it.keys.map { key -> "${key.key.name}: ${ it[key]?.size }" }.toSet() }")
+            }
+
+        // 2. Checking the list of distinct nodes sorted alphabetically.
+        root.distinctBfsSequence()
+            .filterIsInstance<MavenDependencyNode>()
+            .sortedBy { it.key.name }
+            .let {
+                assertEquals(
+                    """
+                        androidx.activity:activity:1.6.0
+                        androidx.activity:activity:1.2.4 -> 1.6.0
+                        androidx.annotation:annotation:1.3.0
+                        androidx.annotation:annotation:1.1.0 -> 1.3.0
+                        androidx.annotation:annotation:1.2.0 -> 1.3.0
+                        androidx.annotation:annotation:1.0.0 -> 1.3.0
+                        androidx.annotation:annotation-experimental:1.3.0
+                        androidx.annotation:annotation-experimental:1.0.0 -> 1.3.0
+                        androidx.appcompat:appcompat:1.6.1
+                        androidx.appcompat:appcompat-resources:1.6.1
+                        androidx.arch.core:core-common:2.1.0
+                        androidx.arch.core:core-common:2.0.0 -> 2.1.0
+                        androidx.arch.core:core-runtime:2.0.0
+                        androidx.collection:collection:1.1.0
+                        androidx.collection:collection:1.0.0 -> 1.1.0
+                        androidx.core:core:1.9.0
+                        androidx.core:core:1.8.0 -> 1.9.0
+                        androidx.core:core:1.6.0 -> 1.9.0
+                        androidx.core:core:1.0.0 -> 1.9.0
+                        androidx.core:core:1.2.0 -> 1.9.0
+                        androidx.core:core:1.1.0 -> 1.9.0
+                        androidx.core:core-ktx:1.2.0
+                        androidx.cursoradapter:cursoradapter:1.0.0
+                        androidx.customview:customview:1.0.0
+                        androidx.drawerlayout:drawerlayout:1.0.0
+                        androidx.fragment:fragment:1.3.6
+                        androidx.interpolator:interpolator:1.0.0
+                        androidx.lifecycle:lifecycle-common:2.5.1
+                        androidx.lifecycle:lifecycle-livedata:2.0.0
+                        androidx.lifecycle:lifecycle-livedata-core:2.3.1 -> 2.5.1
+                        androidx.lifecycle:lifecycle-livedata-core:2.5.1
+                        androidx.lifecycle:lifecycle-livedata-core:2.0.0 -> 2.5.1
+                        androidx.lifecycle:lifecycle-runtime:2.5.1
+                        androidx.lifecycle:lifecycle-runtime:2.3.1 -> 2.5.1
+                        androidx.lifecycle:lifecycle-viewmodel:2.5.1
+                        androidx.lifecycle:lifecycle-viewmodel:2.3.1 -> 2.5.1
+                        androidx.lifecycle:lifecycle-viewmodel:2.0.0 -> 2.5.1
+                        androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1
+                        androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1 -> 2.5.1
+                        androidx.loader:loader:1.0.0
+                        androidx.savedstate:savedstate:1.2.0
+                        androidx.savedstate:savedstate:1.1.0 -> 1.2.0
+                        androidx.vectordrawable:vectordrawable:1.1.0
+                        androidx.vectordrawable:vectordrawable-animated:1.1.0
+                        androidx.versionedparcelable:versionedparcelable:1.1.1
+                        androidx.viewpager:viewpager:1.0.0
+                        org.jetbrains.kotlin:kotlin-stdlib:1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib:1.6.20 -> 1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib:1.6.21 -> 1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib:1.3.41 -> 1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib:1.6.0 -> 1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib-common:1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.7.10
+                        org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0
+                        org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0
+                        org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1
+                        org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.1
+                        org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1
+                        org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1
+                        org.jetbrains:annotations:13.0
+                    """.trimIndent(),
+                    it.joinToString("\n")
+                )
+            }
+    }
+
     private fun doTest(
         testInfo: TestInfo,
         dependency: String = testInfo.nameToDependency(),

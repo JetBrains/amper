@@ -362,9 +362,10 @@ interface DependencyNode {
         val visited = mutableSetOf<DependencyNode>()
         while (queue.isNotEmpty()) {
             val node = queue.remove()
-            yield(node)
-            visited.add(node)
-            queue.addAll(node.children.filter { it !in visited && childrenPredicate(it) })
+            if (visited.add(node)) {
+                yield(node)
+                queue.addAll(node.children.filter { it !in visited && childrenPredicate(it) })
+            }
         }
     }
 
