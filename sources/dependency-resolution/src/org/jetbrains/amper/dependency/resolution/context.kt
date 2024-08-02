@@ -180,6 +180,9 @@ data class Message(
     val exception: Throwable? = null,
 )
 
+val Message.message: String
+    get() = "$text ($extra)"
+
 enum class Severity {
     INFO, WARNING, ERROR
 }

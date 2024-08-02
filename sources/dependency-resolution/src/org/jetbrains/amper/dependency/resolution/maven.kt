@@ -178,6 +178,40 @@ class PropertyWithDependency<in T, out V, D>(
     }
 }
 
+/**
+ * A lazy property that's recalculated if its dependency changes.
+ */
+class PropertyWithDependency3<in T, out V, D1, D2, D3>(
+    @Volatile private var value: V,
+    val valueProvider: (D1, D2, D3) -> V,
+    private val dependencyProvider1: (T) -> D1,
+    private val dependencyProvider2: (T) -> D2,
+    private val dependencyProvider3: (T) -> D3,
+    @Volatile private var dependency1: D1,
+    @Volatile private var dependency2: D2,
+    @Volatile private var dependency3: D3,
+) : ReadOnlyProperty<T, V> {
+    override fun getValue(thisRef: T, property: KProperty<*>): V {
+        val newDependency1 = dependencyProvider1(thisRef)
+        val newDependency2 = dependencyProvider2(thisRef)
+        val newDependency3 = dependencyProvider3(thisRef)
+        if (shouldRecalculate(newDependency1, newDependency2, newDependency3)) {
+            synchronized(this) {
+                if (shouldRecalculate(newDependency1, newDependency2, newDependency3)) {
+                    dependency1 = newDependency1
+                    dependency2 = newDependency2
+                    dependency3 = newDependency3
+                    value = valueProvider(newDependency1, newDependency2, newDependency3)
+                }
+            }
+        }
+        return value
+    }
+
+    private fun shouldRecalculate(newDependency1: D1, newDependency2: D2, newDependency3: D3) =
+        dependency1 != newDependency1 || dependency2 != newDependency2 || dependency3 != newDependency3
+}
+
 fun Context.createOrReuseDependency(
     group: String,
     module: String,
@@ -248,32 +282,45 @@ class MavenDependency internal constructor(
     internal val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
 
-    private val _files: List<DependencyFile>
-        get() = files()
-
     fun files(withSources: Boolean = false) =
-        buildList {
-            variants
-                .let { if (withSources) it else it.withoutDocumentationAndMetadata }
-                .flatMap { it.files }
-                .forEach {
-                    add(getDependencyFile(this@MavenDependency, it))
-                }
-            packaging?.takeIf { it != "pom" }?.let {
-                val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
-                val extension = if (it == "bundle") "jar" else it
-                add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
-                if (extension == "jar" && withSources) {
-                    add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
+        if (withSources)
+            _files
+        else
+            _filesWithoutSources.filterNot { it.fileName.endsWith("-sources.jar") || it.fileName.endsWith("-javadoc.jar") }
+
+    private val _files: List<DependencyFile> by filesProvider(withSources = true)
+    private val _filesWithoutSources: List<DependencyFile> by filesProvider(withSources = false)
+
+    private fun filesProvider(withSources: Boolean) =
+        PropertyWithDependency3(
+            value = listOf(),
+            dependency1 = variants,
+            dependencyProvider1 = { thisRef: MavenDependency -> thisRef.variants },
+            dependency2 = packaging,
+            dependencyProvider2 = { thisRef: MavenDependency -> thisRef.packaging },
+            dependency3 = sourceSetsFiles,
+            dependencyProvider3 = { thisRef: MavenDependency -> thisRef.sourceSetsFiles },
+            valueProvider = { variants, packaging, sourceSetsFiles ->
+                buildList {
+                    variants
+                        .let { if (withSources) it else it.withoutDocumentationAndMetadata }
+                        .flatMap { it.files }
+                        .forEach {
+                            add(getDependencyFile(this@MavenDependency, it))
+                        }
+                    packaging?.takeIf { it != "pom" }?.let {
+                        val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
+                        val extension = if (it == "bundle") "jar" else it
+                        add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
+                        if (extension == "jar" && withSources) {
+                            add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
+
+                        }
+                    }
+                    sourceSetsFiles.let { addAll(it) }
                 }
             }
-            sourceSetsFiles.let { addAll(it) }
-        }.let { files ->
-            if (withSources)
-                files
-            else
-                files.filterNot { it.fileName.endsWith("-sources.jar") || it.fileName.endsWith("-javadoc.jar") }
-        }
+        )
 
     /**
      * The repository module/pom file was downloaded from.

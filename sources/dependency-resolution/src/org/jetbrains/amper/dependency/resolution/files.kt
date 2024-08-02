@@ -213,8 +213,11 @@ open class DependencyFile(
     @Volatile
     private var path: Path? = null
 
-    suspend fun getPath(): Path? = path ?: withContext(Dispatchers.IO) {
-        getCacheDirectory().guessPath(dependency, fileName)
+    @Volatile
+    private var guessedPath: Path? = null
+
+    suspend fun getPath(): Path? = path ?: guessedPath ?: withContext(Dispatchers.IO) {
+        getCacheDirectory().guessPath(dependency, fileName)?.also { guessedPath = it }
     }
 
     override fun toString(): String = runBlocking { getPath()?.toString() }
