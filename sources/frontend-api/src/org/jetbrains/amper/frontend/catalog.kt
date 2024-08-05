@@ -40,7 +40,7 @@ interface VersionCatalog {
                 is PsiTrace -> {
                     SchemaBundle.reportBundleError(
                         node = trace.psiElement,
-                        messageKey = "no.catalog.value",
+                        messageKey = if (key.value.startsWith("compose.")) "compose.is.disabled" else "no.catalog.value",
                         key.value
                     )
                 }
