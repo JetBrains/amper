@@ -10,6 +10,7 @@ import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.MavenDependency
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
@@ -89,7 +90,7 @@ internal class IdeSync(
             // This way such dependencies should be resolved in context of the current single-platform fragment F(P1) as well
             // in order to provide appropriate API and runtime for single-platform compilation and execution.
             // Todo (AB) : Take flag 'exported' into account and go down to fragment dependencies tree transitively in that case picking up external dependencies there as well)
-            val allFragmentDeps = fragmentDependencies
+            val allFragmentDeps = completeFragmentDependencies()
                 .groupBy(keySelector =  { it.target.module.userReadableName }, valueTransform = { it.target.name })
 
             flowType.aom.modules.mapNotNull { module ->
@@ -104,6 +105,20 @@ internal class IdeSync(
             .map { it.toGraph(this, repositories, fileCacheBuilder) }
 
         return allMavenDeps
+    }
+
+    private fun Fragment.completeFragmentDependencies(): Set<FragmentLink> {
+        val resultSet = mutableSetOf<FragmentLink>()
+        completeFragmentDependencies(resultSet)
+        return resultSet
+    }
+
+    private fun Fragment.completeFragmentDependencies(result: MutableSet<FragmentLink>) {
+        this.fragmentDependencies.forEach {
+            if (result.add(it)) {
+                it.target.completeFragmentDependencies(result)
+            }
+        }
     }
 
     private fun MavenDependency.toGraph(fragment: Fragment, repositories: List<Repository>, fileCacheBuilder: FileCacheBuilder.() -> Unit): DirectFragmentDependencyNodeHolder {
