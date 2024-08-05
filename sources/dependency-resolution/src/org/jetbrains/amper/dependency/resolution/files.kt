@@ -582,7 +582,7 @@ open class DependencyFile(
             null
         }
 
-    private fun String.fixOldGradleHash(hashLength: Int) = padStart(hashLength, '0')
+    private fun String.fixOldGradleHash(hashLength: Int) = takeIf { it != "null" }?.padStart(hashLength, '0')
 
     private suspend fun download(
         writers: Collection<Writer>,
