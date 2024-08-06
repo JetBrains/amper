@@ -66,9 +66,8 @@ object SchemaBasedModelImport : ModelInit {
     )
     @UsedInIdePlugin
     fun getModule(modulePsiFile: PsiFile, project: Project): Result<PotatoModule> {
-        val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
         val pathResolver = FrontendPathResolver(project = project)
-        val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, pathResolver, projectRootDir)
+        val projectContext = SingleModuleProjectContextForIde(modulePsiFile.virtualFile, pathResolver)
         val resultModules = doBuild(projectContext)
             ?: return amperFailure()
         return resultModules.singleOrNull()?.asAmperSuccess()
@@ -89,10 +88,8 @@ object SchemaBasedModelImport : ModelInit {
     )
     @UsedInIdePlugin
     fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? {
-        val projectRootDir = requireNotNull(project.guessProjectDir()) { "Project doesn't have base directory" }
-        val catalogFinder = GradleVersionsCatalogFinder(projectRootDir)
         return with(FrontendPathResolver(project = project)) {
-            readTemplate(catalogFinder, templatePsiFile.virtualFile)
+            readTemplate(GradleVersionsCatalogFinder(), templatePsiFile.virtualFile)
         }
     }
 }

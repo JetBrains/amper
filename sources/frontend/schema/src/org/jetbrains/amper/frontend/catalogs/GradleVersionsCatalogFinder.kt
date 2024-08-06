@@ -4,20 +4,14 @@
 
 package org.jetbrains.amper.frontend.catalogs
 
-import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 
 private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
 private const val gradleDirName = "gradle"
 
-internal class GradleVersionsCatalogFinder(
-    /**
-     * The root directory of the Amper project or the IntelliJ project.
-     */
-    private val rootDir: VirtualFile,
-) : VersionsCatalogProvider {
+internal class GradleVersionsCatalogFinder : VersionsCatalogProvider {
 
-    // This wrapper allows to cache the absence of catalog too
+    // This wrapper allows caching the absence of catalog too
     private data class CatalogPathResult(val path: VirtualFile?)
 
     private val knownGradleCatalogs = mutableMapOf<VirtualFile, CatalogPathResult>()
@@ -27,18 +21,18 @@ internal class GradleVersionsCatalogFinder(
         .path
 
     /**
-     * Find "libs.versions.toml" in every gradle directory between [this] path and [rootDir]
-     * with deeper files being the first.
+     * Go up the file tree from [this] dir, and search for gradle/libs.versions.toml until we reach the fs root.
+     *
+     * This is a poor man's heuristic to find the versions catalog when we don't have a real project context, but we
+     * can't search in the actual project root directly because we don't know what the root is.
+     *
+     * We can't use Project.guessProjectDir either as project root because it breaks in several cases:
+     * * the IJ root might be higher in the file system hierarchy than the actual Amper project root
+     * * the IJ root might be completely different if the Amper project is in an included Gradle build
+     * * the IJ root might be a subdir of the actual project root for a short time after project opening
      */
     private fun VirtualFile.findGradleCatalog(): VirtualFile? {
-        assert(VfsUtilCore.isAncestor(rootDir, this, true)) {
-            "Cannot lookup the catalog for file $this, because it is outside the root directory $rootDir)"
-        }
-        // We can't search in the root directly because the rootDir is sometimes the IntelliJ root,
-        // and thus it might be higher in the file system hierarchy than the actual project root.
-        val dirsUpToRoot = generateSequence(this) { it.parent }
-            .filter { it.isDirectory }
-            .takeWhile { it != rootDir } + rootDir
+        val dirsUpToRoot = generateSequence(this) { it.parent }.filter { it.isDirectory }
 
         return dirsUpToRoot
             .mapNotNull { findDefaultCatalogIn(it) }

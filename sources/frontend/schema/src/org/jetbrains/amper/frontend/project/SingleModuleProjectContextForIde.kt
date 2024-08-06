@@ -15,17 +15,16 @@ import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 internal class SingleModuleProjectContextForIde(
     moduleFile: VirtualFile,
     override val frontendPathResolver: FrontendPathResolver,
-    /**
-     * The root directory of the Amper project or the IntelliJ project.
-     */
-    override val projectRootDir: VirtualFile,
-) : AmperProjectContext, VersionsCatalogProvider by GradleVersionsCatalogFinder(projectRootDir) {
+) : AmperProjectContext, VersionsCatalogProvider by GradleVersionsCatalogFinder() {
 
     init {
         require(moduleFile.name in amperModuleFileNames) {
             "This context type can only be created for a module file, got $moduleFile"
         }
     }
+
+    override val projectRootDir: VirtualFile
+        get() = error("The project root is undefined for a single-module context")
 
     override val amperModuleFiles: List<VirtualFile> = listOf(moduleFile)
 
