@@ -46,9 +46,8 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates? {
     return MavenCoordinates(parts[0], parts[1], parts[2], classifier = if (parts.size > 3) parts[3] else null)
 }
 
-internal fun MavenDependency.parseCoordinates(): MavenCoordinates {
+internal fun MavenDependency.parseCoordinates(): MavenCoordinates? {
     return parseCoordinates(this.coordinates)
-        ?: throw IllegalArgumentException("Invalid coordinates format: ${this.coordinates}")
 }
 
 fun MavenDependencyNode.mavenCoordinates(suffix: String? = null): MavenCoordinates {

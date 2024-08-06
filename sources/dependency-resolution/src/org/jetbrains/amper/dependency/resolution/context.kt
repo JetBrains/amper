@@ -181,7 +181,7 @@ data class Message(
 )
 
 val Message.message: String
-    get() = "$text ($extra)"
+    get() = "$text${extra.takeIf { it.isNotBlank() }?.let{ " ($it)" } ?: ""}"
 
 enum class Severity {
     INFO, WARNING, ERROR

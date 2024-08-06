@@ -121,6 +121,19 @@ class MavenDependencyNode internal constructor(
     }
 }
 
+class UnresolvedMavenDependencyNode(
+    val coordinates: String,
+    templateContext: Context,
+    parentNodes: List<DependencyNode> = emptyList()
+) : DependencyNode {
+    override val context = templateContext.copyWithNewNodeCache(parentNodes)
+    override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
+    override val children: List<DependencyNode> = emptyList()
+    override val messages: List<Message> = listOf(Message("Unresolved dependency coordinates", severity = Severity.ERROR))
+    override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) { }
+    override suspend fun downloadDependencies(downloadSources: Boolean) { }
+}
+
 class MavenDependencyConstraintNode internal constructor(
     templateContext: Context,
     dependencyConstraint: MavenDependencyConstraint,

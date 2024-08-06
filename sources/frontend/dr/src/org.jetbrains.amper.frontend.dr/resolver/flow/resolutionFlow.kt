@@ -8,6 +8,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.Repository
+import org.jetbrains.amper.dependency.resolution.UnresolvedMavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.createOrReuseDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.MavenDependency
@@ -39,7 +40,9 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
 
     protected fun MavenDependency.toFragmentDirectDependencyNode(fragment: Fragment, context: Context): DirectFragmentDependencyNodeHolder {
         val coordinates = parseCoordinates()
-        val dependencyNode = context.toMavenDependencyNode(coordinates)
+        val dependencyNode = coordinates
+            ?.let { context.toMavenDependencyNode(coordinates) }
+            ?: UnresolvedMavenDependencyNode(this.coordinates, context)
 
         val node = DirectFragmentDependencyNodeHolder(
             "dep:${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}",

@@ -10,15 +10,15 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.Context
 import org.jetbrains.amper.dependency.resolution.DependencyNode
+import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.FileCacheBuilder
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
-import org.jetbrains.amper.dependency.resolution.Message
-import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.Repository
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.Severity
+import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
@@ -100,9 +100,6 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
                             errors.joinToString("\n") { it.message })
             }
         }
-
-    private val Message.message: String
-        get() = "$text ($extra)"
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

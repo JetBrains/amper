@@ -10,7 +10,6 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
-import org.jetbrains.amper.dependency.resolution.Message
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
@@ -176,9 +175,6 @@ class ResolveExternalDependenciesTask(
             }
 
     }
-
-    private val Message.message: String
-        get() = "$text ($extra)"
 
     class Result(
         val compileClasspath: List<Path>,
