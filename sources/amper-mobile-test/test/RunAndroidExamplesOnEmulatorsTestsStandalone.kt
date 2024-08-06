@@ -14,6 +14,11 @@ class RunAndroidExamplesOnEmulatorsTestsStandalone : AndroidBaseTest() {
         projectName = "simple",
     )
 
+    @Test
+    fun composeAndroidAppAppCompat() = testRunnerStandalone(
+        projectName = "appcompat",
+    )
+
     @AfterEach
     fun cleanup() {
         val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")

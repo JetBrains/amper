@@ -14,9 +14,14 @@ class RunAndroidExamplesOnEmulatorsTestsGradle : AndroidBaseTest() {
         projectName = "compose-android",
     )
 
+    @Test
+    fun composeAndroidMultiplatformAppGradle() = testRunnerGradle(
+        projectName = "multiplatform",
+    )
+
     @AfterEach
     fun cleanup() {
-        val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
+       val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
         projectFolder.deleteRecursively()
         deleteAdbRemoteSession()
     }
