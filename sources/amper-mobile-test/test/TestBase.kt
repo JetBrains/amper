@@ -78,29 +78,42 @@ open class TestBase {
     }
 
     fun assembleTargetApp(projectDir: File) {
-        listOf("assemble").forEach { task ->
-            val gradlewPath = if (OS.current() == OS.WINDOWS) Path("../../gradlew.bat") else Path("../../gradlew")
-            if (gradlewPath.exists()) {
+        val tasks = listOf("assemble")
+        val osName = System.getProperty("os.name").toLowerCase()
+        val gradlewFileName = if (osName.contains("win")) "gradlew.bat" else "gradlew"
+        val gradlewPath = File(projectDir, gradlewFileName)
+
+        if (!gradlewPath.exists()) {
+            println("gradlew file does not exist in ${projectDir.absolutePath}")
+            throw FileNotFoundException("gradlew file does not exist in ${projectDir.absolutePath}")
+        }
+
+        tasks.forEach { task ->
+            try {
                 println("Executing '$task' in ${projectDir.name}")
-                val process = ProcessBuilder(gradlewPath.absolutePathString(), task)
+                val process = ProcessBuilder(gradlewPath.absolutePath, task)
                     .directory(projectDir)
                     .redirectErrorStream(true)
                     .start()
+
                 println("Started './gradlew $task' with process id: ${process.pid()} in ${projectDir.name}")
-                process.apply {
-                    inputStream.bufferedReader().use { reader ->
-                        reader.forEachLine { println(it) }
-                    }
-                    val exitCode = waitFor()
-                    println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
-                    if (exitCode != 0) {
-                        println("Error executing './gradlew $task' in ${projectDir.name}")
-                        throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}")
-                    }
+
+                process.inputStream.bufferedReader().use { reader ->
+                    reader.forEachLine { println(it) }
                 }
-            } else {
-                println("gradlew file does not exist in ${projectDir.name}")
-                throw FileNotFoundException("gradlew file does not exist in ${projectDir.name}")
+
+                val exitCode = process.waitFor()
+                println("Finished './gradlew $task' with exit code: $exitCode in ${projectDir.name}")
+                if (exitCode != 0) {
+                    println("Error executing './gradlew $task' in ${projectDir.name}")
+                    throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}")
+                }
+            } catch (e: IOException) {
+                println("IOException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
+                throw RuntimeException("Execution of './gradlew $task' failed in ${projectDir.name}", e)
+            } catch (e: InterruptedException) {
+                println("InterruptedException occurred while executing './gradlew $task' in ${projectDir.name}: ${e.message}")
+                throw RuntimeException("Execution of './gradlew $task' was interrupted in ${projectDir.name}", e)
             }
         }
     }

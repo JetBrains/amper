@@ -68,13 +68,13 @@ open class AndroidBaseTest : TestBase() {
             if (!isEmulatorRunning()) {
                 startEmulator()
             }
-            cmd.add("${System.getenv("ANDROID_HOME")}/platform-tools/adb")
+            cmd.add(getAdbPath())
         } else {
             // Для CI (TeamCity)
             val adbCompanion = getAdbRemoteSession()
             val host = adbCompanion.split(':')
             cmd.apply {
-                add("${System.getenv("ANDROID_HOME")}/platform-tools/adb")
+                add(getAdbPath())
                 add("-H")
                 add(host[0])
                 add("-P")
@@ -232,33 +232,50 @@ open class AndroidBaseTest : TestBase() {
     private fun isEmulatorRunning(): Boolean {
         val stdout = ByteArrayOutputStream()
         executeCommand(
-            command = listOf("${System.getenv("ANDROID_HOME")}/platform-tools/adb", "devices"),
-            standardOut = stdout
-        )
-
-        val output = stdout.toString()
-        return output.contains("emulator-")
-    }
-
-    private fun getAvailableAvds(): List<String> {
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
-            command = listOf("${System.getenv("ANDROID_HOME")}/emulator/emulator", "-list-avds"),
+            command = listOf(getAdbPath(), "devices"),
             standardOut = stdout
         )
 
         val output = stdout.toString().trim()
-        println("Available AVDs raw output: $output")  // Логирование необработанного списка AVD
+        return output.contains("emulator")
+    }
 
-        // Извлекаем строки, представляющие имена AVD, игнорируя лишний вывод
-        val avdList = output.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("INFO") }
-        println("Filtered AVDs: $avdList")  // Логирование отфильтрованного списка AVD
 
-        return avdList
+    private fun getAvailableAvds(): List<String> {
+        val avdManagerPath = getAvdManagerPath()
+        if (!File(avdManagerPath).exists()) {
+            throw RuntimeException("avdmanager not found at path: $avdManagerPath")
+        }
+        val stdout = ByteArrayOutputStream()
+        executeCommand(
+            command = listOf(avdManagerPath, "list", "avd"),
+            standardOut = stdout
+        )
+
+        val output = stdout.toString().trim()
+        return output.lines()
+            .filter { it.contains("Name:") }
+            .map { it.split("Name:")[1].trim() }
+    }
+
+    private fun getAvdManagerPath(): String {
+        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        val osName = System.getProperty("os.name").toLowerCase()
+
+        val possiblePaths = listOf(
+            "$androidHome/cmdline-tools/latest/bin/avdmanager",
+            "$androidHome/cmdline-tools/bin/avdmanager",
+            "$androidHome/tools/bin/avdmanager"
+        )
+
+        val avdManagerPath = possiblePaths.firstOrNull { File(it).exists() }
+            ?: throw RuntimeException("avdmanager not found in any of the possible locations")
+
+        return if (osName.contains("win")) "$avdManagerPath.bat" else avdManagerPath
     }
 
     private fun startEmulator() {
-        val emulatorPath = "${System.getenv("ANDROID_HOME")}/emulator/emulator"
+        val emulatorPath = getEmulatorPath()
         val availableAvds = getAvailableAvds()
 
         if (availableAvds.isEmpty()) {
@@ -266,7 +283,7 @@ open class AndroidBaseTest : TestBase() {
         }
 
         val avdName = availableAvds[0] // Берем первый доступный AVD
-        println("Запуск эмулятора $avdName...")
+        println("Run emulator $avdName...")
 
         val processBuilder = ProcessBuilder(emulatorPath, "-avd", avdName)
         processBuilder.redirectErrorStream(true)
@@ -277,7 +294,7 @@ open class AndroidBaseTest : TestBase() {
         while (!isBootComplete) {
             val stdout = ByteArrayOutputStream()
             executeCommand(
-                command = listOf("${System.getenv("ANDROID_HOME")}/platform-tools/adb", "shell", "getprop", "sys.boot_completed"),
+                command = listOf(getAdbPath(), "shell", "getprop", "sys.boot_completed"),
                 standardOut = stdout
             )
 
@@ -285,12 +302,28 @@ open class AndroidBaseTest : TestBase() {
             if (output == "1") {
                 isBootComplete = true
             } else {
-                println("Ожидание запуска эмулятора...")
+                println("Wait emulator run...")
                 Thread.sleep(5000)
             }
         }
+    }
 
-        println("Эмулятор запущен.")
+    private fun getAdbPath(): String {
+        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        return if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            "$androidHome\\platform-tools\\adb.exe"
+        } else {
+            "$androidHome/platform-tools/adb"
+        }
+    }
+
+    private fun getEmulatorPath(): String {
+        val androidHome = System.getenv("ANDROID_HOME") ?: throw RuntimeException("ANDROID_HOME is not set")
+        return if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            "$androidHome\\emulator\\emulator.exe"
+        } else {
+            "$androidHome/emulator/emulator"
+        }
     }
 }
 
