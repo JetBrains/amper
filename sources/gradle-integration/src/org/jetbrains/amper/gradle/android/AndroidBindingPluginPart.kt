@@ -21,6 +21,15 @@ import org.jetbrains.amper.gradle.layout
 import org.jetbrains.amper.gradle.moduleDir
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.File
+import java.util.Properties
+import kotlin.io.path.Path
+import kotlin.io.path.div
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
+import kotlin.io.path.pathString
+import kotlin.io.path.reader
+
+const val SIGNING_CONFIG_NAME = "sign"
 
 @Suppress("LeakingThis")
 open class AndroidAwarePart(
@@ -155,9 +164,38 @@ class AndroidBindingPluginPart(
                 it.options.release.set(release.releaseNumber)
             }
         }
+
+        val signing = firstAndroidFragment.settings.android.signing
+
+        if (signing.propertiesFile.exists()) {
+            val keystoreProperties = Properties().apply {
+                signing.propertiesFile.reader().use { reader ->
+                    load(reader)
+                }
+            }
+            androidPE?.apply {
+                signingConfigs {
+                    it.create(SIGNING_CONFIG_NAME) {
+                        it.storeFile = Path(keystoreProperties.getProperty(signing.storeFileKey)).toFile()
+                        it.storePassword = keystoreProperties.getProperty(signing.storePasswordKey)
+                        it.keyAlias = keystoreProperties.getProperty(signing.keyAliasKey)
+                        it.keyPassword = keystoreProperties.getProperty(signing.keyPasswordKey)
+                    }
+                }
+            }
+        } else {
+            val path = (project.projectDir.toPath() / signing.propertiesFile.pathString)
+                .normalize()
+                .absolutePathString()
+
+            project.logger.warn("Properties file $path not found. Signing will not be configured")
+        }
+
         leafPlatformFragments.forEach { fragment ->
             val androidSettings = fragment.settings.android
             androidPE?.apply {
+
+
                 compileSdkVersion(androidSettings.compileSdk.versionNumber)
                 defaultConfig.apply {
                     if (!module.type.isLibrary()) androidSettings.applicationId.let { applicationId = it }
@@ -165,6 +203,9 @@ class AndroidBindingPluginPart(
                     minSdkVersion(androidSettings.minSdk.versionNumber)
                     maxSdkVersion(androidSettings.maxSdk.versionNumber)
                     targetSdkVersion(androidSettings.targetSdk.versionNumber)
+                    signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
+                        signingConfig = signing
+                    }
                 }
             }
         }

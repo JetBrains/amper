@@ -9,18 +9,26 @@ import org.gradle.tooling.events.FinishEvent
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.StartEvent
 import org.gradle.tooling.events.SuccessResult
+import org.gradle.tooling.events.problems.ProblemEvent
+import org.gradle.tooling.events.problems.SingleProblemEvent
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 
 val logger = LoggerFactory.getLogger(object {}.javaClass)
 
+@Suppress("UnstableApiUsage")
 internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
+    if (this is ProblemEvent) {
+        logger.warn((this as SingleProblemEvent).details.details)
+    }
     if (descriptor.name == "Run build") {
         when (this) {
             is StartEvent -> logger.info("Gradle build started")
             is FinishEvent -> when (result) {
-                is SuccessResult -> logger.info("Gradle build finished successfully")
+                is SuccessResult -> {
+                    logger.info("Gradle build finished successfully")
+                }
                 is FailureResult -> {
                     logger.error("Gradle build failed with errors:")
                     for (error in (result as FailureResult).failures) {

@@ -26,7 +26,7 @@ dependencies:
 
 test-dependencies:
   - com.jetbrains.intellij.platform:core:233.13763.11
-  - org.gradle:gradle-tooling-api:8.6
+  - org.gradle:gradle-tooling-api:8.9
   - commons-io:commons-io:2.4
   - ../test-base
 

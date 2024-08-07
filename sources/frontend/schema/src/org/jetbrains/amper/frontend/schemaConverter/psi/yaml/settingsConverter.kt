@@ -23,7 +23,11 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertChildScalar
+import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertChildString
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -61,7 +65,22 @@ internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
     ::targetSdk.convertChildEnum(AndroidVersion)
     ::applicationId.convertChildString()
     ::namespace.convertChildString()
+    ::signing.convertChildValue { value?.convertAndroidSigningSettings() }
 }
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun YAMLValue.convertAndroidSigningSettings() = when(this) {
+    is YAMLScalar -> AndroidSigningSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
+    is YAMLMapping -> AndroidSigningSettings().apply {
+        ::propertiesFile.convertChildScalar { asAbsolutePath() }
+        ::storeFileKey.convertChildString()
+        ::storePasswordKey.convertChildString()
+        ::keyAliasKey.convertChildString()
+        ::keyPasswordKey.convertChildString()
+    }
+    else -> null
+}
+
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertKotlinSettings() = KotlinSettings().apply {

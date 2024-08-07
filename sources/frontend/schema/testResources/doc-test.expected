@@ -71,7 +71,17 @@ AndroidSettings
 	maxSdk: AndroidVersion, default: 34 - Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	minSdk: AndroidVersion, default: 21 - Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
 	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
+	signing: AndroidSigningSettings - Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)
 	targetSdk: AndroidVersion, default: 34 - The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+
+AndroidSigningSettings
+----------------------
+	enabled: Boolean, default: false - Enable signing with keystore
+	keyAliasKey: String - The key alias key in the properties file.
+	keyPasswordKey: String - The key password key in the properties file.
+	propertiesFile: Path - Properties file where the keystore data is stored.
+	storeFileKey: String - The keystore file key in the properties file.
+	storePasswordKey: String - The keystore password key in the properties file.
 
 ComposeSettings
 ---------------

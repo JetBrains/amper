@@ -15,6 +15,8 @@ import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.problems.Problems
+import org.gradle.api.problems.Severity
 import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
@@ -32,12 +34,17 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.io.File
 import java.nio.file.Path
+import java.util.Properties
 import javax.inject.Inject
 import javax.xml.stream.XMLEventFactory
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.isSameFileAs
+import kotlin.io.path.reader
 import kotlin.io.path.relativeTo
 
 
@@ -52,7 +59,7 @@ private const val KNOWN_MODEL_EXT = "org.jetbrains.amper.gradle.android.ext.mode
 
 fun <K, V> ExtraPropertiesExtension.getBindingMap(name: String) = try {
     this[name] as MutableMap<K, V>
-} catch (cause: ExtraPropertiesExtension.UnknownPropertyException) {
+} catch (_: ExtraPropertiesExtension.UnknownPropertyException) {
     val bindingMap = mutableMapOf<K, V>()
     this[name] = bindingMap
     bindingMap
@@ -79,120 +86,162 @@ val PotatoModule.buildFile get() = (source as PotatoModuleFileSource).buildFile
 
 val PotatoModule.buildDir get() = buildFile.parent
 
-class AmperAndroidIntegrationProjectPlugin : Plugin<Project> {
-    override fun apply(project: Project) = with(SLF4JProblemReporterContext()) {
+private const val SIGNING_CONFIG_NAME = "sign"
+
+@Suppress("UnstableApiUsage")
+class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val problems: Problems) : Plugin<Project> {
+    override fun apply(project: Project): Unit = with(SLF4JProblemReporterContext()) {
+        val log = project.logger
         val rootProjectBuildDir = project.rootProject.layout.buildDirectory.asFile.get().toPath()
         val buildDir = rootProjectBuildDir / project.path.replace(":", "_")
         project.layout.buildDirectory.set(buildDir.toFile())
         project.repositories.google()
         project.repositories.mavenCentral()
-        project.gradle.projectPathToModule[project.path]?.let { module ->
-            when (module.type) {
-                ProductType.ANDROID_APP -> project.plugins.apply("com.android.application")
-                else -> project.plugins.apply("com.android.library")
-            }
-            project.extensions.findByType(BaseExtension::class.java)?.let { androidExtension ->
-                module
-                    .fragments
-                    .filterIsInstance<LeafFragment>()
-                    .firstOrNull { it.platforms.contains(Platform.ANDROID) }?.let { androidFragment ->
+        val module = project.gradle.projectPathToModule[project.path] ?: return
 
-                        val androidSettings = androidFragment.settings.android
-                        androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
-                        androidExtension.defaultConfig {
-                            it.maxSdk = androidSettings.maxSdk.versionNumber
-                            it.targetSdk = androidSettings.targetSdk.versionNumber
-                            it.minSdk = androidSettings.minSdk.versionNumber
-                            it.versionCode = 1
-                            if (module.type == ProductType.ANDROID_APP) {
-                                it.applicationId =  androidSettings.applicationId
-                            }
-                        }
-                        androidExtension.namespace = androidSettings.namespace
+        when (module.type) {
+            ProductType.ANDROID_APP -> project.plugins.apply("com.android.application")
+            else -> project.plugins.apply("com.android.library")
+        }
 
-                        val requestedModules = project
-                            .gradle
-                            .request
-                            ?.modules
-                            ?.associate { it.modulePath to it } ?: mapOf()
+        val androidExtension = project.extensions.findByType(BaseExtension::class.java) ?: return
+        val androidFragment = module
+            .fragments
+            .filterIsInstance<LeafFragment>()
+            .firstOrNull { it.platforms.contains(Platform.ANDROID) } ?: return
 
-                        androidExtension.sourceSets.matching { it.name == "main" }.all {
-                            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
-                            it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
-                        }
+        val androidSettings = androidFragment.settings.android
+        androidExtension.compileSdkVersion(androidSettings.compileSdk.versionNumber)
 
-                        project.afterEvaluate {
-                            // get variants
-                            val variants = when (module.type) {
-                                ProductType.ANDROID_APP -> (androidExtension as AppExtension).applicationVariants
-//                                ProductType.ANDROID_INSTRUMENTATION_TESTS -> (androidExtension as AppExtension).testVariants
-                                else -> (androidExtension as LibraryExtension).libraryVariants
-                            }
-                            // choose variant
+        val signing = androidSettings.signing
 
-                            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }
-
-                            val chosenVariants =  variants
-                                .mapNotNull {
-                                    variant -> buildTypes
-                                        .firstOrNull { variant.name.startsWith(it) }
-                                        ?.let { it to variant }
-                                }
-                                .toMap()
-
-                            for((buildType, variant) in chosenVariants) {
-
-                                project.tasks.create("prepare$buildType") {
-                                    for (output in variant.outputs) {
-                                        it.dependsOn(output.processResourcesProvider)
-                                    }
-                                }
-
-                                project.tasks.create("build$buildType") {
-                                    when (variant) {
-                                        is ApkVariant -> it.dependsOn(variant.packageApplicationProvider)
-                                        is LibraryVariant -> it.dependsOn(variant.packageLibraryProvider)
-                                    }
-                                }
-
-                                requestedModules[project.path]?.let { requestedModule ->
-                                    // set dependencies
-                                    for (dependency in requestedModule.resolvedAndroidRuntimeDependencies) {
-                                        variant.runtimeConfiguration.dependencies.add(
-                                            ResolvedAmperDependency(
-                                                project,
-                                                dependency
-                                            )
-                                        )
-                                    }
-
-                                    // set inter-module dependencies between android modules
-                                    val androidDependencyPaths = project.gradle.knownModel?.let { model ->
-                                        androidFragment
-                                            .externalDependencies
-                                            .asSequence()
-                                            .filterIsInstance<PotatoModuleDependency>()
-                                            .map { it.module }
-                                            .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
-                                            .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
-                                            .filter { it in requestedModules }
-                                            .toList()
-                                    } ?: listOf()
-
-                                    for (path in androidDependencyPaths) {
-                                        variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to path)))
-                                    }
-
-                                    // set classes
-                                    requestedModule.moduleClasses.forEach {
-                                        variant.registerPostJavacGeneratedBytecode(project.files(it))
-                                    }
-                                }
-                            }
-                        }
+        if (signing.enabled) {
+            if (signing.propertiesFile.exists()) {
+                val keystoreProperties = Properties().apply {
+                    signing.propertiesFile.reader().use { reader ->
+                        load(reader)
                     }
+                }
+
+                androidExtension.signingConfigs {
+                    it.create(SIGNING_CONFIG_NAME) {
+                        it.storeFile = Path(keystoreProperties.getProperty(signing.storeFileKey)).toFile()
+                        it.storePassword = keystoreProperties.getProperty(signing.storePasswordKey)
+                        it.keyAlias = keystoreProperties.getProperty(signing.keyAliasKey)
+                        it.keyPassword = keystoreProperties.getProperty(signing.keyPasswordKey)
+                    }
+                }
+            } else {
+                problems
+                    .forNamespace("org.jetbrains.amper.android-integration")
+                    .reporting { problem ->
+                        problem
+                            .id("signing-properties-file-not-found", "Signing properties file not found")
+                            .contextualLabel("Signing properties file not found")
+                            .details("Signing properties file ${signing.propertiesFile.normalize().absolutePathString()} not found. Signing will not be configured")
+                            .severity(Severity.WARNING)
+                            .solution("Put signing properties file to ${signing.propertiesFile.normalize().absolutePathString()}")
+                }
+                log.warn("Properties file ${signing.propertiesFile.normalize().absolutePathString()} not found. Signing will not be configured")
             }
-        } ?: Unit
+        }
+
+        androidExtension.defaultConfig {
+            it.maxSdk = androidSettings.maxSdk.versionNumber
+            it.targetSdk = androidSettings.targetSdk.versionNumber
+            it.minSdk = androidSettings.minSdk.versionNumber
+            it.versionCode = 1
+            if (module.type == ProductType.ANDROID_APP) {
+                it.applicationId = androidSettings.applicationId
+            }
+            androidExtension.signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
+                it.signingConfig = signing
+            }
+        }
+        androidExtension.namespace = androidSettings.namespace
+
+
+
+        val requestedModules = project
+            .gradle
+            .request
+            ?.modules
+            ?.associate { it.modulePath to it } ?: mapOf()
+
+        androidExtension.sourceSets.matching { it.name == "main" }.all {
+            it.manifest.srcFile(androidFragment.src.resolve("AndroidManifest.xml"))
+            it.res.setSrcDirs(setOf(module.buildDir.resolve("res")))
+        }
+
+        project.afterEvaluate {
+
+            // get variants
+            val variants = when (module.type) {
+                ProductType.ANDROID_APP -> (androidExtension as AppExtension).applicationVariants
+                else -> (androidExtension as LibraryExtension).libraryVariants
+            }
+
+            // choose variant
+
+            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }
+
+            val chosenVariants = variants
+                .mapNotNull { variant ->
+                    buildTypes
+                        .firstOrNull { variant.name.startsWith(it) }
+                        ?.let { it to variant }
+                }
+                .toMap()
+
+            for ((buildType, variant) in chosenVariants) {
+                project.tasks.create("prepare$buildType") {
+                    for (output in variant.outputs) {
+                        it.dependsOn(output.processResourcesProvider)
+                    }
+                }
+
+                project.tasks.create("build$buildType") {
+                    when (variant) {
+                        is ApkVariant -> it.dependsOn(variant.packageApplicationProvider)
+                        is LibraryVariant -> it.dependsOn(variant.packageLibraryProvider)
+                    }
+                }
+
+                val requestedModule = requestedModules[project.path] ?: return@afterEvaluate
+
+                // set dependencies
+                for (dependency in requestedModule.resolvedAndroidRuntimeDependencies) {
+                    variant.runtimeConfiguration.dependencies.add(
+                        ResolvedAmperDependency(
+                            project,
+                            dependency
+                        )
+                    )
+                }
+
+                // set inter-module dependencies between android modules
+                val androidDependencyPaths = project.gradle.knownModel?.let { model ->
+                    androidFragment
+                        .externalDependencies
+                        .asSequence()
+                        .filterIsInstance<PotatoModuleDependency>()
+                        .map { it.module }
+                        .filter { it.artifacts.any { Platform.ANDROID in it.platforms } }
+                        .mapNotNull { project.gradle.moduleFilePathToProject[it.buildDir] }
+                        .filter { it in requestedModules }
+                        .toList()
+                } ?: listOf()
+
+                for (path in androidDependencyPaths) {
+                    variant.runtimeConfiguration.dependencies.add(project.dependencies.project(mapOf("path" to path)))
+                }
+
+                // set classes
+                requestedModule.moduleClasses.forEach {
+                    variant.registerPostJavacGeneratedBytecode(project.files(it))
+                }
+            }
+        }
     }
 }
 

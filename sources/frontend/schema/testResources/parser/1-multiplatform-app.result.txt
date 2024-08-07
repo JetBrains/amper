@@ -16,6 +16,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -70,6 +78,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -122,6 +138,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -174,6 +198,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -225,6 +257,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -275,6 +315,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -327,6 +375,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -377,6 +433,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -429,6 +493,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -481,6 +553,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -531,6 +611,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {
@@ -583,6 +671,14 @@ Fragments:
         maxSdk: <default> VERSION_34
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
+        signing: <default> {
+          enabled: <default> false
+          keyAliasKey: <default> keystore.key.alias
+          keyPasswordKey: <default> keystore.key.password
+          propertiesFile: <default> keystore.properties
+          storeFileKey: <default> keystore.file
+          storePasswordKey: <default> keystore.password
+        }
         targetSdk: <default> VERSION_34
       }
       compose: <default> {

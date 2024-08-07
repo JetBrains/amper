@@ -21,6 +21,7 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.TraceableMap
 import kotlin.reflect.KMutableProperty1
@@ -78,6 +79,15 @@ fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, ::A
     mergeScalar(AndroidSettings::targetSdk)
     mergeScalar(AndroidSettings::applicationId)
     mergeScalar(AndroidSettings::namespace)
+    mergeNodeProperty(AndroidSettings::signing, AndroidSigningSettings::merge)
+}
+
+fun AndroidSigningSettings.merge(overwrite: AndroidSigningSettings) = mergeNode(overwrite, ::AndroidSigningSettings) {
+    mergeScalar(AndroidSigningSettings::propertiesFile)
+    mergeScalar(AndroidSigningSettings::storeFileKey)
+    mergeScalar(AndroidSigningSettings::storePasswordKey)
+    mergeScalar(AndroidSigningSettings::keyAliasKey)
+    mergeScalar(AndroidSigningSettings::keyPasswordKey)
 }
 
 fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::KotlinSettings) {

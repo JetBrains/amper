@@ -465,6 +465,11 @@
           "title": "A Kotlin or Java package name for the generated `R` and `BuildConfig` classes",
           "type": "string"
         },
+        "signing": {
+          "x-intellij-html-description": "Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)",
+          "title": "Application signing settings",
+          "$ref": "#/$defs/AndroidSigningSettings"
+        },
         "targetSdk": {
           "x-intellij-html-description": "The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "The target API level for the application",
@@ -473,6 +478,51 @@
         }
       },
       "additionalProperties": false
+    },
+    "AndroidSigningSettings": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "x-intellij-html-description": "Enable signing with keystore",
+              "title": "Enable signing with keystore",
+              "type": "boolean"
+            },
+            "keyAliasKey": {
+              "x-intellij-html-description": "The key alias key in the properties file.",
+              "title": "The key alias key in the properties file",
+              "type": "string"
+            },
+            "keyPasswordKey": {
+              "x-intellij-html-description": "The key password key in the properties file.",
+              "title": "The key password key in the properties file",
+              "type": "string"
+            },
+            "propertiesFile": {
+              "x-intellij-html-description": "Properties file where the keystore data is stored.",
+              "title": "Properties file where the keystore data is stored",
+              "type": "string"
+            },
+            "storeFileKey": {
+              "x-intellij-html-description": "The keystore file key in the properties file.",
+              "title": "The keystore file key in the properties file",
+              "type": "string"
+            },
+            "storePasswordKey": {
+              "x-intellij-html-description": "The keystore password key in the properties file.",
+              "title": "The keystore password key in the properties file",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": [
+            "enabled"
+          ]
+        }
+      ]
     },
     "ComposeSettings": {
       "anyOf": [

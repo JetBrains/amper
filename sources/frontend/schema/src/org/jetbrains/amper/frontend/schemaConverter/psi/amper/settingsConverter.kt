@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 
 context(ProblemReporterContext, ConvertCtx)
@@ -61,6 +62,22 @@ internal fun AmperObject.convertAndroidSettings() = AndroidSettings().apply {
     ::targetSdk.convertChildEnum(AndroidVersion)
     ::applicationId.convertChildString()
     ::namespace.convertChildString()
+    ::signing.convertChildValue { convertAndroidSigningSettings() }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperProperty.convertAndroidSigningSettings() = when(value) {
+    is AmperLiteral -> (value as? AmperLiteral)?.run { AndroidSigningSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } } }
+    else -> (value as AmperObject)?.convertAndroidSigningSettingsObject()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperObject.convertAndroidSigningSettingsObject() = AndroidSigningSettings().apply {
+    ::propertiesFile.convertChildScalar { asAbsolutePath() }
+    ::storeFileKey.convertChildString()
+    ::storePasswordKey.convertChildString()
+    ::keyAliasKey.convertChildString()
+    ::keyPasswordKey.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)

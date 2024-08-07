@@ -10,3 +10,4 @@ build
 shared test caches/
 
 local.properties
+keystore.properties

@@ -6,9 +6,11 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.AdditionalSchemaDef
 import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import java.nio.file.Path
 
 @EnumOrderSensitive(reverse = true)
 enum class AndroidVersion(
@@ -80,4 +82,37 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("The ID for the application on a device and in the Google Play Store. " +
             "[Read more](https://developer.android.com/build/configure-app-module#set-namespace)")
     var applicationId by value { namespace }
+
+    @SchemaDoc("Application signing settings. " +
+    "[Read more](https://developer.android.com/studio/publish/app-signing)")
+    var signing by value(::AndroidSigningSettings)
 }
+
+@AdditionalSchemaDef(ANDROID_SIGNING_SETTINGS_SHORT_FORM)
+class AndroidSigningSettings : SchemaNode() {
+    @SchemaDoc("Enable signing with keystore")
+    var enabled by value(default = false)
+
+    @SchemaDoc("Properties file where the keystore data is stored.")
+    var propertiesFile by value<Path> { Path.of("keystore.properties") }
+
+    @SchemaDoc("The keystore file key in the properties file.")
+    var storeFileKey by value<String> { "keystore.file" }
+
+    @SchemaDoc("The keystore password key in the properties file.")
+    var storePasswordKey by value<String> { "keystore.password" }
+
+    @SchemaDoc("The key alias key in the properties file.")
+    var keyAliasKey by value<String> { "keystore.key.alias" }
+
+    @SchemaDoc("The key password key in the properties file.")
+    var keyPasswordKey by value<String> { "keystore.key.password" }
+}
+
+const val ANDROID_SIGNING_SETTINGS_SHORT_FORM = """
+  {
+    "enum": [
+      "enabled"
+    ]
+  }
+"""
