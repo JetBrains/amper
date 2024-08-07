@@ -131,11 +131,11 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val sdkmanagerPath = TestUtil.sharedTestCaches / "empty-android-sdk/cmdline-tools/latest/bin/sdkmanager"
 
         val expectedError = """
-            Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted for Android SDK:
+            Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted in the Android SDK:
              - android-sdk-license
             Run "$sdkmanagerPath --licenses" to review and accept them
         """.trimIndent()
-        assertEquals(throwable.message, expectedError)
+        assertEquals(expectedError, throwable.message)
     }
 
     @Test
