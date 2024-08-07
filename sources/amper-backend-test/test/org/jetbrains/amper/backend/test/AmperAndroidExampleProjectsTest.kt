@@ -39,6 +39,7 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -123,17 +124,18 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     @Test
     fun `should fail when license is not accepted`() = runTestWithCollector {
         val projectContext = setupAndroidTestProject("simple", useEmptyAndroidHome = true)
+        val sdkManagerPath = projectContext.androidHomeRoot.path / "cmdline-tools/latest/bin/sdkmanager"
 
         val throwable = assertFails {
             AmperBackend(projectContext).build()
         }
 
-        val sdkmanagerPath = TestUtil.sharedTestCaches / "empty-android-sdk/cmdline-tools/latest/bin/sdkmanager"
-
+        // We should get the android-sdk-preview-license because that's the first one from the cmdline-tools
+        // (the only thing that was installed in this empty SDK home)
         val expectedError = """
             Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted in the Android SDK:
-             - android-sdk-license
-            Run "$sdkmanagerPath --licenses" to review and accept them
+             - android-sdk-preview-license
+            Run "$sdkManagerPath --licenses" to review and accept them
         """.trimIndent()
         assertEquals(expectedError, throwable.message)
     }
