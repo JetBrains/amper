@@ -25,14 +25,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import kotlin.io.path.Path
+import kotlin.io.path.appendLines
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
+import kotlin.io.path.readLines
 import kotlin.time.Duration
 
 object TestUtil {
@@ -194,8 +193,11 @@ object TestUtil {
         val licenseFile = androidSdkHome / "licenses" / name
         licenseFile.parent.createDirectories()
 
-        if (!licenseFile.isRegularFile() || licenseFile.readText() != hash) {
-            licenseFile.writeText(hash)
+        if (!licenseFile.exists()) {
+            licenseFile.createFile()
+        }
+        if (hash !in licenseFile.readLines()) {
+            licenseFile.appendLines(listOf(hash))
         }
     }
 
