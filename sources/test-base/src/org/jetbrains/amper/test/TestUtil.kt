@@ -141,14 +141,15 @@ object TestUtil {
             }
 
             val configuration = mapOf(
+                "androidSdkHomePath" to androidSdkHome.pathString,
                 "cmdToolsRevision" to getCmdToolsPkgRevision(commandLineTools),
                 "licenses" to licensesToAccept.joinToString(" ") { "${it.first}-${it.second}" },
                 "packages" to toolsToInstall.joinToString(" "),
             )
 
             ExecuteOnChangedInputs(fakeBuildOutputRoot).execute(
-                "android-sdk",
-                configuration,
+                id = "android-sdk",
+                configuration = configuration,
                 inputs = emptyList()
             ) {
                 cleanDirectory(androidSdkHome)
