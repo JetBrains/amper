@@ -83,10 +83,12 @@ abstract class AmperIntegrationTestBase {
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
         val buildDir = tempRoot.resolve("build").also { it.createDirectories() }
-        val androidHomeRoot = if (useEmptyAndroidHome)
-            AndroidHomeRoot((TestUtil.sharedTestCaches / "empty-android-sdk").also { it.createDirectories() })
-        else
+        val androidHomeRoot = if (useEmptyAndroidHome) {
+            // in temp dir so we get a fresh one in every build on the CI
+            AndroidHomeRoot((TestUtil.tempDir / "empty-android-sdk").also { it.createDirectories() })
+        } else {
             AndroidHomeRoot(TestUtil.androidHome)
+        }
 
         return ProjectContext.create(
             explicitProjectRoot = projectRoot,
