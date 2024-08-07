@@ -150,7 +150,8 @@ class SdkInstallManager(private val userCacheRoot: AmperUserCacheRoot, private v
         .filter { it.name == "package.xml" }
         .map { it.readRepository().localPackage.license }
         .filterNot { license -> license.checkAccepted(androidSdkPath) }
-        .distinctBy { it.id }
+        .distinct()
+        .sorted()
         .toList()
 
     private fun writePackageXml(pkg: RemotePackage, localPackagePath: Path): LocalPackage {

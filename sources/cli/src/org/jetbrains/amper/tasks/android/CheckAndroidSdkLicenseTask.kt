@@ -20,14 +20,16 @@ class CheckAndroidSdkLicenseTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val unacceptedLicenses = SdkInstallManager(userCacheRoot, androidSdkPath).findUnacceptedSdkLicenses()
         if (unacceptedLicenses.isNotEmpty()) {
-            val licensesListText = unacceptedLicenses.joinToString("\n") { " - ${it.id}" }
+            val licensesListText = unacceptedLicenses.map { it.id }
+                .distinct()
+                .joinToString("\n") { " - $it" }
             val licensesCommand = "${androidSdkPath / "cmdline-tools" / "latest" / "bin" / "sdkmanager"} --licenses"
-            userReadableError("Some licenses have not been accepted for Android SDK:\n" +
+            userReadableError("Some licenses have not been accepted in the Android SDK:\n" +
                     "$licensesListText\n" +
                     "Run \"$licensesCommand\" to review and accept them")
         }
         return Result()
     }
 
-    class Result() : TaskResult
+    class Result : TaskResult
 }
