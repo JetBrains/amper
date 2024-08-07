@@ -46,6 +46,7 @@ object TestUtil {
         "android-sdk-preview-license" to "504667f4c0de7af1a06de9f4b1727b84351f2910",
         "google-gdk-license" to "33b6a2b64607f11b759f320ef9dff4ae5c47d97a",
         "intel-android-extra-license" to "d975f751698a77b662f1254ddbeed3901e976f5a",
+        "android-sdk-arm-dbt-license" to "859f317696f67ef3d7f30a50a5560e7834b43903",
     )
 
     private val toolsToInstall = listOf(
