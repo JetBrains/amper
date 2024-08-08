@@ -69,15 +69,8 @@ save it with the correct name and extension.
 
 After that, run the Amper script to explore what is possible using Amper CLI:
 
-Linux/macOS
 ```
 ./amper --help
-```
-
-Windows powershell:
-
-```
-./amper.bat --help
 ```
 
 > The first time you run the Amper script, it will take some time to download the JDK and Amper CLI distribution.
