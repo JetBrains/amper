@@ -26,7 +26,7 @@ Only directories that contain a `module.yaml` file will be considered when match
 - `?` matches exactly one character of a path name component
 - `[abc]` matches exactly one character of the given set (here `a`, `b`, or `c`). A dash (`-`) can be used to match a range, such as `[a-z]`.
 
-Using `**` to recursively match directories at multiple depth levels is not possible for now.
+Using `**` to recursively match directories at multiple depth levels is not supported.
 
 Example:
 
