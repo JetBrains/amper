@@ -59,13 +59,15 @@ If there are multiple modules, the `project.yaml` file specifies the list of mod
 |-project.yaml
 ```
 
-The `project.yaml` file:
+The `project.yaml` file could look like this:
 
 ```yaml
 modules:
   - ./app
   - ./lib
 ```
+
+Check the [reference](DSLReference.md#modules) for more options to define the list of modules in the `project.yaml` file.
 
 In Gradle-based projects the `settings.gradle.kts` is expected instead of a `project.yaml` file, and it's required even for single-module projects.
 Read more in the [Gradle-based projects](Documentation.md#gradle-based-projects) section.
