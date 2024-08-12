@@ -11,8 +11,8 @@ dependencies:
   - ../../core-intellij
   - ../../frontend-api
   - ../../frontend/schema
-  - com.android.library:com.android.library.gradle.plugin:8.2.2
-  - com.android.application:com.android.application.gradle.plugin:8.2.0
+  - com.android.library:com.android.library.gradle.plugin:8.5.0
+  - com.android.application:com.android.application.gradle.plugin:8.5.0
   - dev.gradleplugins:gradle-api:8.9: compile-only
 
 settings:
