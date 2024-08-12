@@ -10,6 +10,9 @@ import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.StartEvent
 import org.gradle.tooling.events.SuccessResult
 import org.gradle.tooling.events.problems.ProblemEvent
+import org.gradle.tooling.events.problems.Severity.ADVICE
+import org.gradle.tooling.events.problems.Severity.ERROR
+import org.gradle.tooling.events.problems.Severity.WARNING
 import org.gradle.tooling.events.problems.SingleProblemEvent
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -20,7 +23,13 @@ val logger = LoggerFactory.getLogger(object {}.javaClass)
 @Suppress("UnstableApiUsage")
 internal fun ProgressEvent.handle(stdoutPath: Path, stderrPath: Path) {
     if (this is ProblemEvent) {
-        logger.warn((this as SingleProblemEvent).details.details)
+        val loggingFunc: (String) -> Unit = when((this as SingleProblemEvent).definition.severity) {
+            ADVICE -> logger::info
+            WARNING -> logger::warn
+            ERROR -> logger::error
+            else -> logger::info
+        }
+        loggingFunc(this.details.details)
     }
     if (descriptor.name == "Run build") {
         when (this) {
