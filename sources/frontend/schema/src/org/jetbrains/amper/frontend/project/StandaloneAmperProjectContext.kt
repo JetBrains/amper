@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertProject
+import org.jetbrains.annotations.VisibleForTesting
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.PathMatcher
@@ -296,13 +297,24 @@ private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFil
     }
 }
 
+private val regexDot = Regex("""(^|/)\.(/\.)*(/|$)""")
+private val regexDotDot = Regex("""(^|/)[^/]+/\.\.(/|$)""")
+private val regexMultipleSlashes = Regex("""//+""")
+
 // Regular path normalization doesn't work with globs, because they contain invalid characters (e.g. '*').
-// We do need to normalize to some extent, at least for frequently used elements like './' or '/' suffix.
-// More advanced cases like '/../' can be added later.
-private fun String.normalizeGlob(): String = removePrefix("./")
-    .replace("/./", "/")
-    .removeSuffix("/.")
-    .removeSuffix("/")
+// We need to normalize glob paths, otherwise the matcher will miss non-exact matches like "./dir" != "dir"
+@VisibleForTesting
+internal fun String.normalizeGlob(): String {
+    fun String.collapsedPathSegment() = if (startsWith("/") && endsWith("/")) "/" else ""
+
+    var cleaned = replace(regexMultipleSlashes, "/")
+        .removeSuffix("/")
+        .replace(regexDot) { it.value.collapsedPathSegment() }
+    while ("/.." in cleaned) {
+        cleaned = cleaned.replace(regexDotDot) { it.value.collapsedPathSegment() }
+    }
+    return cleaned
+}
 
 /**
  * Returns the list of descendants of this [VirtualFile] matching the given [matcher].

@@ -281,7 +281,7 @@ class AmperCliTest: AmperCliTestBase() {
     @Test
     fun `project with denormalized globs`() = runTestInfinitely {
         val result = runCli(testDataRoot / "project-root-denormalized-globs", "modules")
-        assertModulesList(result, listOf("deep", "sub1", "sub2", "sub3", "sub4"))
+        assertModulesList(result, listOf("deep", "deep2", "sub1", "sub2", "sub3", "sub4"))
     }
 
     @Test
