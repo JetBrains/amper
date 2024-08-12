@@ -96,6 +96,16 @@ In addition to the standalone version, Amper is offered as a Gradle plugin.
 Gradle-based Amper offers full interoperability with Gradle, including the use of Gradle plugins and writing custom
 tasks.
 
+### How do Amper and Declarative Gradle relate to each over?
+
+Both projects aim to improve the the developer experience and the IDE support; but from the opposite directions and with different 
+constraints. The Amper's approach is to design a tool from ground up, which is easy to use for the developers regardless of their 
+background, with a great IDE support in mind, and focused on the specific use-cases.
+The [Declarative Gradle project](https://blog.gradle.org/declarative-gradle) approaches the same goal from the other end, 
+simplifying and managing the complexity of an already exising powerful tool. 
+
+While both projects are still experimental, it's important that you provide your feedback to shape the future development.
+
 ## Usage
 
 ### What are the requirements to use Amper?
