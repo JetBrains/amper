@@ -44,6 +44,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isSameFileAs
+import kotlin.io.path.pathString
 import kotlin.io.path.reader
 import kotlin.io.path.relativeTo
 
@@ -115,6 +116,8 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
 
         val signing = androidSettings.signing
 
+        module.buildDir
+
         if (signing.enabled) {
             if (signing.propertiesFile.exists()) {
                 val keystoreProperties = Properties().apply {
@@ -132,17 +135,18 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                     }
                 }
             } else {
+                val path = (module.buildDir / signing.propertiesFile.pathString).normalize().absolutePathString()
                 problems
                     .forNamespace("org.jetbrains.amper.android-integration")
                     .reporting { problem ->
                         problem
                             .id("signing-properties-file-not-found", "Signing properties file not found")
                             .contextualLabel("Signing properties file not found")
-                            .details("Signing properties file ${signing.propertiesFile.normalize().absolutePathString()} not found. Signing will not be configured")
+                            .details("Signing properties file $path not found. Signing will not be configured")
                             .severity(Severity.WARNING)
-                            .solution("Put signing properties file to ${signing.propertiesFile.normalize().absolutePathString()}")
+                            .solution("Put signing properties file to $path")
                 }
-                log.warn("Properties file ${signing.propertiesFile.normalize().absolutePathString()} not found. Signing will not be configured")
+                log.warn("Properties file $path not found. Signing will not be configured")
             }
         }
 
