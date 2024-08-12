@@ -1,0 +1,6 @@
+modules:
+  - ./su[b]1
+  - su[b]2/.
+  - ./su[b]3/
+  - su[b]4/./.
+  - ./su[b]5/./subsub/./deep/.

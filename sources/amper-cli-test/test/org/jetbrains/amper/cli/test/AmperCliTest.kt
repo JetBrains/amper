@@ -279,6 +279,12 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
+    fun `project with denormalized globs`() = runTestInfinitely {
+        val result = runCli(testDataRoot / "project-root-denormalized-globs", "modules")
+        assertModulesList(result, listOf("deep", "sub1", "sub2", "sub3", "sub4"))
+    }
+
+    @Test
     fun `project with both top-level and nested modules`() = runTestInfinitely {
         val result = runCli(testDataRoot / "top-level-and-nested-modules", "modules")
         assertModulesList(result, listOf("deep-module", "top-level-and-nested-modules"))

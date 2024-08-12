@@ -300,7 +300,7 @@ private fun reportInvalidGlob(moduleDirGlob: TraceableString, generatedModuleFil
 // We do need to normalize to some extent, at least for frequently used elements like './' or '/' suffix.
 // More advanced cases like '/../' can be added later.
 private fun String.normalizeGlob(): String = removePrefix("./")
-    .replace("/./", "")
+    .replace("/./", "/")
     .removeSuffix("/.")
     .removeSuffix("/")
 
