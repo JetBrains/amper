@@ -9,7 +9,7 @@ Both versions offer a unified, easy-to-use, declarative configuration format.
 ### Do you plan to support only Kotlin?
 
 For now, the primary target is Kotlin and Kotlin Multiplatform projects. Since Kotlin is multiplatform, Amper also
-supports Java on JVM and Swift and Objective-C on iOS.
+supports Java on the JVM, and Swift and Objective-C on iOS.
 We’ll investigate other tech stacks in the future based on the demand for them.
 
 ### Which target platforms are supported?
@@ -18,13 +18,14 @@ Currently, you can create applications for the JVM, Android, iOS, macOS, and Lin
 Kotlin Multiplatform targets.
 
 ### Does Amper support Compose Multiplatform?
+
 Yes, you can configure Compose for Android, iOS, and desktop.
 
 ### Does Amper support Kotlin/JS or Kotlin/Wasm projects?
 
 Currently, Amper doesn't support Kotlin/JS and only supports Wasm in library modules.
-Please follow [AMPER-221](https://youtrack.jetbrains.com/issue/AMPER-221) for the updates on JS support, and
-[AMPER-258](https://youtrack.jetbrains.com/issue/AMPER-258) for the further Wasm support.
+Please follow [AMPER-221](https://youtrack.jetbrains.com/issue/AMPER-221) for updates on JS support, and
+[AMPER-258](https://youtrack.jetbrains.com/issue/AMPER-258) for updates on Wasm support.
 
 ### What functionality do you plan to support?
 
@@ -96,11 +97,11 @@ In addition to the standalone version, Amper is offered as a Gradle plugin.
 Gradle-based Amper offers full interoperability with Gradle, including the use of Gradle plugins and writing custom
 tasks.
 
-### How do Amper and Declarative Gradle relate to each over?
+### How do Amper and Declarative Gradle relate to each other?
 
-Both projects aim to improve the the developer experience and the IDE support; but from the opposite directions and with different 
-constraints. The Amper's approach is to design a tool from ground up, which is easy to use for the developers regardless of their 
-background, with a great IDE support in mind, and focused on the specific use-cases.
+Both projects aim to improve the developer experience and the IDE support, but from opposite directions and with
+different constraints. Amper's approach is to design, from the ground up, a tool that is easy to use for the developers
+regardless of their background, with great IDE support in mind, and focused on specific use-cases.
 The [Declarative Gradle project](https://blog.gradle.org/declarative-gradle) approaches the same goal from the other end, 
 simplifying and managing the complexity of an already exising powerful tool. 
 
@@ -112,10 +113,10 @@ While both projects are still experimental, it's important that you provide your
 
 To use Amper on the command line:
 
-* The standalone version of Amper is self-containing. See
-  the [usage instructions](Usage.md#using-the-standalone-amper-version-from-the-command-line).
-* Gradle-based Amper projects require JDK 17+ and Gradle 8.6. See
-  the [usage instructions](Usage.md#using-the-gradle-based-amper-version-from-the-command-line).
+* The standalone version of Amper is self-contained.
+  See the [usage instructions](Usage.md#using-the-standalone-amper-version-from-the-command-line).
+* Gradle-based Amper projects require JDK 17+ and Gradle 8.6.
+  See the [usage instructions](Usage.md#using-the-gradle-based-amper-version-from-the-command-line).
 
 To use Amper in the IDE:
 
