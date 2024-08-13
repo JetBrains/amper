@@ -51,6 +51,11 @@ class GlobTest {
     @Test
     fun matches_leadingDoubleDots() {
         assertGlobMatch("../dir", "../dir")
+        assertGlobMatch("../../dir", "../../dir")
+
+        // just in case somehow the code is changed to just ignore '..' or '../..' everywhere
+        assertGlobNoMatch("dir", "../dir")
+        assertGlobNoMatch("dir", "../../dir")
     }
 
     @Test

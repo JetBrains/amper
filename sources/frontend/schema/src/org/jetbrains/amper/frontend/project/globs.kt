@@ -37,14 +37,14 @@ class Glob(pattern: String) {
         }
 
         private val regexDot = Regex("""(^|/)\.(/\.)*(/|$)""")
-        private val regexDotDot = Regex("""(^|/)[^/]+/\.\.(/|$)""")
+        private val regexDotDot = Regex("""(^|/)(?!\.\./)[^/]+/\.\.(/|$)""")
         private val regexMultipleSlashes = Regex("""/{2,}""")
 
         /**
          * Normalizes the given glob [pattern].
          *
          * The method performs the following operations:
-         * * Replace multiple slashes with a single slash ("/")
+         * * Replace multiple slashes with a single slash `/`
          * * Remove trailing slashes
          * * Resolve dot segments `./`, `/./`, `/.` by removing them from the path
          * * Resolve `dir/..` segment pairs by removing the pair from the path
@@ -57,7 +57,7 @@ class Glob(pattern: String) {
                 .replace(regexMultipleSlashes, "/")
                 .replace(regexDot) { it.value.collapsedPathSegment() }
 
-            while ("/.." in cleaned) {
+            while (regexDotDot.find(cleaned) != null) {
                 cleaned = cleaned.replace(regexDotDot) { it.value.collapsedPathSegment() }
             }
             if (cleaned != "/") {
