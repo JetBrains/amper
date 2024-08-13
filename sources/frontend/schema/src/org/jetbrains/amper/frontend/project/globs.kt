@@ -15,6 +15,13 @@ private val globChars = setOf('*', '?', '{', '}', '[', ']', ',')
  */
 fun String.hasGlobCharacters() = any { it in globChars }
 
+/**
+ * A glob pattern that can be used to match paths.
+ *
+ * @param pattern the glob pattern to parse and use to match paths.
+ *
+ * @constructor Creates a new Glob from the given pattern, or throws [PatternSyntaxException] if the pattern is invalid.
+ */
 class Glob(pattern: String) {
 
     // We need to normalize glob paths, otherwise the matcher will miss non-exact matches like "./dir" != "dir".
@@ -23,6 +30,8 @@ class Glob(pattern: String) {
 
     /**
      * Returns whether the given [path] matches this glob.
+     * The given [path] is normalized to ensure that equivalent paths are still matched.
+     * For instance, segments like `/./` or `xyz/..` are removed, and `//` occurrences are replaced with single slashes.
      */
     fun matches(path: Path): Boolean = pathMatcher.matches(path.normalize())
 
