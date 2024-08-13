@@ -44,35 +44,35 @@ class Glob(pattern: String) {
         fun checkValid(pattern: String) {
             FileSystems.getDefault().getPathMatcher("glob:$pattern")
         }
-
-        private val regexDot = Regex("""(^|/)\.(/\.)*(/|$)""")
-        private val regexDotDot = Regex("""(^|/)(?!\.\./)[^/]+/\.\.(/|$)""")
-        private val regexMultipleSlashes = Regex("""/{2,}""")
-
-        /**
-         * Normalizes the given glob [pattern].
-         *
-         * The method performs the following operations:
-         * * Replace multiple slashes with a single slash `/`
-         * * Remove trailing slashes
-         * * Resolve dot segments `./`, `/./`, `/.` by removing them from the path
-         * * Resolve `dir/..` segment pairs by removing the pair from the path
-         */
-        private fun normalize(pattern: String): String {
-            // collapse to empty string when the match is at the beginning or end of the path
-            fun String.collapsedPathSegment() = if (startsWith("/") && endsWith("/")) "/" else ""
-
-            var cleaned = pattern
-                .replace(regexMultipleSlashes, "/")
-                .replace(regexDot) { it.value.collapsedPathSegment() }
-
-            while (regexDotDot.find(cleaned) != null) {
-                cleaned = cleaned.replace(regexDotDot) { it.value.collapsedPathSegment() }
-            }
-            if (cleaned != "/") {
-                cleaned = cleaned.removeSuffix("/")
-            }
-            return cleaned
-        }
     }
+}
+
+private val regexDot = Regex("""(^|/)\.(/\.)*(/|$)""")
+private val regexDotDot = Regex("""(^|/)(?!\.\./)[^/]+/\.\.(/|$)""")
+private val regexMultipleSlashes = Regex("""/{2,}""")
+
+/**
+ * Normalizes the given glob [pattern].
+ *
+ * The method performs the following operations:
+ * * Replace multiple slashes with a single slash `/`
+ * * Remove trailing slashes
+ * * Resolve dot segments `./`, `/./`, `/.` by removing them from the path
+ * * Resolve `dir/..` segment pairs by removing the pair from the path
+ */
+private fun normalize(pattern: String): String {
+    // collapse to empty string when the match is at the beginning or end of the path
+    fun String.collapsedPathSegment() = if (startsWith("/") && endsWith("/")) "/" else ""
+
+    var cleaned = pattern
+        .replace(regexMultipleSlashes, "/")
+        .replace(regexDot) { it.value.collapsedPathSegment() }
+
+    while (regexDotDot.find(cleaned) != null) {
+        cleaned = cleaned.replace(regexDotDot) { it.value.collapsedPathSegment() }
+    }
+    if (cleaned != "/") {
+        cleaned = cleaned.removeSuffix("/")
+    }
+    return cleaned
 }
