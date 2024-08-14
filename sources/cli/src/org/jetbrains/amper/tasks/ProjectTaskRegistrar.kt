@@ -55,30 +55,37 @@ interface FragmentSelector {
     }
 
     fun matches(fragment: Fragment): Boolean
+
+    val debugName: String get() = "default"
+
     fun tryGetMatches(eoci: ExecuteOnChangedInputs, fragment: Fragment) =
         if (matches(fragment)) listOf(FragmentSelectorCtx(executeOnChangedInputs = eoci, fragment = fragment)) else null
 
-    private fun and(block: (Fragment) -> Boolean): FragmentSelector = object : FragmentSelector by this {
+    private fun and(newName: String, block: (Fragment) -> Boolean): FragmentSelector = object : FragmentSelector {
         override fun matches(fragment: Fragment) = this@FragmentSelector.matches(fragment) && block(fragment)
+        override val debugName get() = "${this@FragmentSelector.debugName};$newName"
     }
 
     /* Select only leaf fragments. */
-    fun leafFragments() = and { it is LeafFragment }
+    fun leafFragments() = and("leafFragments") { it is LeafFragment }
 
     /* Select only fragments with all its platforms being descendants of the passed [platform]. */
-    fun platform(platform: Platform) = and { it.platforms.all { it.isDescendantOf(platform) } }
+    fun platform(platform: Platform) = and("platform($platform)") { it.platforms.all { it.isDescendantOf(platform) } }
 
     /* Select fragments which are/are not tests */
-    fun isTest(isTest: Boolean) = and { it.isTest == isTest }
+    fun isTest(isTest: Boolean) = and("isTest($isTest)") { it.isTest == isTest }
 
     /* Select only module root fragments. Efectively, that means only one fragment per module. */
-    fun rootsOnly() = and { it.fragmentDependencies.isEmpty() }
+    fun rootsOnly() = and("rootsOnly") { it.fragmentDependencies.isEmpty() }
 }
 
-/* Also add iteration through build types */
-fun FragmentSelector.iterateBuildTypes(): FragmentSelector = object : FragmentSelector by this {
+/* Add iteration through build types. Should be called last. */
+fun FragmentSelector.iterateBuildTypes(): FragmentSelector = object : FragmentSelector {
+    override fun matches(fragment: Fragment) = this@iterateBuildTypes.matches(fragment)
+    override val debugName get() = "${this@FragmentSelector.debugName};iterateBuildTypes"
     override fun tryGetMatches(eoci: ExecuteOnChangedInputs, fragment: Fragment) =
-        super.tryGetMatches(eoci, fragment)?.flatMap { ctx -> BuildType.entries.map { ctx.copy(buildType = it) } }
+        this@iterateBuildTypes.tryGetMatches(eoci, fragment)
+            ?.flatMap { ctx -> BuildType.entries.map { ctx.copy(buildType = it) } }
 }
 
 /**

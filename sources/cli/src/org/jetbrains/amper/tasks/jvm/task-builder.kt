@@ -100,7 +100,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         )
     }
 
-    FragmentSelector.leafFragments().platform(Platform.JVM).test(false).select { (_, _, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).isTest(false).select { (_, _, module, _, platform) ->
         platform ?: return@select
         if (module.type.isApplication()) {
             registerTask(
@@ -153,7 +153,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.JVM).test(true).select { (_, _, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).isTest(true).select { (_, _, module, _, platform) ->
         platform ?: return@select
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
         registerTask(

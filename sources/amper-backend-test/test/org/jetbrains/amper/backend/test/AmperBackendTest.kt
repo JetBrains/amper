@@ -942,7 +942,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         val projectContext = setupTestDataProject("custom-task-dependencies")
         AmperBackend(projectContext).showTasks()
 
-        assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :utils:testJvm, :main-lib:testJvm, :main-lib:jarJvm, :main-lib:sourcesJarJvm")
+        assertStdoutContains("task :main-lib:publishJvmToMavenLocal -> :main-lib:jarJvm, :main-lib:sourcesJarJvm, :utils:testJvm, :main-lib:testJvm")
     }
 
     private val specialCmdChars = "&()[]{}^=;!'+,`~"
