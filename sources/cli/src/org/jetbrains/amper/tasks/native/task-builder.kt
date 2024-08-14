@@ -95,7 +95,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(false).select { (_, _, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).isTest(false).select { (_, _, module, _, platform) ->
         platform ?: return@select
         // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
         if (isIosApp(platform, module)) return@select
@@ -116,7 +116,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(true).select { (_, _, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).isTest(true).select { (_, _, module, _, platform) ->
         platform ?: return@select
 
         // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].

@@ -27,6 +27,7 @@ import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.iterateBuildTypes
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
@@ -50,22 +51,25 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         setupAndroidCommandlineTools(module, androidSdkPath, context.userCacheRoot)
     }
 
-    onApp(Platform.ANDROID) { module, executeOnChangedInputs, platform, isTest ->
+    onApp(Platform.ANDROID)
+        { module,
+                    executeOnChangedInputs
+                , platform, isTest ->
 
-        setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
-        setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
-        setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
-        setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
-        registerTask(
-            GetAndroidPlatformFileFromPackageTask(
-                "emulator",
-                androidSdkPath,
-                context.userCacheRoot,
-                AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
-            ),
-            AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
-        )
-    }
+            setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
+            registerTask(
+                GetAndroidPlatformFileFromPackageTask(
+                    "emulator",
+                    androidSdkPath,
+                    context.userCacheRoot,
+                    AndroidTaskType.InstallEmulator.getTaskName(module, Platform.ANDROID, isTest)
+                ),
+                AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+            )
+        }
 
     onApp(Platform.ANDROID) { module, executeOnChangedInputs, platform, isTest, buildType ->
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
@@ -151,7 +155,8 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
             )
 
-        val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
+        val runtimeClasspathTaskName =
+                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
         registerTask(
             JvmRuntimeClasspathTask(
                 module = module,
@@ -170,6 +175,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
     }
 
     FragmentSelector.leafFragments().platform(Platform.ANDROID).selectModuleDependencies(DependencyReason.Compile) {
+        // Intentionally not using [iterateBuildTypes], to call dependency resolution only once per leaf fragment.
         it.platform ?: return@selectModuleDependencies
         for (buildType in BuildType.entries) {
             registerDependency(
@@ -180,6 +186,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
     }
 
     FragmentSelector.leafFragments().platform(Platform.ANDROID).selectModuleDependencies(DependencyReason.Runtime) {
+        // Intentionally not using [iterateBuildTypes], to call dependency resolution only once per leaf fragment.
         it.platform ?: return@selectModuleDependencies
         for (buildType in BuildType.entries) {
             registerDependency(
@@ -208,9 +215,9 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    FragmentSelector.leafFragments().test(true).platform(Platform.ANDROID).select { (_, _, module, _, platform) ->
-        platform ?: return@select
-        for (buildType in BuildType.entries) {
+    FragmentSelector.leafFragments().isTest(true).platform(Platform.ANDROID).iterateBuildTypes()
+        .select { (_, _, module, _, platform, buildType) ->
+            platform ?: return@select
             // test
             val testTaskName = CommonTaskType.Test.getTaskName(module, platform, true, buildType)
             registerTask(
