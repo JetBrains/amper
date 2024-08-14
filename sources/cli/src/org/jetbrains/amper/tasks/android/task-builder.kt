@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.DependencyReason
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.PlatformTaskType
@@ -168,18 +169,24 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onCompileModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
-        registerDependency(
-            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
-            CommonTaskType.Compile.getTaskName(dependsOn, platform, false, buildType)
-        )
+    FragmentSelector.leafFragments().platform(Platform.ANDROID).selectModuleDependencies(DependencyReason.Compile) {
+        it.platform ?: return@selectModuleDependencies
+        for (buildType in BuildType.entries) {
+            registerDependency(
+                CommonTaskType.Compile.getTaskName(it.module, it.platform, it.isTest, buildType),
+                CommonTaskType.Compile.getTaskName(it.dependsOn, it.platform, false, buildType)
+            )
+        }
     }
 
-    onRuntimeModuleDependency(Platform.ANDROID) { module, dependsOn, _, platform, isTest, buildType ->
-        registerDependency(
-            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType),
-            CommonTaskType.Jar.getTaskName(dependsOn, platform, false, buildType)
-        )
+    FragmentSelector.leafFragments().platform(Platform.ANDROID).selectModuleDependencies(DependencyReason.Runtime) {
+        it.platform ?: return@selectModuleDependencies
+        for (buildType in BuildType.entries) {
+            registerDependency(
+                CommonTaskType.RuntimeClasspath.getTaskName(it.module, it.platform, it.isTest, buildType),
+                CommonTaskType.Jar.getTaskName(it.dependsOn, it.platform, false, buildType)
+            )
+        }
     }
 
     onMainApp(Platform.ANDROID) { module, _, platform, isTest, buildType ->
@@ -201,7 +208,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    FragmentSelector.leafFragments().test(true).platform(Platform.ANDROID).select { (_, module, _, platform) ->
+    FragmentSelector.leafFragments().test(true).platform(Platform.ANDROID).select { (_, _, module, _, platform) ->
         platform ?: return@select
         for (buildType in BuildType.entries) {
             // test

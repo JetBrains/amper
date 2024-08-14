@@ -8,6 +8,7 @@ import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.DependencyReason
 import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
@@ -31,7 +32,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         )
     }
 
-    FragmentSelector.leafFragments().platform(Platform.NATIVE).select { (_, module, isTest, platform, executeOnChangedInputs) ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).select { (executeOnChangedInputs, _, module, isTest, platform) ->
         platform ?: return@select
         val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
         registerTask(
@@ -79,21 +80,22 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    onRuntimeModuleDependency(Platform.NATIVE) { module, dependsOn, _, platform, isTest ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).selectModuleDependencies(DependencyReason.Runtime) {
+        it.platform ?: return@selectModuleDependencies
         registerDependency(
-            NativeTaskType.CompileKLib.getTaskName(module, platform, isTest),
-            NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+            NativeTaskType.CompileKLib.getTaskName(it.module, it.platform, it.isTest),
+            NativeTaskType.CompileKLib.getTaskName(it.dependsOn, it.platform, false)
         )
 
-        if (needsLinkedExecutable(module, isTest)) {
+        if (needsLinkedExecutable(it.module, it.isTest)) {
             registerDependency(
-                getNativeLinkTaskName(platform, module, isTest),
-                NativeTaskType.CompileKLib.getTaskName(dependsOn, platform, false)
+                getNativeLinkTaskName(it.platform, it.module, it.isTest),
+                NativeTaskType.CompileKLib.getTaskName(it.dependsOn, it.platform, false)
             )
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(false).select { (_, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(false).select { (_, _, module, _, platform) ->
         platform ?: return@select
         // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
         if (isIosApp(platform, module)) return@select
@@ -114,7 +116,7 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(true).select { (_, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(true).select { (_, _, module, _, platform) ->
         platform ?: return@select
 
         // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].

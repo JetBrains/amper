@@ -19,7 +19,7 @@ import org.jetbrains.amper.util.BuildType
  * Set up apple-related tasks.
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
-    FragmentSelector.leafFragments().select { (_, module, isTest, platform, eoci) ->
+    FragmentSelector.leafFragments().select { (eoci, _, module, isTest, platform) ->
         platform ?: return@select
         val ctx = this@setupIosTasks.context
 

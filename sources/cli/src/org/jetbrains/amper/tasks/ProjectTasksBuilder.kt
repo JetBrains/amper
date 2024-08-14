@@ -59,7 +59,7 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
     }
 
     private fun ProjectTaskRegistrar.setupCommonTasks() {
-        FragmentSelector.leafFragments().select { (_, module, isTest, platform, executeOnChangedInputs) ->
+        FragmentSelector.leafFragments().select { (executeOnChangedInputs, _, module, isTest, platform) ->
             platform ?: return@select
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies = module.buildDependenciesGraph(isTest, platform, DependencyReason.Compile, context.userCacheRoot)
@@ -82,7 +82,7 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
             )
         }
 
-        FragmentSelector.select { (fragment, module, _, _, executeOnChangedInputs) ->
+        FragmentSelector.select { (executeOnChangedInputs, fragment, module, _, _) ->
             val taskName = CommonFragmentTaskType.CompileMetadata.getTaskName(fragment)
             registerTask(
                 MetadataCompileTask(
@@ -111,7 +111,7 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
             }
         }
 
-        FragmentSelector.leafFragments().test(false).select { (fragment, _, _, _, executeOnChangedInputs) ->
+        FragmentSelector.leafFragments().test(false).select { (executeOnChangedInputs, fragment, _, _, _) ->
             val module = fragment.module
             val platform = fragment.asLeafFragment?.platform ?: return@select
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)

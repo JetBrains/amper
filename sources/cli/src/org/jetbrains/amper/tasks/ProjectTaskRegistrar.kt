@@ -30,18 +30,29 @@ typealias OnModelBlock = TaskGraphBuilder.(model: Model, executeOnChangedInputs:
 typealias OnCustomTaskBlock = TaskGraphBuilder.(customTaskDescription: CustomTaskDescription, executeOnChangedInputs: ExecuteOnChangedInputs) -> Unit
 
 typealias OnTaskTypeDependencyBlock = TaskGraphBuilder.(module: PotatoModule, dependsOn: PotatoModule, dependencyReason: DependencyReason, platform: Platform, isTest: Boolean) -> Unit
-typealias OnBuildTypeDependencyBlock = TaskGraphBuilder.(module: PotatoModule, dependsOn: PotatoModule, dependencyReason: DependencyReason, platform: Platform, isTest: Boolean, buildType: BuildType) -> Unit
 
 data class FragmentSelectorCtx(
-    val fragment: Fragment,
+    val executeOnChangedInputs: ExecuteOnChangedInputs,
     // For decomposing declarations.
+    val fragment: Fragment,
     val module: PotatoModule = fragment.module,
     val isTest: Boolean = fragment.isTest,
     val platform: Platform? = fragment.asLeafFragment?.platform,
+)
+
+data class ModuleDependencySelectorCtx(
     val executeOnChangedInputs: ExecuteOnChangedInputs,
+    val fragment: Fragment,
+    val dependsOn: PotatoModule,
+    // For decomposing declarations.
+    val dependencyReason: DependencyReason,
+    val module: PotatoModule = fragment.module,
+    val isTest: Boolean = fragment.isTest,
+    val platform: Platform? = fragment.asLeafFragment?.platform,
 )
 
 typealias FragmentSelectorBlock = TaskGraphBuilder.(FragmentSelectorCtx) -> Unit
+typealias ModuleDependenciesSelectorBlock = TaskGraphBuilder.(ModuleDependencySelectorCtx) -> Unit
 
 enum class DependencyReason {
     Compile, Runtime
@@ -51,18 +62,22 @@ fun interface FragmentSelector {
     companion object : FragmentSelector {
         override fun matches(fragment: Fragment) = true
     }
+
     fun matches(fragment: Fragment): Boolean
     fun tryGetMatch(eoci: ExecuteOnChangedInputs, fragment: Fragment) =
-        if (matches(fragment)) FragmentSelectorCtx(fragment = fragment, executeOnChangedInputs = eoci) else null
+        if (matches(fragment)) FragmentSelectorCtx(executeOnChangedInputs = eoci, fragment = fragment) else null
 
     fun and(block: (Fragment) -> Boolean) = FragmentSelector { matches(it) && block(it) }
 
     /* Select only leaf fragments. */
     fun leafFragments() = and { it is LeafFragment }
+
     /* Select only fragments with all its platforms being descendants of the passed [platform]. */
     fun platform(platform: Platform) = and { it.platforms.all { it.isDescendantOf(platform) } }
+
     /* Select fragments which are/are not tests dependint on [isTest] */
     fun test(isTest: Boolean) = and { it.isTest == isTest }
+
     /* Select only module root fragments. Efectively, that means only one fragment per module. */
     fun rootsOnly() = and { it.fragmentDependencies.isEmpty() }
 }
@@ -96,14 +111,26 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         return tasks.build()
     }
 
-    fun FragmentSelector.select(block: FragmentSelectorBlock) =
-        selectors.add(this to block)
-
     /**
      * Called once for the whole model.
      */
     fun forWholeModel(block: OnModelBlock) {
         onModel.add(block)
+    }
+
+    fun FragmentSelector.select(block: FragmentSelectorBlock) =
+        selectors.add(this to block)
+
+    fun FragmentSelector.selectModuleDependencies(
+        dependencyReason: DependencyReason,
+        block: ModuleDependenciesSelectorBlock,
+    ) = select { (executeOnChangedInputs, fragment, module, isTest, platform) ->
+        platform ?: return@select
+        for (buildType in BuildType.entries) {
+            module.forModuleDependency(isTest, platform, dependencyReason) {
+                block(ModuleDependencySelectorCtx(executeOnChangedInputs, fragment, it, dependencyReason))
+            }
+        }
     }
 
     /**
@@ -113,56 +140,14 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
         onCustomTask.add(block)
     }
 
-    fun onModuleDependency(
-        platform: Platform,
-        dependencyReason: DependencyReason,
-        block: OnTaskTypeDependencyBlock
-    ) {
-        FragmentSelector.leafFragments().platform(platform).select { selectorCtx ->
-            selectorCtx.module.forModuleDependency(selectorCtx.isTest, selectorCtx.platform!!, dependencyReason) {
-                block(selectorCtx.module, it, dependencyReason, selectorCtx.platform, selectorCtx.isTest)
-            }
-        }
-    }
-
-    fun onCompileModuleDependency(platform: Platform, block: OnTaskTypeDependencyBlock) {
-        onModuleDependency(platform, DependencyReason.Compile, block)
-    }
-
-    fun onRuntimeModuleDependency(platform: Platform, block: OnTaskTypeDependencyBlock) {
-        onModuleDependency(platform, DependencyReason.Runtime, block)
-    }
-
-    fun onModuleDependency(
-        platform: Platform,
-        dependencyReason: DependencyReason,
-        block: OnBuildTypeDependencyBlock
-    ) {
-        FragmentSelector.leafFragments().platform(platform).select { (_, module, isTest, platform) ->
-            platform ?: return@select
-            for (buildType in BuildType.entries) {
-                module.forModuleDependency(isTest, platform, dependencyReason) {
-                    block(module, it, dependencyReason, platform, isTest, buildType)
-                }
-            }
-        }
-    }
-
-    fun onCompileModuleDependency(platform: Platform, block: OnBuildTypeDependencyBlock) {
-        onModuleDependency(platform, DependencyReason.Compile, block)
-    }
-
-    fun onRuntimeModuleDependency(platform: Platform, block: OnBuildTypeDependencyBlock) {
-        onModuleDependency(platform, DependencyReason.Runtime, block)
-    }
-
     private fun PotatoModule.forModuleDependency(
         isTest: Boolean,
         platform: Platform,
         dependencyReason: DependencyReason,
         block: (dependency: PotatoModule) -> Unit
     ) {
-        val fragmentsModuleDependencies = buildDependenciesGraph(isTest, platform, dependencyReason, context.userCacheRoot)
+        val fragmentsModuleDependencies =
+            buildDependenciesGraph(isTest, platform, dependencyReason, context.userCacheRoot)
         for (moduleDependency in fragmentsModuleDependencies.getModuleDependencies()) {
             block(moduleDependency)
         }
@@ -194,7 +179,7 @@ private fun ModuleDependencyNodeWithModule.getModuleDependencies(): List<PotatoM
         .toList()
 }
 
-private fun DependencyReason.toResolutionScope() = when(this) {
+private fun DependencyReason.toResolutionScope() = when (this) {
     DependencyReason.Compile -> ResolutionScope.COMPILE
     DependencyReason.Runtime -> ResolutionScope.RUNTIME
 }

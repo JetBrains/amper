@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.tasks.DependencyReason
 import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
@@ -15,7 +16,7 @@ import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 
 fun ProjectTaskRegistrar.setupJvmTasks() {
-    FragmentSelector.leafFragments().platform(Platform.JVM).select { (_, module, isTest, platform, executeOnChangedInputs) ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).select { (executeOnChangedInputs, _, module, isTest, platform) ->
         platform ?: return@select
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
@@ -83,21 +84,23 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         }
     }
 
-    onCompileModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).selectModuleDependencies(DependencyReason.Compile) {
+        it.platform ?: return@selectModuleDependencies
         registerDependency(
-            CommonTaskType.Compile.getTaskName(module, platform, isTest),
-            CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
+            CommonTaskType.Compile.getTaskName(it.module, it.platform, it.isTest),
+            CommonTaskType.Compile.getTaskName(it.dependsOn, it.platform, false)
         )
     }
 
-    onRuntimeModuleDependency(Platform.JVM) { module, dependsOn, _, platform, isTest ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).selectModuleDependencies(DependencyReason.Runtime) {
+        it.platform ?: return@selectModuleDependencies
         registerDependency(
-            CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
-            CommonTaskType.Jar.getTaskName(dependsOn, platform, false)
+            CommonTaskType.RuntimeClasspath.getTaskName(it.module, it.platform, it.isTest),
+            CommonTaskType.Jar.getTaskName(it.dependsOn, it.platform, false)
         )
     }
 
-    FragmentSelector.leafFragments().platform(Platform.JVM).test(false).select { (_, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).test(false).select { (_, _, module, _, platform) ->
         platform ?: return@select
         if (module.type.isApplication()) {
             registerTask(
@@ -150,7 +153,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         }
     }
 
-    FragmentSelector.leafFragments().platform(Platform.JVM).test(true).select { (_, module, _, platform) ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).test(true).select { (_, _, module, _, platform) ->
         platform ?: return@select
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
         registerTask(
