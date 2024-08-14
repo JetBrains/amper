@@ -58,6 +58,13 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
         return builder.build()
     }
 
+    /**
+     * Returns all fragments in this module that target the given [platform].
+     * If [includeTestFragments] is false, only production fragments are returned.
+     */
+    private fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
+        fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
+
     private fun ProjectTaskRegistrar.setupCommonTasks() {
         FragmentSelector.leafFragments().select { (executeOnChangedInputs, _, module, isTest, platform) ->
             platform ?: return@select

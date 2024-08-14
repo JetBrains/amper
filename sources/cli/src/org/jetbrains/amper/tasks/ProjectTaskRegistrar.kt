@@ -6,8 +6,6 @@ package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.ProjectContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
-import org.jetbrains.amper.core.AmperUserCacheRoot
-import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.Fragment
@@ -17,12 +15,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.asLeafFragment
-import org.jetbrains.amper.frontend.dr.resolver.DependenciesFlowType
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
-import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
-import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.isDescendantOf
-import org.jetbrains.amper.resolver.getCliDefaultFileCacheBuilder
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 
@@ -127,7 +120,7 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     ) = select { (executeOnChangedInputs, fragment, module, isTest, platform) ->
         platform ?: return@select
         for (buildType in BuildType.entries) {
-            module.forModuleDependency(isTest, platform, dependencyReason) {
+            module.forModuleDependency(isTest, platform, dependencyReason, context.userCacheRoot) {
                 block(ModuleDependencySelectorCtx(executeOnChangedInputs, fragment, it, dependencyReason))
             }
         }
@@ -139,54 +132,4 @@ class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model
     fun onCustomTask(block: OnCustomTaskBlock) {
         onCustomTask.add(block)
     }
-
-    private fun PotatoModule.forModuleDependency(
-        isTest: Boolean,
-        platform: Platform,
-        dependencyReason: DependencyReason,
-        block: (dependency: PotatoModule) -> Unit
-    ) {
-        val fragmentsModuleDependencies =
-            buildDependenciesGraph(isTest, platform, dependencyReason, context.userCacheRoot)
-        for (moduleDependency in fragmentsModuleDependencies.getModuleDependencies()) {
-            block(moduleDependency)
-        }
-    }
 }
-
-fun PotatoModule.buildDependenciesGraph(
-    isTest: Boolean,
-    platform: Platform,
-    dependencyReason: DependencyReason,
-    userCacheRoot: AmperUserCacheRoot
-): ModuleDependencyNodeWithModule {
-    val resolutionPlatform = platform.toResolutionPlatform()
-        ?: throw IllegalArgumentException("Dependency resolution is not supported for the platform $platform")
-
-    return with(moduleDependenciesResolver) {
-        resolveDependenciesGraph(
-            DependenciesFlowType.ClassPathType(dependencyReason.toResolutionScope(), resolutionPlatform, isTest),
-            getCliDefaultFileCacheBuilder(userCacheRoot)
-        )
-    }
-}
-
-private fun ModuleDependencyNodeWithModule.getModuleDependencies(): List<PotatoModule> {
-    return distinctBfsSequence { it is ModuleDependencyNodeWithModule }
-        .drop(1)
-        .filterIsInstance<ModuleDependencyNodeWithModule>()
-        .map { it.module }
-        .toList()
-}
-
-private fun DependencyReason.toResolutionScope() = when (this) {
-    DependencyReason.Compile -> ResolutionScope.COMPILE
-    DependencyReason.Runtime -> ResolutionScope.RUNTIME
-}
-
-/**
- * Returns all fragments in this module that target the given [platform].
- * If [includeTestFragments] is false, only production fragments are returned.
- */
-fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
-    fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
