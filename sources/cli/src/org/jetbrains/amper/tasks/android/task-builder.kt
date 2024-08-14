@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
@@ -87,7 +88,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
             context.buildLogsRoot
         )
 
-        setupAndroidBuildTask(
+            setupAndroidBuildTask(
             platform,
             module,
             isTest,
@@ -113,40 +114,41 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
 
         // compile
-        val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
-        registerTask(
-            JvmCompileTask(
-                module = module,
-                isTest = isTest,
-                fragments = fragments,
-                userCacheRoot = context.userCacheRoot,
-                projectRoot = context.projectRoot,
-                taskOutputRoot = context.getTaskOutputPath(compileTaskName),
-                taskName = compileTaskName,
-                executeOnChangedInputs = executeOnChangedInputs,
-                tempRoot = context.projectTempRoot,
-            ),
-            buildList {
-                if (module.type != ProductType.LIB) {
+            val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType)
+
+            registerTask(
+                JvmCompileTask(
+                    module = module,
+                    isTest = isTest,
+                    fragments = fragments,
+                    userCacheRoot = context.userCacheRoot,
+                    projectRoot = context.projectRoot,
+                    taskOutputRoot = context.getTaskOutputPath(compileTaskName),
+                    taskName = compileTaskName,
+                    executeOnChangedInputs = executeOnChangedInputs,
+                    tempRoot = context.projectTempRoot,
+                ),
+                buildList {
+                    if (module.type != ProductType.LIB) {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
                     add(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
-                }
+                    }
                 add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
-                add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
-            }
-        )
+                    add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
+                }
+            )
 
-        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest, buildType)
-        registerTask(
-            JvmClassesJarTask(
-                taskName = jarTaskName,
-                module = module,
-                isTest = isTest,
-                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                executeOnChangedInputs = executeOnChangedInputs,
-            ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
-        )
+            val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest, buildType)
+            registerTask(
+                JvmClassesJarTask(
+                    taskName = jarTaskName,
+                    module = module,
+                    isTest = isTest,
+                    taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                ),
+                CommonTaskType.Compile.getTaskName(module, platform, isTest, buildType),
+            )
 
         val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest, buildType)
         registerTask(
@@ -199,24 +201,26 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
         )
     }
 
-    onTest(Platform.ANDROID) { module, _, platform, _, buildType ->
-        // test
-        val testTaskName = CommonTaskType.Test.getTaskName(module, platform, true, buildType)
-        registerTask(
-            JvmTestTask(
-                module = module,
-                userCacheRoot = context.userCacheRoot,
-                projectRoot = context.projectRoot,
-                tempRoot = context.projectTempRoot,
-                taskName = testTaskName,
-                taskOutputRoot = context.getTaskOutputPath(testTaskName),
-                terminal = context.terminal,
-            ),
-            listOf(
-                CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
-                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
-            ),
-        )
+    FragmentSelector.leafFragments().test(true).platform(Platform.ANDROID).select { (_, module, _, platform) ->
+        platform ?: return@select
+        for (buildType in BuildType.entries) {
+            // test
+            val testTaskName = CommonTaskType.Test.getTaskName(module, platform, true, buildType)
+            registerTask(
+                JvmTestTask(
+                    module = module,
+                    userCacheRoot = context.userCacheRoot,
+                    projectRoot = context.projectRoot,
+                    tempRoot = context.projectTempRoot,
+                    taskName = testTaskName,
+                    taskOutputRoot = context.getTaskOutputPath(testTaskName),
+                    terminal = context.terminal,
+                ),
+                listOf(
+                    CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
+                    CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
+                ),
+            )
 
         registerDependency(
             taskName = CommonTaskType.Compile.getTaskName(module, platform, true, buildType),

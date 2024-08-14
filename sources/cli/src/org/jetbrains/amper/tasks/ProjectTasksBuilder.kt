@@ -13,6 +13,7 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
+import org.jetbrains.amper.frontend.asLeafFragment
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
@@ -58,7 +59,8 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
     }
 
     private fun ProjectTaskRegistrar.setupCommonTasks() {
-        onEachTaskType { module, executeOnChangedInputs, platform, isTest ->
+        FragmentSelector.leafFragments().select { (_, module, isTest, platform, executeOnChangedInputs) ->
+            platform ?: return@select
             val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
             val fragmentsCompileModuleDependencies = module.buildDependenciesGraph(isTest, platform, DependencyReason.Compile, context.userCacheRoot)
             val fragmentsRuntimeModuleDependencies = when {
@@ -79,7 +81,8 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
                 )
             )
         }
-        onEachFragment { module, executeOnChangedInputs, fragment ->
+
+        FragmentSelector.select { (fragment, module, _, _, executeOnChangedInputs) ->
             val taskName = CommonFragmentTaskType.CompileMetadata.getTaskName(fragment)
             registerTask(
                 MetadataCompileTask(
@@ -107,7 +110,10 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
                 )
             }
         }
-        onEachLeafPlatform { module, executeOnChangedInputs, platform ->
+
+        FragmentSelector.leafFragments().test(false).select { (fragment, _, _, _, executeOnChangedInputs) ->
+            val module = fragment.module
+            val platform = fragment.asLeafFragment?.platform ?: return@select
             val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
             registerTask(
                 SourcesJarTask(
@@ -122,8 +128,9 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
     }
 
     private fun ProjectTaskRegistrar.setupCustomTaskDependencies() {
-        onEachModule { module, _ ->
-            val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@onEachModule
+        FragmentSelector.rootsOnly().select {
+            val module = it.fragment.module
+            val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@select
             for ((taskName, taskSettings) in tasksSettings.settings) {
                 val thisModuleTaskName = TaskName.moduleTask(module, taskName)
 

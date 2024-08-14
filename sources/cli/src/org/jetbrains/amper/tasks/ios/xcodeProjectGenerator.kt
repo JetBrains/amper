@@ -5,7 +5,6 @@
 package org.jetbrains.amper.tasks.ios
 
 import com.intellij.openapi.util.io.findOrCreateFile
-import com.intellij.openapi.vfs.StandardFileSystems
 import com.jetbrains.cidr.xcode.XcodeProjectId
 import com.jetbrains.cidr.xcode.frameworks.ApplePlatform
 import com.jetbrains.cidr.xcode.frameworks.AppleProductType
@@ -244,12 +243,6 @@ private fun createPlist(
     return plist
 }
 
-/**
- * Virtual file referring to base dir.
- */
-val FileConventions.vBaseDir
-    get() = StandardFileSystems.local().refreshAndFindFileByPath(baseDir.path) ?: error("No vBaseDir")
-
 fun AppleSdkManager.findPlatformByType(platform: Platform) = when (platform) {
     Platform.TVOS_ARM64,
     Platform.TVOS_X64 -> findPlatformByType(ApplePlatform.Type.TVOS)
@@ -270,5 +263,5 @@ fun AppleSdkManager.findPlatformByType(platform: Platform) = when (platform) {
 
     Platform.WATCHOS_SIMULATOR_ARM64 -> findPlatformByType(ApplePlatform.Type.WATCH_SIMULATOR)
 
-    else -> error("Should not be here, since allowed platforms are only lead and apple related")
+    else -> error("Should not be here, since allowed platforms are only apple related")
 }

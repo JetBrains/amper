@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.ios
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
@@ -18,7 +19,8 @@ import org.jetbrains.amper.util.BuildType
  * Set up apple-related tasks.
  */
 fun ProjectTaskRegistrar.setupIosTasks() {
-    onEachBuildType { module, eoci, platform, isTest, buildType ->
+    FragmentSelector.leafFragments().select { (_, module, isTest, platform, eoci) ->
+        platform ?: return@select
         val ctx = this@setupIosTasks.context
 
         fun configureTestTasks() {
@@ -40,14 +42,14 @@ fun ProjectTaskRegistrar.setupIosTasks() {
                 task = BuildAppleTask(
                     platform = platform,
                     module = module,
-                    buildType = buildType,
+                    buildType = BuildType.Debug,
                     executeOnChangedInputs = eoci,
                     taskOutputPath = ctx.getTaskOutputPath(buildTaskName),
                     taskName = buildTaskName,
                     isTest = false,
                 ),
                 dependsOn = listOf(
-                    IosTaskType.Framework.getTaskName(module, platform, false, buildType)
+                    IosTaskType.Framework.getTaskName(module, platform, false, BuildType.Debug)
                 )
             )
 
@@ -59,11 +61,9 @@ fun ProjectTaskRegistrar.setupIosTasks() {
         }
 
         when {
-            module.type != ProductType.IOS_APP -> return@onEachBuildType
-            !platform.isDescendantOf(Platform.IOS) -> return@onEachBuildType
-            isTest && buildType == BuildType.Release -> return@onEachBuildType
-            isTest && buildType == BuildType.Debug -> configureTestTasks()
-            buildType == BuildType.Release -> return@onEachBuildType
+            module.type != ProductType.IOS_APP -> return@select
+            !platform.isDescendantOf(Platform.IOS) -> return@select
+            isTest -> configureTestTasks()
             else -> configureMainTasks()
         }
     }

@@ -8,13 +8,15 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
 
 fun ProjectTaskRegistrar.setupJvmTasks() {
-    onEachTaskType(Platform.JVM) { module, executeOnChangedInputs, platform, isTest ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).select { (_, module, isTest, platform, executeOnChangedInputs) ->
+        platform ?: return@select
         val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
         val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
         registerTask(
@@ -95,7 +97,8 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         )
     }
 
-    onMain(Platform.JVM) { module, _, platform, _ ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).test(false).select { (_, module, _, platform) ->
+        platform ?: return@select
         if (module.type.isApplication()) {
             registerTask(
                 JvmRunTask(
@@ -147,7 +150,8 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
         }
     }
 
-    onTest(Platform.JVM) { module, _, platform, _ ->
+    FragmentSelector.leafFragments().platform(Platform.JVM).test(true).select { (_, module, _, platform) ->
+        platform ?: return@select
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
         registerTask(
             JvmTestTask(

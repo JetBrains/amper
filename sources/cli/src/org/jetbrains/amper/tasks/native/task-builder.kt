@@ -8,6 +8,7 @@ import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.FragmentSelector
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
@@ -30,7 +31,8 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         )
     }
 
-    onEachTaskType(Platform.NATIVE) { module, executeOnChangedInputs, platform, isTest ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).select { (_, module, isTest, platform, executeOnChangedInputs) ->
+        platform ?: return@select
         val compileKLibTaskName = NativeTaskType.CompileKLib.getTaskName(module, platform, isTest)
         registerTask(
             task = NativeCompileKlibTask(
@@ -91,9 +93,10 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    onMain(Platform.NATIVE) { module, _, platform, _ ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(false).select { (_, module, _, platform) ->
+        platform ?: return@select
         // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
-        if (isIosApp(platform, module)) return@onMain
+        if (isIosApp(platform, module)) return@select
 
         if (module.type.isApplication()) {
             val runTaskName = CommonTaskType.Run.getTaskName(module, platform)
@@ -111,9 +114,11 @@ fun ProjectTaskRegistrar.setupNativeTasks() {
         }
     }
 
-    onTest(Platform.NATIVE) { module, _, platform, _ ->
+    FragmentSelector.leafFragments().platform(Platform.NATIVE).test(true).select { (_, module, _, platform) ->
+        platform ?: return@select
+
         // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].
-        if (isIosApp(platform, module)) return@onTest
+        if (isIosApp(platform, module)) return@select
 
         val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
 
