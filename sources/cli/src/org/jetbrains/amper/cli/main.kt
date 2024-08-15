@@ -191,7 +191,7 @@ internal fun withBackend(
             )
         }
 
-        val projectContext = ProjectContext.create(
+        val cliContext = CliContext.create(
             explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
             buildOutputRoot = commonOptions.buildOutputRoot?.let {
                 it.createDirectories()
@@ -206,21 +206,21 @@ internal fun withBackend(
         )
 
         if (setupEnvironment) {
-            CliEnvironmentInitializer.setupDeadLockMonitor(projectContext.buildLogsRoot, projectContext.terminal)
-            CliEnvironmentInitializer.setupTelemetry(projectContext.buildLogsRoot)
-            CliEnvironmentInitializer.setupFileLogging(projectContext.buildLogsRoot)
+            CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
+            CliEnvironmentInitializer.setupTelemetry(cliContext.buildLogsRoot)
+            CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
             // TODO output version, os and some env to log file only
-            val printableLogsPath = projectContext.buildLogsRoot.path.toString().replaceWhitespaces()
-            projectContext.terminal.println("Logs are in file://$printableLogsPath")
-            projectContext.terminal.println()
+            val printableLogsPath = cliContext.buildLogsRoot.path.toString().replaceWhitespaces()
+            cliContext.terminal.println("Logs are in file://$printableLogsPath")
+            cliContext.terminal.println()
 
             if (commonOptions.asyncProfiler) {
-                AsyncProfilerMode.attachAsyncProfiler(projectContext.buildLogsRoot, projectContext.buildOutputRoot)
+                AsyncProfilerMode.attachAsyncProfiler(cliContext.buildLogsRoot, cliContext.buildOutputRoot)
             }
         }
 
-        val backend = AmperBackend(context = projectContext)
+        val backend = AmperBackend(context = cliContext)
         block(backend)
 
         cancelAndWaitForScope(backgroundScope)

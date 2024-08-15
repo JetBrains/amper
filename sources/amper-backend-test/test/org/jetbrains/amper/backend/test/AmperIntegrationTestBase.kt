@@ -16,7 +16,7 @@ import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.cli.AndroidHomeRoot
 import org.jetbrains.amper.cli.CliEnvironmentInitializer
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.diagnostics.amperModuleKey
 import org.jetbrains.amper.diagnostics.getAttribute
@@ -78,7 +78,7 @@ abstract class AmperIntegrationTestBase {
         copyToTemp: Boolean,
         programArgs: List<String> = emptyList(),
         useEmptyAndroidHome: Boolean = false,
-    ): ProjectContext {
+    ): CliContext {
         require(testProjectPath.exists()) { "Test project is missing at $testProjectPath" }
 
         val projectRoot = if (copyToTemp) testProjectPath.copyToTempRoot() else testProjectPath
@@ -90,7 +90,7 @@ abstract class AmperIntegrationTestBase {
             AndroidHomeRoot(TestUtil.androidHome)
         }
 
-        return ProjectContext.create(
+        return CliContext.create(
             explicitProjectRoot = projectRoot,
             userCacheRoot = userCacheRoot,
             buildOutputRoot = AmperBuildOutputRoot(buildDir),

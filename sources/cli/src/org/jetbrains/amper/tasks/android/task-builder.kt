@@ -9,7 +9,7 @@ import com.android.sdklib.SystemImageTags.DEFAULT_TAG
 import com.android.sdklib.devices.Abi
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.Arch
@@ -339,7 +339,7 @@ private fun TaskGraphBuilder.setupAndroidBuildTasks(
     fragments: List<Fragment>,
     buildType: BuildType,
     androidSdkPath: Path,
-    context: ProjectContext
+    context: CliContext
 ) {
     val buildAndroidTaskName = AndroidTaskType.Build.getTaskName(module, platform, isTest, buildType)
     registerTask(

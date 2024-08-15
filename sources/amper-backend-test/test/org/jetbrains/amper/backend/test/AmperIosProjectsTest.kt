@@ -8,7 +8,7 @@ import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.backend.test.assertions.FilteredSpans
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.MacOnly
@@ -26,7 +26,7 @@ class AmperIosProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/ios")
 
-    private fun TestCollector.setupIosTestProject(testProjectName: String): ProjectContext =
+    private fun TestCollector.setupIosTestProject(testProjectName: String): CliContext =
         setupTestProject(iosTestDataRoot.resolve(testProjectName), copyToTemp = false)
 
     private val TestCollector.xcodebuildSpans: FilteredSpans

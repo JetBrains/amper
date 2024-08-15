@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.TaskGraphBuilder
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
@@ -41,7 +41,7 @@ enum class DependencyReason {
     Compile, Runtime
 }
 
-class ProjectTaskRegistrar(val context: ProjectContext, private val model: Model) {
+class ProjectTaskRegistrar(val context: CliContext, private val model: Model) {
     private val onModel: MutableList<OnModelBlock> = mutableListOf()
     private val onModule: MutableList<OnModuleBlock> = mutableListOf()
     private val onFragment: MutableList<OnFragmentBlock> = mutableListOf()

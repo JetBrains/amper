@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
@@ -42,7 +42,7 @@ internal interface FragmentTaskType : TaskType {
         TaskName.moduleTask(fragment.module, "$prefix${fragment.name.replaceFirstChar { it.uppercase() }}")
 }
 
-class ProjectTasksBuilder(private val context: ProjectContext, private val model: Model) {
+class ProjectTasksBuilder(private val context: CliContext, private val model: Model) {
     fun build(): TaskGraph {
         val builder = ProjectTaskRegistrar(context, model)
         builder.setupCommonTasks()
@@ -162,7 +162,7 @@ class ProjectTasksBuilder(private val context: ProjectContext, private val model
          * All interaction between tasks should be around passing typed value in TaskResult inheritor,
          * task properties, or module properties
          */
-        fun ProjectContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =
+        fun CliContext.getTaskOutputPath(taskName: TaskName): TaskOutputRoot =
             TaskOutputRoot(path = buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_"))
     }
 }

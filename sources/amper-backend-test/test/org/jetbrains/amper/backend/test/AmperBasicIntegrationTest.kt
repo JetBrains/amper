@@ -4,7 +4,7 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
@@ -21,7 +21,7 @@ class AmperBasicIntegrationTest : AmperIntegrationTestBase() {
 
     private val exampleProjectsRoot: Path = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects")
 
-    private fun TestCollector.setupExampleProject(testProjectName: String): ProjectContext {
+    private fun TestCollector.setupExampleProject(testProjectName: String): CliContext {
         return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
     }
 

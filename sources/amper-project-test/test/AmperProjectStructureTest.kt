@@ -2,7 +2,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.test.TempDirExtension
@@ -97,7 +97,7 @@ class AmperProjectStructureTest {
     }
 
     private fun createAmperProjectBackend(backgroundScope: CoroutineScope): AmperBackend {
-        val context = ProjectContext.create(
+        val context = CliContext.create(
             explicitProjectRoot = amperCheckoutRoot,
             userCacheRoot = AmperUserCacheRoot(TestUtil.userCacheRoot),
             buildOutputRoot = AmperBuildOutputRoot(tempRoot),

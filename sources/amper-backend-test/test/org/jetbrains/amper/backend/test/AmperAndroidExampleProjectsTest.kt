@@ -16,7 +16,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.job
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.core.extract.extractZip
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.OnNonCI
@@ -39,7 +39,6 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
@@ -50,7 +49,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .amperSourcesRoot
         .resolve("amper-backend-test/testData/projects/android")
 
-    private fun TestCollector.setupAndroidTestProject(testProjectName: String, useEmptyAndroidHome: Boolean = false): ProjectContext =
+    private fun TestCollector.setupAndroidTestProject(testProjectName: String, useEmptyAndroidHome: Boolean = false): CliContext =
         setupTestProject(androidTestDataRoot.resolve(testProjectName), copyToTemp = false, useEmptyAndroidHome = useEmptyAndroidHome)
 
     /**
@@ -215,18 +214,17 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         assertContains(valuesXml.readText(), value)
     }
 
-    private fun ProjectContext.getAarPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
+    private fun CliContext.getAarPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
         .walk()
         .filter { it.extension == "aar" }
         .firstOrNull() ?: fail("AAR not found")
 
-    private fun ProjectContext.getApkPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
+    private fun CliContext.getApkPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
         .walk()
         .filter { it.extension == "apk" }
         .firstOrNull() ?: fail("Apk not found")
 
-
-    private fun ProjectContext.getTaskOutputPath(taskName: TaskName): Path =
+    private fun CliContext.getTaskOutputPath(taskName: TaskName): Path =
         buildOutputRoot.path / "tasks" / taskName.name.replace(':', '_')
 
     private fun assertClassContainsInApk(dalvikFqn: String, apkPath: Path) {

@@ -32,7 +32,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.pathString
 
-class AmperBackend(val context: ProjectContext) {
+class AmperBackend(val context: CliContext) {
     private val resolvedModel: Model by lazy {
         with(CliProblemReporterContext()) {
             val model = spanBuilder("loading model")

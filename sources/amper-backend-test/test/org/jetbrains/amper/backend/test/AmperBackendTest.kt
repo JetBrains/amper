@@ -10,7 +10,7 @@ import io.opentelemetry.api.common.AttributeKey
 import org.jetbrains.amper.backend.test.assertions.spansNamed
 import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
@@ -67,7 +67,7 @@ class AmperBackendTest : AmperIntegrationTestBase() {
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
-    ): ProjectContext = setupTestProject(
+    ): CliContext = setupTestProject(
         testDataRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,
@@ -1228,5 +1228,5 @@ private fun Path.existsCaseSensitive(): Boolean =
 // This is not a public API, we're not supposed to know where the outputs are, but it's convenient to test
 // if the task output is correct. We might remove it later when the output of the tested tasks are actually
 // tested with their real-life usage. For instance, source jars will be tested as part of publication.
-private fun ProjectContext.taskOutputPath(taskName: TaskName): Path =
+private fun CliContext.taskOutputPath(taskName: TaskName): Path =
     buildOutputRoot.path / "tasks" / taskName.name.replace(":", "_")

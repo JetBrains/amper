@@ -21,7 +21,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.isDirectory
 
-class ProjectContext private constructor(
+class CliContext private constructor(
     val projectContext: AmperProjectContext,
     val userCacheRoot: AmperUserCacheRoot,
     val projectTempRoot: AmperProjectTempRoot,
@@ -51,7 +51,7 @@ class ProjectContext private constructor(
             backgroundScope: CoroutineScope,
             terminal: Terminal,
             androidHomeRoot: AndroidHomeRoot? = null,
-        ): ProjectContext {
+        ): CliContext {
             require(currentTopLevelCommand.isNotBlank()) {
                 "currentTopLevelCommand should not be blank"
             }
@@ -84,7 +84,7 @@ class ProjectContext private constructor(
                     .also { it.createDirectories() }
             )
 
-            return ProjectContext(
+            return CliContext(
                 projectContext = amperProjectContext,
                 buildOutputRoot = buildOutputRootNotNull,
                 projectTempRoot = AmperProjectTempRoot(tempDir),

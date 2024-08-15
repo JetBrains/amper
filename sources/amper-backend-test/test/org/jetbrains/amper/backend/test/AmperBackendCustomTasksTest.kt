@@ -5,7 +5,7 @@
 package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.test.TestCollector
@@ -30,7 +30,7 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
         testProjectName: String,
         programArgs: List<String> = emptyList(),
         copyToTemp: Boolean = false,
-    ): ProjectContext = setupTestProject(
+    ): CliContext = setupTestProject(
         testDataRoot.resolve(testProjectName),
         copyToTemp = copyToTemp,
         programArgs = programArgs,

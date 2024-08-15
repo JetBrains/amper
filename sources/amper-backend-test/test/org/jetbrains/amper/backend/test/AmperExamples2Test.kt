@@ -5,7 +5,7 @@ package org.jetbrains.amper.backend.test
 
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.jetbrains.amper.cli.AmperBackend
-import org.jetbrains.amper.cli.ProjectContext
+import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestCollector
@@ -20,7 +20,7 @@ import kotlin.test.Test
 class AmperExamples2Test : AmperIntegrationTestBase() {
     private val exampleProjectsRoot: Path = TestUtil.amperCheckoutRoot.resolve("examples-standalone")
 
-    private fun TestCollector.setupExampleProject(testProjectName: String): ProjectContext {
+    private fun TestCollector.setupExampleProject(testProjectName: String): CliContext {
         return setupTestProject(exampleProjectsRoot.resolve(testProjectName), copyToTemp = true)
     }
 
