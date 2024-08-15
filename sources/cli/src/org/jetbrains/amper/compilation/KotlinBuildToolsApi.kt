@@ -96,7 +96,12 @@ fun Logger.asKotlinLogger(): KotlinLogger {
     }
 }
 
-class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
+/**
+ * Returns a [KotlinLogger] that logs to both this logger and the given [other] logger.
+ */
+internal operator fun KotlinLogger.plus(other: KotlinLogger): KotlinLogger = CombiningKotlinLogger(this, other)
+
+private class CombiningKotlinLogger(vararg logger: KotlinLogger): KotlinLogger {
     private val loggers = logger
 
     override val isDebugEnabled: Boolean

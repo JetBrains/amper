@@ -12,7 +12,6 @@ import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.userReadableError
-import org.jetbrains.amper.compilation.CombiningKotlinLogger
 import org.jetbrains.amper.compilation.CompilationUserSettings
 import org.jetbrains.amper.compilation.ErrorsCollectorKotlinLogger
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
@@ -21,6 +20,7 @@ import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinJvmCompilerArgs
 import org.jetbrains.amper.compilation.loadMaybeCachedImpl
 import org.jetbrains.amper.compilation.mergedCompilationSettings
+import org.jetbrains.amper.compilation.plus
 import org.jetbrains.amper.compilation.toKotlinProjectId
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
@@ -257,7 +257,7 @@ class JvmCompileTask(
         // TODO configure incremental compilation here
         val errorsCollector = ErrorsCollectorKotlinLogger()
         val compilationConfig = compilationService.makeJvmCompilationConfiguration()
-            .useLogger(CombiningKotlinLogger(logger.asKotlinLogger(), errorsCollector))
+            .useLogger(logger.asKotlinLogger() + errorsCollector)
 
         val compilerPlugins = kotlinArtifactsDownloader.downloadCompilerPlugins(compilerVersion, userSettings.kotlin)
 
