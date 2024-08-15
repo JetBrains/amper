@@ -56,7 +56,7 @@ class CliContext private constructor(
                 "currentTopLevelCommand should not be blank"
             }
 
-            val amperProjectContext = with(CliProblemReporterContext()) {
+            val amperProjectContext = with(CliProblemReporterContext) {
                 createProjectContext(explicitProjectRoot).also {
                     if (problemReporter.wereProblemsReported()) {
                         userReadableError("aborting because there were errors in the Amper project file, please see above")

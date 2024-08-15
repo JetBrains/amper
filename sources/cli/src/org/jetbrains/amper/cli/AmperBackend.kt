@@ -34,7 +34,7 @@ import kotlin.io.path.pathString
 
 class AmperBackend(val context: CliContext) {
     private val resolvedModel: Model by lazy {
-        with(CliProblemReporterContext()) {
+        with(CliProblemReporterContext) {
             val model = spanBuilder("loading model")
                 .setAttribute("root", context.projectRoot.path.pathString)
                 .startSpan().use {

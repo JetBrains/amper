@@ -12,34 +12,35 @@ import org.jetbrains.amper.core.messages.renderMessage
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 
-class CliProblemReporterContext : ProblemReporterContext {
-    object CliProblemReporter : ProblemReporter {
-        private val logger = LoggerFactory.getLogger("build")
-        private val problemsWereReported = AtomicBoolean(false)
-        private val fatalsWereReported = AtomicBoolean(false)
+internal object CliProblemReporterContext : ProblemReporterContext {
 
-        fun wereProblemsReported() = problemsWereReported.get()
+    override val problemReporter: CliProblemReporter = CliProblemReporter
+}
 
-        override val hasFatal: Boolean get() = fatalsWereReported.get()
+internal object CliProblemReporter : ProblemReporter {
+    private val logger = LoggerFactory.getLogger("build")
+    private val problemsWereReported = AtomicBoolean(false)
+    private val fatalsWereReported = AtomicBoolean(false)
 
-        override fun reportMessage(message: BuildProblem) {
-            when (message.level) {
-                Level.Warning -> logger.warn(renderMessage(message))
-                Level.Error -> {
-                    logger.error(renderMessage(message))
-                    problemsWereReported.set(true)
-                }
-                Level.Fatal -> {
-                    logger.error(renderMessage(message))
-                    problemsWereReported.set(true)
-                    fatalsWereReported.set(true)
-                }
-                Level.Redundancy -> {
-                    logger.info(renderMessage(message))
-                }
+    fun wereProblemsReported() = problemsWereReported.get()
+
+    override val hasFatal: Boolean get() = fatalsWereReported.get()
+
+    override fun reportMessage(message: BuildProblem) {
+        when (message.level) {
+            Level.Warning -> logger.warn(renderMessage(message))
+            Level.Error -> {
+                logger.error(renderMessage(message))
+                problemsWereReported.set(true)
+            }
+            Level.Fatal -> {
+                logger.error(renderMessage(message))
+                problemsWereReported.set(true)
+                fatalsWereReported.set(true)
+            }
+            Level.Redundancy -> {
+                logger.info(renderMessage(message))
             }
         }
     }
-
-    override val problemReporter: CliProblemReporter = CliProblemReporter
 }
