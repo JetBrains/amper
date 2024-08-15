@@ -5,9 +5,9 @@
 package org.jetbrains.amper.cli
 
 import com.google.common.hash.Hashing
-import com.sun.jna.Platform
 import one.profiler.AsyncProfiler
 import org.jetbrains.amper.core.extract.cleanDirectory
+import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
 import org.slf4j.LoggerFactory
 import kotlin.io.path.createDirectories
@@ -53,20 +53,18 @@ object AsyncProfilerMode {
     }
 
     private fun getPlatformId(): String {
-        val arch = Platform.ARCH
+        val arch = Arch.current
         return when (OsFamily.current) {
             OsFamily.MacOs -> "macos"
 
             OsFamily.Windows -> when (arch) {
-                "x86-64" -> "windows"
-                "aarch64" -> "windows-aarch64"
-                else -> error("Unsupported Windows arch: $arch")
+                Arch.X64 -> "windows"
+                Arch.Arm64 -> "windows-aarch64"
             }
 
             OsFamily.Linux, OsFamily.Solaris, OsFamily.FreeBSD -> when (arch) {
-                "x86-64" -> "linux"
-                "aarch64" -> "linux-aarch64"
-                else -> error("Unsupported Linux arch: $arch")
+                Arch.X64 -> "linux"
+                Arch.Arm64 -> "linux-aarch64"
             }
         }
     }
