@@ -45,7 +45,7 @@ suspend fun Jdk.runJava(
     }
 
     return withJavaArgFile(tempRoot, args) { argFile ->
-        return spanBuilder("java-exec")
+        spanBuilder("java-exec")
             .setAttribute("java-executable", javaExecutable.pathString)
             .setAttribute("java-version", version)
             .setListAttribute("jvm-args", jvmArgs)
