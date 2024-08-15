@@ -5,6 +5,7 @@
 package org.jetbrains.amper.core.downloader
 
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
@@ -18,7 +19,7 @@ const val KOTLIN_GROUP_ID = "org.jetbrains.kotlin"
  * Downloads and extracts current system specific kotlin native.
  * Returns null if kotlin native is not supported on current system/arch.
  */
-// WARNING! Used in IDE.
+@UsedInIdePlugin
 suspend fun downloadAndExtractKotlinNative(
     version: String,
     userCacheRoot: AmperUserCacheRoot = AmperUserCacheRoot.fromCurrentUser()
