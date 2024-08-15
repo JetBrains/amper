@@ -33,7 +33,6 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
-@Suppress("BlockingMethodInNonBlockingContext")
 class JvmTestTask(
     private val userCacheRoot: AmperUserCacheRoot,
     private val taskOutputRoot: TaskOutputRoot,
