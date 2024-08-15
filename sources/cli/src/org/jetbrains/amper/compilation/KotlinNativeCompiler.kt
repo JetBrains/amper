@@ -28,7 +28,7 @@ suspend fun downloadNativeCompiler(
     kotlinVersion: String,
     userCacheRoot: AmperUserCacheRoot
 ): KotlinNativeCompiler {
-    val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion)
+    val kotlinNativeHome = downloadAndExtractKotlinNative(kotlinVersion, userCacheRoot)
         ?: error("kotlin native compiler is not available for the current platform")
 
     // TODO this the is JDK to run konanc, what are the requirements?
