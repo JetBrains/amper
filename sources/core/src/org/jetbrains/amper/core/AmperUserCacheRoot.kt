@@ -8,10 +8,10 @@ import com.sun.jna.platform.win32.KnownFolders
 import com.sun.jna.platform.win32.Shell32Util
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
-
 
 data class AmperUserCacheRoot(val path: Path) {
     init {
@@ -23,30 +23,25 @@ data class AmperUserCacheRoot(val path: Path) {
         }
     }
 
-    val downloadCache by lazy {
-        path.resolve("download.cache").also { it.createDirectories() }
-    }
+    val downloadCache by lazy { path.resolve("download.cache").createDirectories() }
 
-    val extractCache by lazy {
-        path.resolve("extract.cache").also { it.createDirectories() }
-    }
+    val extractCache by lazy { path.resolve("extract.cache").createDirectories() }
 
     companion object {
         fun fromCurrentUser(): AmperUserCacheRoot {
-            val userHome = Path.of(System.getProperty("user.home"))
+            val userHome = Path(System.getProperty("user.home"))
 
             val localAppData = when (OsFamily.current) {
-                OsFamily.Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path.of(it) } ?: (userHome / "AppData/Local")
+                OsFamily.Windows -> Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_LocalAppData)?.let { Path(it) }
+                    ?: (userHome / "AppData/Local")
                 OsFamily.MacOs -> userHome / "Library/Caches"
-                OsFamily.Linux, OsFamily.FreeBSD, OsFamily.Solaris -> {
-                    val xdgCacheHome = System.getenv("XDG_CACHE_HOME")
-                    if (xdgCacheHome.isNullOrBlank()) userHome.resolve(".cache") else Path.of(xdgCacheHome)
-                }
+                OsFamily.Linux,
+                OsFamily.FreeBSD,
+                OsFamily.Solaris -> System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }?.let { Path(it) }
+                    ?: (userHome / ".cache")
             }
 
-            val localAppDataAmper = localAppData.resolve("Amper")
-
-            localAppDataAmper.createDirectories()
+            val localAppDataAmper = localAppData.resolve("Amper").createDirectories()
 
             return AmperUserCacheRoot(localAppDataAmper)
         }
