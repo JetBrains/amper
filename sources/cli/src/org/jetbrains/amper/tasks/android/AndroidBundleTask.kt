@@ -5,95 +5,40 @@
 package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.android.AndroidBuildRequest
-import org.jetbrains.amper.android.AndroidModuleData
-import org.jetbrains.amper.android.ResolvedDependency
-import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
-import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
-import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import org.jetbrains.amper.util.repr
-import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
-import java.util.*
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.div
 
 class AndroidBundleTask(
-    val module: PotatoModule,
-    private val buildType: BuildType,
-    private val executeOnChangedInputs: ExecuteOnChangedInputs,
-    private val androidSdkPath: Path,
+    module: PotatoModule,
+    buildType: BuildType,
+    executeOnChangedInputs: ExecuteOnChangedInputs,
+    androidSdkPath: Path,
     private val fragments: List<Fragment>,
-    private val projectRoot: AmperProjectRoot,
-    private val taskOutputPath: TaskOutputRoot,
-    private val buildLogsRoot: AmperBuildLogsRoot,
+    projectRoot: AmperProjectRoot,
+    taskOutputPath: TaskOutputRoot,
+    buildLogsRoot: AmperBuildLogsRoot,
     override val taskName: TaskName,
-) : Task {
-    override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val runtimeClasspathTaskResult = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
-            ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies of $taskName")
-        val runtimeClasspath = runtimeClasspathTaskResult.jvmRuntimeClasspath
+) : AndroidDelegatedGradleTask(
+    module,
+    buildType,
+    executeOnChangedInputs,
+    androidSdkPath,
+    fragments,
+    projectRoot,
+    taskOutputPath,
+    buildLogsRoot,
+    taskName
+) {
+    override val phase: AndroidBuildRequest.Phase
+        get() = AndroidBuildRequest.Phase.Bundle
 
-        val moduleGradlePath = module.gradlePath(projectRoot)
-        val androidModuleData = AndroidModuleData(
-            modulePath = moduleGradlePath,
-            moduleClasses = listOf(),
-            resolvedAndroidRuntimeDependencies = runtimeClasspath.map {
-                ResolvedDependency("group", "artifact", "version", it)
-            },
-        )
-        val request = AndroidBuildRequest(
-            root = projectRoot.path,
-            phase = AndroidBuildRequest.Phase.Bundle,
-            modules = setOf(androidModuleData),
-            buildTypes = setOf(buildType.toAndroidRequestBuildType),
-            sdkDir = androidSdkPath,
-            targets = setOf(moduleGradlePath),
-        )
-        val androidConfig = fragments.joinToString { it.settings.android.repr }
-        val configuration = mapOf("androidConfig" to androidConfig)
-
-        val propertiesFiles = fragments.map { it.settings.android.signing.propertiesFile }.distinct()
-
-        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath + propertiesFiles) {
-            val logFileName = UUID.randomUUID()
-            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "bundle-$logFileName.stdout"
-            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "bundle-$logFileName.stderr"
-            gradleLogStdoutPath.createParentDirectories()
-            val result = runAndroidBuild(
-                request,
-                taskOutputPath.path / "gradle-project",
-                gradleLogStdoutPath,
-                gradleLogStderrPath,
-                eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) }
-            )
-            ExecuteOnChangedInputs.ExecutionResult(result)
-        }
-        taskOutputPath.path.createDirectories()
-        executionResult
-            .outputs
-            .map {
-                it.copyToRecursively(
-                    taskOutputPath.path.resolve(it.fileName),
-                    followLinks = false,
-                    overwrite = true
-                )
-            }
-        return Task(executionResult.outputs)
-    }
-
-    class Task(
-        val artifacts: List<Path>,
-    ) : TaskResult
+    override val additionalInputFiles: List<Path>
+        get() = fragments.map { it.settings.android.signing.propertiesFile }.distinct()
 }

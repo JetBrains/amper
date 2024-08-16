@@ -66,7 +66,7 @@ class AndroidRunTask(
             .selectOrCreateVirtualDevice(androidFragment.settings.android.targetSdk.versionNumber, emulatorExecutable)
             .waitForBootCompleted()
 
-        val apk = dependenciesResult.filterIsInstance<AndroidBuildTask.Task>()
+        val apk = dependenciesResult.filterIsInstance<AndroidDelegatedGradleTask.Result>()
             .singleOrNull()?.artifacts?.firstOrNull() ?: error("Apk not found")
         device.installPackage(apk.pathString, true, "--bypass-low-target-sdk-block")
 

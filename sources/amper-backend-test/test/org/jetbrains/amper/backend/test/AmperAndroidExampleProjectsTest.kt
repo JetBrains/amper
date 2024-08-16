@@ -29,9 +29,7 @@ import org.jf.dexlib2.Opcodes
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.extension
-import kotlin.io.path.name
 import kotlin.io.path.readBytes
-import kotlin.io.path.readText
 import kotlin.io.path.walk
 import kotlin.test.AfterTest
 import kotlin.test.Ignore
@@ -135,12 +133,12 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")
-        assertStdoutContains("task :simple:compileAndroidDebug -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:compileAndroidDebug -> :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
         assertStdoutContains("task :simple:buildAndroidRelease -> :simple:runtimeClasspathAndroid")
-        assertStdoutContains("task :simple:compileAndroidRelease -> :simple:transformDependenciesAndroid, :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:compileAndroidRelease -> :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
 
@@ -194,21 +192,6 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         return themeReference
     }
 
-    private fun assertStringContainsInResources(value: String, aarPath: Path) {
-        val extractedAarPath = aarPath.parent.resolve("extractedAar")
-        val valuesXml = extractedAarPath
-            .walk()
-            .filter { it.extension == "xml" }
-            .filter { "values" in it.name }
-            .firstOrNull() ?: fail("There is no values.xml in AAR")
-        assertContains(valuesXml.readText(), value)
-    }
-
-    private fun CliContext.getAarPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
-        .walk()
-        .filter { it.extension == "aar" }
-        .firstOrNull() ?: fail("AAR not found")
-
     private fun CliContext.getApkPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
         .walk()
         .filter { it.extension == "apk" }
@@ -229,27 +212,6 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
             }
             .map { it.type }
         assertContains(typesInDexes.toList(), dalvikFqn)
-    }
-
-    private fun assertFileContainsInAar(fileName: String, aarPath: Path): Path {
-        val extractedAarPath = aarPath.parent.resolve("extractedAar")
-        extractZip(aarPath, extractedAarPath, false)
-
-        val classesInJars = extractedAarPath
-            .walk()
-            .filter { it.extension == "jar" }
-            .flatMap { jar ->
-                val extractedJarPath = extractedAarPath.resolve(jar.fileName.toString().substringBeforeLast("."))
-                extractZip(jar, extractedJarPath, false)
-                extractedJarPath.walk()
-            }
-            .map { extractedAarPath.relativize(it) }
-            .map { it.toString() }
-            .map { it.replace("\\", "/") }
-            .toList()
-
-        assertContains(classesInJars, fileName)
-        return extractedAarPath
     }
 
     private suspend fun TestCollector.assertStringInLogcat(device: IDevice, value: String) {
