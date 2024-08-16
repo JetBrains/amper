@@ -6,6 +6,7 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
+import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
     check(args.size == 2) {
@@ -13,12 +14,12 @@ fun main(args: Array<String>) {
     }
 
     val (outputDirectoryString, runtimeClasspathString) = args
-    val distFile = Path.of(outputDirectoryString, "dist.zip")
+    val distFile = Path(outputDirectoryString, "dist.zip")
 
     val runtimeClasspath = runtimeClasspathString
         .split(File.pathSeparatorChar)
         .sorted()
-        .map { Path.of(it) }
+        .map { Path(it) }
 
     distFile.outputStream().buffered().let { ZipOutputStream(it) }.use { zipStream ->
         for (file in runtimeClasspath) {

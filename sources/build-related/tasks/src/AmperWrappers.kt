@@ -4,6 +4,7 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import java.nio.file.Path
 import java.security.MessageDigest
+import kotlin.io.path.Path
 import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
@@ -29,7 +30,7 @@ object AmperWrappers {
             val windowsWrapper = targetDir.resolve("amper.bat")
             add(windowsWrapper)
             processTemplate(
-                inputFile = Path.of("resources/wrappers/amper.template.bat").toAbsolutePath(),
+                inputFile = Path("resources/wrappers/amper.template.bat").toAbsolutePath(),
                 outputFile = windowsWrapper,
                 cliZipSha256 = cliZipSha256,
                 outputWindowsLineEndings = true,

@@ -29,9 +29,9 @@ class AndroidSdkDetector(
 
     class DefaultSuggester : Suggester {
         override fun suggestSdkPath(): Path? = when (DefaultSystemInfo.detect().family) {
-            OsFamily.Windows -> Path.of(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
-            OsFamily.MacOs -> Path.of(System.getProperty("user.home")).resolve("Library/Android/sdk")
-            else -> Path.of(System.getProperty("user.home")).resolve("Android/Sdk")
+            OsFamily.Windows -> Path(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
+            OsFamily.MacOs -> Path(System.getProperty("user.home")).resolve("Library/Android/sdk")
+            else -> Path(System.getProperty("user.home")).resolve("Android/Sdk")
         }
     }
 

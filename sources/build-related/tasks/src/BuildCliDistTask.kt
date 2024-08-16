@@ -4,9 +4,9 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.File
-import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 
@@ -19,17 +19,17 @@ object BuildCliDistTask {
     fun main(args: Array<String>) {
         val (taskOutputDirectoryString, cliRuntimeClasspathString) = args
 
-        val taskOutputDirectory = Path.of(taskOutputDirectoryString)
+        val taskOutputDirectory = Path(taskOutputDirectoryString)
         val cliRuntimeClasspath = cliRuntimeClasspathString
             .split(File.pathSeparator)
-            .map { Path.of(it) }
+            .map { Path(it) }
             .also {
                 check(it.size > 3) {
                     "cli runtime classpath must contain at least 3 elements, but got ${it.size}: $it"
                 }
             }
-        val unixWrapperTemplate = Path.of("resources/wrappers/amper.template.sh").toAbsolutePath()
-        val windowsWrapperTemplate = Path.of("resources/wrappers/amper.template.bat").toAbsolutePath()
+        val unixWrapperTemplate = Path("resources/wrappers/amper.template.sh").toAbsolutePath()
+        val windowsWrapperTemplate = Path("resources/wrappers/amper.template.bat").toAbsolutePath()
 
         // fake build output root under our task
         val buildOutputRoot = AmperBuildOutputRoot(taskOutputDirectory)

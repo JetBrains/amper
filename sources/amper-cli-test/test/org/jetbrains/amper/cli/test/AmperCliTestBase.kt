@@ -19,6 +19,7 @@ import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.management.ManagementFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
@@ -172,7 +173,7 @@ abstract class AmperCliTestBase {
     }
 
     private val libRoot: Path by lazy {
-        val distRoot = System.getProperty("amper.unpacked.dist.root")?.let { Path.of(it) }
+        val distRoot = System.getProperty("amper.unpacked.dist.root")?.let { Path(it) }
             ?: run {
                 // TODO this should be passed via system properties set in test settings
                 // ref https://youtrack.jetbrains.com/issue/AMPER-253/Design-custom-tasks#focus=Comments-27-9984817.0-0

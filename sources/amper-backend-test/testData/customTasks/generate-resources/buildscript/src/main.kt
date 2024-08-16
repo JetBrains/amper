@@ -3,11 +3,10 @@
  */
 
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 fun main(args: Array<String>) {
-    val taskOutput = Path.of(args.single())
+    val taskOutput = Path(args.single())
     taskOutput.resolve("build.properties").writeText("build.props")
 
     val s = taskOutput.resolve("subDir").resolve("some")

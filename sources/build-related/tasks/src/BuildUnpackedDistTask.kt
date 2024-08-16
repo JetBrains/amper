@@ -5,7 +5,7 @@ import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.io.File
-import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 
@@ -18,10 +18,10 @@ object BuildUnpackedDistTask {
     fun main(args: Array<String>) {
         val (taskOutputDirectoryString, cliRuntimeClasspathString) = args
 
-        val taskOutputDirectory = Path.of(taskOutputDirectoryString)
+        val taskOutputDirectory = Path(taskOutputDirectoryString)
         val cliRuntimeClasspath = cliRuntimeClasspathString
             .split(File.pathSeparator)
-            .map { Path.of(it) }
+            .map { Path(it) }
             .also {
                 check(it.size > 3) {
                     "cli runtime classpath must contain at least 3 elements, but got ${it.size}: $it"

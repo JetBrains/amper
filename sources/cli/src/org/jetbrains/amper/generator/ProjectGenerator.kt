@@ -14,6 +14,7 @@ import org.jetbrains.amper.util.substituteTemplatePlaceholders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -34,7 +35,7 @@ internal class ProjectGenerator(private val terminal: Terminal) {
         }
 
         val allTemplateNames = allTemplateFiles.map {
-            Path.of(it).getName(1).pathString
+            Path(it).getName(1).pathString
         }.distinct().sorted()
 
         if (template == null) {

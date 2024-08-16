@@ -274,7 +274,7 @@ private fun genericExtract(archiveFile: Path, archive: ArchiveContent, target: P
                 parent.createDirectories()
             }
             if (type == Entry.Type.SYMLINK) {
-                val relativeSymlinkTarget = Path.of(entry.linkTarget!!)
+                val relativeSymlinkTarget = Path(entry.linkTarget!!)
                 val resolvedTarget = entryPath.resolveSibling(relativeSymlinkTarget).normalize()
                 if (!resolvedTarget.startsWith(canonicalTarget) || resolvedTarget == canonicalTarget) {
                     LOG.debug(

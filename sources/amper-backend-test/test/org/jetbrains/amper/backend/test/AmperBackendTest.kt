@@ -33,6 +33,7 @@ import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.util.jar.Attributes
 import java.util.jar.JarFile
+import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
@@ -510,7 +511,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish to maven local`() = runTestWithCollector {
-        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
@@ -594,7 +595,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
     @Test
     fun `jvm publish multi-module to maven local`() = runTestWithCollector {
-        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 

@@ -26,6 +26,7 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.extension
@@ -79,7 +80,7 @@ class AndroidPrepareTask(
                 RClassAndroidBuildResult::class.java,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) },
             )
-            val outputs = result.paths.map { Path.of(it) }.filter { it.extension.lowercase() == "jar" }
+            val outputs = result.paths.map { Path(it) }.filter { it.extension.lowercase() == "jar" }
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
 

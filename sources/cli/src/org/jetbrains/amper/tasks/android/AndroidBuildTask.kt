@@ -24,6 +24,7 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
@@ -76,7 +77,7 @@ class AndroidBuildTask(
                 ApkPathAndroidBuildResult::class.java,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) }
             )
-            ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path.of(it) }, mapOf())
+            ExecuteOnChangedInputs.ExecutionResult(result.paths.map { Path(it) }, mapOf())
         }
         taskOutputPath.path.createDirectories()
         executionResult

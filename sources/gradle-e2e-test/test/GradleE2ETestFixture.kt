@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.ByteArrayOutputStream
 import java.nio.file.Path
 import kotlin.io.path.CopyActionResult
+import kotlin.io.path.Path
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
@@ -114,8 +115,8 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
     }
 
     private fun prepareTempDirWithProject(projectName: String, runWithPluginClasspath: Boolean): Path {
-        val implementationDir = Path.of("../../sources").toAbsolutePath()
-        val originalDir = Path.of("${pathToProjects}/$projectName")
+        val implementationDir = Path("../../sources").toAbsolutePath()
+        val originalDir = Path("${pathToProjects}/$projectName")
 
         assertTrue(implementationDir.exists(), "Amper plugin project not found at $implementationDir")
         assertTrue(originalDir.exists(), "Test project not found at $originalDir")

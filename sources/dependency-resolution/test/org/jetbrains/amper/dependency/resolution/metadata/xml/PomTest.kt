@@ -7,7 +7,7 @@ package org.jetbrains.amper.dependency.resolution.metadata.xml
 import org.jetbrains.amper.dependency.resolution.nameToDependency
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInfo
-import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.readText
 import kotlin.test.Test
 
@@ -97,7 +97,7 @@ class PomTest {
     }
 
     private fun doTest(testInfo: TestInfo, sanitizer: (String) -> String = { it }) {
-        val text = Path.of("testData/metadata/xml/pom/${testInfo.nameToDependency()}.pom").readText()
+        val text = Path("testData/metadata/xml/pom/${testInfo.nameToDependency()}.pom").readText()
         val project = text.parsePom()
         assertEquals(sanitizer(sanitize(text)), sanitizer(project.serialize()))
     }

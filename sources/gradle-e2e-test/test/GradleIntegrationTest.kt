@@ -5,7 +5,7 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
-import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
@@ -138,7 +138,7 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
 
     @Test
     fun `publish to maven local with custom artifact id`() {
-        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
         val m2groupRoot = m2repository.resolve("com/mytestgroup")
         m2groupRoot.deleteRecursively()
         GradleDaemonManager.deleteFileOrDirectoryOnExit(m2groupRoot)

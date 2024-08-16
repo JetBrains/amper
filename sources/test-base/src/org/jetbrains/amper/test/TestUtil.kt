@@ -61,7 +61,7 @@ object TestUtil {
     )
 
     val amperCheckoutRoot: Path by lazy {
-        val start = Path.of(System.getProperty("user.dir"))
+        val start = Path(System.getProperty("user.dir"))
 
         var current: Path = start
         while (current != current.parent) {

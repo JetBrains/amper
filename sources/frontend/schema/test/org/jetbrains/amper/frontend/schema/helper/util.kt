@@ -58,7 +58,7 @@ fun readContentsAndReplace(
     val resourceFileText = expectedPath.readText()
     return resourceFileText
         .replace("{{ buildDir }}", buildDir)
-        .replace("{{ potDir }}", buildFile.parent.relativize(Path.of(potDir)).toString())
+        .replace("{{ potDir }}", buildFile.parent.relativize(Path(potDir)).toString())
         .replace("{{ testProcessDir }}", testProcessDir)
         .replace("{{ testResources }}", testResources)
         .replace("{{ fileSeparator }}", File.separator)

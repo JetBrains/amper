@@ -43,6 +43,7 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.Base64
 import javax.net.ssl.SSLContext
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -101,7 +102,7 @@ class GradleLocalRepository(private val files: Path) : LocalRepository {
 
     companion object {
         private fun getRootFromUserHome() =
-            Path.of(
+            Path(
                 System.getenv("GRADLE_USER_HOME") ?: System.getProperty("user.home"),
                 ".gradle/caches/modules-2/files-2.1"
             )
@@ -155,7 +156,7 @@ class MavenLocalRepository(val repository: Path) : LocalRepository {
     constructor() : this(getRootFromUserHome())
 
     companion object {
-        private fun getRootFromUserHome() = Path.of(System.getProperty("user.home"), ".m2/repository")
+        private fun getRootFromUserHome() = Path(System.getProperty("user.home"), ".m2/repository")
     }
 
     override fun toString(): String = "[Maven] $repository"

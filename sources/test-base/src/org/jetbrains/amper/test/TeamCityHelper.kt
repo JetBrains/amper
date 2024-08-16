@@ -42,7 +42,7 @@ object TeamCityHelper {
             val propertyName = "teamcity.build.tempDir"
             val tempPath = systemProperties[propertyName]
                 ?: throw IllegalStateException("TeamCity must provide system property $propertyName")
-            return Path.of(tempPath)
+            return Path(tempPath)
         }
 
     val systemProperties: Map<String, String> by lazy {

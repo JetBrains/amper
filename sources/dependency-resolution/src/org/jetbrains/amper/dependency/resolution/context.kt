@@ -8,6 +8,7 @@ import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.io.path.Path
 
 /**
  * A context holder that's passed across the nodes.
@@ -130,7 +131,7 @@ class SettingsBuilder(init: SettingsBuilder.() -> Unit = {}) {
  */
 class FileCacheBuilder(init: FileCacheBuilder.() -> Unit = {}) {
 
-    var amperCache: Path = Path.of(System.getProperty("user.home"), ".amper")
+    var amperCache: Path = Path(System.getProperty("user.home"), ".amper")
     var localRepositories: List<LocalRepository> = listOf(GradleLocalRepository(), MavenLocalRepository())
     var fallbackLocalRepository: LocalRepository? = null
 

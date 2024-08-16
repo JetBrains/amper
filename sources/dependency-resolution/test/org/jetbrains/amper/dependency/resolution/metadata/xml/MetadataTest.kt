@@ -8,7 +8,7 @@ import org.jetbrains.amper.dependency.resolution.nameToDependency
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.readText
 
 class MetadataTest {
@@ -17,7 +17,7 @@ class MetadataTest {
     fun `packagesearch-plugin-gradle-core-shadow-233_13000-SNAPSHOT`(testInfo: TestInfo) = doTest(testInfo)
 
     private fun doTest(testInfo: TestInfo) {
-        val text = Path.of("testData/metadata/xml/metadata/${testInfo.nameToDependency()}.xml").readText()
+        val text = Path("testData/metadata/xml/metadata/${testInfo.nameToDependency()}.xml").readText()
         val metadata = text.parseMetadata()
         assertEquals(sanitize(text), metadata.serialize())
     }

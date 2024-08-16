@@ -36,6 +36,7 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.PosixFileAttributes
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.pathString
@@ -254,7 +255,7 @@ class ExecuteOnChangedInputs(
             return null
         }
 
-        val outputsList = state.outputs.map { Path.of(it) }
+        val outputsList = state.outputs.map { Path(it) }
         val currentOutputsState = getPathListState(outputsList, failOnMissing = false)
         if (state.outputsState != currentOutputsState) {
             logger.debug(

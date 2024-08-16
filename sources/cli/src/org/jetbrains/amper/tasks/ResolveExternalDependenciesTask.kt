@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.CancellationException
+import kotlin.io.path.Path
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
@@ -148,10 +149,10 @@ class ResolveExternalDependenciesTask(
 
                 val compileClasspath =
                     result.outputProperties["compile"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
-                        .map { Path.of(it) }
+                        .map { Path(it) }
                 val runtimeClasspath =
                     result.outputProperties["runtime"]!!.split(File.pathSeparator).filter { it.isNotEmpty() }
-                        .map { Path.of(it) }
+                        .map { Path(it) }
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +

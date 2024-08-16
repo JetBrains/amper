@@ -6,14 +6,13 @@ import java.io.StringWriter
 import java.nio.file.Path
 import java.util.Properties
 import kotlin.collections.component1
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
-import kotlin.io.use
-import kotlin.use
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -21,10 +20,9 @@ import kotlin.use
 
 fun main(args: Array<String>) {
     val (taskOutputDirectoryString) = args
-    val taskOutputDirectory = Path.of(taskOutputDirectoryString)
-        .also { it.createDirectories() }
+    val taskOutputDirectory = Path(taskOutputDirectoryString).createDirectories()
 
-    val projectRoot = Path.of(System.getProperty("user.dir")).parent.parent
+    val projectRoot = Path(System.getProperty("user.dir")).parent.parent
     val commonModuleTemplate = projectRoot.resolve("sources/common.module-template.yaml")
     check(commonModuleTemplate.exists()) {
         "Common module template file doesn't exist: $commonModuleTemplate"

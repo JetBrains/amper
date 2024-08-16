@@ -13,6 +13,7 @@ import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
 import java.util.zip.ZipFile
+import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -81,7 +82,7 @@ class AmperBackendCustomTasksTest : AmperIntegrationTestBase() {
 
     @Test
     fun `generate artifact for publishing`() = runTestWithCollector {
-        val m2repository = Path.of(System.getProperty("user.home"), ".m2/repository")
+        val m2repository = Path(System.getProperty("user.home"), ".m2/repository")
         val groupDir = m2repository.resolve("amper").resolve("test")
         groupDir.deleteRecursively()
 
