@@ -120,8 +120,8 @@ class JvmTestTask(
                     DeadLockMonitor.disable()
 
                     val result = BuildPrimitives.runProcessAndGetOutput(
-                        workingDirectory,
-                        *jvmCommand.toTypedArray(),
+                        workingDir = workingDirectory,
+                        command = jvmCommand,
                         span = span,
                         outputListener = PrintToTerminalProcessOutputListener(terminal),
                     )

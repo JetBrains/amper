@@ -41,7 +41,7 @@ class IosKotlinTestTask(
             .useWithScope { span ->
                 bootAndWaitSimulator(chosenDevice.deviceId)
 
-                val spawnTestsCommand = listOfNotNull(
+                val spawnTestsCommand = listOf(
                     XCRUN_EXECUTABLE,
                     "simctl",
                     "spawn",
@@ -49,11 +49,11 @@ class IosKotlinTestTask(
                     executable.absolutePathString(),
                     "--",
                     "--ktest_logger=TEAMCITY",
-                ).toTypedArray()
+                )
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    workingDir,
-                    *spawnTestsCommand,
+                    workingDir = workingDir,
+                    command = spawnTestsCommand,
                     logCall = true,
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),

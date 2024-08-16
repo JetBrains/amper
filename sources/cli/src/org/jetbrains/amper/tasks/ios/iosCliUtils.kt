@@ -61,12 +61,12 @@ suspend fun bootAndWaitSimulator(
     deviceId: String,
     headless: Boolean = true,
 ) {
-    val command = if (headless) arrayOf("xcrun", "simctl", "boot", deviceId)
-    else arrayOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
+    val command = if (headless) listOf("xcrun", "simctl", "boot", deviceId)
+    else listOf("open", "-a", "Simulator", "--args", "-CurrentDeviceUDID", deviceId)
 
     BuildPrimitives.runProcessAndGetOutput(
-        Path("."),
-        *command,
+        workingDir = Path("."),
+        command = command,
         logCall = true,
         outputListener = LoggingProcessOutputListener(logger),
     )
@@ -89,8 +89,8 @@ private suspend fun xcrun(
     logCall: Boolean = false,
     listener: ProcessOutputListener = LoggingProcessOutputListener(logger),
 ) = BuildPrimitives.runProcessAndGetOutput(
-    Path("."),
-    XCRUN_EXECUTABLE, *args,
+    workingDir = Path("."),
+    command = listOf(XCRUN_EXECUTABLE) + args,
     logCall = logCall,
     outputListener = listener,
 ).stdout.lines()

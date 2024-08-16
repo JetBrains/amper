@@ -106,8 +106,8 @@ class BuildAppleTask(
                     .useWithScope { span ->
                         // TODO Maybe we dont need output here?
                         val result = BuildPrimitives.runProcessAndGetOutput(
-                            baseDir.toPath(),
-                            *xcodebuildArgs.toTypedArray(),
+                            workingDir = baseDir.toPath(),
+                            command = xcodebuildArgs,
                             span = span,
                             logCall = true,
                             outputListener = LoggingProcessOutputListener(logger),

@@ -346,9 +346,8 @@ class JvmCompileTask(
                 .setAttribute("version", jdk.version)
                 .useWithScope { span ->
                     BuildPrimitives.runProcessAndGetOutput(
-                        jdk.homeDir,
-                        jdk.javacExecutable.pathString,
-                        "@${argsFile.pathString}",
+                        workingDir = jdk.homeDir,
+                        command = listOf(jdk.javacExecutable.pathString, "@${argsFile.pathString}"),
                         span = span,
                         outputListener = LoggingProcessOutputListener(logger),
                     )

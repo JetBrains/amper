@@ -40,8 +40,8 @@ class NativeTestTask(
                 val workingDir = module.source.moduleDir ?: projectRoot.path
 
                 val result = BuildPrimitives.runProcessAndGetOutput(
-                    workingDir,
-                    executable.pathString,
+                    workingDir = workingDir,
+                    command = listOf(executable.pathString),
                     span = span,
                     outputListener = PrintToTerminalProcessOutputListener(terminal),
                 )

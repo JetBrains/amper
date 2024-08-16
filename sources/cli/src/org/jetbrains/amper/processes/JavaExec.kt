@@ -54,9 +54,8 @@ suspend fun Jdk.runJava(
             .setAttribute("main-class", mainClass)
             .useWithScope { span ->
                 BuildPrimitives.runProcessAndGetOutput(
-                    workingDir,
-                    javaExecutable.pathString,
-                    "@${argFile.pathString}",
+                    workingDir = workingDir,
+                    command = listOf(javaExecutable.pathString, "@${argFile.pathString}"),
                     environment = environment,
                     span = span,
                     outputListener = outputListener,
