@@ -6,7 +6,6 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.AndroidModuleData
-import org.jetbrains.amper.android.RClassAndroidBuildResult
 import org.jetbrains.amper.android.ResolvedDependency
 import org.jetbrains.amper.android.runAndroidBuild
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
@@ -26,7 +25,6 @@ import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 import kotlin.io.path.extension
@@ -77,10 +75,9 @@ class AndroidPrepareTask(
                 taskOutputRoot.path / "gradle-project",
                 gradleLogStdoutPath,
                 gradleLogStderrPath,
-                RClassAndroidBuildResult::class.java,
                 eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) },
             )
-            val outputs = result.paths.map { Path(it) }.filter { it.extension.lowercase() == "jar" }
+            val outputs = result.filter { it.extension.lowercase() == "jar" }
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
 

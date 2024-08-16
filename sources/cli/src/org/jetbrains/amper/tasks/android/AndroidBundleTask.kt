@@ -12,6 +12,7 @@ import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -28,7 +29,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
 
-class AndroidBuildTask(
+class AndroidBundleTask(
     val module: PotatoModule,
     private val buildType: BuildType,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
@@ -54,7 +55,7 @@ class AndroidBuildTask(
         )
         val request = AndroidBuildRequest(
             root = projectRoot.path,
-            phase = AndroidBuildRequest.Phase.Build,
+            phase = AndroidBuildRequest.Phase.Bundle,
             modules = setOf(androidModuleData),
             buildTypes = setOf(buildType.toAndroidRequestBuildType),
             sdkDir = androidSdkPath,
@@ -62,10 +63,13 @@ class AndroidBuildTask(
         )
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
-        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath) {
+
+        val propertiesFiles = fragments.map { it.settings.android.signing.propertiesFile }.distinct()
+
+        val executionResult = executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath + propertiesFiles) {
             val logFileName = UUID.randomUUID()
-            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stdout"
-            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "build-$logFileName.stderr"
+            val gradleLogStdoutPath = buildLogsRoot.path / "gradle" / "bundle-$logFileName.stdout"
+            val gradleLogStderrPath = buildLogsRoot.path / "gradle" / "bundle-$logFileName.stderr"
             gradleLogStdoutPath.createParentDirectories()
             val result = runAndroidBuild(
                 request,

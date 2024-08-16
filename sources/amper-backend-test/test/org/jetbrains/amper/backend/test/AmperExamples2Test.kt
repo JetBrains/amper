@@ -56,12 +56,7 @@ class AmperExamples2Test : AmperIntegrationTestBase() {
     fun `compose-multiplatform`() = runTestWithCollector {
         val projectContext = setupExampleProject("compose-multiplatform")
         AmperBackend(projectContext).run {
-            assertHasTasks(
-                jvmBaseTasks + jvmTestTasks +
-                        iosLibraryTasks +
-                        androidBaseTasks + androidTestTasks,
-                module = "shared"
-            )
+            assertHasTasks(jvmBaseTasks + jvmTestTasks + iosLibraryTasks + androidTestTasks, module = "shared")
             assertHasTasks(androidAppTasks, module = "android-app")
             assertHasTasks(jvmAppTasks, module = "jvm-app")
             assertHasTasks(iosAppTasks, module = "ios-app")

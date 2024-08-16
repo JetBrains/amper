@@ -5,9 +5,6 @@ package org.jetbrains.amper.android.gradle
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.ApkVariant
-import com.android.build.gradle.api.LibraryVariant
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -20,8 +17,7 @@ import org.gradle.api.problems.Severity
 import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
-import org.jetbrains.amper.android.gradle.tooling.ApkPathToolingModelBuilder
-import org.jetbrains.amper.android.gradle.tooling.RClassToolingModelBuilder
+import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -34,13 +30,13 @@ import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
 import java.io.File
 import java.nio.file.Path
-import java.util.Properties
+import java.util.*
 import javax.inject.Inject
 import javax.xml.stream.XMLEventFactory
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
+import kotlin.io.path.absolute
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.isSameFileAs
@@ -100,10 +96,11 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         project.repositories.mavenCentral()
         val module = project.gradle.projectPathToModule[project.path] ?: return
 
-        when (module.type) {
-            ProductType.ANDROID_APP -> project.plugins.apply("com.android.application")
-            else -> project.plugins.apply("com.android.library")
+        if (module.type != ProductType.ANDROID_APP) {
+            error("Unsupported module type: ${module.type}")
         }
+
+        project.plugins.apply("com.android.application")
 
         val androidExtension = project.extensions.findByType(BaseExtension::class.java) ?: return
         val androidFragment = module
@@ -116,16 +113,14 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
 
         val signing = androidSettings.signing
 
-        module.buildDir
-
         if (signing.enabled) {
-            if (signing.propertiesFile.exists()) {
+            val path = (module.buildDir / signing.propertiesFile.pathString).normalize().absolute()
+            if (path.exists()) {
                 val keystoreProperties = Properties().apply {
-                    signing.propertiesFile.reader().use { reader ->
+                    path.reader().use { reader ->
                         load(reader)
                     }
                 }
-
                 androidExtension.signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
                         it.storeFile = Path(keystoreProperties.getProperty(signing.storeFileKey)).toFile()
@@ -135,7 +130,6 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                     }
                 }
             } else {
-                val path = (module.buildDir / signing.propertiesFile.pathString).normalize().absolutePathString()
                 problems
                     .forNamespace("org.jetbrains.amper.android-integration")
                     .reporting { problem ->
@@ -164,8 +158,6 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         }
         androidExtension.namespace = androidSettings.namespace
 
-
-
         val requestedModules = project
             .gradle
             .request
@@ -180,37 +172,12 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         project.afterEvaluate {
 
             // get variants
-            val variants = when (module.type) {
-                ProductType.ANDROID_APP -> (androidExtension as AppExtension).applicationVariants
-                else -> (androidExtension as LibraryExtension).libraryVariants
-            }
-
+            val variants = (androidExtension as AppExtension).applicationVariants
             // choose variant
+            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }.toSet()
+            val chosenVariants = variants.filter { it.name in buildTypes }
 
-            val buildTypes = (project.gradle.request?.buildTypes ?: emptySet()).map { it.value }
-
-            val chosenVariants = variants
-                .mapNotNull { variant ->
-                    buildTypes
-                        .firstOrNull { variant.name.startsWith(it) }
-                        ?.let { it to variant }
-                }
-                .toMap()
-
-            for ((buildType, variant) in chosenVariants) {
-                project.tasks.create("prepare$buildType") {
-                    for (output in variant.outputs) {
-                        it.dependsOn(output.processResourcesProvider)
-                    }
-                }
-
-                project.tasks.create("build$buildType") {
-                    when (variant) {
-                        is ApkVariant -> it.dependsOn(variant.packageApplicationProvider)
-                        is LibraryVariant -> it.dependsOn(variant.packageLibraryProvider)
-                    }
-                }
-
+            for (variant in chosenVariants) {
                 val requestedModule = requestedModules[project.path] ?: return@afterEvaluate
 
                 // set dependencies
@@ -252,8 +219,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
 class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val toolingModelBuilderRegistry: ToolingModelBuilderRegistry) :
     Plugin<Settings> {
     override fun apply(settings: Settings) = with(SLF4JProblemReporterContext()) {
-        registerToolingModelBuilders()
-
+        toolingModelBuilderRegistry.register(ProcessResourcesProviderTaskNameToolingModelBuilder())
         val extension = settings.extensions.create("androidData", AmperAndroidIntegrationExtension::class.java)
 
         settings.gradle.settingsEvaluated {
@@ -265,19 +231,11 @@ class AmperAndroidIntegrationSettingsPlugin @Inject constructor(private val tool
         settings.gradle.beforeProject { project ->
             adjustXmlFactories()
             settings.gradle.projectPathToModule[project.path]?.let { module ->
-                val productTypeIsAndroidApp = module.type == ProductType.ANDROID_APP
-                val productTypeIsLib = module.type == ProductType.LIB
-                val platformsContainAndroid = module.artifacts.any { it.platforms.contains(Platform.ANDROID) }
-                if (productTypeIsAndroidApp || productTypeIsLib && platformsContainAndroid) {
+                if (module.type == ProductType.ANDROID_APP) {
                     project.plugins.apply(AmperAndroidIntegrationProjectPlugin::class.java)
                 }
             }
         }
-    }
-
-    private fun registerToolingModelBuilders() {
-        toolingModelBuilderRegistry.register(ApkPathToolingModelBuilder())
-        toolingModelBuilderRegistry.register(RClassToolingModelBuilder())
     }
 
     context(SLF4JProblemReporterContext)

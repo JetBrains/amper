@@ -99,16 +99,6 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
     }
 
     @Test
-    fun `lib contains lib code and resources`() = runTestWithCollector {
-        val projectContext = setupAndroidTestProject("lib")
-        val taskName = TaskName.fromHierarchy(listOf("lib", "buildAndroidDebug"))
-        AmperBackend(projectContext).runTask(taskName)
-        val aarPath = projectContext.getAarPath(taskName)
-        assertFileContainsInAar("lib-jvm/org/example/namespace/Lib.class", aarPath)
-        assertStringContainsInResources("My Library", aarPath)
-    }
-
-    @Test
     fun `it's possible to use AppCompat theme from appcompat library in AndroidManifest`() = runTestWithCollector {
         val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))

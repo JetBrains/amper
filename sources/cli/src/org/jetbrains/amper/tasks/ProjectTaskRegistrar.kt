@@ -20,6 +20,7 @@ import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.flow.toResolutionPlatform
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.resolver.getCliDefaultFileCacheBuilder
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -243,6 +244,94 @@ class ProjectTaskRegistrar(val context: CliContext, private val model: Model) {
      */
     fun onTest(parentPlatform: Platform, block: OnTaskTypeBlock) {
         onTaskType(parentPlatform, isTest = true, block)
+    }
+
+    fun onDebug(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (buildType == BuildType.Debug) {
+                block(module, execOnChangedInputs, platform, isTest, buildType)
+            }
+        }
+    }
+
+    fun onRelease(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (buildType == BuildType.Release) {
+                block(module, execOnChangedInputs, platform, isTest, buildType)
+            }
+        }
+    }
+
+    fun onMainDebug(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onDebug(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (isTest == true) {
+                block(module, execOnChangedInputs, platform, true, buildType)
+            }
+        }
+    }
+
+    fun onMainRelease(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onRelease(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (isTest == false) {
+                block(module, execOnChangedInputs, platform, false, buildType)
+            }
+        }
+    }
+
+    fun onApp(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (module.type != ProductType.LIB) {
+                block(module, execOnChangedInputs, platform, isTest, buildType)
+            }
+        }
+    }
+
+    fun onLib(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onEachBuildType(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (module.type == ProductType.LIB) {
+                block(module, execOnChangedInputs, platform, isTest, buildType)
+            }
+        }
+    }
+
+    fun onApp(parentPlatform: Platform, block: OnPlatformBlock) {
+        onEachDescendantPlatformOf(parentPlatform) { module, execOnChangedInputs, platform ->
+            if (module.type != ProductType.LIB) {
+                block(module, execOnChangedInputs, platform)
+            }
+        }
+    }
+
+    fun onLib(parentPlatform: Platform, block: OnPlatformBlock) {
+        onEachDescendantPlatformOf(parentPlatform) { module, execOnChangedInputs, platform ->
+            if (module.type == ProductType.LIB) {
+                block(module, execOnChangedInputs, platform)
+            }
+        }
+    }
+
+    fun onApp(parentPlatform: Platform, block: OnTaskTypeBlock) {
+        onEachTaskType(parentPlatform) { module, execOnChangedInputs, platform, isTest ->
+            if (module.type != ProductType.LIB) {
+                block(module, execOnChangedInputs, platform, isTest)
+            }
+        }
+    }
+
+    fun onLib(parentPlatform: Platform, block: OnTaskTypeBlock) {
+        onEachTaskType(parentPlatform) { module, execOnChangedInputs, platform, isTest ->
+            if (module.type == ProductType.LIB) {
+                block(module, execOnChangedInputs, platform, isTest)
+            }
+        }
+    }
+
+    fun onMainApp(parentPlatform: Platform, block: OnBuildTypeBlock) {
+        onApp(parentPlatform) { module, execOnChangedInputs, platform, isTest, buildType ->
+            if (!isTest) {
+                block(module, execOnChangedInputs, platform, false, buildType)
+            }
+        }
     }
 
     fun onModuleDependency(

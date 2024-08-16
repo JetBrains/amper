@@ -22,7 +22,7 @@ data class ResolvedDependency(
 @Serializable
 data class AndroidModuleData(
     val modulePath: String, // relative module path from root in Gradle format ":path:to:module"
-    val moduleClasses: List<@Serializable(with = PathAsStringSerializer::class)Path> = emptyList(),
+    val moduleClasses: List<@Serializable(with = PathAsStringSerializer::class) Path> = emptyList(),
     val resolvedAndroidRuntimeDependencies: List<ResolvedDependency> = listOf()
 )
 
@@ -59,16 +59,20 @@ data class AndroidBuildRequest(
         /**
          * build APK
          */
-        Build
+        Build,
+
+        /**
+         * Bundle AAB for Google Play Store
+         */
+        Bundle,
     }
 }
 
-interface AndroidBuildResult
+typealias ProjectPath = String
+typealias VariantName = String
+typealias TaskName = String
 
-interface ApkPathAndroidBuildResult : AndroidBuildResult, java.io.Serializable {
-    val paths: List<String>
-}
+interface ProcessResourcesProviderData : java.io.Serializable {
 
-interface RClassAndroidBuildResult : AndroidBuildResult, java.io.Serializable {
-    val paths: List<String>
+    val data: Map<ProjectPath, Map<VariantName, TaskName>>
 }
