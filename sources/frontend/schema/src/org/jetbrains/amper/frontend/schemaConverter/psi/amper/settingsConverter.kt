@@ -74,10 +74,6 @@ internal fun AmperProperty.convertAndroidSigningSettings() = when(value) {
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertAndroidSigningSettingsObject() = AndroidSigningSettings().apply {
     ::propertiesFile.convertChildScalar { asAbsolutePath() }
-    ::storeFileKey.convertChildString()
-    ::storePasswordKey.convertChildString()
-    ::keyAliasKey.convertChildString()
-    ::keyPasswordKey.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)

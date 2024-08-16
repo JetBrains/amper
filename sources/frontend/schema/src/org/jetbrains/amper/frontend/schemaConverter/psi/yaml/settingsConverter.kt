@@ -73,10 +73,6 @@ internal fun YAMLValue.convertAndroidSigningSettings() = when(this) {
     is YAMLScalar -> AndroidSigningSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
     is YAMLMapping -> AndroidSigningSettings().apply {
         ::propertiesFile.convertChildScalar { asAbsolutePath() }
-        ::storeFileKey.convertChildString()
-        ::storePasswordKey.convertChildString()
-        ::keyAliasKey.convertChildString()
-        ::keyPasswordKey.convertChildString()
     }
     else -> null
 }

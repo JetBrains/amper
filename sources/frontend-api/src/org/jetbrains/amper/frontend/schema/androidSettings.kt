@@ -95,18 +95,6 @@ class AndroidSigningSettings : SchemaNode() {
 
     @SchemaDoc("Properties file where the keystore data is stored.")
     var propertiesFile by value<Path> { Path.of("keystore.properties") }
-
-    @SchemaDoc("The keystore file key in the properties file.")
-    var storeFileKey by value<String> { "keystore.file" }
-
-    @SchemaDoc("The keystore password key in the properties file.")
-    var storePasswordKey by value<String> { "keystore.password" }
-
-    @SchemaDoc("The key alias key in the properties file.")
-    var keyAliasKey by value<String> { "keystore.key.alias" }
-
-    @SchemaDoc("The key password key in the properties file.")
-    var keyPasswordKey by value<String> { "keystore.key.password" }
 }
 
 const val ANDROID_SIGNING_SETTINGS_SHORT_FORM = """

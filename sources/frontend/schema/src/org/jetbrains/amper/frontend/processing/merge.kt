@@ -84,10 +84,6 @@ fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, ::A
 
 fun AndroidSigningSettings.merge(overwrite: AndroidSigningSettings) = mergeNode(overwrite, ::AndroidSigningSettings) {
     mergeScalar(AndroidSigningSettings::propertiesFile)
-    mergeScalar(AndroidSigningSettings::storeFileKey)
-    mergeScalar(AndroidSigningSettings::storePasswordKey)
-    mergeScalar(AndroidSigningSettings::keyAliasKey)
-    mergeScalar(AndroidSigningSettings::keyPasswordKey)
 }
 
 fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::KotlinSettings) {
