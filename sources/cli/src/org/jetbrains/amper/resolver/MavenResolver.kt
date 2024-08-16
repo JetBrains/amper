@@ -33,8 +33,8 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     suspend fun resolve(
         coordinates: List<String>,
         repositories: List<Repository>,
-        scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: ResolutionPlatform = ResolutionPlatform.JVM,
+        scope: ResolutionScope,
+        platform: ResolutionPlatform,
         resolveSourceMoniker: String,
     ): List<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))

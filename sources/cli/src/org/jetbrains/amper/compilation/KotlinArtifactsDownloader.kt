@@ -7,6 +7,7 @@ package org.jetbrains.amper.compilation
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.downloader.KOTLIN_GROUP_ID
 import org.jetbrains.amper.core.downloader.MAVEN_CENTRAL_REPOSITORY_URL
+import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.dependency.resolution.toRepositories
 import org.jetbrains.amper.resolver.MavenResolver
@@ -109,6 +110,7 @@ class KotlinArtifactsDownloader(
                 coordinates = listOf(coordinates),
                 repositories = listOf(MAVEN_CENTRAL_REPOSITORY_URL).toRepositories(),
                 scope = ResolutionScope.RUNTIME,
+                platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = coordinates,
             )
             return@execute ExecuteOnChangedInputs.ExecutionResult(resolved.toList())

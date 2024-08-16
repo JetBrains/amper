@@ -36,6 +36,8 @@ class MavenResolverTest {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:slf4j-tinylog:2.7.0-M1"),
                 repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                scope = ResolutionScope.COMPILE,
+                platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
             )
         }
@@ -62,6 +64,8 @@ class MavenResolverTest {
             resolver.resolve(
                 coordinates = listOf("org.tinylog:tinylog-api:2.7.0-M1"),
                 repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                scope = ResolutionScope.COMPILE,
+                platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
             )
         }
@@ -106,6 +110,7 @@ class MavenResolverTest {
                 coordinates = listOf("org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22"),
                 repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
                 scope = ResolutionScope.RUNTIME,
+                platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
             )
         }
@@ -141,6 +146,8 @@ class MavenResolverTest {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999"),
                     repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    scope = ResolutionScope.COMPILE,
+                    platform = ResolutionPlatform.JVM,
                     resolveSourceMoniker = "test",
                 )
             }
@@ -164,8 +171,9 @@ class MavenResolverTest {
         // kotlinx-datetime:0.2.1 is available for macos_x64
         val macosX64 = resolver.resolve(
             coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
-            platform = ResolutionPlatform.MACOS_X64,
             repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+            scope = ResolutionScope.COMPILE,
+            platform = ResolutionPlatform.MACOS_X64,
             resolveSourceMoniker = "test",
         )
         assertTrue(macosX64.any { it.name == "kotlinx-datetime-macosx64-0.2.1.klib" },
@@ -176,8 +184,9 @@ class MavenResolverTest {
             runBlocking {
                 resolver.resolve(
                     coordinates = listOf("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"),
-                    platform = ResolutionPlatform.MACOS_ARM64,
                     repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    scope = ResolutionScope.COMPILE,
+                    platform = ResolutionPlatform.MACOS_ARM64,
                     resolveSourceMoniker = "test",
                 )
             }
@@ -201,6 +210,7 @@ class MavenResolverTest {
                     "https://repo.gradle.org/gradle/libs-releases",
                 ).toRepositories(),
                 scope = ResolutionScope.COMPILE,
+                platform = ResolutionPlatform.JVM,
                 resolveSourceMoniker = "test",
             )
         }
@@ -223,6 +233,8 @@ class MavenResolverTest {
                 resolver.resolve(
                     coordinates = listOf("org.tinylog:slf4j-tinylog:9999", "org.tinylog:xxx:9998"),
                     repositories = listOf("https://repo1.maven.org/maven2").toRepositories(),
+                    scope = ResolutionScope.COMPILE,
+                    platform = ResolutionPlatform.JVM,
                     resolveSourceMoniker = "test",
                 )
             }
