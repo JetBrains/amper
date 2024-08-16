@@ -103,7 +103,6 @@ class MetadataCompileTask(
                     classpath = classpath,
                     friendPaths = friendPaths,
                     refinesPaths = refinesPaths,
-                    tempRoot = tempRoot,
                 )
             } else {
                 logger.info("Sources for fragment '${fragment.name}' of module '${module.userReadableName}' are missing, skipping compilation")
@@ -134,7 +133,6 @@ class MetadataCompileTask(
         classpath: List<Path>,
         friendPaths: List<Path>,
         refinesPaths: List<Path>,
-        tempRoot: AmperProjectTempRoot,
     ) {
         val kotlinSourceFiles = sourceDirectory.walk().filter { it.extension == "kt" }.toList()
         if (kotlinSourceFiles.isEmpty()) {
