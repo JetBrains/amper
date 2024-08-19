@@ -14,9 +14,10 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
+import kotlin.io.path.div
 
 class AndroidBundleTask(
-    module: PotatoModule,
+    private val module: PotatoModule,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,
@@ -40,5 +41,11 @@ class AndroidBundleTask(
         get() = AndroidBuildRequest.Phase.Bundle
 
     override val additionalInputFiles: List<Path>
-        get() = fragments.map { it.settings.android.signing.propertiesFile }.distinct()
+        get() = fragments
+            .mapNotNull {
+                module.source.moduleDir?.let { moduleDir ->
+                    (moduleDir / it.settings.android.signing.propertiesFile).toAbsolutePath()
+                }
+            }
+            .distinct()
 }

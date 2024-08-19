@@ -27,8 +27,10 @@ import org.jetbrains.amper.util.headlessEmulatorModePropertyName
 import org.jf.dexlib2.DexFileFactory
 import org.jf.dexlib2.Opcodes
 import java.nio.file.Path
+import kotlin.io.path.PathWalkOption
 import kotlin.io.path.div
 import kotlin.io.path.extension
+import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.io.path.walk
 import kotlin.test.AfterTest
@@ -83,7 +85,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val projectContext = setupAndroidTestProject("simple")
         val taskName = TaskName.fromHierarchy(listOf("simple", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
-        val apkPath = projectContext.getApkPath(taskName)
+        val apkPath = projectContext.getArtifactPath(taskName)
         assertClassContainsInApk("Lcom/google/common/collect/Synchronized\$SynchronizedBiMap;", apkPath)
     }
 
@@ -92,7 +94,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
-        val apkPath = projectContext.getApkPath(taskName)
+        val apkPath = projectContext.getArtifactPath(taskName)
         assertClassContainsInApk("Landroidx/appcompat/app/AppCompatActivity;", apkPath)
     }
 
@@ -101,7 +103,7 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val projectContext = setupAndroidTestProject("appcompat")
         val taskName = TaskName.fromHierarchy(listOf("appcompat", "buildAndroidDebug"))
         AmperBackend(projectContext).runTask(taskName)
-        val apkPath = projectContext.getApkPath(taskName)
+        val apkPath = projectContext.getArtifactPath(taskName)
         val extractedApkPath = apkPath.parent.resolve("extractedApk")
         extractZip(apkPath, extractedApkPath, false)
         val themeReference = getThemeReferenceFromAndroidManifest(extractedApkPath)
@@ -125,6 +127,24 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
             Run "$sdkManagerPath --licenses" to review and accept them
         """.trimIndent()
         assertEquals(expectedError, throwable.message)
+    }
+
+    @Test
+    fun `bundle without signing enabled has no signature`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("simple")
+        val taskName = TaskName.fromHierarchy(listOf("simple", "bundleAndroid"))
+        AmperBackend(projectContext).runTask(taskName)
+        val bundlePath = projectContext.getArtifactPath(taskName, "aab")
+        assertFileWithExtensionDoesNotContainInBundle("RSA", bundlePath)
+    }
+
+    @Test
+    fun `bundle with signing enabled and properties file has signature`() = runTestWithCollector {
+        val projectContext = setupAndroidTestProject("signed")
+        val taskName = TaskName.fromHierarchy(listOf("signed", "bundleAndroid"))
+        AmperBackend(projectContext).runTask(taskName)
+        val bundlePath = projectContext.getArtifactPath(taskName, "aab")
+        assertFileContainsInBundle("ALIAS.RSA", bundlePath)
     }
 
     @Test
@@ -192,10 +212,10 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         return themeReference
     }
 
-    private fun CliContext.getApkPath(taskName: TaskName): Path = getTaskOutputPath(taskName)
-        .walk()
-        .filter { it.extension == "apk" }
-        .firstOrNull() ?: fail("Apk not found")
+    private fun CliContext.getArtifactPath(taskName: TaskName, extension: String = "apk"): Path = getTaskOutputPath(taskName)
+        .walk(PathWalkOption.BREADTH_FIRST)
+        .filter { it.extension.lowercase() == extension.lowercase() }
+        .firstOrNull() ?: fail("artifact not found")
 
     private fun CliContext.getTaskOutputPath(taskName: TaskName): Path =
         buildOutputRoot.path / "tasks" / taskName.name.replace(':', '_')
@@ -212,6 +232,25 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
             }
             .map { it.type }
         assertContains(typesInDexes.toList(), dalvikFqn)
+    }
+
+    private fun assertFileContainsInBundle(fileName: String, bundlePath: Path) {
+        val extractedAabPath = bundlePath.parent.resolve("extractedBundle")
+        extractZip(bundlePath, extractedAabPath, false)
+        val files = extractedAabPath
+            .walk()
+            .map { it.name }
+        assertContains(files.toList(), fileName)
+    }
+
+    private fun assertFileWithExtensionDoesNotContainInBundle(extension: String, bundlePath: Path) {
+        val extractedApkPath = bundlePath.parent.resolve("extractedBundle")
+        extractZip(bundlePath, extractedApkPath, false)
+        val typesInDexes = extractedApkPath
+            .walk()
+            .map { it.extension }
+            .filter { it.lowercase() == extension.lowercase() }
+        assertEquals(typesInDexes.toList().size, 0)
     }
 
     private suspend fun TestCollector.assertStringInLogcat(device: IDevice, value: String) {
