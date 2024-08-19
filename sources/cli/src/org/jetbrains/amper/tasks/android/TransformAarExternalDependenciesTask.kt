@@ -9,8 +9,9 @@ import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask.AdditionalClasspathProviderTaskResult
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
+import java.nio.file.Path
 import kotlin.io.path.div
 
 class TransformAarExternalDependenciesTask(
@@ -26,6 +27,8 @@ class TransformAarExternalDependenciesTask(
                 val outputs = resolvedAndroidCompileDependencies.extractAars().map { it / "classes.jar" }
                 ExecuteOnChangedInputs.ExecutionResult(outputs, mapOf())
             }
-        return AdditionalClasspathProviderTaskResult(executionResult.outputs)
+        return Result(executionResult.outputs)
     }
+
+    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
 }

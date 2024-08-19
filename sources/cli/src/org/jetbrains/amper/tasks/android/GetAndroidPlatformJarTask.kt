@@ -6,13 +6,13 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.jvm.JvmCompileTask
+import java.nio.file.Path
 
 class GetAndroidPlatformJarTask(
     private val getAndroidPlatformFileFromPackageTask: GetAndroidPlatformFileFromPackageTask
-) :
-    Task {
+) : Task {
     override val taskName: TaskName
         get() = getAndroidPlatformFileFromPackageTask.taskName
 
@@ -20,6 +20,8 @@ class GetAndroidPlatformJarTask(
         val result = getAndroidPlatformFileFromPackageTask
             .run(dependenciesResult) as GetAndroidPlatformFileFromPackageTask.Result
         val classpath = result.outputs.map { it.resolve("android.jar") }
-        return JvmCompileTask.AdditionalClasspathProviderTaskResult(classpath)
+        return Result(classpath)
     }
+
+    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
 }

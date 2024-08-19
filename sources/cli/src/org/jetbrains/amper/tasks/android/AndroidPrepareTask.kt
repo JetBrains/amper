@@ -84,6 +84,8 @@ class AndroidPrepareTask(
             ExecuteOnChangedInputs.ExecutionResult(outputs)
         }
 
-        return JvmCompileTask.AdditionalClasspathProviderTaskResult(result.outputs)
+        return Result(classpath = result.outputs)
     }
+
+    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
 }

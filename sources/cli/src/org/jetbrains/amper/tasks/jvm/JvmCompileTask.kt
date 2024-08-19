@@ -98,7 +98,7 @@ class JvmCompileTask(
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion
 
-        val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProviderTaskResult>().flatMap { it.classpath }
+        val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.classpath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
@@ -362,9 +362,9 @@ class JvmCompileTask(
         val isTest: Boolean,
     ) : TaskResult
 
-    class AdditionalClasspathProviderTaskResult(
+    interface AdditionalClasspathProvider {
         val classpath: List<Path>
-    ) : TaskResult
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }
