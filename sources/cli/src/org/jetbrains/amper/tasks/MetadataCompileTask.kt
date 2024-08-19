@@ -63,6 +63,7 @@ class MetadataCompileTask(
         val kotlinSettings = listOf(fragment).mergedKotlinSettings()
 
         val dependencyResolutionResults = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
+        val additionalSourceRoots = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(listOf(fragment))
 
         // TODO extract deps only for our fragment/platforms
         val mavenClasspath = dependencyResolutionResults.flatMap { it.compileClasspath }
@@ -85,21 +86,25 @@ class MetadataCompileTask(
             "task.output.root" to taskOutputRoot.path.pathString,
         )
 
-        val sourceDir = fragment.src.toAbsolutePath()
-        val inputs = listOf(sourceDir) + classpath + refinesPaths + friendPaths
+        val sourceDirs = fragment.src.toAbsolutePath() + additionalSourceRoots.map { it.path }
+        val inputs = sourceDirs + classpath + refinesPaths + friendPaths
 
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
             cleanDirectory(taskOutputRoot.path)
 
-            if (sourceDir.exists()) {
-                if (!sourceDir.isDirectory()) {
-                    error("Source directory at '$sourceDir' exists, but it's not a directory, this is currently unsupported")
+            val existingSourceDirs = sourceDirs.filter { it.exists() }
+            if (existingSourceDirs.isNotEmpty()) {
+                existingSourceDirs.forEach {
+                    if (!it.isDirectory()) {
+                        userReadableError("Source directory '$it' exists, but it's not a directory, this is currently unsupported")
+                    }
                 }
                 compileSources(
                     jdk = jdk,
                     kotlinVersion = kotlinVersion,
                     kotlinUserSettings = kotlinSettings,
-                    sourceDirectory = sourceDir,
+                    sourceDirectories = sourceDirs,
+                    additionalSourceRoots = additionalSourceRoots,
                     classpath = classpath,
                     friendPaths = friendPaths,
                     refinesPaths = refinesPaths,
@@ -129,12 +134,13 @@ class MetadataCompileTask(
         jdk: Jdk,
         kotlinVersion: String,
         kotlinUserSettings: KotlinUserSettings,
-        sourceDirectory: Path,
+        sourceDirectories: List<Path>,
+        additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
         classpath: List<Path>,
         friendPaths: List<Path>,
         refinesPaths: List<Path>,
     ) {
-        val kotlinSourceFiles = sourceDirectory.walk().filter { it.extension == "kt" }.toList()
+        val kotlinSourceFiles = sourceDirectories.flatMap { it.walk() }.filter { it.extension == "kt" }.toList()
         if (kotlinSourceFiles.isEmpty()) {
             return
         }
@@ -153,11 +159,12 @@ class MetadataCompileTask(
             friendPaths = friendPaths,
             refinesPaths = refinesPaths,
             fragments = listOf(fragment),
-            sourceFiles = listOf(sourceDirectory),
+            sourceFiles = sourceDirectories,
+            additionalSourceRoots = additionalSourceRoots,
         )
         spanBuilder("kotlin-metadata-compilation")
             .setAmperModule(module)
-            .setAttribute("source-dir", sourceDirectory.pathString)
+            .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
             .setAttribute("compiler-version", kotlinVersion)
             .setListAttribute("compiler-args", compilerArgs)
             .useWithScope {

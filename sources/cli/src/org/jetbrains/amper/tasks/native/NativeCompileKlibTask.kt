@@ -17,15 +17,15 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.custom.CustomTask
+import org.jetbrains.amper.tasks.sourcesFor
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -94,14 +94,10 @@ class NativeCompileKlibTask(
 
         val libraryPaths = compiledModuleDependencies + externalDependencies
 
-        val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
-            .flatMap { result ->
-                result.moduleRoots
-                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
-                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
-            }
+        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>()
+            .sourcesFor(fragments)
 
-        val sources = fragments.map { it.src } + customTasksSources
+        val sources = fragments.map { it.src } + additionalSources.map { it.path }
         val inputs = sources + libraryPaths
 
         val artifact = executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
@@ -131,6 +127,7 @@ class NativeCompileKlibTask(
                     // can't pass fragments if we have no sources, because empty.kt wouldn't be part of them (konan fails)
                     fragments = if (existingSourceRoots.isEmpty()) emptyList() else fragments,
                     sourceFiles = rootsToCompile,
+                    additionalSourceRoots = additionalSources,
                     outputPath = artifact,
                     compilationType = KotlinCompilationType.LIBRARY,
                     include = null,

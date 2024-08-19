@@ -29,19 +29,22 @@ import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
 import org.jetbrains.amper.diagnostics.setListAttribute
-import org.jetbrains.amper.frontend.AddToModuleRootsFromCustomTask
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.processes.LoggingProcessOutputListener
 import org.jetbrains.amper.processes.withJavaArgFile
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
+import org.jetbrains.amper.tasks.AdditionalResourcesProvider
+import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.BuildTask
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.custom.CustomTask
+import org.jetbrains.amper.tasks.resourcesFor
+import org.jetbrains.amper.tasks.sourcesFor
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.targetLeafPlatforms
 import org.jetbrains.kotlin.buildtools.api.CompilationResult
@@ -101,18 +104,8 @@ class JvmCompileTask(
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.classpath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
-        val customTasksSources = dependenciesResult.filterIsInstance<CustomTask.Result>()
-            .flatMap { result ->
-                result.moduleRoots
-                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.SOURCES }
-                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
-            }
-        val customTasksResources = dependenciesResult.filterIsInstance<CustomTask.Result>()
-            .flatMap { result ->
-                result.moduleRoots
-                    .filter { it.type == AddToModuleRootsFromCustomTask.Type.RESOURCES }
-                    .map { result.outputDirectory.resolve(it.taskOutputRelativePath) }
-            }
+        val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments)
+        val additionalResources = dependenciesResult.filterIsInstance<AdditionalResourcesProvider>().resourcesFor(fragments)
 
         // TODO settings
         val jdk = JdkDownloader.getJdk(userCacheRoot)
@@ -125,9 +118,8 @@ class JvmCompileTask(
             "target.platforms" to module.targetLeafPlatforms.map { it.name }.sorted().joinToString(),
         )
 
-        // FIXME: we need to add those custom task sources as fragments too, to support K2 properly (see AMPER-879)
-        val sources = fragments.map { it.src.toAbsolutePath() } + customTasksSources
-        val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + customTasksResources
+        val sources = fragments.map { it.src.toAbsolutePath() } + additionalSources.map { it.path }
+        val resources = fragments.map { it.resourcesPath.toAbsolutePath() } + additionalResources.map { it.path }
         val inputs = sources + resources + classpath
 
         executeOnChangedInputs.execute(taskName.name, configuration, inputs) {
@@ -147,6 +139,7 @@ class JvmCompileTask(
                 compileSources(
                     jdk = jdk,
                     sourceDirectories = nonEmptySourceDirs,
+                    additionalSources = additionalSources,
                     kotlinVersion = kotlinVersion,
                     userSettings = userSettings,
                     classpath = classpath,
@@ -186,6 +179,7 @@ class JvmCompileTask(
     private suspend fun compileSources(
         jdk: Jdk,
         sourceDirectories: List<Path>,
+        additionalSources: List<AdditionalSourcesProvider.SourceRoot>,
         kotlinVersion: String,
         userSettings: CompilationUserSettings,
         classpath: List<Path>,
@@ -204,8 +198,6 @@ class JvmCompileTask(
         if (kotlinFilesToCompile.isNotEmpty()) {
             // Enable multi-platform support only if targeting other than JVM platforms
             // or having a common and JVM fragments (like src and src@jvm directories)
-            // TODO This a lot of effort to prevent using -Xmulti-platform in ordinary JVM code
-            //  is it worth it? Could we always set -Xmulti-platform?
             val isMultiplatform = (module.targetLeafPlatforms - Platform.JVM).isNotEmpty() || sourceDirectories.size > 1
 
             compileKotlinSources(
@@ -215,6 +207,7 @@ class JvmCompileTask(
                 classpath = classpath,
                 jdk = jdk,
                 sourceDirectories = sourceDirectories,
+                additionalSourceRoots = additionalSources,
                 friendPaths = friendPaths,
             )
         }
@@ -242,6 +235,7 @@ class JvmCompileTask(
         classpath: List<Path>,
         jdk: Jdk,
         sourceDirectories: List<Path>,
+        additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
         friendPaths: List<Path>,
     ) {
         // TODO should we download this in a separate task?
@@ -268,7 +262,8 @@ class JvmCompileTask(
             jdkHome = jdk.homeDir,
             outputPath = taskOutputRoot.path,
             compilerPlugins = compilerPlugins,
-            fragments = fragments, // FIXME: fragments here are missing generated sources from custom tasks (see AMPER-879)
+            fragments = fragments,
+            additionalSourceRoots = additionalSourceRoots,
             friendPaths = friendPaths,
         )
 
@@ -361,10 +356,6 @@ class JvmCompileTask(
         val module: PotatoModule,
         val isTest: Boolean,
     ) : TaskResult
-
-    interface AdditionalClasspathProvider {
-        val classpath: List<Path>
-    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

@@ -6,8 +6,8 @@ package org.jetbrains.amper.tasks.android
 
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import java.nio.file.Path
 
 class GetAndroidPlatformJarTask(
@@ -23,5 +23,5 @@ class GetAndroidPlatformJarTask(
         return Result(classpath)
     }
 
-    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
+    class Result(override val classpath: List<Path>) : TaskResult, AdditionalClasspathProvider
 }

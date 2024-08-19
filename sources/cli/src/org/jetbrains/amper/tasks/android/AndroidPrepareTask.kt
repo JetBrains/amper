@@ -16,10 +16,10 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
@@ -87,5 +87,5 @@ class AndroidPrepareTask(
         return Result(classpath = result.outputs)
     }
 
-    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
+    class Result(override val classpath: List<Path>) : TaskResult, AdditionalClasspathProvider
 }

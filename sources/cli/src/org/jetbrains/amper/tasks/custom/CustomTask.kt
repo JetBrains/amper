@@ -22,6 +22,8 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
+import org.jetbrains.amper.tasks.AdditionalResourcesProvider
+import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmRuntimeClasspathTask
@@ -33,7 +35,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.pathString
 
-class CustomTask(
+internal class CustomTask(
     private val custom: CustomTaskDescription,
     private val taskOutputRoot: TaskOutputRoot,
     private val userCacheRoot: AmperUserCacheRoot,
@@ -92,6 +94,8 @@ class CustomTask(
             logger.info(message)
         }
 
+        val additionalSources = mutableListOf<AdditionalSourcesProvider.SourceRoot>()
+        val additionalResources = mutableListOf<AdditionalResourcesProvider.ResourceRoot>()
         custom.addToModuleRootsFromCustomTask.forEach { addToSourceSet ->
             val path = taskOutputRoot.path.resolve(addToSourceSet.taskOutputRelativePath).normalize()
             if (!path.startsWith(taskOutputRoot.path)) {
@@ -103,6 +107,20 @@ class CustomTask(
             if (!path.exists()) {
                 userReadableError("After running a custom task '${custom.name.name}' output file or folder '$path'" +
                         "is not found, but required for module source sets")
+            }
+            val fragment = custom.module.leafFragments.find { it.platform == addToSourceSet.platform }
+            if (fragment == null) {
+                userReadableError("Custom task '${custom.name.name}' cannot add sources to platform " +
+                        "'${addToSourceSet.platform.pretty}' because it's not targeted by module " +
+                        "'${custom.module.userReadableName}'")
+            }
+            when (addToSourceSet.type) {
+                AddToModuleRootsFromCustomTask.Type.SOURCES -> additionalSources.add(
+                    AdditionalSourcesProvider.SourceRoot(fragmentName = fragment.name, path = path)
+                )
+                AddToModuleRootsFromCustomTask.Type.RESOURCES -> additionalResources.add(
+                    AdditionalResourcesProvider.ResourceRoot(fragmentName = fragment.name, path = path)
+                )
             }
         }
 
@@ -124,7 +142,8 @@ class CustomTask(
         return Result(
             outputDirectory = taskOutputRoot.path,
             artifactsToPublish = custom.publishArtifacts,
-            moduleRoots = custom.addToModuleRootsFromCustomTask,
+            sourceRoots = additionalSources,
+            resourceRoots = additionalResources,
         )
     }
 
@@ -179,8 +198,9 @@ class CustomTask(
     class Result(
         val outputDirectory: Path,
         val artifactsToPublish: List<PublishArtifactFromCustomTask>,
-        val moduleRoots: List<AddToModuleRootsFromCustomTask>,
-    ): TaskResult
+        override val sourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
+        override val resourceRoots: List<AdditionalResourcesProvider.ResourceRoot>,
+    ): TaskResult, AdditionalSourcesProvider, AdditionalResourcesProvider
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

@@ -11,9 +11,11 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.frontend.schema.KotlinVersion
+import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.BuildTask
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.pathString
@@ -24,6 +26,7 @@ private fun kotlinCommonCompilerArgs(
     isMultiplatform: Boolean,
     kotlinUserSettings: KotlinUserSettings,
     fragments: List<Fragment>,
+    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
     compilerPlugins: List<CompilerPlugin>,
 ): List<String> = buildList {
     if (isMultiplatform) {
@@ -37,6 +40,10 @@ private fun kotlinCommonCompilerArgs(
                 fragment.fragmentDependencies.filter { it.type == FragmentDependencyType.REFINE }.forEach {
                     add("-Xfragment-refines=${fragment.name}:${it.target.name}")
                 }
+            }
+            // for generated sources that must be associated with existing fragments
+            additionalSourceRoots.forEach { sourceRoot ->
+                add("-Xfragment-sources=${sourceRoot.fragmentName}:${sourceRoot.path.absolutePathString()}")
             }
         }
     }
@@ -89,6 +96,7 @@ internal fun kotlinJvmCompilerArgs(
     outputPath: Path,
     friendPaths: List<Path>,
     fragments: List<Fragment>,
+    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
 ): List<String> = buildList {
     if (userSettings.jvmRelease != null) {
         add("-Xjdk-release=${userSettings.jvmRelease.releaseNumber}")
@@ -109,7 +117,13 @@ internal fun kotlinJvmCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform, userSettings.kotlin, fragments, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(
+        isMultiplatform = isMultiplatform,
+        kotlinUserSettings = userSettings.kotlin,
+        fragments = fragments,
+        additionalSourceRoots = additionalSourceRoots,
+        compilerPlugins = compilerPlugins,
+    ))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)
@@ -146,6 +160,7 @@ internal fun kotlinNativeCompilerArgs(
     libraryPaths: List<Path>,
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
+    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
     outputPath: Path,
     compilationType: KotlinCompilationType,
     include: Path?,
@@ -186,7 +201,13 @@ internal fun kotlinNativeCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, fragments, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(
+        isMultiplatform = true,
+        kotlinUserSettings = kotlinUserSettings,
+        fragments = fragments,
+        additionalSourceRoots = additionalSourceRoots,
+        compilerPlugins = compilerPlugins,
+    ))
 
     if (include != null) add("-Xinclude=${include.pathString}")
 
@@ -212,6 +233,7 @@ internal fun kotlinMetadataCompilerArgs(
     refinesPaths: List<Path>,
     fragments: List<Fragment>,
     sourceFiles: List<Path>,
+    additionalSourceRoots: List<AdditionalSourcesProvider.SourceRoot>,
 ): List<String> = buildList {
     // TODO full module path including entire hierarchy? -Xshort-module-name)
     add("-module-name")
@@ -231,7 +253,13 @@ internal fun kotlinMetadataCompilerArgs(
     }
 
     // Common args last, because they contain free compiler args
-    addAll(kotlinCommonCompilerArgs(isMultiplatform = true, kotlinUserSettings, fragments, compilerPlugins))
+    addAll(kotlinCommonCompilerArgs(
+        isMultiplatform = true,
+        kotlinUserSettings = kotlinUserSettings,
+        fragments = fragments,
+        additionalSourceRoots = additionalSourceRoots,
+        compilerPlugins = compilerPlugins,
+    ))
 
     // -d is after freeCompilerArgs because we don't allow overriding the output dir (it breaks task dependencies)
     // (specifying -d multiple times generates a warning, and only the last value is used)

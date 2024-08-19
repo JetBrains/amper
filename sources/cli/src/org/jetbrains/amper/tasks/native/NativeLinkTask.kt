@@ -114,6 +114,7 @@ class NativeLinkTask(
                 // no need to pass fragments nor sources, we only build from klibs
                 fragments = emptyList(),
                 sourceFiles = emptyList(),
+                additionalSourceRoots = emptyList(),
                 outputPath = artifactPath,
                 compilationType = compilationType,
                 include = includeArtifact,

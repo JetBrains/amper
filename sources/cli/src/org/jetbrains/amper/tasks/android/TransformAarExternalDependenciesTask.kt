@@ -7,9 +7,9 @@ package org.jetbrains.amper.tasks.android
 import org.jetbrains.amper.dependency.resolution.org.jetbrains.amper.android.extractAars
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.tasks.AdditionalClasspathProvider
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskResult
-import org.jetbrains.amper.tasks.jvm.JvmCompileTask
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -30,5 +30,5 @@ class TransformAarExternalDependenciesTask(
         return Result(executionResult.outputs)
     }
 
-    class Result(override val classpath: List<Path>) : TaskResult, JvmCompileTask.AdditionalClasspathProvider
+    class Result(override val classpath: List<Path>) : TaskResult, AdditionalClasspathProvider
 }
