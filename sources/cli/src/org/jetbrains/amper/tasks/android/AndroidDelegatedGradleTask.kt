@@ -21,6 +21,7 @@ import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.amper.util.repr
 import org.jetbrains.amper.util.toAndroidRequestBuildType
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.copyToRecursively
@@ -65,6 +66,7 @@ abstract class AndroidDelegatedGradleTask(
 
         val executionResult =
             executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath + additionalInputFiles) {
+                logger.info("Using android sdk at $androidSdkPath")
                 val logFileName = UUID.randomUUID()
                 val gradleLogStdoutPath =
                     buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stdout"
@@ -103,4 +105,6 @@ abstract class AndroidDelegatedGradleTask(
     }
 
     class Result(val artifacts: List<Path>) : TaskResult
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 }
