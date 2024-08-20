@@ -19,6 +19,7 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
+import kotlin.io.path.div
 
 
 fun runAndroidBuild(
@@ -30,39 +31,12 @@ fun runAndroidBuild(
     eventHandler: (ProgressEvent) -> Unit,
 ): List<Path> {
     buildPath.createDirectories()
-    val settingsGradle = buildPath.resolve("settings.gradle.kts")
-    val settingsGradleFile = settingsGradle.toFile()
-    settingsGradleFile.createNewFile()
-
-    val fromSources = AmperBuild.isSNAPSHOT
-
-    settingsGradleFile.writeText(
-        """
-pluginManagement {
-    repositories {
-        ${if (fromSources) "mavenLocal()" else ""}
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-        maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
-        maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-        ${if (fromSources) "" else "maven(\"https://packages.jetbrains.team/maven/p/amper/amper\")"}
-    }
-}
-
-plugins {
-    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.BuildNumber}")
-}
-
-configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
-    jsonData = ${"\"\"\""}${Json.encodeToString(buildRequest)}${"\"\"\""}
-}
-""".trimIndent()
-    )
+    val settingsGradlePath = buildPath.createSettingsGradle(buildRequest)
+    buildPath.createLocalProperties(buildRequest)
 
     val connection = GradleConnector
         .newConnector()
-        .forProjectDirectory(settingsGradleFile.parentFile)
+        .forProjectDirectory(settingsGradlePath.parent.toFile())
         .connect()
 
     val stdout = gradleLogStdoutPath
@@ -94,6 +68,53 @@ configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
 
         return lazyArtifacts.map { it.value }
     }
+}
+
+private fun Path.createLocalProperties(buildRequest: AndroidBuildRequest): Path {
+    val localPropertiesPath = this / "local.properties"
+    val localPropertiesFile = localPropertiesPath.toFile()
+    localPropertiesFile.createNewFile()
+
+    localPropertiesFile.writeText(
+        """
+        sdk.dir=${buildRequest.sdkDir?.toAbsolutePath()}
+    """.trimIndent()
+    )
+
+    return localPropertiesPath
+}
+
+private fun Path.createSettingsGradle(buildRequest: AndroidBuildRequest): Path {
+    val settingsGradlePath = this / "settings.gradle.kts"
+    val settingsGradleFile = settingsGradlePath.toFile()
+    settingsGradleFile.createNewFile()
+
+    val fromSources = AmperBuild.isSNAPSHOT
+
+    settingsGradleFile.writeText(
+        """
+pluginManagement {
+    repositories {
+        ${if (fromSources) "mavenLocal()" else ""}
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+        maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+        ${if (fromSources) "" else "maven(\"https://packages.jetbrains.team/maven/p/amper/amper\")"}
+    }
+}
+
+plugins {
+    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.BuildNumber}")
+}
+
+configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {
+    jsonData = ${"\"\"\""}${Json.encodeToString(buildRequest)}${"\"\"\""}
+}
+""".trimIndent()
+    )
+    return settingsGradlePath
 }
 
 private fun AndroidProject.lazyArtifacts(
