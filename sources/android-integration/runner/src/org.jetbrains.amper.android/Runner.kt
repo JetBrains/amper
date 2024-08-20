@@ -17,9 +17,11 @@ import org.jetbrains.amper.core.AmperBuild
 import java.io.BufferedOutputStream
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.util.Properties
 import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
 import kotlin.io.path.div
+import kotlin.io.path.pathString
 
 
 fun runAndroidBuild(
@@ -74,13 +76,9 @@ private fun Path.createLocalProperties(buildRequest: AndroidBuildRequest): Path 
     val localPropertiesPath = this / "local.properties"
     val localPropertiesFile = localPropertiesPath.toFile()
     localPropertiesFile.createNewFile()
-
-    localPropertiesFile.writeText(
-        """
-        sdk.dir=${buildRequest.sdkDir?.toAbsolutePath()}
-    """.trimIndent()
-    )
-
+    val properties = Properties()
+    properties.setProperty("sdk.dir", buildRequest.sdkDir?.pathString)
+    localPropertiesFile.writer().use { properties.store(it, null) }
     return localPropertiesPath
 }
 
@@ -204,7 +202,7 @@ private fun ProjectConnection.runBuild(
 }
 
 private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolean): Map<String, AndroidProject> {
-    val actionLauncher = action(BuildAction { controller ->
+    val actionLauncher = action { controller ->
         val gradleProject = controller.findModel(GradleProject::class.java)
         val q = ArrayDeque<GradleProject>()
         q.add(gradleProject)
@@ -212,13 +210,13 @@ private fun ProjectConnection.extractAndroidProjectModelsFromBuild(debug: Boolea
             while (q.isNotEmpty()) {
                 val project = q.removeFirst()
                 project.children.forEach { q.add(it) }
-                val androidProject = controller.findModel<AndroidProject>(project, AndroidProject::class.java)
+                val androidProject = controller.findModel(project, AndroidProject::class.java)
                 if (androidProject != null) {
                     put(project.path, androidProject)
                 }
             }
         }
-    })
+    }
 
     if (debug) {
         actionLauncher.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
