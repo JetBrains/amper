@@ -4,8 +4,10 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
+import com.intellij.openapi.project.guessProjectForFile
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.findPsiFile
 import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.FileBuildProblemSource
@@ -380,11 +382,25 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
     val modules = mapNotNull { (mPath, holder) ->
         val noProduct = holder.module::product.unsafe == null
         if (noProduct || holder.module.product::type.unsafe == null) {
-            SchemaBundle.reportBundleError(
-                property = if (noProduct) holder::module else holder.module::product,
-                messageKey = "product.not.defined",
-                level = Level.Fatal,
-            )
+            if (noProduct) {
+                problemReporter.reportMessage(
+                    BuildProblemImpl(
+                        "product.not.defined",
+                        object : FileBuildProblemSource {
+                            override val file: Path = mPath.toNioPath()
+                        },
+                        SchemaBundle.message("product.not.defined"),
+                        Level.Fatal
+                    )
+                )
+            }
+            else {
+                SchemaBundle.reportBundleError(
+                    property = holder.module::product,
+                    messageKey = "product.not.defined",
+                    level = Level.Fatal,
+                )
+            }
             return@mapNotNull null
         }
         // TODO Remove duplicating enums.
