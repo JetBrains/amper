@@ -42,6 +42,7 @@ import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
 import org.jetbrains.amper.tools.JdkToolCommands
+import org.jetbrains.amper.tools.KeystoreToolCommand
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
 import org.tinylog.Level
@@ -391,6 +392,7 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
         subcommands(
             JaegerToolCommand(),
             JdkToolCommands(),
+            KeystoreToolCommand(),
         )
     }
 

@@ -77,11 +77,7 @@ AndroidSettings
 AndroidSigningSettings
 ----------------------
 	enabled: Boolean, default: false - Enable signing with keystore
-	keyAliasKey: String - The key alias key in the properties file.
-	keyPasswordKey: String - The key password key in the properties file.
 	propertiesFile: Path - Properties file where the keystore data is stored.
-	storeFileKey: String - The keystore file key in the properties file.
-	storePasswordKey: String - The keystore password key in the properties file.
 
 ComposeSettings
 ---------------

@@ -14,11 +14,7 @@ Fragments:
         namespace: <default> org.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: <default> VERSION_34
       }
@@ -73,11 +69,7 @@ Fragments:
         namespace: <default> org.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: <default> VERSION_34
       }

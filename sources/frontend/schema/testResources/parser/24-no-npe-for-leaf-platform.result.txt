@@ -17,11 +17,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -94,11 +90,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -168,11 +160,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -244,11 +232,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -318,11 +302,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -394,11 +374,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -470,11 +446,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -544,11 +516,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -619,11 +587,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }
@@ -694,11 +658,7 @@ Fragments:
         namespace: com.example.namespace
         signing: <default> {
           enabled: <default> false
-          keyAliasKey: <default> keystore.key.alias
-          keyPasswordKey: <default> keystore.key.password
           propertiesFile: <default> keystore.properties
-          storeFileKey: <default> keystore.file
-          storePasswordKey: <default> keystore.password
         }
         targetSdk: VERSION_33
       }

@@ -489,29 +489,9 @@
               "title": "Enable signing with keystore",
               "type": "boolean"
             },
-            "keyAliasKey": {
-              "x-intellij-html-description": "The key alias key in the properties file.",
-              "title": "The key alias key in the properties file",
-              "type": "string"
-            },
-            "keyPasswordKey": {
-              "x-intellij-html-description": "The key password key in the properties file.",
-              "title": "The key password key in the properties file",
-              "type": "string"
-            },
             "propertiesFile": {
               "x-intellij-html-description": "Properties file where the keystore data is stored.",
               "title": "Properties file where the keystore data is stored",
-              "type": "string"
-            },
-            "storeFileKey": {
-              "x-intellij-html-description": "The keystore file key in the properties file.",
-              "title": "The keystore file key in the properties file",
-              "type": "string"
-            },
-            "storePasswordKey": {
-              "x-intellij-html-description": "The keystore password key in the properties file.",
-              "title": "The keystore password key in the properties file",
               "type": "string"
             }
           },

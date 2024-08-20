@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 @EnumOrderSensitive(reverse = true)
 enum class AndroidVersion(
@@ -94,7 +95,7 @@ class AndroidSigningSettings : SchemaNode() {
     var enabled by value(default = false)
 
     @SchemaDoc("Properties file where the keystore data is stored.")
-    var propertiesFile by value<Path> { Path.of("keystore.properties") }
+    var propertiesFile by value<Path> { Path("keystore.properties") }
 }
 
 const val ANDROID_SIGNING_SETTINGS_SHORT_FORM = """
