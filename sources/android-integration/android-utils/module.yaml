@@ -11,3 +11,4 @@ dependencies:
   - com.android.tools:common:31.2.0
   - org.bouncycastle:bcprov-jdk18on:1.78.1
   - org.bouncycastle:bcpkix-jdk18on:1.78.1
+  - $libs.slf4jApi

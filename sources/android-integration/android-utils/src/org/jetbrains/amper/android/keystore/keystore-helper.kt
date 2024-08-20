@@ -10,6 +10,7 @@ import org.bouncycastle.cert.X509v1CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
+import org.slf4j.LoggerFactory
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.nio.file.Path
@@ -34,6 +35,13 @@ object KeystoreHelper {
         keyPassword: String = "",
         dn: String = "CN=${System.getProperty("user.name", "Unknown")}"
     ) {
+        logger.info("Generating new keystore at $storeFile")
+        logger.info("Key Alias: $keyAlias")
+        logger.info("Distinguished name: $dn")
+        if (storeFile.toFile().exists()) {
+            logger.error("Keystore already exists: $storeFile")
+            return
+        }
         val ks = KeyStore.getInstance(KeyStore.getDefaultType())
         ks.load(null, null)
         val generated = generateKeyAndCertificate(dn)
@@ -42,6 +50,7 @@ object KeystoreHelper {
         FileOutputStream(storeFile.toFile()).use { fos ->
             ks.store(fos, storePassword.toCharArray())
         }
+        logger.info("Keystore generated successfully")
     }
 
     private fun generateKeyAndCertificate(dn: String): Pair<PrivateKey, X509Certificate> {
@@ -51,10 +60,14 @@ object KeystoreHelper {
         val notBefore = Date(System.currentTimeMillis())
         val notAfter = Date(System.currentTimeMillis() + (validityYears * 365L * 24 * 60 * 60 * 1000))
         val publicKeyInfo = SubjectPublicKeyInfo.getInstance(keyPair.public.encoded)
-        val signer = JcaContentSignerBuilder(signatureAlgorithm).setProvider(BouncyCastleProvider()).build(keyPair.private)
+        val signer = JcaContentSignerBuilder(signatureAlgorithm)
+            .setProvider(BouncyCastleProvider())
+            .build(keyPair.private)
         val builder = X509v1CertificateBuilder(issuer, BigInteger.ONE, notBefore, notAfter, issuer, publicKeyInfo)
         val holder = builder.build(signer)
         val converter = JcaX509CertificateConverter().setProvider(BouncyCastleProvider())
         return keyPair.private to converter.getCertificate(holder)
     }
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 }
