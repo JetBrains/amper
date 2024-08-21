@@ -39,7 +39,12 @@ class AmperBackend(val context: CliContext) {
                 .setAttribute("root", context.projectRoot.path.pathString)
                 .startSpan().use {
                     when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
-                        is Result.Failure -> throw result.exception
+                        is Result.Failure -> {
+                            if (problemReporter.wereProblemsReported()) {
+                                userReadableError("failed to build tasks graph, refer to the errors above")
+                            }
+                            else throw result.exception
+                        }
                         is Result.Success -> result.value
                     }
                 }

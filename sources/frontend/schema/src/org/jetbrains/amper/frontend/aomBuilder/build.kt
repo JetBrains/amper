@@ -389,7 +389,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
                         object : FileBuildProblemSource {
                             override val file: Path = mPath.toNioPath()
                         },
-                        SchemaBundle.message("product.not.defined"),
+                        SchemaBundle.message("product.not.defined.empty"),
                         Level.Fatal
                     )
                 )
