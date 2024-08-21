@@ -146,11 +146,15 @@ enum class KotlinCompilationType(val argName: String) {
 
     fun moduleName(module: PotatoModule, isTest: Boolean): String = when(this) {
         IOS_FRAMEWORK -> if (isTest) module.nameWithoutDashes + "Test" else module.nameWithoutDashes
-        else -> if (isTest) module.userReadableName + "_test" else module.userReadableName
+        else -> module.kotlinModuleName(isTest)
     }
 
     private val PotatoModule.nameWithoutDashes get() = userReadableName.replace("-", "").replace("_", "")
 }
+
+// TODO should we make it unique by using the full path?
+internal fun PotatoModule.kotlinModuleName(isTest: Boolean) =
+    if (isTest) userReadableName + "_test" else userReadableName
 
 context(BuildTask)
 internal fun kotlinNativeCompilerArgs(

@@ -14,6 +14,7 @@ import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinUserSettings
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
 import org.jetbrains.amper.compilation.kotlinMetadataCompilerArgs
+import org.jetbrains.amper.compilation.kotlinModuleName
 import org.jetbrains.amper.compilation.mergedKotlinSettings
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.UsedVersions
@@ -152,7 +153,7 @@ class MetadataCompileTask(
         )
         val compilerArgs = kotlinMetadataCompilerArgs(
             kotlinUserSettings = kotlinUserSettings,
-            moduleName = module.userReadableName,
+            moduleName = module.kotlinModuleName(isTest),
             classpath = classpath,
             compilerPlugins = compilerPlugins,
             outputPath = taskOutputRoot.path,
