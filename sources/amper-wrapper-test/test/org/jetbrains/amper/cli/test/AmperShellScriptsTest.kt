@@ -47,20 +47,20 @@ class AmperShellScriptsTest {
 
     @RegisterExtension
     private val httpServer = HttpServerExtension(m2repository)
-    private val cliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.BuildNumber}")
-    private val cliDist = cliDir.resolve("cli-${AmperBuild.BuildNumber}-dist.zip")
+    private val cliDir = m2repository.resolve("org/jetbrains/amper/cli/${AmperBuild.mavenVersion}")
+    private val cliDist = cliDir.resolve("cli-${AmperBuild.mavenVersion}-dist.zip")
         .also { check(it.exists()) }
 
     private val shellScriptExampleProject = TestUtil.amperSourcesRoot.resolve("amper-backend-test/testData/projects/shell-scripts")
 
     @BeforeEach
     fun prepareScript() {
-        val wrapperBat = cliDir.resolve("cli-${AmperBuild.BuildNumber}-wrapper.bat")
+        val wrapperBat = cliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper.bat")
         wrapperBat.copyTo(tempDir.resolve("amper.bat"))
         assertTrue(wrapperBat.readText().count { it == '\r' } > 10,
             "Windows wrapper must have \\r in line separators: $wrapperBat")
 
-        val wrapperSh = cliDir.resolve("cli-${AmperBuild.BuildNumber}-wrapper")
+        val wrapperSh = cliDir.resolve("cli-${AmperBuild.mavenVersion}-wrapper")
         val targetSh = tempDir.resolve("amper")
         wrapperSh.copyTo(targetSh)
         targetSh.toFile().setExecutable(true)

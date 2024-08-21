@@ -77,7 +77,7 @@ fun setUpGradleProjectDir(root: File) {
         }
 
         plugins {
-            id("org.jetbrains.amper.settings.plugin").version("${AmperBuild.BuildNumber}")
+            id("org.jetbrains.amper.settings.plugin").version("${AmperBuild.mavenVersion}")
         }
     """.trimIndent()
     val settingsFileContent = if (withDebug) plugins else """

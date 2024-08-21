@@ -56,7 +56,7 @@ import kotlin.system.exitProcess
 
 internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapper.process.name") ?: "amper") {
     init {
-        versionOption(version = AmperBuild.BuildNumber, message = { AmperBuild.banner })
+        versionOption(version = AmperBuild.mavenVersion, message = { AmperBuild.banner })
         subcommands(
             BuildCommand(),
             CleanCommand(),

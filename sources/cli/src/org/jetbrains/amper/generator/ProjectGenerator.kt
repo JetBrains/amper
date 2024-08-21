@@ -125,7 +125,7 @@ internal class ProjectGenerator(private val terminal: Terminal) {
                 outputFile = path,
                 placeholder = "@",
                 values = listOf(
-                    "AMPER_VERSION" to AmperBuild.BuildNumber,
+                    "AMPER_VERSION" to AmperBuild.mavenVersion,
                     "AMPER_DIST_SHA256" to sha256,
                 ),
                 outputWindowsLineEndings = w.windowsLineEndings,

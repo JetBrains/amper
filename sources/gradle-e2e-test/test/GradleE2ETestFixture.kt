@@ -167,7 +167,7 @@ open class GradleE2ETestFixture(val pathToProjects: String, val runWithPluginCla
 
             gradleFile.writeText(gradleFile.readText().replace(
                 "id(\"org.jetbrains.amper.settings.plugin\")",
-                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${AmperBuild.BuildNumber}\")"
+                "id(\"org.jetbrains.amper.settings.plugin\") version(\"${AmperBuild.mavenVersion}\")"
             ))
             check(gradleFile.readText().contains("version(")) {
                 "Gradle file must have 'version(' after replacement: $gradleFile\n${gradleFile.readText().prependIndent("> ")}"

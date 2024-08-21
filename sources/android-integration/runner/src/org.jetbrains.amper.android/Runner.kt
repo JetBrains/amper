@@ -104,7 +104,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.BuildNumber}")
+    id("org.jetbrains.amper.android.settings.plugin").version("${AmperBuild.mavenVersion}")
 }
 
 configure<org.jetbrains.amper.android.gradle.AmperAndroidIntegrationExtension> {

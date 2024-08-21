@@ -50,7 +50,7 @@ object AmperWrappers {
             outputFile = outputFile,
             placeholder = "@",
             values = listOf(
-                "AMPER_VERSION" to AmperBuild.BuildNumber,
+                "AMPER_VERSION" to AmperBuild.mavenVersion,
                 "AMPER_DIST_SHA256" to cliZipSha256,
             ),
             outputWindowsLineEndings = outputWindowsLineEndings,

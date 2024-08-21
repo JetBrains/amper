@@ -45,7 +45,7 @@ object DeadLockMonitor {
                     val elapsedSinceLastLog = LastLogMonitoringWriter.lastLogEntryTimeMark.elapsedNow()
                     if (elapsedSinceLastLog > considerDeadInterval) {
                         val dumpFile =
-                            logsRoot.path.resolve("thread-dump-${CliEnvironmentInitializer.currentTimestamp()}-${AmperBuild.BuildNumber}.txt")
+                            logsRoot.path.resolve("thread-dump-${CliEnvironmentInitializer.currentTimestamp()}-${AmperBuild.mavenVersion}.txt")
                         System.err.println("Amper has not logged anything at DEBUG log level for $elapsedSinceLastLog, possible deadlock, dumping current state to $dumpFile")
 
                         dumpFile.parent.createDirectories()

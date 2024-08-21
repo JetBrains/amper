@@ -135,7 +135,7 @@ object CliEnvironmentInitializer {
     private val resource: Resource = Resource.create(
         Attributes.builder()
             .put(AttributeKey.stringKey("service.name"), "Amper")
-            .put(AttributeKey.stringKey("service.version"), AmperBuild.BuildNumber)
+            .put(AttributeKey.stringKey("service.version"), AmperBuild.mavenVersion)
             .put(AttributeKey.stringKey("service.namespace"), "amper")
             .put(AttributeKey.stringKey("os.type"), System.getProperty("os.name"))
             .put(AttributeKey.stringKey("os.version"), System.getProperty("os.version").lowercase())
