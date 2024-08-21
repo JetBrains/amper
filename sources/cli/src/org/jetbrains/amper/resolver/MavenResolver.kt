@@ -27,6 +27,7 @@ import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 
@@ -39,6 +40,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
     ): List<Path> = spanBuilder("mavenResolve")
         .setAttribute("coordinates", coordinates.joinToString(" "))
         .setAttribute("repositories", repositories.joinToString(" "))
+        .setAttribute("user-cache-root", userCacheRoot.path.pathString)
         .setAttribute("scope", scope.name)
         .setAttribute("platform", platform.name)
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
