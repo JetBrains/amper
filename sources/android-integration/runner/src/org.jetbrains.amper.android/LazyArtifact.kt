@@ -9,8 +9,10 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.file.Path
 import java.util.Properties
+import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.readText
+import kotlin.io.path.div
 
 val json = Json { ignoreUnknownKeys = true }
 
@@ -30,9 +32,9 @@ class RedirectedLazyArtifact(private val redirectFile: Path) : LazyArtifact {
     override val value: Path
         get() {
             val properties = Properties()
-            properties.load(redirectFile.toFile().inputStream())
-            val listingFile = properties.getProperty("listingFile")?.let { Path.of(it) } ?: error("Listing file not found")
-            val outputMetadataJsonFile = redirectFile.parent.resolve(listingFile)
+            redirectFile.toFile().inputStream().use { properties.load(it) }
+            val listingFile = properties.getProperty("listingFile")?.let { Path(it) } ?: error("Listing file not found")
+            val outputMetadataJsonFile = redirectFile.parent / listingFile
             val content = outputMetadataJsonFile.readText()
             return outputMetadataJsonFile
                 .parent
