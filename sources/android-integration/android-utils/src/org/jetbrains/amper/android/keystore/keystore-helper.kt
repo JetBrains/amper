@@ -11,6 +11,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.slf4j.LoggerFactory
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.nio.file.Path
@@ -23,11 +24,44 @@ import javax.security.auth.x500.X500Principal
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
+import kotlin.io.path.notExists
 
 private const val asymmetricAlgorithm = "RSA"
 private const val signatureAlgorithm = "SHA1withRSA"
 
 object KeystoreHelper {
+    fun createNewKeystore(propertiesFile: Path, dn: String) {
+        if (propertiesFile.notExists()) {
+            logger.error("$propertiesFile does not exist")
+            return
+        }
+        logger.info("$propertiesFile is provided, getting data from properties file")
+        val properties = Properties()
+        FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
+
+        val storeFile = properties.getProperty("storeFile") ?: run {
+            logger.error("$propertiesFile does not contain 'storeFile'")
+            return
+        }
+
+        val storePassword = properties.getProperty("storePassword") ?: run {
+            logger.error("$propertiesFile does not contain 'storePassword'")
+            return
+        }
+
+        val keyPassword = properties.getProperty("keyPassword") ?: run {
+            logger.error("$propertiesFile does not contain 'keyPassword'")
+            return
+        }
+
+        val keyAlias = properties.getProperty("keyAlias") ?: run {
+            logger.error("$propertiesFile does not contain 'keyAlias'")
+            return
+        }
+
+        createNewKeystore(Path(storeFile), storePassword, keyAlias, keyPassword, dn)
+    }
+
     fun createNewKeystore(
         storeFile: Path = Path(System.getProperty("user.home")) / ".keystores" / "release.keystore",
         storePassword: String = "",
