@@ -13,6 +13,7 @@ import org.jetbrains.amper.dependency.resolution.DependencyNodeHolder
 import org.jetbrains.amper.dependency.resolution.ResolutionPlatform
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.diagnostics.setAmperModule
+import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.Fragment
@@ -72,9 +73,9 @@ class ResolveExternalDependenciesTask(
 
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
+            .setFragments(fragments)
             .setListAttribute("dependencies", fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() })
             .setListAttribute("runtimeDependencies", fragmentsRuntimeModuleDependencies?.getExternalDependencies()?.map { it.toString() } ?: emptyList<String>())
-            .setListAttribute("fragments", fragments.map { it.name }.sorted())
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
                 resolvedPlatform.nativeTarget?.let { target ->

@@ -8,11 +8,16 @@ import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.sdk.trace.data.SpanData
+import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 
 val amperModuleKey = AttributeKey.stringKey("amper-module")
+
 fun SpanBuilder.setAmperModule(module: PotatoModule) =
     setAttribute(amperModuleKey, module.userReadableName)
+
+fun SpanBuilder.setFragments(fragments: List<Fragment>) =
+    setListAttribute("fragments", fragments.map { it.name }.sorted())
 
 fun SpanBuilder.setListAttribute(key: String, list: List<String>) =
     setAttribute(AttributeKey.stringArrayKey(key), list)

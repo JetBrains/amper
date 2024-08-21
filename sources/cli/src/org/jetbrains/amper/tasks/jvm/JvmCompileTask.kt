@@ -28,6 +28,7 @@ import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setAmperModule
+import org.jetbrains.amper.diagnostics.setFragments
 import org.jetbrains.amper.diagnostics.setListAttribute
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
@@ -269,8 +270,8 @@ class JvmCompileTask(
 
         val kotlinCompilationResult = spanBuilder("kotlin-compilation")
             .setAmperModule(module)
+            .setFragments(fragments)
             .setListAttribute("source-dirs", sourceDirectories.map { it.pathString })
-            .setListAttribute("fragments", fragments.map { it.name })
             .setListAttribute("compiler-args", compilerArgs)
             .setAttribute("compiler-version", compilerVersion)
             .useWithScope {
