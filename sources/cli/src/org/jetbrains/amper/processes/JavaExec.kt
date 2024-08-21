@@ -11,6 +11,7 @@ import org.jetbrains.amper.cli.Jdk
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.diagnostics.setMapAttribute
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -49,7 +50,7 @@ suspend fun Jdk.runJava(
             .setAttribute("java-executable", javaExecutable.pathString)
             .setAttribute("java-version", version)
             .setListAttribute("jvm-args", jvmArgs)
-            .setListAttribute("env-vars", environment.map { "${it.key}=${it.value}" }.sorted())
+            .setMapAttribute("env-vars", environment)
             .setAttribute("classpath", classpathStr)
             .setAttribute("main-class", mainClass)
             .useWithScope { span ->

@@ -26,6 +26,7 @@ import org.jetbrains.amper.core.extract.writeFully
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
+import org.jetbrains.amper.diagnostics.setMapAttribute
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -78,7 +79,7 @@ class ExecuteOnChangedInputs(
         inputs: List<Path>,
         block: suspend () -> ExecutionResult
     ): ExecutionResult = spanBuilder("inc $id")
-        .setListAttribute("configuration", configuration.entries.map { "${it.key}=${it.value}" }.sorted())
+        .setMapAttribute("configuration", configuration)
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
         .useWithScope { span ->
 
@@ -122,7 +123,7 @@ class ExecuteOnChangedInputs(
 
     private fun addResultToSpan(span: Span, result: ExecutionResult) {
         span.setListAttribute("outputs", result.outputs.map { it.pathString }.sorted())
-        span.setListAttribute("output-properties", result.outputProperties.map { "${it.key}=${it.value}" }.sorted())
+        span.setMapAttribute("output-properties", result.outputProperties)
     }
 
     private fun writeStateFile(stateFileChannel: FileChannel, configuration: Map<String, String>, inputs: List<Path>, result: ExecutionResult) {
