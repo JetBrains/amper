@@ -217,7 +217,7 @@ class AmperShellScriptsTest {
             val expectedVersionStringOld = "amper version $expectedAmperVersion"
             val expectedVersionString = Regex(
                 Regex.escape("JetBrains Amper version $expectedAmperVersion+") +
-                        "[A-Fa-f0-9]+")
+                        "[A-Fa-f0-9]+\\+[A-Fa-f0-9]+")
 
             assertTrue("Process output must contain '${expectedVersionString.pattern}' or '$expectedVersionStringOld'. Output:\n$output") {
                 output.lines().any { it == expectedVersionStringOld || expectedVersionString.matches(it) }

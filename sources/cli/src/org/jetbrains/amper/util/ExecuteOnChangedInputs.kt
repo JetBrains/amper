@@ -47,7 +47,7 @@ import kotlin.time.measureTimedValue
 
 class ExecuteOnChangedInputs(
     buildOutputRoot: AmperBuildOutputRoot,
-    private val currentAmperBuildNumber: String = AmperBuild.mavenVersion,
+    private val currentAmperBuildNumber: String = AmperBuild.codeIdentifier,
 ) {
     private val stateRoot = buildOutputRoot.path.resolve("incremental.state")
 

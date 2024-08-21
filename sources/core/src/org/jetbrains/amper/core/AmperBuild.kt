@@ -18,11 +18,25 @@ object AmperBuild {
     private val commitHash: String?
     private val commitShortHash: String?
     private val buildDate: Instant?
+    private val localChangesHash: String?
 
+    /**
+     * The Amper product name and version.
+     */
     val banner: String
+        get() = "JetBrains Amper version $codeIdentifier"
+
+    /**
+     * A reliable number representing the state of the Amper code being run.
+     *
+     * In official CI builds (release or dev), this is the Amper version and the build commit's short hash.
+     * In snapshots builds (Amper from sources), this is the Amper version, commit hash, and local changes hash.
+     */
+    val codeIdentifier: String
         get() {
             val commitHash = commitShortHash?.let { "+$it" } ?: ""
-            return "JetBrains Amper version $mavenVersion$commitHash"
+            val localChanges = localChangesHash?.let { "+$it" } ?: ""
+            return if (isSNAPSHOT) "$mavenVersion$commitHash$localChanges" else "$mavenVersion$commitHash"
         }
 
     init {
@@ -36,6 +50,7 @@ object AmperBuild {
                 commitHash = null
                 commitShortHash = null
                 buildDate = null
+                localChangesHash = null
 
                 return@use
             }
@@ -56,6 +71,7 @@ object AmperBuild {
             commitHash = props.getProperty("commitHash")
             commitShortHash = props.getProperty("commitShortHash")
             buildDate = props.getProperty("commitDate")?.let { Instant.parse(it) }
+            localChangesHash = props.getProperty("localChangesHash")
         }
     }
 }
