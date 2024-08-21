@@ -175,11 +175,8 @@ internal fun kotlinNativeCompilerArgs(
     add(compilationType.argName)
 
     // TODO full module path including entire hierarchy? -Xshort-module-name)
-    val moduleName = compilationType.moduleName(module, isTest)
-    if (moduleName != null) {
-        add("-module-name")
-        add(moduleName)
-    }
+    add("-module-name")
+    add(compilationType.moduleName(module, isTest))
 
     add("-target")
     add(platform.name.lowercase())
