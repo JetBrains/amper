@@ -40,22 +40,22 @@ object KeystoreHelper {
         FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
 
         val storeFile = properties.getProperty("storeFile") ?: run {
-            logger.error("$propertiesFile does not contain 'storeFile'")
+            logger.error("$propertiesFile does not contain \"storeFile\"")
             return
         }
 
         val storePassword = properties.getProperty("storePassword") ?: run {
-            logger.error("$propertiesFile does not contain 'storePassword'")
+            logger.error("$propertiesFile does not contain \"storePassword\"")
             return
         }
 
         val keyPassword = properties.getProperty("keyPassword") ?: run {
-            logger.error("$propertiesFile does not contain 'keyPassword'")
+            logger.error("$propertiesFile does not contain \"keyPassword\"")
             return
         }
 
         val keyAlias = properties.getProperty("keyAlias") ?: run {
-            logger.error("$propertiesFile does not contain 'keyAlias'")
+            logger.error("$propertiesFile does not contain \"keyAlias\"")
             return
         }
 
