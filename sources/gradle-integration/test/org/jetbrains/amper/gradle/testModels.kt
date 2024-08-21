@@ -15,6 +15,7 @@ import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import org.jetbrains.amper.frontend.schema.JvmSettings
@@ -149,8 +150,8 @@ object Models : ModelInit {
                         languageVersion = KotlinVersion.Kotlin19
                         debug = false
                         progressiveMode = true
-                        languageFeatures = listOf("InlineClasses")
-                        optIns = listOf("org.mylibrary.OptInAnnotation")
+                        languageFeatures = listOf(TraceableString("InlineClasses"))
+                        optIns = listOf(TraceableString("org.mylibrary.OptInAnnotation"))
                     }
                     settings.jvm = JvmSettings().apply { mainClass = "MainKt" }
 

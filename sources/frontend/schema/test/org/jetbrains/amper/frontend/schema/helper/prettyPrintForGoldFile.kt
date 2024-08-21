@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.RepositoriesModulePart
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.ValueBase
 import java.nio.file.Path
 import kotlin.contracts.ExperimentalContracts
@@ -93,6 +94,10 @@ private class HumanReadableSerializerVisitor(
     private val visited = mutableSetOf<Any>()
 
     override fun visit(it: Any?) {
+        if (it is TraceableString) {
+            super.visit(it.value)
+            return
+        }
         if (!it.isPrettifiedWithToString()) {
             // we have to detect cycles for complex objects
             if (it in visited) {

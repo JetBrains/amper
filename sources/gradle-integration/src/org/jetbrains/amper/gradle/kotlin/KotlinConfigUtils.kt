@@ -29,7 +29,7 @@ fun TaskProvider<out KotlinCompilationTask<*>>.configureCompilerOptions(amperSet
  */
 fun KotlinCommonCompilerOptions.configureFrom(amperSettings: Settings) {
     allWarningsAsErrors.set(amperSettings.kotlin.allWarningsAsErrors)
-    freeCompilerArgs.addAll(amperSettings.kotlin.freeCompilerArgs ?: emptyList())
+    freeCompilerArgs.addAll(amperSettings.kotlin.freeCompilerArgs.orEmpty().map { it.value })
     suppressWarnings.set(amperSettings.kotlin.suppressWarnings)
     verbose.set(amperSettings.kotlin.verbose)
 

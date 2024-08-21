@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.PlatformSpecific
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableString
 
 @EnumOrderSensitive(reverse = true)
 enum class KotlinVersion(override val schemaValue: String, override val outdated: Boolean = false) : SchemaEnum {
@@ -45,7 +46,7 @@ class KotlinSettings : SchemaNode() {
     var allWarningsAsErrors by value(false)
 
     @SchemaDoc("Pass any [compiler option](https://kotlinlang.org/docs/compiler-reference.html#compiler-options) directly")
-    var freeCompilerArgs by nullableValue<List<String>>()
+    var freeCompilerArgs by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("Suppress the compiler from displaying warnings during compilation")
     var suppressWarnings by value(false)
@@ -54,7 +55,7 @@ class KotlinSettings : SchemaNode() {
     var verbose by value(false)
 
 //    @SchemaDoc("")
-    var linkerOpts by nullableValue<List<String>>()
+    var linkerOpts by nullableValue<List<TraceableString>>()
 
     @SchemaDoc("(Only for [native targets](https://kotlinlang.org/docs/native-target-support.html)) Enable emitting debug information")
     @PlatformSpecific(Platform.NATIVE)
@@ -65,9 +66,9 @@ class KotlinSettings : SchemaNode() {
 
     // TODO Replace with enum
 //    @SchemaDoc("")
-    var languageFeatures by nullableValue<List<String>>()
+    var languageFeatures by nullableValue<List<TraceableString>>()
 
     // TODO Replace with enum
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
-    var optIns by nullableValue<List<String>>()
+    var optIns by nullableValue<List<TraceableString>>()
 }

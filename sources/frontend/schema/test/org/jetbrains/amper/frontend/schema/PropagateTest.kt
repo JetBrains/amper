@@ -7,6 +7,7 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.aomBuilder.withPropagatedSettings
+import org.jetbrains.amper.frontend.schema.helper.listOfTraceable
 import org.jetbrains.amper.frontend.schema.helper.potatoModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -167,7 +168,7 @@ class PropagateTest {
                 dependant("desktop")
                 dependant("apple")
                 kotlin {
-                    optIns = listOf("kotlin.contracts.ExperimentalContracts")
+                    optIns = listOfTraceable("kotlin.contracts.ExperimentalContracts")
                 }
             }
             fragment("apple") {
@@ -196,7 +197,7 @@ class PropagateTest {
         val macosX64Fragment = assertSingleFragment(resolvedModule, "macosX64")
         val kotlinSettings = macosX64Fragment.settings.kotlin
 
-        assertEquals(listOf("kotlin.contracts.ExperimentalContracts"), kotlinSettings.optIns, "should inherit from 'common' ancestor")
+        assertEquals(listOfTraceable("kotlin.contracts.ExperimentalContracts"), kotlinSettings.optIns, "should inherit from 'common' ancestor")
         assertTrue(kotlinSettings.debug, "should inherit 'debug' from 'apple' parent")
         assertEquals(KotlinVersion.Kotlin18, kotlinSettings.languageVersion, "should inherit 'languageVersion' from 'apple' parent")
         assertTrue(kotlinSettings.allWarningsAsErrors, "should inherit from 'desktop' parent")

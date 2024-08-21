@@ -11,6 +11,7 @@ import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import java.io.File
@@ -80,3 +81,5 @@ open class TestProjectContext(
     val path2catalog: MutableMap<VirtualFile, VirtualFile> = mutableMapOf()
     override fun getCatalogPathFor(file: VirtualFile): VirtualFile? = path2catalog[file]
 }
+
+fun listOfTraceable(vararg items: String) = items.map { TraceableString(it) }

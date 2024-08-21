@@ -50,9 +50,9 @@ internal fun List<Fragment>.mergedKotlinSettings(): KotlinUserSettings = KotlinU
     debug = unanimousKotlinSetting("debug") { it.debug },
     verbose = unanimousKotlinSetting("verbose") { it.verbose },
     progressiveMode = unanimousKotlinSetting("progressiveMode") { it.progressiveMode },
-    languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures } ?: emptyList(),
-    optIns = unanimousKotlinSetting("optIns") { it.optIns ?: emptyList() },
-    freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs } ?: emptyList(),
+    languageFeatures = unanimousOptionalKotlinSetting("languageFeatures") { it.languageFeatures?.map { it.value } }.orEmpty(),
+    optIns = unanimousKotlinSetting("optIns") { it.optIns.orEmpty().map { it.value } },
+    freeCompilerArgs = unanimousOptionalKotlinSetting("freeCompilerArgs") { it.freeCompilerArgs?.map { it.value } }.orEmpty(),
     serializationEnabled = !unanimousOptionalKotlinSetting("serialization.format") { it.serialization?.format }.isNullOrBlank(),
     composeEnabled = unanimousOptionalSetting("compose.enabled") { it.compose.enabled } ?: false,
 )

@@ -104,7 +104,7 @@ class Repository : SchemaNode() {
 
 class TaskSettings: SchemaNode() {
     @SchemaDoc("Adds to task dependencies")
-    var dependsOn by nullableValue<List<String>>()
+    var dependsOn by nullableValue<List<TraceableString>>()
 }
 
 const val repositoryShortForm = """

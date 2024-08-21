@@ -69,8 +69,8 @@ private fun LanguageSettingsBuilder.configureFromAmperSettings(settings: KotlinS
     languageVersion = settings.languageVersion.schemaValue
     apiVersion = settings.apiVersion.schemaValue
     progressiveMode = settings.progressiveMode
-    settings.languageFeatures?.forEach { enableLanguageFeature(it.capitalized()) }
-    settings.optIns?.forEach { optIn(it) }
+    settings.languageFeatures?.forEach { enableLanguageFeature(it.value.capitalized()) }
+    settings.optIns?.forEach { optIn(it.value) }
 }
 
 /**
@@ -336,7 +336,7 @@ class KMPPBindingPluginPart(
 //            binaryOptions.putAll(it.binaryOptions)
         }
         fragment.settings.kotlin.let {
-            linkerOpts.addAll(it.linkerOpts.orEmpty())
+            linkerOpts.addAll(it.linkerOpts.orEmpty().map { it.value })
             ::debuggable trySet it.debug
         }
     }

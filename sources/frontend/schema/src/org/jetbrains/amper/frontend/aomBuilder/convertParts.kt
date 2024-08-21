@@ -93,7 +93,7 @@ fun Module.convertModuleParts(): ClassBasedSet<ModulePart<*>> {
 
     parts += ModuleTasksPart(
         settings = tasks
-            ?.mapValues { (_, value) -> ModuleTasksPart.TaskSettings(dependsOn = value.dependsOn ?: emptyList()) }
+            ?.mapValues { (_, value) -> ModuleTasksPart.TaskSettings(dependsOn = value.dependsOn?.map { it.value } ?: emptyList()) }
             ?: emptyMap(),
     )
 

@@ -29,6 +29,7 @@ import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.asTraceableString
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertSettings() =
@@ -88,10 +89,10 @@ internal fun AmperObject.convertKotlinSettings() = KotlinSettings().apply {
     ::debug.convertChildBoolean()
     ::progressiveMode.convertChildBoolean()
 
-    ::freeCompilerArgs.convertChildScalarCollection { textValue }
-    ::linkerOpts.convertChildScalarCollection { textValue }
-    ::languageFeatures.convertChildScalarCollection { textValue }
-    ::optIns.convertChildScalarCollection { textValue  }
+    ::freeCompilerArgs.convertChildScalarCollection { asTraceableString() }
+    ::linkerOpts.convertChildScalarCollection { asTraceableString() }
+    ::languageFeatures.convertChildScalarCollection { asTraceableString() }
+    ::optIns.convertChildScalarCollection { asTraceableString() }
 
     ::serialization.convertChild { value?.convertSerializationSettings() }
 }

@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.reportBundleError
@@ -109,7 +111,11 @@ private fun YAMLMapping.convertTaskSettings(): TaskSettings {
     for (item in keyValues) {
         if (item.name != "dependsOn") continue
         val value = item.value as? YAMLSequence ?: continue
-        val dependsOn = value.items.mapNotNull { (it.value as? YAMLScalar)?.textValue }
+        val dependsOn = value.items.mapNotNull { dep ->
+            (dep.value as? YAMLScalar)?.textValue?.let {
+                TraceableString(it).applyPsiTrace(dep.value)
+            }
+        }
         settings.dependsOn = dependsOn
     }
     return settings

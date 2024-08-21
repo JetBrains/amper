@@ -15,6 +15,7 @@ import com.intellij.amper.lang.impl.propertyList
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaBundle
+import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.reportBundleError
@@ -103,7 +104,11 @@ private fun AmperObject.convertTaskSettings(): TaskSettings {
         val property = item as? AmperProperty ?: continue
         if (property.name == "dependsOn") {
             val value = property.value as? AmperObject ?: continue
-            val dependsOn = value.objectElementList.mapNotNull { (it as? AmperProperty)?.name }
+            val dependsOn = value.objectElementList.mapNotNull { dep ->
+                (dep as? AmperProperty)?.name?.let {
+                    TraceableString(it).applyPsiTrace(dep)
+                }
+            }
             settings.dependsOn = dependsOn
         }
     }

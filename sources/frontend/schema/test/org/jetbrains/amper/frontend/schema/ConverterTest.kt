@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.convertTest
+import org.jetbrains.amper.frontend.schema.helper.listOfTraceable
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.div
@@ -121,8 +122,8 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                         progressiveMode = false
                         suppressWarnings = false
                         verbose = true
-                        freeCompilerArgs = listOf("-Xinline-classes", "-Xxxx")
-                        optIns = listOf("kotlinx.Experimental")
+                        freeCompilerArgs = listOfTraceable("-Xinline-classes", "-Xxxx")
+                        optIns = listOfTraceable("kotlinx.Experimental")
                     }
 
                     ios = IosSettings().apply {
