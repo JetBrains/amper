@@ -66,6 +66,10 @@ class ExecuteOnChangedInputs(
      *  * the output files from the latest execution have not changed
      *  * the version of Amper that produced the cached result is the same as the current Amper version
      *
+     * Note: output _properties_ from previous executions don't affect caching because their values only exist in the
+     * state file itself, so we have nothing to compare that to.
+     * In short, there is no concept of "change" that we could track (unlike output files).
+     *
      * ### Concurrency
      *
      * The given [block] is always executed under double-locking based on the given [id], which means that 2 calls with
