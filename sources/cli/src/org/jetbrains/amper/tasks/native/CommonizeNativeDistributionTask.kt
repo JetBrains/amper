@@ -91,7 +91,7 @@ class CommonizeNativeDistributionTask(
                         tempRoot = tempRoot,
                     )
                     if (result.exitCode != 0) {
-                        userReadableError("Kotlin commonizer invocation (see errors above)")
+                        userReadableError("Kotlin commonizer invocation failed (see errors above)")
                     }
                 }
         }
