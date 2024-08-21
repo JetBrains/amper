@@ -72,6 +72,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLValue.convertAndroidSigningSettings() = when(this) {
     is YAMLScalar -> AndroidSigningSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
     is YAMLMapping -> AndroidSigningSettings().apply {
+        ::enabled.convertChildBoolean()
         ::propertiesFile.convertChildScalar { asAbsolutePath() }
     }
     else -> null

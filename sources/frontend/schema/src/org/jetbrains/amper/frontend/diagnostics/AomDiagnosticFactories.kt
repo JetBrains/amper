@@ -12,5 +12,6 @@ val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> =
     AndroidVersionShouldBeAtLeastMinSdkFactory,
     ComposeVersionWithDisabledCompose,
     UselessSettingValue,
-    IncorrectSettingsLocation
+    IncorrectSettingsLocation,
+    KeystorePropertiesDoesNotExist
 )
