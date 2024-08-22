@@ -52,6 +52,20 @@ object SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
                                         propertiesFile
                                     )
                                 )
+                            } else {
+                                val mandatoryFields = setOf("storeFile", "keyAlias")
+                                if (key in mandatoryFields) {
+                                    val storeFile = properties.getProperty(key)
+                                    if (storeFile.isNullOrBlank()) {
+                                        problemReporter.reportMessage(
+                                            MandatoryFieldInPropertiesFileMustBePresent(
+                                                android.targetProperty,
+                                                key,
+                                                propertiesFile
+                                            )
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -102,6 +116,21 @@ class KeystorePropertiesDoesNotContainKey(
     override val message: String
         get() = SchemaBundle.message(
             messageKey = "keystore.properties.key.does.not.exist",
+            propertiesFilePath,
+            key
+        )
+}
+
+class MandatoryFieldInPropertiesFileMustBePresent(
+    val targetProperty: KProperty0<*>,
+    val key: String,
+    val propertiesFilePath: Path
+) : PsiBuildProblem(Level.Warning) {
+    override val element: PsiElement get() = targetProperty.extractPsiElement()
+    override val buildProblemId: BuildProblemId = SigningConfigurationIncorrect.diagnosticId
+    override val message: String
+        get() = SchemaBundle.message(
+            messageKey = "keystore.properties.value.required",
             propertiesFilePath,
             key
         )
