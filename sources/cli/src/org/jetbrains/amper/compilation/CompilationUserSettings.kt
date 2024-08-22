@@ -9,8 +9,8 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.schema.JavaVersion
 import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KotlinVersion
-import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.settings.unanimousOptionalSetting
+import org.jetbrains.amper.settings.unanimousSetting
 
 @Serializable
 internal data class CompilationUserSettings(
@@ -62,29 +62,3 @@ private fun <T : Any> List<Fragment>.unanimousOptionalKotlinSetting(settingFqn: 
 
 private fun <T : Any> List<Fragment>.unanimousKotlinSetting(settingFqn: String, selector: (KotlinSettings) -> T): T =
     unanimousSetting("kotlin.$settingFqn") { selector(it.kotlin) }
-
-/**
- * Gets a single common value for a particular setting among these fragments, and throws an exception if 2 fragments
- * have a different value for it, or if there are no fragments at all.
- *
- * The setting is accessed using the provided [selector]. [settingFqn] is only used for error reporting.
- */
-private fun <T : Any> List<Fragment>.unanimousSetting(settingFqn: String, selector: (Settings) -> T): T =
-    unanimousOptionalSetting(settingFqn, selector)
-        ?: error("No fragments provided, cannot merge setting '$settingFqn'")
-
-/**
- * Gets a single common value for a particular setting among these fragments, and throws an exception if 2 fragments
- * have a different value for it. If a fragment doesn't specify a value for the setting (null), it doesn't count as
- * having a different value and doesn't throw an exception.
- *
- * The setting is accessed using the provided [selector]. [settingFqn] is only used for error reporting.
- */
-private fun <T> List<Fragment>.unanimousOptionalSetting(settingFqn: String, selector: (Settings) -> T): T? {
-    val distinctValues = mapNotNull { selector(it.settings) }.distinct()
-    if (distinctValues.size > 1) {
-        error("The fragments ${userReadableList()} of module '${first().module.userReadableName}' are compiled " +
-                "together but provide several different values for 'settings.$settingFqn': $distinctValues")
-    }
-    return distinctValues.singleOrNull()
-}
