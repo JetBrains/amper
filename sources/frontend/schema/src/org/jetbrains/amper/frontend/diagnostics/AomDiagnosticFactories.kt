@@ -13,5 +13,8 @@ val AomSingleModuleDiagnosticFactories: List<AomSingleModuleDiagnosticFactory> =
     ComposeVersionWithDisabledCompose,
     UselessSettingValue,
     IncorrectSettingsLocation,
-    SigningConfigurationIncorrect
+    SigningEnabledWithoutPropertiesFileFactory,
+    KeystorePropertiesDoesNotContainKeyFactory,
+    MandatoryFieldInPropertiesFileMustBePresentFactory,
+    KeystoreMustExistFactory,
 )
