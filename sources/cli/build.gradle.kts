@@ -46,6 +46,11 @@ val unpackedDistribution by tasks.creating(Sync::class) {
     destinationDir = file("build/unpackedDistribution")
 }
 
+val prepareForLocalRun by tasks.creating {
+    dependsOn(unpackedDistribution)
+    dependsOn(":sources:android-integration:gradle-plugin:publishToMavenLocal")
+}
+
 val zipDistribution by tasks.creating(Zip::class) {
     dependsOn(unpackedDistribution)
 

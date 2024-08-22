@@ -55,7 +55,7 @@ REM ********** Build Amper **********
 
 pushd "%~dp0..\.."
 if errorlevel 1 goto fail
-call gradlew.bat --stacktrace --quiet :sources:cli:unpackedDistribution
+call gradlew.bat --stacktrace --quiet :sources:cli:prepareForLocalRun
 if errorlevel 1 goto fail
 popd
 if errorlevel 1 goto fail
