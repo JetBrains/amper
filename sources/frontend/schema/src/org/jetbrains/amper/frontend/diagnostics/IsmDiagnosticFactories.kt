@@ -10,4 +10,5 @@ val IsmDiagnosticFactories: List<IsmDiagnosticFactory> = listOf(
     ProductPlatformIsUnsupported,
     ProductPlatformsShouldNotBeEmpty,
     UnknownQualifiers,
+    TemplateNameWithoutPostfix
 )
