@@ -53,7 +53,7 @@ internal fun AmperObject.convertModule() = Module().apply {
     val documentMapping = this
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
-        this@apply::apply.convertChildScalarCollection { asAbsolutePath() }
+        this@apply::apply.convertChildScalarCollection { asAbsolutePath().asTraceable().applyPsiTrace(this) }
         ::aliases.convertChild {
             (this.value as? AmperObject)?.propertyList?.associate {
                 it.name to (it.value as? AmperObject)

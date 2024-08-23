@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import java.nio.file.Path
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -241,3 +242,4 @@ data class TraceableEnum<T : Enum<T>>(val value: T) : Traceable {
 }
 
 fun <T : Enum<T>> T.asTraceable(): TraceableEnum<T> = TraceableEnum(this)
+fun Path.asTraceable(): TraceablePath = TraceablePath(this)

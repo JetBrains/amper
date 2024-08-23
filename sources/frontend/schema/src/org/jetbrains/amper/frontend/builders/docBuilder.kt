@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.Default
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import java.io.Writer
+import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -148,6 +149,7 @@ class DocBuilder private constructor(
             when {
                 isTraceableEnum -> append(arguments.single().type!!.simpleView)
                 isTraceableString -> append(String::class.simpleName)
+                isTraceablePath -> append(Path::class.simpleName)
                 else -> {
                     append(unwrapKClass.simpleName)
                     if (arguments.isNotEmpty()) {

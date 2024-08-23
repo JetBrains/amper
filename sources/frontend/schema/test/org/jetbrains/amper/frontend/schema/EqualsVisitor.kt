@@ -6,9 +6,9 @@ package org.jetbrains.amper.frontend.schema
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.ismVisitor.IsmVisitor
-import java.nio.file.Path
 import kotlin.reflect.KProperty0
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -54,7 +54,7 @@ class EqualsVisitor(private val otherModule: Module) : IsmVisitor {
   override fun visitModuleMetaLayout(layout: AmperLayout) { }
 
   override fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>) { }
-  override fun visitApply(path: Path) { }
+  override fun visitApply(path: TraceablePath) { }
 
   override fun visitRepositories(repo: List<Repository>) {
     assertEquals(repo.size, otherModule::repositories.withoutDefault?.size,

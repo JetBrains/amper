@@ -29,7 +29,7 @@ internal fun readTemplate(catalogFinder: VersionsCatalogProvider, file: VirtualF
 context(ProblemReporterContext, FrontendPathResolver)
 internal fun Module.readTemplatesAndMerge(catalogFinder: VersionsCatalogProvider): Module {
     val readTemplates = apply
-        ?.mapNotNull { loadVirtualFileOrNull(it) }
+        ?.mapNotNull { loadVirtualFileOrNull(it.value) }
         ?.mapNotNull { readTemplate(catalogFinder, it)?.template } ?: emptyList()
     val toMerge = readTemplates + this
 

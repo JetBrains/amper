@@ -59,7 +59,7 @@ internal fun YAMLDocument.convertModule() = Module().apply {
     val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
-        this@apply::apply.convertChildScalarCollection { asAbsolutePath() }
+        this@apply::apply.convertChildScalarCollection { asAbsolutePath().asTraceable().applyPsiTrace(this) }
         ::aliases.convertChild {
             asSequenceNode()?.convertScalarKeyedMap {
                 asSequenceNode()

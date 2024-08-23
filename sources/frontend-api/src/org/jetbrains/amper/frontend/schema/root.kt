@@ -12,6 +12,7 @@ import org.jetbrains.amper.frontend.api.ModifierAware
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import java.nio.file.Path
 
@@ -65,7 +66,7 @@ class Module : Base() {
     var aliases by nullableValue<Map<String, Set<TraceableEnum<Platform>>>>()
 
     @SchemaDoc("Lists the templates applied to the module. [Read more](#templates)")
-    var apply by nullableValue<List<Path>>()
+    var apply by nullableValue<List<TraceablePath>>()
 
     @SchemaDoc("Configures various aspects of the module, such as file layout")
     var module by value(::Meta)

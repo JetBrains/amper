@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.ismVisitor
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.withoutDefault
 import org.jetbrains.amper.frontend.schema.AmperLayout
 import org.jetbrains.amper.frontend.schema.AndroidSettings
@@ -22,7 +23,6 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.Repository
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import java.nio.file.Path
 
 enum class Phase {
   START,END
@@ -37,7 +37,7 @@ interface IsmVisitor {
   fun visitModuleMeta(meta: Meta) {}
   fun visitModuleMetaLayout(layout: AmperLayout) {}
   fun visitAlias(name: String, platforms: Set<TraceableEnum<Platform>>) {}
-  fun visitApply(path: Path) {}
+  fun visitApply(path: TraceablePath) {}
   fun visitRepositories(repo: List<Repository>) {}
   fun visitRepository(repo: Repository) {}
   fun visitCredentials(credentials: Repository.Credentials) {}

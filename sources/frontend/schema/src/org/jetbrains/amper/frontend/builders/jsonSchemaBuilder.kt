@@ -193,7 +193,7 @@ class JsonSchemaBuilder(
         type.isTraceableEnum -> type.arguments.single().type!!.enumSchema
         type.isString || type.isTraceableString -> stringSchema
         type.isBoolean -> booleanSchema
-        type.isPath -> stringSchema
+        type.isPath || type.isTraceablePath -> stringSchema
         type.isInt -> TODO()
         else -> error("Unsupported type") // TODO reporting
     }

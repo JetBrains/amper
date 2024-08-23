@@ -6,6 +6,7 @@ package org.jetbrains.amper.frontend.api
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.frontend.VersionCatalog
+import java.nio.file.Path
 import kotlin.reflect.KProperty0
 
 /**
@@ -54,6 +55,20 @@ class TraceableString(
     override fun hashCode() = value.hashCode()
     override fun equals(other: Any?) =
         this === other || (other as? TraceableString)?.value == value
+}
+
+class TraceablePath(
+    val value: Path
+) : Traceable {
+    override var trace: Trace? = null
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
+    override fun hashCode() = value.hashCode()
+    override fun equals(other: Any?) =
+        this === other || (other as? TraceablePath)?.value == value
 }
 
 // TODO Replace by traceability generalization.
