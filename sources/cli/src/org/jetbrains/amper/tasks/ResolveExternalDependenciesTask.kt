@@ -71,11 +71,13 @@ class ResolveExternalDependenciesTask(
             return Result(compileClasspath = emptyList(), runtimeClasspath = emptyList())
         }
 
+        val compileDependencyCoordinates = fragmentsCompileModuleDependencies.getExternalDependencies()
+        val runtimeDependencyCoordinates = fragmentsRuntimeModuleDependencies?.getExternalDependencies()
         return spanBuilder("resolve-dependencies")
             .setAmperModule(module)
             .setFragments(fragments)
-            .setListAttribute("dependencies", fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() })
-            .setListAttribute("runtimeDependencies", fragmentsRuntimeModuleDependencies?.getExternalDependencies()?.map { it.toString() } ?: emptyList<String>())
+            .setListAttribute("dependencies", compileDependencyCoordinates.map { it.toString() })
+            .setListAttribute("runtimeDependencies", runtimeDependencyCoordinates?.map { it.toString() } ?: emptyList())
             .setAttribute("platform", resolvedPlatform.type.value)
             .also {
                 resolvedPlatform.nativeTarget?.let { target ->
@@ -88,14 +90,14 @@ class ResolveExternalDependenciesTask(
                 logger.debug(
                     "resolve dependencies ${module.userReadableName} -- " +
                             "${fragments.userReadableList()} -- " +
-                            "${fragmentsCompileModuleDependencies.getExternalDependencies().map { it.toString() }.joinToString(" ")} -- " +
+                            "${compileDependencyCoordinates.joinToString(" ")} -- " +
                             "resolvePlatform=${resolvedPlatform.type.value} nativeTarget=${resolvedPlatform.nativeTarget}"
                 )
 
                 val configuration = mapOf(
                     "userCacheRoot" to userCacheRoot.path.pathString,
-                    "compileDependencies" to fragmentsCompileModuleDependencies.getExternalDependencies().joinToString("|"),
-                    "runtimeDependencies" to (fragmentsRuntimeModuleDependencies?.getExternalDependencies()?.joinToString("|") ?: ""),
+                    "compileDependencies" to compileDependencyCoordinates.joinToString("|"),
+                    "runtimeDependencies" to (runtimeDependencyCoordinates?.joinToString("|") ?: ""),
                     "repositories" to repositories.joinToString("|"),
                     "resolvePlatform" to resolvedPlatform.type.value,
                     "resolveNativeTarget" to (resolvedPlatform.nativeTarget ?: ""),
@@ -139,7 +141,7 @@ class ResolveExternalDependenciesTask(
                                     fragmentsCompileModuleDependencies.getExternalDependencies(true).joinToString("\n").prependIndent("  ")
                                 }\n" +
                                 "all dependencies:\n${
-                                    fragmentsCompileModuleDependencies.getExternalDependencies().joinToString("\n").prependIndent("  ")
+                                    compileDependencyCoordinates.joinToString("\n").prependIndent("  ")
                                 }\n" +
                                 "platform: $resolvedPlatform" +
                                 (resolvedPlatform.nativeTarget?.let { "\nnativeTarget: $it" } ?: ""), t)
@@ -157,7 +159,7 @@ class ResolveExternalDependenciesTask(
 
                 logger.debug("resolve dependencies ${module.userReadableName} -- " +
                         "${fragments.userReadableList()} -- " +
-                        "${fragmentsCompileModuleDependencies.getExternalDependencies().joinToString(" ")} -- " +
+                        "${compileDependencyCoordinates.joinToString(" ")} -- " +
                         "resolvePlatform=$resolvedPlatform nativeTarget=${resolvedPlatform.nativeTarget}\n" +
                         "${repositories.joinToString(" ")} resolved to:\n${
                             compileClasspath.joinToString("\n") {
