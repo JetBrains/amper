@@ -44,6 +44,7 @@ import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
 import org.jetbrains.amper.tasks.ResolveExternalDependenciesTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.tasks.identificationPhrase
 import org.jetbrains.amper.tasks.resourcesFor
 import org.jetbrains.amper.tasks.sourcesFor
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
@@ -148,7 +149,7 @@ class JvmCompileTask(
                     tempRoot = tempRoot,
                 )
             } else {
-                logger.info("Sources for fragments (${fragments.userReadableList()}) of module '${module.userReadableName}' are missing, skipping compilation")
+                logger.info("No sources were found for ${fragments.identificationPhrase()}, skipping compilation")
             }
 
             val presentResources = resources.filter { it.exists() }

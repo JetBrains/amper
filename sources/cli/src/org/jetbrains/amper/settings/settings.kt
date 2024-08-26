@@ -6,7 +6,7 @@ package org.jetbrains.amper.settings
 
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.identificationPhrase
 
 /**
  * Gets a single common value for a particular setting among these fragments, and throws an exception if 2 fragments
@@ -28,7 +28,7 @@ internal fun <T : Any> List<Fragment>.unanimousSetting(settingFqn: String, selec
 internal fun <T> List<Fragment>.unanimousOptionalSetting(settingFqn: String, selector: (Settings) -> T): T? {
     val distinctValues = mapNotNull { selector(it.settings) }.distinct()
     if (distinctValues.size > 1) {
-        error("The fragments ${userReadableList()} of module '${first().module.userReadableName}' are compiled " +
+        error("${identificationPhrase()} are compiled " +
                 "together but provide several different values for 'settings.$settingFqn': $distinctValues")
     }
     return distinctValues.singleOrNull()
