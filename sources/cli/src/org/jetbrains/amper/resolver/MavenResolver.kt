@@ -21,7 +21,6 @@ import org.jetbrains.amper.dependency.resolution.Severity
 import org.jetbrains.amper.dependency.resolution.message
 import org.jetbrains.amper.diagnostics.DoNotLogToTerminalCookie
 import org.jetbrains.amper.frontend.dr.resolver.MavenCoordinates
-import org.jetbrains.amper.frontend.dr.resolver.ModuleDependencyNodeWithModule
 import org.jetbrains.amper.frontend.dr.resolver.ResolutionDepth
 import org.jetbrains.amper.frontend.dr.resolver.mavenCoordinates
 import org.jetbrains.amper.frontend.dr.resolver.moduleDependenciesResolver
@@ -109,23 +108,21 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
 class MavenResolverException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 internal fun DependencyNode.getExternalDependencies(directOnly: Boolean = false): List<MavenCoordinates> {
-    val dependenciesList = mutableListOf<MavenCoordinates>()
-    fillExternalDependencies(dependenciesList, directOnly)
-    return dependenciesList
+    val uniqueDependencies = buildSet { fillExternalDependencies(this, directOnly) }
+    return uniqueDependencies.sortedBy { it.toString() }
 }
 
-private fun DependencyNode.fillExternalDependencies(dependenciesList: MutableList<MavenCoordinates>, directOnly: Boolean = false) {
+private fun DependencyNode.fillExternalDependencies(
+    dependenciesList: MutableSet<MavenCoordinates>,
+    directOnly: Boolean = false,
+) {
     children.forEach {
-        when(it) {
-            is MavenDependencyNode -> {
-                val coordinates = it.mavenCoordinates()
-                if (!dependenciesList.contains(coordinates)) dependenciesList.add(coordinates)
-            }
-            is ModuleDependencyNodeWithModule -> {
-                if (!directOnly) {
-                    it.fillExternalDependencies(dependenciesList, directOnly)
-                }
-            }
+        // There can be all sorts of wrapper types here, which are somewhat internal to the dependency resolution module.
+        // We only want to add external maven dependencies here anyway, or recurse, so let's not enumerate.
+        if (it is MavenDependencyNode) {
+            dependenciesList.add(it.mavenCoordinates())
+        } else if (!directOnly) {
+            it.fillExternalDependencies(dependenciesList, directOnly)
         }
     }
 }
