@@ -11,7 +11,7 @@ dependencies:
   - ../frontend/plain/yaml-psi
   - ../frontend/plain/amper-psi
   - $libs.intellij.platform.util
-  - $libs.intellij.platform.util.jdom
+  - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core
-  - $libs.intellij.platform.core.impl
+  - $libs.intellij.platform.coreImpl
   - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980

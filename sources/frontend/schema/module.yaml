@@ -15,8 +15,8 @@ dependencies:
   - org.jetbrains.kotlin:kotlin-reflect:2.0.0
   - org.apache.maven:maven-artifact:3.9.6
   - $libs.intellij.platform.core: exported # because we expose Project in public API
-  - $libs.intellij.platform.core.impl
-  - $libs.intellij.platform.ide.core
+  - $libs.intellij.platform.coreImpl
+  - $libs.intellij.platform.ideCore
   - $libs.intellij.platform.util
 
 test-dependencies:

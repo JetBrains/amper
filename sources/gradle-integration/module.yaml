@@ -18,7 +18,7 @@ dependencies:
   - $libs.kotlin.gradle.plugin
   - com.android.library:com.android.library.gradle.plugin:8.2.0
   - $libs.kotlin.serialization.plugin
-  - $libs.compose.compiler.gradle.plugin
+  - $libs.kotlin.compose.compiler.gradle.plugin
   - $libs.compose.gradle.plugin
   - dev.gradleplugins:gradle-api:8.6: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.2

@@ -19,12 +19,12 @@ dependencies:
   - org.jetbrains:ij-parsing-core:0.3.154
   - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980
   - $libs.intellij.platform.core
-  - $libs.intellij.platform.core.impl
+  - $libs.intellij.platform.coreImpl
   - ../android-integration/dependency-resolution-android-extension
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
-  - $libs.kotlin.build.tools.api
+  - $libs.kotlin.buildToolsApi
   - $libs.slf4j.api
-  - $libs.tinylog.api.kotlin
+  - $libs.tinylog.api
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul

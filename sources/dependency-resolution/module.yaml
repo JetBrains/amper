@@ -21,7 +21,7 @@ dependencies:
 test-dependencies:
   - ../test-base
   - $libs.slf4j.api
-  - $libs.tinylog.api.kotlin
+  - $libs.tinylog.api
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
