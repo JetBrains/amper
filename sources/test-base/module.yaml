@@ -11,10 +11,10 @@ dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0: exported
   - io.opentelemetry:opentelemetry-sdk:1.32.0: exported
   - $libs.slf4j.api: exported
-  - org.tinylog:tinylog-impl:2.6.2: exported
+  - $libs.tinylog.impl: exported
   - com.github.ajalt.clikt:clikt:4.2.2: exported
-  - org.tinylog:slf4j-tinylog:2.6.2
-  - org.tinylog:jul-tinylog:2.6.2
+  - $libs.tinylog.slf4j
+  - $libs.tinylog.jul
   - ../core
   - ../cli: compile-only # todo (Anton Prokhorov): think splitting cli to submodules
 

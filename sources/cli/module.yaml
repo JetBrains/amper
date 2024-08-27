@@ -24,10 +24,10 @@ dependencies:
   # the API itself is our Kotlin version, but we dynamically download the impl in the user-defined Kotlin version
   - $libs.kotlin.build.tools.api
   - $libs.slf4j.api
-  - org.tinylog:tinylog-api-kotlin:2.6.2
-  - org.tinylog:tinylog-impl:2.6.2
-  - org.tinylog:slf4j-tinylog:2.6.2
-  - org.tinylog:jul-tinylog:2.6.2
+  - $libs.tinylog.api.kotlin
+  - $libs.tinylog.impl
+  - $libs.tinylog.slf4j
+  - $libs.tinylog.jul
   - io.opentelemetry:opentelemetry-api:1.32.0
   - io.opentelemetry:opentelemetry-sdk:1.32.0
   - io.opentelemetry:opentelemetry-sdk-trace:1.32.0
