@@ -15,11 +15,11 @@ dependencies:
   - ../core-intellij
   - ../frontend-api
   - ../frontend/schema
-  - org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0
+  - $libs.kotlin.gradle.plugin
   - com.android.library:com.android.library.gradle.plugin:8.2.0
-  - org.jetbrains.kotlin:kotlin-serialization:2.0.0
-  - org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.0
-  - org.jetbrains.compose:compose-gradle-plugin:1.6.10
+  - $libs.kotlin.serialization.plugin
+  - $libs.compose.compiler.gradle.plugin
+  - $libs.compose.gradle.plugin
   - dev.gradleplugins:gradle-api:8.6: compile-only
   - gradle.plugin.org.jetbrains.gradle.apple:apple-gradle-plugin:222.4595-0.23.2
   - org.jetbrains.kotlinx:kover-gradle-plugin:0.7.4
