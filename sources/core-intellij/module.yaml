@@ -14,4 +14,4 @@ dependencies:
   - $libs.intellij.platform.utilJdom
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl
-  - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980
+  - $libs.intellij.amper.xcodemodel

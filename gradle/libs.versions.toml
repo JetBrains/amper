@@ -1,6 +1,9 @@
 [versions]
 compose = "1.6.10"
+intellij-async-profiler = "3.0-1"
+intellij-parsing = "0.3.154"
 intellij-platform = "233.13763.11"
+intellij-xcodemodel = "241.14980"
 kotlin = "2.0.0"
 ktor = "2.3.6"
 opentelemetry = "1.32.0"
@@ -11,6 +14,9 @@ tinylog = "2.6.2"
 # https://blog.gradle.org/best-practices-naming-version-catalog-entries
 [libraries]
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
+intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
+intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
+intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }
 intellij-platform-core = { module = "com.jetbrains.intellij.platform:core", version.ref = "intellij-platform" }
 intellij-platform-coreImpl = { module = "com.jetbrains.intellij.platform:core-impl", version.ref = "intellij-platform" }
 intellij-platform-ideCore = { module = "com.jetbrains.intellij.platform:ide-core", version.ref = "intellij-platform" }

@@ -16,8 +16,8 @@ dependencies:
   - ../frontend/dr
   - ../android-integration/runner
   - ../android-integration/android-utils
-  - org.jetbrains:ij-parsing-core:0.3.154
-  - com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed:241.14980
+  - $libs.intellij.amper.xcodemodel
+  - $libs.intellij.parsing.core
   - $libs.intellij.platform.core
   - $libs.intellij.platform.coreImpl
   - ../android-integration/dependency-resolution-android-extension
@@ -49,7 +49,7 @@ dependencies:
   - com.github.ajalt.mordant:mordant-jvm:2.4.0
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
-  - org.jetbrains.intellij.deps:async-profiler:3.0-1
+  - $libs.intellij.deps.asyncProfiler
   - org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.8.0
   - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
   - org.jetbrains.teamcity:serviceMessages:2023.11.1
