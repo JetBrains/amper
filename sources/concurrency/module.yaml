@@ -7,4 +7,4 @@ apply:
 
 dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
-  - $libs.slf4jApi
+  - $libs.slf4j.api

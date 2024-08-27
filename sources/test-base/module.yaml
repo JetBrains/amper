@@ -10,7 +10,7 @@ dependencies:
   - org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0: exported
   - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0: exported
   - io.opentelemetry:opentelemetry-sdk:1.32.0: exported
-  - $libs.slf4jApi: exported
+  - $libs.slf4j.api: exported
   - org.tinylog:tinylog-impl:2.6.2: exported
   - com.github.ajalt.clikt:clikt:4.2.2: exported
   - org.tinylog:slf4j-tinylog:2.6.2

@@ -16,4 +16,4 @@ test-dependencies:
 dependencies:
   - ../schema
   - ../../dependency-resolution: exported
-  - $libs.slf4jApi
+  - $libs.slf4j.api

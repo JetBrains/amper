@@ -20,7 +20,7 @@ dependencies:
 
 test-dependencies:
   - ../test-base
-  - $libs.slf4jApi
+  - $libs.slf4j.api
   - org.tinylog:tinylog-api-kotlin:2.6.2
   - org.tinylog:tinylog-impl:2.6.2
   - org.tinylog:slf4j-tinylog:2.6.2
