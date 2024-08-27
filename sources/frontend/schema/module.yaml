@@ -14,10 +14,10 @@ dependencies:
   - ../../core-intellij
   - org.jetbrains.kotlin:kotlin-reflect:2.0.0
   - org.apache.maven:maven-artifact:3.9.6
-  - com.jetbrains.intellij.platform:core:233.13763.11: exported # because we expose Project in public API
-  - com.jetbrains.intellij.platform:core-impl:233.13763.11
-  - com.jetbrains.intellij.platform:ide-core:233.13763.11
-  - com.jetbrains.intellij.platform:util:233.13763.11
+  - $libs.intellij.platform.core: exported # because we expose Project in public API
+  - $libs.intellij.platform.core.impl
+  - $libs.intellij.platform.ide.core
+  - $libs.intellij.platform.util
 
 test-dependencies:
   - ../../test-base

@@ -12,8 +12,8 @@ repositories:
 dependencies:
   - org.jetbrains.kotlin:kotlin-reflect:2.0.0
   - ../core
-  - com.jetbrains.intellij.platform:core:233.13763.11
+  - $libs.intellij.platform.core
 
 test-dependencies:
   - ../frontend/plain/yaml-psi
-  - com.jetbrains.intellij.platform:core-impl:233.13763.11
+  - $libs.intellij.platform.core.impl
