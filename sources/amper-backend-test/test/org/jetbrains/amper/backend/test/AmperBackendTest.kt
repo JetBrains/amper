@@ -12,6 +12,7 @@ import org.jetbrains.amper.backend.test.extensions.ErrorCollectorExtension
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
 import org.jetbrains.amper.cli.UserReadableError
+import org.jetbrains.amper.core.*
 import org.jetbrains.amper.diagnostics.getAttribute
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
@@ -585,7 +586,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>2.0.0</version>
+                  <version>${UsedVersions.kotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>
@@ -657,7 +658,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 <dependency>
                   <groupId>org.jetbrains.kotlin</groupId>
                   <artifactId>kotlin-stdlib</artifactId>
-                  <version>2.0.0</version>
+                  <version>${UsedVersions.kotlinVersion}</version>
                   <scope>runtime</scope>
                 </dependency>
               </dependencies>
@@ -1085,18 +1086,14 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         assertEquals(
             expectedRuntimeClasspath,
-            result.runtimeClasspath
-                // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
-                .map { it.name },
+            result.runtimeClasspath.withoutImplicitAmperLibs().map { it.name },
             "Unexpected list of resolved direct runtime dependencies of JVM app module"
         )
 
         assertEquals(
             expectedRuntimeClasspath,
             runtimeClassPath
-                // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
+                .withoutImplicitAmperLibs()
                 // filtering out module compile result
                 .filterNot { it.startsWith(projectContext.buildOutputRoot.path) }
                 .map { it.name },
@@ -1114,10 +1111,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
 
         assertEquals(
             modules + expectedRuntimeClasspath,
-            runtimeClasspathViaTask.jvmRuntimeClasspath
-                // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
-                .map { it.name },
+            runtimeClasspathViaTask.jvmRuntimeClasspath.withoutImplicitAmperLibs().map { it.name },
             "Unexpected list of resolved runtime dependencies (via task)"
         )
 
@@ -1137,12 +1131,13 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
         // should be only one version of commons-io, the highest version
         assertEquals(
             listOf("commons-io-2.16.1.jar"),
-            result.runtimeClasspath
-                .map { it.name }
-                .filter { !it.startsWith("annotations-") && !it.startsWith("kotlin-stdlib-") },
+            result.runtimeClasspath.withoutImplicitAmperLibs().map { it.name },
             "Unexpected list of resolved runtime dependencies"
         )
     }
+
+    private fun List<Path>.withoutImplicitAmperLibs() =
+        filterNot { it.name.startsWith("kotlin-stdlib-") || it.name.startsWith("annotations-") }
 
     private suspend fun withFileServer(wwwRoot: Path, authenticator: Authenticator? = null, block: suspend (baseUrl: String) -> Unit) {
         val httpServer = HttpServer.create(InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 10)
