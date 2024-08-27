@@ -1,5 +1,5 @@
 [versions]
-slf4j = "2.0.9"
+slf4j = "2.0.16"
 
 [libraries]
-slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4jApi = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
