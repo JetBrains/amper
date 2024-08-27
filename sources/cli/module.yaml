@@ -28,10 +28,10 @@ dependencies:
   - $libs.tinylog.impl
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
-  - io.opentelemetry:opentelemetry-api:1.32.0
-  - io.opentelemetry:opentelemetry-sdk:1.32.0
-  - io.opentelemetry:opentelemetry-sdk-trace:1.32.0
-  - io.opentelemetry:opentelemetry-extension-kotlin:1.32.0
+  - $libs.opentelemetry.api
+  - $libs.opentelemetry.sdk
+  - $libs.opentelemetry.sdkTrace
+  - $libs.opentelemetry.kotlin
   # for files downloading
   - io.ktor:ktor-client-cio-jvm:2.3.6
   - io.ktor:ktor-client-encoding:2.3.6
