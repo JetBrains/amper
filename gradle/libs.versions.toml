@@ -23,10 +23,10 @@ intellij-platform-ideCore = { module = "com.jetbrains.intellij.platform:ide-core
 intellij-platform-util = { module = "com.jetbrains.intellij.platform:util", version.ref = "intellij-platform" }
 intellij-platform-utilEx = { module = "com.jetbrains.intellij.platform:util-ex", version.ref = "intellij-platform" }
 intellij-platform-utilJdom = { module = "com.jetbrains.intellij.platform:util-jdom", version.ref = "intellij-platform" }
-kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api", version.ref = "kotlin"}
+kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api", version.ref = "kotlin" }
 kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin"}
-kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin"}
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
