@@ -19,15 +19,13 @@ import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertChildScalar
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertChildString
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -43,6 +41,7 @@ internal fun YAMLMapping.doConvertSettings() = Settings().apply {
     ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
     ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
     ::compose.convertChildValue { value?.convertComposeSettings() }
+    ::ksp.convertChildValue { asMappingNode()?.convertKspSettings() }
     ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
     ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }
     ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }
@@ -113,6 +112,13 @@ internal fun YAMLValue.convertComposeSettings() = when (this) {
         ::version.convertChildString()
     }
     else -> null
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun YAMLMapping.convertKspSettings() = KspSettings().apply {
+    ::version.convertChildString()
+    ::processors.convertChildScalarCollection { asTraceableString() }
+    ::processorOptions.convertChildScalarCollection { asTraceableString() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

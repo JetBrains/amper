@@ -14,4 +14,6 @@ object UsedVersions {
     /*magic_replacement*/ val kotlinVersion = "2.0.0"
 
     /*magic_replacement*/ val composeVersion = "1.6.10"
+
+    /*magic_replacement*/ val kspVersion = "2.0.0-1.0.24"
 }

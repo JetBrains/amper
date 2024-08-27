@@ -17,6 +17,7 @@ import org.jetbrains.amper.frontend.schema.KotlinSettings
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
@@ -59,6 +60,7 @@ fun Settings.merge(overwrite: Settings) = mergeNode(overwrite, ::Settings) {
     mergeNodeProperty(Settings::android, AndroidSettings::merge)
     mergeNodeProperty(Settings::kotlin, KotlinSettings::merge)
     mergeNodeProperty(Settings::compose, ComposeSettings::merge)
+    mergeNodeProperty(Settings::ksp, KspSettings::merge)
     mergeNodeProperty(Settings::kover, KoverSettings::merge)
     mergeNodeProperty(Settings::ios, IosSettings::merge)
     mergeNodeProperty(Settings::publishing, PublishingSettings::merge)
@@ -106,6 +108,12 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
 fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {
     mergeScalar(ComposeSettings::enabled)
     mergeScalar(ComposeSettings::version)
+}
+
+fun KspSettings.merge(overwrite: KspSettings?) = mergeNode(overwrite, ::KspSettings) {
+    mergeScalar(KspSettings::version)
+    mergeCollection(KspSettings::processors)
+    mergeCollection(KspSettings::processorOptions)
 }
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {

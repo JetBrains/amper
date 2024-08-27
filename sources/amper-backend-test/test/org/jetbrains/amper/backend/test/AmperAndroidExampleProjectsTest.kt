@@ -217,9 +217,6 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         .filter { it.extension.lowercase() == extension.lowercase() }
         .firstOrNull() ?: fail("artifact not found")
 
-    private fun CliContext.getTaskOutputPath(taskName: TaskName): Path =
-        buildOutputRoot.path / "tasks" / taskName.name.replace(':', '_')
-
     private fun assertClassContainsInApk(dalvikFqn: String, apkPath: Path) {
         val extractedApkPath = apkPath.parent.resolve("extractedApk")
         extractZip(apkPath, extractedApkPath, false)

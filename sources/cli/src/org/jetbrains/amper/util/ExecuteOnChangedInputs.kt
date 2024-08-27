@@ -404,3 +404,33 @@ class ExecuteOnChangedInputs(
         }
     }
 }
+
+/**
+ * Executes the given [block] and returns the output file paths, or immediately returns an existing result from the
+ * incremental cache.
+ *
+ * This is exactly equivalent to [ExecuteOnChangedInputs.execute], but without the need to wrap and unwrap the results
+ * for cases where we don't need output properties.
+ *
+ * ### Caching
+ *
+ * The previous result is immediately returned without executing [block] if all the following conditions are met:
+ *  * the [configuration] map has not changed
+ *  * the given set of [input][inputs] paths has not changed
+ *  * the files located at the given [input][inputs] paths have not changed
+ *  * the output files from the latest execution have not changed
+ *  * the version of Amper that produced the cached result is the same as the current Amper version
+ *
+ * ### Concurrency
+ *
+ * The given [block] is always executed under double-locking based on the given [id], which means that 2 calls with
+ * the same [id] cannot be executed at the same time by multiple threads or multiple Amper processes.
+ * If one call needs to re-run [block] because the cache is invalid, subsequent calls with the same ID will suspend
+ * until the first call completes and then resume and use the cache immediately (if possible).
+ */
+suspend fun ExecuteOnChangedInputs.executeForFiles(
+    id: String,
+    configuration: Map<String, String>,
+    inputs: List<Path>,
+    block: suspend () -> List<Path>,
+): List<Path> = execute(id, configuration, inputs) { ExecuteOnChangedInputs.ExecutionResult(block()) }.outputs

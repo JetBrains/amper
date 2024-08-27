@@ -41,6 +41,9 @@ class Settings : SchemaNode() {
             "Read more about [Compose configuration](#configuring-compose-multiplatform)")
     var compose by value(::ComposeSettings)
 
+    @SchemaDoc("[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.")
+    var ksp by value(::KspSettings)
+
     @SchemaDoc("JUnit test runner on the JVM and Android platforms. " +
             "Read more about [testing support](#tests)")
     @PlatformSpecific(Platform.JVM, Platform.ANDROID)

@@ -102,7 +102,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
     onEachTaskType(Platform.ANDROID) { module, executeOnChangedInputs, _, isTest ->
         registerTask(
             TransformAarExternalDependenciesTask(
-                AndroidTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
+                CommonTaskType.TransformDependencies.getTaskName(module, Platform.ANDROID, isTest),
                 executeOnChangedInputs
             ),
             CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
@@ -131,7 +131,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                     add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
                     add(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
                 }
-                add(AndroidTaskType.TransformDependencies.getTaskName(module, platform))
+                add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
                 add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
             }
         )
@@ -410,7 +410,6 @@ private enum class AndroidTaskType(override val prefix: String) : PlatformTaskTy
     InstallSystemImage("installSystemImage"),
     InstallEmulator("installEmulator"),
     InstallCmdlineTools("installCmdlineTools"),
-    TransformDependencies("transformDependencies"),
     CheckAndroidSdkLicense("checkAndroidSdkLicense"),
     Prepare("prepare"),
     Build("build"),

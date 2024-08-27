@@ -60,6 +60,8 @@ add_update_rule $ANDROID_VERSION "com\.android\.application$SQUOTE *\| "
 # Gradle
 add_update_rule $GRADLE_VERSION "https\\\\\:\/\/services\.gradle\.org\/distributions\/gradle-"
 
+add_update_rule $KSP_VERSION "\/\*magic_replacement\*\/ val kspVersion = \""
+
 # --- Actual logic ---
 # Meaningful suffix for sed old files.
 OLD_FILES_POSTFIX="_OLD_FILE"

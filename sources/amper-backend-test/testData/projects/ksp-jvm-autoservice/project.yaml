@@ -1,0 +1,4 @@
+modules:
+  - consumer
+  - service-api
+  - service-impl

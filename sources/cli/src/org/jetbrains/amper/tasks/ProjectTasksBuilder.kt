@@ -19,6 +19,7 @@ import org.jetbrains.amper.tasks.android.setupAndroidTasks
 import org.jetbrains.amper.tasks.custom.setupCustomTasks
 import org.jetbrains.amper.tasks.ios.setupIosTasks
 import org.jetbrains.amper.tasks.jvm.setupJvmTasks
+import org.jetbrains.amper.tasks.ksp.setupKspTasks
 import org.jetbrains.amper.tasks.native.setupNativeTasks
 import org.jetbrains.amper.util.BuildType
 import kotlin.io.path.div
@@ -50,6 +51,7 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
         builder.setupAndroidTasks()
         builder.setupNativeTasks()
         builder.setupIosTasks()
+        builder.setupKspTasks()
         builder.setupCustomTaskDependencies()
         builder.setupCustomTasks()
         return builder.build()
@@ -144,7 +146,9 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
 
         internal enum class CommonTaskType(override val prefix: String) : PlatformTaskType {
             Compile("compile"),
+            Ksp("ksp"),
             Dependencies("resolveDependencies"),
+            TransformDependencies("transformDependencies"),
             Jar("jar"),
             SourcesJar("sourcesJar"),
             Publish("publish"),

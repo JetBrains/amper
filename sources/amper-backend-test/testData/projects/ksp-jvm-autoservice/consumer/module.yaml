@@ -1,0 +1,6 @@
+product: jvm/app
+
+dependencies:
+  - ../service-api
+  - ../service-impl:
+      scope: runtime-only

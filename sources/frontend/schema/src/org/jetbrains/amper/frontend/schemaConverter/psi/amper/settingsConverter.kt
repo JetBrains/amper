@@ -23,6 +23,7 @@ import org.jetbrains.amper.frontend.schema.KotlinVersion
 import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
+import org.jetbrains.amper.frontend.schema.KspSettings
 import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
@@ -41,6 +42,7 @@ internal fun AmperObject.doConvertSettings() = Settings().apply {
     ::android.convertChildValue { (value as? AmperObject)?.convertAndroidSettings() }
     ::kotlin.convertChildValue { (value as? AmperObject)?.convertKotlinSettings() }
     ::compose.convertChildValue { convertComposeSettings() }
+    ::ksp.convertChildValue { (value as? AmperObject)?.convertKspSettings() }
     ::ios.convertChildValue { (value as? AmperObject)?.convertIosSettings() }
     ::publishing.convertChildValue { (value as? AmperObject)?.convertPublishingSettings() }
     ::kover.convertChildValue { (value as? AmperObject)?.convertKoverSettings() }
@@ -114,6 +116,13 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertComposeSettingsObject() = ComposeSettings().apply {
     ::enabled.convertChildBoolean()
     ::version.convertChildString()
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperObject.convertKspSettings() = KspSettings().apply {
+    ::version.convertChildString()
+    ::processors.convertChildScalarCollection { asTraceableString() }
+    ::processorOptions.convertChildScalarCollection { asTraceableString() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

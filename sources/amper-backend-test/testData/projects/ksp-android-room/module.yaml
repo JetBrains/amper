@@ -1,0 +1,14 @@
+product: android/app
+
+settings:
+  android:
+    namespace: com.jetbrains.sample.app
+  ksp:
+    processors:
+      - androidx.room:room-compiler:2.7.0-alpha06
+    processorOptions:
+      - room.schemaLocation=./generated-db-schema
+
+dependencies:
+  - androidx.appcompat:appcompat:1.6.1
+  - androidx.room:room-runtime:2.7.0-alpha06

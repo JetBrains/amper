@@ -420,6 +420,11 @@
           "title": "Kover settings for code coverage. Read more about Kover",
           "$ref": "#/$defs/KoverSettings"
         },
+        "ksp": {
+          "x-intellij-html-description": "[KSP (Kotlin Symbol Processing)](https://github.com/google/ksp) settings.",
+          "title": "KSP  settings",
+          "$ref": "#/$defs/KspSettings"
+        },
         "native": {
           "x-intellij-html-description": "Native applications settings",
           "title": "Native applications settings",
@@ -733,6 +738,35 @@
           "type": "boolean"
         },
         "reportFile": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "KspSettings": {
+      "type": "object",
+      "properties": {
+        "processorOptions": {
+          "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
+          "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "processors": {
+          "x-intellij-html-description": "The list of KSP processors to use (maven coordinates or catalog references)",
+          "title": "The list of KSP processors to use",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "version": {
+          "x-intellij-html-description": "The version of KSP to use",
+          "title": "The version of KSP to use",
           "type": "string"
         }
       },
