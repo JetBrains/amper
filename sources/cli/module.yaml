@@ -33,10 +33,10 @@ dependencies:
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin
   # for files downloading
-  - io.ktor:ktor-client-cio-jvm:2.3.6
-  - io.ktor:ktor-client-encoding:2.3.6
-  - io.ktor:ktor-client-auth:2.3.6
-  - io.ktor:ktor-client:2.3.6
+  - $libs.ktor.client.cio
+  - $libs.ktor.client.encoding
+  - $libs.ktor.client.auth
+  - $libs.ktor.client
   # for debugging, serialize a frontend model to json to read and understand
   - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
   - com.fasterxml.jackson.core:jackson-databind:2.16.0

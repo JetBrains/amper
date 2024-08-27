@@ -2,6 +2,7 @@
 compose = "1.6.10"
 intellij-platform = "233.13763.11"
 kotlin = "2.0.0"
+ktor = "2.3.6"
 opentelemetry = "1.32.0"
 slf4j = "2.0.16"
 tinylog = "2.6.2"
@@ -20,6 +21,10 @@ kotlin-buildToolsApi = { module = "org.jetbrains.kotlin:kotlin-build-tools-api",
 kotlin-compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin"}
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin"}
+ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
