@@ -191,10 +191,15 @@ private fun <T : Any, V, CV : List<V>?> MergeCtx<T>.doMergeCollection(
 ) {
     // TODO Handle collection merge tuning here.
     val targetProp = prop.valueBase(target) ?: return
-    val baseValue = prop.valueBase(base)?.withoutDefault
-    val overwriteValue = prop.valueBase(overwrite)?.withoutDefault
+    val valueBase = prop.valueBase(base)
+    val baseValue = valueBase?.withoutDefault
+    val overwrite = prop.valueBase(overwrite)
+    val overwriteValue = overwrite?.withoutDefault
     val result = baseValue?.toMutableList() ?: mutableListOf()
     result.addAll(overwriteValue ?: emptyList())
+    if (targetProp.trace == null) {
+        targetProp.trace = overwrite?.let { it.trace?.withPrecedingValue(valueBase) } ?: valueBase?.trace
+    }
     targetProp(result.toCV())
 }
 

@@ -127,6 +127,9 @@ sealed class ValueBase<T>(
             if (newValue is Traceable) {
                 trace = newValue.trace
             }
+            else if (trace is PsiTrace) {
+                (trace as PsiTrace).psiElement.putUserData(linkedAmperValue, this)
+            }
         }
         return this
     }
