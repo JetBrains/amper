@@ -30,5 +30,5 @@ class TransformAarExternalDependenciesTask(
         return Result(executionResult.outputs)
     }
 
-    class Result(override val classpath: List<Path>) : TaskResult, AdditionalClasspathProvider
+    class Result(override val compileClasspath: List<Path>) : TaskResult, AdditionalClasspathProvider
 }

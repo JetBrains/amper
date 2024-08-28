@@ -11,7 +11,10 @@ import java.nio.file.Path
  * Provides additional JVM classes that should be considered as compile dependencies.
  */
 internal interface AdditionalClasspathProvider {
-    val classpath: List<Path>
+    /**
+     * Paths to classes, jars, or directories containing compile dependencies.
+     */
+    val compileClasspath: List<Path>
 }
 
 /**

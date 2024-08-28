@@ -103,7 +103,7 @@ class JvmCompileTask(
         // TODO Make kotlin version configurable in settings
         val kotlinVersion = UsedVersions.kotlinVersion
 
-        val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.classpath }
+        val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>().flatMap { it.compileClasspath }
         val classpath = compileModuleDependencies.map { it.classesOutputRoot } + mavenDependencies.compileClasspath + additionalClasspath
 
         val additionalSources = dependenciesResult.filterIsInstance<AdditionalSourcesProvider>().sourcesFor(fragments)

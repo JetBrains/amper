@@ -44,10 +44,10 @@ class AndroidPrepareTask(
         get() = AndroidBuildRequest.Phase.Prepare
 
     override fun outputFilterPredicate(path: Path): Boolean = path.extension == "jar"
-    override fun result(artifacts: List<Path>): TaskResult = Result(classpath = artifacts)
+    override fun result(artifacts: List<Path>): TaskResult = Result(compileClasspath = artifacts)
 
     override fun runtimeClasspath(dependenciesResult: List<TaskResult>): List<Path> =
         dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>().flatMap { it.runtimeClasspath }
 
-    class Result(override val classpath: List<Path>) : TaskResult, AdditionalClasspathProvider
+    class Result(override val compileClasspath: List<Path>) : TaskResult, AdditionalClasspathProvider
 }
