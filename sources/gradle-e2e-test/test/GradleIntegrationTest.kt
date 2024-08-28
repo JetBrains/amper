@@ -471,7 +471,11 @@ class GradleIntegrationTest : GradleE2ETestFixture("./testData/projects/") {
         "build",
         expectOutputToHave = "BUILD SUCCESSFUL"
     )
-    
+
+    // FIXME some compose artifacts disappeared from JetBrains Space maven repository
+    // We ignore this test while the dev versions are unavailable.
+    // See: https://jetbrains.slack.com/archives/CH3GUTE82/p1724847129534279?thread_ts=1724846189.378639&cid=CH3GUTE82
+    @Ignore
     @Test
     fun `compose dev version change`() = test(
         projectName = "compose-dev-version-change",
