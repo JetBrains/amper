@@ -43,17 +43,12 @@ append_to_sed_file "s#^amper_sha256=.*#amper_sha256=$DIST_SHA256#g"
 append_to_sed_file "s#^set amper_sha256=.*#set amper_sha256=$DIST_SHA256#g"
 
 # Kotlin
-add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.multiplatform:org\.jetbrains\.kotlin\.multiplatform\.gradle\.plugin:"
-add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.android:org\.jetbrains\.kotlin\.android\.gradle\.plugin:"
 add_update_rule $KOTLIN_VERSION "\/\*magic_replacement\*\/ val kotlinVersion = \""
-add_update_rule $KOTLIN_VERSION "\/\*kotlin_magic_replacement\*\/ strictly\(\""
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.multiplatform$SQUOTE *\| "
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.plugin\.serialization$SQUOTE *\| "
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.android$SQUOTE *\| "
-add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin:kotlin-reflect:"
 
 # Compose
-add_update_rule $COMPOSE_VERSION "org\.jetbrains\.compose:compose-gradle-plugin:"
 add_update_rule $COMPOSE_VERSION "org\.jetbrains\.compose$SQUOTE *\| "
 add_update_rule $COMPOSE_VERSION "\/\*magic_replacement\*\/ val composeVersion = \""
 
@@ -61,7 +56,6 @@ add_update_rule $COMPOSE_VERSION "\/\*magic_replacement\*\/ val composeVersion =
 add_update_rule $ANDROID_VERSION "com\.android\.library:com\.android\.library\.gradle\.plugin:"
 add_update_rule $ANDROID_VERSION "com\.android\.library$SQUOTE *\| "
 add_update_rule $ANDROID_VERSION "com\.android\.application$SQUOTE *\| "
-add_update_rule $ANDROID_VERSION "\/\*magic_replacement\*\/ val androidVersion = \""
 
 # Gradle
 add_update_rule $GRADLE_VERSION "https\\\\\:\/\/services\.gradle\.org\/distributions\/gradle-"
