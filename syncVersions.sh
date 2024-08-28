@@ -1,5 +1,6 @@
+#!/usr/bin/env bash
 
-
+SQUOTE=\`
 
 # Create temp file to store sed commands.
 SED_COMMANDS_FILE=$(mktemp /tmp/used_sed_commands.XXXXXX)
