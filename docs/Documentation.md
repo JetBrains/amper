@@ -181,7 +181,7 @@ settings:
 Product type describes the target platform and the type of the project at the same time. Below is the list of supported
 product types:
 
-- `lib` - a reusable Amper library which could be used as dependency by other modules in the Amper project.
+- `lib` - a reusable Amper library which could be used as a dependency by other modules in the Amper project.
 - `jvm/app` - a JVM console or desktop application
 - `windows/app` - a mingw64 app
 - `linux/app` - a native linux application
@@ -253,7 +253,7 @@ publishing:
 
 ### Multiplatform configuration
 
-`dependencies:` and `setting:` sections could be specialized for each platform using the `@platform`-qualifier.  An example of multiplatform library with some common and platform-specific code:
+`dependencies:` and `setting:` sections could be specialized for each platform using the `@platform`-qualifier.  An example of a multiplatform library with some common and platform-specific code:
 ```yaml
 product:
   type: lib
@@ -321,7 +321,7 @@ root/
   |  |  |-module.yaml
 ```
 
-The `app/module.yaml` could declare dependency on `ui/utils` as follows:
+The `app/module.yaml` could declare a dependency on `ui/utils` as follows:
 
 ```yaml
 dependencies:
@@ -444,7 +444,7 @@ my.private.repository.username=...
 my.private.repository.password=...
 ```
 
-> Currently only *.property files with credentials are supported.
+> Currently only `*.properties` files with credentials are supported.
 
 **Note on Gradle interop**
 
@@ -457,7 +457,7 @@ Technical explanation: in Gradle, adding any repository at the subproject level 
 configured in the settings (unless a different Gradle
 [RepositoriesMode](https://docs.gradle.org/current/javadoc/org/gradle/api/initialization/resolve/RepositoriesMode.html)
 is used). Default repositories provided by Amper is an equivalent to adding a `repositories` section in
-the `build.gradle.kts`file of each individual Amper module.
+the `build.gradle.kts` file of each individual Amper module.
 
 ### Dependency/Version Catalogs
 
@@ -805,7 +805,7 @@ and `test-settings:` as auxiliary modules, which are embedded directly into the 
 #### Android Instrumented tests
 Here is how Android Instrumented tests could be added as an Auxiliary module:
 
-Main module.yaml:
+Main `module.yaml`:
 ```yaml
 product: android/app
 
@@ -850,7 +850,7 @@ And organize files as following:
 #### Sharing test utilities
 The test utility code (such as test fixtures) could be shared between Unit and Instrumented tests.
 
-Main module.yaml:
+Main `module.yaml`:
 ```yaml
 product: android/app
 
@@ -948,7 +948,7 @@ Android modules also have [res and assets](https://developer.android.com/guide/t
 ## Interop between languages
 
 Kotlin Multiplatform implies smooth interop with platform languages, APIs, and frameworks.
-There are tree distinct scenarios where such an interoperability is needed:
+There are three distinct scenarios where such interoperability is needed:
 
 - Consuming: Kotlin code can use APIs from existing platform libraries, e.g. jars on JVM or CocoaPods on iOS.  
 - Publishing: Kotlin code can be compiled and published as platform libraries to be consumed by the target platform's tooling; such as jars on JVM, *.so on linux or frameworks on iOS.    
@@ -992,9 +992,9 @@ publishing:
     homepage: ...
 ```
 
-Joint compilation is already supported for Java and Kotlin, and in future Kotlin Native will also support joint Kotlin+Swift compilation.
+Joint compilation is already supported for Java and Kotlin, and in the future Kotlin Native will also support joint Kotlin+Swift compilation.
 
-From the user's point of view the joint compilation is transparent; they could simply place the code written in different languages into the same source folder:
+From the user's point of view, the joint compilation is transparent; they could simply place the code written in different languages into the same source folder:
 
 ```
 |-src/             
@@ -1188,9 +1188,9 @@ settings:
 
 There are situations, when you need to override certain settings in for a specific platform only. You can use `@platform`-qualifier. 
 
-Note that certains platforms names match the toolchin names, e.g. iOS and Android:
-- `settings@ios` qualifier specializes settings for all iOS target platforms,
-- `settings:ios:` is a iOS toolchain settings   
+Note that certain platform names match the toolchain names, e.g. iOS and Android:
+- `settings@ios` qualifier specifies settings for all iOS target platforms
+- `settings:ios:` is an iOS toolchain settings   
 
 This could lead to confusion in cases like:
 ```yaml
@@ -1202,7 +1202,7 @@ settings@ios:    # settings to be used for iOS target platform
   kotlin:        # Kotlin toolchain settings
     languageVersion: 1.8
 ```
-Luckily, there should rarely be a need to such configuration.
+Luckily, there should rarely be a need for such a configuration.
 We also plan to address this by linting with conversion to a more readable form:   
 ```yaml
 product: ios/app
@@ -1397,8 +1397,8 @@ settings@debug:
 Platforms and variants in the file layout:
 ```
 |-src/                 # common code for iOS and Android
-|-src@ios/             # iOS-speific code, sees declaration from src/
-|-src@android/         # Android-speific code, sees declaration from src/
+|-src@ios/             # iOS-specific code, sees declaration from src/
+|-src@android/         # Android-specific code, sees declaration from src/
 |-src@debug/           # debug-only code, sees declaration from src/
 |-src@android+debug/   # Android-specific debug-only code, sees declaration from src/, src@android/ and src@debug/ 
 |-module.yaml 
@@ -1409,9 +1409,9 @@ Platforms and variants in the file layout:
 In modularized projects, there is often a need to have a certain common configuration for all or some modules.
 Typical examples could be a testing framework used in all modules or a Kotlin language version.
 
-Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have same structure as `module.yaml` files. Templates could be applied to any `module.yaml` in the `apply:` section.
+Amper offers a way to extract whole sections or their parts into reusable template files. These files are named `<name>.module-template.yaml` and have the same structure as `module.yaml` files. Templates could be applied to any `module.yaml` in the `apply:` section.
 
-E.g. module.yaml:
+E.g. `module.yaml`:
 ```yaml
 product: jvm/app
 
@@ -1431,16 +1431,15 @@ settings:
 
 Sections in the template can also have `@platform`-qualifiers. See the [Multiplatform configuration](#multiplatform-configuration) section for details.
 
-> Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive. Templates can't
-> define product lists.
+> Template files can't have `product:` and `apply:` sections. That is, templates can't be recursive and can't define product lists.
 
 Templates are applied one by one, using the same rules as [platform-specific dependencies and settings](#dependencysettings-propagation):
-- Scalar values (strings,  numbers etc.) are overridden.
+- Scalar values (strings, numbers etc.) are overridden.
 - Mappings and lists are appended.
 
 Settings and dependencies from the `module.yaml` file are applied last. The position of the `apply:` section doesn't matter, the `module.yaml` file content always has precedence E.g.
 
-common.module-template.yaml:
+`common.module-template.yaml`:
 ```yaml
 dependencies:
   - ../shared
@@ -1451,7 +1450,7 @@ settings:
   compose: enabled
 ```
 
-module.yaml:
+`module.yaml`:
 ```yaml
 product: jvm/app
 
@@ -1469,7 +1468,7 @@ settings:
 ```
 
 After applying the template the resulting effective module is:
-module.yaml:
+`module.yaml`:
 ```yaml
 product: jvm/app
 
@@ -1497,8 +1496,7 @@ Streamlined [multiplatform](#multiplatform-configuration) setup,
 built-in support for [CocoaPods dependencies](#native-dependencies),
 straightforward [Compose Multiplatform configuration](#configuring-compose-multiplatform), etc.,
 should enable easy onboarding and quick start. Nevertheless, as projects grow, Kotlin ecosystem expands, and more use
-cases emerge,
-its inevitable that some level of extensibility will be needed. 
+cases emerge, it's inevitable that some level of extensibility will be needed.
 
 The following aspects are designed to be extensible:
 - [Product types](#product-types) - an extension could provide additional product types, such as a Space or a Fleet plugin, an application server app, etc.   
@@ -1531,7 +1529,7 @@ With a convention file layout:
 |-module.yaml 
 ```
 
-And extension.kt code:
+And `extension.kt` code:
 ```kotlin
 class MySourceProcessor : SourceProcessorExtension {
     val replace: StringParameter
@@ -1593,7 +1591,7 @@ plugins {
     id("org.jetbrains.amper.settings.plugin").version("0.4.0")
 }
 
-// add Amper modules to the project
+// Add Amper modules to the project
 include("app", "lib")
 ```
 
@@ -1671,7 +1669,7 @@ sqldelight {
 Here is how to use these plugins in a Gradle script:
 ```kotlin
 plugins {
-  kotlin("multiplatform")     // don't specify a version here,
+    kotlin("multiplatform")     // don't specify a version here,
     id("com.android.library")   // here,
     id("org.jetbrains.compose") // and here
 }
@@ -1679,7 +1677,7 @@ plugins {
 
 #### Configuring settings in the Gradle build files
 
-You can change all Gradle project settings in gradle build files as usual. Configuration in `build.gradle*` file has
+You can change all Gradle project settings in Gradle build files as usual. Configuration in `build.gradle*` file has
 precedence over `module.yaml`. That means that a Gradle script can be used to tune/change the final configuration of your
 Amper module.
 
@@ -1742,9 +1740,10 @@ Here are possible layout modes:
 
 See the [Gradle and Amper layouts comparison](#gradle-vs-amper-project-layout).
 
-E.g., for the module.yaml:
+E.g., for the `module.yaml`:
 ```yaml
 product: jvm/app
+
 module:
   layout: gradle-jvm
 ```
@@ -1766,7 +1765,7 @@ The file layout is:
 |-build.gradle.kts
 ```
 
-While for the module.yaml:
+While for the `module.yaml`:
 ```yaml
 product: jvm/app
 
@@ -1878,7 +1877,7 @@ See also documentation on [Kotlin Multiplatform source sets](https://kotlinlang.
 
 
 ## Brief YAML reference
-YAML describes a tree of mappings and values. Mappings have key-value paris and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
+YAML describes a tree of mappings and values. Mappings have key-value pairs and can be nested. Values can be scalars (string, numbers, booleans) and sequences (lists, sets).
 YAML is indent-sensitive.
 
 Here is a [cheat-sheet](https://quickref.me/yaml.html) and [YAML 1.2 specification](https://yaml.org/spec/1.2.2/). 
