@@ -1,0 +1,20 @@
+   compose:
+      enabled: false [default]
+      version:
+
+
+   kotlin:
+      allWarningsAsErrors: false [default]
+      apiVersion: 2.0 [default]
+      debug: true [default]
+      freeCompilerArgs: [
+         foobar [collection.module-template.yaml],
+         boobaz
+      ]
+      languageFeatures: (empty)
+      languageVersion: 2.0 [default]
+      linkerOpts: (empty)
+      optIns: (empty)
+      progressiveMode: false [default]
+      suppressWarnings: false [default]
+      verbose: false [default]

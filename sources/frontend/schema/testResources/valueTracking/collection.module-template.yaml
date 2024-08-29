@@ -1,0 +1,4 @@
+settings:
+  kotlin:
+    freeCompilerArgs:
+      - foobar

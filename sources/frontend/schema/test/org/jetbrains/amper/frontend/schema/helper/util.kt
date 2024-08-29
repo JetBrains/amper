@@ -83,3 +83,10 @@ open class TestProjectContext(
 }
 
 fun listOfTraceable(vararg items: String) = items.map { TraceableString(it) }
+
+internal fun String.trimTrailingWhitespacesAndEmptyLines(): String {
+    return lines()
+        .dropWhile { it.isBlank() }
+        .dropLastWhile { it.isBlank() }
+        .joinToString(separator = "\n") { it.trimEnd() }
+}

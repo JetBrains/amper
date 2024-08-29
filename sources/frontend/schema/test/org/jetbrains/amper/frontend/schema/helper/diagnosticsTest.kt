@@ -54,10 +54,3 @@ class DiagnosticsTestRun(
 
     override val expectIsInput: Boolean = true
 }
-
-private fun String.trimTrailingWhitespacesAndEmptyLines(): String {
-    return lines()
-        .dropWhile { it.isBlank() }
-        .dropLastWhile { it.isBlank() }
-        .joinToString(separator = "\n") { it.trimEnd() }
-}

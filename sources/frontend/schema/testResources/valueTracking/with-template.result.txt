@@ -1,0 +1,12 @@
+   compose:
+      enabled: true
+      version: 1.6.10 [template.module-template.yaml]
+
+   kotlin:
+      allWarningsAsErrors: false [default]
+      apiVersion: 2.0 [default]
+      debug: true [default]
+      languageVersion: 2.0 [default]
+      progressiveMode: false [default]
+      suppressWarnings: false [default]
+      verbose: false [default]
