@@ -1041,10 +1041,7 @@ ARG2: <${argumentsWithSpecialChars[2]}>"""
                 // 3. Then, direct dependencies of exported module dependencies of the third layer
                 "hamcrest-2.2.jar",
         ),
-            result.compileClasspath
-                // Filter out predefined Amper libraries
-                .filterNot { it.name == "kotlin-stdlib-2.0.0.jar" || it.name.startsWith("annotations-") }
-                .map { it.name },
+            result.compileClasspath.withoutImplicitAmperLibs().map { it.name },
             "Unexpected list of resolved compile dependencies"
         )
 
