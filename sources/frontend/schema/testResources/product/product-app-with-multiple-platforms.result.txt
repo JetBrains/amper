@@ -1,7 +1,7 @@
 Fragments:
   macos
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -53,7 +53,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -61,7 +61,7 @@ Fragments:
 
   macosArm64
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: src@macosArm64
     Fragment dependencies:
       macos (REFINE)
@@ -114,7 +114,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -122,9 +122,9 @@ Fragments:
 
   macosArm64Test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: test@macosArm64
     Fragment dependencies:
       macosTest (REFINE)
@@ -178,7 +178,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -186,9 +186,9 @@ Fragments:
 
   macosTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
       macos (FRIEND)
@@ -241,7 +241,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -249,7 +249,7 @@ Fragments:
 
   macosX64
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: src@macosX64
     Fragment dependencies:
       macos (REFINE)
@@ -302,7 +302,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -310,9 +310,9 @@ Fragments:
 
   macosX64Test
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: test@macosX64
     Fragment dependencies:
       macosTest (REFINE)
@@ -366,7 +366,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null

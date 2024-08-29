@@ -2,7 +2,7 @@ Fragments:
   jvm
     External dependencies:
       MavenDependency(coordinates=org.apache.commons:commons-math3:3.6.1, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
     Src folder: src
     Fragment dependencies:
     Settings: {
@@ -54,7 +54,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null
@@ -62,8 +62,8 @@ Fragments:
 
   jvmTest
     External dependencies:
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
-      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.20, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.20, compile=true, runtime=true, exported=false)
       MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test:1.8.20, compile=true, runtime=true, exported=false)
     Src folder: test
     Fragment dependencies:
@@ -117,7 +117,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.0-1.0.24
+        version: <default> 2.0.20-1.0.24
       }
       native: <default> null
       publishing: <default> null

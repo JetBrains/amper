@@ -14,4 +14,4 @@
    ksp:
       processorOptions: {} [default]
       processors: (empty) [default]
-      version: 2.0.0-1.0.24 [default]
+      version: 2.0.20-1.0.24 [default]
