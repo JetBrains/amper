@@ -15,7 +15,7 @@ public interface AmperProperty extends AmperObjectElement, AmperElement, PsiName
   String getName();
 
   @Nullable
-  PsiElement getNameElement();
+  AmperValue getNameElement();
 
   @Nullable
   AmperValue getValue();

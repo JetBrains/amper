@@ -19,8 +19,8 @@ open class AmperPropertyMixin(node: ASTNode): AmperElementImpl(node), AmperPrope
     }
   }
 
-  override fun getNameElement(): PsiElement? {
-    return children.firstOrNull { it is AmperReferenceExpression || it is AmperStringLiteral }
+  override fun getNameElement(): AmperValue? {
+    return children.firstOrNull { it is AmperReferenceExpression || it is AmperStringLiteral } as? AmperValue
   }
 
   override fun getValue(): AmperValue? {
