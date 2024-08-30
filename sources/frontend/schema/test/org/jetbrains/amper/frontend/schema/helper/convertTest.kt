@@ -13,8 +13,7 @@ import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
 
-context(TestBase)
-fun convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
+fun TestBase.convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
     ConvertTestRun(caseName, expectedErrors, baseTestResourcesPath, expectedModule).doTest()
 
 private class ConvertTestRun(
@@ -23,8 +22,7 @@ private class ConvertTestRun(
     override val base: Path,
     private val expectedModule: Module? = null
 ) : BaseTestRun(caseName) {
-    context(TestBase, TestProblemReporterContext)
-    override fun getInputContent(inputPath: Path): String {
+    override fun TestBase.getInputContent(inputPath: Path): String {
         val module = with(ctx) {
             val pathResolver = FrontendPathResolver(
                 intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
@@ -40,6 +38,5 @@ private class ConvertTestRun(
         return ctx.problemReporter.getDiagnostics().joinToString { it.message }
     }
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path) = expectedErrors
+    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) = expectedErrors
 }

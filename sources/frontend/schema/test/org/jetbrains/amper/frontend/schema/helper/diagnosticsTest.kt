@@ -15,8 +15,7 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-context(TestBase)
-fun diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo,
+fun TestBase.diagnosticsTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo,
                     vararg levels: Level = arrayOf(Level.Error, Level.Fatal)) =
     DiagnosticsTestRun(caseName, systemInfo, baseTestResourcesPath, levels).doTest()
 
@@ -27,8 +26,7 @@ class DiagnosticsTestRun(
     private val levels: Array<out Level>
 ) : BaseTestRun(caseName) {
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getInputContent(inputPath: Path): String {
+    override fun TestBase.getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
@@ -38,18 +36,18 @@ class DiagnosticsTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val cleared = readCtx.toPsiFile(inputFile)!!.text
 
-        doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
-
+        with(ctx) {
+            doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
+        }
         // Collect errors.
-        val errors = problemReporter.getDiagnostics(*levels)
+        val errors = with(ctx) { problemReporter.getDiagnostics(*levels) }
         val annotated = annotateTextWithDiagnostics(cleared, errors) {
             it.replace(buildDir.absolutePathString() + File.separator, "")
         }
         return annotated.trimTrailingWhitespacesAndEmptyLines()
     }
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path) =
+    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(inputPath, base).trimTrailingWhitespacesAndEmptyLines()
 
     override val expectIsInput: Boolean = true

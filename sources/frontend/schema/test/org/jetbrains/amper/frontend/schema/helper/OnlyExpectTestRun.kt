@@ -9,8 +9,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 
-context(TestBase)
-fun doTestWithInput(caseName: String, postfix: String, base: Path = Path("testResources"), input: () -> String) =
+fun TestBase.doTestWithInput(caseName: String, postfix: String, base: Path = Path("testResources"), input: () -> String) =
     OnlyExpectTestRun(caseName, postfix, input, base).doTest()
 
 class OnlyExpectTestRun(
@@ -20,6 +19,5 @@ class OnlyExpectTestRun(
     override val base: Path
 ) : BaseTestRun(caseName) {
     override val expectPostfix = postfix
-    context(TestBase, TestProblemReporterContext)
-    override fun getInputContent(inputPath: Path) = input()
+    override fun TestBase.getInputContent(inputPath: Path) = input()
 }

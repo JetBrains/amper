@@ -13,7 +13,6 @@ import org.jetbrains.amper.frontend.api.linkedAmperValue
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.helper.BaseTestRun
 import org.jetbrains.amper.frontend.schema.helper.ModifiablePsiIntelliJApplicationConfigurator
-import org.jetbrains.amper.frontend.schema.helper.TestProblemReporterContext
 import org.jetbrains.amper.frontend.schema.helper.TestProjectContext
 import org.jetbrains.amper.frontend.schema.helper.readContentsAndReplace
 import org.jetbrains.amper.frontend.schema.helper.trimTrailingWhitespacesAndEmptyLines
@@ -45,8 +44,7 @@ class ValueTrackingTest : TestBase(Path("testResources") / "valueTracking") {
 }
 
 
-context(TestBase)
-private fun trackingTest(caseName: String,
+private fun TestBase.trackingTest(caseName: String,
                          propertyName: String = "settings",
                          fetchForValue: Boolean = false,
                          customPostfix: String? = null)
@@ -63,8 +61,7 @@ private class TrackingTestRun(
     override val expectPostfix: String
         get() = customPostfix ?: super.expectPostfix
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getInputContent(inputPath: Path): String {
+    override fun TestBase.getInputContent(inputPath: Path): String {
         // Fix paths, so they will point to resources.
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator
@@ -73,15 +70,14 @@ private class TrackingTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val psiFile = readCtx.toPsiFile(inputFile) ?: throw IllegalStateException("no psi file")
 
-        doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo)
+        with(ctx) { doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo) }
         val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == propertyName }!!
         val linkedValue = queriedNode.getUserData(linkedAmperValue)
         return tracesInfo(linkedValue, psiFile, null, emptySet(), TracesPresentation.Tests)
             .trimTrailingWhitespacesAndEmptyLines()
     }
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path) =
+    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(expectedPath, base).trimTrailingWhitespacesAndEmptyLines()
 
     override val expectIsInput: Boolean = false

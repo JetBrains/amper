@@ -29,11 +29,11 @@ class FragmentBuilder(var name: String) {
 
     private val variants: MutableList<String> = mutableListOf()
 
-    context (PotatoModuleBuilder) fun dependsOn(to: String) {
+    fun PotatoModuleBuilder.dependsOn(to: String) {
         fragmentDependencies.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 
-    context (PotatoModuleBuilder) fun dependant(to: String) {
+    fun PotatoModuleBuilder.dependant(to: String) {
         fragmentDependants.add(NamedFragmentLink(targetName = to, type = FragmentDependencyType.REFINE))
     }
 

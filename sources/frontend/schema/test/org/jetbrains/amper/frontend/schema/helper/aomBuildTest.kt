@@ -12,8 +12,7 @@ import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import java.nio.file.Path
 
-context(TestBase)
-fun aomTest(
+fun TestBase.aomTest(
     caseName: String,
     systemInfo: SystemInfo = DefaultSystemInfo,
     adjustCtx: TestProjectContext.() -> Unit = {},
@@ -25,8 +24,7 @@ open class BuildAomTestRun(
     override val base: Path,
     private val adjustCtx: TestProjectContext.() -> Unit = {},
 ) : BaseTestRun(caseName) {
-    context(TestBase, TestProblemReporterContext)
-    override fun getInputContent(inputPath: Path): String {
+    override fun TestBase.getInputContent(inputPath: Path): String {
         val readCtx = FrontendPathResolver(
             intelliJApplicationConfigurator = ModifiablePsiIntelliJApplicationConfigurator,
             transformPsiFile = PsiFile::removeDiagnosticAnnotations,
@@ -37,19 +35,23 @@ open class BuildAomTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val fioCtx = TestProjectContext(buildDirFile, listOf(inputFile), readCtx)
         fioCtx.adjustCtx()
-        val module = doBuild(fioCtx, systemInfo)?.first()
+
+        val module = with(ctx) { doBuild(fioCtx, systemInfo)?.first() }
 
         // Check errors absence.
-        assert(problemReporter.getDiagnostics().isEmpty()) {
-            "Expected no errors, but got ${problemReporter.getDiagnostics()
-                .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t")}"
+        with(ctx) {
+            assert(problemReporter.getDiagnostics().isEmpty()) {
+                "Expected no errors, but got ${
+                    problemReporter.getDiagnostics()
+                        .joinToString(prefix = "\n\t", postfix = "\n", separator = "\n\t")
+                }"
+            }
         }
 
         // Return module's textual representation.
         return module?.prettyPrintForGoldFile() ?: error("Could not read and parse")
     }
 
-    context(TestBase, TestProblemReporterContext)
-    override fun getExpectContent(inputPath: Path, expectedPath: Path) =
+    override fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path) =
         readContentsAndReplace(expectedPath, base)
 }

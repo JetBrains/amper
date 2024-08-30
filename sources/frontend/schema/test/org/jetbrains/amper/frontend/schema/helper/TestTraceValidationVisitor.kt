@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.ValueBase
@@ -13,10 +12,9 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.test.assertNotNull
 
 /**
- * Test visitor that verifies, that traces are set up correctly for every converted node and
+ * Test visitor that verifies that traces are set up correctly for every converted node and
  * attribute.
  */
-context(ProblemReporterContext)
 class TestTraceValidationVisitor: SchemaValuesVisitor() {
   override fun visitNode(it: SchemaNode) {
     with(it) {

@@ -25,11 +25,9 @@ open class BaseTestRun(
 
     protected val ctx = TestProblemReporterContext()
 
-    context(TestBase, TestProblemReporterContext)
-    open fun getInputContent(inputPath: Path): String = inputPath.readText()
+    open fun TestBase.getInputContent(inputPath: Path): String = inputPath.readText()
 
-    context(TestBase, TestProblemReporterContext)
-    open fun getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
+    open fun TestBase.getExpectContent(inputPath: Path, expectedPath: Path): String = expectedPath.readText()
 
     open val expectIsInput = false
 

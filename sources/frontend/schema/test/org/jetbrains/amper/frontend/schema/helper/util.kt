@@ -37,15 +37,13 @@ class TestProblemReporterContext : ProblemReporterContext {
     override val problemReporter: TestProblemReporter = TestProblemReporter()
 }
 
-context(TestBase)
-fun copyLocal(localName: String, dest: Path = buildFile, newPath: () -> Path = { dest / localName }) {
+fun TestBase.copyLocal(localName: String, dest: Path = buildFile, newPath: () -> Path = { dest / localName }) {
     val localFile = baseTestResourcesPath.resolve(localName).normalize().takeIf(Path::exists)
     val newPathWithDirs = newPath().apply { createDirectories() }
     localFile?.copyTo(newPathWithDirs, overwrite = true)
 }
 
-context(TestBase)
-fun readContentsAndReplace(
+fun TestBase.readContentsAndReplace(
     expectedPath: Path,
     base: Path,
 ): String {
@@ -54,7 +52,7 @@ fun readContentsAndReplace(
     val testProcessDir = Path(".").normalize().absolutePathString()
     val testResources = Path(".").resolve(base).normalize().absolutePathString()
 
-    // This is actual check.
+    // This is the actual check.
     if (!expectedPath.exists()) expectedPath.writeText("")
     val resourceFileText = expectedPath.readText()
     return resourceFileText
