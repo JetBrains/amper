@@ -99,7 +99,10 @@ private class HumanReadableSerializerVisitor(
         if (visitTraceable(it)) return
         if (!it.isPrettifiedWithToString()) {
             // we have to detect cycles for complex objects
-            if (it in visited) {
+            // we exclude the empty collections/maps singletons because we don't want to count those as a cycle
+            // TODO instead of checking for _duplicates_ we should check for real _cycles_ (only keeping track of
+            //  objects within which we are, not the ones that appear in other places in the file)
+            if (it in visited && it !== emptyList<Any>() && it !== emptySet<Any>() && it !== emptyMap<Any, Any>()) {
                 builder.appendLine("<cycle>").append(currentIndent)
                 return
             }
