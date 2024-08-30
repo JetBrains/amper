@@ -118,7 +118,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun YAMLMapping.convertKspSettings() = KspSettings().apply {
     ::version.convertChildString()
     ::processors.convertChildScalarCollection { asTraceableString() }
-    ::processorOptions.convertChildScalarCollection { asTraceableString() }
+    ::processorOptions.convertChildValue { asMappingNode()?.convertTraceableStringMap() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

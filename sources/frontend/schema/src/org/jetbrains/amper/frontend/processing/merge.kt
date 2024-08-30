@@ -113,7 +113,7 @@ fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::
 fun KspSettings.merge(overwrite: KspSettings?) = mergeNode(overwrite, ::KspSettings) {
     mergeScalar(KspSettings::version)
     mergeCollection(KspSettings::processors)
-    mergeCollection(KspSettings::processorOptions)
+    mergeNodeProperty(KspSettings::processorOptions) { mergeMap(it) { this } }
 }
 
 fun SerializationSettings.merge(overwrite: SerializationSettings) = mergeNode(overwrite, ::SerializationSettings) {

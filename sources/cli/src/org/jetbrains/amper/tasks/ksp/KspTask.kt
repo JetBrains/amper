@@ -24,7 +24,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.frontend.schema.processorOptionsAsMap
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType
@@ -182,7 +181,8 @@ internal class KspTask(
             }
 
             libraries = compileLibraries
-            processorOptions = fragments.flatMap { it.settings.ksp.processorOptionsAsMap.entries }.associate { it.toPair() }
+            processorOptions = fragments.flatMap { it.settings.ksp.processorOptions.entries }
+                .associate { it.key.value to it.value.value }
         }
         val kspConfig = when (kspCompilationType) {
             KspCompilationType.Common -> KspCommonConfig(kspOutputPaths, compilationSettings) { sharedConfig() }

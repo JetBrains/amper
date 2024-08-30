@@ -50,8 +50,8 @@ Fragments:
       }
       kover: <default> null
       ksp: <default> {
-        processorOptions: <default> [
-        ]
+        processorOptions: <default> {
+        }
         processors: <default> [
         ]
         version: <default> 2.0.0-1.0.24
@@ -112,8 +112,8 @@ Fragments:
       }
       kover: <default> null
       ksp: <default> {
-        processorOptions: <default> [
-        ]
+        processorOptions: <default> {
+        }
         processors: <default> [
         ]
         version: <default> 2.0.0-1.0.24

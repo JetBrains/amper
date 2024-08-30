@@ -7,7 +7,7 @@ settings:
     processors:
       - androidx.room:room-compiler:2.7.0-alpha06
     processorOptions:
-      - room.schemaLocation=./generated-db-schema
+      room.schemaLocation: ./generated-db-schema
 
 dependencies:
   - androidx.appcompat:appcompat:1.6.1

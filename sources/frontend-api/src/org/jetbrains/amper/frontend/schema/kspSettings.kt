@@ -18,7 +18,7 @@ class KspSettings : SchemaNode() {
     var processors by value<List<TraceableString>>(default = emptyList())
 
     @SchemaDoc("Some options to pass to KSP processors. Refer to each processor documentation for details.")
-    var processorOptions by value<List<TraceableString>>(default = emptyList())
+    var processorOptions by value<Map<TraceableString, TraceableString>>(default = emptyMap())
 }
 
 /**
@@ -26,11 +26,3 @@ class KspSettings : SchemaNode() {
  */
 val KspSettings.enabled: Boolean
     get() = processors.isNotEmpty()
-
-// TODO make options a Map in the first place
-val KspSettings.processorOptionsAsMap: Map<String, String>
-    get() = processorOptions.associate {
-        require("=" in it.value) { "KSP processor options must be passed as 'key=value'" }
-        val (key, value) = it.value.split("=")
-        key.trim() to value.trim()
-    }

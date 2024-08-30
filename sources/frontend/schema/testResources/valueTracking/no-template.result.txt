@@ -12,6 +12,6 @@
       verbose: false [default]
 
    ksp:
-      processorOptions: (empty) [default]
+      processorOptions: {} [default]
       processors: (empty) [default]
       version: 2.0.0-1.0.24 [default]

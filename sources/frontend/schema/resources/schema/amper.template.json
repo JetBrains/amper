@@ -674,9 +674,12 @@
           "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
           "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
           "type": "array",
-          "uniqueItems": true,
           "items": {
-            "type": "string"
+            "patternProperties": {
+              "^[^@+:]+$": {
+                "type": "string"
+              }
+            }
           }
         },
         "processors": {

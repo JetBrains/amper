@@ -122,7 +122,7 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertKspSettings() = KspSettings().apply {
     ::version.convertChildString()
     ::processors.convertChildScalarCollection { asTraceableString() }
-    ::processorOptions.convertChildScalarCollection { asTraceableString() }
+    ::processorOptions.convertChild { (value as? AmperObject)?.convertTraceableStringMap() }
 }
 
 context(ProblemReporterContext, ConvertCtx)

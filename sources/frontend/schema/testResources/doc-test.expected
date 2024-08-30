@@ -139,7 +139,7 @@ KoverXmlSettings
 
 KspSettings
 -----------
-	processorOptions: List<String>, default: [] - Some options to pass to KSP processors. Refer to each processor documentation for details.
+	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
 	processors: List<String>, default: [] - The list of KSP processors to use (maven coordinates or catalog references)
 	version: String, default: 2.0.0-1.0.24 - The version of KSP to use
 

@@ -37,6 +37,7 @@ import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
+import org.jetbrains.amper.frontend.schemaConverter.psi.filterNotNullValues
 
 context(ProblemReporterContext)
 internal fun AmperObject.convertProject() = Project().apply {
@@ -85,16 +86,9 @@ context(ProblemReporterContext, ConvertCtx)
 private fun AmperProperty.convertTasks(): Map<String, TaskSettings>? {
     // TODO Report wrong type.
     val amperObject = this.value as? AmperObject ?: return null
-    return amperObject.objectElementList.mapNotNull { it.convertTask() }.toMap()
-}
-
-context(ProblemReporterContext, ConvertCtx)
-private fun AmperObjectElement.convertTask(): Pair<String, TaskSettings>? {
-    val property = this as? AmperProperty ?: return null
-    val taskName = property.name
-    if (taskName.isNullOrEmpty()) return null
-    val settings = (property.value as? AmperObject)?.convertTaskSettings() ?: return null
-    return taskName to settings
+    return amperObject
+        .convertMap(convertValue = { (it as? AmperObject)?.convertTaskSettings() })
+        .filterNotNullValues()
 }
 
 context(ProblemReporterContext, ConvertCtx)
