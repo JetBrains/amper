@@ -18,3 +18,8 @@
       progressiveMode: false [default]
       suppressWarnings: false [default]
       verbose: false [default]
+
+   ksp:
+      processorOptions: (empty) [default]
+      processors: (empty) [default]
+      version: 2.0.0-1.0.24 [default]

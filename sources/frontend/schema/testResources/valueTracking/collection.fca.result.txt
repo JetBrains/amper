@@ -1,0 +1,4 @@
+   [
+      foobar [collection.module-template.yaml],
+      boobaz
+   ]

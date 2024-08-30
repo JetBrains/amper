@@ -7,7 +7,6 @@ package org.jetbrains.amper.frontend.valueTracking
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.descendants
 import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.SystemInfo
 import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.aomBuilder.doBuild
 import org.jetbrains.amper.frontend.api.linkedAmperValue
@@ -38,18 +37,31 @@ class ValueTrackingTest : TestBase(Path("testResources") / "valueTracking") {
     fun `test collection`() {
         trackingTest("collection")
     }
+
+    @Test
+    fun `test collection from collection property`() {
+        trackingTest("collection", propertyName = "freeCompilerArgs", customPostfix = ".fca.result.txt")
+    }
 }
 
 
 context(TestBase)
-private fun trackingTest(caseName: String, systemInfo: SystemInfo = DefaultSystemInfo
-) = TrackingTestRun(caseName, systemInfo, baseTestResourcesPath).doTest()
+private fun trackingTest(caseName: String,
+                         propertyName: String = "settings",
+                         fetchForValue: Boolean = false,
+                         customPostfix: String? = null)
+    = TrackingTestRun(caseName, baseTestResourcesPath, propertyName, fetchForValue, customPostfix).doTest()
 
 private class TrackingTestRun(
     caseName: String,
-    private val systemInfo: SystemInfo,
-    override val base: Path
+    override val base: Path,
+    private val propertyName: String,
+    private val fetchForValue: Boolean = false,
+    private val customPostfix: String? = null
 ) : BaseTestRun(caseName) {
+
+    override val expectPostfix: String
+        get() = customPostfix ?: super.expectPostfix
 
     context(TestBase, TestProblemReporterContext)
     override fun getInputContent(inputPath: Path): String {
@@ -61,9 +73,9 @@ private class TrackingTestRun(
         val inputFile = readCtx.loadVirtualFile(inputPath)
         val psiFile = readCtx.toPsiFile(inputFile) ?: throw IllegalStateException("no psi file")
 
-        doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), systemInfo)
-        val settingsNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == "settings" }!!
-        val linkedValue = settingsNode.getUserData(linkedAmperValue)
+        doBuild(TestProjectContext(buildDirFile, listOf(inputFile), readCtx), DefaultSystemInfo)
+        val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == propertyName }!!
+        val linkedValue = queriedNode.getUserData(linkedAmperValue)
         return tracesInfo(linkedValue, psiFile, null, emptySet(), TracesPresentation.Tests)
             .trimTrailingWhitespacesAndEmptyLines()
     }
