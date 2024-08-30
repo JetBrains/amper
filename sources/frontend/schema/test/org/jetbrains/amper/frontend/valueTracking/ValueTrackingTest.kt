@@ -41,20 +41,23 @@ class ValueTrackingTest : TestBase(Path("testResources") / "valueTracking") {
     fun `test collection from collection property`() {
         trackingTest("collection", propertyName = "freeCompilerArgs", customPostfix = ".fca.result.txt")
     }
+
+    @Test
+    fun `test with template overrides`() {
+        trackingTest("with-template-overrides", propertyName = "enabled")
+    }
 }
 
 
 private fun TestBase.trackingTest(caseName: String,
                          propertyName: String = "settings",
-                         fetchForValue: Boolean = false,
-                         customPostfix: String? = null)
-    = TrackingTestRun(caseName, baseTestResourcesPath, propertyName, fetchForValue, customPostfix).doTest()
+                                  customPostfix: String? = null)
+    = TrackingTestRun(caseName, baseTestResourcesPath, propertyName, customPostfix).doTest()
 
 private class TrackingTestRun(
     caseName: String,
     override val base: Path,
     private val propertyName: String,
-    private val fetchForValue: Boolean = false,
     private val customPostfix: String? = null
 ) : BaseTestRun(caseName) {
 
