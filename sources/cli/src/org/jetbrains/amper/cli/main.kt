@@ -25,6 +25,9 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.terminal.Terminal
+import com.github.ajalt.mordant.widgets.Text
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.descendants
 import com.intellij.util.namedChildScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,8 +39,13 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
+import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
+import org.jetbrains.amper.frontend.api.linkedAmperValue
+import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
+import org.jetbrains.amper.frontend.valueTracking.tracesInfo
 import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
@@ -51,6 +59,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
@@ -69,6 +78,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             TasksCommand(),
             TestCommand(),
             ToolCommand(),
+            DumpCommand()
         )
         context {
             helpFormatter = { context ->
@@ -399,11 +409,50 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
     override fun run() = Unit
 }
 
+private class DumpCommand : CliktCommand(name = "dump", help = "Dump Amper state") {
+    init {
+        subcommands(
+            DumpSettingsCommand()
+        )
+    }
+
+    override fun run() = Unit
+}
+
 private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
     val platform by platformOption()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.build(platforms = if (platform.isEmpty()) null else platform.toSet())
+    }
+}
+
+private class DumpSettingsCommand: CliktCommand(
+    name = "settings",
+    help = "Dump the current state of Amper settings"
+) {
+    val commonOptions by requireObject<RootCommand.CommonOptions>()
+    override fun run() {
+        withBackend(commonOptions, commandName) { backend ->
+            val terminal = backend.context.terminal
+
+            // Fix paths, so they will point to resources.
+            val readCtx = FrontendPathResolver()
+            val directory = backend.context.projectRoot.path
+            val inputFile = readCtx.loadVirtualFile(directory.div("module.yaml"))
+            val psiFile = readCtx.toPsiFile(inputFile) ?: throw IllegalStateException("no psi file")
+
+            // This sets traces to PSI elements
+            with(CliProblemReporterContext) {
+                SchemaBasedModelImport.getModel(backend.context.projectContext)
+            }
+
+            val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == "settings" }
+                ?: throw IllegalStateException("no settings section")
+            val linkedValue = queriedNode.getUserData(linkedAmperValue)
+            terminal.print(Text(tracesInfo(linkedValue, psiFile, null, emptySet(),
+                TracesPresentation.CLI)))
+        }
     }
 }
 
