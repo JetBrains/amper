@@ -36,7 +36,7 @@ class KeystoreToolCommand : CliktCommand(
     private val dn by option("--dn", help = "issuer").default("CN=${System.getProperty("user.name", "Unknown")}")
 
     override fun run() {
-        withBackend(commonOptions, commandName) {
+        withBackend(commonOptions, commandName, setupEnvironment = true) {
             propertiesFile?.let { KeystoreHelper.createNewKeystore(it.toPath(), dn) }
                 ?: KeystoreHelper.createNewKeystore(storeFile.toPath(), storePassword, keyAlias, keyPassword, dn)
         }
