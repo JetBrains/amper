@@ -119,15 +119,22 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
             AmperBackend(projectContext).build()
         }
 
-        // We should get the android-sdk-preview-license because that's the first one from the cmdline-tools
-        // (the only thing that was installed in this empty SDK home)
-        val expectedError = """
-            Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted in the Android SDK:
-             - android-sdk-preview-license
-            Run "$sdkManagerPath --licenses" to review and accept them
-        """.trimIndent()
-        assertEquals(expectedError, throwable.message)
+        // The missing license should be the one from the cmdline-tools, which is the only thing that was installed in
+        // this empty SDK home. Since we install the latest version, we sometimes get the regular license and sometimes
+        // the preview. That's why we need this 2-choice assertion.
+        val expectedError1 = unacceptedLicenseMessage(sdkManagerPath, "android-sdk-license")
+        val expectedError2 = unacceptedLicenseMessage(sdkManagerPath, "android-sdk-preview-license")
+        assertTrue(
+            throwable.message in setOf(expectedError1, expectedError2),
+            "Unexpected error message:\n\n${throwable.message}\n\nExpected either:\n\n$expectedError1\n\nor:\n\n$expectedError2",
+        )
     }
+
+    private fun unacceptedLicenseMessage(sdkManagerPath: Path, licenseName: String) = """
+        Task ':simple:checkAndroidSdkLicenseAndroid' failed: Some licenses have not been accepted in the Android SDK:
+         - $licenseName
+        Run "$sdkManagerPath --licenses" to review and accept them
+    """.trimIndent()
 
     @Test
     fun `bundle without signing enabled has no signature`() = runTestWithCollector {
