@@ -1860,17 +1860,16 @@ Here is how Gradle layout maps to the Amper file layout:
 | src/test/java      | test          |
 | src/test/resources | testResources |
 
-| Gradle KMP               | Amper         |
-|--------------------------|---------------|
-| src/commonMain/kotlin    | src           |
-| src/commonMain/java      | src           |
-| src/commonMain/resources | resources     |
-| src/jvmMain/kotlin       | src@jvm       |
-| src/jvmMain/java         | src@jvm       |
-| src/jvmMain/resources    | resources@jvm |
-| src/test/kotlin          | test          |
-| src/test/java            | test          |
-| src/test/resources       | testResources |
+| Gradle KMP                      | Amper            |
+|---------------------------------|------------------|
+| src/commonMain/kotlin           | src              |
+| src/commonMain/java             | src              |
+| src/commonMain/composeResources | composeResources |
+| src/jvmMain/kotlin              | src@jvm          |
+| src/jvmMain/java                | src@jvm          |
+| src/jvmMain/resources           | resources@jvm    |
+| src/commonTest/kotlin           | test             |
+| src/commonTest/java             | test             |
 
 
 See also documentation on [Kotlin Multiplatform source sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#source-sets) and [custom source sets configuration](https://kotlinlang.org/docs/multiplatform-dsl-reference.html#custom-source-sets).
