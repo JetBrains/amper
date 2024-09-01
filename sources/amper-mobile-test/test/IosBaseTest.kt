@@ -75,7 +75,7 @@ open class iOSBaseTest : TestBase() {
         val standardOut = outputStream ?: ByteArrayOutputStream()
         val standardErr = ByteArrayOutputStream()
 
-        val command = listOf("idb", *params)
+        val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
 
         println("Executing IDB: $command")
         executeCommand(command, standardOut, standardErr)

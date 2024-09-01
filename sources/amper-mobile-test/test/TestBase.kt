@@ -81,11 +81,11 @@ open class TestBase {
         val tasks = listOf("assemble")
         val osName = System.getProperty("os.name").toLowerCase()
         val gradlewFileName = if (osName.contains("win")) "gradlew.bat" else "gradlew"
-        val gradlewPath = File(projectDir, gradlewFileName)
+        val gradlewPath = File(projectDir, "../../../../$gradlewFileName")
 
         if (!gradlewPath.exists()) {
-            println("gradlew file does not exist in ${projectDir.absolutePath}")
-            throw FileNotFoundException("gradlew file does not exist in ${projectDir.absolutePath}")
+            println("gradlew file does not exist in ${gradlewPath}")
+            throw FileNotFoundException("gradlew file does not exist in ${gradlewPath.absolutePath}")
         }
 
         tasks.forEach { task ->
