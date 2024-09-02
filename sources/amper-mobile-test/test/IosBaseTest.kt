@@ -1,12 +1,13 @@
 import java.io.*
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
-open class iOSBaseTest : TestBase() {
+open class iOSBaseTest(): TestBase() {
 
     private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {
-        if (isRunningInTeamCity()) {getOrCreateRemoteSession()}
+        val appFile = File("iOSTestsAssets/app/Debug-iphonesimulator/iosApp.app")
+
+        getOrCreateRemoteSession()
         copyProject(projectName, projectPath)
+        installTestBundleForUITests()
         projectAction(projectName)
         installAndTestiOSApp(projectName)
 
@@ -22,14 +23,15 @@ open class iOSBaseTest : TestBase() {
 
     @Throws(InterruptedException::class, IOException::class)
     private fun installTestBundleForUITests() {
-        val standardOut =  ByteArrayOutputStream()
-        val standardErr = ByteArrayOutputStream()
         val absolutePath = "iOSTestsAssets/iosAppUITests-Runner.app"
-        if (isRunningInTeamCity()) {
-            idb(null, "install", absolutePath)
+        idb(null, "install", absolutePath)
 
-
-        } else { println("Test will be run by XCode flow — skip the step.") }
+        idb(
+            null,
+            "xctest",
+            "install",
+            "$absolutePath/Plugins/iosAppUITests.xctest"
+        )
     }
 
     private fun prepareProjectsiOSforGradle(projectDir: String) {
@@ -55,26 +57,14 @@ open class iOSBaseTest : TestBase() {
         require(assetsDir.exists() && assetsDir.isDirectory) { "Assets directory not found at $assetsPath" }
     }
 
-    private fun startIosSimulator(simulatorUdid: String) {
-        val processBuilder = ProcessBuilder("xcrun", "simctl", "boot", simulatorUdid)
-        val process = processBuilder.start()
-        process.waitFor()
 
-        val stdout = ByteArrayOutputStream()
-        executeCommand(
-            command = listOf("xcrun", "simctl", "bootstatus", simulatorUdid),
-            standardOut = stdout
-        )
-
-
-        println("iOS simulator UDID was booted: $simulatorUdid.")
-    }
 
     private fun idb(outputStream: OutputStream? = null, vararg params: String): String {
         val standardOut = outputStream ?: ByteArrayOutputStream()
         val standardErr = ByteArrayOutputStream()
         val idbCompanion = getOrCreateRemoteSession()
-        val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
+        //val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
+        val command = listOf("idb", *params)
 
         println("Executing IDB: $command")
         executeCommand(command, standardOut, standardErr, mapOf("IDB_COMPANION" to idbCompanion))
@@ -111,7 +101,8 @@ open class iOSBaseTest : TestBase() {
 
         return idbCompanion
     }
-     fun deleteRemoteSession(): String {
+
+    fun deleteRemoteSession(): String {
         var idbCompanion = ""
 
         if (idbCompanion.isEmpty()) {
@@ -153,7 +144,6 @@ open class iOSBaseTest : TestBase() {
         val iosAppFolder = File("${projectDir.path}/ios-app")
 
         if (iosAppFolder.exists()) {
-            println("Project is multiplatform")
             baseProjectPath = "${projectDir.path}/ios-app/"
             pbxprojPath = File("$baseProjectPath/build/apple/ios-app/ios-app.xcodeproj/project.pbxproj")
             xCodeProjectPath = File("$baseProjectPath/build/apple/ios-app/ios-app.xcodeproj")
@@ -167,34 +157,12 @@ open class iOSBaseTest : TestBase() {
         if (!pbxprojPath.exists()) {
             throw FileNotFoundException("File does not exist: $pbxprojPath")
         }
-        if (!xCodeProjectPath.exists()) {
-            throw FileNotFoundException("File does not exist: $xCodeProjectPath")
-        }
-        if (isRunningInTeamCity()) {
-            updateAppTarget(pbxprojPath, "16.0", "iosApp.iosApp")
-        } else {
-            val sourcePbxprojPath = File("${projectDir.absoluteFile.parentFile.parentFile}/iOSTestsAssets/localRun/project.pbxproj")
-            val sourceUITestsPath = File("${projectDir.absoluteFile.parentFile.parentFile}/iOSTestsAssets/localRun/iOSAppUITests")
 
-            val targetUITestsPath = File("${xCodeProjectPath.parent}/iOSAppUITests")
-
-            if (sourcePbxprojPath.exists()) {
-                Files.copy(sourcePbxprojPath.toPath(), pbxprojPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } else {
-                throw FileNotFoundException("Source file does not exist: $sourcePbxprojPath")
-            }
-
-            if (sourceUITestsPath.exists()) {
-                copyDirectory(sourceUITestsPath, targetUITestsPath)
-            } else {
-                throw FileNotFoundException("Source directory does not exist: $sourceUITestsPath")
-            }
-        }
+        updateAppTarget(pbxprojPath, "16.0", "iosApp.iosApp")
 
         val xcodeBuildCommand =
             "xcrun xcodebuild -project ${xCodeProjectPath.absolutePath} -scheme iosApp -configuration Debug OBJROOT=${projectDir.parent}/tmp SYMROOT=${projectDir.absoluteFile.parentFile.parentFile}/iOSTestsAssets/app -arch arm64 -derivedDataPath ${projectDir.path}/derivedData -sdk iphonesimulator"
 
-        println("Command for executing: $xcodeBuildCommand")
         executeCommandInDirectory(xcodeBuildCommand, File(xCodeProjectPath.parent))
     }
 
@@ -269,26 +237,19 @@ open class iOSBaseTest : TestBase() {
 
         println("Processing project in directory: ${projectDir.name}")
 
-        if (!isRunningInTeamCity()) {
-            runTestsOnSimulator(projectDir, System.out)
+        val primaryAppDirectory = File("iOSTestsAssets/app/Debug-iphonesimulator")
+        val secondaryAppDirectory = File("tempProjects/$projectDirPath/build/tasks/_$projectDirPath"+"_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator")
+
+        val appFiles = primaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
+            ?: secondaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
+            ?: emptyArray()
+
+        if (appFiles.isNotEmpty()) {
+            val appFile = appFiles.first()
+            println("Installing app bundle: ${projectDir.name}")
+            installAndRunAppBundle(appFile)
         } else {
-
-
-            val primaryAppDirectory = File("iOSTestsAssets/app/Debug-iphonesimulator")
-            val secondaryAppDirectory =
-                File("tempProjects/$projectDirPath/build/tasks/_$projectDirPath" + "_buildIosAppIosSimulatorArm64/bin/Debug-iphonesimulator")
-
-            val appFiles = primaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
-                ?: secondaryAppDirectory.listFiles { _, name -> name.endsWith(".app") }
-                ?: emptyArray()
-
-            if (appFiles.isNotEmpty()) {
-                val appFile = appFiles.first()
-                println("Installing app bundle: ${projectDir.name}")
-                installAndRunAppBundle(appFile)
-            } else {
-                throw AppNotFoundException("No app files found in $primaryAppDirectory or $secondaryAppDirectory.")
-            }
+            throw AppNotFoundException("No app files found in $primaryAppDirectory or $secondaryAppDirectory.")
         }
     }
 
@@ -396,55 +357,5 @@ open class iOSBaseTest : TestBase() {
         } else {
             println("The path '$projectDir' does not exist or is not a directory.")
         }
-    }
-
-    private fun isRunningInTeamCity(): Boolean {
-        return true
-    }
-
-    private fun copyDirectory(source: File, target: File) {
-        if (!target.exists()) {
-            target.mkdirs()
-        }
-        source.listFiles()?.forEach { file ->
-            val targetFile = File(target, file.name)
-            if (file.isDirectory) {
-                copyDirectory(file, targetFile)
-            } else {
-                Files.copy(file.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
-        }
-    }
-
-    fun getBootedSimulatorId(): String? {
-        val command = listOf("xcrun", "simctl", "list", "devices", "booted")
-        val process = ProcessBuilder(command).start()
-        val output = process.inputStream.bufferedReader().use(BufferedReader::readText)
-        process.waitFor()
-
-        val regex = """([A-F0-9-]+)""".toRegex()
-        return regex.find(output)?.value
-    }
-
-    fun runTestsOnSimulator(projectDir: File, standardOut: OutputStream) {
-        var xCodeProjectPath = File("${projectDir.path}/build/apple/${projectDir.name}/${projectDir.name}.xcodeproj")
-        val derivedDataPath = File("${projectDir.path}/derivedData")
-        val iosAppFolder = File("${projectDir.path}/ios-app")
-
-        if (iosAppFolder.exists()) { xCodeProjectPath = File("$projectDir/ios-app/build/apple/ios-app/ios-app.xcodeproj") }
-
-        val command = listOf(
-            "xcrun", "xcodebuild",
-            "-project", xCodeProjectPath.absolutePath,
-            "-scheme", "iosApp",
-            "-configuration", "Debug",
-            "-destination", "platform=iOS Simulator,name=iphone 15" +
-                    "",
-            "test",
-            "-derivedDataPath", derivedDataPath.absolutePath,
-            "-sdk", "iphonesimulator"
-        )
-
-        executeCommand(command, standardOut)
     }
 }
