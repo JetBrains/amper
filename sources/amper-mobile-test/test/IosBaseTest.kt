@@ -7,7 +7,6 @@ open class iOSBaseTest : TestBase() {
     private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {
         if (isRunningInTeamCity()) {getOrCreateRemoteSession()}
         copyProject(projectName, projectPath)
-        installTestBundleForUITests()
         projectAction(projectName)
         installAndTestiOSApp(projectName)
 
@@ -74,11 +73,12 @@ open class iOSBaseTest : TestBase() {
     private fun idb(outputStream: OutputStream? = null, vararg params: String): String {
         val standardOut = outputStream ?: ByteArrayOutputStream()
         val standardErr = ByteArrayOutputStream()
-
-        val command = listOf("/Users/admin/Library/Python/3.9/bin/idb", *params) // hardcode to ci. because path var not changing now
+        val idbCompanion = getOrCreateRemoteSession()
+        val command = listOf("idb", *params) // hardcode to ci. because path var not changing now
+        //val command = listOf("idb", *params)
 
         println("Executing IDB: $command")
-        executeCommand(command, standardOut, standardErr)
+        executeCommand(command, standardOut, standardErr, mapOf("IDB_COMPANION" to idbCompanion))
 
         val cmdOutput = standardOut.toString()
         val cmdError = standardErr.toString()
@@ -112,7 +112,6 @@ open class iOSBaseTest : TestBase() {
 
         return idbCompanion
     }
-
      fun deleteRemoteSession(): String {
         var idbCompanion = ""
 
@@ -295,21 +294,20 @@ open class iOSBaseTest : TestBase() {
     }
 
     private fun installAndRunAppBundle(appFile: File) {
-        val standardOut =  ByteArrayOutputStream()
         val appBundleId = "iosApp.iosApp"
         val testHostAppBundleId = "iosApp.iosAppUITests.xctrunner"
         val xctestBundleId = "iosApp.iosAppUITests"
-        if (isRunningInTeamCity()) {idb(null, "install", appFile.absolutePath)} else {executeCommand(listOf("xcrun", "simctl", "install", "booted",appFile.absolutePath),standardOut) }
 
+        idb(null, "install", appFile.absolutePath)
         val output = idb(
             null,
+            "--log", "ERROR",
             "xctest",
             "run",
             "ui",
             xctestBundleId,
             appBundleId,
-            testHostAppBundleId,
-            "--log ERROR"
+            testHostAppBundleId
         )
 
         if (!output.contains("iosAppUITests.iosAppUITests/testExample | Status: passed") || output.contains("Error")) {
@@ -402,7 +400,7 @@ open class iOSBaseTest : TestBase() {
     }
 
     private fun isRunningInTeamCity(): Boolean {
-        return System.getenv("TEAMCITY_VERSION") != null
+        return true
     }
 
     private fun copyDirectory(source: File, target: File) {
