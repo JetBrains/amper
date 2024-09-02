@@ -190,7 +190,7 @@ private fun List<PropertyWithSource>.printProperties(
                     presentableValue(prop.value, containingFile, presentation).let {
                         if (prop.value is Collection<*>) it
                         else presentation.wrapValue(it)
-                    } + sourcePostfix(prop, containingFile)
+                    } + sourcePostfix(prop, containingFile, presentation)
             }
         }${presentation.sectionSeparator}")
     }
@@ -221,12 +221,20 @@ private fun wrapName(source: PropertyWithSource, presentation: TracesPresentatio
         else -> source.name
     }
 
+private fun formatSourceName(sourceName: String, presentation: TracesPresentation): String {
+    return when (presentation) {
+        TracesPresentation.CLI -> "  # [$sourceName]"
+        else -> " [$sourceName]"
+    }
+}
+
 private fun sourcePostfix(
     it: PropertyWithSource.PropertyWithPrimitiveValue,
     containingFile: PsiFile?,
+    presentation: TracesPresentation
 ): String {
     val sourceName = containingFile?.let { currentFile -> it.getSourceName(currentFile) }
-    return if (!sourceName.isNullOrBlank()) " [$sourceName]" else ""
+    return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName, presentation) else ""
 }
 
 private fun PropertyWithSource.PropertyWithPrimitiveValue.getSourceName(currentFile: PsiFile): String? = when (source) {
@@ -239,9 +247,8 @@ private fun presentableValue(it: Any?, currentFile: PsiFile?, presentation: Trac
     return when {
         it is TraceableEnum<*> && it.value is SchemaEnum -> (it.value as SchemaEnum).schemaValue
         it is SchemaEnum -> it.schemaValue
-        it is Collection<*> && it.isEmpty() -> "(empty)"
+        it is Collection<*> && it.isEmpty() -> if (presentation != TracesPresentation.CLI) "(empty)" else "[]"
         it is Collection<*> && it.all { it is Traceable } -> renderTraceableCollection(it, currentFile, presentation)
-
         it is Collection<*> -> "[" + it.joinToString { presentableValue(it, currentFile, presentation) } + "]"
         else -> it.toString()
     }
@@ -252,13 +259,14 @@ private fun renderTraceableCollection(
     currentFile: PsiFile?,
     presentation: TracesPresentation
 ): String = "[${presentation.sectionSeparator}" +
-        it.joinToString(",${presentation.sectionSeparator}") {
+        it.mapIndexed { index, element ->
             "${presentation.prefix} " +
-                    presentation.wrapValue(presentableValue(it, currentFile, presentation)) +
-                     ((it as Traceable).trace?.let {
-                (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile) }?.let { " [$it]" }
+                    presentation.wrapValue(presentableValue(element, currentFile, presentation)) +
+                    (if (index == it.size - 1) "" else ",") +
+                     ((element as Traceable).trace?.let {
+                (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile) }?.let { formatSourceName(it, presentation) }
             } ?: "")
-        } +
+        }.joinToString(presentation.sectionSeparator) +
         "${presentation.sectionSeparator}]"
 
 private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null): String? =
