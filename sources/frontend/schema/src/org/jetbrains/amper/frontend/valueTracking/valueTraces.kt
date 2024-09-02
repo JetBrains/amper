@@ -106,17 +106,6 @@ private class CollectingVisitor(
     }
 }
 
-private fun collectPropertiesWithSources(
-    linkedValue: ValueBase<*>?,
-    contexts: Set<Platform>
-): List<PropertyWithSource> {
-    val properties = mutableListOf<PropertyWithSource>()
-    linkedValue?.unsafe?.let { v ->
-        CollectingVisitor(properties, contexts.map { it.pretty }.toSet()).visit(v)
-    }
-    return properties
-}
-
 enum class TracesPresentation {
     IDE,
     CLI,
@@ -131,29 +120,33 @@ fun tracesInfo(
     contexts: Set<Platform>,
     presentation: TracesPresentation = TracesPresentation.IDE
 ): String {
-    return (fullSectionInfo(linkedValue, containingFile, productType, contexts, presentation)
+    return (compositeValueTracesInfo(linkedValue?.unsafe, containingFile, productType, contexts, presentation)
         ?.let { prependPrefix(it, presentation) }
         ?: precedingValueTrace(linkedValue, containingFile, presentation) ?: "")
 }
 
-private fun fullSectionInfo(
-    linkedValue: ValueBase<*>?,
+fun compositeValueTracesInfo(
+    value: Any?,
     containingFile: PsiFile?,
     product: ProductType?,
     contexts: Set<Platform>,
     presentation: TracesPresentation
 ): String? {
-    return renderObject(linkedValue, contexts, product, containingFile, presentation)
-        ?: renderCollection(linkedValue, containingFile, presentation)
+    return renderObject(value, contexts, product, containingFile, presentation)
+        ?: renderCollection(value, containingFile, presentation)
 }
 
 private fun renderObject(
-    linkedValue: ValueBase<*>?,
+    value: Any?,
     contexts: Set<Platform>,
     productType: ProductType?,
     containingFile: PsiFile?,
     presentation: TracesPresentation,
-): String? = collectPropertiesWithSources(linkedValue, contexts)
+): String? = mutableListOf<PropertyWithSource>().also {
+    value?.let { v ->
+        CollectingVisitor(it, contexts.map { it.pretty }.toSet()).visit(v)
+    }
+}
     .filter {
         (it.applicablePlatforms?.let { contexts.intersect(it).isNotEmpty() } ?: true)
                 && (it.applicableProductTypes?.map { it.value }?.contains(productType?.value) ?: true)
@@ -161,8 +154,7 @@ private fun renderObject(
     .takeIf { it.isNotEmpty() }
     ?.prettyPrint(containingFile, presentation)
 
-private fun renderCollection(linkedValue: ValueBase<*>?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
-    val value = linkedValue?.value
+private fun renderCollection(value: Any?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
     if (value is Collection<*>) {
         return presentableValue(value, containingFile, presentation)
     }
@@ -190,7 +182,9 @@ private fun List<PropertyWithSource>.printProperties(
                     presentableValue(prop.value, containingFile, presentation).let {
                         if (prop.value is Collection<*>) it
                         else presentation.wrapValue(it)
-                    } + sourcePostfix(prop, containingFile, presentation)
+                    } + sourcePostfix(prop, containingFile, presentation).let { 
+                        it.takeIf { prop.value !is Collection<*> } ?: ""
+                    }
             }
         }${presentation.sectionSeparator}")
     }
@@ -233,14 +227,12 @@ private fun sourcePostfix(
     containingFile: PsiFile?,
     presentation: TracesPresentation
 ): String {
-    val sourceName = containingFile?.let { currentFile -> it.getSourceName(currentFile) }
+    val sourceName = when (it.source) {
+        ValueSource.Default -> "default"
+        is ValueSource.Element -> getFileName(it.source.element, containingFile, presentation)
+        null -> null
+    }
     return if (!sourceName.isNullOrBlank()) formatSourceName(sourceName, presentation) else ""
-}
-
-private fun PropertyWithSource.PropertyWithPrimitiveValue.getSourceName(currentFile: PsiFile): String? = when (source) {
-    ValueSource.Default -> "default"
-    is ValueSource.Element -> getFileName(source.element, currentFile)
-    null -> null
 }
 
 private fun presentableValue(it: Any?, currentFile: PsiFile?, presentation: TracesPresentation): String {
@@ -262,19 +254,22 @@ private fun renderTraceableCollection(
         it.mapIndexed { index, element ->
             "${presentation.prefix} " +
                     presentation.wrapValue(presentableValue(element, currentFile, presentation)) +
-                    (if (index == it.size - 1) "" else ",") +
+                    (if (presentation != TracesPresentation.CLI || index == it.size - 1) "" else ",") +
                      ((element as Traceable).trace?.let {
-                (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile) }?.let { formatSourceName(it, presentation) }
-            } ?: "")
+                (it as? PsiTrace)?.let { getFileName(it.psiElement, currentFile, presentation) }?.let { formatSourceName(it, presentation) }
+            } ?: "") +
+                    (if (presentation == TracesPresentation.CLI || index == it.size - 1) "" else ",")
         }.joinToString(presentation.sectionSeparator) +
         "${presentation.sectionSeparator}]"
 
-private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null): String? =
+private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null, presentation: TracesPresentation): String? =
     ReadAction.compute<String, Throwable> {
         val containingFile = psiElement.containingFile
         if (ignoreIfFile == containingFile) return@compute null
         if (containingFile?.name == "module.yaml" || containingFile?.name == "module.amper") {
-            containingFile.parent?.name ?: "module"
+            (containingFile.parent?.name ?: "module").let {
+                if (presentation == TracesPresentation.CLI) "${containingFile.name} ($it)" else it
+            }
         } else containingFile?.name
     }
 
@@ -288,7 +283,7 @@ private fun precedingValueTrace(linkedValue: ValueBase<*>?, containingFile: PsiF
             }
 
             psiTrace != null && it.value != linkedValue.value -> {
-                getFileName(psiTrace.psiElement)?.let { fileName ->
+                getFileName(psiTrace.psiElement, presentation = presentation)?.let { fileName ->
                     presentation.sectionSeparator +
                             SchemaBundle.message("tracing.overrides", presentation.wrapValue(presentableValue(it.value, containingFile, presentation)), fileName)
                 }

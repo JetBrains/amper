@@ -28,8 +28,6 @@ import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.widgets.Text
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.util.descendants
 import com.intellij.util.namedChildScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,13 +40,11 @@ import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
-import org.jetbrains.amper.frontend.api.linkedAmperValue
 import org.jetbrains.amper.frontend.valueTracking.TracesPresentation
-import org.jetbrains.amper.frontend.valueTracking.tracesInfo
+import org.jetbrains.amper.frontend.valueTracking.compositeValueTracesInfo
 import org.jetbrains.amper.generator.ProjectGenerator
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tools.JaegerToolCommand
@@ -411,16 +407,6 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
     override fun run() = Unit
 }
 
-private class DumpCommand : CliktCommand(name = "dump", help = "Dump Amper state") {
-    init {
-        subcommands(
-
-        )
-    }
-
-    override fun run() = Unit
-}
-
 private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
     val platform by platformOption()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
@@ -438,31 +424,32 @@ private class SettingsCommand: CliktCommand(
         withBackend(commonOptions, commandName) { backend ->
             val terminal = backend.context.terminal
 
-            val readCtx = FrontendPathResolver()
-            val files = backend.context.projectContext.amperModuleFiles.map { readCtx.toPsiFile(it) }
-
-            // This sets traces to PSI elements
-            with(CliProblemReporterContext) {
+            val model = with(CliProblemReporterContext) {
                 SchemaBasedModelImport.getModel(backend.context.projectContext)
             }.get()
 
-            val allProjectFiles = files.filterNotNull()
-            allProjectFiles.forEach { psiFile ->
-                if (allProjectFiles.size > 1) {
-                    terminal.info("Project: " + (psiFile.parent?.name ?: psiFile.name) + "\n",
+            model.modules.forEach { module ->
+                if (model.modules.size > 1) {
+                    terminal.info("Module: " + module.userReadableName + "\n",
                         Whitespace.PRE_LINE, TextAlign.LEFT)
                 }
-                psiFile.descendants().filterIsInstance<PsiNamedElement>().filter { it.name?.startsWith("settings") == true }
-                .forEach { queriedNode ->
-                    val linkedValue = queriedNode.getUserData(linkedAmperValue)
-                    terminal.print(
-                        Text(
-                            tracesInfo(
-                                linkedValue, psiFile, null, emptySet(),
-                                TracesPresentation.CLI
-                            )
-                        )
-                    )
+                val distinctSegments = module.fragments.distinctBy { it.platforms }
+                distinctSegments.forEach {
+                    if (distinctSegments.size > 1) {
+                        terminal.info("settings" + it.platforms.joinToString("+"){it.pretty}.let {
+                            if (it.isNotEmpty()) "@$it" else it
+                        } + "\n", Whitespace.PRE_LINE, TextAlign.LEFT)
+                    }
+                    compositeValueTracesInfo(
+                        it.settings,
+                        null,
+                        module.type,
+                        it.platforms,
+                        TracesPresentation.CLI
+                    )?.let {
+                        // whitespace ahead is necessary for copypastability
+                        terminal.print(Text(it.split("\n").joinToString("\n") { "  $it" }))
+                    }
                 }
             }
         }
