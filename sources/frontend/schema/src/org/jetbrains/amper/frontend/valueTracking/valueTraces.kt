@@ -126,7 +126,7 @@ enum class TracesPresentation {
 @UsedInIdePlugin
 fun tracesInfo(
     linkedValue: ValueBase<*>?,
-    containingFile: PsiFile,
+    containingFile: PsiFile?,
     productType: ProductType?,
     contexts: Set<Platform>,
     presentation: TracesPresentation = TracesPresentation.IDE
@@ -138,7 +138,7 @@ fun tracesInfo(
 
 private fun fullSectionInfo(
     linkedValue: ValueBase<*>?,
-    containingFile: PsiFile,
+    containingFile: PsiFile?,
     product: ProductType?,
     contexts: Set<Platform>,
     presentation: TracesPresentation
@@ -151,7 +151,7 @@ private fun renderObject(
     linkedValue: ValueBase<*>?,
     contexts: Set<Platform>,
     productType: ProductType?,
-    containingFile: PsiFile,
+    containingFile: PsiFile?,
     presentation: TracesPresentation,
 ): String? = collectPropertiesWithSources(linkedValue, contexts)
     .filter {
@@ -161,7 +161,7 @@ private fun renderObject(
     .takeIf { it.isNotEmpty() }
     ?.prettyPrint(containingFile, presentation)
 
-private fun renderCollection(linkedValue: ValueBase<*>?, containingFile: PsiFile, presentation: TracesPresentation): String? {
+private fun renderCollection(linkedValue: ValueBase<*>?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
     val value = linkedValue?.value
     if (value is Collection<*>) {
         return presentableValue(value, containingFile, presentation)
@@ -169,13 +169,13 @@ private fun renderCollection(linkedValue: ValueBase<*>?, containingFile: PsiFile
     return null
 }
 
-private fun List<PropertyWithSource>.prettyPrint(containingFile: PsiFile, presentation: TracesPresentation): String {
+private fun List<PropertyWithSource>.prettyPrint(containingFile: PsiFile?, presentation: TracesPresentation): String {
     return StringBuilder().also { printProperties(it, containingFile, presentation) }.toString()
 }
 
 private fun List<PropertyWithSource>.printProperties(
     builder: StringBuilder,
-    containingFile: PsiFile,
+    containingFile: PsiFile?,
     presentation: TracesPresentation
 ) {
     forEach { prop ->
@@ -223,9 +223,9 @@ private fun wrapName(source: PropertyWithSource, presentation: TracesPresentatio
 
 private fun sourcePostfix(
     it: PropertyWithSource.PropertyWithPrimitiveValue,
-    containingFile: PsiFile,
+    containingFile: PsiFile?,
 ): String {
-    val sourceName = it.getSourceName(containingFile)
+    val sourceName = containingFile?.let { currentFile -> it.getSourceName(currentFile) }
     return if (!sourceName.isNullOrBlank()) " [$sourceName]" else ""
 }
 
@@ -235,7 +235,7 @@ private fun PropertyWithSource.PropertyWithPrimitiveValue.getSourceName(currentF
     null -> null
 }
 
-private fun presentableValue(it: Any?, currentFile: PsiFile, presentation: TracesPresentation): String {
+private fun presentableValue(it: Any?, currentFile: PsiFile?, presentation: TracesPresentation): String {
     return when {
         it is TraceableEnum<*> && it.value is SchemaEnum -> (it.value as SchemaEnum).schemaValue
         it is SchemaEnum -> it.schemaValue
@@ -249,7 +249,7 @@ private fun presentableValue(it: Any?, currentFile: PsiFile, presentation: Trace
 
 private fun renderTraceableCollection(
     it: Collection<*>,
-    currentFile: PsiFile,
+    currentFile: PsiFile?,
     presentation: TracesPresentation
 ): String = "[${presentation.sectionSeparator}" +
         it.joinToString(",${presentation.sectionSeparator}") {
@@ -270,7 +270,7 @@ private fun getFileName(psiElement: PsiElement, ignoreIfFile: PsiFile? = null): 
         } else containingFile?.name
     }
 
-private fun precedingValueTrace(linkedValue: ValueBase<*>?, containingFile: PsiFile, presentation: TracesPresentation): String? {
+private fun precedingValueTrace(linkedValue: ValueBase<*>?, containingFile: PsiFile?, presentation: TracesPresentation): String? {
     return linkedValue?.trace?.precedingValue?.let {
         val psiTrace = it.trace as? PsiTrace
         when {

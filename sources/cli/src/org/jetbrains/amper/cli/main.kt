@@ -24,6 +24,8 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
+import com.github.ajalt.mordant.rendering.TextAlign
+import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.widgets.Text
 import com.intellij.psi.PsiNamedElement
@@ -36,6 +38,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.engine.TaskExecutor
@@ -59,7 +62,6 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteRecursively
-import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
@@ -78,7 +80,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             TasksCommand(),
             TestCommand(),
             ToolCommand(),
-            DumpCommand()
+            SettingsCommand()
         )
         context {
             helpFormatter = { context ->
@@ -412,7 +414,7 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
 private class DumpCommand : CliktCommand(name = "dump", help = "Dump Amper state") {
     init {
         subcommands(
-            DumpSettingsCommand()
+
         )
     }
 
@@ -427,31 +429,42 @@ private class BuildCommand : CliktCommand(name = "build", help = "Compile and li
     }
 }
 
-private class DumpSettingsCommand: CliktCommand(
+private class SettingsCommand: CliktCommand(
     name = "settings",
-    help = "Dump the current state of Amper settings"
+    help = "Print the current state of Amper settings"
 ) {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
             val terminal = backend.context.terminal
 
-            // Fix paths, so they will point to resources.
             val readCtx = FrontendPathResolver()
-            val directory = backend.context.projectRoot.path
-            val inputFile = readCtx.loadVirtualFile(directory.div("module.yaml"))
-            val psiFile = readCtx.toPsiFile(inputFile) ?: throw IllegalStateException("no psi file")
+            val files = backend.context.projectContext.amperModuleFiles.map { readCtx.toPsiFile(it) }
 
             // This sets traces to PSI elements
             with(CliProblemReporterContext) {
                 SchemaBasedModelImport.getModel(backend.context.projectContext)
-            }
+            }.get()
 
-            val queriedNode = psiFile.descendants().filterIsInstance<PsiNamedElement>().firstOrNull { it.name == "settings" }
-                ?: throw IllegalStateException("no settings section")
-            val linkedValue = queriedNode.getUserData(linkedAmperValue)
-            terminal.print(Text(tracesInfo(linkedValue, psiFile, null, emptySet(),
-                TracesPresentation.CLI)))
+            val allProjectFiles = files.filterNotNull()
+            allProjectFiles.forEach { psiFile ->
+                if (allProjectFiles.size > 1) {
+                    terminal.info("Project: " + (psiFile.parent?.name ?: psiFile.name) + "\n",
+                        Whitespace.PRE_LINE, TextAlign.LEFT)
+                }
+                psiFile.descendants().filterIsInstance<PsiNamedElement>().filter { it.name?.startsWith("settings") == true }
+                .forEach { queriedNode ->
+                    val linkedValue = queriedNode.getUserData(linkedAmperValue)
+                    terminal.print(
+                        Text(
+                            tracesInfo(
+                                linkedValue, psiFile, null, emptySet(),
+                                TracesPresentation.CLI
+                            )
+                        )
+                    )
+                }
+            }
         }
     }
 }
@@ -469,7 +482,7 @@ private fun ParameterHolder.platformOption() = option(
 }
 
 /**
- * Check if passed value can be converted to platform and return one, if possible.
+ * Check if the passed value can be converted to a platform and return one, if possible.
  * Throw exception otherwise.
  */
 private fun checkAndGetPlatform(value: String) =
