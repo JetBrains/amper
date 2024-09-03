@@ -29,6 +29,11 @@ import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.reader
 
+import org.jetbrains.amper.android.keystore.keyAlias
+import org.jetbrains.amper.android.keystore.keyPassword
+import org.jetbrains.amper.android.keystore.storeFile
+import org.jetbrains.amper.android.keystore.storePassword
+
 const val SIGNING_CONFIG_NAME = "sign"
 
 @Suppress("LeakingThis")
@@ -176,10 +181,18 @@ class AndroidBindingPluginPart(
             androidPE?.apply {
                 signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
-                        it.storeFile = Path(keystoreProperties.getProperty("storeFile")).toFile()
-                        it.storePassword = keystoreProperties.getProperty("storePassword")
-                        it.keyAlias = keystoreProperties.getProperty("keyAlias")
-                        it.keyPassword = keystoreProperties.getProperty("keyPassword")
+                        keystoreProperties.storeFile?.let { storeFile ->
+                            it.storeFile = Path(storeFile).toFile()
+                        }
+                        keystoreProperties.storePassword?.let { storePassword ->
+                            it.storePassword = storePassword
+                        }
+                        keystoreProperties.keyAlias?.let { keyAlias ->
+                            it.keyAlias = keyAlias
+                        }
+                        keystoreProperties.keyPassword?.let { keyPassword ->
+                            it.keyPassword = keyPassword
+                        }
                     }
                 }
             }

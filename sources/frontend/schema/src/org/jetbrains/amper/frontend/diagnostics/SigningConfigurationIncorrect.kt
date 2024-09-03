@@ -5,6 +5,8 @@
 package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.amper.android.keystore.KeystoreProperty
+import org.jetbrains.amper.android.keystore.storeFile
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -85,12 +87,11 @@ object KeystorePropertiesDoesNotContainKeyFactory : SigningConfigurationIncorrec
         if (propertiesFile.exists()) {
             val properties = Properties()
             propertiesFile.reader().use { properties.load(it) }
-            val keys = setOf("storeFile", "storePassword", "keyAlias", "keyPassword")
-            for (key in keys) {
-                if (!properties.containsKey(key)) {
+            for (property in KeystoreProperty.entries.toTypedArray()) {
+                if (!properties.containsKey(property.key)) {
                     problemReporter.reportMessage(
                         KeystorePropertiesDoesNotContainKey(
-                            android.targetProperty, key, propertiesFile
+                            android.targetProperty, property.key, propertiesFile
                         )
                     )
                 }
@@ -110,7 +111,7 @@ object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfiguration
         if (propertiesFile.exists()) {
             val properties = Properties()
             propertiesFile.reader().use { properties.load(it) }
-            val mandatoryFields = setOf("storeFile", "keyAlias")
+            val mandatoryFields = setOf(KeystoreProperty.StoreFile.key, KeystoreProperty.KeyAlias.key)
             for (key in mandatoryFields) {
                 val value = properties.getProperty(key)
                 if (value.isNullOrBlank()) {
@@ -128,25 +129,20 @@ object MandatoryFieldInPropertiesFileMustBePresentFactory : SigningConfiguration
 }
 
 object KeystoreMustExistFactory : SigningConfigurationIncorrect() {
-    override fun ProblemReporterContext.analyze(
-        moduleDir: Path, android: AndroidSettings
-    ) {
+    override fun ProblemReporterContext.analyze(moduleDir: Path, android: AndroidSettings) {
         val signing = android.signing
         val propertiesFile = moduleDir / signing.propertiesFile
         if (propertiesFile.exists()) {
             val properties = Properties()
             propertiesFile.reader().use { properties.load(it) }
-            if (properties.containsKey("storeFile")) {
-                val storeFile = properties.getProperty("storeFile")
-                if (Path(storeFile).notExists()) {
-                    problemReporter.reportMessage(
-                        KeystoreFileDoesNotExist(
-                            android.targetProperty, Path(storeFile)
-                        )
+            val storeFile = properties.storeFile ?: return
+            if (Path(storeFile).notExists()) {
+                problemReporter.reportMessage(
+                    KeystoreFileDoesNotExist(
+                        android.targetProperty, Path(storeFile)
                     )
-                }
+                )
             }
-
         }
     }
 

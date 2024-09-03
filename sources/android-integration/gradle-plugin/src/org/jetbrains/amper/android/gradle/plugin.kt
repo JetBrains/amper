@@ -18,6 +18,10 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
+import org.jetbrains.amper.android.keystore.keyAlias
+import org.jetbrains.amper.android.keystore.keyPassword
+import org.jetbrains.amper.android.keystore.storeFile
+import org.jetbrains.amper.android.keystore.storePassword
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -123,10 +127,18 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                 }
                 androidExtension.signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
-                        it.storeFile = (module.buildDir / Path(keystoreProperties.getProperty("storeFile"))).toFile()
-                        it.storePassword = keystoreProperties.getProperty("storePassword")
-                        it.keyAlias = keystoreProperties.getProperty("keyAlias")
-                        it.keyPassword = keystoreProperties.getProperty("keyPassword")
+                        keystoreProperties.storeFile?.let { storeFile ->
+                            it.storeFile = Path(storeFile).toFile()
+                        }
+                        keystoreProperties.storePassword?.let { storePassword ->
+                            it.storePassword = storePassword
+                        }
+                        keystoreProperties.keyAlias?.let { keyAlias ->
+                            it.keyAlias = keyAlias
+                        }
+                        keystoreProperties.keyPassword?.let { keyPassword ->
+                            it.keyPassword = keyPassword
+                        }
                     }
                 }
             } else {

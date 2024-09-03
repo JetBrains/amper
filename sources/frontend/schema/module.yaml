@@ -12,6 +12,7 @@ dependencies:
   - ../../frontend/plain/yaml-psi
   - ../../frontend/plain/amper-psi
   - ../../core-intellij
+  - ../../android-integration/android-utils
   - $libs.kotlin.reflect
   - org.apache.maven:maven-artifact:3.9.6
   - $libs.intellij.platform.core: exported # because we expose Project in public API

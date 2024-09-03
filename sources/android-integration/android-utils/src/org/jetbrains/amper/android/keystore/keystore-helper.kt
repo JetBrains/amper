@@ -10,6 +10,7 @@ import org.bouncycastle.cert.X509v1CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -29,6 +30,19 @@ import kotlin.io.path.notExists
 private const val asymmetricAlgorithm = "RSA"
 private const val signatureAlgorithm = "SHA1withRSA"
 
+enum class KeystoreProperty(val key: String) {
+    StoreFile("storeFile"),
+    StorePassword("storePassword"),
+    KeyAlias("keyAlias"),
+    KeyPassword("keyPassword")
+}
+
+val Properties.storeFile: String? get() = getProperty(KeystoreProperty.StoreFile.key)
+val Properties.storePassword: String? get() = getProperty(KeystoreProperty.StorePassword.key)
+val Properties.keyAlias: String? get() = getProperty(KeystoreProperty.KeyAlias.key)
+val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPassword.key)
+
+
 object KeystoreHelper {
     fun createNewKeystore(propertiesFile: Path, dn: String) {
         if (propertiesFile.notExists()) {
@@ -39,23 +53,23 @@ object KeystoreHelper {
         val properties = Properties()
         FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
 
-        val storeFile = properties.getProperty("storeFile") ?: run {
-            logger.error("$propertiesFile does not contain \"storeFile\"")
+        val storeFile = properties.storeFile ?: run {
+            logger.errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StoreFile)
             return
         }
 
-        val storePassword = properties.getProperty("storePassword") ?: run {
-            logger.error("$propertiesFile does not contain \"storePassword\"")
+        val storePassword = properties.storePassword ?: run {
+            logger.errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StorePassword)
             return
         }
 
-        val keyPassword = properties.getProperty("keyPassword") ?: run {
-            logger.error("$propertiesFile does not contain \"keyPassword\"")
+        val keyPassword = properties.keyPassword ?: run {
+            logger.errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyPassword)
             return
         }
 
-        val keyAlias = properties.getProperty("keyAlias") ?: run {
-            logger.error("$propertiesFile does not contain \"keyAlias\"")
+        val keyAlias = properties.keyAlias ?: run {
+            logger.errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyAlias)
             return
         }
 
@@ -86,6 +100,9 @@ object KeystoreHelper {
         }
         logger.info("Keystore generated successfully")
     }
+
+    private fun Logger.errorKeystoreFieldMissing(propertiesFile: Path, field: KeystoreProperty) =
+        error("$propertiesFile does not contain \"${field.key}\"")
 
     private fun generateKeyAndCertificate(dn: String): Pair<PrivateKey, X509Certificate> {
         val validityYears = 30
