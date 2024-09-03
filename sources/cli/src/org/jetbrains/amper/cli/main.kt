@@ -72,11 +72,11 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
             ModulesCommand(),
             PublishCommand(),
             RunCommand(),
+            SettingsCommand(),
             TaskCommand(),
             TasksCommand(),
             TestCommand(),
-            ToolCommand(),
-            SettingsCommand()
+            ToolCommand()
         )
         context {
             helpFormatter = { context ->
