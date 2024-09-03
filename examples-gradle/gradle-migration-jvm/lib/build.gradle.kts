@@ -4,7 +4,7 @@ plugins {
 
     // Note: The following plugins are preconfigured and their versions can't be changed:
     //   * `org.jetbrains.kotlin.multiplatform`
-    //   * `org.jetbrains.kotlin.android`  ¡
+    //   * `org.jetbrains.kotlin.android`
     //   * `com.android.library`
     //   * `com.android.application`
     //   * `org.jetbrains.compose`
