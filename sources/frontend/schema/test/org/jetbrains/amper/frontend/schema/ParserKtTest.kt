@@ -171,4 +171,9 @@ internal class ParserKtTest : TestBase(Path("testResources") / "parser") {
     fun tasks() {
         aomTest("tasks")
     }
+
+    @Test
+    fun ksp() {
+        aomTest("ksp")
+    }
 }

@@ -1,0 +1,163 @@
+Fragments:
+  android
+    External dependencies:
+      MavenDependency(coordinates=androidx.appcompat:appcompat:1.6.1, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=androidx.room:room-runtime:2.7.0-alpha06, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+    Src folder: src
+    Fragment dependencies:
+    Settings: {
+      android: {
+        applicationId: <default> com.jetbrains.sample.app
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: com.jetbrains.sample.app
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.0
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 2.0
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ksp: {
+        processorOptions: {
+          "room.schemaLocation": ./generated-db-schema
+          "room.generateKotlin": true
+        }
+        processors: [
+          - androidx.room:room-compiler:2.7.0-alpha06
+        ]
+        version: 1.9.20-1.0.24
+      }
+      native: <default> null
+      publishing: <default> null
+    }
+
+  androidTest
+    External dependencies:
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-stdlib:2.0.0, compile=true, runtime=true, exported=false)
+      MavenDependency(coordinates=org.jetbrains.kotlin:kotlin-test-junit:2.0.0, compile=true, runtime=true, exported=false)
+    Src folder: test
+    Fragment dependencies:
+      android (FRIEND)
+    Settings: {
+      android: {
+        applicationId: <default> com.jetbrains.sample.app
+        compileSdk: <default> VERSION_34
+        maxSdk: <default> VERSION_34
+        minSdk: <default> VERSION_21
+        namespace: com.jetbrains.sample.app
+        signing: <default> {
+          enabled: <default> false
+          propertiesFile: <default> keystore.properties
+        }
+        targetSdk: <default> VERSION_34
+      }
+      compose: <default> {
+        enabled: <default> false
+        version: <default> null
+      }
+      ios: <default> {
+        framework: <default> {
+          basename: <default> kotlin
+          isStatic: <default> false
+        }
+        teamId: <default> null
+      }
+      junit: <default> JUNIT4
+      jvm: <default> {
+        mainClass: <default> null
+        release: <default> VERSION_17
+      }
+      kotlin: <default> {
+        allWarningsAsErrors: <default> false
+        apiVersion: <default> 2.0
+        debug: <default> true
+        freeCompilerArgs: <default> null
+        languageFeatures: <default> null
+        languageVersion: <default> 2.0
+        linkerOpts: <default> null
+        optIns: <default> null
+        progressiveMode: <default> false
+        serialization: <default> null
+        suppressWarnings: <default> false
+        verbose: <default> false
+      }
+      kover: <default> null
+      ksp: {
+        processorOptions: {
+          "room.schemaLocation": ./generated-db-schema
+          "room.generateKotlin": true
+        }
+        processors: [
+          - androidx.room:room-compiler:2.7.0-alpha06
+        ]
+        version: 1.9.20-1.0.24
+      }
+      native: <default> null
+      publishing: <default> null
+    }
+
+Artifacts:
+  isTest: false
+  [ANDROID]
+    Fragments:
+      android
+  isTest: true
+  [ANDROID]
+    Fragments:
+      androidTest
+Repositories:
+  - id: https://repo1.maven.org/maven2
+    url: https://repo1.maven.org/maven2
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.google.com
+    url: https://maven.google.com
+    publish: false
+    resolve: true
+    username: null
+    password: null
+  - id: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    url: https://maven.pkg.jetbrains.space/public/p/compose/dev
+    publish: false
+    resolve: true
+    username: null
+    password: null
