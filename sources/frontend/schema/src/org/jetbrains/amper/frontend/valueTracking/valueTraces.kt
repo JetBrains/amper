@@ -178,13 +178,15 @@ private fun List<PropertyWithSource>.printProperties(
                     "\n" + prependPrefix(it, presentation)
                 }
 
-                is PropertyWithSource.PropertyWithPrimitiveValue ->
-                    presentableValue(prop.value, containingFile, presentation).let {
-                        if (prop.value is Collection<*>) it
+                is PropertyWithSource.PropertyWithPrimitiveValue -> {
+                    val value = prop.value
+                    presentableValue(value, containingFile, presentation).let {
+                        if (value is Collection<*>) it
                         else presentation.wrapValue(it)
                     } + sourcePostfix(prop, containingFile, presentation).let { 
-                        it.takeIf { prop.value !is Collection<*> } ?: ""
+                        it.takeIf { value !is Collection<*> || value.isEmpty() } ?: ""
                     }
+                }
             }
         }${presentation.sectionSeparator}")
     }
