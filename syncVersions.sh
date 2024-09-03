@@ -31,7 +31,6 @@ DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/or
 # before the version (even quotes). Yet, you can add arbitrary sed rule, by using [append_to_sed_file].
 
 # Amper
-add_update_rule $BOOTSTRAP_AMPER_VERSION "org\.jetbrains\.amper\.settings\.plugin:gradle-integration:"
 add_update_rule $BOOTSTRAP_AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
 
 append_to_sed_file "s#(\/cli\/).*(\/.*)(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2\\3#g"
