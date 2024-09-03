@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Update gold files" type="KotlinStandaloneScriptRunConfigurationType">
+    <shortenClasspath name="NONE" />
+    <option name="filePath" value="$PROJECT_DIR$/update-gold-files.main.kts" />
+    <method v="2" />
+  </configuration>
+</component>
