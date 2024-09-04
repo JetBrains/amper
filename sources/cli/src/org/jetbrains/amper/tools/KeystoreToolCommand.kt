@@ -9,8 +9,10 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
+import org.jetbrains.amper.android.keystore.KeystoreException
 import org.jetbrains.amper.android.keystore.KeystoreHelper
 import org.jetbrains.amper.cli.RootCommand
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
 import kotlin.io.path.Path
 import kotlin.io.path.div
@@ -37,8 +39,15 @@ class KeystoreToolCommand : CliktCommand(
 
     override fun run() {
         withBackend(commonOptions, commandName, setupEnvironment = true) {
-            propertiesFile?.let { KeystoreHelper.createNewKeystore(it.toPath(), dn) }
-                ?: KeystoreHelper.createNewKeystore(storeFile.toPath(), storePassword, keyAlias, keyPassword, dn)
+            try {
+                propertiesFile?.let {
+                    KeystoreHelper.createNewKeystore(it.toPath(), dn)
+                } ?: run {
+                    KeystoreHelper.createNewKeystore(storeFile.toPath(), storePassword, keyAlias, keyPassword, dn)
+                }
+            } catch (e: KeystoreException) {
+                userReadableError(e.message)
+            }
         }
     }
 }
