@@ -31,35 +31,69 @@ DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/or
 # before the version (even quotes). Yet, you can add arbitrary sed rule, by using [append_to_sed_file].
 
 # Amper
+
+# For settings.gradle.kts in the Amper project itself, examples-gradle projects, and migrated-projects
+# For Documentation.md, Usage.md, GradleMigration.md (instructions for setting up Gradle-based Amper)
+# /!\ Should not be used on sources/gradle-integration/test/org/jetbrains/amper/gradle/util/otherUtil.kt
 add_update_rule $BOOTSTRAP_AMPER_VERSION 'id\(\"org\.jetbrains\.amper\.settings\.plugin\"\)\.version\(\"'
 
+# For Usage.md CLI download commands (URL part)
 append_to_sed_file "s#(\/cli\/).*(\/.*)(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2\\3#g"
+# For Usage.md CLI download commands (filename)
+# FIXME this could be merged with the previous one
 append_to_sed_file "s#(cli-).*(-wrapper)#\\1$BOOTSTRAP_AMPER_VERSION\\2#g"
+# For amper (sh) wrappers in examples-standalone and some test projects in amper-backend-test
+# /!\ Should not be used on sources/cli/resources/wrappers/amper.template.sh with @AMPER_VERSION@
 append_to_sed_file "s#^amper_version=.*#amper_version=$BOOTSTRAP_AMPER_VERSION#g"
+# For amper.bat wrappers in examples-standalone and some test projects in amper-backend-test
+# /!\ Should not be used on sources/cli/resources/wrappers/amper.template.bat with @AMPER_VERSION@
 append_to_sed_file "s#^set amper_version=.*#set amper_version=$BOOTSTRAP_AMPER_VERSION#g"
 
 # Amper dist sha256
+
+# For amper (sh) wrappers in examples-standalone and some test projects in amper-backend-test
+# /!\ Should not be used on sources/cli/resources/wrappers/amper.template.sh with @AMPER_VERSION@
 append_to_sed_file "s#^amper_sha256=.*#amper_sha256=$DIST_SHA256#g"
+# For amper.bat wrappers in examples-standalone and some test projects in amper-backend-test
+# /!\ Should not be used on sources/cli/resources/wrappers/amper.template.bat with @AMPER_VERSION@
 append_to_sed_file "s#^set amper_sha256=.*#set amper_sha256=$DIST_SHA256#g"
 
 # Kotlin
+
+# For UsedVersions.kt
 add_update_rule $KOTLIN_VERSION "\/\*magic_replacement\*\/ val kotlinVersion = \""
+# For Documentation.md and GradleMigration.md files
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.multiplatform$SQUOTE *\| "
+# For Documentation.md and GradleMigration.md files
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.plugin\.serialization$SQUOTE *\| "
+# For Documentation.md and GradleMigration.md files
 add_update_rule $KOTLIN_VERSION "org\.jetbrains\.kotlin\.android$SQUOTE *\| "
 
 # Compose
+
+# For Documentation.md and GradleMigration.md files
 add_update_rule $COMPOSE_VERSION "org\.jetbrains\.compose$SQUOTE *\| "
+# For UsedVersions.kt
 add_update_rule $COMPOSE_VERSION "\/\*magic_replacement\*\/ val composeVersion = \""
 
-#Android
+# Android
+
+# For sources/android-integration/gradle-plugin/module.yaml
+# For sources/gradle-integration/module.yaml
 add_update_rule $ANDROID_VERSION "com\.android\.library:com\.android\.library\.gradle\.plugin:"
+# For Documentation.md and GradleMigration.md files
 add_update_rule $ANDROID_VERSION "com\.android\.library$SQUOTE *\| "
+# For Documentation.md and GradleMigration.md files
 add_update_rule $ANDROID_VERSION "com\.android\.application$SQUOTE *\| "
 
 # Gradle
+
+# For gradle-wrapper.properties in the Amper project itself, examples-gradle projects, and migrated-projects
 add_update_rule $GRADLE_VERSION "https\\\\\:\/\/services\.gradle\.org\/distributions\/gradle-"
 
+# KSP
+
+# For UsedVersions.kt
 add_update_rule $KSP_VERSION "\/\*magic_replacement\*\/ val kspVersion = \""
 
 # --- Actual logic ---
