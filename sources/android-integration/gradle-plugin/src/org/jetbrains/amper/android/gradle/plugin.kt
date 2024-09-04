@@ -128,7 +128,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                 androidExtension.signingConfigs {
                     it.create(SIGNING_CONFIG_NAME) {
                         keystoreProperties.storeFile?.let { storeFile ->
-                            it.storeFile = Path(storeFile).toFile()
+                            it.storeFile = (module.buildDir/ Path(storeFile)).toFile()
                         }
                         keystoreProperties.storePassword?.let { storePassword ->
                             it.storePassword = storePassword
