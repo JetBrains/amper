@@ -30,6 +30,7 @@ import java.nio.file.Path
 import java.util.jar.JarFile
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
@@ -57,10 +58,10 @@ class JvmTestTask(
             version = "1.10.1",
         ).toString()
 
-        // test task depends on jar test task
-        val jarTask = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
-            ?: error("${JvmClassesJarTask::class.simpleName} result is not found in dependencies")
-        if (!jarHasClasses(jarTask.jarPath)) {
+        // test task depends on compile test task
+        val compileTask = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().singleOrNull()
+            ?: error("${JvmCompileTask::class.simpleName} result is not found in dependencies")
+        if (compileTask.classesOutputRoot.listDirectoryEntries().isEmpty()) {
             logger.warn("No test classes, skipping test execution for module '${module.userReadableName}'")
             return Result()
         }
@@ -70,7 +71,7 @@ class JvmTestTask(
             ?: error("${JvmRuntimeClasspathTask::class.simpleName} result is not found in dependencies")
 
         val testClasspath = jvmRuntimeClasspathTask.jvmRuntimeClasspath
-        val testModuleClasspath = jarTask.jarPath
+        val testModuleClasspath = compileTask.classesOutputRoot
 
         val junitConsole = Downloader.downloadFileToCacheLocation(junitConsoleUrl, userCacheRoot)
 

@@ -156,7 +156,11 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 taskName = runtimeClasspathTaskName,
             ),
             listOf(
-                CommonTaskType.Jar.getTaskName(module, Platform.ANDROID, isTest, buildType),
+                if (isTest) {
+                    CommonTaskType.Compile.getTaskName(module, Platform.ANDROID, true, buildType)
+                } else {
+                    CommonTaskType.Jar.getTaskName(module, Platform.ANDROID, false, buildType)
+                },
                 CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest),
             )
         )
@@ -209,7 +213,7 @@ fun ProjectTaskRegistrar.setupAndroidTasks() {
                 terminal = context.terminal,
             ),
             listOf(
-                CommonTaskType.Jar.getTaskName(module, platform, true, buildType),
+                CommonTaskType.Compile.getTaskName(module, platform, true, buildType),
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true, buildType),
             ),
         )

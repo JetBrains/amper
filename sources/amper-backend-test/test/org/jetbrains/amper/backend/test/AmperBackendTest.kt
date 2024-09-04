@@ -98,6 +98,18 @@ class AmperBackendTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `jvm test custom engine`() = runTestWithCollector {
+        val projectContext = setupTestDataProject(
+            "jvm-test-custom-engine",
+        )
+        AmperBackend(projectContext).test()
+
+        // tests are discovered
+        assertStdoutContains("my-test-1")
+        assertStdoutContains("my-test-2")
+    }
+
+    @Test
     fun `jvm exclude test module`() = runTestWithCollector {
         val projectContext = setupTestDataProject(
             "jvm-multimodule-tests",

@@ -32,17 +32,20 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
             CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
         )
 
-        val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest)
-        registerTask(
-            JvmClassesJarTask(
-                taskName = jarTaskName,
-                module = module,
-                isTest = isTest,
-                taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                executeOnChangedInputs = executeOnChangedInputs,
-            ),
-            CommonTaskType.Compile.getTaskName(module, platform, isTest),
-        )
+        if (!isTest) {
+            // We do not pack test classes into a jar.
+            val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
+            registerTask(
+                JvmClassesJarTask(
+                    taskName = jarTaskName,
+                    module = module,
+                    isTest = false,
+                    taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
+                ),
+                CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+            )
+        }
 
         val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
         registerTask(
@@ -52,7 +55,11 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 taskName = runtimeClasspathTaskName,
             ),
             listOf(
-                CommonTaskType.Jar.getTaskName(module, platform, isTest),
+                if (isTest) {
+                    CommonTaskType.Compile.getTaskName(module, platform, isTest = true)
+                } else {
+                    CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
+                },
                 CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
             )
         )
@@ -153,7 +160,7 @@ fun ProjectTaskRegistrar.setupJvmTasks() {
                 terminal = context.terminal,
             ),
             listOf(
-                CommonTaskType.Jar.getTaskName(module, platform, true),
+                CommonTaskType.Compile.getTaskName(module, platform, true),
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true),
             )
         )

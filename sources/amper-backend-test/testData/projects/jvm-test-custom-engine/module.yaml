@@ -1,0 +1,7 @@
+product: jvm/app
+
+test-dependencies:
+  - dev.failgood:failgood:0.9.1
+
+settings:
+  junit: junit-5
