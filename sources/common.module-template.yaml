@@ -31,16 +31,12 @@ settings:
     version: 1.0-SNAPSHOT
 
   kotlin:
-    sdk:
-      version: 1.9.0
     languageVersion: 1.9
     languageFeatures:
       - contextReceivers
     freeCompilerArgs:
       - -Xcontext-receivers
     optIns: [ kotlin.io.path.ExperimentalPathApi ]
-  junit:
-    platformEnabled: true
 
 test-settings:
   junit: junit-5
