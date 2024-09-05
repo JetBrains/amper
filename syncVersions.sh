@@ -17,7 +17,7 @@ add_update_rule() {
 }
 
 # --- Used versions ---
-BOOTSTRAP_AMPER_VERSION="0.5.0-dev-1072"
+BOOTSTRAP_AMPER_VERSION="0.5.0-dev-1117"
 KOTLIN_VERSION="2.0.20"
 KSP_VERSION="2.0.20-1.0.24"
 COMPOSE_VERSION="1.6.10"
