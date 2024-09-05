@@ -22,7 +22,7 @@ KOTLIN_VERSION="2.0.20"
 KSP_VERSION="2.0.20-1.0.24"
 COMPOSE_VERSION="1.6.10"
 GRADLE_VERSION="8.6-bin.zip"
-ANDROID_VERSION="8.3.0"
+ANDROID_VERSION="8.2.0"
 
 DIST_SHA256=$(curl -L -s "https://packages.jetbrains.team/maven/p/amper/amper/org/jetbrains/amper/cli/$BOOTSTRAP_AMPER_VERSION/cli-$BOOTSTRAP_AMPER_VERSION-dist.zip.sha256")
 
