@@ -16,6 +16,7 @@ import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
+import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.CommonRunSettings
 import org.jetbrains.amper.tasks.RunTask
@@ -68,6 +69,7 @@ class JvmRunTask(
             jvmArgs = jvmArgs,
             outputListener = PrintToTerminalProcessOutputListener(terminal),
             tempRoot = tempRoot,
+            input = ProcessInput.Inherit,
         )
 
         val message = "Process exited with exit code ${result.exitCode}" +

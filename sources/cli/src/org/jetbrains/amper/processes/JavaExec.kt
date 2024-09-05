@@ -31,6 +31,7 @@ suspend fun Jdk.runJava(
     environment: Map<String, String> = emptyMap(),
     outputListener: ProcessOutputListener,
     tempRoot: AmperProjectTempRoot,
+    input: ProcessInput? = null,
 ): ProcessResult {
     val classpathStr = classpath.joinToString(File.pathSeparator) { it.pathString }
     val args = buildList {
@@ -61,6 +62,7 @@ suspend fun Jdk.runJava(
                     environment = environment,
                     span = span,
                     outputListener = outputListener,
+                    input = input,
                 )
             }
     }

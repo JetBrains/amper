@@ -1,0 +1,4 @@
+modules:
+  - shared
+  - macos-app
+  - jvm-app

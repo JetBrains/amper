@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.intellij.CommandLineUtils
+import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
@@ -56,6 +57,7 @@ object BuildPrimitives {
         logCall: Boolean = false,
         environment: Map<String, String> = emptyMap(),
         outputListener: ProcessOutputListener,
+        input: ProcessInput? = null,
     ): ProcessResult {
         require(command.isNotEmpty()) { "Cannot start a process with an empty command line" }
 
@@ -70,9 +72,12 @@ object BuildPrimitives {
             val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
                 .directory(workingDir.toFile())
                 .also { it.environment().putAll(environment) }
+                .configureInput(input)
                 .start()
 
             process.withGuaranteedTermination {
+                process.provideInputIfNecessary(input)
+
                 try {
                     process.outputStream.close()
                 } catch (t: IOException) {
@@ -102,6 +107,19 @@ object BuildPrimitives {
     }
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private fun ProcessBuilder.configureInput(input: ProcessInput?): ProcessBuilder = when(input) {
+        null -> this
+        ProcessInput.Inherit -> redirectInput(ProcessBuilder.Redirect.INHERIT)
+        is ProcessInput.SimpleInput -> redirectInput(ProcessBuilder.Redirect.PIPE)
+    }
+
+    private fun Process.provideInputIfNecessary(input: ProcessInput?) = when(input) {
+        is ProcessInput.SimpleInput -> {
+            outputStream.write(input.input.toByteArray())
+        }
+        ProcessInput.Inherit, null -> Unit
+    }
 
     private fun Logger.logProcessCall(command: List<String>) =
         this.info("Calling: ${ShellQuoting.quoteArgumentsPosixShellWay(command)}")

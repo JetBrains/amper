@@ -4,7 +4,10 @@
 
 package org.jetbrains.amper.cli.test
 
+import kotlinx.coroutines.test.runTest
+import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessResult
+import org.jetbrains.amper.test.MacOnly
 import org.jetbrains.amper.test.TestUtil
 import org.jetbrains.amper.test.TestUtil.m2repository
 import org.jetbrains.amper.test.TestUtil.runTestInfinitely
@@ -26,6 +29,8 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
@@ -334,6 +339,29 @@ class AmperCliTest: AmperCliTestBase() {
         val expected = "ERROR: The given path '$explicitRoot' is not a valid Amper project root " +
                 "directory. Make sure you have a project file or a module file at the root of your Amper project."
         assertEquals(expected, r.stderr.trim())
+    }
+
+    @Test
+    fun `run works with input for jvm`() = runTest {
+        val r = runCli(
+            backendTestProjectName = "multiplatform-input",
+            "run", "--module", "jvm-app",
+            stdin = ProcessInput.SimpleInput("Hello World!\nBye World."),
+        )
+
+        assertContains(r.stdout, "Input: 'Hello World!'")
+    }
+
+    @Test
+    @MacOnly
+    fun `run works with input for native`() = runTest {
+        val r = runCli(
+            backendTestProjectName = "multiplatform-input",
+            "run", "--module", "macos-app",
+            stdin = ProcessInput.SimpleInput("Hello World!\nBye World."),
+        )
+
+        assertContains(r.stdout, "Input: 'Hello World!'")
     }
 
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {

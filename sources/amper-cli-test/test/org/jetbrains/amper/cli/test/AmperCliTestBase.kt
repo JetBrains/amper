@@ -7,6 +7,7 @@ package org.jetbrains.amper.cli.test
 import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.ProcessOutputListener
 import org.jetbrains.amper.processes.ProcessResult
 import org.jetbrains.amper.processes.runJava
@@ -59,7 +60,13 @@ abstract class AmperCliTestBase {
 
     protected abstract val testDataRoot: Path
 
-    protected suspend fun runCli(backendTestProjectName: String, vararg args: String, expectedExitCode: Int = 0, assertEmptyStdErr: Boolean = true): ProcessResult {
+    protected suspend fun runCli(
+        backendTestProjectName: String,
+        vararg args: String,
+        expectedExitCode: Int = 0,
+        assertEmptyStdErr: Boolean = true,
+        stdin: ProcessInput? = null,
+    ): ProcessResult {
         val projectRoot = testDataRoot.resolve(backendTestProjectName)
         check(projectRoot.isDirectory()) {
             "Project root is not a directory: $projectRoot"
@@ -69,7 +76,8 @@ abstract class AmperCliTestBase {
             projectRoot,
             *args,
             expectedExitCode = expectedExitCode,
-            assertEmptyStdErr = assertEmptyStdErr
+            assertEmptyStdErr = assertEmptyStdErr,
+            stdin = stdin,
         )
     }
 
@@ -78,6 +86,7 @@ abstract class AmperCliTestBase {
         vararg args: String,
         expectedExitCode: Int = 0,
         assertEmptyStdErr: Boolean = true,
+        stdin: ProcessInput? = null,
     ): ProcessResult {
         println("Running Amper CLI with '${args.toList()}' on $projectRoot")
 
@@ -118,6 +127,7 @@ abstract class AmperCliTestBase {
                 override fun onStderrLine(line: String) = Unit
             },
             tempRoot = AmperProjectTempRoot(tempRoot),
+            input = stdin,
         )
 
         val stdout = result.stdout.fancyPrependIndent("STDOUT: ").ifEmpty { "STDOUT: <no-output>" }
