@@ -5,6 +5,8 @@
 package org.jetbrains.amper.cli
 
 import com.github.ajalt.mordant.animation.animation
+import com.github.ajalt.mordant.rendering.TextAlign
+import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.horizontalLayout
 import com.github.ajalt.mordant.table.verticalLayout
 import com.github.ajalt.mordant.terminal.Terminal
@@ -38,6 +40,11 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
         coroutineScope.launch(Dispatchers.IO) {
             val animation = terminal.animation<List<ThreadState>> { tasks ->
                 verticalLayout {
+                    // Required to explicitly fill empty space with whitespaces and overwrite old lines
+                    align = TextAlign.LEFT
+                    // Required to correctly truncate very long status lines (or on very narrow terminal windows)
+                    width = ColumnWidth.Expand()
+
                     cell("")
 //                    cell(HorizontalRule())
 
