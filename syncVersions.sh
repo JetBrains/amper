@@ -78,9 +78,6 @@ add_update_rule $COMPOSE_VERSION "\/\*magic_replacement\*\/ val composeVersion =
 
 # Android
 
-# For sources/android-integration/gradle-plugin/module.yaml
-# For sources/gradle-integration/module.yaml
-add_update_rule $ANDROID_VERSION "com\.android\.library:com\.android\.library\.gradle\.plugin:"
 # For Documentation.md and GradleMigration.md files
 add_update_rule $ANDROID_VERSION "com\.android\.library$SQUOTE *\| "
 # For Documentation.md and GradleMigration.md files
