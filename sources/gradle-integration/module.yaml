@@ -17,7 +17,7 @@ dependencies:
   - ../frontend/schema
   - ../android-integration/android-utils
   - $libs.kotlin.gradle.plugin
-  - com.android.library:com.android.library.gradle.plugin:8.2.0
+  - $libs.android.gradle.plugin.forGradleBased
   - $libs.kotlin.serialization.plugin
   - $libs.kotlin.compose.compiler.gradle.plugin
   - $libs.compose.gradle.plugin
