@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Sync versions" type="KotlinStandaloneScriptRunConfigurationType">
+    <shortenClasspath name="NONE" />
+    <option name="filePath" value="$PROJECT_DIR$/syncVersions.main.kts" />
+    <method v="2" />
+  </configuration>
+</component>
