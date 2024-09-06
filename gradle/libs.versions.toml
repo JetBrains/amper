@@ -1,16 +1,16 @@
 [versions]
 # The AGP is used in standalone Amper to delegate Android builds to Gradle. It can be in any version.
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
-android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts
+android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-forStandalone = "8.5.0"
-compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts
-gradle-api = "8.6" # AUTO-UPDATED by syncVersions.main.kts
+compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
+gradle-api = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-toolingApi = "8.9"
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "233.13763.11"
 intellij-xcodemodel = "241.14980"
-kotlin = "2.0.20" # AUTO-UPDATED by syncVersions.main.kts
+kotlin = "2.0.20" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 ktor = "2.3.6"
 opentelemetry = "1.32.0"
 slf4j = "2.0.16"
