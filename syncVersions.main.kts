@@ -17,7 +17,7 @@ This script is meant to be used to update several user-facing versions in:
 The source of truth is the list of versions at the top of this file.
  */
 
-val bootstrapAmperVersion = "0.5.0-dev-1117" // AUTO-UPDATED by CI
+val bootstrapAmperVersion = "0.5.0-dev-1145" // AUTO-UPDATED by CI
 
 val kotlinVersion = "2.0.20"
 val kspVersion = "$kotlinVersion-1.0.24"
