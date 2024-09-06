@@ -43,7 +43,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
         .setAttribute("scope", scope.name)
         .setAttribute("platform", platform.name)
         .also { builder -> platform.nativeTarget?.let { builder.setAttribute("nativeTarget", it) } }
-        .startSpan().use { span ->
+        .use { span ->
             val context = Context {
                 this.cache = getCliDefaultFileCacheBuilder(userCacheRoot)
                 this.repositories = repositories
@@ -74,7 +74,7 @@ class MavenResolver(private val userCacheRoot: AmperUserCacheRoot) {
             builder.setAttribute("repositories", it.context.settings.repositories.joinToString(" "))
             it.context.settings.platforms.singleOrNull()?.nativeTarget?.let { builder.setAttribute("nativeTarget", it) }
         }}
-        .startSpan().use { span ->
+        .use { span ->
             with(moduleDependenciesResolver) {
                 root.resolveDependencies(ResolutionDepth.GRAPH_FULL, downloadSources = false)
             }

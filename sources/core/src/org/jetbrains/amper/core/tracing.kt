@@ -12,8 +12,10 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.use
 
 private const val AMPER_SCOPE_NAME = "amper"
 
@@ -23,7 +25,11 @@ val tracer: Tracer
 val meter: Meter
     get() = GlobalOpenTelemetry.getMeter(AMPER_SCOPE_NAME)
 
-inline fun <T> Span.use(operation: (Span) -> T): T {
+/**
+ * Don't use this method; use [use] instead.
+ */
+@PublishedApi // to be able to mark it at least 'internal' if not private, and use from a public function
+internal inline fun <T> Span.useWithoutActiveScope(operation: (Span) -> T): T {
     try {
         return operation(this)
     }
@@ -42,10 +48,22 @@ inline fun <T> Span.use(operation: (Span) -> T): T {
     }
 }
 
-suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend (Span) -> T): T {
+inline fun <T> Span.use(operation: (Span) -> T): T {
+    return useWithoutActiveScope { span ->
+        span.makeCurrent().use {
+            operation(span)
+        }
+    }
+}
+
+inline fun <T> SpanBuilder.use(operation: (Span) -> T): T {
+    return startSpan().use(operation)
+}
+
+suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend CoroutineScope.(Span) -> T): T {
     val span = startSpan()
     return withContext(Context.current().with(span).asContextElement()) {
-        span.use {
+        span.useWithoutActiveScope {
             operation(span)
         }
     }

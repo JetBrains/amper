@@ -77,7 +77,7 @@ private fun nextDelay(
 }
 
 private fun defaultExceptionConsumer(attempt: Int, e: Exception) {
-    tracer.spanBuilder("Retrying action with exponential back off").startSpan().use { span ->
+    tracer.spanBuilder("Retrying action with exponential back off").use { span ->
         span.addEvent("Attempt failed", Attributes.of(
             AttributeKey.longKey("attemptNumber"), attempt.toLong(),
             AttributeKey.stringKey("error"), e.toString()

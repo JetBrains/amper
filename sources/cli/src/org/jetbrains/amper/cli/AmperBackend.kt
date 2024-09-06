@@ -37,7 +37,7 @@ class AmperBackend(val context: CliContext) {
         with(CliProblemReporterContext) {
             val model = spanBuilder("loading model")
                 .setAttribute("root", context.projectRoot.path.pathString)
-                .startSpan().use {
+                .use {
                     when (val result = SchemaBasedModelImport.getModel(context.projectContext)) {
                         is Result.Failure -> {
                             if (problemReporter.wereProblemsReported()) {
