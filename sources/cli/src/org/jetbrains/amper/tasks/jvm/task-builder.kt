@@ -17,6 +17,7 @@ import org.jetbrains.amper.tasks.PublishTask
 fun ProjectTasksBuilder.setupJvmTasks() {
     allModules()
         .alsoPlatforms(Platform.JVM)
+        .alsoTests()
         .withEach {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
             val compileTaskName = CommonTaskType.Compile.getTaskName(module, platform, isTest)
@@ -87,6 +88,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
     allModules()
         .alsoPlatforms(Platform.JVM)
+        .alsoTests()
         .selectModuleDependencies(ResolutionScope.COMPILE) {
             tasks.registerDependency(
                 CommonTaskType.Compile.getTaskName(module, platform, isTest),
@@ -96,6 +98,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
     allModules()
         .alsoPlatforms(Platform.JVM)
+        .alsoTests()
         .selectModuleDependencies(ResolutionScope.RUNTIME) {
             tasks.registerDependency(
                 CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),

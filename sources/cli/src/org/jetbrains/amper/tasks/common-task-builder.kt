@@ -57,7 +57,7 @@ fun ProjectTasksBuilder.setupCommonTasks() {
                     fragments = fragmentsIncludeProduction,
                     fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
                     fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
-                    taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+                    taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
                 )
             )
         }

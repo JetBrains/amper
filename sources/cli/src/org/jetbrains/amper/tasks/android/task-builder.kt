@@ -185,6 +185,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
     allModules()
         .alsoPlatforms(Platform.ANDROID)
         .alsoTests()
+        .alsoBuildTypes()
         .selectModuleDependencies(ResolutionScope.COMPILE) {
             for (buildType in BuildType.entries) {
                 tasks.registerDependency(
@@ -197,6 +198,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
     allModules()
         .alsoPlatforms(Platform.ANDROID)
         .alsoTests()
+        .alsoBuildTypes()
         .selectModuleDependencies(ResolutionScope.RUNTIME) {
             for (buildType in BuildType.entries) {
                 tasks.registerDependency(
@@ -231,7 +233,6 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
 
     allModules()
         .alsoPlatforms(Platform.ANDROID)
-        .filterModuleType { it != ProductType.LIB }
         .alsoBuildTypes()
         .withEach {
             // test
@@ -263,26 +264,28 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
             )
         }
 
-    allModules().withEach {
-        val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.ANDROID) }
-        val taskName = AndroidTaskType.Bundle.getTaskName(module, Platform.ANDROID, false)
-        tasks.registerTask(
-            AndroidBundleTask(
-                module,
-                BuildType.Release,
-                executeOnChangedInputs,
-                androidSdkPath,
-                fragments,
-                context.projectRoot,
-                context.getTaskOutputPath(taskName),
-                context.buildLogsRoot,
-                taskName
-            ),
-            listOf(
-                CommonTaskType.RuntimeClasspath.getTaskName(module, Platform.ANDROID, false, BuildType.Release),
+    allModules()
+        .alsoPlatforms(Platform.ANDROID)
+        .withEach {
+            val fragments = module.fragments.filter { !it.isTest && it.platforms.contains(Platform.ANDROID) }
+            val taskName = AndroidTaskType.Bundle.getTaskName(module, Platform.ANDROID, false)
+            tasks.registerTask(
+                AndroidBundleTask(
+                    module,
+                    BuildType.Release,
+                    executeOnChangedInputs,
+                    androidSdkPath,
+                    fragments,
+                    context.projectRoot,
+                    context.getTaskOutputPath(taskName),
+                    context.buildLogsRoot,
+                    taskName
+                ),
+                listOf(
+                    CommonTaskType.RuntimeClasspath.getTaskName(module, Platform.ANDROID, false, BuildType.Release),
+                )
             )
-        )
-    }
+        }
 }
 
 private fun TaskGraphBuilder.setupAndroidPlatformTask(

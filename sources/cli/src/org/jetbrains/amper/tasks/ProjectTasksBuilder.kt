@@ -102,7 +102,7 @@ class ProjectTasksBuilder(
     fun allModules() = model.modules.asSequence().map { ModuleSequenceCtx(it) }
 
     fun Sequence<ModuleSequenceCtx>.alsoPlatforms(parent: Platform? = null) = flatMap { ctx ->
-        ctx.module.targetLeafPlatforms.filter { parent?.isParentOf(it) == true }.map { ctx.copy(platform = it) }
+        ctx.module.targetLeafPlatforms.filter { parent?.isParentOf(it) ?: true }.map { ctx.copy(platform = it) }
     }
 
     fun Sequence<ModuleSequenceCtx>.alsoTests() = flatMap {
