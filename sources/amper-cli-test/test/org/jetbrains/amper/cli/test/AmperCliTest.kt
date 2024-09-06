@@ -30,6 +30,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Execution(ExecutionMode.CONCURRENT)
@@ -342,7 +343,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `run works with input for jvm`() = runTest {
+    fun `run works with input for jvm`() = runTest(timeout = 5.minutes) {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "jvm-app",
@@ -354,7 +355,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `run works with input for native`() = runTest {
+    fun `run works with input for native`() = runTest(timeout = 5.minutes) {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "macos-app",
