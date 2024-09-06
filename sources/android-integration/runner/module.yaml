@@ -8,7 +8,7 @@ apply:
 dependencies:
   - ../../core
   - ../android-integration-core: exported
-  - org.gradle:gradle-tooling-api:8.9: exported
+  - $libs.gradle.toolingApi: exported
   - com.android.tools.build:builder-model:8.5.0
 
 settings:

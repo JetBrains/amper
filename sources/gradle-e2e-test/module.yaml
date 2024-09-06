@@ -12,7 +12,7 @@ dependencies:
 
 test-dependencies:
   - org.yaml:snakeyaml:2.2
-  - org.gradle:gradle-tooling-api:8.9
+  - $libs.gradle.toolingApi
   - $libs.kotlin.reflect
   - commons-io:commons-io:2.4
 

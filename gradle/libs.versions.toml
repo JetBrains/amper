@@ -4,6 +4,8 @@
 android-forGradleBased = "8.2.0" # do not bump higher than Fleet can import
 android-forStandalone = "8.5.0"
 compose = "1.6.10"
+gradle-api = "8.6"
+gradle-toolingApi = "8.9"
 intellij-async-profiler = "3.0-1"
 intellij-parsing = "0.3.154"
 intellij-platform = "233.13763.11"
@@ -20,6 +22,8 @@ tinylog = "2.6.2"
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
+gradle-api = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }
+gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-toolingApi" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
 intellij-deps-asyncProfiler = { module = "org.jetbrains.intellij.deps:async-profiler", version.ref = "intellij-async-profiler" }
 intellij-parsing-core = { module = "org.jetbrains:ij-parsing-core", version.ref = "intellij-parsing" }

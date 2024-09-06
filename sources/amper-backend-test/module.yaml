@@ -15,7 +15,7 @@ test-dependencies:
   - com.android.tools.apkparser:binary-resources:31.2.0
   - com.google.guava:guava:33.0.0-jre
 
-  - org.gradle:gradle-tooling-api:8.9: compile-only
+  - $libs.gradle.toolingApi: compile-only
   - com.android.tools.ddms:ddmlib:25.3.0: compile-only
 
 apply:
