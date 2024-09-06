@@ -9,12 +9,12 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
-import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
+import org.jetbrains.amper.tasks.CommonTaskType
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
-import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 
-fun TaskGraphBuilderCtx.setupJvmTasks() {
+fun ProjectTasksBuilder.setupJvmTasks() {
     allModules()
         .alsoPlatforms(Platform.JVM)
         .withEach {

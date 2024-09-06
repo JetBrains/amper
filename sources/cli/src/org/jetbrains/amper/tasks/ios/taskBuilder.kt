@@ -6,17 +6,17 @@ package org.jetbrains.amper.tasks.ios
 
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
-import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 import org.jetbrains.amper.tasks.native.NativeTaskType
 import org.jetbrains.amper.util.BuildType
 
 /**
  * Set up apple-related tasks.
  */
-fun TaskGraphBuilderCtx.setupIosTasks() {
+fun ProjectTasksBuilder.setupIosTasks() {
     allModules()
         .alsoPlatforms(Platform.IOS)
         .alsoTests()

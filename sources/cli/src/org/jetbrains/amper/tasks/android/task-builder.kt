@@ -21,10 +21,10 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
-import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
@@ -34,7 +34,7 @@ import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 
-fun TaskGraphBuilderCtx.setupAndroidTasks() {
+fun ProjectTasksBuilder.setupAndroidTasks() {
     val androidSdkPath = context.androidHomeRoot.path
 
     allModules().alsoPlatforms(Platform.ANDROID)

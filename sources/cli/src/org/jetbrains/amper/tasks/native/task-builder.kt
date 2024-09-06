@@ -9,17 +9,17 @@ import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.isDescendantOf
+import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
-import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 import org.jetbrains.amper.tasks.ios.IosTaskType
 import org.jetbrains.amper.util.BuildType
 
 private fun isIosApp(platform: Platform, module: PotatoModule) =
     platform.isDescendantOf(Platform.IOS) && module.type.isApplication()
 
-fun TaskGraphBuilderCtx.setupNativeTasks() {
+fun ProjectTasksBuilder.setupNativeTasks() {
     tasks.registerTask(
         task = CommonizeNativeDistributionTask(
             model = model,

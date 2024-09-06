@@ -7,11 +7,11 @@ package org.jetbrains.amper.tasks.custom
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
+import org.jetbrains.amper.tasks.CommonTaskType
+import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
-import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 
-fun TaskGraphBuilderCtx.setupCustomTasks() {
+fun ProjectTasksBuilder.setupCustomTasks() {
     allModules().withEach {
         module.customTasks.forEach { description ->
             tasks.registerTask(
