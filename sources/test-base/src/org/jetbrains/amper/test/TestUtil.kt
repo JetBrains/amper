@@ -64,16 +64,9 @@ object TestUtil {
     val amperCheckoutRoot: Path by lazy {
         val start = Path(System.getProperty("user.dir"))
 
-        var current: Path = start
-        while (current != current.parent) {
-            if (current.resolve("syncVersions.sh").exists() && current.resolve("CONTRIBUTING.md").exists()) {
-                return@lazy current
-            }
-
-            current = current.parent ?: break
-        }
-
-        error("Unable to find Amper checkout root upwards from '$start'")
+        generateSequence(start) { it.parent }
+            .find { (it / ".github").exists() && (it / "CONTRIBUTING.md").exists() }
+            ?: error("Unable to find Amper checkout root upwards from '$start'")
     }
 
     val amperSourcesRoot = amperCheckoutRoot / "sources"
