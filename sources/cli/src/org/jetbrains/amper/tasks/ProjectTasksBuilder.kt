@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tasks
 
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.engine.TaskGraph
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Model
@@ -13,7 +14,6 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
-import org.jetbrains.amper.frontend.asLeafFragment
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.testSuffix
 import org.jetbrains.amper.tasks.android.setupAndroidTasks
@@ -31,10 +31,20 @@ internal interface TaskType {
 
 internal interface PlatformTaskType : TaskType {
 
-    fun getTaskName(module: PotatoModule, platform: Platform, isTest: Boolean = false, buildType: BuildType? = null, suffix: String = ""): TaskName =
+    fun getTaskName(
+        module: PotatoModule,
+        platform: Platform,
+        isTest: Boolean = false,
+        buildType: BuildType? = null,
+        suffix: String = ""
+    ): TaskName =
         TaskName.moduleTask(
             module,
-            "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${buildType?.suffix(platform) ?: ""}$suffix",
+            "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${
+                buildType?.suffix(
+                    platform
+                ) ?: ""
+            }$suffix",
         )
 }
 
@@ -46,7 +56,7 @@ internal interface FragmentTaskType : TaskType {
 
 class ProjectTasksBuilder(private val context: CliContext, private val model: Model) {
     fun build(): TaskGraph {
-        val builder = ProjectTaskRegistrar(context, model)
+        val builder = TaskGraphBuilderCtx(context, model)
         builder.setupCommonTasks()
         builder.setupJvmTasks()
         builder.setupAndroidTasks()
@@ -65,37 +75,45 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
     private fun PotatoModule.fragmentsTargeting(platform: Platform, includeTestFragments: Boolean): List<Fragment> =
         fragments.filter { (includeTestFragments || !it.isTest) && it.platforms.contains(platform) }
 
-    private fun ProjectTaskRegistrar.setupCommonTasks() {
-        FragmentSelector.leafFragments().select { (executeOnChangedInputs, _, module, isTest, platform) ->
-            platform ?: return@select
-            val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
-            val fragmentsCompileModuleDependencies = module.buildDependenciesGraph(isTest, platform, DependencyReason.Compile, context.userCacheRoot)
-            val fragmentsRuntimeModuleDependencies = when {
-                platform.isDescendantOf(Platform.NATIVE) -> null  // native world doesn't distinguish compile/runtime classpath
-                else -> module.buildDependenciesGraph(isTest, platform, DependencyReason.Runtime, context.userCacheRoot)
-            }
-            registerTask(
-                ResolveExternalDependenciesTask(
-                    module,
-                    context.userCacheRoot,
-                    executeOnChangedInputs,
-                    platform = platform,
-                    // for test code, we resolve dependencies on union of test and prod dependencies
-                    fragments = fragmentsIncludeProduction,
-                    fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
-                    fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
-                    taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+    private fun TaskGraphBuilderCtx.setupCommonTasks() {
+        allModules()
+            .alsoPlatforms()
+            .alsoTests()
+            .withEach {
+                val fragmentsIncludeProduction = module.fragmentsTargeting(platform, includeTestFragments = isTest)
+                val fragmentsCompileModuleDependencies =
+                    module.buildDependenciesGraph(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot)
+                val fragmentsRuntimeModuleDependencies = when {
+                    platform.isDescendantOf(Platform.NATIVE) -> null  // native world doesn't distinguish compile/runtime classpath
+                    else -> module.buildDependenciesGraph(
+                        isTest,
+                        platform,
+                        ResolutionScope.RUNTIME,
+                        context.userCacheRoot
+                    )
+                }
+                tasks.registerTask(
+                    ResolveExternalDependenciesTask(
+                        module,
+                        context.userCacheRoot,
+                        executeOnChangedInputs,
+                        platform = platform,
+                        // for test code, we resolve dependencies on union of test and prod dependencies
+                        fragments = fragmentsIncludeProduction,
+                        fragmentsCompileModuleDependencies = fragmentsCompileModuleDependencies,
+                        fragmentsRuntimeModuleDependencies = fragmentsRuntimeModuleDependencies,
+                        taskName = CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+                    )
                 )
-            )
-        }
+            }
 
-        FragmentSelector.select { (executeOnChangedInputs, fragment, module, _, _) ->
-            val taskName = CommonFragmentTaskType.CompileMetadata.getTaskName(fragment)
-            registerTask(
+        allFragments().forEach {
+            val taskName = CommonFragmentTaskType.CompileMetadata.getTaskName(it)
+            tasks.registerTask(
                 MetadataCompileTask(
                     taskName = taskName,
-                    module = module,
-                    fragment = fragment,
+                    module = it.module,
+                    fragment = it,
                     userCacheRoot = context.userCacheRoot,
                     taskOutputRoot = context.getTaskOutputPath(taskName),
                     executeOnChangedInputs = executeOnChangedInputs,
@@ -103,41 +121,41 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
                 )
             )
             // TODO make dependency resolution a module-wide task instead (when contexts support sets of platforms)
-            fragment.platforms.forEach { leafPlatform ->
-                registerDependency(
+            it.platforms.forEach { leafPlatform ->
+                tasks.registerDependency(
                     taskName = taskName,
-                    dependsOn = CommonTaskType.Dependencies.getTaskName(module, leafPlatform)
+                    dependsOn = CommonTaskType.Dependencies.getTaskName(it.module, leafPlatform)
                 )
             }
 
-            fragment.allSourceFragmentCompileDependencies.forEach { otherFragment ->
-                registerDependency(
+            it.allSourceFragmentCompileDependencies.forEach { otherFragment ->
+                tasks.registerDependency(
                     taskName = taskName,
                     dependsOn = CommonFragmentTaskType.CompileMetadata.getTaskName(otherFragment)
                 )
             }
         }
 
-        FragmentSelector.leafFragments().isTest(false).select { (executeOnChangedInputs, fragment, _, _, _) ->
-            val module = fragment.module
-            val platform = fragment.asLeafFragment?.platform ?: return@select
-            val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
-            registerTask(
-                SourcesJarTask(
-                    taskName = sourcesJarTaskName,
-                    module = module,
-                    platform = platform,
-                    taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
-                    executeOnChangedInputs = executeOnChangedInputs,
+        allModules()
+            .alsoPlatforms()
+            .withEach {
+                val module = module
+                val sourcesJarTaskName = CommonTaskType.SourcesJar.getTaskName(module, platform)
+                tasks.registerTask(
+                    SourcesJarTask(
+                        taskName = sourcesJarTaskName,
+                        module = module,
+                        platform = platform,
+                        taskOutputRoot = context.getTaskOutputPath(sourcesJarTaskName),
+                        executeOnChangedInputs = executeOnChangedInputs,
+                    )
                 )
-            )
-        }
+            }
     }
 
-    private fun ProjectTaskRegistrar.setupCustomTaskDependencies() {
-        FragmentSelector.rootsOnly().select {
-            val module = it.fragment.module
-            val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@select
+    private fun TaskGraphBuilderCtx.setupCustomTaskDependencies() {
+        allModules().withEach {
+            val tasksSettings = module.parts.filterIsInstance<ModuleTasksPart>().singleOrNull() ?: return@withEach
             for ((taskName, taskSettings) in tasksSettings.settings) {
                 val thisModuleTaskName = TaskName.moduleTask(module, taskName)
 
@@ -148,7 +166,7 @@ class ProjectTasksBuilder(private val context: CliContext, private val model: Mo
                         TaskName.moduleTask(module, dependsOnTaskName)
                     }
 
-                    registerDependency(thisModuleTaskName, dependsOnTask)
+                    tasks.registerDependency(thisModuleTaskName, dependsOnTask)
                 }
             }
         }

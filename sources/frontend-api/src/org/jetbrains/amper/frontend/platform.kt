@@ -105,3 +105,5 @@ enum class Platform(
 
 fun Platform.isDescendantOf(other: Platform): Boolean =
     this == other || (parent != null && parent.isDescendantOf(other))
+
+fun Platform.isParentOf(other: Platform) = other.isDescendantOf(this)

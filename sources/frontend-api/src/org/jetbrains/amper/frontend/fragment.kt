@@ -127,8 +127,6 @@ interface LeafFragment : Fragment {
     val platform: Platform
 }
 
-val Fragment.asLeafFragment get() = this as? LeafFragment
-
 sealed interface Notation : Traceable
 
 interface DefaultScopedNotation : Notation {

@@ -22,7 +22,7 @@ import org.jetbrains.amper.resolver.getCliDefaultFileCacheBuilder
 internal fun PotatoModule.forModuleDependency(
     isTest: Boolean,
     platform: Platform,
-    dependencyReason: DependencyReason,
+    dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot,
     block: (dependency: PotatoModule) -> Unit
 ) {
@@ -36,7 +36,7 @@ internal fun PotatoModule.forModuleDependency(
 internal fun PotatoModule.buildDependenciesGraph(
     isTest: Boolean,
     platform: Platform,
-    dependencyReason: DependencyReason,
+    dependencyReason: ResolutionScope,
     userCacheRoot: AmperUserCacheRoot
 ): ModuleDependencyNodeWithModule {
     val resolutionPlatform = platform.toResolutionPlatform()
@@ -44,7 +44,7 @@ internal fun PotatoModule.buildDependenciesGraph(
 
     return with(moduleDependenciesResolver) {
         resolveDependenciesGraph(
-            DependenciesFlowType.ClassPathType(dependencyReason.toResolutionScope(), resolutionPlatform, isTest),
+            DependenciesFlowType.ClassPathType(dependencyReason, resolutionPlatform, isTest),
             getCliDefaultFileCacheBuilder(userCacheRoot)
         )
     }
@@ -56,9 +56,4 @@ private fun ModuleDependencyNodeWithModule.getModuleDependencies(): List<PotatoM
         .filterIsInstance<ModuleDependencyNodeWithModule>()
         .map { it.module }
         .toList()
-}
-
-private fun DependencyReason.toResolutionScope() = when (this) {
-    DependencyReason.Compile -> ResolutionScope.COMPILE
-    DependencyReason.Runtime -> ResolutionScope.RUNTIME
 }

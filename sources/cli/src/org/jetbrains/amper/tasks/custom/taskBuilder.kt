@@ -7,15 +7,14 @@ package org.jetbrains.amper.tasks.custom
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.tasks.FragmentSelector
-import org.jetbrains.amper.tasks.ProjectTaskRegistrar
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
+import org.jetbrains.amper.tasks.TaskGraphBuilderCtx
 
-fun ProjectTaskRegistrar.setupCustomTasks() {
-    FragmentSelector.rootsOnly().select { (_, _, module) ->
+fun TaskGraphBuilderCtx.setupCustomTasks() {
+    allModules().withEach {
         module.customTasks.forEach { description ->
-            registerTask(
+            tasks.registerTask(
                 CustomTask(
                     custom = description,
                     taskOutputRoot = context.getTaskOutputPath(description.name),
@@ -30,7 +29,7 @@ fun ProjectTaskRegistrar.setupCustomTasks() {
 
             // explicit task dependencies
             description.dependsOn.forEach { dependsOn ->
-                registerDependency(description.name, dependsOn)
+                tasks.registerDependency(description.name, dependsOn)
             }
 
             // implicit task dependencies from references
@@ -41,7 +40,7 @@ fun ProjectTaskRegistrar.setupCustomTasks() {
                         is CompositeStringPart.CurrentTaskProperty -> Unit
                         is CompositeStringPart.ModulePropertyReference -> {
                             part.property.dependsOnModuleTask.forEach { dependsOn ->
-                                registerDependency(
+                                tasks.registerDependency(
                                     description.name,
                                     dependsOn = TaskName.moduleTask(part.referencedModule, dependsOn),
                                 )
