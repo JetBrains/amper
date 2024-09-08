@@ -64,13 +64,11 @@ open class AndroidBaseTest : TestBase() {
         val cmd = mutableListOf<String>()
 
         if (!isRunningInTeamCity()) {
-            // Для локального запуска
             if (!isEmulatorRunning()) {
                 startEmulator()
             }
             cmd.add(getAdbPath())
         } else {
-            // Для CI (TeamCity)
             val adbCompanion = getAdbRemoteSession()
             val host = adbCompanion.split(':')
             cmd.apply {
@@ -282,14 +280,13 @@ open class AndroidBaseTest : TestBase() {
             throw RuntimeException("No AVDs available. Please create at least one AVD.")
         }
 
-        val avdName = availableAvds[0] // Берем первый доступный AVD
+        val avdName = availableAvds[0]
         println("Run emulator $avdName...")
 
         val processBuilder = ProcessBuilder(emulatorPath, "-avd", avdName)
         processBuilder.redirectErrorStream(true)
         val process = processBuilder.start()
 
-        // Ждем, пока эмулятор полностью запустится
         var isBootComplete = false
         while (!isBootComplete) {
             val stdout = ByteArrayOutputStream()

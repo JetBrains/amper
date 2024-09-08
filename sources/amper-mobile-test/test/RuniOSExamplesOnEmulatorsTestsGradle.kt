@@ -23,8 +23,8 @@ class RuniOSExamplesOnEmulatorsTestsGradle : iOSBaseTest() {
     fun cleanup() {
         val projectFolder = File("${System.getProperty("user.dir")}/tempProjects")
         val appFolder = File("${System.getProperty("user.dir")}/iOSTestsAssets/app")
-        //projectFolder.deleteRecursively()
-        //appFolder.deleteRecursively()
+        projectFolder.deleteRecursively()
+        appFolder.deleteRecursively()
         deleteRemoteSession()
     }
 

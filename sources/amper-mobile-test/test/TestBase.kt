@@ -3,10 +3,14 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 
 /*
@@ -16,24 +20,74 @@ val destinationBasePath = Path("tempProjects")
 
 open class TestBase {
 
-    fun copyProject(projectName: String, sourceDirectory: String) {
-        val sourceDir = Path(sourceDirectory).resolve(projectName)
+    val destinationBasePath: Path = Paths.get("tempProjects")
+    val gitRepoUrl: String = "ssh://git@git.jetbrains.team/amper/amper-external-projects.git"
 
+    // Copies the project either from local path or Git if not found locally
+    fun copyProject(projectName: String, sourceDirectory: String) {
+        // Construct the local source directory path
+        var sourceDir = Path(sourceDirectory).resolve(projectName)
+
+        // Check if the source directory exists locally
         if (!sourceDir.exists()) {
-            throw IllegalArgumentException("Source directory does not exist: $sourceDir")
+            println("Local source directory not found: $sourceDir. Attempting to clone from Git...")
+
+            // Clone the project from Git repository into a temporary directory
+            val tempDir = createTempDirectory()
+
+            try {
+                // Run the Git clone command
+                val gitCloneCommand = listOf("git", "clone", gitRepoUrl, tempDir.toAbsolutePath().toString())
+                val process = ProcessBuilder(gitCloneCommand)
+                    .redirectErrorStream(true)
+                    .start()
+
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    // Log output for debugging
+                    val errorOutput = process.inputStream.bufferedReader().use { it.readText() }
+                    throw RuntimeException("Git clone failed with exit code $exitCode. Output: $errorOutput")
+                }
+
+                println("Git clone successful. Temp directory: $tempDir")
+
+                // Verify if the repo has been cloned by checking the .git folder
+                val gitFolder = tempDir.resolve(".git")
+                if (!gitFolder.exists()) {
+                    throw RuntimeException("Git clone completed but .git folder is missing. Something went wrong.")
+                }
+                println("Git repository successfully cloned.")
+
+                // Project is expected to be in the root of the cloned repository
+                sourceDir = tempDir.resolve(projectName)
+
+                // Log the path where the project is expected
+                println("Project path being copied from: $sourceDir")
+
+                if (!sourceDir.exists()) {
+                    throw RuntimeException("Project directory does not exist in the cloned repository at $sourceDir")
+                }
+            } catch (ex: IOException) {
+                throw RuntimeException("Failed to clone Git repository", ex)
+            }
         }
 
+        // Destination path for the copied project
         val destinationProjectPath = destinationBasePath.resolve(projectName)
 
         try {
+            // Ensure the destination directory exists
             destinationBasePath.createDirectories()
+
+            // Copy the project files from source to destination
+            println("Copying project from $sourceDir to $destinationProjectPath")
             sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
         } catch (ex: IOException) {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
     }
-
-    fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
+}
+fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
         val gradleFile = File("tempProjects/${projectDir.name}/settings.gradle.kts")
         require(gradleFile.exists()) { "file not found: $gradleFile" }
 
@@ -166,7 +220,6 @@ open class TestBase {
 
         process.waitFor()
     }
-}
 
 
 fun executeCommand(
