@@ -30,6 +30,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import java.nio.file.Path
 
 data class DefaultModel(
+    override val projectRoot: Path,
     override val modules: List<PotatoModule>,
 ) : Model
 

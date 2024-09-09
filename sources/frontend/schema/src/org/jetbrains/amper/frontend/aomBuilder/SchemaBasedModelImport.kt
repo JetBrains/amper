@@ -39,7 +39,7 @@ object SchemaBasedModelImport : ModelInit {
     fun getModel(projectContext: AmperProjectContext): Result<Model> {
         val resultModules = doBuild(projectContext)
             ?: return amperFailure()
-        val model = DefaultModel(resultModules)
+        val model = DefaultModel(projectContext.projectRootDir.toNioPath(), resultModules)
         AomModelDiagnosticFactories.forEach { diagnostic ->
             with(diagnostic) { model.analyze() }
         }

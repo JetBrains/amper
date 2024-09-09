@@ -29,7 +29,8 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 class MockModel(
-    val name: String
+    val name: String,
+    override val projectRoot: Path,
 ) : Model {
     override val modules = mutableListOf<PotatoModule>()
 

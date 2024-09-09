@@ -4,7 +4,10 @@
 
 package org.jetbrains.amper.frontend
 
+import java.nio.file.Path
+
 
 interface Model {
+    val projectRoot: Path
     val modules: List<PotatoModule>
 }

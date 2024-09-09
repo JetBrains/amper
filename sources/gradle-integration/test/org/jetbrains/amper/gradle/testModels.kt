@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.gradle
 
-import com.intellij.openapi.project.Project
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.amperFailure
 import org.jetbrains.amper.core.messages.BuildProblemImpl
@@ -12,7 +11,6 @@ import org.jetbrains.amper.core.messages.GlobalBuildProblemSource
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.NonIdealDiagnostic
 import org.jetbrains.amper.core.messages.ProblemReporterContext
-import org.jetbrains.amper.frontend.Model
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -84,7 +82,7 @@ object Models : ModelInit {
             return amperFailure()
         }
         val modelBuilder = modelHandle.builder
-        return Result.success(MockModel(modelHandle.name).apply { modelBuilder(rootProjectDir) })
+        return Result.success(MockModel(modelHandle.name, rootProjectDir).apply { modelBuilder(rootProjectDir) })
     }
 
     private val Path.moduleYaml: Path get() = resolve("module.yaml")
