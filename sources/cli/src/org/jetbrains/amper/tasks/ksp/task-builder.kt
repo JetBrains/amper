@@ -76,7 +76,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
             if (fragments.any { it.settings.ksp.enabled }) {
                 tasks.registerDependency(
                     taskName = CommonTaskType.Ksp.getTaskName(module, platform, isTest),
-                    dependsOn = CommonTaskType.Compile.getTaskName(dependsOn, platform, isTest = false)
+                    dependsOn = CommonTaskType.Compile.getTaskName(dependsOn, platform, isTest = false, buildType)
                 )
             }
         }
