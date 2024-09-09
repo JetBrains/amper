@@ -39,38 +39,8 @@ object TelemetryEnvironment {
     fun setup(logsRoot: AmperBuildLogsRoot) {
         // TODO: Implement some kind of background batch processing like in intellij
 
-        val spansFile = logsRoot.path.resolve("jaeger-trace.json")
-
-        val jaegerJsonSpanExporter = JaegerJsonSpanExporter(
-            file = spansFile,
-            serviceName = resource.getAttribute(AttributeKey.stringKey("service.name"))!!,
-            serviceNamespace = resource.getAttribute(AttributeKey.stringKey("service.namespace"))!!,
-            serviceVersion = resource.getAttribute(AttributeKey.stringKey("service.version"))!!,
-        )
-
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(SimpleSpanProcessor.create(object : SpanExporter {
-                override fun export(spans: Collection<SpanData>): CompletableResultCode {
-                    runBlocking {
-                        jaegerJsonSpanExporter.export(spans)
-                    }
-                    return CompletableResultCode.ofSuccess()
-                }
-
-                override fun flush(): CompletableResultCode {
-                    runBlocking {
-                        jaegerJsonSpanExporter.flush()
-                    }
-                    return CompletableResultCode.ofSuccess()
-                }
-
-                override fun shutdown(): CompletableResultCode {
-                    runBlocking {
-                        jaegerJsonSpanExporter.shutdown()
-                    }
-                    return CompletableResultCode.ofSuccess()
-                }
-            }))
+            .addSpanProcessor(SimpleSpanProcessor.create(JaegerSpanExporter(logsRoot)))
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -85,5 +55,37 @@ object TelemetryEnvironment {
                 LoggerFactory.getLogger(javaClass).error("Exception on shutdown: ${t.message}", t)
             }
         })
+    }
+
+    private class JaegerSpanExporter(logsRoot: AmperBuildLogsRoot) : SpanExporter {
+        val spansFile = logsRoot.path.resolve("jaeger-trace.json")
+
+        val jaegerJsonSpanExporter = JaegerJsonSpanExporter(
+            file = spansFile,
+            serviceName = resource.getAttribute(AttributeKey.stringKey("service.name"))!!,
+            serviceNamespace = resource.getAttribute(AttributeKey.stringKey("service.namespace"))!!,
+            serviceVersion = resource.getAttribute(AttributeKey.stringKey("service.version"))!!,
+        )
+
+        override fun export(spans: Collection<SpanData>): CompletableResultCode {
+            runBlocking {
+                jaegerJsonSpanExporter.export(spans)
+            }
+            return CompletableResultCode.ofSuccess()
+        }
+
+        override fun flush(): CompletableResultCode {
+            runBlocking {
+                jaegerJsonSpanExporter.flush()
+            }
+            return CompletableResultCode.ofSuccess()
+        }
+
+        override fun shutdown(): CompletableResultCode {
+            runBlocking {
+                jaegerJsonSpanExporter.shutdown()
+            }
+            return CompletableResultCode.ofSuccess()
+        }
     }
 }
