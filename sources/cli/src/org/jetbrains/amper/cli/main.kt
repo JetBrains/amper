@@ -216,7 +216,7 @@ internal fun withBackend(
 
         if (setupEnvironment) {
             CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
-            CliEnvironmentInitializer.setupTelemetry(cliContext.buildLogsRoot)
+            TelemetryEnvironment.setup(cliContext.buildLogsRoot)
             CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
             // TODO output version, os and some env to log file only
