@@ -12,7 +12,7 @@ import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.data.SpanData
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import io.opentelemetry.sdk.trace.export.SpanExporter
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
@@ -37,10 +37,8 @@ object TelemetryEnvironment {
     )
 
     fun setup(logsRoot: AmperBuildLogsRoot) {
-        // TODO: Implement some kind of background batch processing like in intellij
-
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(SimpleSpanProcessor.create(JaegerSpanExporter(logsRoot)))
+            .addSpanProcessor(BatchSpanProcessor.builder(JaegerSpanExporter(logsRoot)).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
