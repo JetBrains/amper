@@ -70,7 +70,7 @@ internal sealed interface KspConfig {
     /** The output directory for generated classes. */
     val classOutputDir: Path
 
-    /** The output directory for Kotlin sources. */
+    /** The output directory for generated Kotlin sources. */
     val kotlinOutputDir: Path
 
     /** The output directory for generated resources. */
@@ -157,6 +157,13 @@ internal interface KspJvmConfig : KspConfig {
      * directory in both [javaSourceRoots] and [sourceRoots].
      */
     val javaSourceRoots: List<Path>
+
+    /**
+     * The output directory for generated Java sources.
+     *
+     * Only files with `.java` extension (at any depth) are passed to Java compilation tasks, so it might be safe to
+     * pass the same dir as for Kotlin sources. However, in the KSP Gradle plugin, distinct directories are always used.
+     */
     val javaOutputDir: Path
 
     /**

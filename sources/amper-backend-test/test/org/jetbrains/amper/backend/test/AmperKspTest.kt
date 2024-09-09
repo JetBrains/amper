@@ -37,13 +37,12 @@ class AmperKspTest : AmperIntegrationTestBase() {
         val backend = AmperBackend(projectContext)
         backend.build()
 
-        val kspTaskName = TaskName(":service-impl:kspJvm")
-        val kspOutputDir = projectContext.getKspOutputDir(kspTaskName)
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "service-impl", fragment = "jvm")
 
         val expectedGeneratedFiles = setOf(
-            kspOutputDir / "resources/META-INF/services/com.sample.service.MyService",
+            generatedFilesDir / "resources/META-INF/services/com.sample.service.MyService",
         )
-        assertEquals(expectedGeneratedFiles, kspOutputDir.walk().toSet())
+        assertEquals(expectedGeneratedFiles, generatedFilesDir.walk().toSet())
 
         backend.runApplication()
         assertStdoutContains("Hello, service!")
@@ -58,14 +57,13 @@ class AmperKspTest : AmperIntegrationTestBase() {
         val backend = AmperBackend(projectContext)
         backend.build()
 
-        val kspTaskName = TaskName(":ksp-android-room:kspAndroid")
-        val kspOutputDir = projectContext.getKspOutputDir(kspTaskName)
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "ksp-android-room", fragment = "android")
 
         val expectedGeneratedFiles = setOf(
-            kspOutputDir / "kotlin/com/jetbrains/sample/app/AppDatabase_Impl.kt",
-            kspOutputDir / "kotlin/com/jetbrains/sample/app/UserDao_Impl.kt",
+            generatedFilesDir / "src/ksp/kotlin/com/jetbrains/sample/app/AppDatabase_Impl.kt",
+            generatedFilesDir / "src/ksp/kotlin/com/jetbrains/sample/app/UserDao_Impl.kt",
         )
-        assertEquals(expectedGeneratedFiles, kspOutputDir.walk().toSet())
+        assertEquals(expectedGeneratedFiles, generatedFilesDir.walk().toSet())
 
         val expectedGeneratedProjectFiles = setOf(
             generatedSchemaPath / "com.jetbrains.sample.app.AppDatabase/1.json",
@@ -73,6 +71,6 @@ class AmperKspTest : AmperIntegrationTestBase() {
         assertEquals(expectedGeneratedProjectFiles, generatedSchemaPath.walk().toSet())
     }
 
-    private fun CliContext.getKspOutputDir(kspTaskName: TaskName): Path =
-        getTaskOutputPath(kspTaskName) / "ksp-generated"
+    private fun CliContext.generatedFilesDir(module: String, fragment: String): Path =
+        buildOutputRoot.path / "generated" / module / fragment
 }

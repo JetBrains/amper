@@ -11,6 +11,11 @@ import kotlin.io.path.div
 @Serializable
 class KspOutputPaths(
     /**
+     * The base dir of the module.
+     * KSP uses it to relativize paths for incrementality processing and output tracking.
+     */
+    val moduleBaseDir: Path,
+    /**
      * The directory to place all KSP caches.
      */
     val cachesDir: Path,
@@ -20,13 +25,19 @@ class KspOutputPaths(
      */
     val outputsBaseDir: Path,
     /**
-     * The base dir of the module.
-     * KSP uses it to relativize paths for incrementality processing and output tracking.
+     * The output directory for generated Kotlin sources.
      */
-    val moduleBaseDir: Path,
-) {
-    val kotlinSourcesDir = outputsBaseDir / "kotlin"
-    val javaSourcesDir = outputsBaseDir / "java"
-    val classesDir = outputsBaseDir / "classes"
-    val resourcesDir = outputsBaseDir / "resources"
-}
+    val kotlinSourcesDir: Path,
+    /**
+     * The output directory for generated Java sources.
+     */
+    val javaSourcesDir: Path,
+    /**
+     * The output directory for generated resources.
+     */
+    val resourcesDir: Path,
+    /**
+     * The output directory for generated classes.
+     */
+    val classesDir: Path,
+)

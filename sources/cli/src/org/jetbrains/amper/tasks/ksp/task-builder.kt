@@ -27,6 +27,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                         isTest = isTest,
                         fragments = fragments,
                         platform = platform,
+                        buildOutputRoot = context.buildOutputRoot,
                         userCacheRoot = context.userCacheRoot,
                         taskOutputRoot = context.getTaskOutputPath(kspTaskName),
                         taskName = kspTaskName,
@@ -38,7 +39,7 @@ fun ProjectTasksBuilder.setupKspTasks() {
                         if (platform.isDescendantOf(Platform.ANDROID)) {
                             add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
                         }
-                    }
+                    },
                 )
                 if (platform.isDescendantOf(Platform.ANDROID)) {
                     BuildType.entries.forEach { buildType ->
