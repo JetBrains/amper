@@ -15,6 +15,7 @@ import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import io.opentelemetry.sdk.trace.export.SpanExporter
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.amper.cli.TelemetryEnvironment.LazyJaegerJsonSpanExporter
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.diagnostics.JaegerJsonSpanExporter
 import org.slf4j.LoggerFactory
@@ -23,6 +24,8 @@ import java.time.format.DateTimeFormatter
 import kotlin.concurrent.thread
 
 object TelemetryEnvironment {
+
+    private val LOG = LoggerFactory.getLogger(TelemetryEnvironment::class.java)
 
     private val resource: Resource = Resource.create(
         Attributes.builder()
@@ -36,9 +39,21 @@ object TelemetryEnvironment {
             .build()
     )
 
-    fun setup(logsRoot: AmperBuildLogsRoot) {
+    private val spanExporter = LazyJaegerJsonSpanExporter()
+
+    fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
+        val spansFile = amperBuildLogsRoot.path.resolve("jaeger-trace.json")
+        spanExporter.jaegerJsonSpanExporter = JaegerJsonSpanExporter(
+            file = spansFile,
+            serviceName = resource.getAttribute(AttributeKey.stringKey("service.name"))!!,
+            serviceNamespace = resource.getAttribute(AttributeKey.stringKey("service.namespace"))!!,
+            serviceVersion = resource.getAttribute(AttributeKey.stringKey("service.version"))!!,
+        )
+    }
+
+    fun setup() {
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(JaegerSpanExporter(logsRoot)).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(spanExporter).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -55,33 +70,35 @@ object TelemetryEnvironment {
         })
     }
 
-    private class JaegerSpanExporter(logsRoot: AmperBuildLogsRoot) : SpanExporter {
-        val spansFile = logsRoot.path.resolve("jaeger-trace.json")
+    private class LazyJaegerJsonSpanExporter : SpanExporter {
 
-        val jaegerJsonSpanExporter = JaegerJsonSpanExporter(
-            file = spansFile,
-            serviceName = resource.getAttribute(AttributeKey.stringKey("service.name"))!!,
-            serviceNamespace = resource.getAttribute(AttributeKey.stringKey("service.namespace"))!!,
-            serviceVersion = resource.getAttribute(AttributeKey.stringKey("service.version"))!!,
-        )
+        var jaegerJsonSpanExporter: JaegerJsonSpanExporter? = null
+            set(value) {
+                if (field != null) {
+                    LOG.error("TelemetryEnvironment.jaegerJsonSpanExported is already set")
+                }
+                else {
+                    field = value
+                }
+            }
 
         override fun export(spans: Collection<SpanData>): CompletableResultCode {
             runBlocking {
-                jaegerJsonSpanExporter.export(spans)
+                jaegerJsonSpanExporter?.export(spans)
             }
             return CompletableResultCode.ofSuccess()
         }
 
         override fun flush(): CompletableResultCode {
             runBlocking {
-                jaegerJsonSpanExporter.flush()
+                jaegerJsonSpanExporter?.flush()
             }
             return CompletableResultCode.ofSuccess()
         }
 
         override fun shutdown(): CompletableResultCode {
             runBlocking {
-                jaegerJsonSpanExporter.shutdown()
+                jaegerJsonSpanExporter?.shutdown()
             }
             return CompletableResultCode.ofSuccess()
         }

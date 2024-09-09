@@ -37,8 +37,11 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.get
+import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.use
+import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.TaskName
@@ -193,46 +196,54 @@ internal fun withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    CliEnvironmentInitializer.setup()
+    spanBuilder("CLI Setup: install coroutines debug probes").use {
+        CliEnvironmentInitializer.setup()
+    }
 
     runBlocking(Dispatchers.Default) {
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
         commonOptions.terminal.println(AmperBuild.banner)
 
-        val cliContext = CliContext.create(
-            explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
-            buildOutputRoot = commonOptions.buildOutputRoot?.let {
-                it.createDirectories()
-                AmperBuildOutputRoot(it.toAbsolutePath())
-            },
-            userCacheRoot = getUserCacheRoot(commonOptions),
-            currentTopLevelCommand = currentCommand,
-            commonRunSettings = commonRunSettings,
-            taskExecutionMode = taskExecutionMode,
-            backgroundScope = backgroundScope,
-            terminal = commonOptions.terminal,
-        )
+        val cliContext = spanBuilder("CLI Setup: create CliContext").useWithScope {
+            CliContext.create(
+                explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
+                buildOutputRoot = commonOptions.buildOutputRoot?.let {
+                    it.createDirectories()
+                    AmperBuildOutputRoot(it.toAbsolutePath())
+                },
+                userCacheRoot = getUserCacheRoot(commonOptions),
+                currentTopLevelCommand = currentCommand,
+                commonRunSettings = commonRunSettings,
+                taskExecutionMode = taskExecutionMode,
+                backgroundScope = backgroundScope,
+                terminal = commonOptions.terminal,
+            )
+        }
+
+        TelemetryEnvironment.setLogsRootDirectory(cliContext.buildLogsRoot)
 
         if (setupEnvironment) {
-            CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
-            TelemetryEnvironment.setup(cliContext.buildLogsRoot)
-            CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
+            spanBuilder("CLI Setup: setup logging and monitoring").useWithScope {
+                CliEnvironmentInitializer.setupDeadLockMonitor(cliContext.buildLogsRoot, cliContext.terminal)
+                CliEnvironmentInitializer.setupFileLogging(cliContext.buildLogsRoot)
 
-            // TODO output version, os and some env to log file only
-            val printableLogsPath = cliContext.buildLogsRoot.path.toString().replaceWhitespaces()
-            cliContext.terminal.println("Logs are in file://$printableLogsPath")
-            cliContext.terminal.println()
+                // TODO output version, os and some env to log file only
+                val printableLogsPath = cliContext.buildLogsRoot.path.toString().replaceWhitespaces()
+                cliContext.terminal.println("Logs are in file://$printableLogsPath")
+                cliContext.terminal.println()
 
-            if (commonOptions.asyncProfiler) {
-                AsyncProfilerMode.attachAsyncProfiler(cliContext.buildLogsRoot, cliContext.buildOutputRoot)
+                if (commonOptions.asyncProfiler) {
+                    AsyncProfilerMode.attachAsyncProfiler(cliContext.buildLogsRoot, cliContext.buildOutputRoot)
+                }
             }
         }
 
-        val backend = AmperBackend(context = cliContext)
-        block(backend)
-
-        cancelAndWaitForScope(backgroundScope)
+        spanBuilder("Execute backend").useWithScope {
+            val backend = AmperBackend(context = cliContext)
+            block(backend)
+            cancelAndWaitForScope(backgroundScope)
+        }
     }
 }
 
@@ -474,7 +485,10 @@ private fun checkAndGetPlatform(value: String) =
 
 fun main(args: Array<String>) {
     try {
-        RootCommand().main(args)
+        TelemetryEnvironment.setup()
+        spanBuilder("Root").use {
+            RootCommand().main(args)
+        }
     } catch (t: Throwable) {
         System.err.println()
         System.err.println("ERROR: ${t.message}")
