@@ -65,8 +65,11 @@ fun ProjectTasksBuilder.setupKspTasks() {
             }
         }
 
+    // FIXME this registers task dependencies twice for platforms that don't have build types.
+    //   This code relies on the fact that getTaskName() will ignore the buildType on non-Android platforms.
     allModules()
         .alsoPlatforms()
+        .alsoBuildTypes()
         .selectModuleDependencies(ResolutionScope.COMPILE) {
             val fragments =
                 module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }

@@ -37,16 +37,13 @@ internal interface PlatformTaskType : TaskType {
         platform: Platform,
         isTest: Boolean = false,
         buildType: BuildType? = null,
-        suffix: String = ""
-    ): TaskName =
-        TaskName.moduleTask(
-            module,
-            "$prefix${platform.pretty.replaceFirstChar { it.uppercase() }}${isTest.testSuffix}${
-                buildType?.suffix(
-                    platform
-                ) ?: ""
-            }$suffix",
-        )
+        suffix: String = "",
+    ): TaskName {
+        val uppercasePlatform = platform.pretty.replaceFirstChar { it.uppercase() }
+        val buildTypeSuffix = buildType?.suffix(platform) ?: ""
+        val testSuffix = isTest.testSuffix
+        return TaskName.moduleTask(module, "$prefix$uppercasePlatform$testSuffix$buildTypeSuffix$suffix")
+    }
 }
 
 internal interface FragmentTaskType : TaskType {
