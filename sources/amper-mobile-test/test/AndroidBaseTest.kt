@@ -9,10 +9,33 @@ import java.io.File
 open class AndroidBaseTest : TestBase() {
     val sessionInfoPath = "./scripts/device.session.json"
 
-    private fun prepareExecution(projectName: String, projectPath: String, projectAction: (String) -> Unit) {
+    // Overloaded method with applicationId
+    private fun prepareExecution(
+        projectName: String,
+        projectPath: String,
+        projectAction: (String) -> Unit,
+        applicationId: String? = null
+    ) {
         copyProject(projectName, projectPath)
         projectAction(projectName)
-        assembleTestApp()
+        assembleTestApp(applicationId) // Pass applicationId if provided
+        if (isRunningInTeamCity()) {
+            createAdbRemoteSession()
+        }
+        installAndroidTestAPK()
+        installTargetAPK(projectName)
+        runTestsViaAdb(applicationId) // Pass applicationId to runTestsViaAdb
+    }
+
+    // Original method without applicationId
+    private fun prepareExecution(
+        projectName: String,
+        projectPath: String,
+        projectAction: (String) -> Unit
+    ) {
+        copyProject(projectName, projectPath)
+        projectAction(projectName)
+        assembleTestApp() // No applicationId passed
         if (isRunningInTeamCity()) {
             createAdbRemoteSession()
         }
@@ -21,16 +44,19 @@ open class AndroidBaseTest : TestBase() {
         runTestsViaAdb()
     }
 
-    // TO DO ask about changing example structure for using real examples not test data stuff
+    internal fun testRunnerStandalone(projectName: String, applicationId: String? = null) =
+        prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android", {
+            assembleTargetAppStandalone(it)
+        }, applicationId)
+
     internal fun testRunnerGradle(projectName: String) =
         prepareExecution(projectName, "../../sources/gradle-e2e-test/testData/projects") {
             prepareProjectsAndroidForGradle(it)
         }
 
-    internal fun testRunnerStandalone(projectName: String) =
-        prepareExecution(projectName, "../../sources/amper-backend-test/testData/projects/android") {
-            assembleTargetAppStandalone(it)
-        }
+
+
+
 
     private fun prepareProjectsAndroidForGradle(projectName: String) {
         val projectDirectory = File("tempProjects" + File.separator + projectName)
@@ -132,10 +158,37 @@ open class AndroidBaseTest : TestBase() {
         println(stdout)
     }
 
-    private fun assembleTestApp() {
+    private fun assembleTestApp(applicationId: String? = null) {
+        val testFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/src/androidTest/java/com/jetbrains/sample/app/ExampleInstrumentedTest.kt"
+        val buildFilePath = "../gradle-e2e-test/testData/projects/test-apk/app/build.gradle.kts"
+        var originalTestFileContent: String? = null
+        var originalBuildFileContent: String? = null
+
+        applicationId?.let {
+            // Step 1: Modify the test file (ExampleInstrumentedTest.kt)
+            originalTestFileContent = File(testFilePath).readText()
+            val updatedTestFileContent = originalTestFileContent?.replace(
+                "com.jetbrains.sample.app",
+                applicationId
+            )
+            File(testFilePath).writeText(updatedTestFileContent ?: "")
+
+            // Step 2: Modify the build.gradle.kts
+            originalBuildFileContent = File(buildFilePath).readText()
+            val updatedBuildFileContent = originalBuildFileContent?.replace(
+                "applicationId = \"com.jetbrains.sample.app\"",
+                "applicationId = \"$applicationId\""
+            )?.replace(
+                "testApplicationId = \"com.jetbrains.sample.app.test\"",
+                "testApplicationId = \"$applicationId.test\""
+            )
+            File(buildFilePath).writeText(updatedBuildFileContent ?: "")
+        }
+
         val stdout = ByteArrayOutputStream()
         val gradlewPath = if (OS.current() == OS.WINDOWS) "../../gradlew.bat" else "../../gradlew"
 
+        // Run the APK build command
         executeCommand(
             command = listOf(
                 gradlewPath,
@@ -147,6 +200,15 @@ open class AndroidBaseTest : TestBase() {
         )
 
         println(stdout.toString().trim())
+
+        // Step 3: Restore the original content of the test file and build.gradle.kts
+        originalTestFileContent?.let {
+            File(testFilePath).writeText(it)
+        }
+
+        originalBuildFileContent?.let {
+            File(buildFilePath).writeText(it)
+        }
     }
 
 
@@ -185,21 +247,29 @@ open class AndroidBaseTest : TestBase() {
         }
     }
 
-    private fun runTestsViaAdb() {
+    private fun runTestsViaAdb(applicationId: String? = null) {
+        // Disable animations for testing
         adb("shell", "settings", "put", "global", "window_animation_scale", "0.0")
         adb("shell", "settings", "put", "global", "transition_animation_scale", "0.0")
         adb("shell", "settings", "put", "global", "animator_duration_scale", "0.0")
         adb("shell", "settings", "put", "secure", "long_press_timeout", "1000")
 
+        // Determine the package to use for the test runner
+        val testPackage = applicationId?.let {
+            "$it.test/androidx.test.runner.AndroidJUnitRunner"
+        } ?: "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
+
+        // Run the instrumentation tests
         val output = adb(
             "shell",
             "am",
             "instrument",
             "-w",
             "-r",
-            "com.jetbrains.sample.app.test/androidx.test.runner.AndroidJUnitRunner"
+            testPackage
         ).toString(Charsets.UTF_8)
 
+        // Check the output for success or errors
         if (!output.contains("OK (1 test)") || output.contains("Error")) {
             throw RuntimeException("Test failed with output:\n$output")
         }

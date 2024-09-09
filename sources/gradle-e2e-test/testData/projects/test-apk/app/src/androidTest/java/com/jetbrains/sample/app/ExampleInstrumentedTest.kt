@@ -38,8 +38,10 @@ class AppOpenTest {
         assertThat(launcherPackage, notNullValue())
         device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), launchTimeout)
 
-        // Launch the app
-        device.executeShellCommand("am start -n $sampleAppPackage/.MainActivity")
+        // Launch the app using adb monkey and sampleAppPackage
+        val monkeyCommand = "monkey -p $sampleAppPackage -c android.intent.category.LAUNCHER 1"
+        device.executeShellCommand(monkeyCommand)
+
         // Wait for the app to appear
         device.wait(Until.hasObject(By.pkg(sampleAppPackage).depth(0)), launchTimeout)
     }

@@ -9,9 +9,10 @@ import java.io.File
 
 class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
 
-   // @Test
-    fun composeAndroidAppGradle() = testRunnerStandalone(
-        projectName = "compose-android2",
+    @Test
+    fun kmptexterAppTest() = testRunnerStandalone(
+        projectName = "kmptxter",
+        applicationId = "com.river.kmptxter.android"
     )
 
 
