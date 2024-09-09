@@ -129,12 +129,20 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
     ).path(mustExist = false, canBeFile = false, canBeDir = true)
 
     override fun run() {
+        val terminal = Terminal()
+
         currentContext.obj = CommonOptions(
             explicitRoot = root,
             consoleLogLevel = consoleLogLevel,
             asyncProfiler = asyncProfiler,
             sharedCachesRoot = sharedCachesRoot,
             buildOutputRoot = buildOutputRoot,
+            terminal = terminal,
+        )
+
+        CliEnvironmentInitializer.setupConsoleLogging(
+            consoleLogLevel = consoleLogLevel,
+            terminal = terminal,
         )
     }
 
@@ -147,6 +155,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
         val asyncProfiler: Boolean,
         val sharedCachesRoot: Path?,
         val buildOutputRoot: Path?,
+        val terminal: Terminal,
     )
 }
 
@@ -189,16 +198,7 @@ internal fun withBackend(
     runBlocking(Dispatchers.Default) {
         @Suppress("UnstableApiUsage")
         val backgroundScope = namedChildScope("project background scope", supervisor = true)
-
-        val terminal = createTerminalForCli()
-
-        if (setupEnvironment) {
-            terminal.println(AmperBuild.banner)
-            CliEnvironmentInitializer.setupConsoleLogging(
-                consoleLogLevel = commonOptions.consoleLogLevel,
-                terminal = terminal,
-            )
-        }
+        commonOptions.terminal.println(AmperBuild.banner)
 
         val cliContext = CliContext.create(
             explicitProjectRoot = commonOptions.explicitRoot?.toAbsolutePath(),
@@ -211,7 +211,7 @@ internal fun withBackend(
             commonRunSettings = commonRunSettings,
             taskExecutionMode = taskExecutionMode,
             backgroundScope = backgroundScope,
-            terminal = terminal,
+            terminal = commonOptions.terminal,
         )
 
         if (setupEnvironment) {
@@ -244,10 +244,6 @@ internal fun getUserCacheRoot(commonOptions: RootCommand.CommonOptions): AmperUs
     } else {
         AmperUserCacheRoot.fromCurrentUser()
     }
-}
-
-internal fun createTerminalForCli(): Terminal {
-    return Terminal()
 }
 
 private fun String.replaceWhitespaces() = replace(" ", "%20")

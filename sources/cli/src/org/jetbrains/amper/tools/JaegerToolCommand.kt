@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
 import org.jetbrains.amper.cli.RootCommand
-import org.jetbrains.amper.cli.createTerminalForCli
 import org.jetbrains.amper.cli.getUserCacheRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
@@ -52,7 +51,7 @@ class JaegerToolCommand: CliktCommand(
 
     override fun run() {
         val userCacheRoot = getUserCacheRoot(commonOptions)
-        val terminal = createTerminalForCli()
+        val terminal = commonOptions.terminal
 
         val os = DefaultSystemInfo.detect()
         val osString = when (os.family) {
