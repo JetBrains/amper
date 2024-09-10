@@ -40,7 +40,7 @@ class AmperKspTest : AmperIntegrationTestBase() {
         val generatedFilesDir = projectContext.generatedFilesDir(module = "service-impl", fragment = "jvm")
 
         val expectedGeneratedFiles = setOf(
-            generatedFilesDir / "resources/META-INF/services/com.sample.service.MyService",
+            generatedFilesDir / "resources/ksp/META-INF/services/com.sample.service.MyService",
         )
         assertEquals(expectedGeneratedFiles, generatedFilesDir.walk().toSet())
 

@@ -98,6 +98,9 @@ open class MockFragment(
     override val fragmentDependants = mutableListOf<FragmentLink>()
     override val src = Path(name).resolve("src")
     override val resourcesPath = src.resolve("resources")
+    override val generatedSrcRelativeDirs = mutableListOf<Path>()
+    override val generatedResourcesRelativeDirs = mutableListOf<Path>()
+    override val generatedClassesRelativeDirs = mutableListOf<Path>()
     override val variants: List<String> = listOf()
 
     fun refines(other: MockFragment) = fragmentDependencies.add(

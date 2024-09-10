@@ -16,6 +16,9 @@ import org.jetbrains.amper.core.mapStartAware
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.div
 
 class DefaultLeafFragment(
     seed: FragmentSeed,
@@ -52,7 +55,7 @@ open class DefaultFragment(
 
     override val fragmentDependants = mutableListOf<FragmentLink>()
 
-    override val name = seed.modifiersAsStrings
+    final override val name = seed.modifiersAsStrings
         .mapStartAware { isStart, it -> if (isStart) it else it.doCapitalize() }
         .joinToString() +
             if (isTest) "Test" else ""
@@ -71,7 +74,7 @@ open class DefaultFragment(
         !isCommon && fragmentDependencies.none { it.type == FragmentDependencyType.REFINE }
     }
 
-    override val src by lazy {
+    override val src: Path by lazy {
         val srcStringPrefix = if (isTest) "test" else "src"
         val srcPathString =
             if (srcOnlyOwner) srcStringPrefix
@@ -79,14 +82,81 @@ open class DefaultFragment(
         moduleFile.parent.toNioPath().resolve(srcPathString)
     }
 
-    override val resourcesPath by lazy {
+    override val resourcesPath: Path by lazy {
         val resourcesStringPrefix = if (isTest) "testResources" else "resources"
         val resourcesPathString =
             if (srcOnlyOwner) resourcesStringPrefix
             else "$resourcesStringPrefix$modifier"
         moduleFile.parent.toNioPath().resolve(resourcesPathString)
     }
+
+    private val generatedFilesRelativeRoot: Path = Path("generated/${module.userReadableName}/$name")
+
+    override val generatedSrcRelativeDirs: List<Path> by lazy {
+        val generateSrcRoot = generatedFilesRelativeRoot / "src"
+        buildList {
+            add(generateSrcRoot / KspPathConventions.JavaSources)
+            add(generateSrcRoot / KspPathConventions.KotlinSources)
+
+            // TODO add custom-task-generated sources here
+        }
+    }
+
+    override val generatedResourcesRelativeDirs: List<Path> by lazy {
+        val resourcesRoot = generatedFilesRelativeRoot / "resources"
+        buildList {
+            add(resourcesRoot / KspPathConventions.Resources)
+            // TODO add custom-task-generated resources here
+        }
+    }
+
+    override val generatedClassesRelativeDirs: List<Path> by lazy {
+        val classesRoot = generatedFilesRelativeRoot / "classes"
+        buildList {
+            add(classesRoot / KspPathConventions.Classes)
+            // TODO add custom-task-generated classes here
+        }
+    }
 }
+
+/**
+ * Contains the conventional paths to different KSP output file types relative to the corresponding generated root.
+ */
+private object KspPathConventions {
+    const val JavaSources = "ksp/java"
+    const val KotlinSources = "ksp/kotlin"
+    const val Resources = "ksp"
+    const val Classes = "ksp"
+}
+
+/**
+ * The path to the root of the KSP-generated Kotlin sources for this [Fragment].
+ */
+fun Fragment.kspGeneratedKotlinSourcesPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.KotlinSources)
+
+/**
+ * The path to the root of the KSP-generated Java sources for this [Fragment].
+ */
+fun Fragment.kspGeneratedJavaSourcesPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.KotlinSources)
+
+/**
+ * The path to the root of the KSP-generated resources for this [Fragment].
+ */
+fun Fragment.kspGeneratedResourcesPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedResourcesRelativeDirs, KspPathConventions.Resources)
+
+/**
+ * The path to the root of the KSP-generated classes for this [Fragment].
+ */
+fun Fragment.kspGeneratedClassesPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedResourcesRelativeDirs, KspPathConventions.Classes)
+
+private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pathSuffix: String) =
+    genDirs.map { buildOutputRoot / it }.find { it.endsWith(pathSuffix) }
+        ?: error("generated dir paths don't contain conventional KSP path suffix '$pathSuffix'. Found:\n" +
+                genDirs.joinToString("\n"))
 
 fun createFragments(
     seeds: Collection<FragmentSeed>,

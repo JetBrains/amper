@@ -74,37 +74,23 @@ interface Fragment {
      */
     val resourcesPath: Path
 
+    /**
+     * Paths to the generated source roots, relative to the build directory.
+     */
+    val generatedSrcRelativeDirs: List<Path>
+
+    /**
+     * Paths to the generated resource roots, relative to the build directory.
+     */
+    val generatedResourcesRelativeDirs: List<Path>
+
+    /**
+     * Paths to the generated classes roots, relative to the build directory.
+     */
+    val generatedClassesRelativeDirs: List<Path>
+
     val variants: List<String>
 }
-
-/**
- * The path to the root of the all generated files for this [Fragment].
- *
- * This is guaranteed to be an ancestor of [getGeneratedResourcesRoot] and [getGeneratedSourcesRoot].
- */
-fun Fragment.getGeneratedFilesRoot(buildOutputRoot: Path): Path =
-    buildOutputRoot / "generated/${module.userReadableName}/$name"
-
-/**
- * The path to the root of the generated sources for this [Fragment].
- *
- * The sources can be nested in different subdirectories for different generators, or different languages.
- * For example, KSP might store generated Kotlin sources under `<gen-src-root>/ksp/kotlin`, and generated Java sources
- * under `<gen-src-root>/ksp/java`.
- */
-@UsedInIdePlugin
-fun Fragment.getGeneratedSourcesRoot(buildOutputRoot: Path): Path =
-    getGeneratedFilesRoot(buildOutputRoot) / "src"
-
-/**
- * The path to the root of the generated resources for this [Fragment].
- *
- * The resources can be nested in different subdirectories for different generators, or different languages.
- * For example, KSP might store generated resources under `<gen-resources-root>/ksp`.
- */
-@UsedInIdePlugin
-fun Fragment.getGeneratedResourcesRoot(buildOutputRoot: Path): Path =
-    getGeneratedFilesRoot(buildOutputRoot) / "resources"
 
 /**
  * Fragments (within the same module) that this fragment depends on with the FRIEND relationship.

@@ -24,9 +24,10 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.frontend.getGeneratedFilesRoot
-import org.jetbrains.amper.frontend.getGeneratedResourcesRoot
-import org.jetbrains.amper.frontend.getGeneratedSourcesRoot
+import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedClassesPath
+import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
+import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
+import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
@@ -101,20 +102,17 @@ internal class KspTask(
         val leafFragment = fragments.find { it.platforms == setOf(platform) }
             ?: error("Cannot find leaf fragment for platform $platform")
 
-        // In the KSP Gradle plugin, the cache and output roots are unique per target and per default source set of the
-        // compilation (so, jvm/jvmMain, jvm/jvmTest, ...). In our case, each KSP task is already per platform and per
-        // compilation (jvm/... + main/test), so we can use the task output root as a base for caches.
-        // For outputs, we need a convention that the IDE can follow, so we rely on frontend helpers.
         val kspOutputs = KspOutputPaths(
             moduleBaseDir = module.source.moduleDir ?: taskOutputRoot.path,
+            // In the KSP Gradle plugin, the cache root is unique per target and per default source set of the
+            // compilation (so, jvm/jvmMain, jvm/jvmTest, ...). In our case, each KSP task is already per platform and
+            // per compilation (jvm/linuxX64/... + main/test), so we can use the task output root as a base for caches.
             cachesDir = taskOutputRoot.path / "ksp-cache",
-            outputsBaseDir = leafFragment.getGeneratedFilesRoot(buildOutputRoot.path),
-            kotlinSourcesDir = leafFragment.getGeneratedSourcesRoot(buildOutputRoot.path) / "ksp/kotlin",
-            javaSourcesDir = leafFragment.getGeneratedSourcesRoot(buildOutputRoot.path) / "ksp/java",
-            // We don't nest any dir under the resources root because the paths relative to the resources root are
-            // meaningful. Also, conflicts should be dealt with by the producers of the generated resources.
-            resourcesDir = leafFragment.getGeneratedResourcesRoot(buildOutputRoot.path),
-            classesDir = taskOutputRoot.path / "ksp-classes"
+            // For outputs, we need to follow the conventions so the IDE can import files seamlessly
+            kotlinSourcesDir = leafFragment.kspGeneratedKotlinSourcesPath(buildOutputRoot.path),
+            javaSourcesDir = leafFragment.kspGeneratedJavaSourcesPath(buildOutputRoot.path),
+            resourcesDir = leafFragment.kspGeneratedResourcesPath(buildOutputRoot.path),
+            classesDir = leafFragment.kspGeneratedClassesPath(buildOutputRoot.path),
         )
         ksp.runKsp(
             compileLibraries = compileLibraries,
