@@ -9,6 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.amper.android.AndroidSdkDetector
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.core.spanBuilder
+import org.jetbrains.amper.core.use
 import org.jetbrains.amper.dependency.resolution.MavenLocalRepository
 import org.jetbrains.amper.engine.TaskExecutor
 import org.jetbrains.amper.frontend.project.AmperProjectContext
@@ -56,10 +58,12 @@ class CliContext private constructor(
                 "currentTopLevelCommand should not be blank"
             }
 
-            val amperProjectContext = with(CliProblemReporterContext) {
-                createProjectContext(explicitProjectRoot).also {
-                    if (problemReporter.wereProblemsReported()) {
-                        userReadableError("aborting because there were errors in the Amper project file, please see above")
+            val amperProjectContext = spanBuilder("CLI Setup: create project context").use {
+                with(CliProblemReporterContext) {
+                    createProjectContext(explicitProjectRoot).also {
+                        if (problemReporter.wereProblemsReported()) {
+                            userReadableError("aborting because there were errors in the Amper project file, please see above")
+                        }
                     }
                 }
             }

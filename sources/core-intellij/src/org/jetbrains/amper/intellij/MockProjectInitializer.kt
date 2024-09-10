@@ -30,8 +30,10 @@ import com.jetbrains.cidr.xcode.frameworks.AppleSdkManager
 import com.jetbrains.cidr.xcode.model.CoreXcodeWorkspace
 import com.jetbrains.cidr.xcode.model.XcodeProjectTrackers
 import com.jetbrains.cidr.xcode.xcspec.XcodeExtensionsManager
+import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.use
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.yaml.YAMLFileType
 import org.jetbrains.yaml.YAMLLanguage
@@ -72,25 +74,27 @@ object MockProjectInitializer {
             return ourProject
         }
 
-        System.setProperty("idea.home.path", "") // TODO: Is it correct?
+        spanBuilder("Init mock IntelliJ project").use {
+            System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
-        val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
-        appEnv.registerLangAppServices()
-        appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
-        intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
+            val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
+            appEnv.registerLangAppServices()
+            appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
+            intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
 
-        val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
-        intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
+            val projectEnv = CoreProjectEnvironment(appEnv.parentDisposable, appEnv)
+            intelliJApplicationConfigurator.registerProjectExtensions(projectEnv.project)
 
-        if (DefaultSystemInfo.detect().family == OsFamily.MacOs) {
-            StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
+            if (DefaultSystemInfo.detect().family == OsFamily.MacOs) {
+                StandaloneXcodeComponentManager.registerManager(detectXcodeInstallation())
+            }
+
+            @Suppress("UnstableApiUsage")
+            Registry.markAsLoaded()
+
+            latestConfigurator = intelliJApplicationConfigurator
+            return projectEnv.project.also { ourProject = it }
         }
-
-        @Suppress("UnstableApiUsage")
-        Registry.markAsLoaded()
-
-        latestConfigurator = intelliJApplicationConfigurator
-        return projectEnv.project.also { ourProject = it }
     }
 
     private fun CoreApplicationEnvironment.registerLangAppServices() {
