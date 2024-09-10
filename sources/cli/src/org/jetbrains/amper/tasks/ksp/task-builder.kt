@@ -17,6 +17,7 @@ import org.jetbrains.amper.util.BuildType
 fun ProjectTasksBuilder.setupKspTasks() {
     allModules()
         .alsoPlatforms()
+        .alsoTests()
         .withEach {
             val fragments = module.fragments.filter { it.isTest == isTest && it.platforms.contains(platform) }
             if (fragments.any { it.settings.ksp.enabled }) {
