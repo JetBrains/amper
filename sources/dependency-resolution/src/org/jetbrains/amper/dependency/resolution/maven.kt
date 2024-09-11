@@ -142,16 +142,18 @@ class UnresolvedMavenDependencyNode(
         }
     }
 
-    val gradlePrefixToSuffixMapper = mapOf(
-        Pair("api", ""),
-        Pair("implementation", ""),
-        Pair("testImplementation", ""),
-        Pair("compileOnly", "compile-only"),
-        Pair("compileOnlyApi", "compile-only"),
-        Pair("testCompileOnly", "compile-only"),
-        Pair("runtimeOnly", "runtime-only"),
-        Pair("testRuntimeOnly", "runtime-only")
-    )
+    companion object {
+        val gradlePrefixToSuffixMapper = mapOf(
+            Pair("api", ""),
+            Pair("implementation", ""),
+            Pair("testImplementation", ""),
+            Pair("compileOnly", "compile-only"),
+            Pair("compileOnlyApi", "compile-only"),
+            Pair("testCompileOnly", "compile-only"),
+            Pair("runtimeOnly", "runtime-only"),
+            Pair("testRuntimeOnly", "runtime-only")
+        )
+    }
 }
 
 class MavenDependencyConstraintNode internal constructor(
