@@ -129,9 +129,29 @@ class UnresolvedMavenDependencyNode(
     override val context = templateContext.copyWithNewNodeCache(parentNodes)
     override val key: Key<*> = Key<UnresolvedMavenDependencyNode>(coordinates)
     override val children: List<DependencyNode> = emptyList()
-    override val messages: List<Message> = listOf(Message("Unresolved dependency coordinates", severity = Severity.ERROR))
+    override val messages: List<Message> = listOf(getMessage())
     override suspend fun resolveChildren(level: ResolutionLevel, transitive: Boolean) { }
     override suspend fun downloadDependencies(downloadSources: Boolean) { }
+
+    private fun getMessage(): Message {
+        val gradleCoordinates = gradlePrefixToSuffixMapper.entries.firstOrNull { coordinates.startsWith("${it.key}(") }
+        return if (gradleCoordinates != null) {
+            return Message("Dependency coordinates in a Gradle format are not supported. Please change it to an Amper-compatible format.", severity = Severity.ERROR)
+        } else {
+            Message("Unresolved dependency coordinates", severity = Severity.ERROR)
+        }
+    }
+
+    val gradlePrefixToSuffixMapper = mapOf(
+        Pair("api", ""),
+        Pair("implementation", ""),
+        Pair("testImplementation", ""),
+        Pair("compileOnly", "compile-only"),
+        Pair("compileOnlyApi", "compile-only"),
+        Pair("testCompileOnly", "compile-only"),
+        Pair("runtimeOnly", "runtime-only"),
+        Pair("testRuntimeOnly", "runtime-only")
+    )
 }
 
 class MavenDependencyConstraintNode internal constructor(

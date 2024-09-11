@@ -4,10 +4,12 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import kotlinx.coroutines.CancellationException
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.frontend.MavenDependency
 import org.slf4j.LoggerFactory
+import kotlin.io.path.Path
 
 internal val logger = LoggerFactory.getLogger("files.kt")
 
@@ -43,6 +45,10 @@ internal fun parseCoordinates(coordinates: String): MavenCoordinates? {
     if (parts.size < 3) {
         return null
     }
+    if (parts.any { resolveSafeOrNull{ Path(it) } == null } ) {
+        // Check if resolved parts don't contain illegal characters
+        return null
+    }
     return MavenCoordinates(parts[0], parts[1], parts[2], classifier = if (parts.size > 3) parts[3] else null)
 }
 
@@ -69,5 +75,15 @@ data class MavenCoordinates(
 ) {
     override fun toString(): String {
         return "$groupId:$artifactId:$version${if (classifier != null) ":$classifier" else ""}"
+    }
+}
+
+private fun <T> resolveSafeOrNull(block: () -> T?): T? {
+    return try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        null
     }
 }
