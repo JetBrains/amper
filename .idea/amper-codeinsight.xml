@@ -25,6 +25,8 @@
         <option value="sources/amper-backend-test/testData/projects/ksp-android-room" />
         <option value="sources/amper-backend-test/testData/projects/ksp-jvm-dagger" />
         <option value="sources/amper-backend-test/testData/projects/ksp-jvm-dagger-catalog" />
+        <option value="sources/amper-backend-test/testData/projects/ksp-jvm-koin" />
+        <option value="sources/amper-backend-test/testData/projects/ksp-kmp-koin" />
         <option value="sources/amper-backend-test/testData/projects/native-test-app-test" />
         <option value="sources/amper-backend-test/testData/projects/native-test-no-test-sources" />
         <option value="sources/amper-backend-test/testData/projects/native-test-no-tests" />

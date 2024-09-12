@@ -1,0 +1,13 @@
+product: jvm/app
+
+dependencies:
+  - io.insert-koin:koin-annotations:1.4.0-RC4
+  - io.insert-koin:koin-core:4.0.0
+
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - io.insert-koin:koin-ksp-compiler:1.4.0-RC4
+      processorOptions:
+        KOIN_USE_COMPOSE_VIEWMODEL: true

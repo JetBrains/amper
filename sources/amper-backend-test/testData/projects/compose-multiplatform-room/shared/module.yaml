@@ -1,0 +1,18 @@
+product:
+  type: lib
+  platforms: [ jvm, android ] # TODO [KSP2_ISSUE] put iosSimulatorArm64 back here
+
+dependencies:
+  - $compose.foundation: exported
+  - $compose.material3: exported
+  - androidx.room:room-runtime:2.7.0-alpha09: exported # because of the RoomDatabase type that we output
+  - androidx.sqlite:sqlite-bundled:2.5.0-alpha09
+
+settings:
+  kotlin:
+    ksp:
+      processors:
+        - androidx.room:room-compiler:2.7.0-alpha09
+      processorOptions:
+        room.schemaLocation: ./generated-db-schema
+  compose: enabled

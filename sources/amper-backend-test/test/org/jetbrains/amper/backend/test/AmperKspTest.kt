@@ -6,9 +6,13 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
+import org.jetbrains.amper.core.system.Arch
+import org.jetbrains.amper.core.system.DefaultSystemInfo
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
+import org.junit.jupiter.api.Disabled
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
@@ -121,6 +125,113 @@ class AmperKspTest : AmperIntegrationTestBase() {
         )
         generatedSchemaPath.assertContainsRelativeFiles(
             "com.jetbrains.sample.app.AppDatabase/1.json",
+        )
+    }
+
+    // TODO [KSP2_ISSUE] Koin fails even on JVM with the following error:
+    // KaInvalidLifetimeOwnerAccessException: Access to invalid ksp.org.jetbrains.kotlin.analysis.api.platform.lifetime.KotlinAlwaysAccessibleLifetimeToken@8f09a02: PSI has changed since creation
+    // https://github.com/google/ksp/issues/1854
+    // Still there in KSP 2.0.20-1.0.26-SNAPSHOT
+    @Disabled("Koin bug with KSP2")
+    @Test
+    fun `ksp jvm koin`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-jvm-koin")
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "ksp-jvm-koin", fragment = "jvm")
+        generatedFilesDir.assertContainsRelativeFiles(
+            "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+            "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+        )
+
+        backend.runApplication()
+        assertStdoutContains("Starting Koin...")
+        assertStdoutContains("Hello, Koin!")
+        assertStdoutContains("Heater: heating...")
+        assertStdoutContains("CoffeeMaker: brewing...")
+    }
+
+    // TODO [KSP2_ISSUE] Koin fails even on JVM with the following error:
+    // KaInvalidLifetimeOwnerAccessException: Access to invalid ksp.org.jetbrains.kotlin.analysis.api.platform.lifetime.KotlinAlwaysAccessibleLifetimeToken@8f09a02: PSI has changed since creation
+    // https://github.com/google/ksp/issues/1854
+    // Still there in KSP 2.0.20-1.0.26-SNAPSHOT
+    @Disabled("Koin bug with KSP2")
+    @Test
+    fun `ksp multiplatform koin`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-kmp-koin")
+        val backend = AmperBackend(projectContext)
+        backend.runTask(TaskName(":ksp-kmp-koin:kspJvm"))
+
+        projectContext.generatedFilesDir(module = "ksp-kmp-koin", fragment = "jvm").assertContainsRelativeFiles(
+            "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+            "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+        )
+
+        // TODO enable when KSP native bugs are fixed
+//        val os = DefaultSystemInfo.detect()
+//        if (os.family.isWindows) {
+//            projectContext.generatedFilesDir(module = "shared", fragment = "mingwX64").assertContainsRelativeFiles(
+//                "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+//                "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+//            )
+//        }
+
+//        if (os.family.isMac) {
+//            if (os.arch == Arch.Arm64) {
+//                projectContext.generatedFilesDir(module = "shared", fragment = "macosArm64")
+//                    .assertContainsRelativeFiles(
+//                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+//                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+//                    )
+//            }
+//            if (os.arch == Arch.X64) {
+//                projectContext.generatedFilesDir(module = "shared", fragment = "macosX64")
+//                    .assertContainsRelativeFiles(
+//                        "src/ksp/kotlin/org/koin/ksp/generated/CoffeeShopModuleGencom\$sample\$koin.kt",
+//                        "src/ksp/kotlin/org/koin/ksp/generated/KoinMeta-1876525009.kt",
+//                    )
+//            }
+//        }
+    }
+
+    @Test
+    fun `compose multiplatform room`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("compose-multiplatform-room")
+        val generatedSchemaPath = projectContext.projectRoot.path / "shared/generated-db-schema"
+        generatedSchemaPath.deleteRecursively()
+
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        projectContext.generatedFilesDir(module = "shared", fragment = "android").assertContainsRelativeFiles(
+            "src/ksp/kotlin/AppDatabase_Impl.kt",
+            "src/ksp/kotlin/TodoDao_Impl.kt",
+        )
+        projectContext.generatedFilesDir(module = "shared", fragment = "jvm").assertContainsRelativeFiles(
+            "src/ksp/kotlin/AppDatabase_Impl.kt",
+            "src/ksp/kotlin/TodoDao_Impl.kt",
+        )
+
+        // TODO [KSP2_ISSUE] enable when KSP native bugs are fixed
+        // mingwX64 is not supported yet by room (despite the DR succeeding)
+        // apple targets or linuxX64 cause the following error:
+        // NullPointerException: null cannot be cast to non-null type org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+        // Related:
+        // https://github.com/google/ksp/issues/1823 (fix will be released with Kotlin 2.1 - KSP 2.1.0-1.0.x)
+        // https://github.com/google/ksp/issues/2112 (should be fixed in 1.0.26)
+        // https://github.com/google/ksp/issues/885#issuecomment-1933378627
+        // https://issuetracker.google.com/issues/359279551
+
+//        if (DefaultSystemInfo.detect().family.isMac) {
+//            projectContext.generatedFilesDir(module = "shared", fragment = "iosSimulatorArm64").assertContainsRelativeFiles(
+//                "src/ksp/kotlin/AppDatabase_Impl.kt",
+//                "src/ksp/kotlin/TodoDao_Impl.kt",
+//            )
+//        }
+
+        generatedSchemaPath.assertContainsRelativeFiles(
+            "AppDatabase/1.json",
         )
     }
 

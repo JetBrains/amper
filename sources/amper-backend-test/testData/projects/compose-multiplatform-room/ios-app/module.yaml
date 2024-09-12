@@ -1,0 +1,11 @@
+product:
+  type: ios/app
+  platforms: [ iosSimulatorArm64 ]
+
+dependencies:
+  - ../shared
+
+settings:
+  compose: enabled
+  ios:
+    teamId: my-team
