@@ -30,7 +30,7 @@ object AmperWrappers {
             val windowsWrapper = targetDir.resolve("amper.bat")
             add(windowsWrapper)
             processTemplate(
-                inputFile = Path("resources/wrappers/amper.template.bat").toAbsolutePath(),
+                inputFile = windowsTemplate,
                 outputFile = windowsWrapper,
                 cliZipSha256 = cliZipSha256,
                 outputWindowsLineEndings = true,
