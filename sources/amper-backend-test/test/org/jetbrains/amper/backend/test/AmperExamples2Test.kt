@@ -138,13 +138,3 @@ private val androidTestTasks = listOf(
     "compileAndroidTestDebug",
     "compileAndroidTestRelease",
 )
-
-private val knownGradleFiles = setOf(
-    "gradle-wrapper.jar",
-    "gradle-wrapper.properties",
-    "gradle.properties",
-    "gradlew",
-    "gradlew.bat",
-    "build.gradle.kts",
-    "settings.gradle.kts",
-)
