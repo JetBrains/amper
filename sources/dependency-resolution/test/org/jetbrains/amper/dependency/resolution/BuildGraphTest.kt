@@ -1056,6 +1056,29 @@ class BuildGraphTest {
         )
     }
 
+    @Test
+    fun `org_jetbrains_kotlinx kotlinx-serialization-json 1_7_2`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            platform = setOf(ResolutionPlatform.MACOS_ARM64),
+            expected = """root
+                |\--- org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2
+                |     \--- org.jetbrains.kotlinx:kotlinx-serialization-json-macosarm64:1.7.2
+                |          +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+                |          +--- org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.2
+                |          |    \--- org.jetbrains.kotlinx:kotlinx-serialization-core-macosarm64:1.7.2
+                |          |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+                |          |         \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
+                |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20
+            """.trimMargin()
+        )
+        assertFiles(
+            """kotlinx-serialization-core-macosarm64-1.7.2.klib
+                |kotlinx-serialization-json-macosarm64-1.7.2.klib""".trimMargin(),
+            root
+        )
+    }
+
     /**
      * TODO: org.jetbrains.kotlin:kotlin-test-junit:1.9.20 (*) is missing from org.jetbrains.kotlin:kotlin-test:1.9.20
      */

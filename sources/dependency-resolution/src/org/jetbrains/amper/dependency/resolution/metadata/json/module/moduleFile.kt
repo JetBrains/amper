@@ -64,7 +64,7 @@ internal data class Variant(
 internal data class Dependency(
     val group: String,
     val module: String,
-    val version: Version,
+    val version: Version? = null,
     val attributes: Map<String, String> = mapOf(),
     val endorseStrictVersions: Boolean? = null,
     val reason: String? = null,

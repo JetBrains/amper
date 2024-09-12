@@ -495,7 +495,7 @@ class MavenDependency internal constructor(
                 .withoutDocumentationAndMetadata
                 .let { variants ->
                     variants.flatMap {
-                        it.dependencies + listOfNotNull(it.`available-at`?.asDependency())
+                        it.dependencies() + listOfNotNull(it.`available-at`?.asDependency())
                     }.mapNotNull {
                         it.toMavenDependency(context, moduleMetadata)
                     }.let {
@@ -542,7 +542,7 @@ class MavenDependency internal constructor(
                 .variants
                 .let {
                     it.flatMap {
-                        it.dependencies
+                        it.dependencies()
                     }.mapNotNull {
                         it.toMavenDependency(context, moduleMetadata)
                     }.let {
@@ -564,7 +564,7 @@ class MavenDependency internal constructor(
     }
 
     private fun Dependency.toMavenDependencyConstraint(context: Context): MavenDependencyConstraint? {
-        return context.createOrReuseDependencyConstraint(group, module, version)
+        return version?.let { context.createOrReuseDependencyConstraint(group, module, version) }
     }
 
     private fun Dependency.toMavenDependency(context: Context, errorMessageBuilder: (String) -> String): MavenDependency? {
@@ -580,16 +580,40 @@ class MavenDependency internal constructor(
         }
     }
 
+    private fun Variant.dependencies(): List<Dependency> =
+        dependencies.map { dep ->
+            if (dep.version != null) {
+                dep
+            } else {
+                val versionFromConstraint = dependencyConstraints.firstOrNull {
+                    dep.module == it.module && dep.group == it.group && it.version != null
+                }?.version
+                if (versionFromConstraint != null) {
+                    dep.copy(version = versionFromConstraint)
+                } else {
+                    dep
+                }
+            }
+        }
+
     private fun Dependency.resolveVersion(errorMessageBuilder: (String) -> String): String? {
-        val resolvedVersion = version.resolve()
-        if (resolvedVersion == null) {
+        return if (version == null) {
             messages.asMutable() += Message(
-                text = errorMessageBuilder("neither 'requires' nor 'prefers' nor 'strictly' attributes are defined"),
+                text = errorMessageBuilder("Attribute 'version' is not defined"),
                 severity = Severity.ERROR
             )
-            return null
+            null
+        } else {
+            val resolvedVersion = version.resolve()
+            if (resolvedVersion == null) {
+                messages.asMutable() += Message(
+                    text = errorMessageBuilder("neither 'requires' nor 'prefers' nor 'strictly' attributes are defined"),
+                    severity = Severity.ERROR
+                )
+                return null
+            }
+            resolvedVersion
         }
-        return resolvedVersion
     }
 
     private suspend fun parseModuleMetadata(context: Context, level: ResolutionLevel): Module? {
@@ -713,7 +737,7 @@ class MavenDependency internal constructor(
                 } else {
                     val dependencyGroup = parts[0]
                     val dependencyModule = parts[1]
-                    kotlinMetadataVariant.dependencies
+                    kotlinMetadataVariant.dependencies()
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
                         ?.toMavenDependency(context) { versionErrorMessage ->
                             "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
