@@ -56,9 +56,11 @@ object TestUtil {
         "platforms;android-31",
         "platforms;android-33",
         "platforms;android-34",
+        "platforms;android-35",
         "build-tools;33.0.0",
         "build-tools;33.0.1",
         "build-tools;34.0.0",
+        "build-tools;35.0.0",
     )
 
     val amperCheckoutRoot: Path by lazy {

@@ -11,15 +11,15 @@ Fragments:
     Settings: {
       android: {
         applicationId: <default> com.jetbrains.sample.app
-        compileSdk: <default> VERSION_34
-        maxSdk: <default> VERSION_34
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: com.jetbrains.sample.app
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: <default> {
         enabled: <default> false
@@ -78,15 +78,15 @@ Fragments:
     Settings: {
       android: {
         applicationId: <default> com.jetbrains.sample.app
-        compileSdk: <default> VERSION_34
-        maxSdk: <default> VERSION_34
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: com.jetbrains.sample.app
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: <default> {
         enabled: <default> false

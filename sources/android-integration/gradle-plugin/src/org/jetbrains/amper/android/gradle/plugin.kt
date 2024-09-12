@@ -157,7 +157,7 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         }
 
         androidExtension.defaultConfig {
-            it.maxSdk = androidSettings.maxSdk.versionNumber
+            it.maxSdk = androidSettings.maxSdk?.versionNumber
             it.targetSdk = androidSettings.targetSdk.versionNumber
             it.minSdk = androidSettings.minSdk.versionNumber
             it.versionCode = 1

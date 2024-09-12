@@ -450,19 +450,19 @@
         "compileSdk": {
           "x-intellij-html-description": "The API level to compile the code. The code can use only the Android APIs up to that API level. [Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())",
           "title": "The API level to compile the code. The code can use only the Android APIs up to that API level. )",
-          "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
+          "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "maxSdk": {
           "x-intellij-html-description": "Maximum API level on which the application can run. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Maximum API level on which the application can run",
-          "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
+          "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "minSdk": {
           "x-intellij-html-description": "Minimum API level needed to run the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "Minimum API level needed to run the application",
-          "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
+          "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         },
         "namespace": {
@@ -478,7 +478,7 @@
         "targetSdk": {
           "x-intellij-html-description": "The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)",
           "title": "The target API level for the application",
-          "enum": ["34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
+          "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
         }
       },

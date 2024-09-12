@@ -21,7 +21,7 @@ import kotlin.reflect.KProperty0
 
 class AndroidTooOldVersion(
     @UsedInIdePlugin
-    val versionProp: KProperty0<AndroidVersion>,
+    val versionProp: KProperty0<AndroidVersion?>,
     @UsedInIdePlugin
     val minimalVersion: AndroidVersion,
 ) : PsiBuildProblem(Level.Error) {
@@ -33,7 +33,7 @@ class AndroidTooOldVersion(
     override val message: String
         get() = SchemaBundle.message(
             buildProblemId,
-            versionProp.get().versionNumber,
+            versionProp.get()?.versionNumber,
             minimalVersion.versionNumber
         )
 }
@@ -51,8 +51,7 @@ object AndroidTooOldVersionFactory : IsmDiagnosticFactory {
     private class MyVisitor : IsmVisitor {
         override fun visitAndroidSettings(settings: AndroidSettings) {
             val usedVersions = listOf(settings::compileSdk, settings::minSdk, settings::maxSdk, settings::targetSdk)
-            val oldVersions = usedVersions.filter { it.get() < MINIMAL_ANDROID_VERSION }
-
+            val oldVersions = usedVersions.filter { it.get()?.let { it < MINIMAL_ANDROID_VERSION } == true }
             oldVersions.forEach { versionProp ->
                 problemReporter.reportMessage(
                     AndroidTooOldVersion(

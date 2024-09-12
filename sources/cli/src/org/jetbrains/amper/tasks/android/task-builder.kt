@@ -5,7 +5,7 @@
 package org.jetbrains.amper.tasks.android
 
 import com.android.prefs.AndroidLocationsSingleton
-import com.android.sdklib.SystemImageTags.DEFAULT_TAG
+import com.android.sdklib.SystemImageTags.GOOGLE_APIS_TAG
 import com.android.sdklib.devices.Abi
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
@@ -356,7 +356,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     val abi = if (DefaultSystemInfo.detect().arch == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
     registerTask(
         GetAndroidPlatformFileFromPackageTask(
-            "system-images;android-$versionNumber;${DEFAULT_TAG.id};$abi",
+            "system-images;android-$versionNumber;${GOOGLE_APIS_TAG.id};$abi",
             androidSdkPath,
             userCacheRoot,
             AndroidTaskType.InstallSystemImage.getTaskName(module, Platform.ANDROID, isTest)

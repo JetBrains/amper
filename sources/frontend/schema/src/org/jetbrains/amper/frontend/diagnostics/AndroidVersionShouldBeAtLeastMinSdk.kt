@@ -20,7 +20,7 @@ import kotlin.reflect.KProperty0
 
 class AndroidVersionShouldBeAtLeastMinSdk(
     @UsedInIdePlugin
-    val versionProp: KProperty0<AndroidVersion>,
+    val versionProp: KProperty0<AndroidVersion?>,
     @UsedInIdePlugin
     val minSdkVersion: AndroidVersion
 ) : PsiBuildProblem(Level.Error) {
@@ -34,7 +34,7 @@ class AndroidVersionShouldBeAtLeastMinSdk(
         get() = SchemaBundle.message(
             messageKey = buildProblemId,
             versionProp.name,
-            versionProp.get().versionNumber,
+            versionProp.get()?.versionNumber,
             minSdkVersion.versionNumber
         )
 }
@@ -46,10 +46,11 @@ object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFac
         val reportedPlaces = mutableSetOf<Trace?>()
         fragments.forEach { fragment ->
             val settings = fragment.settings.android
-            val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk)
+            val usedVersions = listOf(settings::compileSdk, settings::maxSdk, settings::targetSdk).filter { it.get() != null }
             val minSdkVersion = settings.minSdk
             for (versionProp in usedVersions) {
-                if (versionProp.get() >= minSdkVersion) continue
+                val version = versionProp.get() ?: continue
+                if (version >= minSdkVersion) continue
                 if (!reportedPlaces.add(versionProp.valueBase?.trace)) continue
 
                 problemReporter.reportMessage(

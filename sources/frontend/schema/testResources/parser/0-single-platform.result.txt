@@ -8,15 +8,15 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_34
-        maxSdk: <default> VERSION_34
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: <default> {
         enabled: <default> false
@@ -71,15 +71,15 @@ Fragments:
     Settings: {
       android: <default> {
         applicationId: <default> org.example.namespace
-        compileSdk: <default> VERSION_34
-        maxSdk: <default> VERSION_34
+        compileSdk: <default> VERSION_35
+        maxSdk: <default> null
         minSdk: <default> VERSION_21
         namespace: <default> org.example.namespace
         signing: <default> {
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: <default> {
         enabled: <default> false

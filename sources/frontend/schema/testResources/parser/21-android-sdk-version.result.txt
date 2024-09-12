@@ -18,7 +18,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: {
         enabled: true
@@ -82,7 +82,7 @@ Fragments:
           enabled: <default> false
           propertiesFile: <default> keystore.properties
         }
-        targetSdk: <default> VERSION_34
+        targetSdk: <default> VERSION_35
       }
       compose: {
         enabled: true

@@ -52,6 +52,7 @@ enum class AndroidVersion(
     VERSION_32(32),
     VERSION_33(33),
     VERSION_34(34),
+    VERSION_35(35),
     ;
 
     override val schemaValue = versionNumber.toString()
@@ -66,11 +67,11 @@ class AndroidSettings : SchemaNode() {
 
     @SchemaDoc("Maximum API level on which the application can run. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var maxSdk by value(AndroidVersion.VERSION_34)
+    var maxSdk by nullableValue<AndroidVersion>()
 
     @SchemaDoc("The target API level for the application. " +
             "[Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)")
-    var targetSdk by value(AndroidVersion.VERSION_34)
+    var targetSdk by value(AndroidVersion.VERSION_35)
 
     @SchemaDoc("The API level to compile the code. The code can use only the Android APIs up to that API level. " +
             "[Read more](https://developer.android.com/reference/tools/gradle-api/com/android/build/api/dsl/CommonExtension#compileSdk())")

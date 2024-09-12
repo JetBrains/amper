@@ -43,7 +43,7 @@ import kotlin.io.path.walk
 
 private const val androidRepositoryUrl = "https://dl.google.com/"
 private const val androidRepositoryBasePath = "/android/repository/"
-private const val androidSystemImagePath = "/sys-img/android/"
+private const val androidSystemImagePath = "/sys-img/google_apis/"
 
 private val androidRepositoryUrlBuilder: URLBuilder
     get() = URLBuilder(androidRepositoryUrl)

@@ -211,11 +211,11 @@ class AndroidBindingPluginPart(
 
                 compileSdkVersion(androidSettings.compileSdk.versionNumber)
                 defaultConfig.apply {
-                    if (!module.type.isLibrary()) androidSettings.applicationId.let { applicationId = it }
-                    androidSettings.namespace.let { namespace = it }
-                    minSdkVersion(androidSettings.minSdk.versionNumber)
-                    maxSdkVersion(androidSettings.maxSdk.versionNumber)
-                    targetSdkVersion(androidSettings.targetSdk.versionNumber)
+                    if (!module.type.isLibrary()) applicationId = androidSettings.applicationId
+                    namespace = androidSettings.namespace
+                    minSdk = androidSettings.minSdk.versionNumber
+                    maxSdk = androidSettings.maxSdk?.versionNumber
+                    targetSdk = androidSettings.targetSdk.versionNumber
                     signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
                         signingConfig = signing
                     }
