@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertProject
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
@@ -183,7 +184,7 @@ private fun preSearchProjectRoot(start: VirtualFile): RootSearchResult? {
 context(ProblemReporterContext, FrontendPathResolver)
 private fun parseAmperProject(projectRootDir: VirtualFile): Project? {
     val projectFile = projectRootDir.findChildMatchingAnyOf(amperProjectFileNames) ?: return null
-    return Converter(projectRootDir, this@FrontendPathResolver, problemReporter).convertProject(projectFile)
+    return ConverterImpl(projectRootDir, this@FrontendPathResolver, problemReporter).convertProject(projectFile)
 }
 
 context(ProblemReporterContext)

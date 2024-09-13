@@ -5,45 +5,43 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.customTaskSchema.AddTaskOutputToSourceSetNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.customTaskSchema.PublishArtifactNode
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun PsiElement.convertCustomTask() = CustomTaskNode().apply {
-    val documentMapping = asMappingNode() ?: return@apply
-    with(documentMapping) {
-        ::type.convertChildEnum(CustomTaskType)
-        ::module.convertChildScalar { asAbsolutePath() }
-        ::jvmArguments.convertChildScalarCollection { textValue }
-        ::programArguments.convertChildScalarCollection { textValue }
-        ::environmentVariables.convertChild {
+    (asMappingNode() ?: return@apply).apply {
+        convertChildEnum(::type, CustomTaskType)
+        convertChildScalar(::module) { asAbsolutePath() }
+        convertChildScalarCollection(::jvmArguments) { textValue }
+        convertChildScalarCollection(::programArguments) { textValue }
+        convertChild(::environmentVariables) {
             asMappingNode()?.keyValues?.associate { it.keyText to it.value?.asScalarNode()?.textValue }
         }
-        ::dependsOn.convertChildScalarCollection { textValue }
-        ::addTaskOutputToSourceSet.convertChildCollection { convertSourceSet() }
-        ::publishArtifact.convertChildCollection { convertPublishArtifact() }
+        convertChildScalarCollection(::dependsOn) { textValue }
+        convertChildCollection(::addTaskOutputToSourceSet) { convertSourceSet() }
+        convertChildCollection(::publishArtifact) { convertPublishArtifact() }
     }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 private fun PsiElement.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
-    with(asMappingNode() ?: return@apply) {
-        ::sourceSet.convertChildEnum(CustomTaskSourceSetType)
-        ::taskOutputSubFolder.convertChildScalar { textValue }
-        ::addToTestSources.convertChildBoolean()
+    (asMappingNode() ?: return@apply).apply {
+        convertChildEnum(::sourceSet, CustomTaskSourceSetType)
+        convertChildScalar(::taskOutputSubFolder) { textValue }
+        convertChildBoolean(::addToTestSources)
     }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 private fun PsiElement.convertPublishArtifact() = PublishArtifactNode().apply {
-    with(asMappingNode() ?: return@apply) {
-        ::path.convertChildScalar { textValue }
-        ::artifactId.convertChildScalar { textValue }
-        ::classifier.convertChildScalar { textValue }
-        ::extension.convertChildScalar { textValue }
+    (asMappingNode() ?: return@apply).apply {
+        convertChildScalar(::path) { textValue }
+        convertChildScalar(::artifactId) { textValue }
+        convertChildScalar(::classifier) { textValue }
+        convertChildScalar(::extension) { textValue }
     }
 }

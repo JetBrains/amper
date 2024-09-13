@@ -56,6 +56,7 @@ import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -81,7 +82,7 @@ internal fun doBuild(
     val path2SchemaModule = projectContext.amperModuleFiles
         .mapNotNull { moduleFile ->
             // Read initial module file.
-            val converter = Converter(
+            val converter = ConverterImpl(
                 moduleFile.parent,
                 projectContext.frontendPathResolver,
                 problemReporter
@@ -139,7 +140,7 @@ internal fun doBuild(
         }
 
         val customTask = let {
-            val converter = Converter(moduleTriple.buildFile.parent, projectContext.frontendPathResolver, problemReporter)
+            val converter = ConverterImpl(moduleTriple.buildFile.parent, projectContext.frontendPathResolver, problemReporter)
             val node = converter.convertCustomTask(customTaskFile)
             if (node == null) {
                 problemReporter.reportMessage(BuildProblemImpl(
@@ -181,7 +182,7 @@ internal fun doBuild(
 /**
  * Try to find gradle catalog and compose it with built-in catalog.
  */
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun VersionsCatalogProvider.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
     val gradleCatalog = getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)

@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Trace
@@ -20,27 +19,29 @@ import kotlin.reflect.KProperty0
 /**
  * Try to set property value, provided by lambda and also set trace based on context.
  */
-context(Scalar, ProblemReporterContext)
-fun <T> KProperty0<T>.convertSelf(
+context(Converter)
+fun <T> Scalar.convertSelf(
+    property: KProperty0<T>,
     newValue: () -> T?
 ) {
     val calculated = newValue()
-    valueBase?.invoke(calculated)
-    valueBase?.applyPsiTrace(this@Scalar.sourceElement)
+    property.valueBase?.invoke(calculated)
+    property.valueBase?.applyPsiTrace(this@Scalar.sourceElement)
     if (calculated is Traceable) calculated.applyPsiTrace(this@Scalar.sourceElement)
 }
 
 /**
  * Try to set property value, provided by lambda and also set trace based on context.
  */
-context(MappingEntry, ProblemReporterContext)
-fun <T> KProperty0<T>.convertEntryItself(
+context(Converter)
+fun <T> MappingEntry.convertEntryItself(
+    property: KProperty0<T>,
     newValue: () -> T?
 ) {
     val calculated = newValue()
-    valueBase?.invoke(calculated)
-    valueBase?.applyPsiTrace(this@MappingEntry.sourceElement)
-    if (calculated is Traceable) calculated.applyPsiTrace(this@MappingEntry.sourceElement)
+    property.valueBase?.invoke(calculated)
+    property.valueBase?.applyPsiTrace(sourceElement)
+    if (calculated is Traceable) calculated.applyPsiTrace(sourceElement)
 }
 
 
@@ -48,30 +49,46 @@ fun <T> KProperty0<T>.convertEntryItself(
  * Try to set property value by searching node child with name
  * same as property name and converting it.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<T>.convertChild(
+context(Converter)
+fun <T> MappingNode.convertChild(
+    property: KProperty0<T>,
     convertValue: MappingEntry.() -> T?
-) {
-    tryGetChildNode(name)?.let { child ->
+): MappingNode {
+    tryGetChildNode(property.name)?.let { child ->
         val newValue = convertValue(child)
-        valueBase?.invoke(newValue)
-        valueBase?.applyPsiTrace(child)
+        property.valueBase?.invoke(newValue)
+        property.valueBase?.applyPsiTrace(child)
         if (newValue is Traceable) newValue.applyPsiTrace(child)
+    }
+    return this
+}
+
+/**
+ * Try to set property value by searching node child with name
+ * same as property name and converting it.
+ */
+context(Converter)
+fun <T> MappingNode.convertChildValue(
+    property: KProperty0<T>,
+    convertValue: PsiElement.() -> T?
+) {
+    tryGetChildNode(property.name)?.let { childValue ->
+        val newValue = childValue.value?.let { convertValue(it) }
+        property.valueBase?.invoke(newValue)
+        property.valueBase?.applyPsiTrace(childValue)
+        if (newValue is Traceable) newValue.applyPsiTrace(childValue)
     }
 }
 
-/**
- * Try to set property value by searching node child with name
- * same as property name and converting it.
- */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<T>.convertChildValue(
-    convertValue: PsiElement.() -> T?
+context(Converter)
+fun <T> MappingNode.convertChildMapping(
+    property: KProperty0<T>,
+    convertValue: MappingNode.() -> T?
 ) {
-    tryGetChildNode(name)?.let { childValue ->
-        val newValue = childValue.value?.let { convertValue(it) }
-        valueBase?.invoke(newValue)
-        valueBase?.applyPsiTrace(childValue)
+    tryGetChildNode(property.name)?.let { childValue ->
+        val newValue = childValue.value?.let { it.asMappingNode()?.let { v -> convertValue(v) } }
+        property.valueBase?.invoke(newValue)
+        property.valueBase?.applyPsiTrace(childValue)
         if (newValue is Traceable) newValue.applyPsiTrace(childValue)
     }
 }
@@ -80,10 +97,11 @@ fun <T> KProperty0<T>.convertChildValue(
  * Try to set property value by searching scalar node child with name
  * same as property name and converting it.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<T>.convertChildScalar(
+context(Converter)
+fun <T> MappingNode.convertChildScalar(
+    property: KProperty0<T>,
     convertValue: Scalar.() -> T?,
-) = convertChild {
+) = convertChild(property) {
     sourceElement.asScalarNode()?.let(convertValue)
 }
 
@@ -91,9 +109,9 @@ fun <T> KProperty0<T>.convertChildScalar(
  * Try to set string property value by searching scalar node child with name
  * same as property name.
  */
-context(MappingNode, ProblemReporterContext)
-fun KProperty0<String?>.convertChildString() =
-    convertChildScalar { textValue }
+context(Converter)
+fun MappingNode.convertChildString(property: KProperty0<String?>) =
+    convertChildScalar(property) { textValue }
 
 /**
  * Try to set int property value by searching scalar node child with name
@@ -107,20 +125,21 @@ fun KProperty0<Int?>.convertChildInt() =
  * Try to set boolean property value by searching scalar node child with name
  * same as property name.
  */
-context(MappingNode, ProblemReporterContext)
-fun KProperty0<Boolean?>.convertChildBoolean() =
-    convertChildScalar { textValue.toBooleanStrictOrNull() }
+context(Converter)
+fun MappingNode.convertChildBoolean(property: KProperty0<Boolean?>) =
+    convertChildScalar(property) { textValue.toBooleanStrictOrNull() }
 
 /**
  * Try to set enum property value by searching scalar node child with name
  * same as property name.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T : Enum<T>> KProperty0<T?>.convertChildEnum(
+context(Converter)
+fun <T : Enum<T>> MappingNode.convertChildEnum(
+    property: KProperty0<T?>,
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,
     isLong: Boolean = false,
-) = convertChildScalar {
+) = convertChildScalar(property) {
     convertEnum(enumIndex, isFatal = isFatal, isLong = isLong)
 }
 
@@ -128,10 +147,11 @@ fun <T : Enum<T>> KProperty0<T?>.convertChildEnum(
  * Try to set collection property value by searching sequence node child with name
  * same as property name and converting its children.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<List<T>?>.convertChildCollection(
+context(Converter)
+fun <T> MappingNode.convertChildCollection(
+    property: KProperty0<List<T>?>,
     convertValue: PsiElement.() -> T?,
-) = convertChild {
+) = convertChild(property) {
     val sequence = value?.asSequenceNode()
     sequence?.items?.mapNotNull(convertValue)
 }
@@ -140,25 +160,27 @@ fun <T> KProperty0<List<T>?>.convertChildCollection(
  * Try to set collection property value by searching scalar sequence node child with name
  * same as property name and converting its children.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<List<T>?>.convertChildScalarCollection(
+context(Converter)
+fun <T> MappingNode.convertChildScalarCollection(
+    property: KProperty0<List<T>?>,
     convertValue: Scalar.() -> T?,
-) = convertChildCollection {
+) = convertChildCollection(property) {
     asScalarNode()?.let(convertValue)
 }
 
 /**
  * Try to find all matching child nodes and then map their values.
  */
-context(MappingNode, ProblemReporterContext)
-fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
+context(Converter)
+fun <T> MappingNode.convertModifierAware(
+    property: KProperty0<Map<Modifiers, T>?>,
     noModifiersEntry: T? = null,
     convertValue: MappingEntry.() -> T?,
 ) {
     val newValue = TraceableMap<Modifiers, T>()
     if (noModifiersEntry != null) newValue.put(noModifiers, noModifiersEntry)
     keyValues
-        .filter { it.keyText.orEmpty().startsWith(name) }
+        .filter { it.keyText.orEmpty().startsWith(property.name) }
         .forEach {
             val modifiers = it.extractModifiers()
             // Skip those that we failed to convert.
@@ -166,7 +188,7 @@ fun <T> KProperty0<Map<Modifiers, T>?>.convertModifierAware(
                 newValue.put(modifiers, v)
             }
         }
-    valueBase?.invoke(newValue)
+    property.valueBase?.invoke(newValue)
 }
 
 class TraceableMap<K, V> : HashMap<K, V>(), Traceable {

@@ -16,12 +16,13 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
+import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 
 
 context(ProblemReporterContext)
 internal fun readTemplate(catalogFinder: VersionsCatalogProvider, file: VirtualFile): ModelInit.TemplateHolder? {
-   val converter = Converter(file.parent, catalogFinder.frontendPathResolver, this@ProblemReporterContext.problemReporter)
+   val converter = ConverterImpl(file.parent, catalogFinder.frontendPathResolver, this@ProblemReporterContext.problemReporter)
    val nonProcessed = converter.convertTemplate(file) ?: return null
    val chosenCatalog = with(converter) { catalogFinder.tryGetCatalogFor(file, nonProcessed) }
    val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)

@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.Level
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.api.Traceable
@@ -19,7 +18,7 @@ import org.jetbrains.amper.frontend.reportBundleError
  * convert the content of this node, treating its elements as
  *   single-keyed objects as scalars, skipping resulting null values.
  */
-context(ProblemReporterContext)
+context(Converter)
 fun <T> Sequence.convertScalarKeyedMap(
     convert: PsiElement.(String) -> T?
 ): Map<String, T> = items.mapNotNull {
@@ -37,7 +36,7 @@ fun <T> Sequence.convertScalarKeyedMap(
 /**
  * Converts this [MappingNode] into a map of [TraceableString] keys and values, with proper links to [PsiElement]s.
  */
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertTraceableStringMap(): Map<TraceableString, TraceableString> = convertMap(
     convertKey = { TraceableString(it) },
     convertValue = {
@@ -53,13 +52,13 @@ internal fun MappingNode.convertTraceableStringMap(): Map<TraceableString, Trace
  *
  * Invalid elements inside this object are ignored, and the conversion functions are not called for them.
  */
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun <K, V> MappingNode.convertMap(
     convertKey: (String) -> K,
     convertValue: (PsiElement) -> V,
 ): Map<K, V> = keyValues.mapNotNull { it.convertPair(convertKey, convertValue) }.toMap()
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 private fun <K, V> MappingEntry.convertPair(
     convertKey: (String) -> K,
     convertValue: (PsiElement) -> V,
@@ -81,7 +80,7 @@ private fun <K, V> MappingEntry.convertPair(
 /**
  * Convert this scalar node as an enum, reporting non-existent values.
  */
-context(ProblemReporterContext)
+context(Converter)
 fun <T : Enum<T>, V : Scalar?> V.convertEnum(
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,

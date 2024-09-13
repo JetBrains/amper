@@ -28,11 +28,13 @@ internal interface ConvertCtx {
     val pathResolver: FrontendPathResolver
 }
 
-class Converter(
+internal interface Converter: ProblemReporterContext, ConvertCtx
+
+class ConverterImpl(
     override val baseFile: VirtualFile,
     override val pathResolver: FrontendPathResolver,
     override val problemReporter: ProblemReporter
-) : ProblemReporterContext, ConvertCtx {
+) : Converter {
     internal fun convertProject(file: VirtualFile): Project? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
             it?.convertProject()

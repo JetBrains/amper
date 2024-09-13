@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.PsiTrace
 import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -20,7 +19,7 @@ val PsiElement.unwrapKey get() = (this as? YAMLKeyValue)?.value ?: this
  */
 fun PsiElement.asScalarNode() = Scalar.from(unwrapKey)
 
-context(ProblemReporterContext)
+context(Converter)
 fun PsiElement.asSequenceNode() = Sequence.from(unwrapKey)
 
 /**
@@ -28,10 +27,10 @@ fun PsiElement.asSequenceNode() = Sequence.from(unwrapKey)
  */
 fun Sequence.asScalarSequenceNode() : List<Scalar> = items.mapNotNull { it.asScalarNode() }
 
-context(ProblemReporterContext)
+context(Converter)
 fun PsiElement.asMappingNode() = MappingNode.from(this)
 
-context(ProblemReporterContext)
+context(Converter)
 fun MappingEntry.asMappingNode() = sourceElement.asMappingNode()
 
 fun <T : Traceable> T.applyPsiTrace(element: MappingEntry?) = apply { trace = element?.sourceElement?.let(::PsiTrace) }

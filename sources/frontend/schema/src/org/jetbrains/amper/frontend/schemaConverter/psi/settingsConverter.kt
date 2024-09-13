@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
@@ -28,165 +27,156 @@ import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun PsiElement.convertSettings() =
     asMappingNode()?.doConvertSettings()?.applyPsiTrace(this)
 
-context(ProblemReporterContext, ConvertCtx)
-internal fun MappingNode.doConvertSettings() = Settings().apply {
-    ::jvm.convertChildValue { asMappingNode()?.convertJvmSettings() }
-    ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
-    ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
-    ::compose.convertChildValue { convertComposeSettings() }
-    ::ksp.convertChildValue { asMappingNode()?.convertKspSettings() }
-    ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
-    ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }
-    ::kover.convertChildValue { asMappingNode()?.convertKoverSettings() }
-    ::native.convertChildValue { asMappingNode()?.convertNativeSettings() }
-
-    ::junit.convertChildEnum(JUnitVersion)
+context(Converter)
+internal fun MappingNode.doConvertSettings() = Settings().also {
+    convertChildMapping(it::jvm) { convertJvmSettings() }
+    convertChildMapping(it::android) { convertAndroidSettings() }
+    convertChildMapping(it::kotlin) { convertKotlinSettings() }
+    convertChildValue(it::compose) { convertComposeSettings() }
+    convertChildMapping(it::ksp) { convertKspSettings() }
+    convertChildMapping(it::ios) { convertIosSettings() }
+    convertChildMapping(it::publishing) { convertPublishingSettings() }
+    convertChildMapping(it::kover) { convertKoverSettings() }
+    convertChildMapping(it::native) { convertNativeSettings() }
+    convertChildEnum(it::junit, JUnitVersion)
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertJvmSettings() = JvmSettings().apply {
-    ::release.convertChildEnum(JavaVersion.Index)
-    ::mainClass.convertChildString()
+    convertChildEnum(::release, JavaVersion.Index)
+    convertChildString(::mainClass)
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertAndroidSettings() = AndroidSettings().apply {
-    ::compileSdk.convertChildEnum(AndroidVersion)
-    ::minSdk.convertChildEnum(AndroidVersion)
-    ::maxSdk.convertChildEnum(AndroidVersion)
-    ::targetSdk.convertChildEnum(AndroidVersion)
-    ::applicationId.convertChildString()
-    ::namespace.convertChildString()
-    ::signing.convertChildValue { value?.convertAndroidSigningSettings() }
-    ::versionCode.convertChildInt()
-    ::versionName.convertChildString()
+    convertChildEnum(::compileSdk, AndroidVersion)
+    convertChildEnum(::minSdk, AndroidVersion)
+    convertChildEnum(::maxSdk, AndroidVersion)
+    convertChildEnum(::targetSdk, AndroidVersion)
+    convertChildString(::applicationId)
+    convertChildString(::namespace)
+    convertChildValue(::signing) { convertAndroidSigningSettings() }
+    convertChildInt(::versionCode)
+    convertChildString(::versionName)
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun PsiElement.convertAndroidSigningSettings() =
     this.asMappingNode()?.let {
         with(it) {
             AndroidSigningSettings().apply {
-                ::enabled.convertChildBoolean()
-                ::propertiesFile.convertChildScalar { asAbsolutePath() }
+                convertChildBoolean(::enabled)
+                convertChildScalar(::propertiesFile) { asAbsolutePath() }
             }
         }
     } ?: this.asScalarNode()?.let {
         with(it) {
-            AndroidSigningSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
+            AndroidSigningSettings().apply { convertSelf(::enabled) { (textValue == "enabled") } }
         }
     }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
-    ::languageVersion.convertChildEnum(KotlinVersion)
-    ::apiVersion.convertChildEnum(KotlinVersion)
+    convertChildEnum(::languageVersion, KotlinVersion)
+    convertChildEnum(::apiVersion, KotlinVersion)
 
-    ::allWarningsAsErrors.convertChildBoolean()
-    ::suppressWarnings.convertChildBoolean()
-    ::verbose.convertChildBoolean()
-    ::debug.convertChildBoolean()
-    ::progressiveMode.convertChildBoolean()
+    convertChildBoolean(::allWarningsAsErrors)
+    convertChildBoolean(::suppressWarnings)
+    convertChildBoolean(::verbose)
+    convertChildBoolean(::debug)
+    convertChildBoolean(::progressiveMode)
 
-    ::freeCompilerArgs.convertChildScalarCollection { asTraceableString() }
-    ::linkerOpts.convertChildScalarCollection { asTraceableString() }
-    ::languageFeatures.convertChildScalarCollection { asTraceableString() }
-    ::optIns.convertChildScalarCollection { asTraceableString() }
+    convertChildScalarCollection(::freeCompilerArgs) { asTraceableString() }
+    convertChildScalarCollection(::linkerOpts) { asTraceableString() }
+    convertChildScalarCollection(::languageFeatures) { asTraceableString() }
+    convertChildScalarCollection(::optIns) { asTraceableString() }
 
-    ::serialization.convertChild { value?.convertSerializationSettings() }
+    convertChild(::serialization) { value?.convertSerializationSettings() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun PsiElement.convertSerializationSettings() =
-    this.asMappingNode()?.let {
-        with(it) {
-            SerializationSettings().apply { ::format.convertChildString() }
-        }
-    } ?: this.asScalarNode()?.let {
-        with(it) {
-            SerializationSettings().apply { ::format.convertSelf { textValue } }
-        }
+    this.asMappingNode()?.apply {
+        SerializationSettings().also { convertChildString(it::format) }
+    } ?: this.asScalarNode()?.apply {
+        SerializationSettings().also { convertSelf(it::format) { textValue } }
     }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun PsiElement.convertComposeSettings() =
-    this.asMappingNode()?.let {
-        with(it) {
-            ComposeSettings().apply {
-                ::enabled.convertChildBoolean()
-                ::version.convertChildString()
-                ::resources.convertChildValue { convertComposeResourcesSettings() }
-            }
+    this.asMappingNode()?.apply {
+        ComposeSettings().apply {
+            convertChildBoolean(::enabled)
+            convertChildString(::version)
+            convertChildValue(::resources) { convertComposeResourcesSettings() }
         }
-    } ?: this.asScalarNode()?.let {
-        with(it) {
-            ComposeSettings().apply { ::enabled.convertSelf { (textValue == "enabled") } }
-        }
+    } ?: this.asScalarNode()?.apply {
+        ComposeSettings().apply { convertSelf(::enabled) { (textValue == "enabled") } }
     }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingEntry.convertComposeResourcesSettings() =
     value?.asMappingNode()?.also {
         ComposeResourcesSettings().apply {
-            ::exposedAccessors.convertChildBoolean()
-            ::packageName.convertChildString()
-            ::enabled.convertChildBoolean()
+            convertChildBoolean(::exposedAccessors)
+            convertChildString(::packageName)
+            convertChildBoolean(::enabled)
         }
     }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertKspSettings() = KspSettings().apply {
-    ::version.convertChildString()
-    ::processors.convertChildScalarCollection { asTraceableString() }
-    ::processorOptions.convertChildValue { asMappingNode()?.convertTraceableStringMap() }
+    convertChildString(::version)
+    convertChildScalarCollection(::processors) { asTraceableString() }
+    convertChildValue(::processorOptions) { asMappingNode()?.convertTraceableStringMap() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertIosSettings() = IosSettings().apply {
-    ::teamId.convertChildString()
-    ::framework.convertChildValue { asMappingNode()?.convertIosFrameworkSettings() }
+    convertChildString(::teamId)
+    convertChildValue(::framework) { asMappingNode()?.convertIosFrameworkSettings() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
-    ::basename.convertChildString()
+    convertChildString(::basename)
 //    println("FOO Read basename is $basename")
-    ::isStatic.convertChildBoolean()
+    convertChildBoolean(::isStatic)
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertPublishingSettings() = PublishingSettings().apply {
-    ::group.convertChildString()
-    ::version.convertChildString()
-    ::name.convertChildString()
+    convertChildString(::group)
+    convertChildString(::version)
+    convertChildString(::name)
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertKoverSettings() = KoverSettings().apply {
-    ::enabled.convertChildBoolean()
-    ::xml.convertChildValue { asMappingNode()?.convertKoverXmlSettings() }
-    ::html.convertChildValue { asMappingNode()?.convertKoverHtmlSettings() }
+    convertChildBoolean(::enabled)
+    convertChildMapping(::xml) { convertKoverXmlSettings() }
+    convertChildMapping(::html) { convertKoverHtmlSettings() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertKoverXmlSettings() = KoverXmlSettings().apply {
-    ::onCheck.convertChildBoolean()
-    ::reportFile.convertChildScalar { asAbsolutePath() }
+    convertChildBoolean(::onCheck)
+    convertChildScalar(::reportFile) { asAbsolutePath() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertKoverHtmlSettings() = KoverHtmlSettings().apply {
-    ::onCheck.convertChildBoolean()
-    ::title.convertChildString()
-    ::charset.convertChildString()
-    ::reportDir.convertChildScalar { asAbsolutePath() }
+    convertChildBoolean(::onCheck)
+    convertChildString(::title)
+    convertChildString(::charset)
+    convertChildScalar(::reportDir) { asAbsolutePath() }
 }
 
-context(ProblemReporterContext, ConvertCtx)
+context(Converter)
 internal fun MappingNode.convertNativeSettings() = NativeSettings().apply {
-    ::entryPoint.convertChildString()
+    convertChildString(::entryPoint)
 }
