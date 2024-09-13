@@ -22,6 +22,11 @@ Fragments:
       }
       compose: <default> {
         enabled: <default> false
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> null
       }
       ios: <default> {
@@ -84,6 +89,11 @@ Fragments:
       }
       compose: <default> {
         enabled: <default> false
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> null
       }
       ios: <default> {

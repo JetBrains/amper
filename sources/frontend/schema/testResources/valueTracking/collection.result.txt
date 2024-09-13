@@ -1,5 +1,10 @@
    compose:
       enabled: false [default]
+      resources:
+         enabled: false [default]
+         exposedAccessors: false [default]
+         packageName:  [default]
+
       version:
 
 

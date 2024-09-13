@@ -1,5 +1,10 @@
    compose:
       enabled: true
+      resources:
+         enabled: false [default]
+         exposedAccessors: false [default]
+         packageName:  [default]
+
       version: 1.6.10 [template.module-template.yaml]
 
    kotlin:

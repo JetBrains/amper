@@ -23,6 +23,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -103,6 +108,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -180,6 +190,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -259,6 +274,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -336,6 +356,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -415,6 +440,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -494,6 +524,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -571,6 +606,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -649,6 +689,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {
@@ -727,6 +772,11 @@ Fragments:
       }
       compose: {
         enabled: true
+        resources: <default> {
+          enabled: <default> false
+          exposedAccessors: <default> false
+          packageName: <default> 
+        }
         version: <default> 1.6.10
       }
       ios: <default> {

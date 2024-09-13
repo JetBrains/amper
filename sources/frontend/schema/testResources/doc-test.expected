@@ -83,7 +83,14 @@ AndroidSigningSettings
 ComposeSettings
 ---------------
 	enabled: Boolean, default: false - Enable Compose runtime, dependencies and the compiler plugins
+	resources: ComposeResourcesSettings - Compose Resources settings
 	version: String - The Compose plugin version
+
+ComposeResourcesSettings
+------------------------
+	enabled: Boolean, default: false - Whether to enable Compose resources packaging and accessor code generation.
+	exposedAccessors: Boolean, default: false - Whether the generated resources accessors should be exposed to other modules (public) or internal.
+	packageName: String, default:  - A unique identifier for the resources in the current module.<br>Used as package for the generated Res class and for isolating resources in the final artifact.
 
 IosSettings
 -----------

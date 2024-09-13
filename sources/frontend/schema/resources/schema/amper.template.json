@@ -443,6 +443,11 @@
               "title": "Enable Compose runtime, dependencies and the compiler plugins",
               "type": "boolean"
             },
+            "resources": {
+              "x-intellij-html-description": "Compose Resources settings",
+              "title": "Compose Resources settings",
+              "$ref": "#/$defs/ComposeResourcesSettings"
+            },
             "version": {
               "x-intellij-html-description": "The Compose plugin version",
               "title": "The Compose plugin version",
@@ -457,6 +462,27 @@
           ]
         }
       ]
+    },
+    "ComposeResourcesSettings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "x-intellij-html-description": "Whether to enable Compose resources packaging and accessor code generation.",
+          "title": "Whether to enable Compose resources packaging and accessor code generation",
+          "type": "boolean"
+        },
+        "exposedAccessors": {
+          "x-intellij-html-description": "Whether the generated resources accessors should be exposed to other modules (public) or internal.",
+          "title": "Whether the generated resources accessors should be exposed to other modules  or internal",
+          "type": "boolean"
+        },
+        "packageName": {
+          "x-intellij-html-description": "A unique identifier for the resources in the current module.<br>Used as package for the generated Res class and for isolating resources in the final artifact.",
+          "title": "A unique identifier for the resources in the current module.<br>Used as package for the generated Res class and for isolating resources in the final artifact",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "IosSettings": {
       "type": "object",
