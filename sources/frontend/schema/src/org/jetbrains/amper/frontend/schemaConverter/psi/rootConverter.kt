@@ -30,33 +30,31 @@ import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 
 context(Converter)
-internal fun PsiElement.convertProject() = Project().apply {
-    (asMappingNode() ?: return@apply)
-        .convertChildScalarCollection(::modules) { asTraceableString() }
+internal fun MappingNode.convertProject() = Project().apply {
+    convertChildScalarCollection(::modules) { asTraceableString() }
 }
 
 context(Converter)
-internal fun PsiElement.convertTemplate() = Template().apply {
-    (asMappingNode() ?: return@apply).convertBase(this@apply)
+internal fun MappingNode.convertTemplate() = Template().apply {
+    convertBase(this@apply)
 }
 
 context(Converter)
-internal fun PsiElement.convertModule() = Module().apply {
-    (asMappingNode() ?: return@apply)
-        .convertChild(::product) { convertProduct() }
-        .convertChildScalarCollection(this@apply::apply) {
-            asAbsolutePath().asTraceable().applyPsiTrace(this.sourceElement)
+internal fun MappingNode.convertModule() = Module().apply a@ {
+    convertChild(::product) { convertProduct() }
+    convertChildScalarCollection(this@a::apply) {
+        asAbsolutePath().asTraceable().applyPsiTrace(this.sourceElement)
+    }
+    convertChild(::aliases) {
+        value?.asSequenceNode()?.convertScalarKeyedMap {
+            asSequenceNode()
+                ?.asScalarSequenceNode()
+                ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
+                ?.toSet()
         }
-        .convertChild(::aliases) {
-            value?.asSequenceNode()?.convertScalarKeyedMap {
-                asSequenceNode()
-                    ?.asScalarSequenceNode()
-                    ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
-                    ?.toSet()
-            }
-        }
-        .convertChild(::module) { value?.asMappingNode()?.convertMeta() }
-        .convertBase(this@apply)
+    }
+    convertChildMapping(::module) { convertMeta() }
+    convertBase(this@a)
 }
 
 context(Converter)
@@ -156,14 +154,12 @@ private fun MappingNode.convertRepositoryFull(): Repository = Repository().also 
     convertChildString(it::id)
     convertChildBoolean(it::publish)
     convertChildBoolean(it::resolve)
-    convertChild(it::credentials) {
-        value?.asMappingNode()?.run {
-            Repository.Credentials().apply {
-                // TODO Report non existent path.
-                convertChildScalar(::file) { asAbsolutePath() }
-                convertChildString(::usernameKey)
-                convertChildString(::passwordKey)
-            }
+    convertChildMapping(it::credentials) {
+        Repository.Credentials().apply {
+            // TODO Report non existent path.
+            convertChildScalar(::file) { asAbsolutePath() }
+            convertChildString(::usernameKey)
+            convertChildString(::passwordKey)
         }
     }
 }
@@ -215,11 +211,11 @@ private fun MappingEntry.convertExternalMavenDep() = ExternalMavenDependency().a
 
 context(Converter)
 private fun PsiElement.convertScopes(dep: Dependency) = with(dep) {
-    this@convertScopes.asScalarNode()?.apply {
+    asScalarNode()?.apply {
         if (textValue == "exported") convertSelf(::exported) { true }
         else convertSelf(::scope) { convertEnum(DependencyScope) }
     }
-    this@convertScopes.asMappingNode()?.apply {
+    asMappingNode()?.apply {
         convertChildEnum(::scope, DependencyScope)
         convertChildBoolean(::exported)
     }

@@ -66,16 +66,13 @@ internal fun MappingNode.convertAndroidSettings() = AndroidSettings().apply {
 
 context(Converter)
 internal fun PsiElement.convertAndroidSigningSettings() =
-    this.asMappingNode()?.let {
-        with(it) {
-            AndroidSigningSettings().apply {
-                convertChildBoolean(::enabled)
-                convertChildScalar(::propertiesFile) { asAbsolutePath() }
-            }
+    AndroidSigningSettings().apply {
+        asMappingNode()?.apply {
+            convertChildBoolean(::enabled)
+            convertChildScalar(::propertiesFile) { asAbsolutePath() }
         }
-    } ?: this.asScalarNode()?.let {
-        with(it) {
-            AndroidSigningSettings().apply { convertSelf(::enabled) { (textValue == "enabled") } }
+        asScalarNode()?.apply {
+            convertSelf(::enabled) { (textValue == "enabled") }
         }
     }
 
@@ -100,22 +97,26 @@ internal fun MappingNode.convertKotlinSettings() = KotlinSettings().apply {
 
 context(Converter)
 internal fun PsiElement.convertSerializationSettings() =
-    this.asMappingNode()?.apply {
-        SerializationSettings().also { convertChildString(it::format) }
-    } ?: this.asScalarNode()?.apply {
-        SerializationSettings().also { convertSelf(it::format) { textValue } }
+    SerializationSettings().apply {
+        asMappingNode()?.apply {
+            convertChildString(::format)
+        }
+        asScalarNode()?.apply {
+            convertSelf(::format) { textValue }
+        }
     }
 
 context(Converter)
 internal fun PsiElement.convertComposeSettings() =
-    this.asMappingNode()?.apply {
-        ComposeSettings().apply {
+    ComposeSettings().apply {
+        asMappingNode()?.apply {
             convertChildBoolean(::enabled)
             convertChildString(::version)
             convertChildValue(::resources) { convertComposeResourcesSettings() }
         }
-    } ?: this.asScalarNode()?.apply {
-        ComposeSettings().apply { convertSelf(::enabled) { (textValue == "enabled") } }
+        asScalarNode()?.apply {
+            convertSelf(::enabled) { (textValue == "enabled") }
+        }
     }
 
 context(Converter)
@@ -132,13 +133,13 @@ context(Converter)
 internal fun MappingNode.convertKspSettings() = KspSettings().apply {
     convertChildString(::version)
     convertChildScalarCollection(::processors) { asTraceableString() }
-    convertChildValue(::processorOptions) { asMappingNode()?.convertTraceableStringMap() }
+    convertChildMapping(::processorOptions) { convertTraceableStringMap() }
 }
 
 context(Converter)
 internal fun MappingNode.convertIosSettings() = IosSettings().apply {
     convertChildString(::teamId)
-    convertChildValue(::framework) { asMappingNode()?.convertIosFrameworkSettings() }
+    convertChildMapping(::framework) { convertIosFrameworkSettings() }
 }
 
 context(Converter)

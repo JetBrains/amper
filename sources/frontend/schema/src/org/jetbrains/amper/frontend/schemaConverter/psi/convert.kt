@@ -37,22 +37,22 @@ class ConverterImpl(
 ) : Converter {
     internal fun convertProject(file: VirtualFile): Project? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertProject()
+            it?.asMappingNode()?.convertProject()
         }
 
     internal fun convertModule(file: VirtualFile): Module? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertModule()
+            it?.asMappingNode()?.convertModule()
         }
 
     internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertCustomTask()
+            it?.asMappingNode()?.convertCustomTask()
         }
 
     internal fun convertTemplate(file: VirtualFile): Template? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.convertTemplate()
+            it?.asMappingNode()?.convertTemplate()
         }
 
     private fun <T: SchemaNode> PsiFile?.doConvertTopLevelValue(conversion: (PsiElement?) -> T?): T? {

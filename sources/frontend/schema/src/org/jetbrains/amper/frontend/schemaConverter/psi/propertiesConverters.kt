@@ -53,14 +53,13 @@ context(Converter)
 fun <T> MappingNode.convertChild(
     property: KProperty0<T>,
     convertValue: MappingEntry.() -> T?
-): MappingNode {
+) {
     tryGetChildNode(property.name)?.let { child ->
         val newValue = convertValue(child)
         property.valueBase?.invoke(newValue)
         property.valueBase?.applyPsiTrace(child)
         if (newValue is Traceable) newValue.applyPsiTrace(child)
     }
-    return this
 }
 
 /**
@@ -154,6 +153,15 @@ fun <T> MappingNode.convertChildCollection(
 ) = convertChild(property) {
     val sequence = value?.asSequenceNode()
     sequence?.items?.mapNotNull(convertValue)
+}
+
+context(Converter)
+fun <T> MappingNode.convertChildCollectionOfMappings(
+    property: KProperty0<List<T>?>,
+    convertValue: MappingNode.() -> T?,
+) = convertChild(property) {
+    val sequence = value?.asSequenceNode()
+    sequence?.items?.mapNotNull { it.asMappingNode() }?.mapNotNull(convertValue)
 }
 
 /**
