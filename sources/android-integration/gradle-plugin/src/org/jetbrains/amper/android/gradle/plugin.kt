@@ -160,7 +160,8 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             it.maxSdk = androidSettings.maxSdk?.versionNumber
             it.targetSdk = androidSettings.targetSdk.versionNumber
             it.minSdk = androidSettings.minSdk.versionNumber
-            it.versionCode = 1
+            it.versionCode = androidSettings.versionCode
+            it.versionName = androidSettings.versionName
             if (module.type == ProductType.ANDROID_APP) {
                 it.applicationId = androidSettings.applicationId
             }

@@ -194,7 +194,7 @@ class JsonSchemaBuilder(
         type.isString || type.isTraceableString -> stringSchema
         type.isBoolean -> booleanSchema
         type.isPath || type.isTraceablePath -> stringSchema
-        type.isInt -> TODO()
+        type.isInt -> integerSchema
         else -> error("Unsupported type") // TODO reporting
     }
 

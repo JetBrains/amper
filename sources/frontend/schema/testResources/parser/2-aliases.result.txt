@@ -19,6 +19,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -89,6 +91,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -155,6 +159,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -223,6 +229,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -289,6 +297,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -355,6 +365,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -424,6 +436,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -490,6 +504,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -557,6 +573,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -626,6 +644,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -695,6 +715,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -764,6 +786,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -830,6 +854,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false
@@ -899,6 +925,8 @@ Fragments:
           propertiesFile: <default> keystore.properties
         }
         targetSdk: <default> VERSION_35
+        versionCode: <default> 1
+        versionName: <default> unspecified
       }
       compose: <default> {
         enabled: <default> false

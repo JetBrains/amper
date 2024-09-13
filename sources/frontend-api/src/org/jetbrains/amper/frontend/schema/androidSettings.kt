@@ -88,6 +88,14 @@ class AndroidSettings : SchemaNode() {
     @SchemaDoc("Application signing settings. " +
     "[Read more](https://developer.android.com/studio/publish/app-signing)")
     var signing by value(::AndroidSigningSettings)
+
+    @SchemaDoc("Version code. " +
+            "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
+    var versionCode by value(1)
+
+    @SchemaDoc("Version name. " +
+            "[Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)")
+    var versionName by value("unspecified")
 }
 
 @AdditionalSchemaDef(ANDROID_SIGNING_SETTINGS_SHORT_FORM)

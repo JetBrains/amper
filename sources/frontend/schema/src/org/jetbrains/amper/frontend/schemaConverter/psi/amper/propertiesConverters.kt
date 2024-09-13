@@ -88,6 +88,14 @@ fun KProperty0<String?>.convertChildString() =
     convertChildScalar { textValue }
 
 /**
+ * Try to set int property value by searching scalar node child with name
+ * same as property name.
+ */
+context(AmperObject, ProblemReporterContext)
+fun KProperty0<Int?>.convertChildInt() =
+    convertChildScalar { textValue.toIntOrNull() }
+
+/**
  * Try to set boolean property value by searching scalar node child with name
  * same as property name.
  */

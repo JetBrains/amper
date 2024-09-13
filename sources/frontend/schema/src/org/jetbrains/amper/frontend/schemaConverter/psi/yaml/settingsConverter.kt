@@ -66,6 +66,8 @@ internal fun YAMLMapping.convertAndroidSettings() = AndroidSettings().apply {
     ::applicationId.convertChildString()
     ::namespace.convertChildString()
     ::signing.convertChildValue { value?.convertAndroidSigningSettings() }
+    ::versionCode.convertChildInt()
+    ::versionName.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)

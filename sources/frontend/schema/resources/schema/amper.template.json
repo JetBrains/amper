@@ -404,6 +404,16 @@
           "title": "The target API level for the application",
           "enum": ["35","34","33","32","31","30","29","28","27","26","25","24","23","22","21"],
           "x-intellij-enum-order-sensitive": true
+        },
+        "versionCode": {
+          "x-intellij-html-description": "Version code. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)",
+          "title": "Version code",
+          "type": "integer"
+        },
+        "versionName": {
+          "x-intellij-html-description": "Version name. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)",
+          "title": "Version name",
+          "type": "string"
         }
       },
       "additionalProperties": false

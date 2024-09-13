@@ -295,7 +295,7 @@ private fun TaskGraphBuilder.setupAndroidPlatformTask(
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
-    val targetSdk = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
+    val targetSdk = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: return
     registerTask(
         GetAndroidPlatformJarTask(
             GetAndroidPlatformFileFromPackageTask(
@@ -352,7 +352,7 @@ private fun TaskGraphBuilder.setupDownloadSystemImageTask(
     isTest: Boolean,
 ) {
     val androidFragment = getAndroidFragment(module, isTest)
-    val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: 34
+    val versionNumber = androidFragment?.settings?.android?.targetSdk?.versionNumber ?: return
     val abi = if (DefaultSystemInfo.detect().arch == Arch.X64) Abi.X86_64 else Abi.ARM64_V8A
     registerTask(
         GetAndroidPlatformFileFromPackageTask(

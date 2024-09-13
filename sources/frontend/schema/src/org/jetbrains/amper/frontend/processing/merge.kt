@@ -83,6 +83,8 @@ fun AndroidSettings.merge(overwrite: AndroidSettings) = mergeNode(overwrite, ::A
     mergeScalar(AndroidSettings::applicationId)
     mergeScalar(AndroidSettings::namespace)
     mergeNodeProperty(AndroidSettings::signing, AndroidSigningSettings::merge)
+    mergeScalar(AndroidSettings::versionCode)
+    mergeScalar(AndroidSettings::versionName)
 }
 
 fun AndroidSigningSettings.merge(overwrite: AndroidSigningSettings) = mergeNode(overwrite, ::AndroidSigningSettings) {

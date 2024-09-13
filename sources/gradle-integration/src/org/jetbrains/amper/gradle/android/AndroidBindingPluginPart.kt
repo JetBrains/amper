@@ -207,8 +207,6 @@ class AndroidBindingPluginPart(
         leafPlatformFragments.forEach { fragment ->
             val androidSettings = fragment.settings.android
             androidPE?.apply {
-
-
                 compileSdkVersion(androidSettings.compileSdk.versionNumber)
                 defaultConfig.apply {
                     if (!module.type.isLibrary()) applicationId = androidSettings.applicationId
@@ -216,6 +214,8 @@ class AndroidBindingPluginPart(
                     minSdk = androidSettings.minSdk.versionNumber
                     maxSdk = androidSettings.maxSdk?.versionNumber
                     targetSdk = androidSettings.targetSdk.versionNumber
+                    versionCode = androidSettings.versionCode
+                    versionName = androidSettings.versionName
                     signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
                         signingConfig = signing
                     }

@@ -74,6 +74,8 @@ AndroidSettings
 	namespace: String, default: org.example.namespace - A Kotlin or Java package name for the generated `R` and `BuildConfig` classes. [Read more](https://developer.android.com/build/configure-app-module#set-namespace)
 	signing: AndroidSigningSettings - Application signing settings. [Read more](https://developer.android.com/studio/publish/app-signing)
 	targetSdk: AndroidVersion, default: 35 - The target API level for the application. [Read more](https://developer.android.com/guide/topics/manifest/uses-sdk-element.html)
+	versionCode: Int, default: 1 - Version code. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)
+	versionName: String, default: unspecified - Version name. [Read more](https://developer.android.com/studio/publish/versioning#versioningsettings)
 
 AndroidSigningSettings
 ----------------------

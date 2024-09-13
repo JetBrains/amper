@@ -137,6 +137,11 @@ val booleanSchema
 "type": "boolean"
 """.trim()
 
+val integerSchema
+    get() = """
+"type": "integer"
+""".trimIndent()
+
 val KClass<*>.jsonDef: String get() = simpleName!!
 val KClass<*>.asReferenceTo get() = "\"\$ref\": \"#/\$defs/${this.jsonDef}\""
 
