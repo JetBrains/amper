@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
+package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.Level
@@ -13,8 +13,6 @@ import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.reportBundleError
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.filterNotNullValues
 
 
 /**
@@ -84,7 +82,7 @@ private fun <K, V> MappingEntry.convertPair(
  * Convert this scalar node as an enum, reporting non-existent values.
  */
 context(ProblemReporterContext)
-fun <T : Enum<T>, V : PsiElement?> V.convertEnum(
+fun <T : Enum<T>, V : Scalar?> V.convertEnum(
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,
     isLong: Boolean = false
@@ -93,7 +91,7 @@ fun <T : Enum<T>, V : PsiElement?> V.convertEnum(
     if (receivedValue == null) {
         if (isLong) {
             SchemaBundle.reportBundleError(
-                node = this,
+                node = this.sourceElement,
                 messageKey = "unknown.property.type.long",
                 enumIndex.enumClass.simpleName!!,
                 it,
@@ -102,7 +100,7 @@ fun <T : Enum<T>, V : PsiElement?> V.convertEnum(
             )
         } else {
             SchemaBundle.reportBundleError(
-                node = this,
+                node = this.sourceElement,
                 messageKey = "unknown.property.type",
                 enumIndex.enumClass.simpleName!!,
                 it,

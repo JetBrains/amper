@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi
 
-import com.intellij.amper.lang.AmperFile
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
@@ -15,15 +14,6 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Project
 import org.jetbrains.amper.frontend.schema.Template
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertModule
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertProject
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.convertTemplate
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertCustomTask
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertModule
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertProject
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.convertTemplate
-import org.jetbrains.yaml.psi.YAMLDocument
-import org.jetbrains.yaml.psi.YAMLFile
 
 // TODO Rethink.
 internal data class ConvertCtx(
@@ -51,11 +41,7 @@ context(ProblemReporterContext)
 private fun convertProjectPsi(file: PsiFile): Project? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
-        when (file) {
-            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertProject()
-            is AmperFile -> file.convertProject()
-            else -> null
-        }
+        file.topLevelValue?.convertProject()
     })
 }
 
@@ -63,22 +49,14 @@ context(ProblemReporterContext, ConvertCtx)
 private fun convertModulePsi(file: PsiFile): Module? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
-        when (file) {
-            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertModule()
-            is AmperFile -> file.convertModule()
-            else -> null
-        }
+        file.topLevelValue?.convertModule()
     })
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun convertCustomTasksPsi(file: PsiFile): CustomTaskNode? {
     return ApplicationManager.getApplication().runReadAction(Computable {
-        return@Computable when (file) {
-            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertCustomTask()
-            is AmperFile -> throw UnsupportedOperationException("Amper files are not yet supported")
-            else -> null
-        }
+        file.topLevelValue?.convertCustomTask()
     })
 }
 
@@ -86,10 +64,6 @@ context(ProblemReporterContext, ConvertCtx)
 private fun convertTemplatePsi(file: PsiFile): Template? {
     // TODO Add reporting.
     return ApplicationManager.getApplication().runReadAction(Computable {
-        when (file) {
-            is YAMLFile -> file.children.filterIsInstance<YAMLDocument>().firstOrNull()?.convertTemplate()
-            is AmperFile -> file.convertTemplate()
-            else -> null
-        }
+        file.topLevelValue?.convertTemplate()
     })
 }

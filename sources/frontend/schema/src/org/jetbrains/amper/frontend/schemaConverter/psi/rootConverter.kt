@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
+package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -51,7 +51,7 @@ internal fun PsiElement.convertModule() = Module().apply {
     val documentMapping = asMappingNode() ?: return@apply
     with(documentMapping) {
         ::product.convertChild { convertProduct() }
-        this@apply::apply.convertChildScalarCollection { asAbsolutePath().asTraceable().applyPsiTrace(this) }
+        this@apply::apply.convertChildScalarCollection { asAbsolutePath().asTraceable().applyPsiTrace(this.sourceElement) }
         ::aliases.convertChild {
             asSequenceNode()?.convertScalarKeyedMap {
                 asSequenceNode()
@@ -72,8 +72,8 @@ private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     ::dependencies.convertModifierAware { value?.convertDependencies() }
     ::`test-dependencies`.convertModifierAware { value?.convertDependencies() }
 
-    ::settings.convertModifierAware(Settings()) { convertSettings() }
-    ::`test-settings`.convertModifierAware(Settings()) { convertSettings() }
+    ::settings.convertModifierAware(Settings()) { value?.convertSettings() }
+    ::`test-settings`.convertModifierAware(Settings()) { value?.convertSettings() }
 
     ::tasks.convertChild { convertTasks() }
 }
@@ -119,7 +119,7 @@ private fun MappingEntry.convertProduct() = ModuleProduct().apply {
     value?.asMappingNode()?.let {
         with(it) {
             ::type.convertChildEnum(ProductType, isFatal = true, isLong = true)
-            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
+            ::platforms.convertChildScalarCollection { convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this.sourceElement) }
         }
     } ?:
     value?.asScalarNode()?.let {
@@ -156,7 +156,7 @@ private fun PsiElement.convertRepository(): Repository? =
         ?.applyPsiTrace(this)
 
 context(ProblemReporterContext, ConvertCtx)
-private fun PsiElement.convertRepositoryShort() = Repository().apply {
+private fun Scalar.convertRepositoryShort() = Repository().apply {
     ::url.convertSelf { textValue }
     ::id.convertSelf { textValue }
 }
@@ -190,12 +190,12 @@ private fun PsiElement.convertDependency(): Dependency? =
         ?: this.asScalarNode()?.convertDependencyShort()
 
 context(ProblemReporterContext, ConvertCtx)
-private fun PsiElement.convertDependencyShort(): Dependency = when {
+private fun Scalar.convertDependencyShort(): Dependency = when {
     textValue.startsWith("$") ->
         textValue.let { CatalogDependency().apply { ::catalogKey.convertSelf { textValue.removePrefix("$") } } }
     textValue.startsWith(".") -> textValue.let { InternalDependency().apply { ::path.convertSelf { asAbsolutePath() } } }
     else -> textValue.let { ExternalMavenDependency().apply { ::coordinates.convertSelf { textValue } } }
-}.applyPsiTrace(this)
+}.applyPsiTrace(this.sourceElement)
 
 context(ProblemReporterContext, ConvertCtx)
 private fun MappingNode.convertDependencyFull(): Dependency? = when {
@@ -208,33 +208,34 @@ private fun MappingNode.convertDependencyFull(): Dependency? = when {
 
 context(ConvertCtx, ProblemReporterContext)
 private fun MappingEntry.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
-    ::catalogKey.convertSelf { keyText!!.removePrefix("$") }
+    ::catalogKey.convertEntryItself { keyText!!.removePrefix("$") }
     value?.convertScopes(this)
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun MappingEntry.convertInternalDep(): InternalDependency = InternalDependency().apply {
-    ::path.convertSelf { asAbsolutePath() }
+    ::path.convertEntryItself { asAbsolutePath() }
     value?.convertScopes(this)
 }
 
 context(ProblemReporterContext, ConvertCtx)
 private fun MappingEntry.convertExternalMavenDep() = ExternalMavenDependency().apply {
-    ::coordinates.convertSelf { keyText }
+    ::coordinates.convertEntryItself { keyText }
     value?.convertScopes(this)
 }
 
 context(ConvertCtx, ProblemReporterContext)
 private fun PsiElement.convertScopes(dep: Dependency) = with(dep) {
-    when {
-        this@convertScopes.asScalarNode() != null && textValue == "exported" -> ::exported.convertSelf { true }
-        this@convertScopes.asScalarNode() != null -> ::scope.convertSelf { convertEnum(DependencyScope) }
-        this@convertScopes.asMappingNode() != null -> {
-            with(this@convertScopes.asMappingNode()) {
-                ::scope.convertChildEnum(DependencyScope)
-                ::exported.convertChildBoolean()
-            }
+    this@convertScopes.asScalarNode()?.let {
+        with(it) {
+            if (it.textValue == "exported") ::exported.convertSelf { true }
+            else ::scope.convertSelf { convertEnum(DependencyScope) }
         }
-        else -> Unit
+    }
+    this@convertScopes.asMappingNode()?.let {
+        with(it) {
+            ::scope.convertChildEnum(DependencyScope)
+            ::exported.convertChildBoolean()
+        }
     }
 }

@@ -25,7 +25,7 @@ import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 import org.jetbrains.amper.frontend.schema.TaskSettings
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.TraceableMap
+import org.jetbrains.amper.frontend.schemaConverter.psi.TraceableMap
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 

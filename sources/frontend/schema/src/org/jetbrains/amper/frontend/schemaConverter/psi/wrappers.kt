@@ -2,15 +2,34 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
+package org.jetbrains.amper.frontend.schemaConverter.psi
 
+import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.amper.lang.impl.allObjectElements
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
+
+class Scalar(val sourceElement: PsiElement) {
+    companion object {
+        fun from(element: PsiElement?) =
+            when (element) {
+                is YAMLScalar, is AmperLiteral -> Scalar(element)
+                else -> null
+            }
+    }
+
+    val textValue get() =
+        when (sourceElement) {
+            is YAMLScalar -> sourceElement.textValue
+            else -> StringUtil.unquoteString(sourceElement.text)
+        }
+}
 
 class Sequence(private val sourceElement: PsiElement) {
     companion object {
@@ -23,7 +42,7 @@ class Sequence(private val sourceElement: PsiElement) {
 
     val items get() = when (sourceElement) {
         is YAMLSequence -> sourceElement.items.mapNotNull { it.value }
-        is AmperObject -> sourceElement.allObjectElements.mapNotNull { it.asScalarNode() }
+        is AmperObject -> sourceElement.allObjectElements.filter { it !is AmperProperty }
         else -> emptyList()
     }
 }
