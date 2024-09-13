@@ -37,7 +37,7 @@ internal fun MappingNode.doConvertSettings() = Settings().apply {
     ::jvm.convertChildValue { asMappingNode()?.convertJvmSettings() }
     ::android.convertChildValue { asMappingNode()?.convertAndroidSettings() }
     ::kotlin.convertChildValue { asMappingNode()?.convertKotlinSettings() }
-    ::compose.convertChildValue { value?.convertComposeSettings() }
+    ::compose.convertChildValue { convertComposeSettings() }
     ::ksp.convertChildValue { asMappingNode()?.convertKspSettings() }
     ::ios.convertChildValue { asMappingNode()?.convertIosSettings() }
     ::publishing.convertChildValue { asMappingNode()?.convertPublishingSettings() }

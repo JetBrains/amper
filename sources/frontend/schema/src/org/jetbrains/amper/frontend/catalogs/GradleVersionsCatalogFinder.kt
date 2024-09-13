@@ -5,11 +5,14 @@
 package org.jetbrains.amper.frontend.catalogs
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.frontend.FrontendPathResolver
 
 private const val gradleDefaultVersionCatalogName = "libs.versions.toml"
 private const val gradleDirName = "gradle"
 
-internal class GradleVersionsCatalogFinder : VersionsCatalogProvider {
+internal class GradleVersionsCatalogFinder(
+    override val frontendPathResolver: FrontendPathResolver
+) : VersionsCatalogProvider {
 
     // This wrapper allows caching the absence of catalog too
     private data class CatalogPathResult(val path: VirtualFile?)

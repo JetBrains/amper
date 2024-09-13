@@ -9,8 +9,7 @@ import org.jetbrains.amper.frontend.ismVisitor.accept
 import org.jetbrains.amper.frontend.old.helper.TestBase
 import org.jetbrains.amper.frontend.schema.EqualsVisitor
 import org.jetbrains.amper.frontend.schema.Module
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
+import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import java.nio.file.Path
 
 fun TestBase.convertTest(caseName: String, expectedErrors: String = "", expectedModule: Module? = null) =
@@ -29,9 +28,8 @@ private class ConvertTestRun(
             )
             val inputParentFile = pathResolver.loadVirtualFile(inputPath.parent)
             val inputFile = pathResolver.loadVirtualFile(inputPath)
-            with(ConvertCtx(inputParentFile, pathResolver)) {
-                convertModule(inputFile)!!
-            }
+            Converter(inputParentFile, pathResolver, ctx.problemReporter)
+                .convertModule(inputFile)!!
         }
         TestTraceValidationVisitor().visit(module)
         expectedModule?.accept(EqualsVisitor(module))

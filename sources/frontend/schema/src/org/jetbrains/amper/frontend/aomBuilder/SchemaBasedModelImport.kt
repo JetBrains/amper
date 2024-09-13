@@ -5,7 +5,6 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
 import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.core.UsedInIdePlugin
@@ -88,8 +87,6 @@ object SchemaBasedModelImport : ModelInit {
     )
     @UsedInIdePlugin
     fun getTemplate(templatePsiFile: PsiFile, project: Project): ModelInit.TemplateHolder? {
-        return with(FrontendPathResolver(project = project)) {
-            readTemplate(GradleVersionsCatalogFinder(), templatePsiFile.virtualFile)
-        }
+        return readTemplate(GradleVersionsCatalogFinder(FrontendPathResolver(project = project)), templatePsiFile.virtualFile)
     }
 }

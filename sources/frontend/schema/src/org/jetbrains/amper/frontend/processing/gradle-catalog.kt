@@ -62,8 +62,8 @@ private class TomlCatalog(
  * 1. `[versions]` and `[libraries]` sections, no `[plugins]` or `[bundles]`
  * 2. versions or version refs, no version constraints
  */
-context(ProblemReporterContext, FrontendPathResolver)
-fun parseGradleVersionCatalog(
+context(ProblemReporterContext)
+fun FrontendPathResolver.parseGradleVersionCatalog(
     catalogFile: VirtualFile
 ): VersionCatalog? {
     val psiFile = toPsiFile(catalogFile) as? TomlFile ?: return null

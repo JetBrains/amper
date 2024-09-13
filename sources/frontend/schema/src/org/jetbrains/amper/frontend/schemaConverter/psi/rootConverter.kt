@@ -53,14 +53,14 @@ internal fun PsiElement.convertModule() = Module().apply {
         ::product.convertChild { convertProduct() }
         this@apply::apply.convertChildScalarCollection { asAbsolutePath().asTraceable().applyPsiTrace(this.sourceElement) }
         ::aliases.convertChild {
-            asSequenceNode()?.convertScalarKeyedMap {
+            value?.asSequenceNode()?.convertScalarKeyedMap {
                 asSequenceNode()
                     ?.asScalarSequenceNode()
                     ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
                     ?.toSet()
             }
         }
-        ::module.convertChild { asMappingNode()?.convertMeta() }
+        ::module.convertChild { value?.asMappingNode()?.convertMeta() }
         convertBase(this@apply)
     }
 }
@@ -168,7 +168,7 @@ private fun MappingNode.convertRepositoryFull(): Repository = Repository().apply
     ::publish.convertChildBoolean()
     ::resolve.convertChildBoolean()
     ::credentials.convertChild {
-        asMappingNode()?.run {
+        value?.asMappingNode()?.run {
             Repository.Credentials().apply {
                 // TODO Report non existent path.
                 ::file.convertChildScalar { asAbsolutePath() }

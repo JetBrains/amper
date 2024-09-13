@@ -10,26 +10,28 @@ import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.ModelInit
 import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 import org.jetbrains.amper.frontend.aomBuilder.tryGetCatalogFor
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.Template
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertTemplate
 
 
-context(ProblemReporterContext, FrontendPathResolver)
-internal fun readTemplate(catalogFinder: VersionsCatalogProvider, file: VirtualFile): ModelInit.TemplateHolder? =
-    with(ConvertCtx(file.parent, this@FrontendPathResolver)) {
-        val nonProcessed = convertTemplate(file) ?: return@with null
-        val chosenCatalog = catalogFinder.tryGetCatalogFor(file, nonProcessed)
-        val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
-        ModelInit.TemplateHolder(processed, chosenCatalog)
-    }
+context(ProblemReporterContext)
+internal fun readTemplate(catalogFinder: VersionsCatalogProvider, file: VirtualFile): ModelInit.TemplateHolder? {
+   val converter = Converter(file.parent, catalogFinder.frontendPathResolver, this@ProblemReporterContext.problemReporter)
+   val nonProcessed = converter.convertTemplate(file) ?: return null
+   val chosenCatalog = with(converter) { catalogFinder.tryGetCatalogFor(file, nonProcessed) }
+   val processed = nonProcessed.replaceCatalogDependencies(chosenCatalog)
+   return ModelInit.TemplateHolder(processed, chosenCatalog)
+}
 
-context(ProblemReporterContext, FrontendPathResolver)
-internal fun Module.readTemplatesAndMerge(catalogFinder: VersionsCatalogProvider): Module {
+context(ProblemReporterContext)
+internal fun Module.readTemplatesAndMerge(catalogFinder: AmperProjectContext): Module {
     val readTemplates = apply
-        ?.mapNotNull { loadVirtualFileOrNull(it.value) }
+        ?.mapNotNull { catalogFinder.frontendPathResolver.loadVirtualFileOrNull(it.value) }
         ?.mapNotNull { readTemplate(catalogFinder, it)?.template } ?: emptyList()
     val toMerge = readTemplates + this
 

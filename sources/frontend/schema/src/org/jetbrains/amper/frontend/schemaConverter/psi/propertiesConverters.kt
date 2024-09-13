@@ -66,10 +66,10 @@ fun <T> KProperty0<T>.convertChild(
  */
 context(MappingNode, ProblemReporterContext)
 fun <T> KProperty0<T>.convertChildValue(
-    convertValue: MappingEntry.() -> T?
+    convertValue: PsiElement.() -> T?
 ) {
     tryGetChildNode(name)?.let { childValue ->
-        val newValue = convertValue(childValue)
+        val newValue = childValue.value?.let { convertValue(it) }
         valueBase?.invoke(newValue)
         valueBase?.applyPsiTrace(childValue)
         if (newValue is Traceable) newValue.applyPsiTrace(childValue)

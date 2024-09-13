@@ -4,10 +4,8 @@
 
 package org.jetbrains.amper.frontend.aomBuilder
 
-import com.intellij.openapi.project.guessProjectForFile
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.findPsiFile
 import org.jetbrains.amper.core.messages.BuildProblemImpl
 import org.jetbrains.amper.core.messages.BuildProblemSource
 import org.jetbrains.amper.core.messages.FileBuildProblemSource
@@ -20,7 +18,6 @@ import org.jetbrains.amper.frontend.CompositeString
 import org.jetbrains.amper.frontend.CompositeStringPart
 import org.jetbrains.amper.frontend.CustomTaskDescription
 import org.jetbrains.amper.frontend.DefaultScopedNotation
-import org.jetbrains.amper.frontend.FrontendPathResolver
 import org.jetbrains.amper.frontend.KnownCurrentTaskProperty
 import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.MavenDependency
@@ -58,9 +55,8 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
+import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertCustomTask
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -85,15 +81,18 @@ internal fun doBuild(
     val path2SchemaModule = projectContext.amperModuleFiles
         .mapNotNull { moduleFile ->
             // Read initial module file.
-            val nonProcessed = with(projectContext.frontendPathResolver) {
-                with(ConvertCtx(moduleFile.parent, projectContext.frontendPathResolver)) {
-                    // TODO Report when file is not found.
-                    convertModule(moduleFile)?.readTemplatesAndMerge(projectContext)
-                }
-            } ?: return@mapNotNull null
+            val converter = Converter(
+                moduleFile.parent,
+                projectContext.frontendPathResolver,
+                problemReporter
+            )
+            val nonProcessed = converter.
+                // TODO Report when file is not found.
+                convertModule(moduleFile)?.readTemplatesAndMerge(projectContext)
+            ?: return@mapNotNull null
 
             // Choose catalogs.
-            val chosenCatalog = with(projectContext.frontendPathResolver) {
+            val chosenCatalog = with(converter) {
                 projectContext.tryGetCatalogFor(moduleFile, nonProcessed)
             }
 
@@ -139,8 +138,9 @@ internal fun doBuild(
             return@mapNotNull null
         }
 
-        val customTask = with(ConvertCtx(moduleTriple.buildFile.parent, projectContext.frontendPathResolver)) {
-            val node = convertCustomTask(customTaskFile)
+        val customTask = let {
+            val converter = Converter(moduleTriple.buildFile.parent, projectContext.frontendPathResolver, problemReporter)
+            val node = converter.convertCustomTask(customTaskFile)
             if (node == null) {
                 problemReporter.reportMessage(BuildProblemImpl(
                     buildProblemId = "INVALID_CUSTOM_TASK",
@@ -155,7 +155,9 @@ internal fun doBuild(
             }
 
             val moduleResolver = { path: String ->
-                moduleDir2module[path.asAbsolutePath()]
+                moduleDir2module[
+                    with(converter) { path.asAbsolutePath() }
+                ]
             }
             buildCustomTask(customTaskFile, node, moduleTriple.module, moduleResolver) ?: return@mapNotNull null
         }
@@ -179,9 +181,9 @@ internal fun doBuild(
 /**
  * Try to find gradle catalog and compose it with built-in catalog.
  */
-context(ProblemReporterContext, FrontendPathResolver)
+context(ProblemReporterContext, ConvertCtx)
 internal fun VersionsCatalogProvider.tryGetCatalogFor(file: VirtualFile, nonProcessed: Base): VersionCatalog {
-    val gradleCatalog = getCatalogPathFor(file)?.let { parseGradleVersionCatalog(it) }
+    val gradleCatalog = getCatalogPathFor(file)?.let { pathResolver.parseGradleVersionCatalog(it) }
     val compositeCatalog = addBuiltInCatalog(nonProcessed, gradleCatalog)
     return compositeCatalog
 }

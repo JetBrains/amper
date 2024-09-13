@@ -12,12 +12,6 @@ import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
  * Contains information about the project as a whole.
  */
 interface AmperProjectContext : VersionsCatalogProvider {
-
-    /**
-     * The [FrontendPathResolver] to do the mapping between paths, virtual files, and PSI files.
-     */
-    val frontendPathResolver: FrontendPathResolver
-
     /**
      * The root directory of this Amper project.
      *

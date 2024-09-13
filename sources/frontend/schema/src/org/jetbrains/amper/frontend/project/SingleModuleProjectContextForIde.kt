@@ -15,7 +15,7 @@ import org.jetbrains.amper.frontend.catalogs.VersionsCatalogProvider
 internal class SingleModuleProjectContextForIde(
     moduleFile: VirtualFile,
     override val frontendPathResolver: FrontendPathResolver,
-) : AmperProjectContext, VersionsCatalogProvider by GradleVersionsCatalogFinder() {
+) : AmperProjectContext, VersionsCatalogProvider by GradleVersionsCatalogFinder(FrontendPathResolver()) {
 
     init {
         require(moduleFile.name in amperModuleFileNames) {
