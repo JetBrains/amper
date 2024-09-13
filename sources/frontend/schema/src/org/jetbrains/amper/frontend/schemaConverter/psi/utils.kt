@@ -8,9 +8,14 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import com.intellij.amper.lang.AmperContextBlock
+import com.intellij.amper.lang.AmperContextualElement
+import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperFile
+import com.intellij.amper.lang.AmperProperty
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.Modifiers
@@ -25,13 +30,28 @@ import kotlin.io.path.exists
 /**
  * Extract all modifiers that are present within this scalar node.
  */
-fun MappingEntry.extractModifiers(): Modifiers =
-    keyText?.substringAfter("@", "")
+fun MappingEntry.extractModifiers(): Modifiers {
+    if (sourceElement is AmperProperty) {
+        val modifiers = mutableSetOf<TraceableString>()
+        var parentContext = PsiTreeUtil.getParentOfType(sourceElement, AmperContextualElement::class.java, true)
+        while (parentContext != null) {
+            modifiers.addAll(when (parentContext) {
+                is AmperContextBlock -> parentContext.contextNameList
+                is AmperContextualStatement -> parentContext.contextNameList
+                else -> emptyList()
+            }.mapNotNull { it.identifier?.let { ident -> TraceableString(ident.text).applyPsiTrace(it) } })
+            parentContext = PsiTreeUtil.getParentOfType(parentContext, AmperContextualElement::class.java, true)
+        }
+        return modifiers
+    }
+
+    return keyText?.substringAfter("@", "")
         ?.split("+")
         ?.filter { it.isNotBlank() }
         ?.map { TraceableString(it).applyPsiTrace(keyElement) }
         ?.toSet()
         ?.takeIf { it.isNotEmpty() } ?: noModifiers
+}
 
 context(ConvertCtx)
 fun String.asAbsolutePath(): Path =

@@ -58,7 +58,7 @@ import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
+import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertCustomTask
 import org.jetbrains.amper.frontend.schemaConverter.psi.convertModule
 import java.nio.file.Path

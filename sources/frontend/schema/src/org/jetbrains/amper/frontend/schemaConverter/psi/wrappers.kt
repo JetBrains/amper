@@ -42,7 +42,9 @@ class Sequence(private val sourceElement: PsiElement) {
 
     val items get() = when (sourceElement) {
         is YAMLSequence -> sourceElement.items.mapNotNull { it.value }
-        is AmperObject -> sourceElement.allObjectElements.filter { it !is AmperProperty }
+        is AmperObject -> sourceElement.allObjectElements.mapNotNull {
+            if (it is AmperProperty && it.value == null) it.nameElement else null
+        }
         else -> emptyList()
     }
 }
