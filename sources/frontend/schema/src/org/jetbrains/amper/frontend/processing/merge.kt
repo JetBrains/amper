@@ -8,7 +8,9 @@ import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.api.withPrecedingValue
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.Base
+import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
@@ -22,7 +24,6 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.TaskSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.TraceableMap
 import kotlin.reflect.KMutableProperty1
@@ -108,7 +109,15 @@ fun KotlinSettings.merge(overwrite: KotlinSettings) = mergeNode(overwrite, ::Kot
 fun ComposeSettings.merge(overwrite: ComposeSettings?) = mergeNode(overwrite, ::ComposeSettings) {
     mergeScalar(ComposeSettings::enabled)
     mergeScalar(ComposeSettings::version)
+    mergeNodeProperty(ComposeSettings::resources, ComposeResourcesSettings::merge)
 }
+
+fun ComposeResourcesSettings.merge(overwrite: ComposeResourcesSettings?) =
+    mergeNode(overwrite, ::ComposeResourcesSettings) {
+        mergeScalar(ComposeResourcesSettings::exposedAccessors)
+        mergeScalar(ComposeResourcesSettings::packageName)
+        mergeScalar(ComposeResourcesSettings::enabled)
+    }
 
 fun KspSettings.merge(overwrite: KspSettings?) = mergeNode(overwrite, ::KspSettings) {
     mergeScalar(KspSettings::version)

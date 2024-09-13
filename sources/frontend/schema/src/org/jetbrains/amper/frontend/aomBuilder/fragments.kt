@@ -5,15 +5,15 @@
 package org.jetbrains.amper.frontend.aomBuilder
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.amper.core.mapStartAware
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Notation
 import org.jetbrains.amper.frontend.Platform
-import org.jetbrains.amper.frontend.doCapitalize
-import org.jetbrains.amper.core.mapStartAware
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.Settings
 import java.nio.file.Path
@@ -90,6 +90,14 @@ open class DefaultFragment(
         moduleFile.parent.toNioPath().resolve(resourcesPathString)
     }
 
+    override val composeResourcesPath: Path by lazy {
+        val resourcesStringPrefix = if (isTest) "testComposeResources" else "composeResources"
+        val resourcesPathString =
+            if (srcOnlyOwner) resourcesStringPrefix
+            else "$resourcesStringPrefix$modifier"
+        moduleFile.parent.toNioPath().resolve(resourcesPathString)
+    }
+
     private val generatedFilesRelativeRoot: Path = Path("generated/${module.userReadableName}/$name")
 
     override val generatedSrcRelativeDirs: List<Path> by lazy {
@@ -97,6 +105,10 @@ open class DefaultFragment(
         buildList {
             add(generateSrcRoot / KspPathConventions.JavaSources)
             add(generateSrcRoot / KspPathConventions.KotlinSources)
+
+            add(generateSrcRoot / ComposeResourcesPathConventions.Accessors)
+            add(generateSrcRoot / ComposeResourcesPathConventions.Collectors)
+            add(generateSrcRoot / ComposeResourcesPathConventions.CommonResClass)
 
             // TODO add custom-task-generated sources here
         }
@@ -129,6 +141,12 @@ private object KspPathConventions {
     const val Classes = "ksp"
 }
 
+private object ComposeResourcesPathConventions {
+    const val Accessors = "compose/resources/accessors"
+    const val Collectors = "compose/resources/collectors"
+    const val CommonResClass = "compose/resources/commonResClass"
+}
+
 /**
  * The path to the root of the KSP-generated Kotlin sources for this [Fragment].
  */
@@ -139,7 +157,7 @@ fun Fragment.kspGeneratedKotlinSourcesPath(buildOutputRoot: Path): Path =
  * The path to the root of the KSP-generated Java sources for this [Fragment].
  */
 fun Fragment.kspGeneratedJavaSourcesPath(buildOutputRoot: Path): Path =
-    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.KotlinSources)
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, KspPathConventions.JavaSources)
 
 /**
  * The path to the root of the KSP-generated resources for this [Fragment].
@@ -153,9 +171,18 @@ fun Fragment.kspGeneratedResourcesPath(buildOutputRoot: Path): Path =
 fun Fragment.kspGeneratedClassesPath(buildOutputRoot: Path): Path =
     findConventionalPath(buildOutputRoot, generatedResourcesRelativeDirs, KspPathConventions.Classes)
 
+fun Fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.Accessors)
+
+fun Fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.Collectors)
+
+fun Fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot: Path): Path =
+    findConventionalPath(buildOutputRoot, generatedSrcRelativeDirs, ComposeResourcesPathConventions.CommonResClass)
+
 private fun findConventionalPath(buildOutputRoot: Path, genDirs: List<Path>, pathSuffix: String) =
     genDirs.map { buildOutputRoot / it }.find { it.endsWith(pathSuffix) }
-        ?: error("generated dir paths don't contain conventional KSP path suffix '$pathSuffix'. Found:\n" +
+        ?: error("generated dir paths don't contain conventional generated path suffix '$pathSuffix'. Found:\n" +
                 genDirs.joinToString("\n"))
 
 fun createFragments(

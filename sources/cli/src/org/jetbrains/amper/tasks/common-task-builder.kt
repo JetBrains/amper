@@ -7,11 +7,22 @@ package org.jetbrains.amper.tasks
 import org.jetbrains.amper.dependency.resolution.ResolutionScope
 import org.jetbrains.amper.frontend.ModuleTasksPart
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.allSourceFragmentCompileDependencies
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 
+internal enum class CommonGlobalTaskType(
+    private val keywordName: String,
+) {
+    // compose resources
+    ComposeResourcesGenerateResClass("generateComposeResClass"),
+    ComposeResourcesGenerateExpect("generateExpectComposeResourceCollectors"),
+    ;
+
+    fun getTaskName(module: PotatoModule) = TaskName.moduleTask(module, keywordName)
+}
 
 internal enum class CommonTaskType(override val prefix: String) : PlatformTaskType {
     Compile("compile"),
@@ -28,6 +39,10 @@ internal enum class CommonTaskType(override val prefix: String) : PlatformTaskTy
 
 internal enum class CommonFragmentTaskType(override val prefix: String) : FragmentTaskType {
     CompileMetadata("compileMetadata"),
+    // compose resources
+    ComposeResourcesPrepare("prepareComposeResourcesFor"),
+    ComposeResourcesGenerateAccessors("generateComposeResourceAccessorsFor"),
+    ComposeResourcesGenerateActual("generateActualComposeResourceCollectorsFor"),
 }
 
 fun ProjectTasksBuilder.setupCommonTasks() {

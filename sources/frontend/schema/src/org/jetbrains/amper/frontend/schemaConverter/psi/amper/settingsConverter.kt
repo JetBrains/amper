@@ -11,7 +11,9 @@ import com.intellij.amper.lang.AmperValue
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
+import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
@@ -28,9 +30,7 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.yaml.asTraceableString
 
 context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertSettings() =
@@ -116,6 +116,14 @@ context(ProblemReporterContext, ConvertCtx)
 internal fun AmperObject.convertComposeSettingsObject() = ComposeSettings().apply {
     ::enabled.convertChildBoolean()
     ::version.convertChildString()
+    ::resources.convertChildValue { (value as? AmperObject)?.convertComposeResourcesSettings() }
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun AmperObject.convertComposeResourcesSettings() = ComposeResourcesSettings().apply {
+    ::exposedAccessors.convertChildBoolean()
+    ::enabled.convertChildBoolean()
+    ::packageName.convertChildString()
 }
 
 context(ProblemReporterContext, ConvertCtx)

@@ -72,6 +72,26 @@ class ComposeSettings : SchemaNode() {
 
     @SchemaDoc("The Compose plugin version")
     var version by nullableValue<String> { UsedVersions.composeVersion.takeIf { enabled } }
+
+    @SchemaDoc("Compose Resources settings")
+    var resources by value(::ComposeResourcesSettings)
+}
+
+class ComposeResourcesSettings : SchemaNode() {
+    @SchemaDoc("Whether to enable Compose resources packaging and accessor code generation.")
+    var enabled by value(default = false)
+
+    @SchemaDoc(
+        "A unique identifier for the resources in the current module.<br>" +
+                "Used as package for the generated Res class and for isolating resources in the final artifact."
+    )
+    var packageName by value(default = "")
+
+    @SchemaDoc(
+        "Whether the generated resources accessors should be exposed to other modules (public) or " +
+                "internal."
+    )
+    var exposedAccessors by value(default = false)
 }
 
 const val composeSettingsShortForm = """

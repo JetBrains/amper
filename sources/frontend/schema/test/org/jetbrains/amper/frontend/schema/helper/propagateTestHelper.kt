@@ -4,7 +4,21 @@
 
 package org.jetbrains.amper.frontend.schema.helper
 
-import org.jetbrains.amper.frontend.*
+import org.jetbrains.amper.frontend.Artifact
+import org.jetbrains.amper.frontend.ClassBasedSet
+import org.jetbrains.amper.frontend.CustomTaskDescription
+import org.jetbrains.amper.frontend.Fragment
+import org.jetbrains.amper.frontend.FragmentDependencyType
+import org.jetbrains.amper.frontend.FragmentLink
+import org.jetbrains.amper.frontend.LeafFragment
+import org.jetbrains.amper.frontend.ModulePart
+import org.jetbrains.amper.frontend.Notation
+import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.PotatoModuleProgrammaticSource
+import org.jetbrains.amper.frontend.PotatoModuleSource
+import org.jetbrains.amper.frontend.VersionCatalog
+import org.jetbrains.amper.frontend.classBasedSet
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.JvmSettings
 import org.jetbrains.amper.frontend.schema.KotlinSettings
@@ -77,7 +91,8 @@ class FragmentBuilder(var name: String) {
             override val isDefault: Boolean
                 get() = true
             override val src: Path get() = Path(name).resolve("main")
-            override val resourcesPath get() = Path(name).resolve("")
+            override val resourcesPath get() = Path(name).resolve("resources")
+            override val composeResourcesPath get() = Path(name).resolve("composeResources")
             override val generatedResourcesRelativeDirs: List<Path> = emptyList()
             override val generatedSrcRelativeDirs: List<Path> = emptyList()
             override val generatedClassesRelativeDirs: List<Path> = emptyList()

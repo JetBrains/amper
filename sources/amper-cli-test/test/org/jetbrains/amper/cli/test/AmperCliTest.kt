@@ -365,6 +365,14 @@ class AmperCliTest: AmperCliTestBase() {
         assertContains(r.stdout, "Input: 'Hello World!'")
     }
 
+    @Test
+    fun `compose resources generation and compilation`() = runTestInfinitely {
+        runCli(
+            backendTestProjectName = "compose-resources-jvm-android",
+            "build",
+        )
+    }
+
     private fun assertModulesList(modulesCommandResult: ProcessResult, expectedModules: List<String>) {
         val modules = modulesCommandResult.stdout.lines().dropWhile { it.isNotBlank() }.filter { it.isNotBlank() }
         return assertEquals(expectedModules, modules)

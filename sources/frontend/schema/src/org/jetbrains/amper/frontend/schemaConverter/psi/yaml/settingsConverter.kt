@@ -7,7 +7,9 @@ package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
+import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
 import org.jetbrains.amper.frontend.schema.IosSettings
@@ -24,7 +26,6 @@ import org.jetbrains.amper.frontend.schema.NativeSettings
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
-import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
@@ -110,6 +111,17 @@ internal fun YAMLValue.convertComposeSettings() = when (this) {
     is YAMLMapping -> ComposeSettings().apply {
         ::enabled.convertChildBoolean()
         ::version.convertChildString()
+        ::resources.convertChildValue { value?.convertComposeResourcesSettings() }
+    }
+    else -> null
+}
+
+context(ProblemReporterContext, ConvertCtx)
+internal fun YAMLValue.convertComposeResourcesSettings() = when(this) {
+    is YAMLMapping -> ComposeResourcesSettings().apply {
+        ::exposedAccessors.convertChildBoolean()
+        ::packageName.convertChildString()
+        ::enabled.convertChildBoolean()
     }
     else -> null
 }

@@ -86,7 +86,7 @@ class MockPotatoDependency(override val module: PotatoModule) : PotatoModuleDepe
 }
 
 open class MockFragment(
-    override var name: String = "fragment",
+    final override var name: String = "fragment",
     override val module: PotatoModule,
     override val settings: Settings = Settings(),
 ) : Fragment {
@@ -96,8 +96,9 @@ open class MockFragment(
     override val isTest: Boolean = false
     override val isDefault: Boolean = true
     override val fragmentDependants = mutableListOf<FragmentLink>()
-    override val src = Path(name).resolve("src")
-    override val resourcesPath = src.resolve("resources")
+    override val src = Path(name, "src")
+    override val resourcesPath = Path(name, "resources")
+    override val composeResourcesPath = Path(name, "composeResources")
     override val generatedSrcRelativeDirs = mutableListOf<Path>()
     override val generatedResourcesRelativeDirs = mutableListOf<Path>()
     override val generatedClassesRelativeDirs = mutableListOf<Path>()

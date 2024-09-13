@@ -75,6 +75,11 @@ interface Fragment {
     val resourcesPath: Path
 
     /**
+     * Path to compose resources' directory.
+     */
+    val composeResourcesPath: Path
+
+    /**
      * Paths to the generated source roots, relative to the build directory.
      */
     val generatedSrcRelativeDirs: List<Path>

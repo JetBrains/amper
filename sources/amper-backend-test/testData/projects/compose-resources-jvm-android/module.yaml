@@ -1,0 +1,15 @@
+product:
+  type: lib
+  platforms: [ jvm, android ]
+
+settings:
+  compose:
+    enabled: true
+    version: 1.6.10
+    resources:
+      enabled: true
+      packageName: compose_resources_jvm_android.generated.resources
+
+dependencies:
+  - $compose.runtime
+  - $compose.components.resources

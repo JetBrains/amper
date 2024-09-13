@@ -16,6 +16,7 @@ dependencies:
   - ../frontend/dr
   - ../android-integration/runner
   - ../android-integration/android-utils
+  - ../compose-resources
   - $libs.intellij.amper.xcodemodel
   - $libs.intellij.parsing.core
   - $libs.intellij.platform.core
