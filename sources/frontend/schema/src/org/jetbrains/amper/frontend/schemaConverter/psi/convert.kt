@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.FrontendPathResolver
+import org.jetbrains.amper.frontend.aomBuilder.reportEmptyModule
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
 import org.jetbrains.amper.frontend.schema.Module
@@ -42,7 +43,11 @@ class ConverterImpl(
 
     internal fun convertModule(file: VirtualFile): Module? =
         pathResolver.toPsiFile(file)?.doConvertTopLevelValue {
-            it?.asMappingNode()?.convertModule()
+            val module = it?.asMappingNode()?.convertModule()
+            if (module == null) {
+                reportEmptyModule(file)
+            }
+            module
         }
 
     internal fun convertCustomTask(file: VirtualFile): CustomTaskNode? =

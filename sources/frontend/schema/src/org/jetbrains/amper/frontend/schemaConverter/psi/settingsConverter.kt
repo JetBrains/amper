@@ -28,8 +28,8 @@ import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
 
 context(Converter)
-internal fun PsiElement.convertSettings() =
-    asMappingNode()?.doConvertSettings()?.applyPsiTrace(this)
+internal fun MappingEntry.convertSettings() =
+    value?.asMappingNode()?.doConvertSettings()?.applyPsiTrace(sourceElement)
 
 context(Converter)
 internal fun MappingNode.doConvertSettings() = Settings().also {

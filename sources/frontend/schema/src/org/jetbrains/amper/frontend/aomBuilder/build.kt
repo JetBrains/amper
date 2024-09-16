@@ -54,7 +54,6 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.Module
 import org.jetbrains.amper.frontend.schema.ProductType
 import org.jetbrains.amper.frontend.schema.noModifiers
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
 import org.jetbrains.amper.frontend.schemaConverter.psi.asAbsolutePath
@@ -386,16 +385,7 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
         val noProduct = holder.module::product.unsafe == null
         if (noProduct || holder.module.product::type.unsafe == null) {
             if (noProduct) {
-                problemReporter.reportMessage(
-                    BuildProblemImpl(
-                        "product.not.defined",
-                        object : FileBuildProblemSource {
-                            override val file: Path = mPath.toNioPath()
-                        },
-                        SchemaBundle.message("product.not.defined.empty"),
-                        Level.Fatal
-                    )
-                )
+                reportEmptyModule(mPath)
             }
             else {
                 SchemaBundle.reportBundleError(
@@ -438,6 +428,19 @@ private fun Map<VirtualFile, ModuleHolder>.buildAom(gradleModules: List<DumbGrad
     }
 
     return modules
+}
+
+internal fun ProblemReporterContext.reportEmptyModule(mPath: VirtualFile) {
+    problemReporter.reportMessage(
+        BuildProblemImpl(
+            "product.not.defined",
+            object : FileBuildProblemSource {
+                override val file: Path = mPath.toNioPath()
+            },
+            SchemaBundle.message("product.not.defined.empty"),
+            Level.Fatal
+        )
+    )
 }
 
 private fun createArtifacts(

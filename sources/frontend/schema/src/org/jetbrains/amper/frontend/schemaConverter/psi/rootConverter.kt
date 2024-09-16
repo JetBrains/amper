@@ -60,11 +60,11 @@ internal fun MappingNode.convertModule() = Module().apply a@ {
 context(Converter)
 private fun <T : Base> MappingNode.convertBase(base: T) = base.apply {
     convertChild(::repositories) { convertRepositories() }
-    convertModifierAware(::dependencies) { value?.convertDependencies() }
-    convertModifierAware(::`test-dependencies`) { value?.convertDependencies() }
+    convertModifierAware(::dependencies) { convertDependencies() }
+    convertModifierAware(::`test-dependencies`) { convertDependencies() }
 
-    convertModifierAware(::settings, Settings()) { value?.convertSettings() }
-    convertModifierAware(::`test-settings`, Settings()) { value?.convertSettings() }
+    convertModifierAware(::settings, Settings()) { convertSettings() }
+    convertModifierAware(::`test-settings`, Settings()) { convertSettings() }
 
     convertChild(::tasks) { convertTasks() }
 }
@@ -165,8 +165,8 @@ private fun MappingNode.convertRepositoryFull(): Repository = Repository().also 
 }
 
 context(Converter)
-private fun PsiElement.convertDependencies() =
-    asSequenceNode()!!.items.mapNotNull { it.convertDependency() }
+private fun MappingEntry.convertDependencies() =
+    value?.asSequenceNode()?.items?.mapNotNull { it.convertDependency()?.applyPsiTrace(it) }
 
 
 context(Converter)

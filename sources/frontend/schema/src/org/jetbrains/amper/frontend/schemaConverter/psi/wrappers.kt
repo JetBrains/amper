@@ -58,7 +58,7 @@ class MappingNode(sourceElement: PsiElement) {
             }
     }
 
-    private val psiElement = sourceElement.unwrapKey
+    val psiElement = sourceElement.unwrapKey
 
     val keyValues get() = when (psiElement) {
         is YAMLMapping -> psiElement.keyValues
