@@ -101,7 +101,7 @@ fun <T> MappingNode.convertChildScalar(
     property: KProperty0<T>,
     convertValue: Scalar.() -> T?,
 ) = convertChild(property) {
-    sourceElement.asScalarNode()?.let(convertValue)
+    value?.asScalarNode()?.let(convertValue)
 }
 
 /**

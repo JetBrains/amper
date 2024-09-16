@@ -51,7 +51,13 @@ internal fun MappingNode.convertModule() = Module().apply a@ {
                 ?.asScalarSequenceNode()
                 ?.mapNotNull { it.convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this) }
                 ?.toSet()
-        }
+        }.orEmpty() + value?.asMappingNode()?.keyValues?.mapNotNull { kv ->
+            kv.keyText?.let {
+                it to kv.value?.asSequenceNode()?.items?.mapNotNull {
+                    it.asScalarNode().convertEnum(Platform)?.asTraceable()?.applyPsiTrace(this)
+                }?.toSet()
+            }
+        }.orEmpty().toMap()
     }
     convertChildMapping(::module) { convertMeta() }
     convertBase(this@a)
@@ -129,11 +135,16 @@ private fun MappingNode.convertMeta() = Meta().apply {
 
 context(Converter)
 private fun MappingEntry.convertRepositories(): List<Repository>? {
-    (Sequence.from(this.value))?.let {
-        return it.items.mapNotNull { it.convertRepository() }
-    }
     // TODO Report wrong type.
-    return null
+    MappingNode.from(this.value)?.keyValues?.mapNotNull {
+        it.value?.convertRepository() ?: it.keyElement?.convertRepository()
+    }?.let {
+        return it
+    }
+
+    return Sequence.from(this.value)?.let {
+        it.items.mapNotNull { it.convertRepository() }
+    }
 }
 
 context(Converter)
@@ -166,6 +177,7 @@ private fun MappingNode.convertRepositoryFull(): Repository = Repository().also 
 
 context(Converter)
 private fun MappingEntry.convertDependencies() =
+    value?.asMappingNode()?.keyValues?.map { it.convertDependencyFull().applyPsiTrace(it) } ?:
     value?.asSequenceNode()?.items?.mapNotNull { it.convertDependency()?.applyPsiTrace(it) }
 
 
@@ -183,13 +195,14 @@ private fun Scalar.convertDependencyShort(): Dependency = when {
 }.applyPsiTrace(this.sourceElement)
 
 context(Converter)
-private fun MappingNode.convertDependencyFull(): Dependency? = when {
-    //getYAMLElements().size > 1 -> null // TODO("report")
-    //getYAMLElements().isEmpty() -> null // TODO("report")
-    keyValues.first()?.keyText?.startsWith("$") == true -> keyValues.first().convertCatalogDep()
-    keyValues.first()?.keyText?.startsWith(".") == true -> keyValues.first().convertInternalDep()
-    else -> keyValues.first().convertExternalMavenDep()
-}?.applyPsiTrace(this.keyValues.first().keyElement)
+private fun MappingNode.convertDependencyFull(): Dependency? = keyValues.singleOrNull()?.convertDependencyFull()
+
+context(Converter)
+private fun MappingEntry.convertDependencyFull(): Dependency = when {
+    keyText?.startsWith("$") == true -> convertCatalogDep()
+    keyText?.startsWith(".") == true -> convertInternalDep()
+    else -> convertExternalMavenDep()
+}.applyPsiTrace(keyElement)
 
 context(Converter)
 private fun MappingEntry.convertCatalogDep(): CatalogDependency = CatalogDependency().apply {
