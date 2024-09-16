@@ -188,7 +188,8 @@ fun <T> MappingNode.convertModifierAware(
     val newValue = TraceableMap<Modifiers, T>()
     if (noModifiersEntry != null) newValue.put(noModifiers, noModifiersEntry)
     keyValues
-        .filter { it.keyText.orEmpty().startsWith(property.name) }
+        .filter { it.keyText.orEmpty().startsWith(property.name)
+                || it.keyText.orEmpty().startsWith(getAltName(property.name))}
         .forEach {
             val modifiers = it.extractModifiers()
             // Skip those that we failed to convert.

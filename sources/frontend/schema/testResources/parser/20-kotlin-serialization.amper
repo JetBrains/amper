@@ -2,7 +2,7 @@ dependencies {
   "org.apache.commons:commons-math3:3.6.1"
 }
 
-"test-dependencies" {
+testDependencies {
   "org.jetbrains.kotlin:kotlin-test:1.8.20"
 }
 

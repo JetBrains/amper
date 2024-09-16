@@ -6,7 +6,7 @@ settings {
   }
 }
 
-"test-settings" {
+testSettings {
   android {
     <![Error] Version for compileSdk (29) should be at least minSdk version (30)!>compileSdk = 29<!>
     targetSdk = 31

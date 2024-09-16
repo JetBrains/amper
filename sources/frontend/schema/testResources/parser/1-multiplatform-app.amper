@@ -25,6 +25,6 @@ dependencies {
   "com.squareup.sqldelight:native-driver:1.5.5"
 }
 
-"test-dependencies" {
+testDependencies {
   "org.jetbrains.kotlin:kotlin-test:1.8.20"
 }

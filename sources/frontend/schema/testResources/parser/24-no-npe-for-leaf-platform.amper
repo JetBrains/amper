@@ -33,7 +33,7 @@ dependencies {
   "androidx.compose.animation:animation-graphics:1.4.3"
 }
 
-"test-dependencies" {
+testDependencies {
   "org.jetbrains.kotlin:kotlin-test:1.8.20"
 }
 

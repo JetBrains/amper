@@ -70,15 +70,23 @@ class MappingNode(sourceElement: PsiElement) {
      * Try to find child node by given name.
      */
     fun tryGetChildNode(name: String): MappingEntry? {
+        val altName = getAltName(name)
         return when (psiElement) {
-            is YAMLMapping -> psiElement.keyValues.firstOrNull { it.keyText == name }
+            is YAMLMapping -> psiElement.keyValues.firstOrNull {
+                it.keyText == name || it.keyText == altName
+            }
             is AmperObject -> psiElement.allObjectElements.firstOrNull {
-                (it as? AmperProperty)?.name == name
+                (it as? AmperProperty)?.name == name ||
+                        (it as? AmperProperty)?.name == altName
             }
             else -> null
         }?.let { MappingEntry(it) }
     }
 }
+
+internal fun getAltName(name: String) = name.split('-').mapIndexed { index, s ->
+    if (index > 0) s.capitalize() else s
+}.joinToString("")
 
 class MappingEntry(val sourceElement: PsiElement) {
 

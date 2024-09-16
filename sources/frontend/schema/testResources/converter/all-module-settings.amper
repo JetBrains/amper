@@ -102,12 +102,12 @@ settings {
 }
 
 // test-setting uses shortcut form of syntax
-"test-settings" {
+testSettings {
   compose= "enabled"
 }
 
 // test-dependencies uses shortcut form of syntax
-"test-dependencies" {
+testDependencies {
   "androidx.activity:activity-compose:1.6.1"= "exported"
   "androidx.activity:activity-compose:1.6.2"= "compile-only"
   "androidx.activity:activity-compose:1.6.3"= "runtime-only"

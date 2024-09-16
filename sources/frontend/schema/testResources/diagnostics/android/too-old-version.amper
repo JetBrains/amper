@@ -9,7 +9,7 @@ settings {
   }
 }
 
-"test-settings" {
+testSettings {
   android {
     <![Error] Android version 20 is too old (should be at least 21)!>minSdk = 20<!>
     <![Error] Android version 20 is too old (should be at least 21)!>maxSdk = 20<!>
