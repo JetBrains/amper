@@ -31,7 +31,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.amper.settings.plugin").version("0.5.0-dev-1198")
+    id("org.jetbrains.amper.settings.plugin").version("0.5.0-dev-1233")
 }
 
 include(":sources:amper-backend-test")
