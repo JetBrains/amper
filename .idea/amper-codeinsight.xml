@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmperCodeInsightSettings">
+    <option name="ignoredModules">
+      <list>
+        <option value="sources\amper-backend-test\testData\projects\android\appcompat" />
+        <option value="sources\amper-backend-test\testData\projects\android\signed" />
+        <option value="sources\amper-backend-test\testData\projects\android\simple" />
+        <option value="sources\amper-backend-test\testData\projects\ios\compose" />
+        <option value="sources\amper-backend-test\testData\projects\ios\simpleTests" />
+        <option value="sources\amper-backend-test\testData\projects\java-kotlin-mixed" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-default-compiler-settings" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-explicit-compiler-settings" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-failed-test" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-kotlin-test-no-test-sources" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-kotlin-test-no-tests" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-kotlin-test-smoke" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-language-version-1.9" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-language-version-2.0" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-publish" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-test-classpath" />
+        <option value="sources\amper-backend-test\testData\projects\jvm-test-custom-engine" />
+        <option value="sources\amper-backend-test\testData\projects\kotlin-serialization-default" />
+        <option value="sources\amper-backend-test\testData\projects\ksp-android-room" />
+        <option value="sources\amper-backend-test\testData\projects\native-test-app-test" />
+        <option value="sources\amper-backend-test\testData\projects\native-test-no-test-sources" />
+        <option value="sources\amper-backend-test\testData\projects\native-test-no-tests" />
+        <option value="sources\amper-backend-test\testData\projects\shell-scripts" />
+      </list>
+    </option>
+  </component>
+</project>
