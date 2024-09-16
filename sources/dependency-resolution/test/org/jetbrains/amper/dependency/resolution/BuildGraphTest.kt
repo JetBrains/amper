@@ -6,16 +6,14 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
-import org.jetbrains.amper.test.TestUtil
 import org.junit.jupiter.api.TestInfo
-import java.util.*
 import kotlin.io.path.extension
 import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class BuildGraphTest {
+class BuildGraphTest: BaseDRTest() {
 
     @Test
     fun `org_jetbrains_kotlin kotlin-test 1_9_10`(testInfo: TestInfo) {
@@ -44,7 +42,11 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlin kotlin-test-annotations-common 2_0_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = setOf(ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            platform = setOf(
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64
+            ),
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test-annotations-common:2.0.0
                 |     \--- org.jetbrains.kotlin:kotlin-test:2.0.0
@@ -63,7 +65,11 @@ class BuildGraphTest {
     fun `org_jetbrains_kotlin kotlin-test-annotations-common 1_9_0`(testInfo: TestInfo) {
         val root = doTest(
             testInfo,
-            platform = setOf(ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            platform = setOf(
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64
+            ),
             expected = """root
                 |\--- org.jetbrains.kotlin:kotlin-test-annotations-common:1.9.0
                 |     \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0
@@ -93,7 +99,7 @@ class BuildGraphTest {
         root.distinctBfsSequence().forEach {
             assertTrue(
                 it.messages.none { it.severity == Severity.ERROR },
-                "There should be no messages for $it: ${it.messages.filter{ it.severity == Severity.ERROR} }"
+                "There should be no messages for $it: ${it.messages.filter { it.severity == Severity.ERROR }}"
             )
         }
 
@@ -116,7 +122,7 @@ class BuildGraphTest {
                 |kotlin-stdlib-1.9.20-sources.jar
                 |kotlin-stdlib-1.9.20.jar
                 |kotlin-test-1.9.20.jar""".trimMargin(),
-            root,true
+            root, true
         )
     }
 
@@ -174,7 +180,6 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            verifyMessages = false,
             expected = """root
                 |\--- org.jetbrains.skiko:skiko:0.7.85
                 |     \--- org.jetbrains.skiko:skiko-awt:0.7.85
@@ -199,7 +204,6 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
-            verifyMessages = false,
             expected = """root
                 |\--- org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:1.5.10
                 |     \--- org.jetbrains.compose.desktop:desktop:1.5.10
@@ -305,7 +309,7 @@ class BuildGraphTest {
 
     @Test
     fun `org_jetbrains_compose_foundation foundation 1_6_10`(testInfo: TestInfo) {
-            doTest(
+        doTest(
             testInfo,
             platform = setOf(ResolutionPlatform.ANDROID),
             scope = ResolutionScope.RUNTIME,
@@ -801,12 +805,14 @@ class BuildGraphTest {
             vectordrawable-animated-1.1.0.aar
             versionedparcelable-1.1.1.aar
             viewpager-1.0.0.aar
-        """.trimIndent(), root)
+        """.trimIndent(), root
+        )
     }
 
     @Test
-    fun `androidx_appcompat appcompat 1_6_1 many contexts`(testInfo: TestInfo) {
-        val repositories = (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
+    fun `androidx_appcompat appcompat 1_6_1 many contexts`() {
+        val repositories =
+            (REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/dl.google.com/dl/android/maven2").toRepositories()
         val contexts = listOf(
             context(platform = setOf(ResolutionPlatform.JVM), repositories = repositories),
             context(platform = setOf(ResolutionPlatform.ANDROID), repositories = repositories),
@@ -815,7 +821,8 @@ class BuildGraphTest {
             context(platform = setOf(ResolutionPlatform.IOS_SIMULATOR_ARM64), repositories = repositories),
         )
 
-        val root = DependencyNodeHolder("root",
+        val root = DependencyNodeHolder(
+            "root",
             contexts.map { "androidx.appcompat:appcompat:1.6.1".toMavenNode(it) }
         )
 
@@ -1112,6 +1119,38 @@ class BuildGraphTest {
     }
 
     @Test
+    fun `org_junit_jupiter junit-jupiter-params 5_7_2`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            verifyMessages = false, // todo (AB) : It should be replaced, resolution warning should be fixed
+            expected = """root
+                |\--- org.junit.jupiter:junit-jupiter-params:5.7.2
+                |     +--- org.junit:junit-bom:5.7.2
+                |     +--- org.apiguardian:apiguardian-api:1.1.0
+                |     \--- org.junit.jupiter:junit-jupiter-api:5.7.2
+                |          +--- org.junit:junit-bom:5.7.2
+                |          +--- org.apiguardian:apiguardian-api:1.1.0
+                |          +--- org.opentest4j:opentest4j:1.2.0
+                |          \--- org.junit.platform:junit-platform-commons:1.7.2
+                |               +--- org.junit:junit-bom:5.7.2
+                |               \--- org.apiguardian:apiguardian-api:1.1.0
+            """.trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                """apiguardian-api-1.1.0.jar
+                |junit-jupiter-api-5.7.2.jar
+                |junit-jupiter-params-5.7.2-all.jar
+                |junit-jupiter-params-5.7.2.jar
+                |junit-platform-commons-1.7.2.jar
+                |opentest4j-1.2.0.jar""".trimMargin(),
+                root)
+        }
+    }
+
+    @Test
     fun `kotlin test with junit5`() {
         context().use { context ->
             val root = listOf(
@@ -1229,7 +1268,11 @@ class BuildGraphTest {
         val root = doTest(
             testInfo,
             scope = ResolutionScope.RUNTIME,
-            platform = setOf(ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_X64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            platform = setOf(
+                ResolutionPlatform.IOS_ARM64,
+                ResolutionPlatform.IOS_X64,
+                ResolutionPlatform.IOS_SIMULATOR_ARM64
+            ),
             repositories = REDIRECTOR_MAVEN2 +
                     "https://packages.jetbrains.team/maven/p/kpm/public" +
                     "https://cache-redirector.jetbrains.com/maven.google.com",
@@ -1238,7 +1281,8 @@ class BuildGraphTest {
             """.trimMargin()
         )
 
-        assertFiles("""
+        assertFiles(
+            """
             ui-uikit-uikitMain-1.6.10.klib
             """.trimIndent(),
             root
@@ -1606,10 +1650,10 @@ class BuildGraphTest {
                           \--- org.jetbrains.skiko:skiko-awt:0.7.85 (*)
             """.trimIndent(),
             scope = ResolutionScope.RUNTIME,
-            verifyMessages = false,
         )
 
-        assertFiles("""
+        assertFiles(
+            """
             animation-core-desktop-1.5.10-sources.jar
             animation-core-desktop-1.5.10.jar
             animation-desktop-1.5.10-sources.jar
@@ -1661,7 +1705,8 @@ class BuildGraphTest {
             ui-unit-desktop-1.5.10.jar
             ui-util-desktop-1.5.10-sources.jar
             ui-util-desktop-1.5.10.jar
-        """.trimIndent(), root, true)
+        """.trimIndent(), root, true
+        )
     }
 
     @Test
@@ -1687,8 +1732,10 @@ class BuildGraphTest {
             .groupBy { it }
             .filter { it.value.size > 1 }
             .let {
-                assertTrue(it.isEmpty(),
-                    "Duplicated nodes: ${ it.keys.map { key -> "${key.key.name}: ${ it[key]?.size }" }.toSet() }")
+                assertTrue(
+                    it.isEmpty(),
+                    "Duplicated nodes: ${it.keys.map { key -> "${key.key.name}: ${it[key]?.size}" }.toSet()}"
+                )
             }
 
         // 2. Checking the list of distinct nodes sorted alphabetically.
@@ -1764,85 +1811,6 @@ class BuildGraphTest {
             }
     }
 
-    private fun doTest(
-        testInfo: TestInfo,
-        dependency: String = testInfo.nameToDependency(),
-        scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<String> = REDIRECTOR_MAVEN2,
-        verifyMessages: Boolean = true,
-        @Language("text") expected: String
-    ): DependencyNode = doTestImpl(testInfo, dependency, scope, platform, repositories.toRepositories(), verifyMessages, expected)
-
-    private fun doTestImpl(
-        testInfo: TestInfo,
-        dependency: String = testInfo.nameToDependency(),
-        scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories(),
-        verifyMessages: Boolean = true,
-        @Language("text") expected: String
-    ): DependencyNode {
-        context(scope, platform, repositories).use { context ->
-            val root = dependency.toRootNode(context)
-            val resolver = Resolver()
-            runBlocking { resolver.buildGraph(root, ResolutionLevel.NETWORK) }
-            root.verifyGraphConnectivity()
-            if (verifyMessages) {
-                root.distinctBfsSequence().forEach {
-                    val messages = it.messages.filter { "Downloaded from" !in it.text }
-                    assertTrue(messages.isEmpty(), "There must be no messages for $it: $messages")
-                }
-            }
-            assertEquals(expected, root)
-            return root
-        }
-    }
-
-    private fun context(
-        scope: ResolutionScope = ResolutionScope.COMPILE,
-        platform: Set<ResolutionPlatform> = setOf(ResolutionPlatform.JVM),
-        repositories: List<Repository> = REDIRECTOR_MAVEN2.toRepositories()
-    ) = Context {
-        this.scope = scope
-        this.platforms = platform
-        this.repositories = repositories
-        this.cache = {
-            amperCache = TestUtil.userCacheRoot.resolve(".amper")
-            localRepositories = listOf(MavenLocalRepository(TestUtil.userCacheRoot.resolve(".m2.cache")))
-        }
-    }
-
-    private fun DependencyNode.verifyGraphConnectivity() {
-        val queue = LinkedList(listOf(this))
-        val verified = mutableSetOf<DependencyNode>()
-        while (queue.isNotEmpty()) {
-            val node = queue.remove()
-            node.children.forEach { assertTrue(node in it.parents, "Parents don't match") }
-            verified.add(node)
-            queue += node.children.filter { it !in verified }
-        }
-    }
-
     private fun assertEquals(@Language("text") expected: String, root: DependencyNode) =
         assertEquals(expected, root.prettyPrint().trimEnd())
-
-    private fun assertFiles(files: String, root: DependencyNode, withSources: Boolean = false) {
-        root.distinctBfsSequence()
-            .filterIsInstance<MavenDependencyNode>()
-            .flatMap { it.dependency.files(withSources) }
-            .mapNotNull { runBlocking { it.getPath()?.name } }
-            .sorted()
-            .toSet()
-            .let { assertEquals(files, it.joinToString("\n")) }
-    }
-
-    companion object {
-        private val REDIRECTOR_MAVEN2 = listOf("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
-    }
 }
-
-private fun String.toRootNode(context: Context) = DependencyNodeHolder( "root", listOf(toMavenNode(context)))
-
-private fun List<String>.toRootNode(context: Context) =
-    DependencyNodeHolder("root", map { it.toMavenNode(context) })

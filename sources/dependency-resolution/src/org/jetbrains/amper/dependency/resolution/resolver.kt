@@ -158,7 +158,7 @@ class Resolver {
         coroutineScope {
             node
                 .distinctBfsSequence { it !is MavenDependencyConstraintNode }
-                .distinctBy { it.key }
+                .distinctBy { (it as? MavenDependencyNode)?.dependency ?: it }
                 .forEach {
                     val asyncDownloading = async {
                         it.downloadDependencies(downloadSources)
@@ -377,7 +377,7 @@ interface DependencyNode {
     private fun prettyPrint(
         builder: StringBuilder,
         indent: StringBuilder = StringBuilder(),
-        visited: MutableSet<Pair<Key<*>, String?>> = mutableSetOf(),
+        visited: MutableSet<Pair<Key<*>, MavenDependency?>> = mutableSetOf(),
         addLevel: Boolean = false,
     ) {
         builder.append(indent).append(toString())
@@ -385,7 +385,7 @@ interface DependencyNode {
         // key doesn't include a version on purpose,
         // but different nodes referencing the same MavenDependency result in the same dependencies
         // => add no need to distinguish those while pretty printing
-        val seen = !visited.add(key to (this as? MavenDependencyNode)?.dependency?.toString())
+        val seen = !visited.add(key to (this as? MavenDependencyNode)?.dependency)
         if (seen && children.isNotEmpty()) {
             builder.append(" (*)")
         }

@@ -75,7 +75,8 @@ internal class Classpath(
             module = this,
             name = "${this.userReadableName}:${scope.name}:${resolutionPlatform.toPlatform().name}",
             notation = notation,
-            children = dependencies
+            children = dependencies,
+            templateContext = moduleContext
         )
 
         return node

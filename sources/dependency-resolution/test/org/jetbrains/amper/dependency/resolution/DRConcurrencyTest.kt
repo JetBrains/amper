@@ -79,7 +79,7 @@ class DRConcurrencyTest : BaseDRTest() {
                     for (i in 0..20) {
                         println("########### Iteration $i ")
                         doTest(
-                            testInfo,
+                            testInfo = testInfo,
                             dependency = annotationJvmCoordinates,
                             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.google.com",
                             cacheRoot = cacheRoot,

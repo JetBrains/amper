@@ -48,7 +48,8 @@ abstract class AbstractDependenciesFlow<T: DependenciesFlowType>(
             "dep:${fragment.module.userReadableName}:${fragment.name}:${dependencyNode}",
             dependencyNode,
             notation = this,
-            fragment = fragment
+            fragment = fragment,
+            templateContext = context
         )
 
         return node
