@@ -17,10 +17,10 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
-fun String.addIdentButFirst(ident: String) =
+private fun String.addIdentButFirst(ident: String) =
     lines().joinToString(separator = "${System.lineSeparator()}$ident") { it }
 
-fun buildSchemaKeyBasedCollection(
+fun buildAliasesMapAsList(
     block: () -> String,
 ) = """
 "type": "array",
@@ -28,6 +28,19 @@ fun buildSchemaKeyBasedCollection(
   "patternProperties": {
     "^[^@+:]+$": {
       ${block().addIdentButFirst("      ")}
+    }
+  }
+}
+""".trim()
+
+fun buildObjectWithDynamicKeys(
+    buildValueSchema: () -> String,
+) = """
+"type": "object",
+"items": {
+  "patternProperties": {
+    "^[^@+:]+$": {
+      ${buildValueSchema().addIdentButFirst("      ")}
     }
   }
 }

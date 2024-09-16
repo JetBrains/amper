@@ -90,7 +90,7 @@
         "tasks": {
           "x-intellij-html-description": "Tasks settings. Experimental and will be replaced",
           "title": "Tasks settings. Experimental and will be replaced",
-          "type": "array",
+          "type": "object",
           "items": {
             "patternProperties": {
               "^[^@+:]+$": {
@@ -699,7 +699,7 @@
         "processorOptions": {
           "x-intellij-html-description": "Some options to pass to KSP processors. Refer to each processor documentation for details.",
           "title": "Some options to pass to KSP processors. Refer to each processor documentation for details",
-          "type": "array",
+          "type": "object",
           "items": {
             "patternProperties": {
               "^[^@+:]+$": {

@@ -155,7 +155,7 @@ class JsonSchemaBuilder(
             // TODO Support modifiers.
             type.isMap && firstInvoke && modifierAware && skipModifiers -> buildForTyped(type.mapValueType)
             type.isMap && firstInvoke && modifierAware -> buildModifierBasedCollection(prop.name) { buildForTyped(type.mapValueType) }
-            type.isMap -> buildSchemaKeyBasedCollection { buildForTyped(type.mapValueType) }
+            type.isMap -> buildObjectWithDynamicKeys { buildForTyped(type.mapValueType) }
             else -> error("Unsupported type $type") // TODO Report
         }
 
@@ -172,7 +172,7 @@ class JsonSchemaBuilder(
         addProperty(prop) {
             if (prop.name == "aliases")
                 // Not all platforms could be used in aliases, but only those declared in module file in product definition
-                buildSchemaKeyBasedCollection {
+                buildAliasesMapAsList {
                     buildSchemaCollection(uniqueElements = true, minItems = 1) {
                         buildForScalarBased(typeOf<String>())
                     }
@@ -184,7 +184,7 @@ class JsonSchemaBuilder(
     private fun buildForScalarBased(type: KType): String = when {
         type.isScalar -> buildScalar(type)
         type.isCollection -> buildSchemaCollection { buildForScalarBased(type.collectionType) }
-        type.isMap -> buildSchemaKeyBasedCollection { buildForScalarBased(type.mapValueType) }
+        type.isMap -> buildObjectWithDynamicKeys { buildForScalarBased(type.mapValueType) }
         else -> error("Unsupported type $type") // TODO Report
     }
 
