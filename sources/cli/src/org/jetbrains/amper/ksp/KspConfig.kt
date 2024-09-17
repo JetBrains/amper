@@ -211,7 +211,7 @@ internal interface KspNativeConfig : KspConfig {
 
     override fun toCommandLineOptions(workDir: Path) = buildList {
         addAll(super.toCommandLineOptions(workDir))
-        add("-target-name=$targetName")
+        add("-target=$targetName")
     }
 
     class Builder(
