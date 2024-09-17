@@ -37,25 +37,28 @@ import java.nio.file.Path
 fun ProjectTasksBuilder.setupAndroidTasks() {
     val androidSdkPath = context.androidHomeRoot.path
 
+    allModules().alsoPlatforms(Platform.ANDROID).withEach {
+        tasks.registerTask(
+            CheckAndroidSdkLicenseTask(
+                androidSdkPath,
+                context.userCacheRoot,
+                AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
+            ),
+            AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
+        )
+        tasks.setupAndroidCommandlineTools(module, androidSdkPath, context.userCacheRoot)
+    }
+
     allModules().alsoPlatforms(Platform.ANDROID)
-        .filterModuleType { it != ProductType.LIB }
+        .alsoTests()
         .withEach {
-            tasks.registerTask(
-                CheckAndroidSdkLicenseTask(
-                    androidSdkPath,
-                    context.userCacheRoot,
-                    AndroidTaskType.CheckAndroidSdkLicense.getTaskName(module, Platform.ANDROID)
-                ),
-                AndroidTaskType.InstallCmdlineTools.getTaskName(module, Platform.ANDROID)
-            )
-            tasks.setupAndroidCommandlineTools(module, androidSdkPath, context.userCacheRoot)
+            tasks.setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
         }
 
     allModules().alsoPlatforms(Platform.ANDROID)
         .filterModuleType { it != ProductType.LIB }
         .alsoTests()
         .withEach {
-            tasks.setupAndroidPlatformTask(module, androidSdkPath, context.userCacheRoot, isTest)
             tasks.setupDownloadBuildToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
             tasks.setupDownloadPlatformToolsTask(module, androidSdkPath, context.userCacheRoot, isTest)
             tasks.setupDownloadSystemImageTask(module, androidSdkPath, context.userCacheRoot, isTest)
@@ -142,12 +145,12 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                     tempRoot = context.projectTempRoot,
                 ),
                 buildList {
-                    if (module.type != ProductType.LIB) {
-                        add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
-                        add(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
-                    }
+                    add(AndroidTaskType.InstallPlatform.getTaskName(module, platform, isTest))
                     add(CommonTaskType.TransformDependencies.getTaskName(module, platform))
                     add(CommonTaskType.Dependencies.getTaskName(module, Platform.ANDROID, isTest))
+                    if (module.type != ProductType.LIB) {
+                        add(AndroidTaskType.Prepare.getTaskName(module, platform, isTest, buildType))
+                    }
                 }
             )
 

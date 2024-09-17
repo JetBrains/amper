@@ -160,12 +160,12 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         AmperBackend(projectContext).showTasks()
         // debug
         assertStdoutContains("task :simple:buildAndroidDebug -> :simple:runtimeClasspathAndroid")
-        assertStdoutContains("task :simple:compileAndroidDebug -> :simple:installPlatformAndroid, :simple:prepareAndroidDebug, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:compileAndroidDebug -> :simple:installPlatformAndroid, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid, :simple:prepareAndroidDebug")
         assertStdoutContains("task :simple:prepareAndroidDebug -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidDebug -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidDebug")
         // release
         assertStdoutContains("task :simple:buildAndroidRelease -> :simple:runtimeClasspathAndroid")
-        assertStdoutContains("task :simple:compileAndroidRelease -> :simple:installPlatformAndroid, :simple:prepareAndroidRelease, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid")
+        assertStdoutContains("task :simple:compileAndroidRelease -> :simple:installPlatformAndroid, :simple:transformDependenciesAndroid, :simple:resolveDependenciesAndroid, :simple:prepareAndroidRelease")
         assertStdoutContains("task :simple:prepareAndroidRelease -> :simple:installBuildToolsAndroid, :simple:installPlatformToolsAndroid, :simple:installPlatformAndroid, :simple:resolveDependenciesAndroid")
         assertStdoutContains("task :simple:runAndroidRelease -> :simple:installSystemImageAndroid, :simple:installEmulatorAndroid, :simple:buildAndroidRelease")
 
