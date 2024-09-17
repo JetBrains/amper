@@ -145,10 +145,20 @@ fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
         tasks.forEach { task ->
             try {
                 println("Executing '$task' in ${projectDir.name}")
-                val process = ProcessBuilder(gradlewPath.absolutePath, task)
+                val processBuilder = ProcessBuilder(gradlewPath.absolutePath, task)
                     .directory(projectDir)
                     .redirectErrorStream(true)
-                    .start()
+
+                val osName = System.getProperty("os.name").toLowerCase()
+                if (osName.contains("mac") && isRunningInTeamCity()) {
+                    println("Running on macOS and in TeamCity. Setting environment variables.")
+                    processBuilder.environment()["ANDROID_HOME"] = System.getenv("ANDROID_HOME") ?: "/Users/admin/android-sdk/"
+                    processBuilder.environment()["PATH"] = System.getenv("PATH")
+                } else {
+                    println("Not on macOS in TeamCity. No additional environment variables set.")
+                }
+
+                val process = processBuilder.start()
 
                 println("Started './gradlew $task' with process id: ${process.pid()} in ${projectDir.name}")
 
@@ -251,4 +261,7 @@ fun executeCommand(
     }
 
     process.waitFor()
+}
+private fun isRunningInTeamCity(): Boolean {
+    return System.getenv("TEAMCITY_VERSION") != null
 }
