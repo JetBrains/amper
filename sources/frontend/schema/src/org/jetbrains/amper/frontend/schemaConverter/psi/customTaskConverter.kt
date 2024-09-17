@@ -16,11 +16,11 @@ internal fun MappingNode.convertCustomTask() = CustomTaskNode().apply {
     convertChildScalar(::module) { asAbsolutePath() }
     convertChildScalarCollection(::jvmArguments) { textValue }
     convertChildScalarCollection(::programArguments) { textValue }
-    convertChild(::environmentVariables) {
-        asMappingNode()?.keyValues?.associate { it.keyText to it.value?.asScalarNode()?.textValue }
+    convertChildMapping(::environmentVariables) {
+        keyValues.associate { it.keyText to it.value?.asScalarNode()?.textValue }
     }
     convertChildScalarCollection(::dependsOn) { textValue }
-    convertChildMapping(::addTaskOutputToSourceSet) { convertSourceSet() }
+    convertChildCollectionOfMappings(::addTaskOutputToSourceSet) { convertSourceSet() }
     convertChildCollectionOfMappings(::publishArtifact) { convertPublishArtifact() }
 }
 
@@ -32,8 +32,7 @@ private fun MappingNode.convertSourceSet() = AddTaskOutputToSourceSetNode().appl
 }
 
 context(Converter)
-private fun MappingNode.convertPublishArtifact() = PublishArtifactNode().apply {
-    val it = this // workaround for Kotlin compiler internal error
+private fun MappingNode.convertPublishArtifact() = PublishArtifactNode().also {
     convertChildScalar(it::path) { textValue }
     convertChildScalar(it::artifactId) { textValue }
     convertChildScalar(it::classifier) { textValue }
