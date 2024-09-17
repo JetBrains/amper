@@ -4,14 +4,17 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
+import com.intellij.amper.lang.AmperFile
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
 import org.jetbrains.amper.frontend.schemaConverter.psi.amper.asAbsolutePath
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLDocument
+import org.jetbrains.yaml.psi.YAMLFile
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolute
@@ -20,13 +23,13 @@ import kotlin.io.path.exists
 /**
  * Extract all modifiers that are present within this scalar node.
  */
-fun YAMLKeyValue.extractModifiers(): Modifiers =
-  keyText.substringAfter("@", "")
-    .split("+")
-    .filter { it.isNotBlank() }
-    .map { TraceableString(it).applyPsiTrace(key) }
-    .toSet()
-    .takeIf { it.isNotEmpty() } ?: noModifiers
+fun MappingEntry.extractModifiers(): Modifiers =
+  keyText?.substringAfter("@", "")
+    ?.split("+")
+    ?.filter { it.isNotBlank() }
+    ?.map { TraceableString(it).applyPsiTrace(keyElement) }
+    ?.toSet()
+    ?.takeIf { it.isNotEmpty() } ?: noModifiers
 
 context(ConvertCtx)
 fun String.asAbsolutePath(): Path =
@@ -46,18 +49,24 @@ fun String.asAbsolutePath(): Path =
     }
 
 /**
- * Same as [String.asAbsolutePath], but accepts [YAMLScalar].
+ * Same as [String.asAbsolutePath], but accepts [PsiElement].
  */
 context(ConvertCtx)
-fun YAMLScalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
+fun PsiElement.asAbsolutePath(): Path = textValue.asAbsolutePath()
 
 /**
- * Same as [String.asAbsolutePath], but accepts [YAMLKeyValue].
+ * Same as [String.asAbsolutePath], but accepts [MappingEntry].
  */
 context(ConvertCtx)
-fun YAMLKeyValue.asAbsolutePath(): Path = keyText.asAbsolutePath()
+fun MappingEntry.asAbsolutePath(): Path = keyText!!.asAbsolutePath()
 
 /**
- * Creates a [TraceableString] from the text value of this [YAMLScalar].
+ * Creates a [TraceableString] from the text value of this [PsiElement].
  */
-fun YAMLScalar.asTraceableString(): TraceableString = TraceableString(textValue).applyPsiTrace(this)
+fun PsiElement.asTraceableString(): TraceableString = TraceableString(textValue).applyPsiTrace(this)
+
+val PsiFile.topLevelValue get() = when (this) {
+  is YAMLFile -> children.filterIsInstance<YAMLDocument>().firstOrNull()?.topLevelValue
+  is AmperFile -> this
+  else -> null
+}

@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
 import org.jetbrains.amper.frontend.customTaskSchema.AddTaskOutputToSourceSetNode
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskNode
@@ -11,19 +12,17 @@ import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskSourceSetType
 import org.jetbrains.amper.frontend.customTaskSchema.CustomTaskType
 import org.jetbrains.amper.frontend.customTaskSchema.PublishArtifactNode
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.yaml.psi.YAMLDocument
-import org.jetbrains.yaml.psi.YAMLValue
 
 context(ProblemReporterContext, ConvertCtx)
-internal fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
-    val documentMapping = getTopLevelValue()?.asMappingNode() ?: return@apply
+internal fun PsiElement.convertCustomTask() = CustomTaskNode().apply {
+    val documentMapping = asMappingNode() ?: return@apply
     with(documentMapping) {
         ::type.convertChildEnum(CustomTaskType)
         ::module.convertChildScalar { asAbsolutePath() }
         ::jvmArguments.convertChildScalarCollection { textValue }
         ::programArguments.convertChildScalarCollection { textValue }
         ::environmentVariables.convertChild {
-            asMappingNode()?.keyValues?.associate { it.keyText to it.valueText }
+            asMappingNode()?.keyValues?.associate { it.keyText to it.value?.asScalarNode()?.textValue }
         }
         ::dependsOn.convertChildScalarCollection { textValue }
         ::addTaskOutputToSourceSet.convertChildCollection { convertSourceSet() }
@@ -32,7 +31,7 @@ internal fun YAMLDocument.convertCustomTask() = CustomTaskNode().apply {
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
+private fun PsiElement.convertSourceSet() = AddTaskOutputToSourceSetNode().apply {
     with(asMappingNode() ?: return@apply) {
         ::sourceSet.convertChildEnum(CustomTaskSourceSetType)
         ::taskOutputSubFolder.convertChildScalar { textValue }
@@ -41,7 +40,7 @@ private fun YAMLValue.convertSourceSet() = AddTaskOutputToSourceSetNode().apply 
 }
 
 context(ProblemReporterContext, ConvertCtx)
-private fun YAMLValue.convertPublishArtifact() = PublishArtifactNode().apply {
+private fun PsiElement.convertPublishArtifact() = PublishArtifactNode().apply {
     with(asMappingNode() ?: return@apply) {
         ::path.convertChildScalar { textValue }
         ::artifactId.convertChildScalar { textValue }

@@ -14,48 +14,41 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.assertNodeType
 import org.jetbrains.amper.frontend.schemaConverter.psi.filterNotNullValues
-import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLSequence
-import org.jetbrains.yaml.psi.YAMLValue
 
 
 /**
- * convert content of this node, treating its elements as
- * single keyed objects as [YAMLScalar]s, skipping resulting null values.
+ * convert the content of this node, treating its elements as
+ *   single-keyed objects as scalars, skipping resulting null values.
  */
 context(ProblemReporterContext)
-fun <T> YAMLSequence.convertScalarKeyedMap(
-    report: Boolean = true,
-    convert: YAMLValue.(String) -> T?
+fun <T> Sequence.convertScalarKeyedMap(
+    convert: PsiElement.(String) -> T?
 ): Map<String, T> = items.mapNotNull {
     // TODO Report entries with multiple keys.
-    val asMapping = it.value?.asMappingNode() ?: return@mapNotNull null
+    val asMapping = it.asMappingNode() ?: return@mapNotNull null
     val singleKey = asMapping.keyValues.firstOrNull() ?: return@mapNotNull null
     // TODO Report non scalars.
     // Skip non scalar keys.
-    val scalarKey = singleKey.keyText
-    // Skip those, that we failed to convert.
+    val scalarKey = singleKey.keyText ?: return@mapNotNull null
+    // Skip those that we failed to convert.
     val converted = singleKey.value?.convert(scalarKey) ?: return@mapNotNull null
     scalarKey to converted
 }.toMap()
 
 /**
- * Converts this [YAMLMapping] into a map of [TraceableString] keys and values, with proper links to [PsiElement]s.
+ * Converts this [MappingNode] into a map of [TraceableString] keys and values, with proper links to [PsiElement]s.
  */
 context(ProblemReporterContext, ConvertCtx)
-internal fun YAMLMapping.convertTraceableStringMap(): Map<TraceableString, TraceableString> = convertMap(
+internal fun MappingNode.convertTraceableStringMap(): Map<TraceableString, TraceableString> = convertMap(
     convertKey = { TraceableString(it) },
     convertValue = {
-        it.assertNodeType<YAMLScalar, TraceableString>(fieldName = "map value") { TraceableString(text) }
+        TraceableString(it.asScalarNode()!!.textValue)
     },
 ).filterNotNullValues()
 
 /**
- * Converts this [YAMLMapping] into a map using the given conversion functions [convertKey] and [convertValue].
+ * Converts this [MappingNode] into a map using the given conversion functions [convertKey] and [convertValue].
  *
  * If the values returned by the conversion functions are [Traceable], they are automatically associated with the
  * corresponding [PsiElement].
@@ -63,22 +56,22 @@ internal fun YAMLMapping.convertTraceableStringMap(): Map<TraceableString, Trace
  * Invalid elements inside this object are ignored, and the conversion functions are not called for them.
  */
 context(ProblemReporterContext, ConvertCtx)
-internal fun <K, V> YAMLMapping.convertMap(
+internal fun <K, V> MappingNode.convertMap(
     convertKey: (String) -> K,
-    convertValue: (YAMLValue) -> V,
+    convertValue: (PsiElement) -> V,
 ): Map<K, V> = keyValues.mapNotNull { it.convertPair(convertKey, convertValue) }.toMap()
 
 context(ProblemReporterContext, ConvertCtx)
-private fun <K, V> YAMLKeyValue.convertPair(
+private fun <K, V> MappingEntry.convertPair(
     convertKey: (String) -> K,
-    convertValue: (YAMLValue) -> V,
+    convertValue: (PsiElement) -> V,
 ): Pair<K, V>? {
-    val key = getKey() ?: return null
-    val value = getValue() ?: return null
+    val key = keyText ?: return null
+    val value = value ?: return null
 
-    val convertedKey = convertKey(keyText)
+    val convertedKey = convertKey(key)
     if (convertedKey is Traceable) {
-        convertedKey.applyPsiTrace(key)
+        convertedKey.applyPsiTrace(keyElement)
     }
     val convertedValue = convertValue(value)
     if (convertedValue is Traceable) {
@@ -88,10 +81,10 @@ private fun <K, V> YAMLKeyValue.convertPair(
 }
 
 /**
- * Convert this scalar node as enum, reporting non-existent values.
+ * Convert this scalar node as an enum, reporting non-existent values.
  */
 context(ProblemReporterContext)
-fun <T : Enum<T>, V : YAMLScalar?> V.convertEnum(
+fun <T : Enum<T>, V : PsiElement?> V.convertEnum(
     enumIndex: EnumMap<T, String>,
     isFatal: Boolean = false,
     isLong: Boolean = false

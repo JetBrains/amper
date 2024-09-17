@@ -4,52 +4,43 @@
 
 package org.jetbrains.amper.frontend.schemaConverter.psi.yaml
 
+import com.intellij.amper.lang.AmperLiteral
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLSequence
-
 
 /**
- * Unwraps [YAMLKeyValue], providing its value if possible.
+ * Unwraps a map entry, providing its value if possible. Valid only for YAML
  */
-val YAMLPsiElement.unwrapKey get() = (this as? YAMLKeyValue)?.value ?: this
+val PsiElement.unwrapKey get() = (this as? YAMLKeyValue)?.value ?: this
 
 /**
- * Try to cast current node to [YAMLScalar].
- * Report if node has different type.
+ * Try to cast the current node to a scalar.
  */
-fun YAMLPsiElement.asScalarNode() = unwrapKey as? YAMLScalar
+fun PsiElement.asScalarNode() = (unwrapKey as? YAMLScalar) ?: (this as? AmperLiteral)
+
+context(ProblemReporterContext)
+fun PsiElement.asSequenceNode() = Sequence.from(unwrapKey)
 
 /**
- * Try to cast current node to [YAMLSequence].
- * Report if node has different type.
+ * Map the contents of a sequence as a list of scalars.
  */
 context(ProblemReporterContext)
-fun YAMLPsiElement.asSequenceNode() = unwrapKey as? YAMLSequence
+fun PsiElement.asScalarSequenceNode() : List<PsiElement>? = unwrapKey.asSequenceNode()
+    ?.asScalarSequenceNode()
 
-/**
- * Try to cast current node to [YAMLSequence] and map its contents as list of [YAMLScalar].
- * Report if node has different type.
- */
-context(ProblemReporterContext)
-fun YAMLPsiElement.asScalarSequenceNode() : List<YAMLScalar>? = (unwrapKey as? YAMLSequence)
-    ?.items
-    ?.mapNotNull { it.value as? YAMLScalar }
+fun Sequence.asScalarSequenceNode() : List<PsiElement> = items.mapNotNull { it.asScalarNode() }
 
-/**
- * Try to cast current node to [MappingNode].
- * Report if node has different type.
- */
 context(ProblemReporterContext)
-fun YAMLPsiElement.asMappingNode() = unwrapKey as? YAMLMapping
+fun PsiElement.asMappingNode() = MappingNode.from(this)
 
-/**
- * Try to find child node by given name.
- * Report if no node found.
- */
 context(ProblemReporterContext)
-fun YAMLMapping.tryGetChildNode(name: String): YAMLKeyValue? =
-    keyValues.firstOrNull { it.keyText == name }
+fun MappingEntry.asMappingNode() = sourceElement.asMappingNode()
+
+fun <T : Traceable> T.applyPsiTrace(element: MappingEntry?) = apply { trace = element?.sourceElement?.let(::PsiTrace) }
+
+val PsiElement.textValue get() = StringUtil.unquoteString(text)
