@@ -112,7 +112,7 @@ internal fun PsiElement.convertComposeSettings() =
         asMappingNode()?.apply {
             convertChildBoolean(::enabled)
             convertChildString(::version)
-            convertChildValue(::resources) { convertComposeResourcesSettings() }
+            convertChildMapping(::resources) { convertComposeResourcesSettings() }
         }
         asScalarNode()?.apply {
             convertSelf(::enabled) { (textValue == "enabled") }
@@ -120,14 +120,13 @@ internal fun PsiElement.convertComposeSettings() =
     }
 
 context(Converter)
-internal fun MappingEntry.convertComposeResourcesSettings() =
-    value?.asMappingNode()?.also {
-        ComposeResourcesSettings().apply {
-            convertChildBoolean(::exposedAccessors)
-            convertChildString(::packageName)
-            convertChildBoolean(::enabled)
-        }
+internal fun MappingNode.convertComposeResourcesSettings() =
+    ComposeResourcesSettings().apply {
+        convertChildBoolean(::exposedAccessors)
+        convertChildString(::packageName)
+        convertChildBoolean(::enabled)
     }
+
 
 context(Converter)
 internal fun MappingNode.convertKspSettings() = KspSettings().apply {

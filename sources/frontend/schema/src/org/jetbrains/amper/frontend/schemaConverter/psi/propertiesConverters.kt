@@ -116,9 +116,9 @@ fun MappingNode.convertChildString(property: KProperty0<String?>) =
  * Try to set int property value by searching scalar node child with name
  * same as property name.
  */
-context(YAMLMapping, ProblemReporterContext)
-fun KProperty0<Int?>.convertChildInt() =
-    convertChildScalar { textValue.toIntOrNull() }
+context(Converter)
+fun MappingNode.convertChildInt(property: KProperty0<Int?>) =
+    convertChildScalar(property) { textValue.toIntOrNull() }
 
 /**
  * Try to set boolean property value by searching scalar node child with name
