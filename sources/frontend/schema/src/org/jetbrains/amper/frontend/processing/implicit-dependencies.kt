@@ -32,6 +32,14 @@ private fun kotlinxSerializationFormatDependency(format: String) = MavenDependen
     coordinates = "org.jetbrains.kotlinx:kotlinx-serialization-$format:1.5.1", // TODO extract version
 )
 
+private fun composeRuntimeDependency(composeVersion: String) = MavenDependency(
+    coordinates = "org.jetbrains.compose.runtime:runtime:$composeVersion",
+)
+
+private fun composeResourcesDependency(composeVersion: String) = MavenDependency(
+    coordinates = "org.jetbrains.compose.components:components-resources:$composeVersion",
+)
+
 /**
  * Add automatically-added implicit dependencies to default module impl.
  */
@@ -94,6 +102,14 @@ private fun Fragment.calculateImplicitDependencies(): List<MavenDependency> = bu
             add(kotlinxSerializationFormatDependency(format))
         }
         // TODO we should probably provide a way to add the kotlinx-serialization-core dependency (without format)
+    }
+    if (settings.compose.enabled) {
+        val composeVersion = checkNotNull(settings.compose.version)
+        add(composeRuntimeDependency(composeVersion))
+
+        if (settings.compose.resources.enabled) {
+            add(composeResourcesDependency(composeVersion))
+        }
     }
 }
 

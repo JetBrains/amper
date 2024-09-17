@@ -9,7 +9,3 @@ settings:
     resources:
       enabled: true
       packageName: com.example.gen
-
-dependencies:
-  - $compose.runtime
-  - $compose.components.resources
