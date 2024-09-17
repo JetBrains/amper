@@ -32,6 +32,9 @@ class PomTest {
     fun `core-ktx-1_1_0`(testInfo: TestInfo) = doTest(testInfo) { it.replace("<packaging>aar</packaging>", "") }
 
     @Test
+    fun `javafx-24-ea+5`(testInfo: TestInfo) = doTest(testInfo)
+
+    @Test
     fun `junit-4_13_2`(testInfo: TestInfo) = doTest(testInfo) {
         it.replace("<issueManagement>.*</distributionManagement>".toRegex(), "")
             .replace("<build>.*</profiles>".toRegex(), "")

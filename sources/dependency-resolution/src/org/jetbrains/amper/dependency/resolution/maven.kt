@@ -1078,16 +1078,21 @@ class MavenDependency internal constructor(
             }
         val dependencies = project.dependencies
             ?.dependencies
-            ?.map {
-                if (it.version == null) {
-                    val dependency = dependencyManagement?.find { dep ->
-                        dep.groupId == it.groupId && dep.artifactId == it.artifactId
+            ?.map { dep ->
+                if (dep.version != null && dep.scope != null) return@map dep
+                dependencyManagement
+                    ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
+                    ?.let { dependencyManagementEntry ->
+                        return@map dep
+                            .let {
+                                if (dep.version == null && dependencyManagementEntry.version != null) it.copy(version = dependencyManagementEntry.version)
+                                else it
+                            }.let {
+                                if (dep.scope == null && dependencyManagementEntry.scope != null) it.copy(scope = dependencyManagementEntry.scope)
+                                else it
+                            }
                     }
-                    dependency?.version
-                        ?.let { version -> it.copy(version = version) }
-                        ?.let { return@map it }
-                }
-                return@map it
+                    ?: return@map dep
             }
             ?.map { it.expandTemplates(project) }
         return project.copy(

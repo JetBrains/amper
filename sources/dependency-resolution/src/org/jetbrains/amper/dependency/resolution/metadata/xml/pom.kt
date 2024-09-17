@@ -248,11 +248,11 @@ data class Prerequisites(
 @XmlSerialName("dependencyManagement", POM_XML_NAMESPACE)
 data class DependencyManagement(
     @XmlElement(true)
-    val dependencies: Dependencies,
+    val dependencies: Dependencies? = null,
 )
 
 operator fun DependencyManagement?.plus(other: DependencyManagement?): DependencyManagement? {
-    if (this == null) return other
+    if (this == null || this.dependencies == null) return other
     return DependencyManagement((this.dependencies + other?.dependencies)!!)
 }
 

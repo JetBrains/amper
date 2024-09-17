@@ -177,7 +177,7 @@ class BuildGraphTest: BaseDRTest() {
 
     @Test
     fun `org_jetbrains_skiko skiko 0_7_85`(testInfo: TestInfo) {
-        val root = doTest(
+        doTest(
             testInfo,
             repositories = REDIRECTOR_MAVEN2 + "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/public/p/compose/dev",
             expected = """root
@@ -191,12 +191,6 @@ class BuildGraphTest: BaseDRTest() {
                 |                    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.20 (*)
             """.trimMargin()
         )
-        root.distinctBfsSequence().forEach {
-            assertTrue(
-                it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
-                "There should be no messages for $it: ${it.messages}"
-            )
-        }
     }
 
     @Test
@@ -277,12 +271,7 @@ class BuildGraphTest: BaseDRTest() {
                 |                         \--- org.jetbrains.compose.runtime:runtime:1.5.10 (*)
             """.trimMargin()
         )
-        root.distinctBfsSequence().forEach {
-            assertTrue(
-                it.messages.none { "Downloaded from" !in it.text && "More than a single variant provided" !in it.text },
-                "There should be no messages for $it: ${it.messages}"
-            )
-        }
+
         root.distinctBfsSequence()
             .filterIsInstance<MavenDependencyNode>()
             .flatMap { it.dependency.files() }
@@ -896,8 +885,6 @@ class BuildGraphTest: BaseDRTest() {
             expected = """root
                 |\--- junit:junit:4.10
                 |     \--- org.hamcrest:hamcrest-core:1.1
-                |          +--- jmock:jmock:1.1.0
-                |          \--- org.easymock:easymock:2.2
             """.trimMargin()
         )
     }
@@ -929,8 +916,6 @@ class BuildGraphTest: BaseDRTest() {
                 |          +--- com.googlecode.json-simple:json-simple:1.1.1
                 |          |    \--- junit:junit:4.10
                 |          |         \--- org.hamcrest:hamcrest-core:1.1
-                |          |              +--- jmock:jmock:1.1.0
-                |          |              \--- org.easymock:easymock:2.2
                 |          +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4 (*)
                 |          +--- io.ktor:ktor-server-core:2.2.2
                 |          |    \--- io.ktor:ktor-server-core-jvm:2.2.2
@@ -1115,6 +1100,56 @@ class BuildGraphTest: BaseDRTest() {
         """.trimMargin(),
                 root
             )
+        }
+    }
+
+    /**
+     * The test checks that dependencies defined with test scope in pom.xml are ignored by dependency resolution.
+     * Such dependencies are not transitive and are used for compiling and running tests of dependency itself.
+     *
+     * Library org.apache.logging.log4j:log4j-api:2.17.1 defines test dependencies on:
+     *  - org.junit.vintage:junit-vintage-engine:5.7.2
+     *  - org.junit.jupiter:junit-jupiter-migrationsupport:5.7.2
+     *  - org.junit.jupiter:junit-jupiter-params:5.7.2
+     *  - org.junit.jupiter:junit-jupiter-engine:5.7.2
+     *  - org.assertj:assertj-core:3.20.2
+     *
+     *  DR should ignore all of those dependencies as those belong to the test scope.
+     */
+    @Test
+    fun `org_apache_logging_log4j log4j-core 2_17_1`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            verifyMessages = true,
+            expected = """root
+                |\--- org.apache.logging.log4j:log4j-core:2.17.1
+                |     \--- org.apache.logging.log4j:log4j-api:2.17.1
+            """.trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                """log4j-api-2.17.1.jar
+                |log4j-core-2.17.1.jar""".trimMargin(),
+                root)
+        }
+    }
+
+    /**
+     * Check that pom.xml with an empty dependencyManagement section is parsed successfully
+     */
+    @Test
+    fun `org_openjfx javafx 24-ea+5`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            expected = """root
+                |\--- org.openjfx:javafx:24-ea+5"""
+                .trimMargin()
+        )
+
+        runBlocking {
+            downloadAndAssertFiles("", root)
         }
     }
 

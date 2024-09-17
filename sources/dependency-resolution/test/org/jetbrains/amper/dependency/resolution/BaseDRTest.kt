@@ -137,7 +137,7 @@ abstract class BaseDRTest {
     }
 
     protected suspend fun downloadAndAssertFiles(files: String, root: DependencyNode, withSources: Boolean = false) {
-        Resolver().downloadDependencies(root)
+        Resolver().downloadDependencies(root, withSources)
         assertFiles(files, root, withSources, checkExistence = true)
     }
 
