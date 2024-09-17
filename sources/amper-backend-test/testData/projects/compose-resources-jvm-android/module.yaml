@@ -8,7 +8,7 @@ settings:
     version: 1.6.10
     resources:
       enabled: true
-      packageName: compose_resources_jvm_android.generated.resources
+      packageName: com.example.gen
 
 dependencies:
   - $compose.runtime

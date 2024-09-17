@@ -6,12 +6,10 @@ package org.jetbrains.amper.tasks.compose
 
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.commonSettings
-import org.jetbrains.amper.maven.publicationCoordinates
 import org.jetbrains.amper.tasks.CommonFragmentTaskType
 import org.jetbrains.amper.tasks.CommonGlobalTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -142,14 +140,21 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
 
 private fun ComposeResourcesSettings.getResourcesPackageName(module: PotatoModule): String {
     return packageName.takeIf { it.isNotEmpty() } ?: run {
-        // FIXME: no publication may be available, so it will crash.
-        //  unlike Gradle, Amper doesn't have default group/name prepopulated. Maybe use module name?
-        val coordinates = module.publicationCoordinates(Platform.COMMON)
-        val groupName = coordinates.groupId.lowercase().asUnderscoredIdentifier()
-        val moduleName = coordinates.artifactId.lowercase().asUnderscoredIdentifier()
-        val id = if (groupName.isNotEmpty()) "$groupName.$moduleName" else moduleName
-        "$id.generated.resources"
+        val packageParts = module.rootFragment?.inferPackageNameFromPublishing() ?: module.inferPackageNameFromModule()
+        (packageParts + listOf("generated", "resources")).joinToString(separator = ".") {
+            it.lowercase().asUnderscoredIdentifier()
+        }
     }
+}
+
+private fun Fragment.inferPackageNameFromPublishing(): List<String>? {
+    return settings.publishing?.let {
+        listOfNotNull(it.group, it.name).takeIf(List<*>::isNotEmpty)
+    }
+}
+
+private fun PotatoModule.inferPackageNameFromModule(): List<String> {
+    return listOf(userReadableName)
 }
 
 private fun String.asUnderscoredIdentifier(): String =
