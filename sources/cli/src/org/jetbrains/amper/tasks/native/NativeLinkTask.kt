@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.native
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.amper.cli.AmperProjectTempRoot
+import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.compilation.KotlinArtifactsDownloader
 import org.jetbrains.amper.compilation.KotlinCompilationType
 import org.jetbrains.amper.compilation.downloadCompilerPlugins
@@ -87,7 +88,8 @@ class NativeLinkTask(
             fragments.mapNotNull { it.settings.native?.entryPoint }.distinct()
         } else emptyList<String>()
         if (entryPoints.size > 1) {
-            error("Multiple entry points defined in ${fragments.identificationPhrase()}: ${entryPoints.joinToString()}")
+            // TODO raise this error in the frontend?
+            userReadableError("Multiple entry points defined in ${fragments.identificationPhrase()}:\n${entryPoints.joinToString("\n")}")
         }
         val entryPoint = entryPoints.singleOrNull()
 
