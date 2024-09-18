@@ -9,13 +9,6 @@
               <option name="generatedName" value="New Schema" />
               <option name="name" value="schema-test.expected" />
               <option name="relativePathToSchema" value="sources/frontend/schema/resources/schema/amper.module.json" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="path" value="sources/frontend/schema/testResources/hello.yaml" />
-                  </Item>
-                </list>
-              </option>
             </SchemaInfo>
           </value>
         </entry>
