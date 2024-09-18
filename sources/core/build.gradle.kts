@@ -28,7 +28,9 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
     if (project.findProperty("inBootstrapMode") != "true") {
         val gitRoot = rootProject.projectDir.resolve(".git")
         if (gitRoot.exists()) {
-            dontReadGlobalGitConfig {
+            // This is to avoid issues with people who use config parameters that are not supported by JGit.
+            // For example, the 'patience' diff algorithm isn't supported.
+            runWithoutGlobalGitConfig {
                 val git = Git.open(gitRoot)
                 val repo = git.repository
                 val head = repo.getReflogReader("HEAD").lastEntry
@@ -38,9 +40,11 @@ val generateBuildProperties by tasks.creating(WriteProperties::class.java) {
                 property("commitDate", head.who.`when`.toInstant())
 
                 // When developing locally, we want to somehow capture changes to the local sources because we want to
-                // invalidate incremental state files based on this. Using the git index for this is insufficient because
-                // it only captures the paths but not the contents of the files.
-                // That's why we use a digest of the whole diff.
+                // invalidate incremental state files based on this. If we don't, changing some Amper code will not
+                // cause state invalidation, and some tasks will be marked up-to-date even though their code has changed
+                // and they would produce a different output.
+                // Using the git index for this is insufficient because it only captures the paths but not the contents
+                // of the files. That's why we use a digest of the whole diff.
                 val localDiffHash = git.diff().call().map { it.newId.toObjectId().name }.hash()
                 property("localChangesHash", localDiffHash)
             }
@@ -61,13 +65,12 @@ tasks.jvmProcessResources {
     from(generateBuildProperties)
 }
 
-private fun dontReadGlobalGitConfig(work: () -> Unit) {
+private fun runWithoutGlobalGitConfig(work: () -> Unit) {
     val oldSystemReader = SystemReader.getInstance()
     try {
         SystemReader.setInstance(EmptyConfigSystemReader(oldSystemReader))
         work()
-    }
-    finally {
+    } finally {
         SystemReader.setInstance(oldSystemReader)
     }
 }
