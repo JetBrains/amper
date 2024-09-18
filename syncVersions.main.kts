@@ -20,7 +20,7 @@ The source of truth is the list of versions at the top of this file.
 val bootstrapAmperVersion = "0.5.0-dev-1286" // AUTO-UPDATED BY THE CI - DO NOT RENAME
 
 val kotlinVersion = "2.0.20"
-val kspVersion = "$kotlinVersion-1.0.24"
+val kspVersion = "$kotlinVersion-1.0.25"
 val composeVersion = "1.6.10"
 
 /** This is the Gradle version used in Gradle-based Amper projects, not Amper itself. */

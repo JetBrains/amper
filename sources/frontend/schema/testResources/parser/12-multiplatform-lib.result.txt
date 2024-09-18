@@ -63,7 +63,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -135,7 +135,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -202,7 +202,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -272,7 +272,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -340,7 +340,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -411,7 +411,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -479,7 +479,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -550,7 +550,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -618,7 +618,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
@@ -688,7 +688,7 @@ Fragments:
         }
         processors: <default> [
         ]
-        version: <default> 2.0.20-1.0.24
+        version: <default> 2.0.20-1.0.25
       }
       native: <default> null
       publishing: <default> null
