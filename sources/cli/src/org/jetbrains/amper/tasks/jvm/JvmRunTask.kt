@@ -14,7 +14,7 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
-import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
+import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.ProcessInput
 import org.jetbrains.amper.processes.runJava
@@ -23,7 +23,6 @@ import org.jetbrains.amper.tasks.RunTask
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.util.BuildType
 import org.slf4j.LoggerFactory
-import kotlin.io.path.pathString
 
 class JvmRunTask(
     override val taskName: TaskName,
@@ -43,10 +42,6 @@ class JvmRunTask(
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         DeadLockMonitor.disable()
 
-        val effectiveMainClassFqn = fragments.findEffectiveJvmMainClass()
-            ?: error("Main Class was not found for ${module.userReadableName} in any of the following source directories:\n" +
-                    fragments.joinToString("\n") { it.src.pathString })
-
         val runtimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>().singleOrNull()
             ?: error("Could not find a single ${JvmRuntimeClasspathTask.Result::class.simpleName} in dependencies of ${taskName.name}")
 
@@ -63,7 +58,7 @@ class JvmRunTask(
 
         val result = jdk.runJava(
             workingDir = workingDir,
-            mainClass = effectiveMainClassFqn,
+            mainClass = fragments.getEffectiveJvmMainClass(),
             classpath = runtimeClasspathTask.jvmRuntimeClasspath,
             programArgs = commonRunSettings.programArgs,
             jvmArgs = jvmArgs,

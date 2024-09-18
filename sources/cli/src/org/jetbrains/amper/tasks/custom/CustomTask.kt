@@ -19,7 +19,7 @@ import org.jetbrains.amper.frontend.KnownModuleProperty
 import org.jetbrains.amper.frontend.PublishArtifactFromCustomTask
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
+import org.jetbrains.amper.jvm.getEffectiveJvmMainClass
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.runJava
 import org.jetbrains.amper.tasks.AdditionalResourcesProvider
@@ -53,15 +53,10 @@ internal class CustomTask(
         taskOutputRoot.path.createDirectories()
 
         val codeModule = custom.customTaskCodeModule
-        val fragments = codeModule.fragments
 
         check(codeModule.type == ProductType.JVM_APP) {
             "Custom task module '${codeModule.userReadableName}' should have 'jvm/app' type"
         }
-
-        val effectiveMainClassFqn = fragments.findEffectiveJvmMainClass()
-            ?: error("Main Class was not found for ${codeModule.userReadableName} in any of the following " +
-                    "source directories:\n" + fragments.joinToString("\n") { it.src.pathString })
 
         val jvmRuntimeClasspathTask = dependenciesResult.filterIsInstance<JvmRuntimeClasspathTask.Result>()
             .singleOrNull { it.module == codeModule && !it.isTest}
@@ -75,7 +70,7 @@ internal class CustomTask(
 
         val result = jdk.runJava(
             workingDir = workingDir,
-            mainClass = effectiveMainClassFqn,
+            mainClass = codeModule.fragments.getEffectiveJvmMainClass(),
             classpath = jvmRuntimeClasspathTask.jvmRuntimeClasspath,
             programArgs = custom.programArguments.map { interpolateString(it, dependenciesResult) },
             jvmArgs = custom.jvmArguments.map { interpolateString(it, dependenciesResult) },
