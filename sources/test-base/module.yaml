@@ -12,7 +12,7 @@ dependencies:
   - $libs.opentelemetry.sdk: exported
   - $libs.slf4j.api: exported
   - $libs.tinylog.impl: exported
-  - com.github.ajalt.clikt:clikt:4.2.2: exported
+  - $libs.clikt
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - ../core

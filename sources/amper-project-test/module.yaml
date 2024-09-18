@@ -6,7 +6,7 @@ test-dependencies:
   - ../test-base
   - ../cli
   - ../core
-  - com.github.ajalt.clikt:clikt:4.2.2
+  - $libs.clikt
 
 apply:
   - ../common.module-template.yaml
