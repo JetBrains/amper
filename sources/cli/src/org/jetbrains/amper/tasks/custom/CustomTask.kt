@@ -74,7 +74,7 @@ internal class CustomTask(
             classpath = jvmRuntimeClasspathTask.jvmRuntimeClasspath,
             programArgs = custom.programArguments.map { interpolateString(it, dependenciesResult) },
             jvmArgs = custom.jvmArguments.map { interpolateString(it, dependenciesResult) },
-            environment = custom.environmentVariables.map { it.key to interpolateString(it.value, dependenciesResult) }.toMap(),
+            environment = custom.environmentVariables.mapValues { interpolateString(it.value, dependenciesResult) },
             outputListener = PrintToTerminalProcessOutputListener(terminal),
             tempRoot = tempRoot,
         )
