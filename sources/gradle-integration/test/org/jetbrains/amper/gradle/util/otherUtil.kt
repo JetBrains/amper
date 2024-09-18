@@ -97,7 +97,7 @@ internal inline val currentTestName get(): String = run {
 }
 
 val StackTraceElement.decapitalizedSimpleName get() =
-    className.substringAfterLast(".").replaceFirstChar { it.lowercase(Locale.getDefault()) }
+    className.substringAfterLast(".").replaceFirstChar { it.lowercase() }
 
 // Need to be inlined, since looks for trace.
 @Suppress("NOTHING_TO_INLINE")

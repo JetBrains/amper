@@ -4,13 +4,11 @@
 
 package org.jetbrains.amper.frontend
 
-import java.util.*
 import kotlin.collections.AbstractMap
 import kotlin.collections.ArrayDeque
 import kotlin.reflect.KMutableProperty0
 
-fun String.doCapitalize() =
-    this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun String.doCapitalize() = replaceFirstChar { it.titlecase() }
 
 val PotatoModule.mavenRepositories: List<RepositoriesModulePart.Repository>
     get() = parts.find<RepositoriesModulePart>()?.mavenRepositories ?: emptyList()

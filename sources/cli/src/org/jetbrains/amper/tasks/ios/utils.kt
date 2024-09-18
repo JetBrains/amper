@@ -14,9 +14,7 @@ import org.jetbrains.amper.util.BuildType
 import java.io.File
 import java.util.*
 
-val BuildType.variantName get() = value
-    .lowercase(Locale.getDefault())
-    .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+val BuildType.variantName get() = value.lowercase().replaceFirstChar { it.titlecase() }
 
 internal val Platform.architecture
     get() = when (this) {

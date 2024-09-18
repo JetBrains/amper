@@ -54,7 +54,7 @@ suspend fun queryDevices(
     return devices
         .map { it.trim() }
         .mapNotNull { deviceRegex.find(it) }
-        .map { Device(it.groupValues[1], it.groupValues[2].lowercase(Locale.getDefault())) }
+        .map { Device(it.groupValues[1], it.groupValues[2].lowercase()) }
 }
 
 suspend fun bootAndWaitSimulator(
