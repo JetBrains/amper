@@ -42,13 +42,17 @@ class JvmClassesJarTask(
         return taskOutputRoot.path / "${module.userReadableName}$testSuffix-jvm.jar"
     }
 
-    override fun jarConfig(): JarConfig = JarConfig(
-        mainClassFqn = if (module.type.isApplication()) module.fragments.findEffectiveJvmMainClass() else null
-    )
+    override fun jarConfig(): JarConfig = JarConfig(mainClassFqn = findMainClass())
 
-    override fun createResult(jarPath: Path): AbstractJarTask.Result =
-        Result(jarPath)
+    private fun findMainClass(): String? {
+        if (!module.type.isApplication()) {
+            return null
+        }
+        // We don't want to fail here, because Android applications don't have a main function and that's normal
+        return module.fragments.filter { it.isTest == isTest }.findEffectiveJvmMainClass()
+    }
 
-    class Result(jarPath: Path) :
-        AbstractJarTask.Result(jarPath)
+    override fun createResult(jarPath: Path): AbstractJarTask.Result = Result(jarPath)
+
+    class Result(jarPath: Path) : AbstractJarTask.Result(jarPath)
 }
