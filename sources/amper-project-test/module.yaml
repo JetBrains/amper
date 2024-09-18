@@ -6,7 +6,7 @@ test-dependencies:
   - ../test-base
   - ../cli
   - ../core
-  - $libs.clikt
+  - $libs.mordant
 
 apply:
   - ../common.module-template.yaml

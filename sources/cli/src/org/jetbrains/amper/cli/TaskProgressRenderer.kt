@@ -32,7 +32,7 @@ class TaskProgressRenderer(private val terminal: Terminal, private val coroutine
     private data class ThreadState(val name: String?, val startTime: Instant, val elapsedSeconds: Long)
 
     private val maxTasksOnScreen
-        get() = terminal.info.height / 3
+        get() = terminal.size.height / 3
 
     private val updateFlow: MutableStateFlow<List<ThreadState>> by lazy {
         val flow = MutableStateFlow(emptyList<ThreadState>())

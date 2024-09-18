@@ -5,9 +5,10 @@
 package org.jetbrains.amper.tools
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 
-class JdkToolCommands: CliktCommand(name = "jdk", help = "Run various tools from Amper default JDK") {
+class JdkToolCommands: CliktCommand(name = "jdk") {
     init {
         subcommands(
             JdkToolCommand("jstack"),
@@ -16,6 +17,8 @@ class JdkToolCommands: CliktCommand(name = "jdk", help = "Run various tools from
             JdkToolCommand("jcmd"),
         )
     }
+
+    override fun help(context: Context): String = "Run various tools from Amper default JDK"
 
     override fun run() = Unit
 }

@@ -47,7 +47,6 @@ dependencies:
   - com.android.tools:sdk-common:31.6.0-alpha05
   - com.android.tools.ddms:ddmlib:25.3.0
   - $libs.clikt
-  - com.github.ajalt.mordant:mordant-jvm:2.4.0
   - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
   - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
   - $libs.intellij.deps.asyncProfiler

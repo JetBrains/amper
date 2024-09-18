@@ -38,7 +38,7 @@ class TestCollector(val backgroundScope: CoroutineScope) {
     fun clearLogEntries() = synchronized(collectedLogEntries) { collectedLogEntries.clear() }
 
     val terminalRecorder = TerminalRecorder(ansiLevel = AnsiLevel.NONE)
-    val terminal: Terminal = Terminal(terminalRecorder)
+    val terminal: Terminal = Terminal(terminalInterface = terminalRecorder)
     fun clearTerminalRecording() = terminalRecorder.clearOutput()
 
     companion object {

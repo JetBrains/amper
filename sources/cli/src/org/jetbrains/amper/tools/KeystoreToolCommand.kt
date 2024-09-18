@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tools
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -17,11 +18,7 @@ import org.jetbrains.amper.cli.withBackend
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class KeystoreToolCommand : CliktCommand(
-    name = "generate-keystore",
-    help = "Generate keystore",
-    epilog = "Use -- to separate tool's arguments from Amper options",
-) {
+class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
 
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
@@ -36,6 +33,10 @@ class KeystoreToolCommand : CliktCommand(
     private val keyAlias by option("--key-alias", help = "Key alias").default("android")
     private val keyPassword by option("--key-password", help = "Key password").default("")
     private val dn by option("--dn", help = "issuer").default("CN=${System.getProperty("user.name", "Unknown")}")
+
+    override fun help(context: Context): String = "Generate keystore"
+
+    override fun helpEpilog(context: Context): String = "Use -- to separate tool's arguments from Amper options"
 
     override fun run() {
         withBackend(commonOptions, commandName, setupEnvironment = true) {

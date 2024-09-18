@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tools
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -35,11 +36,7 @@ import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
-class JaegerToolCommand: CliktCommand(
-    name = "jaeger",
-    help = "Download and run Jaeger server https://www.jaegertracing.io",
-    epilog = "Use -- to separate tool's arguments from Amper options",
-) {
+class JaegerToolCommand: CliktCommand(name = "jaeger") {
     private val openBrowser by option(
         "--open-browser",
         help = "Open Jaeger UI in browser if Jaeger successfully listens on HTTP port $JAEGER_HTTP_PORT",
@@ -48,6 +45,10 @@ class JaegerToolCommand: CliktCommand(
     private val toolArguments by argument(name = "tool arguments").multiple()
 
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
+
+    override fun helpEpilog(context: Context): String = "Use -- to separate tool's arguments from Amper options"
 
     override fun run() {
         val userCacheRoot = getUserCacheRoot(commonOptions)

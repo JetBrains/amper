@@ -6,8 +6,11 @@ package org.jetbrains.amper.cli
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.core.context
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.obj
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.output.MordantHelpFormatter
@@ -27,6 +30,7 @@ import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.Whitespace
 import com.github.ajalt.mordant.terminal.Terminal
+import com.github.ajalt.mordant.terminal.info
 import com.github.ajalt.mordant.widgets.Text
 import com.intellij.util.namedChildScope
 import kotlinx.coroutines.CoroutineScope
@@ -259,17 +263,23 @@ internal fun getUserCacheRoot(commonOptions: RootCommand.CommonOptions): AmperUs
 
 private fun String.replaceWhitespaces() = replace(" ", "%20")
 
-private class InitCommand : CliktCommand(name = "init", help = "Initialize Amper project") {
+private class InitCommand : CliktCommand(name = "init") {
     val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Initialize Amper project"
+
     override fun run() {
         val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
         ProjectGenerator(terminal = Terminal()).initProject(template, directory)
     }
 }
 
-private class CleanCommand : CliktCommand(name = "clean", help = "Remove project's build output and caches") {
+private class CleanCommand : CliktCommand(name = "clean") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Remove the project's build output and caches"
+
     override fun run() = withBackend(commonOptions, commandName, setupEnvironment = false) { backend ->
         val rootsToClean = listOf(backend.context.buildOutputRoot.path, backend.context.projectTempRoot.path)
         for (path in rootsToClean) {
@@ -283,8 +293,10 @@ private class CleanCommand : CliktCommand(name = "clean", help = "Remove project
     }
 }
 
-private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches", help = "Remove shared caches") {
+private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Remove shared caches"
 
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
@@ -295,9 +307,12 @@ private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-cache
     }
 }
 
-private class TaskCommand : CliktCommand(name = "task", help = "Execute any task from task graph") {
+private class TaskCommand : CliktCommand(name = "task") {
     val name by argument(help = "task name to execute")
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Execute any task from the task graph"
+
     override fun run() {
         return withBackend(commonOptions, commandName) { backend ->
             backend.runTask(TaskName(name))
@@ -305,11 +320,7 @@ private class TaskCommand : CliktCommand(name = "task", help = "Execute any task
     }
 }
 
-private class RunCommand : CliktCommand(
-    name = "run",
-    help = "Run your application",
-    epilog = "Use -- to separate application's arguments from Amper options"
-) {
+private class RunCommand : CliktCommand(name = "run") {
     val platform by option(
         "-p",
         "--platform",
@@ -334,6 +345,11 @@ private class RunCommand : CliktCommand(
 
     val module by option("-m", "--module", help = "Specific module to run (run 'modules' command to get modules list)")
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Run your application"
+
+    override fun helpEpilog(context: Context): String = "Use -- to separate application's arguments from Amper options"
+
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }
         withBackend(
@@ -347,26 +363,35 @@ private class RunCommand : CliktCommand(
     }
 }
 
-private class TasksCommand : CliktCommand(name = "tasks", help = "Show tasks and their dependencies in the project") {
+private class TasksCommand : CliktCommand(name = "tasks") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Show tasks and their dependencies in the project"
+
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.showTasks()
     }
 }
 
-private class ModulesCommand : CliktCommand(name = "modules", help = "Show modules in the project") {
+private class ModulesCommand : CliktCommand(name = "modules") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Show modules in the project"
+
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.showModules()
     }
 }
 
-private class TestCommand : CliktCommand(name = "test", help = "Run tests in the project") {
+private class TestCommand : CliktCommand(name = "test") {
     val platform by platformOption()
     val filter by option("-f", "--filter", help = "wildcard filter to run only matching tests, the option could be repeated to run tests matching any filter")
     val includeModules by option("-m", "--include-module", help = "specific module to check, the option could be repeated to check several modules").multiple()
     val excludeModules by option("--exclude-module", help = "specific module to exclude, the option could be repeated to exclude several modules").multiple()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Run tests in the project"
+
     override fun run() {
         if (filter != null) {
             userReadableError("Filters are not implemented yet")
@@ -387,11 +412,14 @@ private class TestCommand : CliktCommand(name = "test", help = "Run tests in the
     }
 }
 
-private class PublishCommand : CliktCommand(name = "publish", help = "Publish modules to a repository") {
+private class PublishCommand : CliktCommand(name = "publish") {
     val module by option("-m", "--modules", help = "specify modules to publish, delimited by ','. " +
             "By default 'publish' command will publish all possible modules").split(",")
     val commonOptions by requireObject<RootCommand.CommonOptions>()
     val repositoryId by argument("repository-id")
+
+    override fun help(context: Context): String = "Publish modules to a repository"
+
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
             backend.publish(
@@ -402,7 +430,7 @@ private class PublishCommand : CliktCommand(name = "publish", help = "Publish mo
     }
 }
 
-private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
+private class ToolCommand : CliktCommand(name = "tool") {
     init {
         subcommands(
             JaegerToolCommand(),
@@ -411,22 +439,27 @@ private class ToolCommand : CliktCommand(name = "tool", help = "Run a tool") {
         )
     }
 
+    override fun help(context: Context): String = "Run a tool"
+
     override fun run() = Unit
 }
 
-private class BuildCommand : CliktCommand(name = "build", help = "Compile and link all code in the project") {
+private class BuildCommand : CliktCommand(name = "build") {
     val platform by platformOption()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Compile and link all code in the project"
+
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.build(platforms = if (platform.isEmpty()) null else platform.toSet())
     }
 }
 
-private class SettingsCommand: CliktCommand(
-    name = "settings",
-    help = "Print the current state of Amper settings"
-) {
+private class SettingsCommand: CliktCommand(name = "settings") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun help(context: Context): String = "Print the current state of Amper settings"
+
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
             val terminal = backend.context.terminal

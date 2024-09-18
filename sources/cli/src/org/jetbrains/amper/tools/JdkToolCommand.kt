@@ -5,6 +5,7 @@
 package org.jetbrains.amper.tools
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -19,12 +20,12 @@ import org.jetbrains.amper.intellij.CommandLineUtils
 import kotlin.io.path.isExecutable
 import kotlin.io.path.pathString
 
-class JdkToolCommand(private val name: String) : CliktCommand(
-    name = name,
-    epilog = "Use -- to separate $name's arguments from Amper options"
-) {
+class JdkToolCommand(private val name: String) : CliktCommand(name = name) {
+
     private val toolArguments by argument(name = "tool arguments").multiple()
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
+
+    override fun helpEpilog(context: Context): String = "Use -- to separate $name's arguments from Amper options"
 
     override fun run() = runBlocking {
         val jdk = JdkDownloader.getJdk(getUserCacheRoot(commonOptions))
