@@ -1,9 +1,11 @@
 @file:Suppress("ReplacePrintlnWithLogging")
 
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.yaml.snakeyaml.Yaml
 import java.io.StringWriter
 import java.nio.file.Path
+import java.security.MessageDigest
 import java.util.Properties
 import kotlin.collections.component1
 import kotlin.io.path.Path
@@ -13,6 +15,7 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
+import kotlin.use
 
 /*
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
@@ -33,12 +36,25 @@ fun main(args: Array<String>) {
     properties["version"] = getCurrentVersion(commonModuleTemplate)
 
     if (gitRoot.isDirectory()) {
-        val git = FileRepository(gitRoot.toFile())
-        val head = git.getReflogReader("HEAD").lastEntry
-        val shortHash = git.newObjectReader().use { it.abbreviate(head.newId).name() }
-        properties["commitHash"] = head.newId.name
-        properties["commitShortHash"] = shortHash
-        properties["commitDate"] = head.who.`when`.toInstant().toString()
+        // This is to avoid issues with people who use config parameters that are not supported by JGit.
+        // For example, the 'patience' diff algorithm isn't supported.
+        runWithoutGlobalGitConfig {
+            val git = Git.open(gitRoot.toFile())
+            val repo = git.repository
+            val head = repo.getReflogReader("HEAD").lastEntry
+            val shortHash = repo.newObjectReader().use { it.abbreviate(head.newId).name() }
+            properties["commitHash"] = head.newId.name
+            properties["commitShortHash"] = shortHash
+            properties["commitDate"] = head.who.`when`.toInstant().toString()
+
+            // When developing locally, we want to somehow capture changes to the local sources because we want to
+            // invalidate incremental state files based on this. If we don't, changing some Amper code will not
+            // cause state invalidation, and some tasks will be marked up-to-date even though their code has changed
+            // and they would produce a different output.
+            // Using the git index for this is insufficient because it only captures the paths but not the contents
+            // of the files. That's why we use a digest of the whole diff.
+            properties["localChangesHash"] = git.localChangesHash()
+        }
     } else {
         println("Git root directory doesn't exist: $gitRoot => skipping commit hash and date properties")
     }
