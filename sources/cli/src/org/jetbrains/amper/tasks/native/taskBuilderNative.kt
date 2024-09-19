@@ -99,7 +99,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
     allModules()
         .alsoPlatforms(Platform.NATIVE)
         .withEach {
-            // Skip running of ios/app modules, since it is handled in [ios.task-builder.kt].
+            // Skip running of ios/app modules, since it is handled in taskBuilderIos.kt
             if (isIosApp(platform, module)) return@withEach
 
             if (module.type.isApplication()) {
@@ -121,7 +121,7 @@ fun ProjectTasksBuilder.setupNativeTasks() {
     allModules()
         .alsoPlatforms(Platform.NATIVE)
         .withEach {
-            // Skip testing of ios/app modules, since it is handled in [ios.task-builder.kt].
+            // Skip testing of ios/app modules, since it is handled in taskBuilderIos.kt
             if (isIosApp(platform, module)) return@withEach
 
             val testTaskName = CommonTaskType.Test.getTaskName(module, platform)
