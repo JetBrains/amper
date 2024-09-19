@@ -53,28 +53,20 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
             tasks.registerTask(
-                JvmRuntimeClasspathTask(
+                task = JvmRuntimeClasspathTask(
                     module = module,
                     isTest = isTest,
                     taskName = runtimeClasspathTaskName,
                 ),
-                listOf(
+                dependsOn = buildList {
                     if (isTest) {
-                    CommonTaskType.Compile.getTaskName(module, platform, isTest = true)
-                } else {
-                    CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
-                },
-                    CommonTaskType.Dependencies.getTaskName(module, platform, isTest),
-                )
+                        add(CommonTaskType.Compile.getTaskName(module, platform, isTest = true))
+                    }
+                    // we always want the production jar (for both test and main classpath)
+                    add(CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
+                    add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
+                }
             )
-
-            if (isTest) {
-                // test runtime classpath should include both test and prod jars
-                tasks.registerDependency(
-                    runtimeClasspathTaskName,
-                    CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
-                )
-            }
 
             // custom task roots
             module.customTasks.forEach { customTask ->
