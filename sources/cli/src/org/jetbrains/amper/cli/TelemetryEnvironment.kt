@@ -7,25 +7,26 @@ package org.jetbrains.amper.cli
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.exporter.logging.otlp.OtlpJsonLoggingSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
-import io.opentelemetry.sdk.trace.export.SpanExporter
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.amper.cli.TelemetryEnvironment.LazyJaegerJsonSpanExporter
 import org.jetbrains.amper.core.AmperBuild
-import org.jetbrains.amper.diagnostics.JaegerJsonSpanExporter
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.logging.FileHandler
+import java.util.logging.Formatter
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlin.concurrent.thread
+import kotlin.io.path.pathString
 
 object TelemetryEnvironment {
 
-    private val LOG = LoggerFactory.getLogger(TelemetryEnvironment::class.java)
+    private val otlpLogger = Logger.getLogger(OtlpJsonLoggingSpanExporter::class.java.getName())
 
     private val resource: Resource = Resource.create(
         Attributes.builder()
@@ -39,21 +40,20 @@ object TelemetryEnvironment {
             .build()
     )
 
-    private val spanExporter = LazyJaegerJsonSpanExporter()
-
     fun setLogsRootDirectory(amperBuildLogsRoot: AmperBuildLogsRoot) {
-        val spansFile = amperBuildLogsRoot.path.resolve("jaeger-trace.json")
-        spanExporter.jaegerJsonSpanExporter = JaegerJsonSpanExporter(
-            file = spansFile,
-            serviceName = resource.getAttribute(AttributeKey.stringKey("service.name"))!!,
-            serviceNamespace = resource.getAttribute(AttributeKey.stringKey("service.namespace"))!!,
-            serviceVersion = resource.getAttribute(AttributeKey.stringKey("service.version"))!!,
-        )
+        val spansFile = amperBuildLogsRoot.path.resolve("opentelemetry_traces.jsonl")
+        val fileHandler = FileHandler(spansFile.pathString, true) // true to append, false to overwrite
+        fileHandler.formatter = MessageOnlyFormatter
+        otlpLogger.addHandler(fileHandler)
+        otlpLogger.level = Level.ALL
     }
 
     fun setup() {
+        // traces are not exported until we set the logs root directory
+        otlpLogger.level = Level.OFF
+
         val tracerProvider = SdkTracerProvider.builder()
-            .addSpanProcessor(BatchSpanProcessor.builder(spanExporter).build())
+            .addSpanProcessor(BatchSpanProcessor.builder(OtlpJsonLoggingSpanExporter.create()).build())
             .setResource(resource)
             .build()
         val openTelemetry = OpenTelemetrySdk.builder()
@@ -69,38 +69,10 @@ object TelemetryEnvironment {
             }
         })
     }
+}
 
-    private class LazyJaegerJsonSpanExporter : SpanExporter {
-
-        var jaegerJsonSpanExporter: JaegerJsonSpanExporter? = null
-            set(value) {
-                if (field != null) {
-                    LOG.error("TelemetryEnvironment.jaegerJsonSpanExported is already set")
-                }
-                else {
-                    field = value
-                }
-            }
-
-        override fun export(spans: Collection<SpanData>): CompletableResultCode {
-            runBlocking {
-                jaegerJsonSpanExporter?.export(spans)
-            }
-            return CompletableResultCode.ofSuccess()
-        }
-
-        override fun flush(): CompletableResultCode {
-            runBlocking {
-                jaegerJsonSpanExporter?.flush()
-            }
-            return CompletableResultCode.ofSuccess()
-        }
-
-        override fun shutdown(): CompletableResultCode {
-            runBlocking {
-                jaegerJsonSpanExporter?.shutdown()
-            }
-            return CompletableResultCode.ofSuccess()
-        }
-    }
+private object MessageOnlyFormatter : Formatter() {
+    // we have to wrap it in resourceSpans ourselves, apparently:
+    // https://github.com/open-telemetry/opentelemetry-java/issues/6749
+    override fun format(record: LogRecord?): String = """{"resourceSpans":[${formatMessage(record)}]}""" + "\n"
 }

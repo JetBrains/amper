@@ -33,6 +33,7 @@ dependencies:
   - $libs.tinylog.slf4j
   - $libs.tinylog.jul
   - $libs.opentelemetry.api
+  - $libs.opentelemetry.exporterLoggingOtlp
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin
@@ -41,9 +42,6 @@ dependencies:
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
   - $libs.ktor.client
-  # TODO: Jackson is only used for JaegerJsonSpanExporter, let's try to remove it
-  - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
-  - com.fasterxml.jackson.core:jackson-databind:2.16.0
   # for something else
   - $libs.android.tools.sdklib
   - $libs.android.tools.common
