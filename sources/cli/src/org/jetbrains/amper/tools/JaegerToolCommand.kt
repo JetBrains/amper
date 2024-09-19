@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.mordant.terminal.Terminal
 import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +40,14 @@ import kotlin.io.path.pathString
 class JaegerToolCommand: CliktCommand(name = "jaeger") {
     private val openBrowser by option(
         "--open-browser",
-        help = "Open Jaeger UI in browser if Jaeger successfully listens on HTTP port $JAEGER_HTTP_PORT",
+        help = "Open Jaeger UI in browser if Jaeger successfully starts",
     ).boolean().default(true)
+
+    private val port by option("--jaeger-port", help = "The HTTP port to use for the Jaeger UI")
+        .int().default(16686)
+
+    private val version by option("--jaeger-version", help = "The version of Jaeger to download and run")
+        .default("1.61.0")
 
     private val toolArguments by argument(name = "tool arguments").multiple()
 
@@ -67,9 +74,9 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
         }
 
         // if port is not available, jaeger will report it by itself
-        val checkForHttpPortAvailability = openBrowser && !connectToLocalPort(JAEGER_HTTP_PORT)
+        val checkForHttpPortAvailability = openBrowser && !connectToLocalPort(port)
 
-        val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$VERSION/jaeger-${VERSION}-$osString-$archString.tar.gz"
+        val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$version/jaeger-${version}-$osString-$archString.tar.gz"
         runBlocking(Dispatchers.IO) {
             val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, userCacheRoot)
             val root = extractFileToCacheLocation(file, userCacheRoot, ExtractOptions.STRIP_ROOT)
@@ -89,8 +96,8 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
                             break
                         }
 
-                        if (connectToLocalPort(JAEGER_HTTP_PORT)) {
-                            val url = "http://127.0.0.1:$JAEGER_HTTP_PORT"
+                        if (connectToLocalPort(port)) {
+                            val url = "http://127.0.0.1:$port"
                             terminal.println("*** Opening browser $url *** (specify --open-browser=false to disable)")
                             openBrowser(url, terminal)
                             break
@@ -134,10 +141,5 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
         Socket("127.0.0.1", port).use { socket -> socket.isConnected }
     } catch (_: Throwable) {
         false
-    }
-
-    companion object {
-        private const val JAEGER_HTTP_PORT = 16686
-        private const val VERSION = "1.61.0"
     }
 }
