@@ -80,11 +80,12 @@ class BuiltInCatalog(
     composeVersion: String?,
     private val systemInfo: SystemInfo = DefaultSystemInfo,
 ) : PredefinedCatalog({
-    // Add kotlin-test.
-    val kotlinTestVersion = UsedVersions.kotlinVersion
-    put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinTestVersion")
-    put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinTestVersion")
-    put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinTestVersion")
+    // Add Kotlin dependencies that should be aligned with our single Kotlin version
+    val kotlinVersion = UsedVersions.kotlinVersion
+    put("kotlin-test-junit5", "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
+    put("kotlin-test-junit", "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+    put("kotlin-test", "org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    put("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // Add compose.
     if (composeVersion != null) {
