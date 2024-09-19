@@ -8,7 +8,7 @@ apply:
 
 dependencies:
   - ../concurrency
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+  - $libs.kotlinx.coroutines.core
   - org.apache.commons:commons-compress:1.24.0
   - $libs.slf4j.api
   - $libs.ktor.client.cio

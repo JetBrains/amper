@@ -8,7 +8,7 @@ dependencies:
   - ../frontend-api
   - ../frontend/schema
   - ../core
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3
+  - $libs.kotlinx.coroutines.core
 
 test-dependencies:
   - org.yaml:snakeyaml:2.2

@@ -5,7 +5,7 @@ product:
 dependencies:
   - ../../cli
   - ../../core
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+  - $libs.kotlinx.coroutines.core
 
 apply:
   - ../../common.module-template.yaml
