@@ -37,18 +37,18 @@ fun ProjectTasksBuilder.setupJvmTasks() {
             )
 
             if (!isTest) {
-            // We do not pack test classes into a jar.
-            val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
-            tasks.registerTask(
-                JvmClassesJarTask(
-                    taskName = jarTaskName,
-                    module = module,
-                    isTest = false,
-                    taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                    executeOnChangedInputs = executeOnChangedInputs,
-                ),
-                CommonTaskType.Compile.getTaskName(module, platform, isTest= false),
-            )
+                // We do not pack test classes into a jar.
+                val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
+                tasks.registerTask(
+                    JvmClassesJarTask(
+                        taskName = jarTaskName,
+                        module = module,
+                        isTest = false,
+                        taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                        executeOnChangedInputs = executeOnChangedInputs,
+                    ),
+                    CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+                )
             }
 
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
