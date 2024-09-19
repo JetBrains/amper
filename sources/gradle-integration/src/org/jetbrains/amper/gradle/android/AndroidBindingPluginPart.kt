@@ -216,8 +216,19 @@ class AndroidBindingPluginPart(
                     targetSdk = androidSettings.targetSdk.versionNumber
                     versionCode = androidSettings.versionCode
                     versionName = androidSettings.versionName
-                    signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
-                        signingConfig = signing
+                }
+
+                buildTypes {
+                    it.getByName("release") {
+                        it.proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                        it.isDebuggable = false
+                        it.isMinifyEnabled = true
+                        if (module.type.isApplication()) {
+                            it.isShrinkResources = true
+                        }
+                        signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
+                            it.signingConfig = signing
+                        }
                     }
                 }
             }

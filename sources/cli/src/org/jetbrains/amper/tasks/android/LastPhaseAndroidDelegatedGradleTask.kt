@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.tasks.android
 
-import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.cli.AmperBuildLogsRoot
 import org.jetbrains.amper.cli.AmperProjectRoot
 import org.jetbrains.amper.frontend.Fragment
@@ -14,9 +13,10 @@ import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.util.BuildType
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
+import kotlin.io.path.div
 
-class AndroidBundleTask(
-    module: PotatoModule,
+abstract class LastPhaseAndroidDelegatedGradleTask(
+    private val module: PotatoModule,
     buildType: BuildType,
     executeOnChangedInputs: ExecuteOnChangedInputs,
     androidSdkPath: Path,
@@ -25,7 +25,7 @@ class AndroidBundleTask(
     taskOutputPath: TaskOutputRoot,
     buildLogsRoot: AmperBuildLogsRoot,
     override val taskName: TaskName,
-) : LastPhaseAndroidDelegatedGradleTask(
+) : AndroidDelegatedGradleTask(
     module,
     buildType,
     executeOnChangedInputs,
@@ -34,9 +34,18 @@ class AndroidBundleTask(
     projectRoot,
     taskOutputPath,
     buildLogsRoot,
-    taskName
+    taskName,
 ) {
-    override val phase: AndroidBuildRequest.Phase
-        get() = AndroidBuildRequest.Phase.Bundle
 
+    override val additionalInputFiles: List<Path> = if (buildType == BuildType.Release) {
+        fragments
+            .flatMap {
+                buildList {
+                    module.source.moduleDir?.let { moduleDir ->
+                        add((moduleDir / it.settings.android.signing.propertiesFile).toAbsolutePath())
+                        add(moduleDir / "proguard-rules.pro")
+                    }
+                }
+            }
+    } else listOf()
 }

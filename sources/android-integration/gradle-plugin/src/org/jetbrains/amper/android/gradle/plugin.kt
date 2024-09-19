@@ -165,11 +165,23 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
             if (module.type == ProductType.ANDROID_APP) {
                 it.applicationId = androidSettings.applicationId
             }
-            androidExtension.signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
-                it.signingConfig = signing
-            }
         }
         androidExtension.namespace = androidSettings.namespace
+
+        androidExtension.buildTypes {
+            it.getByName("release") {
+                it.proguardFiles(
+                    androidExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
+                    (module.buildDir / "proguard-rules.pro").toFile()
+                )
+                it.isDebuggable = false
+                it.isMinifyEnabled = true
+                it.isShrinkResources = true
+                androidExtension.signingConfigs.findByName(SIGNING_CONFIG_NAME)?.let { signing ->
+                    it.signingConfig = signing
+                }
+            }
+        }
 
         val requestedModules = project
             .gradle

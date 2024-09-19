@@ -7,7 +7,6 @@ package org.jetbrains.amper.android
 import com.android.builder.model.v2.models.AndroidProject
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.gradle.tooling.BuildAction
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.events.ProgressEvent
@@ -34,6 +33,7 @@ fun runAndroidBuild(
 ): List<Path> {
     buildPath.createDirectories()
     val settingsGradlePath = buildPath.createSettingsGradle(buildRequest)
+    buildPath.createBuildGradle()
     buildPath.createLocalProperties(buildRequest)
 
     val connection = GradleConnector
@@ -70,6 +70,12 @@ fun runAndroidBuild(
 
         return lazyArtifacts.map { it.value }
     }
+}
+
+private fun Path.createBuildGradle() {
+    val buildGradlePath = this / "build.gradle.kts"
+    val buildGradleFile = buildGradlePath.toFile()
+    buildGradleFile.createNewFile()
 }
 
 private fun Path.createLocalProperties(buildRequest: AndroidBuildRequest): Path {
