@@ -3,6 +3,7 @@
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-forStandalone = "8.5.0"
+apache-commons = "1.24.0"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
@@ -24,6 +25,7 @@ tinylog = "2.6.2"
 [libraries]
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
+apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 gradle-api = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }

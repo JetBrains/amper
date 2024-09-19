@@ -9,7 +9,7 @@ apply:
 dependencies:
   - ../concurrency
   - $libs.kotlinx.coroutines.core
-  - org.apache.commons:commons-compress:1.24.0
+  - $libs.apacheCommons.compress
   - $libs.slf4j.api
   - $libs.ktor.client.cio
   - $libs.ktor.client.encoding
