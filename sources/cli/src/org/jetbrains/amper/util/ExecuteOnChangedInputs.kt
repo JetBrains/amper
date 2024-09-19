@@ -87,44 +87,44 @@ class ExecuteOnChangedInputs(
         .setListAttribute("inputs", inputs.map { it.pathString }.sorted())
         .useWithScope { span ->
 
-        stateRoot.createDirectories()
+            stateRoot.createDirectories()
 
-        val sanitizedId = id.replace(Regex("[^a-zA-Z0-9]"), "_")
-        // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
-        val hash = "$id\nstate format version: $stateFileFormatVersion".sha256String().take(10)
-        val stateFile = stateRoot.resolve("$sanitizedId-$hash")
+            val sanitizedId = id.replace(Regex("[^a-zA-Z0-9]"), "_")
+            // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
+            val hash = "$id\nstate format version: $stateFileFormatVersion".sha256String().take(10)
+            val stateFile = stateRoot.resolve("$sanitizedId-$hash")
 
-        // Prevent parallel execution of this 'id' from this or other processes,
-        // tracked by a lock on state file
-        withLock(id, stateFile) { stateFileChannel ->
-            val (existingResult, cacheCheckTime) = measureTimedValue {
-                getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+            // Prevent parallel execution of this 'id' from this or other processes,
+            // tracked by a lock on state file
+            withLock(id, stateFile) { stateFileChannel ->
+                val (existingResult, cacheCheckTime) = measureTimedValue {
+                    getCachedResult(stateFile, stateFileChannel, configuration, inputs)
+                }
+                if (existingResult != null) {
+                    logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
+                    logger.info("'$id' is up-to-date")
+                    span.setAttribute("status", "up-to-date")
+                    addResultToSpan(span, existingResult)
+                    return@withLock existingResult
+                } else {
+                    span.setAttribute("status", "requires-building")
+                    logger.info("building '$id'")
+                }
+
+                val (result, buildTime) = measureTimedValue { block() }
+
+                addResultToSpan(span, result)
+
+                logger.info("finished '$id' in $buildTime")
+
+                writeStateFile(stateFileChannel, configuration, inputs, result)
+
+                // TODO remove this check later or hide under debug/assert mode
+                ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
+
+                return@withLock result
             }
-            if (existingResult != null) {
-                logger.debug("INC: up-to-date according to state file at '{}' in {}", stateFile, cacheCheckTime)
-                logger.info("'$id' is up-to-date")
-                span.setAttribute("status", "up-to-date")
-                addResultToSpan(span, existingResult)
-                return@withLock existingResult
-            } else {
-                span.setAttribute("status", "requires-building")
-                logger.info("building '$id'")
-            }
-
-            val (result, buildTime) = measureTimedValue { block() }
-
-            addResultToSpan(span, result)
-
-            logger.info("finished '$id' in $buildTime")
-
-            writeStateFile(stateFileChannel, configuration, inputs, result)
-
-            // TODO remove this check later or hide under debug/assert mode
-            ensureStateFileIsConsistent(stateFile, stateFileChannel, configuration, inputs, result)
-
-            return@withLock result
         }
-    }
 
     private fun addResultToSpan(span: Span, result: ExecutionResult) {
         span.setListAttribute("outputs", result.outputs.map { it.pathString }.sorted())
