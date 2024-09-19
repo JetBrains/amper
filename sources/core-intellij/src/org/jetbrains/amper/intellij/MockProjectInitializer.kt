@@ -13,6 +13,7 @@ import com.intellij.lang.LanguageASTFactory
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.mock.MockApplication
 import com.intellij.mock.MockProject
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -60,6 +61,8 @@ object MockProjectInitializer {
 
     private var latestConfigurator: IntelliJApplicationConfigurator? = null
 
+    private var ourDisposable: Disposable? = null
+
     @Synchronized
     fun initMockProject(intelliJApplicationConfigurator: IntelliJApplicationConfigurator): Project {
         val latest = latestConfigurator
@@ -69,7 +72,13 @@ object MockProjectInitializer {
                     "new: ${intelliJApplicationConfigurator.javaClass.name} $intelliJApplicationConfigurator")
         }
 
-        if (ApplicationManager.getApplication() != null) {
+        val previousDisposable = ourDisposable
+        if (previousDisposable != null) {
+            Disposer.dispose(previousDisposable)
+        }
+
+        val previousApplication = ApplicationManager.getApplication()
+        if (previousApplication != null && !previousApplication.isDisposed) {
             // Init application and factory in standalone non-IDE environment only
             return ourProject
         }
@@ -77,7 +86,9 @@ object MockProjectInitializer {
         spanBuilder("Init mock IntelliJ project").use {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
-            val appEnv = CoreApplicationEnvironment(Disposer.newDisposable())
+            val disposable = Disposer.newDisposable()
+            val appEnv = CoreApplicationEnvironment(disposable)
+            ourDisposable = disposable
             appEnv.registerLangAppServices()
             appEnv.application.registerService(ReadActionCache::class.java, ReadActionCacheImpl())
             intelliJApplicationConfigurator.registerApplicationExtensions(appEnv.application)
