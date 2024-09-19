@@ -13,7 +13,6 @@ test-dependencies:
   - org.smali:dexlib2:2.5.2 # todo: use apkanalyzer API to get rid of this dependency
   - com.android.tools.apkparser:apkanalyzer:31.2.0
   - com.android.tools.apkparser:binary-resources:31.2.0
-  - com.google.guava:guava:33.0.0-jre
 
   - $libs.gradle.toolingApi: compile-only
   - com.android.tools.ddms:ddmlib:25.3.0: compile-only

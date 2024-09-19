@@ -10,6 +10,7 @@ import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.extract.ExtractOptions
 import org.jetbrains.amper.core.extract.extractFileWithFlag
 import org.jetbrains.amper.core.extract.getExtractOptionsShortString
+import org.jetbrains.amper.core.hashing.sha256String
 import java.nio.file.Path
 
 
@@ -19,7 +20,7 @@ suspend fun extractFileToCacheLocation(
     vararg options: ExtractOptions
 ): Path = withContext(Dispatchers.IO) {
     val cachePath = amperUserCacheRoot.extractCache
-    val hash = Downloader.hashString(archiveFile.toString() + getExtractOptionsShortString(options)).substring(0, 6)
+    val hash = "$archiveFile${getExtractOptionsShortString(options)}".sha256String().take(6)
     val directoryName = "${archiveFile.fileName}.${hash}.d"
     val targetDirectory = cachePath.resolve(directoryName)
     val flagFile = cachePath.resolve("${directoryName}.flag")

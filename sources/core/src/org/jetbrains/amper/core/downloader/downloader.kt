@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.core.downloader
 
-import com.google.common.hash.Hashing
 import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -28,10 +27,10 @@ import kotlinx.coroutines.launch
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
 import org.jetbrains.amper.core.AmperUserCacheRoot
+import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.slf4j.LoggerFactory
-import java.math.BigInteger
 import java.net.URI
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
@@ -208,12 +207,9 @@ object Downloader {
 
     private fun getTargetFile(cacheRoot: AmperUserCacheRoot, uriString: String): Path {
         val lastNameFromUri = uriString.substring(uriString.lastIndexOf('/') + 1)
-        val hashString = hashString("${uriString}V${DOWNLOAD_CODE_VERSION}").substring(0, 10)
+        val hashString = "${uriString}V${DOWNLOAD_CODE_VERSION}".sha256String().take(10)
         return cacheRoot.downloadCache.resolve("${hashString}-${lastNameFromUri}")
     }
-
-    internal fun hashString(s: String): String =
-        BigInteger(1, Hashing.sha256().hashString(s, StandardCharsets.UTF_8).asBytes()).toString(36)
 
     private val fileLocks = StripedMutex(stripeCount = 256)
 

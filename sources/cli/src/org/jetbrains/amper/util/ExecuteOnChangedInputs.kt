@@ -6,7 +6,6 @@
 
 package org.jetbrains.amper.util
 
-import com.google.common.hash.Hashing
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.KSerializer
@@ -23,6 +22,7 @@ import org.jetbrains.amper.concurrency.withReentrantLock
 import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.extract.readEntireFileToByteArray
 import org.jetbrains.amper.core.extract.writeFully
+import org.jetbrains.amper.core.hashing.sha256String
 import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.diagnostics.setListAttribute
@@ -89,10 +89,11 @@ class ExecuteOnChangedInputs(
 
         stateRoot.createDirectories()
 
+        val sanitizedId = id.replace(Regex("[^a-zA-Z0-9]"), "_")
         // hash includes stateFileFormatVersion to automatically use a different file if the file format was changed
-        val stateFile = stateRoot.resolve(
-            id.replace(Regex("[^a-zA-Z0-9]"), "_") +
-                    "-" + Hashing.sha256().hashString("$id\nstate format version: $stateFileFormatVersion", Charsets.UTF_8).toString().take(10))
+        val hash = "$id\nstate format version: $stateFileFormatVersion".sha256String().take(10)
+        val stateFile = stateRoot.resolve("$sanitizedId-$hash")
+
         // Prevent parallel execution of this 'id' from this or other processes,
         // tracked by a lock on state file
         withLock(id, stateFile) { stateFileChannel ->

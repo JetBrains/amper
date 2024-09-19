@@ -203,8 +203,8 @@ class AmperAndroidExampleProjectsTest : AmperIntegrationTestBase() {
         val chunk = res.chunks[0] as ResourceTableChunk
         val blamer = ArscBlamer(chunk)
         blamer.blame()
-        val a: BinaryResourceIdentifier = BinaryResourceIdentifier.create(themeReference)
-        assertTrue(blamer.resourceEntries.entries().any { it.value.parent().containsResource(a) })
+        val a = BinaryResourceIdentifier.create(themeReference)
+        assertTrue(blamer.typeChunks.any { it.containsResource(a) })
     }
 
     private fun getThemeReferenceFromAndroidManifest(extractedApkPath: Path): Int {

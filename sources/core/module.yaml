@@ -19,7 +19,5 @@ dependencies:
   - $libs.opentelemetry.sdk
   - $libs.opentelemetry.sdkTrace
   - $libs.opentelemetry.kotlin: exported
-  # TODO Used solely for [Hashing] usage, need to remove somehow.
-  - com.google.guava:guava:32.1.3-jre
   - net.java.dev.jna:jna:5.13.0
   - net.java.dev.jna:jna-platform:5.13.0

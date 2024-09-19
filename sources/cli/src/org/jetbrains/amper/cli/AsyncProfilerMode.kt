@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.cli
 
-import com.google.common.hash.Hashing
 import one.profiler.AsyncProfiler
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.core.system.Arch
 import org.jetbrains.amper.core.system.OsFamily
+import org.jetbrains.amper.core.hashing.sha256String
 import org.slf4j.LoggerFactory
 import kotlin.io.path.createDirectories
 import kotlin.io.path.fileSize
@@ -30,7 +30,7 @@ object AsyncProfilerMode {
         val resourceStream = javaClass.classLoader.getResourceAsStream(resourceName)
             ?: error("Resource '$resourceName' is not found in Amper classpath")
         val libBytes = resourceStream.use { stream -> stream.readAllBytes() }
-        val libSha256 = Hashing.sha256().hashBytes(libBytes).toString()
+        val libSha256 = libBytes.sha256String()
 
         val libFile = buildOutputRoot.path.resolve("libasyncProfiler").resolve(libSha256).resolve(name)
         // do not overwrite file unless absolutely necessary
