@@ -138,6 +138,6 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
 
     companion object {
         private const val JAEGER_HTTP_PORT = 16686
-        private const val VERSION = "1.56.0"
+        private const val VERSION = "1.61.0"
     }
 }
