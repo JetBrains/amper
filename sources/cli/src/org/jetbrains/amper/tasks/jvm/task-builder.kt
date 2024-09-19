@@ -13,6 +13,7 @@ import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
+import org.jetbrains.amper.tasks.forModuleDependency
 
 fun ProjectTasksBuilder.setupJvmTasks() {
     allModules()
@@ -33,7 +34,17 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     executeOnChangedInputs = executeOnChangedInputs,
                     tempRoot = context.projectTempRoot,
                 ),
-                CommonTaskType.Dependencies.getTaskName(module, platform, isTest)
+                dependsOn = buildList {
+                    add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
+                    if (isTest) {
+                        // test compilation depends on main classes
+                        add(CommonTaskType.Compile.getTaskName(module, platform, isTest = false))
+                    }
+
+                    module.forModuleDependency(isTest, platform, ResolutionScope.COMPILE, context.userCacheRoot) {
+                        add(CommonTaskType.Compile.getTaskName(it, platform, isTest = false))
+                    }
+                }
             )
 
             if (!isTest) {
@@ -65,6 +76,10 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     // we always want the production jar (for both test and main classpath)
                     add(CommonTaskType.Jar.getTaskName(module, platform, isTest = false))
                     add(CommonTaskType.Dependencies.getTaskName(module, platform, isTest))
+
+                    module.forModuleDependency(isTest, platform, ResolutionScope.RUNTIME, context.userCacheRoot) {
+                        add(CommonTaskType.Jar.getTaskName(it, platform, isTest = false))
+                    }
                 }
             )
 
@@ -76,26 +91,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     }
                 }
             }
-        }
-
-    allModules()
-        .alsoPlatforms(Platform.JVM)
-        .alsoTests()
-        .selectModuleDependencies(ResolutionScope.COMPILE) {
-            tasks.registerDependency(
-                CommonTaskType.Compile.getTaskName(module, platform, isTest),
-                CommonTaskType.Compile.getTaskName(dependsOn, platform, false)
-            )
-        }
-
-    allModules()
-        .alsoPlatforms(Platform.JVM)
-        .alsoTests()
-        .selectModuleDependencies(ResolutionScope.RUNTIME) {
-            tasks.registerDependency(
-                CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest),
-                CommonTaskType.Jar.getTaskName(dependsOn, platform, false)
-            )
         }
 
     allModules()
@@ -176,11 +171,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                     CommonTaskType.Compile.getTaskName(module, platform, true),
                     CommonTaskType.RuntimeClasspath.getTaskName(module, platform, true),
                 )
-            )
-
-            tasks.registerDependency(
-                taskName = CommonTaskType.Compile.getTaskName(module, platform, true),
-                dependsOn = CommonTaskType.Compile.getTaskName(module, platform, false),
             )
         }
 }
