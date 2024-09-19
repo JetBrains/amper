@@ -141,8 +141,7 @@ fun ProjectTasksBuilder.setupJvmTasks() {
 
                 // Publish task should depend on publishing of modules which this module depends on
                 // TODO It could be optional in the future by, e.g., introducing an option to `publish` command
-                // TODO Why !isTest when there should be no iteration over tests?
-                val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !isTest }
+                val thisModuleFragments = module.fragments.filter { it.platforms.contains(platform) && !it.isTest }
                 val thisModuleDependencies =
                     thisModuleFragments.flatMap { it.externalDependencies }.filterIsInstance<PotatoModuleDependency>()
                 for (moduleDependency in thisModuleDependencies) {
