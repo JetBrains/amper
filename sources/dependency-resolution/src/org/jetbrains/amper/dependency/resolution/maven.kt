@@ -79,23 +79,24 @@ class MavenDependencyNode internal constructor(
     val version: String = dependency.version
 
     override val context: Context = templateContext.copyWithNewNodeCache(parentNodes)
-    override val key: Key<*> = Key<MavenDependency>("$group:$module")
-    override val children: List<DependencyNode> by PropertyWithDependency(
-        value = listOf<MavenDependencyNode>(),
-        dependency = listOf<DependencyNode>(),
-        valueProvider = { thisRef ->
-            thisRef.dependency.children.mapNotNull {
-                thisRef.context
+    override val key: Key<MavenDependency> = Key<MavenDependency>("$group:$module")
+    override val children: List<DependencyNode> by PropertyWithDependencyGeneric(
+        dependencyProviders = listOf(
+            { thisRef: MavenDependencyNode -> thisRef.dependency.children },
+            { thisRef: MavenDependencyNode -> thisRef.dependency.dependencyConstraints }
+        ),
+        valueProvider = { dependencies ->
+            val children = dependencies[0] as List<MavenDependency>
+            val dependencyConstraints = dependencies[1] as List<MavenDependencyConstraint>
+            children.mapNotNull {
+                context
                     .getOrCreateNode(it, this)
                     // skip children that form cyclic dependencies
                     .takeIf { !it.isDescendantOf(it) }
-            } + thisRef.dependency.dependencyConstraints.map {
-                thisRef.context.getOrCreateConstraintNode(it, this)
+            } + dependencyConstraints.map {
+                context.getOrCreateConstraintNode(it, this)
             }
         },
-        dependencyProvider = { thisRef ->
-            thisRef.dependency.children
-        }
     )
 
     override val messages: List<Message>
@@ -184,67 +185,53 @@ class MavenDependencyConstraintNode internal constructor(
     override suspend fun downloadDependencies(downloadSources: Boolean) { }
 
     override fun toString(): String = if (dependencyConstraint.version == version) {
-        "constraint:$group:$module:$version"
+        "$group:$module:${version.resolve()}"
     } else {
-        "constraint:$group:$module:$version -> ${dependencyConstraint.version}"
+        "$group:$module:${version.asString()} -> ${dependencyConstraint.version.asString()}"
     }
+
+    private fun Version.asString(): String =
+        strictly?.let { "{strictly $strictly} -> $strictly" }
+            ?: resolve()
+            ?: "null"
 }
+
+private typealias DependencyProvider<T> = (T) -> Any?
 
 /**
  * A lazy property that's recalculated if its dependency changes.
  */
-class PropertyWithDependency<in T, out V, D>(
-    @Volatile private var value: V,
-    @Volatile private var dependency: D,
-    val valueProvider: (T) -> V,
-    val dependencyProvider: (T) -> D
+private class PropertyWithDependencyGeneric<T, out V: Any>(
+    val dependencyProviders: List<DependencyProvider<T>>,
+    val valueProvider: (List<Any?>) -> V,
 ) : ReadOnlyProperty<T, V> {
-    override fun getValue(thisRef: T, property: KProperty<*>): V {
-        val newDependency = dependencyProvider(thisRef)
-        if (dependency != newDependency) {
-            synchronized(this) {
-                if (dependency != newDependency) {
-                    dependency = newDependency
-                    value = valueProvider(thisRef)
-                }
-            }
-        }
-        return value
-    }
-}
 
-/**
- * A lazy property that's recalculated if its dependency changes.
- */
-class PropertyWithDependency3<in T, out V, D1, D2, D3>(
-    @Volatile private var value: V,
-    val valueProvider: (D1, D2, D3) -> V,
-    private val dependencyProvider1: (T) -> D1,
-    private val dependencyProvider2: (T) -> D2,
-    private val dependencyProvider3: (T) -> D3,
-    @Volatile private var dependency1: D1,
-    @Volatile private var dependency2: D2,
-    @Volatile private var dependency3: D3,
-) : ReadOnlyProperty<T, V> {
+    @Volatile private lateinit var dependencies: List<Any?>
+    @Volatile private lateinit var value: V
+
     override fun getValue(thisRef: T, property: KProperty<*>): V {
-        val newDependency1 = dependencyProvider1(thisRef)
-        val newDependency2 = dependencyProvider2(thisRef)
-        val newDependency3 = dependencyProvider3(thisRef)
-        if (shouldRecalculate(newDependency1, newDependency2, newDependency3)) {
+        val newDependencies = dependencyProviders.map { it.invoke(thisRef) }
+        if (shouldRecalculate(newDependencies)) {
             synchronized(this) {
-                if (shouldRecalculate(newDependency1, newDependency2, newDependency3)) {
-                    dependency1 = newDependency1
-                    dependency2 = newDependency2
-                    dependency3 = newDependency3
-                    value = valueProvider(newDependency1, newDependency2, newDependency3)
+                if (shouldRecalculate(newDependencies)) {
+                    dependencies = newDependencies
+                    value = valueProvider(dependencies)
                 }
             }
         }
         return value
     }
 
-    private fun shouldRecalculate(newDependency1: D1, newDependency2: D2, newDependency3: D3) =
-        dependency1 != newDependency1 || dependency2 != newDependency2 || dependency3 != newDependency3
+    private fun shouldRecalculate(newDependencies: List<Any?>): Boolean =
+        !this::value.isInitialized || !this::dependencies.isInitialized || newDependencies.anyIndexed { index, dep -> dep != dependencies[index] }
+
+    private inline fun <T> Iterable<T>.anyIndexed(action: (index: Int, T) -> Boolean): Boolean {
+        var index = 0
+        for (item in this) {
+            if (action(index++, item)) return true
+        }
+        return false
+    }
 }
 
 fun Context.createOrReuseDependency(
@@ -296,7 +283,7 @@ class MavenDependency internal constructor(
     @Volatile
 
     internal var sourceSetsFiles: List<DependencyFile> = listOf()
-        internal set
+        private set
 
     @Volatile
     var packaging: String? = null
@@ -327,15 +314,16 @@ class MavenDependency internal constructor(
     private val _filesWithoutSources: List<DependencyFile> by filesProvider(withSources = false)
 
     private fun filesProvider(withSources: Boolean) =
-        PropertyWithDependency3(
-            value = listOf(),
-            dependency1 = variants,
-            dependencyProvider1 = { thisRef: MavenDependency -> thisRef.variants },
-            dependency2 = packaging,
-            dependencyProvider2 = { thisRef: MavenDependency -> thisRef.packaging },
-            dependency3 = sourceSetsFiles,
-            dependencyProvider3 = { thisRef: MavenDependency -> thisRef.sourceSetsFiles },
-            valueProvider = { variants, packaging, sourceSetsFiles ->
+        PropertyWithDependencyGeneric(
+            dependencyProviders = listOf(
+                { thisRef: MavenDependency -> thisRef.variants },
+                { thisRef: MavenDependency -> thisRef.packaging },
+                { thisRef: MavenDependency -> thisRef.sourceSetsFiles }
+            ),
+            valueProvider = { dependencies ->
+                val variants = dependencies[0] as List<Variant>
+                val packaging = dependencies[1] as String?
+                val sourceSetsFiles = dependencies[2] as List<DependencyFile>
                 buildList {
                     variants
                         .let { if (withSources) it else it.withoutDocumentationAndMetadata }
@@ -354,7 +342,7 @@ class MavenDependency internal constructor(
                     }
                     sourceSetsFiles.let { addAll(it) }
                 }
-            }
+            },
         )
 
     /**
@@ -495,7 +483,7 @@ class MavenDependency internal constructor(
                 .withoutDocumentationAndMetadata
                 .let { variants ->
                     variants.flatMap {
-                        it.dependencies() + listOfNotNull(it.`available-at`?.asDependency())
+                        it.dependencies(context, moduleMetadata, level) + listOfNotNull(it.`available-at`?.asDependency())
                     }.mapNotNull {
                         it.toMavenDependency(context, moduleMetadata)
                     }.let {
@@ -512,7 +500,7 @@ class MavenDependency internal constructor(
                 }
         } else {
             // Multiplatform case
-            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata)
+            val processedAsSpecialCase = processSpecialKmpLibraries(context, moduleMetadata, level)
             if (processedAsSpecialCase) {
                 return
             }
@@ -536,13 +524,13 @@ class MavenDependency internal constructor(
      *
      * @return true, in case Kmp library that needs special treatment was detected and processed, false - otherwise
      */
-    private fun processSpecialKmpLibraries(context: Context, moduleMetadata: Module): Boolean {
+    private suspend fun processSpecialKmpLibraries(context: Context, moduleMetadata: Module, level: ResolutionLevel): Boolean {
         if (isKotlinTestAnnotationsCommon()) {
             moduleMetadata
                 .variants
                 .let {
                     it.flatMap {
-                        it.dependencies()
+                        it.dependencies(context, moduleMetadata, level)
                     }.mapNotNull {
                         it.toMavenDependency(context, moduleMetadata)
                     }.let {
@@ -580,19 +568,51 @@ class MavenDependency internal constructor(
         }
     }
 
-    private fun Variant.dependencies(): List<Dependency> =
-        dependencies.map { dep ->
-            if (dep.version != null) {
-                dep
+    private suspend fun Variant.bomDependencyConstraints(context: Context, module: Module, level: ResolutionLevel): List<MavenDependencyConstraint> =
+        dependencies.mapNotNull {
+            if (!it.isBom()) {
+                null
             } else {
-                val versionFromConstraint = dependencyConstraints.firstOrNull {
-                    dep.module == it.module && dep.group == it.group && it.version != null
-                }?.version
-                if (versionFromConstraint != null) {
-                    dep.copy(version = versionFromConstraint)
-                } else {
-                    dep
-                }
+                withResolvedVersion(it)
+                    .takeIf { it.version != null  }
+                    ?.toMavenDependency(context, module)
+                    ?.let {
+                        it.resolveChildren(context, level)
+                        it.dependencyConstraints
+                    }
+            }
+        }.flatten()
+
+    private suspend fun Variant.dependencies(context: Context, module: Module, level: ResolutionLevel): List<Dependency> =
+        dependencies.map {
+            withResolvedVersion(it) { bomDependencyConstraints(context, module, level) }
+        }
+
+    /**
+     * Resolve a dependency version.
+     *
+     * Usually it is defined right on a dependency declaration, and in this case, we just return the dependency as is.
+     * If it is not defined on a dependency, then we try to resolve it via dependency constraints
+     * declared for current node metadata.
+     * If a version is still not resolved (neither directly nor via constraints),
+     * then BOM dependencies are resolved, and the version is taken from them (if any).
+     *
+     * BOM dependencies are lazily resolved at this stage if a version can't be resolved via current node metadata only.
+     */
+    private suspend fun Variant.withResolvedVersion(dep: Dependency, bomDependencyConstraints: suspend () -> List<MavenDependencyConstraint> = { emptyList() }): Dependency =
+        if (dep.version != null) {
+            dep
+        } else {
+            val versionFromConstraint = dependencyConstraints
+                .firstOrNull { dep.module == it.module && dep.group == it.group && it.version != null }
+                ?.version
+                ?: bomDependencyConstraints()
+                    .firstOrNull { dep.module == it.module && dep.group == it.group }
+                    ?.version
+            if (versionFromConstraint != null) {
+                dep.copy(version = versionFromConstraint)
+            } else {
+                dep
             }
         }
 
@@ -737,7 +757,7 @@ class MavenDependency internal constructor(
                 } else {
                     val dependencyGroup = parts[0]
                     val dependencyModule = parts[1]
-                    kotlinMetadataVariant.dependencies()
+                    kotlinMetadataVariant.dependencies(context, moduleMetadata, level)
                         .firstOrNull { it.group == dependencyGroup && it.module == dependencyModule }
                         ?.toMavenDependency(context) { versionErrorMessage ->
                             "Kotlin library file ${group}:${module}:${version} depends on $rawDep," +
@@ -1003,7 +1023,15 @@ class MavenDependency internal constructor(
             )
             return
         }
-        packaging = project.packaging ?: "jar"
+
+        (project.dependencyManagement?.dependencies?.dependencies ?: listOf()).filter {
+            it.version != null && it.optional != true
+        }.map {
+            context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version!!))
+        }.let {
+            dependencyConstraints = it
+        }
+
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
         }.filter {
@@ -1012,10 +1040,10 @@ class MavenDependency internal constructor(
             context.createOrReuseDependency(it.groupId, it.artifactId, it.version!!)
         }.let {
             children = it
-            state = level.state
         }
 
-
+        packaging = project.packaging ?: "jar"
+        state = level.state
     }
 
     /**
@@ -1126,6 +1154,8 @@ class MavenDependency internal constructor(
 }
 
 internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
+
+private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
 

@@ -14,6 +14,7 @@ import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.name
 import kotlin.io.path.readLines
@@ -40,6 +41,7 @@ class AmperProjectStructureTest {
                     dir.name == "build" -> FileVisitResult.SKIP_SUBTREE
                     // do not reference wrappers
                     dir == gradleTestProjects -> FileVisitResult.SKIP_SUBTREE
+                    dir.name == "amper-dr-test-bom-usages" -> FileVisitResult.SKIP_SUBTREE
                     else -> FileVisitResult.CONTINUE
                 }
             }

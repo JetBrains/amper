@@ -315,7 +315,8 @@ class BuildGraphTest: BaseDRTest() {
                 |               +--- androidx.collection:collection:1.4.0
                 |               |    \--- androidx.collection:collection-jvm:1.4.0
                 |               |         +--- androidx.annotation:annotation:1.7.0 (*)
-                |               |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                |               |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                |               |         \--- androidx.collection:collection-ktx:1.4.0 (c)
                 |               +--- androidx.compose.animation:animation:1.6.7
                 |               |    \--- androidx.compose.animation:animation-android:1.6.7
                 |               |         +--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
@@ -367,7 +368,8 @@ class BuildGraphTest: BaseDRTest() {
                 |               |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1
                 |               |         |         |         |    |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
-                |               |         |         |         |    |    |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    |    |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    |    |    |    +--- androidx.profileinstaller:profileinstaller:1.3.0
                 |               |         |         |         |    |    |    |    |    +--- androidx.annotation:annotation:1.2.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    |    |    |    +--- androidx.concurrent:concurrent-futures:1.1.0 (*)
@@ -376,15 +378,18 @@ class BuildGraphTest: BaseDRTest() {
                 |               |         |         |         |    |    |    |    |    |    \--- androidx.tracing:tracing:1.0.0
                 |               |         |         |         |    |    |    |    |    |         \--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    |    |    |    \--- com.google.guava:listenablefuture:1.0
-                |               |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    |    |    +--- androidx.versionedparcelable:versionedparcelable:1.1.1
                 |               |         |         |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    |    |    \--- androidx.collection:collection:1.0.0 -> 1.4.0 (*)
-                |               |         |         |         |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                |               |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 (*)
+                |               |         |         |         |    |    |    \--- androidx.core:core-ktx:1.12.0 (c)
                 |               |         |         |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 (*)
                 |               |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1
                 |               |         |         |         |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
-                |               |         |         |         |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1
                 |               |         |         |         |    |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    |    +--- androidx.core:core-ktx:1.2.0 -> 1.12.0
@@ -395,7 +400,8 @@ class BuildGraphTest: BaseDRTest() {
                 |               |         |         |         |    |    |    |    +--- androidx.arch.core:core-common:2.1.0 -> 2.2.0 (*)
                 |               |         |         |         |    |    |    |    +--- androidx.arch.core:core-runtime:2.1.0 -> 2.2.0 (*)
                 |               |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1 (*)
-                |               |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
+                |               |         |         |         |    |    |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
                 |               |         |         |         |    |    |    +--- androidx.savedstate:savedstate:1.2.1
                 |               |         |         |         |    |    |    |    +--- androidx.annotation:annotation:1.1.0 -> 1.7.0 (*)
@@ -403,7 +409,8 @@ class BuildGraphTest: BaseDRTest() {
                 |               |         |         |         |    |    |    |    +--- androidx.lifecycle:lifecycle-common:2.6.1 (*)
                 |               |         |         |         |    |    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
                 |               |         |         |         |    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
-                |               |         |         |         |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    |    +--- androidx.profileinstaller:profileinstaller:1.3.0 (*)
                 |               |         |         |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
                 |               |         |         |         |    |    +--- androidx.tracing:tracing:1.0.0 (*)
@@ -413,11 +420,13 @@ class BuildGraphTest: BaseDRTest() {
                 |               |         |         |         |    |    +--- androidx.annotation:annotation:1.0.0 -> 1.7.0 (*)
                 |               |         |         |         |    |    +--- androidx.lifecycle:lifecycle-runtime:2.6.1 (*)
                 |               |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
-                |               |         |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    +--- androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1
                 |               |         |         |         |    |    +--- androidx.lifecycle:lifecycle-viewmodel:2.6.1 (*)
                 |               |         |         |         |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
-                |               |         |         |         |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4 -> 1.7.1 (*)
+                |               |         |         |         |    |    \--- androidx.lifecycle:lifecycle-process:2.6.1 (c)
                 |               |         |         |         |    +--- androidx.savedstate:savedstate-ktx:1.2.1
                 |               |         |         |         |    |    +--- androidx.savedstate:savedstate:1.2.1 (*)
                 |               |         |         |         |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.8.22 (*)
@@ -878,6 +887,131 @@ class BuildGraphTest: BaseDRTest() {
     }
 
     @Test
+    fun `io_ktor ktor-bom 2_3_9`(testInfo: TestInfo) {
+        val root = doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/kpm/public",
+            expected = """root
+                |\--- io.ktor:ktor-bom:2.3.9
+            """.trimMargin()
+        )
+
+        val constraintsNumber = root
+            .distinctBfsSequence()
+            .filterIsInstance<MavenDependencyConstraintNode>()
+            .count()
+
+        assertEquals(386, constraintsNumber, "Unexpected list of constraints, it should contain 386 items, but contains $constraintsNumber")
+    }
+
+    /**
+     * org.jetbrains.amper:amper-dr-test-bom-usages:1.0 is published from the test project
+     * testData/amper-dr-test-bom-usages
+     */
+    @Test
+    fun `org_jetbrains_amper amper-dr-test-bom-usages 1_0`(testInfo: TestInfo) {
+        doTest(
+            testInfo,
+            scope = ResolutionScope.RUNTIME,
+            repositories = REDIRECTOR_MAVEN2 + "https://packages.jetbrains.team/maven/p/amper/amper",
+            expected = """root
+                |\--- org.jetbrains.amper:amper-dr-test-bom-usages:1.0
+                |     +--- io.ktor:ktor-bom:2.3.9
+                |     |    \--- io.ktor:ktor-client-core-jvm:2.3.9 (c)
+                |     +--- io.ktor:ktor-io-jvm:2.3.9
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
+                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20
+                |     |    |         +--- org.jetbrains:annotations:13.0 -> 23.0.0
+                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20 (c)
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
+                |     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.22 -> 2.0.20 (*)
+                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1
+                |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1
+                |     |    |    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1
+                |     |    |    |         +--- org.jetbrains:annotations:23.0.0
+                |     |    |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                |     |    |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20 -> 2.0.20
+                |     |    |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                |     |    |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                |     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                |     |    +--- org.slf4j:slf4j-api:1.7.36
+                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     +--- io.ktor:ktor-client-core-jvm:2.3.8 -> 2.3.9
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    +--- org.slf4j:slf4j-api:1.7.36
+                |     |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    +--- io.ktor:ktor-http:2.3.9
+                |     |    |    \--- io.ktor:ktor-http-jvm:2.3.9
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         +--- io.ktor:ktor-utils:2.3.9
+                |     |    |         |    \--- io.ktor:ktor-utils-jvm:2.3.9
+                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         |         +--- io.ktor:ktor-io:2.3.9
+                |     |    |         |         |    \--- io.ktor:ktor-io-jvm:2.3.9 (*)
+                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    +--- io.ktor:ktor-events:2.3.9
+                |     |    |    \--- io.ktor:ktor-events-jvm:2.3.9
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
+                |     |    |         +--- io.ktor:ktor-utils:2.3.9 (*)
+                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    +--- io.ktor:ktor-websocket-serialization:2.3.9
+                |     |    |    \--- io.ktor:ktor-websocket-serialization-jvm:2.3.9
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         +--- io.ktor:ktor-http:2.3.9 (*)
+                |     |    |         +--- io.ktor:ktor-serialization:2.3.9
+                |     |    |         |    \--- io.ktor:ktor-serialization-jvm:2.3.9
+                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         |         +--- io.ktor:ktor-http:2.3.9 (*)
+                |     |    |         |         +--- io.ktor:ktor-websockets:2.3.9
+                |     |    |         |         |    \--- io.ktor:ktor-websockets-jvm:2.3.9
+                |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22 (*)
+                |     |    |         |         |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 (*)
+                |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.1 (*)
+                |     |    |         |         |         +--- org.slf4j:slf4j-api:1.7.36
+                |     |    |         |         |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |    |         |         |         +--- io.ktor:ktor-http:2.3.9 (*)
+                |     |    |         |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    |         |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22 -> 2.0.20
+                |     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.1
+                |     |         +--- org.slf4j:slf4j-api:1.7.32 -> 1.7.36
+                |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1 (*)
+                |     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.1
+                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20 -> 1.8.22 (*)
+                |     \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.20 (*)
+            """.trimMargin()
+        )
+    }
+
+    @Test
     fun `junit junit 4_10`(testInfo: TestInfo) {
         doTest(
             testInfo,
@@ -1231,7 +1365,8 @@ class BuildGraphTest: BaseDRTest() {
             assertEquals(
                 """root
             |+--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
-            ||    \--- org.jetbrains:annotations:13.0
+            ||    +--- org.jetbrains:annotations:13.0
+            ||    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
             |+--- org.jetbrains.kotlinx:kotlinx-datetime:0.4.0
             ||    \--- org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0
             ||         +--- org.jetbrains.kotlin:kotlin-stdlib:1.7.0 -> 1.9.20 (*)

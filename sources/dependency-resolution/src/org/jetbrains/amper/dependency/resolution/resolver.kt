@@ -14,10 +14,12 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.amper.concurrency.StripedMutex
 import org.jetbrains.amper.concurrency.withLock
+import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.collections.get
 import kotlin.io.path.exists
 
 /**
@@ -372,12 +374,18 @@ interface DependencyNode {
     /**
      * Prints the graph below the node using a Gradle-like output style.
      */
-    fun prettyPrint(): String = buildString { prettyPrint(this) }
+    fun prettyPrint(): String = buildString {
+        val allMavenDepsKeys = distinctBfsSequence()
+            .filterIsInstance<MavenDependencyNode>()
+            .groupBy{ it.key }
+        prettyPrint(this, allMavenDepsKeys)
+    }
 
     private fun prettyPrint(
         builder: StringBuilder,
+        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>,
         indent: StringBuilder = StringBuilder(),
-        visited: MutableSet<Pair<Key<*>, MavenDependency?>> = mutableSetOf(),
+        visited: MutableSet<Pair<Key<*>, Any?>> = mutableSetOf(),
         addLevel: Boolean = false,
     ) {
         builder.append(indent).append(toString())
@@ -385,9 +393,11 @@ interface DependencyNode {
         // key doesn't include a version on purpose,
         // but different nodes referencing the same MavenDependency result in the same dependencies
         // => add no need to distinguish those while pretty printing
-        val seen = !visited.add(key to (this as? MavenDependencyNode)?.dependency)
-        if (seen && children.isNotEmpty()) {
+        val seen = !visited.add(key to ((this as? MavenDependencyNode)?.dependency ?: (this as? MavenDependencyConstraintNode)?.dependencyConstraint))
+        if (seen && children.any { it !is MavenDependencyConstraintNode }) {
             builder.append(" (*)")
+        } else if (this is MavenDependencyConstraintNode) {
+            builder.append(" (c)")
         }
         builder.append('\n')
         if (seen || children.isEmpty()) {
@@ -404,7 +414,7 @@ interface DependencyNode {
         }
 
         children
-            .filterNot { it is MavenDependencyConstraintNode }
+            .filter { it !is MavenDependencyConstraintNode || it.isConstaintAffectingTheGraph(allMavenDepsKeys) }
             .let { filteredNodes ->
                 filteredNodes.forEachIndexed { i, it ->
                     val addAnotherLevel = i < filteredNodes.size - 1
@@ -413,11 +423,25 @@ interface DependencyNode {
                     } else {
                         indent.append("\\--- ")
                     }
-                    it.prettyPrint(builder, indent, visited, addAnotherLevel)
+                    it.prettyPrint(builder, allMavenDepsKeys, indent, visited, addAnotherLevel)
                     indent.setLength(indent.length - 5)
                 }
             }
     }
+
+    fun MavenDependencyConstraintNode.isConstaintAffectingTheGraph(
+        allMavenDepsKeys: Map<Key<MavenDependency>, List<MavenDependencyNode>>
+    ): Boolean = (
+            // If there is a dependency with the original version equal to the constraint version, then constraint is noop.
+            allMavenDepsKeys[this.key]?.none { dep ->
+                dep.version == dep.dependency.version && dep.version == this.version.resolve()
+            } == true
+                    &&
+                    // Constraint version is the same as the resulted dependency version,
+                    // and the original dependency version is different (⇒ constraint might have affected resolution)
+                    allMavenDepsKeys[this.key]?.any { dep ->
+                        this.version.resolve() == dep.dependency.version && dep.version != dep.dependency.version
+                    } == true)
 
     suspend fun dependencyPaths(nodeBlock: (DependencyNode) -> Unit = {}): List<Path> {
         val files = mutableSetOf<Path>()
