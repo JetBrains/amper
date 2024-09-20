@@ -4,7 +4,7 @@ android-ddms = "25.3.0"
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-forStandalone = "8.5.0"
-android-tools = "31.6.0-alpha05"
+android-tools = "31.6.1"
 apache-commons = "1.24.0"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
