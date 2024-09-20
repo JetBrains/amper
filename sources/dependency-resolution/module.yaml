@@ -13,7 +13,7 @@ apply:
 dependencies:
   - ../concurrency
   - $libs.xmlutil.serialization
-  - org.apache.maven:maven-artifact:3.9.6
+  - $libs.maven.artifact
   - $libs.kotlinx.coroutines.core
   - $libs.ktor.client.cio
   - $libs.ktor.client

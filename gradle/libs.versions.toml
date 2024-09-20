@@ -17,6 +17,8 @@ intellij-xcodemodel = "241.14980"
 kotlin = "2.0.20" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 kotlinx-coroutines = "1.8.0"
 ktor = "2.3.6"
+maven = "3.9.6"
+maven-resolver = "1.9.15"
 mordant = "3.0.0"
 opentelemetry = "1.32.0"
 slf4j = "2.0.16"
@@ -24,8 +26,11 @@ stacktrace-decoroutinator = "2.3.8"
 tinylog = "2.6.2"
 xmlutil-serialization = "0.86.2"
 
-# Naming convention:
-# https://blog.gradle.org/best-practices-naming-version-catalog-entries
+# Naming convention: https://blog.gradle.org/best-practices-naming-version-catalog-entries
+# We follow this convention with a twist: the group part might consist of multiple segments if several groups are
+# related under the same umbrella but use a different version.
+# For example, we use intellij-platform-core and intellij-parsing-core as opposed to intellijPlatform-core and
+# intellijParsing-core, because the intellij umbrella feels natural but they don't share the same version.
 [libraries]
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
@@ -60,6 +65,10 @@ ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+maven-core = { module = "org.apache.maven:maven-core", version.ref = "maven" }
+maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "maven" }
+maven-resolver-connectorBasic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "maven-resolver" }
+maven-resolver-transportHttp = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "maven-resolver" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }

@@ -53,9 +53,9 @@ dependencies:
   - $libs.kotlinx.coroutines.debug
   - $libs.kotlinx.coroutines.slf4j
   - org.jetbrains.teamcity:serviceMessages:2023.11.1
-  - org.apache.maven:maven-core:3.9.6
-  - org.apache.maven.resolver:maven-resolver-connector-basic:1.9.15
-  - org.apache.maven.resolver:maven-resolver-transport-http:1.9.15
+  - $libs.maven.core
+  - $libs.maven.resolver.connectorBasic
+  - $libs.maven.resolver.transportHttp
   - com.sun.xml.bind:jaxb-impl:2.3.2
   - jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
   - io.github.classgraph:classgraph:4.8.172
