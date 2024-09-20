@@ -3,6 +3,7 @@
   <component name="AmperCodeInsightSettings">
     <option name="ignoredModules">
       <list>
+        <option value="migrated-projects\KaMPKit\shared" />
         <option value="sources\amper-backend-test\testData\projects\android\appcompat" />
         <option value="sources\amper-backend-test\testData\projects\android\signed" />
         <option value="sources\amper-backend-test\testData\projects\android\simple" />
