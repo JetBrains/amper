@@ -1,10 +1,10 @@
 [versions]
+android-ddms = "25.3.0"
 # The AGP is used in standalone Amper to delegate Android builds to Gradle. It can be in any version.
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-forStandalone = "8.5.0"
 android-tools = "31.6.0-alpha05"
-android-ddms = "25.3.0"
 apache-commons = "1.24.0"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
@@ -32,15 +32,15 @@ xmlutil-serialization = "0.86.2"
 # For example, we use intellij-platform-core and intellij-parsing-core as opposed to intellijPlatform-core and
 # intellijParsing-core, because the intellij umbrella feels natural but they don't share the same version.
 [libraries]
-android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
-android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
+android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools" }
-android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
 android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref = "android-ddms" }
+android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
+android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
-compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
 gradle-api = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }
 gradle-toolingApi = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-toolingApi" }
 intellij-amper-xcodemodel = { module = "com.jetbrains.intellij.amper:amper-deps-proprietary-xcode-model-squashed", version.ref = "intellij-xcodemodel" }
@@ -59,21 +59,21 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
-maven-core = { module = "org.apache.maven:maven-core", version.ref = "maven" }
 maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "maven" }
+maven-core = { module = "org.apache.maven:maven-core", version.ref = "maven" }
 maven-resolver-connectorBasic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "maven-resolver" }
 maven-resolver-transportHttp = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "maven-resolver" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
-opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
