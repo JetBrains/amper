@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.path
 import org.jetbrains.amper.android.keystore.KeystoreException
 import org.jetbrains.amper.android.keystore.KeystoreHelper
 import org.jetbrains.amper.cli.RootCommand
@@ -25,10 +25,11 @@ class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
     private val propertiesFile by option(
         "--properties-file",
         help = "Path to properties file which is used to populate storeFile, storePassword, keyAlias, keyPassword during the generation"
-    ).file()
+    ).path(canBeDir = false, mustExist = true, mustBeReadable = true)
 
-    private val storeFile by option("--keystore-file", help = "Where to store keystore").file()
-        .default((Path(System.getProperty("user.home")) / ".keystores" / "release.keystore").toFile())
+    private val storeFile by option("--keystore-file", help = "Where to store keystore")
+        .path(canBeDir = false, mustExist = false)
+        .default((Path(System.getProperty("user.home")) / ".keystores" / "release.keystore"))
     private val storePassword by option("--keystore-password", help = "Keystore password").default("")
     private val keyAlias by option("--key-alias", help = "Key alias").default("android")
     private val keyPassword by option("--key-password", help = "Key password").default("")
@@ -40,9 +41,9 @@ class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
         withBackend(commonOptions, commandName, setupEnvironment = true) {
             try {
                 propertiesFile?.let {
-                    KeystoreHelper.createNewKeystore(it.toPath(), dn)
+                    KeystoreHelper.createNewKeystore(it, dn)
                 } ?: run {
-                    KeystoreHelper.createNewKeystore(storeFile.toPath(), storePassword, keyAlias, keyPassword, dn)
+                    KeystoreHelper.createNewKeystore(storeFile, storePassword, keyAlias, keyPassword, dn)
                 }
             } catch (e: KeystoreException) {
                 userReadableError(e.message)
