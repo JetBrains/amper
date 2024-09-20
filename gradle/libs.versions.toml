@@ -3,6 +3,8 @@
 # The AGP used in Gradle-based Amper, on the other hand, will only work in Fleet up to a certain version.
 android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 android-forStandalone = "8.5.0"
+android-tools = "31.6.0-alpha05"
+android-ddms = "25.3.0"
 apache-commons = "1.24.0"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
@@ -18,13 +20,19 @@ ktor = "2.3.6"
 mordant = "3.0.0"
 opentelemetry = "1.32.0"
 slf4j = "2.0.16"
+stacktrace-decoroutinator = "2.3.8"
 tinylog = "2.6.2"
+xmlutil-serialization = "0.86.2"
 
 # Naming convention:
 # https://blog.gradle.org/best-practices-naming-version-catalog-entries
 [libraries]
 android-gradle-plugin-forStandalone = { module = "com.android.tools.build:gradle", version.ref = "android-forStandalone" }
 android-gradle-plugin-forGradleBased = { module = "com.android.tools.build:gradle", version.ref = "android-forGradleBased" }
+android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
+android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools" }
+android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
+android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref = "android-ddms" }
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
@@ -45,6 +53,7 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines" }
 ktor-client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
@@ -57,7 +66,9 @@ opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref
 opentelemetry-sdkTrace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "opentelemetry" }
 opentelemetry-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+stacktrace-decoroutinator = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator" }
 tinylog-api = { module = "org.tinylog:tinylog-api-kotlin", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-jul = { module = "org.tinylog:jul-tinylog", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
+xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil-serialization" }

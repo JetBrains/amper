@@ -38,20 +38,20 @@ dependencies:
   - $libs.ktor.client.encoding
   - $libs.ktor.client.auth
   - $libs.ktor.client
-  # for debugging, serialize a frontend model to json to read and understand
+  # TODO: Jackson is only used for JaegerJsonSpanExporter, let's try to remove it
   - com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0
   - com.fasterxml.jackson.core:jackson-databind:2.16.0
   # for something else
-  - com.android.tools:sdklib:31.6.0-alpha05
-  - com.android.tools:common:31.6.0-alpha05
-  - com.android.tools:sdk-common:31.6.0-alpha05
-  - com.android.tools.ddms:ddmlib:25.3.0
+  - $libs.android.tools.sdklib
+  - $libs.android.tools.common
+  - $libs.android.tools.sdkCommon
+  - $libs.android.tools.ddmlib
   - $libs.clikt
-  - io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2
-  - dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8
+  - $libs.xmlutil.serialization
+  - $libs.stacktrace.decoroutinator
   - $libs.intellij.deps.asyncProfiler
-  - org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.8.0
-  - org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0
+  - $libs.kotlinx.coroutines.debug
+  - $libs.kotlinx.coroutines.slf4j
   - org.jetbrains.teamcity:serviceMessages:2023.11.1
   - org.apache.maven:maven-core:3.9.6
   - org.apache.maven.resolver:maven-resolver-connector-basic:1.9.15
