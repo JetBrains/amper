@@ -44,7 +44,7 @@ val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPass
 
 class KeystoreException(override val message: String) : Exception(message)
 
-fun keystoreGenerationError(message: String): Unit = throw KeystoreException(message)
+fun keystoreGenerationError(message: String): Nothing = throw KeystoreException(message)
 
 object KeystoreHelper {
     fun createNewKeystore(propertiesFile: Path, dn: String) {
@@ -55,29 +55,15 @@ object KeystoreHelper {
         val properties = Properties()
         FileInputStream(propertiesFile.toFile()).use { properties.load(it) }
 
-        val storeFile = properties.storeFile ?: run {
-            errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StoreFile)
-            return
-        }
+        val storeFile = properties.storeFile ?: errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StoreFile)
 
         if (storeFile.isBlank()) {
             keystoreGenerationError("${KeystoreProperty.StoreFile} is blank in $propertiesFile")
         }
 
-        val storePassword = properties.storePassword ?: run {
-            errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StorePassword)
-            return
-        }
-
-        val keyPassword = properties.keyPassword ?: run {
-            errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyPassword)
-            return
-        }
-
-        val keyAlias = properties.keyAlias ?: run {
-            errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyAlias)
-            return
-        }
+        val storePassword = properties.storePassword ?: errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.StorePassword)
+        val keyPassword = properties.keyPassword ?: errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyPassword)
+        val keyAlias = properties.keyAlias ?: errorKeystoreFieldMissing(propertiesFile, KeystoreProperty.KeyAlias)
 
         if (keyAlias.isBlank()) {
             keystoreGenerationError("${KeystoreProperty.KeyAlias} is blank in $propertiesFile")
@@ -98,7 +84,6 @@ object KeystoreHelper {
         logger.info("Distinguished name: $dn")
         if (storeFile.toFile().exists()) {
             keystoreGenerationError("Keystore already exists: $storeFile")
-            return
         }
         val ks = KeyStore.getInstance(KeyStore.getDefaultType())
         ks.load(null, null)
@@ -111,7 +96,7 @@ object KeystoreHelper {
         logger.info("Keystore generated successfully")
     }
 
-    private fun errorKeystoreFieldMissing(propertiesFile: Path, field: KeystoreProperty) =
+    private fun errorKeystoreFieldMissing(propertiesFile: Path, field: KeystoreProperty): Nothing =
         keystoreGenerationError("$propertiesFile does not contain \"${field.key}\"")
 
     private fun generateKeyAndCertificate(dn: String): Pair<PrivateKey, X509Certificate> {
