@@ -254,7 +254,7 @@ private class InitCommand : CliktCommand(name = "init") {
     val template by argument(help = "project template name substring, e.g., 'jvm-cli'").optional()
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun help(context: Context): String = "Initialize Amper project"
+    override fun help(context: Context): String = "Initialize a new Amper project based on a template"
 
     override fun run() {
         val directory = commonOptions.explicitRoot ?: Path(System.getProperty("user.dir"))
@@ -283,7 +283,7 @@ private class CleanCommand : CliktCommand(name = "clean") {
 private class CleanSharedCachesCommand : CliktCommand(name = "clean-shared-caches") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun help(context: Context): String = "Remove shared caches"
+    override fun help(context: Context): String = "Remove the Amper caches that are shared between projects"
 
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
@@ -353,7 +353,7 @@ private class RunCommand : CliktCommand(name = "run") {
 private class TasksCommand : CliktCommand(name = "tasks") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun help(context: Context): String = "Show tasks and their dependencies in the project"
+    override fun help(context: Context): String = "List all tasks in the project and their dependencies"
 
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.showTasks()
@@ -363,7 +363,7 @@ private class TasksCommand : CliktCommand(name = "tasks") {
 private class ModulesCommand : CliktCommand(name = "modules") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun help(context: Context): String = "Show modules in the project"
+    override fun help(context: Context): String = "List all modules in the project"
 
     override fun run() = withBackend(commonOptions, commandName) { backend ->
         backend.showModules()
@@ -445,7 +445,7 @@ private class BuildCommand : CliktCommand(name = "build") {
 private class SettingsCommand: CliktCommand(name = "settings") {
     val commonOptions by requireObject<RootCommand.CommonOptions>()
 
-    override fun help(context: Context): String = "Print the current state of Amper settings"
+    override fun help(context: Context): String = "Print the effective Amper settings of each module"
 
     override fun run() {
         withBackend(commonOptions, commandName) { backend ->
