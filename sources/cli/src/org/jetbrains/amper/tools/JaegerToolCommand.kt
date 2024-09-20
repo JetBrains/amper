@@ -48,13 +48,13 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
     private val version by option("--jaeger-version", help = "The version of Jaeger to download and run")
         .default("1.61.0")
 
-    private val toolArguments by argument(name = "tool arguments").multiple()
+    private val jaegerArguments by argument(name = "jaeger arguments").multiple()
 
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
     override fun help(context: Context): String = "Download and run Jaeger server https://www.jaegertracing.io"
 
-    override fun helpEpilog(context: Context): String = "Use -- to separate tool's arguments from Amper options"
+    override fun helpEpilog(context: Context): String = "Use -- to separate Jaeger's arguments from Amper options"
 
     override fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot
@@ -81,7 +81,7 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
             val root = extractFileToCacheLocation(file, userCacheRoot, ExtractOptions.STRIP_ROOT)
 
             val executable = root.resolve("jaeger-all-in-one${if (os.family == OsFamily.Windows) ".exe" else ""}")
-            val cmd = listOf(executable.pathString) + toolArguments
+            val cmd = listOf(executable.pathString) + jaegerArguments
 
             DeadLockMonitor.disable()
 

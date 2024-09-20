@@ -335,7 +335,7 @@ private class RunCommand : CliktCommand(name = "run") {
 
     override fun help(context: Context): String = "Run your application"
 
-    override fun helpEpilog(context: Context): String = "Use -- to separate application's arguments from Amper options"
+    override fun helpEpilog(context: Context): String = "Use -- to separate the application's arguments from Amper options"
 
     override fun run() {
         val platformToRun = platform?.let { prettyLeafPlatforms.getValue(it) }

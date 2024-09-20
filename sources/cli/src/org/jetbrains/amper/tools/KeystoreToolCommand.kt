@@ -36,8 +36,6 @@ class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
 
     override fun help(context: Context): String = "Generate keystore"
 
-    override fun helpEpilog(context: Context): String = "Use -- to separate tool's arguments from Amper options"
-
     override fun run() {
         withBackend(commonOptions, commandName, setupEnvironment = true) {
             try {
