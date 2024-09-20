@@ -11,21 +11,22 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
-import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 
 data class AmperUserCacheRoot(val path: Path) {
     init {
-        require(path.isDirectory()) {
-            "User cache root is not a directory: $path"
-        }
         require(path.isAbsolute) {
             "User cache root is not an absolute path: $path"
         }
+        path.createDirectories() // fails if it exists but is a file
     }
 
     val downloadCache by lazy { path.resolve("download.cache").createDirectories() }
 
     val extractCache by lazy { path.resolve("extract.cache").createDirectories() }
+
+    // we want the CLI help to look clean
+    override fun toString(): String = path.pathString
 
     companion object {
         fun fromCurrentUser(): AmperUserCacheRoot {
@@ -41,9 +42,7 @@ data class AmperUserCacheRoot(val path: Path) {
                     ?: (userHome / ".cache")
             }
 
-            val localAppDataAmper = localAppData.resolve("Amper").createDirectories()
-
-            return AmperUserCacheRoot(localAppDataAmper)
+            return AmperUserCacheRoot(localAppData.resolve("Amper"))
         }
     }
 }

@@ -17,6 +17,7 @@ import com.github.ajalt.clikt.output.MordantHelpFormatter
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
@@ -42,8 +43,6 @@ import org.jetbrains.amper.core.AmperBuild
 import org.jetbrains.amper.core.AmperUserCacheRoot
 import org.jetbrains.amper.core.get
 import org.jetbrains.amper.core.spanBuilder
-import org.jetbrains.amper.core.system.DefaultSystemInfo
-import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.core.use
 import org.jetbrains.amper.core.useWithScope
 import org.jetbrains.amper.engine.TaskExecutor
@@ -118,15 +117,13 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
 
     private val sharedCachesRoot by option(
         "--shared-caches-root",
-        help = "Custom shared caches root " +
-                // see org.jetbrains.amper.cli.AmperUserCacheRoot.Companion.fromCurrentUser
-                when (DefaultSystemInfo.detect().family) {
-                    OsFamily.Windows -> "(default: %LOCALAPPDATA%/Amper)"
-                    OsFamily.Linux -> "(default: ~/.cache/Amper)"
-                    OsFamily.MacOs -> "(default: ~/Library/Caches/Amper)"
-                    else -> ""
-                })
+        help = "Path to the cache directory shared between all Amper projects",
+    )
         .path(canBeFile = false)
+        .convert { AmperUserCacheRoot(it.toAbsolutePath()) }
+        // It's ok to use a non-lazy default here because most of the time we'll use the default value anyway.
+        // This also allows to have the default value in the help, we avoids duplicating the location
+        .default(AmperUserCacheRoot.fromCurrentUser())
 
     private val asyncProfiler by option(help = "Profile Amper with Async Profiler").flag(default = false)
 
@@ -160,7 +157,7 @@ internal class RootCommand : CliktCommand(name = System.getProperty("amper.wrapp
         val explicitRoot: Path?,
         val consoleLogLevel: Level,
         val asyncProfiler: Boolean,
-        val sharedCachesRoot: Path?,
+        val sharedCachesRoot: AmperUserCacheRoot,
         val buildOutputRoot: Path?,
         val terminal: Terminal,
     )
@@ -216,7 +213,7 @@ internal fun withBackend(
                     it.createDirectories()
                     AmperBuildOutputRoot(it.toAbsolutePath())
                 },
-                userCacheRoot = getUserCacheRoot(commonOptions),
+                userCacheRoot = commonOptions.sharedCachesRoot,
                 currentTopLevelCommand = currentCommand,
                 commonRunSettings = commonRunSettings,
                 taskExecutionMode = taskExecutionMode,
@@ -248,16 +245,6 @@ internal fun withBackend(
             block(backend)
             cancelAndWaitForScope(backgroundScope)
         }
-    }
-}
-
-internal fun getUserCacheRoot(commonOptions: RootCommand.CommonOptions): AmperUserCacheRoot {
-    val customCachesRoot = commonOptions.sharedCachesRoot
-    return if (customCachesRoot != null) {
-        customCachesRoot.createDirectories()
-        AmperUserCacheRoot(customCachesRoot.toAbsolutePath())
-    } else {
-        AmperUserCacheRoot.fromCurrentUser()
     }
 }
 

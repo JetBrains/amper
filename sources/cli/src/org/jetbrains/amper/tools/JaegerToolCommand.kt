@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
 import org.jetbrains.amper.cli.RootCommand
-import org.jetbrains.amper.cli.getUserCacheRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
 import org.jetbrains.amper.core.downloader.extractFileToCacheLocation
@@ -58,7 +57,7 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
     override fun helpEpilog(context: Context): String = "Use -- to separate tool's arguments from Amper options"
 
     override fun run() {
-        val userCacheRoot = getUserCacheRoot(commonOptions)
+        val userCacheRoot = commonOptions.sharedCachesRoot
         val terminal = commonOptions.terminal
 
         val os = DefaultSystemInfo.detect()

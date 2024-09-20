@@ -13,7 +13,6 @@ import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.amper.cli.JdkDownloader
 import org.jetbrains.amper.cli.RootCommand
-import org.jetbrains.amper.cli.getUserCacheRoot
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.system.OsFamily
 import org.jetbrains.amper.intellij.CommandLineUtils
@@ -28,7 +27,7 @@ class JdkToolCommand(private val name: String) : CliktCommand(name = name) {
     override fun helpEpilog(context: Context): String = "Use -- to separate $name's arguments from Amper options"
 
     override fun run() = runBlocking {
-        val jdk = JdkDownloader.getJdk(getUserCacheRoot(commonOptions))
+        val jdk = JdkDownloader.getJdk(commonOptions.sharedCachesRoot)
         val ext = if (OsFamily.current.isWindows) ".exe" else ""
         val toolPath = jdk.javaExecutable.resolveSibling(name + ext)
         if (!toolPath.isExecutable()) {
