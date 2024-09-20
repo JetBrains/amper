@@ -384,7 +384,7 @@ private class TestCommand : CliktCommand(name = "test") {
             userReadableError("Filters are not implemented yet")
         }
 
-        // try to execution as many tests as possible
+        // try to execute as many tests as possible
         withBackend(
             commonOptions,
             commandName,
