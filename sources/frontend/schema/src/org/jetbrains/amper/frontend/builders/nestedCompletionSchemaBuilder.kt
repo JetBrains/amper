@@ -88,7 +88,13 @@ class NestedCompletionSchemaBuilder(
                 currentNode = previousNode
             }
             type.isMap && type.mapValueType.isSchemaNode && modifierAware -> {
-                val parent = previousNode.firstParent() // isolated nodes are bound to top level completion nodes list
+                // first visit the node with the exact name
+                val nestedPlainNode = NestedCompletionNodeImpl(prop.name, isRegExp = false, parent = previousNode)
+                previousNode.children.add(nestedPlainNode)
+                currentNode = nestedPlainNode
+                types.forEach { visitClas(it) }
+                // then create a node for regex matches for platform-specific nodes
+                val parent = previousNode.firstParent() // isolated nodes are bound to the top level completion nodes list
                 val nestedNode = NestedCompletionNodeImpl(modifiersRegExp(prop.name), isRegExp = true, parent = parent, isolated = true)
                 parent.children.add(nestedNode)
                 currentNode = nestedNode
