@@ -7,6 +7,7 @@ package org.jetbrains.amper.tasks.compose
 import org.jetbrains.amper.cli.AmperBuildOutputRoot
 import org.jetbrains.amper.core.extract.cleanDirectory
 import org.jetbrains.amper.engine.Task
+import org.jetbrains.amper.engine.requireSingleDependency
 import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedAccessorsPath
@@ -22,23 +23,21 @@ class GenerateResourceAccessorsTask(
     private val fragment: Fragment,
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
-    private val packagingDir: String,
     private val buildOutputRoot: AmperBuildOutputRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot.path)
             .apply(::cleanDirectory)
 
-        val preparedResourcesDirectory = dependenciesResult
-            .filterIsInstance<PrepareComposeResourcesTask.Result>()
-            .single().outputDir
+        val prepareResult = dependenciesResult
+            .requireSingleDependency<PrepareComposeResourcesTask.Result>()
 
         generateResourceAccessors(
             packageName = packageName,
             qualifier = fragment.name,
             makeAccessorsPublic = makeAccessorsPublic,
-            packagingDir = packagingDir,
-            preparedResourcesDirectory = preparedResourcesDirectory,
+            packagingDir = prepareResult.relativePackagingPath,
+            preparedResourcesDirectory = prepareResult.outputDir,
             outputSourceDirectory = codeDir,
         )
 

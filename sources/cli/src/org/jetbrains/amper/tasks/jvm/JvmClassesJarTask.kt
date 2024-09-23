@@ -54,5 +54,8 @@ class JvmClassesJarTask(
 
     override fun createResult(jarPath: Path): AbstractJarTask.Result = Result(jarPath)
 
-    class Result(jarPath: Path) : AbstractJarTask.Result(jarPath)
+    class Result(jarPath: Path) : AbstractJarTask.Result(jarPath), RuntimeClasspathElementProvider {
+        override val paths: List<Path>
+            get() = listOf(jarPath)
+    }
 }

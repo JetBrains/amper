@@ -357,7 +357,10 @@ class JvmCompileTask(
         val classesOutputRoot: Path,
         val module: PotatoModule,
         val isTest: Boolean,
-    ) : TaskResult
+    ) : TaskResult, RuntimeClasspathElementProvider {
+        override val paths: List<Path>
+            get() = listOf(classesOutputRoot)
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 }

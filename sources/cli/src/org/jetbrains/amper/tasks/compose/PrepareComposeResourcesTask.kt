@@ -20,6 +20,7 @@ class PrepareComposeResourcesTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
     private val taskOutputRoot: TaskOutputRoot,
+    private val packagingDir: String,
     private val originalResourcesDir: Path,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -31,10 +32,14 @@ class PrepareComposeResourcesTask(
             originalResourcesDir = originalResourcesDir,
             outputDirectory = outputDir,
         )
-        return Result(outputDir)
+        return Result(
+            outputDir = outputDir,
+            relativePackagingPath = packagingDir,
+        )
     }
 
     class Result(
         val outputDir: Path,
+        val relativePackagingPath: String,
     ) : TaskResult
 }

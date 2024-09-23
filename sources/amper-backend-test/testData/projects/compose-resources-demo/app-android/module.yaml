@@ -1,0 +1,15 @@
+product: android/app
+
+settings:
+  compose:
+    enabled: true
+    version: 1.7.0-beta02
+    resources:
+      enabled: true
+  android:
+    namespace: demo.app
+
+dependencies:
+  - ../shared
+  - androidx.appcompat:appcompat:1.6.1
+  - androidx.activity:activity-compose:1.7.2

@@ -9,10 +9,13 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModuleDependency
 import org.jetbrains.amper.frontend.doCapitalize
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.tasks.CommonFragmentTaskType
 import org.jetbrains.amper.tasks.CommonTaskType
+import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.PublishTask
+import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
 import org.jetbrains.amper.tasks.forModuleDependency
 
 fun ProjectTasksBuilder.setupJvmTasks() {
@@ -47,21 +50,6 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 }
             )
 
-            if (!isTest) {
-                // We do not pack test classes into a jar.
-                val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
-                tasks.registerTask(
-                    JvmClassesJarTask(
-                        taskName = jarTaskName,
-                        module = module,
-                        isTest = false,
-                        taskOutputRoot = context.getTaskOutputPath(jarTaskName),
-                        executeOnChangedInputs = executeOnChangedInputs,
-                    ),
-                    CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
-                )
-            }
-
             val runtimeClasspathTaskName = CommonTaskType.RuntimeClasspath.getTaskName(module, platform, isTest)
             tasks.registerTask(
                 task = JvmRuntimeClasspathTask(
@@ -83,6 +71,30 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 }
             )
 
+            if (!isTest) {
+                // We do not pack test classes into a jar.
+                val jarTaskName = CommonTaskType.Jar.getTaskName(module, platform, isTest = false)
+                tasks.registerTask(
+                    JvmClassesJarTask(
+                        taskName = jarTaskName,
+                        module = module,
+                        isTest = false,
+                        taskOutputRoot = context.getTaskOutputPath(jarTaskName),
+                        executeOnChangedInputs = executeOnChangedInputs,
+                    ),
+                    CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+                )
+
+                if (isComposeResourcesEnabledFor(module)) {
+                    fragments.forEach { fragment ->
+                        tasks.registerDependency(
+                            taskName = CommonTaskType.Compile.getTaskName(module, platform, isTest = false),
+                            dependsOn = JvmFragmentTaskType.PrepareComposeResources.getTaskName(fragment),
+                        )
+                    }
+                }
+            }
+
             // custom task roots
             module.customTasks.forEach { customTask ->
                 customTask.addToModuleRootsFromCustomTask.forEach { add ->
@@ -92,6 +104,23 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 }
             }
         }
+
+    allModules().alsoPlatforms(Platform.JVM).withEach {
+        if (isComposeResourcesEnabledFor(module)) {
+            module.fragments.filter { Platform.JVM in it.platforms }.forEach { fragment ->
+                val prepareTaskName = CommonFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
+                val prepareForJvm = JvmFragmentTaskType.PrepareComposeResources.getTaskName(fragment)
+                tasks.registerTask(
+                    task = JvmComposeResourcesTask(
+                        taskName = prepareForJvm,
+                        fragment = fragment,
+                        taskOutputRoot = context.getTaskOutputPath(prepareForJvm),
+                    ),
+                    dependsOn = prepareTaskName,
+                )
+            }
+        }
+    }
 
     allModules()
         .alsoPlatforms(Platform.JVM)
@@ -173,4 +202,11 @@ fun ProjectTasksBuilder.setupJvmTasks() {
                 )
             )
         }
+}
+
+private enum class JvmFragmentTaskType(
+    override val prefix: String,
+) : FragmentTaskType {
+    PrepareComposeResources("prepareComposeResourcesForJvm"),
+    ;
 }

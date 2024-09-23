@@ -29,9 +29,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @Execution(ExecutionMode.CONCURRENT)
 class AmperCliTest: AmperCliTestBase() {
@@ -366,10 +364,18 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `compose resources generation and compilation`() = runTestInfinitely {
+    fun `compose resources demo build (android)`() = runTestInfinitely {
         runCli(
-            backendTestProjectName = "compose-resources-jvm-android",
-            "build",
+            backendTestProjectName = "compose-resources-demo",
+            "task", ":app-android:buildAndroidDebug",
+        )
+    }
+
+    @Test
+    fun `compose resources demo build (jvm)`() = runTestInfinitely {
+        runCli(
+            backendTestProjectName = "compose-resources-demo",
+            "build", "--platform=jvm",
         )
     }
 

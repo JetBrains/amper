@@ -9,7 +9,6 @@ import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
-import org.jetbrains.amper.frontend.schema.commonSettings
 import org.jetbrains.amper.tasks.CommonFragmentTaskType
 import org.jetbrains.amper.tasks.CommonGlobalTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
@@ -23,14 +22,11 @@ fun ProjectTasksBuilder.setupComposeTasks() {
 
 private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
     allModules().withEach configureModule@ {
-        val commonComposeSettings = module.origin.commonSettings.compose
-        if (!commonComposeSettings.enabled) {
+        if (!isComposeEnabledFor(module)) {
             return@configureModule
         }
 
-        val rootFragment = checkNotNull(module.rootFragment) { "Root fragment expected" }
-
-        if (!commonComposeSettings.resources.enabled) {
+        if (!isComposeResourcesEnabledFor(module)) {
             return@configureModule
         }
 
@@ -41,10 +37,15 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             }
         }
 
+        val rootFragment = checkNotNull(module.rootFragment) { "Root fragment expected" }
         val config = rootFragment.settings.compose.resources
         val packageName = config.getResourcesPackageName(module)
         val makeAccessorsPublic = config.exposedAccessors
-        val packagingDir = "composeResources/$packageName"
+        val packagingDir = "composeResources/$packageName/"
+
+        // `expect` is generated in `common` only, while `actual` are generated in the refined fragments.
+        //  do not separate `expect`/`actual` if the module only contains a single fragment.
+        val shouldSeparateExpectActual = rootFragment.platforms.size > 1
 
         // Configure "global" tasks that generate common code (into rootFragment).
         CommonGlobalTaskType.ComposeResourcesGenerateResClass.getTaskName(module).let { taskName ->
@@ -60,17 +61,19 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
             )
             addCodegenTaskForRegistering(rootFragment, taskName)
         }
-        CommonGlobalTaskType.ComposeResourcesGenerateExpect.getTaskName(module).let { taskName ->
-            tasks.registerTask(
-                task = GenerateExpectResourceCollectorsTask(
-                    taskName = taskName,
-                    fragment = rootFragment,
-                    packageName = packageName,
-                    makeAccessorsPublic = makeAccessorsPublic,
-                    buildOutputRoot = context.buildOutputRoot,
-                ),
-            )
-            addCodegenTaskForRegistering(rootFragment, taskName)
+        if (shouldSeparateExpectActual) {
+            CommonGlobalTaskType.ComposeResourcesGenerateExpect.getTaskName(module).let { taskName ->
+                tasks.registerTask(
+                    task = GenerateExpectResourceCollectorsTask(
+                        taskName = taskName,
+                        fragment = rootFragment,
+                        packageName = packageName,
+                        makeAccessorsPublic = makeAccessorsPublic,
+                        buildOutputRoot = context.buildOutputRoot,
+                    ),
+                )
+                addCodegenTaskForRegistering(rootFragment, taskName)
+            }
         }
 
         // Configure per-fragment tasks, as resources may reside in arbitrary fragments.
@@ -81,6 +84,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                     taskName = prepareResourcesTaskName,
                     fragment = fragment,
                     originalResourcesDir = fragment.composeResourcesPath,
+                    packagingDir = packagingDir,
                     taskOutputRoot = context.getTaskOutputPath(prepareResourcesTaskName),
                 )
             )
@@ -92,7 +96,6 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         packageName = packageName,
                         fragment = fragment,
                         makeAccessorsPublic = makeAccessorsPublic,
-                        packagingDir = packagingDir,
                         buildOutputRoot = context.buildOutputRoot,
                     ),
                     dependsOn = listOf(
@@ -113,6 +116,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         packageName = packageName,
                         makeAccessorsPublic = makeAccessorsPublic,
                         buildOutputRoot = context.buildOutputRoot,
+                        useActualModifier = shouldSeparateExpectActual,
                     ),
                     // FIXME: Maybe a bug here, if fragmentDependencies are not transitive
                     dependsOn = fragment.fragmentDependencies

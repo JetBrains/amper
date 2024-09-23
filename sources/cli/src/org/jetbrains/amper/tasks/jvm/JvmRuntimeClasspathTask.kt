@@ -32,20 +32,16 @@ class JvmRuntimeClasspathTask(
     //  but for demo it's fine
     //  I suggest to return to this task after our own dependency resolution engine
     private fun buildRuntimeClasspath(dependenciesResult: List<TaskResult>): List<Path> {
-        val jarTasks = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>()
-        val compileTasks = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
-
-        if (jarTasks.isEmpty() && compileTasks.isEmpty()) {
-            error("neither ${JvmClassesJarTask::class.simpleName} nor ${JvmCompileTask::class.simpleName} " +
-                    "results are not found in dependencies")
+        val classpathElements = dependenciesResult.filterIsInstance<RuntimeClasspathElementProvider>()
+        check(classpathElements.isNotEmpty()) {
+            "No ${RuntimeClasspathElementProvider::class.simpleName} results are found in dependencies"
         }
 
         val dependenciesTask = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>().singleOrNull()
             ?: error("${ResolveExternalDependenciesTask::class.simpleName} result is not found in dependencies")
 
-        val addToClasspath = jarTasks.map { it.jarPath } +
-                dependenciesTask.runtimeClasspath +
-                compileTasks.map { it.classesOutputRoot }
+        val addToClasspath = classpathElements.flatMap { it.paths } +
+                dependenciesTask.runtimeClasspath
 
         return addToClasspath.distinct()
     }

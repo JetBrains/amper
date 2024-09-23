@@ -23,22 +23,26 @@ class GenerateActualResourceCollectorsTask(
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,
+    private val useActualModifier: Boolean,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
-        val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
-            .apply(::cleanDirectory)
-
         val resourceAccessorDirs = dependenciesResult
             .filterIsInstance<GenerateResourceAccessorsTask.Result>()
             .flatMap { result -> result.sourceRoots.map { it.path } }
 
-        check(resourceAccessorDirs.isNotEmpty())
+        if (resourceAccessorDirs.isEmpty()) {
+            return Result(emptyList())
+        }
+
+        val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
+            .apply(::cleanDirectory)
 
         generateActualResourceCollectors(
             packageName = packageName,
             makeAccessorsPublic = makeAccessorsPublic,
             accessorDirectories = resourceAccessorDirs,
             outputSourceDirectory = codeDir,
+            useActualModifier = useActualModifier,
         )
 
         return Result(

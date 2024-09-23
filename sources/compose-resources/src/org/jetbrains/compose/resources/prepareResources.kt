@@ -53,7 +53,7 @@ fun prepareResources(
             }
         } else {
             file.copyRecursively(
-                target = outputDirectory.toFile(),
+                target = outputDirectory.toFile().resolve(file.name),
             )
         }
     }

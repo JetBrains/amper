@@ -18,17 +18,19 @@ import org.slf4j.Logger
 import java.nio.file.Path
 
 /**
- * Generates `actual` implementations for resource collectors generated with
- * [generateExpectResourceCollectors].
+ * Generates implementations for resource collectors.
+ * Pairs with the [generateExpectResourceCollectors], if [useActualModifier] is set.
  *
  * This is intended to be generated into every leaf platform-specific source set.
  *
  * Depends on the results of [generateResourceAccessors].
  *
- * All parameter values must be in sync with the [expect generation call][generateExpectResourceCollectors].
+ * All parameter values must be in sync with the [expect generation call][generateExpectResourceCollectors],
+ *  if [useActualModifier] is set.
  *
  * @param packageName kotlin package name to generate the code in.
  * @param makeAccessorsPublic if `true` then the code is public, `internal` otherwise.
+ * @param useActualModifier if `true` then the `actual` modifier is used for generated implementations.
  * @param accessorDirectories the output directory of the [generateResourceAccessors] step.
  * @param outputSourceDirectory the generated source directory; the package directories hierarchy will be created in the
  *  directory if needed.
@@ -37,6 +39,7 @@ import java.nio.file.Path
 fun generateActualResourceCollectors(
     packageName: String,
     makeAccessorsPublic: Boolean,
+    useActualModifier: Boolean,
     accessorDirectories: List<Path>,
     outputSourceDirectory: Path,
     logger: Logger? = null,
@@ -71,7 +74,7 @@ fun generateActualResourceCollectors(
         packageName = packageName,
         isPublic = makeAccessorsPublic,
         fileName = "ActualResourceCollectors",
-        useActualModifier = true,
+        useActualModifier = useActualModifier,
         typeToCollectorFunctions = funNames,
     ).writeTo(outputSourceDirectory)
 }
