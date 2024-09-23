@@ -13,6 +13,7 @@ import kotlin.io.path.Path
 class AndroidSdkDetector(
     private val suggesters: List<Suggester> = buildList {
         add(EnvironmentVariableSuggester(SdkConstants.ANDROID_HOME_ENV))
+        @Suppress("DEPRECATION") // we still want to detect SDKs in the deprecated place
         add(EnvironmentVariableSuggester(SdkConstants.ANDROID_SDK_ROOT_ENV))
         add(DefaultSuggester())
     }
@@ -28,7 +29,7 @@ class AndroidSdkDetector(
     }
 
     class DefaultSuggester : Suggester {
-        override fun suggestSdkPath(): Path? = when (DefaultSystemInfo.detect().family) {
+        override fun suggestSdkPath(): Path = when (DefaultSystemInfo.detect().family) {
             OsFamily.Windows -> Path(System.getenv("LOCALAPPDATA")).resolve("Android/Sdk")
             OsFamily.MacOs -> Path(System.getProperty("user.home")).resolve("Library/Android/sdk")
             else -> Path(System.getProperty("user.home")).resolve("Android/Sdk")
