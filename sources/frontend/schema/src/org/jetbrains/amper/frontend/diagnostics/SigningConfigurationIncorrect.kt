@@ -10,6 +10,7 @@ import org.jetbrains.amper.android.keystore.storeFile
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
+import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
@@ -29,7 +30,7 @@ abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory 
     context(ProblemReporterContext)
     override fun PotatoModule.analyze() {
         this.source.moduleDir?.let { moduleDir ->
-            fragments.filter { !it.isTest }.forEach { fragment ->
+            fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
                 val android = fragment.settings.android
                 val signing = android.signing
                 if (signing.enabled) {
