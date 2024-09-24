@@ -35,6 +35,24 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
     return table
 }
 
+internal fun Set<Context>.isSubcontextOf(otherSet: Set<Context>): Boolean {
+    return otherSet.flatMap { it.leaves }.containsAll(this.flatMap { it.leaves })
+}
+
+internal fun Map<KeyWithContext, Scalar>.getApplicableContexts(): List<Set<Context>> {
+    return keys.map { it.contexts }.distinct()
+}
+
+internal fun Map<KeyWithContext, Scalar>.query(key: String, contexts: Set<Context>): Scalar? {
+    val applicableKeys = keys.filter { it.key == key && contexts.isSubcontextOf(it.contexts) }
+    if (applicableKeys.isEmpty()) return null
+    if (applicableKeys.size == 1) return this[applicableKeys.single()]
+    return applicableKeys.sortedWith { o1, o2 -> o1.contexts.isSubcontextOf(o2.contexts).toInt() }
+        .firstOrNull()?.let { this[it] }
+}
+
+private fun Boolean.toInt() = if (this) 0 else 1
+
 open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
     private val contextStack: Stack<Set<Context>> = Stack()
