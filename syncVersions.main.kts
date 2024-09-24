@@ -44,6 +44,7 @@ val usedVersionsKt = amperRootDir / "sources/core/src/org/jetbrains/amper/core/U
 syncVersions()
 
 fun syncVersions() {
+    println("Making sure user-visible versions are aligned in Amper, docs, and examples...")
     updateVersionsCatalog()
     updateUsedVersionsKt()
     updateDocs()
@@ -106,6 +107,9 @@ fun updateAmperWrappers() {
     val shellWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper")
     val batchWrapperText = fetchContent("$amperMavenRepoUrl/org/jetbrains/amper/cli/$bootstrapAmperVersion/cli-$bootstrapAmperVersion-wrapper.bat")
 
+    (amperRootDir / "amper").replaceFileText { shellWrapperText }
+    (amperRootDir / "amper.bat").replaceFileText { batchWrapperText }
+
     (examplesStandaloneDir.walk() + testDataProjectsDir.walk()).forEach { path ->
         when (path.name) {
             "amper" -> path.replaceFileText { shellWrapperText }
@@ -160,5 +164,5 @@ fun Path.replaceFileText(transform: (text: String) -> String) {
         return
     }
     writeText(newTest)
-    println("Changed file ${relativeTo(amperRootDir)}")
+    println("Updated file ./${relativeTo(amperRootDir)}")
 }
