@@ -19,6 +19,7 @@ import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import kotlin.reflect.full.findAnnotation
 
@@ -26,7 +27,7 @@ object IncorrectSettingsLocation: AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId
         get() = "settings.incorrect.section"
 
-    context(ProblemReporterContext) override fun PotatoModule.analyze() {
+    context(ProblemReporterContext) override fun PotatoModule.analyze(projectContext: AmperProjectContext) {
         val reportedPlaces = mutableSetOf<PsiElement>()
         fragments.forEach { fragment ->
             // relevant setting fragments - those that are defined in the same section

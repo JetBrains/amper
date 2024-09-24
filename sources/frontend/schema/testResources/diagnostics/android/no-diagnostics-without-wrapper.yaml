@@ -1,0 +1,7 @@
+product:
+  type: lib
+  platforms: [jvm, android]
+
+settings:
+  android:
+    signing: enabled

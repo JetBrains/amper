@@ -15,12 +15,13 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
+import org.jetbrains.amper.frontend.project.AmperProjectContext
 import kotlin.reflect.KProperty0
 
 object ComposeVersionWithDisabledCompose : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "compose.version.without.compose"
 
-    context(ProblemReporterContext) override fun PotatoModule.analyze() {
+    context(ProblemReporterContext) override fun PotatoModule.analyze(projectContext: AmperProjectContext) {
         val reportedPlaces = mutableSetOf<Trace?>()
         fragments.forEach { fragment ->
             val settings = fragment.settings.compose
