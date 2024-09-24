@@ -12,7 +12,7 @@ class RunAndroidExternalProjectsStandalone : AndroidBaseTest() {
     @Test
     fun kmptexterAppTest() = testRunnerStandalone(
         projectName = "kmptxter",
-        applicationId = "com.river.kmptxter.android"
+        applicationId = "com.river.kmptxter"
     )
 
 

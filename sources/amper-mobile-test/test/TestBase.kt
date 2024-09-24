@@ -1,16 +1,16 @@
-import org.junit.jupiter.api.condition.OS
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
+import kotlin.io.path.absolute
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 
 /*
@@ -21,7 +21,8 @@ val destinationBasePath = Path("tempProjects")
 open class TestBase {
 
     val destinationBasePath: Path = Paths.get("tempProjects")
-    val gitRepoUrl: String = "ssh://git@git.jetbrains.team/amper/amper-external-projects.git"
+    val gitRepoUrl: String = "ssh://git.jetbrains.team/amper/amper-external-projects.git"
+
 
     // Copies the project either from local path or Git if not found locally
     fun copyProject(projectName: String, sourceDirectory: String) {
@@ -32,15 +33,30 @@ open class TestBase {
         if (!sourceDir.exists()) {
             println("Local source directory not found: $sourceDir. Attempting to clone from Git...")
 
+
             // Clone the project from Git repository into a temporary directory
             val tempDir = createTempDirectory()
 
             try {
-                // Run the Git clone command
-                val gitCloneCommand = listOf("git", "clone", gitRepoUrl, tempDir.toAbsolutePath().toString())
-                val process = ProcessBuilder(gitCloneCommand)
+                val gitCloneCommand = listOf(
+                    "git",
+                    "clone",
+                    gitRepoUrl,
+                    tempDir.toAbsolutePath().toString()
+                )
+
+                val processBuilder = ProcessBuilder(gitCloneCommand)
                     .redirectErrorStream(true)
-                    .start()
+
+                if (isRunningInTeamCity()) {
+
+                    val workingDir = "/mnt/agent/temp/buildTmp"
+
+                    processBuilder.environment()["GIT_SSH_COMMAND"] =
+                        "ssh -i $workingDir/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -F none -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+                }
+
+                val process = processBuilder.start()
 
                 val exitCode = process.waitFor()
                 if (exitCode != 0) {
@@ -82,12 +98,12 @@ open class TestBase {
             // Copy the project files from source to destination
             println("Copying project from $sourceDir to $destinationProjectPath")
             sourceDir.copyToRecursively(target = destinationProjectPath, followLinks = false, overwrite = true)
+            copyFilesAfterGitClone(destinationProjectPath)
         } catch (ex: IOException) {
             throw RuntimeException("Failed to copy files from $sourceDir to $destinationProjectPath", ex)
         }
     }
-}
-fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
+    fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
         val gradleFile = File("tempProjects/${projectDir.name}/settings.gradle.kts")
         require(gradleFile.exists()) { "file not found: $gradleFile" }
 
@@ -232,35 +248,68 @@ fun putAmperToGradleFile(projectDir: File, runWithPluginClasspath: Boolean) {
     }
 
 
-fun executeCommand(
-    command: List<String>,
-    standardOut: OutputStream,
-    standardErr: OutputStream,
-    env: Map<String, String> = emptyMap()
-) {
-    val process = ProcessBuilder()
-        .command(command)
-        .redirectErrorStream(false)  // Изменено на false для разделения stdout и stderr
-        .apply {
-            environment().putAll(env)
-        }
-        .start()
+    fun executeCommand(
+        command: List<String>,
+        standardOut: OutputStream,
+        standardErr: OutputStream,
+        env: Map<String, String> = emptyMap()
+    ) {
+        val process = ProcessBuilder()
+            .command(command)
+            .redirectErrorStream(false)
+            .apply {
+                environment().putAll(env)
+            }
+            .start()
 
-    process.inputStream.use { input ->
-        input.bufferedReader().forEachLine { line ->
-            standardOut.write((line + "\n").toByteArray())
-            standardOut.flush()
+        process.inputStream.use { input ->
+            input.bufferedReader().forEachLine { line ->
+                standardOut.write((line + "\n").toByteArray())
+                standardOut.flush()
+            }
         }
+
+        process.errorStream.use { error ->
+            error.bufferedReader().forEachLine { line ->
+                standardErr.write((line + "\n").toByteArray())
+                standardErr.flush()
+            }
+        }
+
+        process.waitFor()
     }
 
-    process.errorStream.use { error ->
-        error.bufferedReader().forEachLine { line ->
-            standardErr.write((line + "\n").toByteArray())
-            standardErr.flush()
+    fun copyFilesAfterGitClone(sourceDir: Path) {
+        val sourcesDir = sourceDir.resolve("../../../").normalize()
+
+        if (!Files.exists(sourcesDir)) {
+            throw RuntimeException("Dir 'sources' not found: ${sourcesDir.toAbsolutePath()}")
+        }
+
+        val sourceFile1 = sourcesDir.resolve("amper-backend-test/testData/projects/android/simple/amper.bat")
+        val sourceFile2 = sourcesDir.resolve("amper-backend-test/testData/projects/android/simple/amper")
+
+        val targetFile1 = sourceDir.resolve("amper.bat")
+        val targetFile2 = sourceDir.resolve("amper")
+
+        try {
+            if (Files.exists(sourceFile1)) {
+                Files.copy(sourceFile1, targetFile1, StandardCopyOption.REPLACE_EXISTING)
+                println("Successfully copied amper.bat to $targetFile1")
+            } else {
+                throw RuntimeException("File amper.bat not found at $sourceFile1")
+            }
+
+            if (Files.exists(sourceFile2)) {
+                Files.copy(sourceFile2, targetFile2, StandardCopyOption.REPLACE_EXISTING)
+                println("Successfully copied amper to $targetFile2")
+            } else {
+                println("File amper not found at $sourceFile2")
+            }
+        } catch (ex: IOException) {
+            throw RuntimeException("Failed to copy files", ex)
         }
     }
-
-    process.waitFor()
 }
 private fun isRunningInTeamCity(): Boolean {
     return System.getenv("TEAMCITY_VERSION") != null
