@@ -6,7 +6,6 @@ package org.jetbrains.amper.frontend.schemaConverter.psi
 
 import com.intellij.amper.lang.AmperContextBlock
 import com.intellij.amper.lang.AmperContextualStatement
-import com.intellij.amper.lang.AmperElement
 import com.intellij.amper.lang.AmperElementVisitor
 import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
@@ -23,11 +22,24 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
 
-class AmperPsiAdapterVisitor {
+internal data class KeyWithContext(val key: String, val contexts: Set<Context>)
+
+internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
+    val table = mutableMapOf<KeyWithContext, Scalar>()
+    object : AmperPsiAdapterVisitor() {
+        override fun visitScalar(node: Scalar) {
+            table[KeyWithContext(position, context)] = node
+            super.visitScalar(node)
+        }
+    }.visitElement(this)
+    return table
+}
+
+open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
     private val contextStack: Stack<Set<Context>> = Stack()
 
-    val position get() = positionStack.toList().reversed()
+    val position get() = positionStack.toList().joinToString("/")
     val context get() = contextStack.toList().flatten().toSet()
 
     fun visitElement(element: PsiElement) {
@@ -47,14 +59,14 @@ class AmperPsiAdapterVisitor {
                     contextStack.pop()
                 }
 
-                override fun visitElement(o: AmperElement) {
+                override fun visitElement(o: PsiElement) {
                     ProgressIndicatorProvider.checkCanceled()
                     o.acceptChildren(this)
                 }
 
                 override fun visitObject(o: AmperObject) {
                     Sequence.from(o)?.let { visitSequence(it) }
-                        ?: MappingNode.from(o)?.let { visitMappingNode(it) }
+                    MappingNode.from(o)?.let { visitMappingNode(it) }
                     super.visitObject(o)
                 }
 
@@ -69,7 +81,7 @@ class AmperPsiAdapterVisitor {
                     Scalar.from(o)?.let { visitScalar(it) }
                     super.visitLiteral(o)
                 }
-            }.visitPsiElement(element)
+            }.visitElement(element)
         }
         else {
             object : YamlPsiElementVisitor() {
@@ -112,8 +124,8 @@ class AmperPsiAdapterVisitor {
         }
     }
 
-    fun visitMappingNode(node: MappingNode) {}
-    fun visitMappingEntry(node: MappingEntry) {}
-    fun visitSequence(node: Sequence) {}
-    fun visitScalar(node: Scalar) {}
+    open fun visitMappingNode(node: MappingNode) {}
+    open fun visitMappingEntry(node: MappingEntry) {}
+    open fun visitSequence(node: Sequence) {}
+    open fun visitScalar(node: Scalar) {}
 }
