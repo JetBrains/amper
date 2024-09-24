@@ -14,8 +14,10 @@ import org.jetbrains.amper.frontend.api.EnumValueFilter
  */
 @EnumValueFilter("isLeaf")
 enum class Platform(
-    val parent: Platform? = null, val isLeaf: Boolean = false, override val outdated: Boolean = false
-) : SchemaEnum {
+    override val parent: Platform? = null,
+    override val isLeaf: Boolean = false,
+    override val outdated: Boolean = false
+) : SchemaEnum, Context {
     COMMON,
 
     JS(COMMON, isLeaf = true),
@@ -62,14 +64,14 @@ enum class Platform(
     // TODO Copy pasted. Check why NoSuchMethodError arises when using outer method.
     private val prettyRegex = "_.".toRegex()
     private fun String.doCamelCase() = this.lowercase().replace(prettyRegex) { it.value.removePrefix("_").uppercase() }
-    val pretty get() = name.doCamelCase()
+    override val pretty get() = name.doCamelCase()
 
     override val schemaValue: String = pretty
 
     /**
      * Get leaf children of this parent if it is a parent; List of self otherwise.
      */
-    val leaves: Set<Platform> by lazy {
+    override val leaves: Set<Platform> by lazy {
         if (isLeaf) setOf(this)
         else naturalHierarchy[this] ?: error("Platform $this is not a leaf platform and doesn't have a hierarchy")
     }
@@ -104,6 +106,6 @@ enum class Platform(
 }
 
 fun Platform.isDescendantOf(other: Platform): Boolean =
-    this == other || (parent != null && parent.isDescendantOf(other))
+    this == other || (parent != null && parent!!.isDescendantOf(other))
 
 fun Platform.isParentOf(other: Platform) = other.isDescendantOf(this)

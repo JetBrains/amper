@@ -108,3 +108,10 @@ interface SchemaEnum {
     val schemaValue: String
     val outdated: Boolean
 }
+
+interface Context {
+    val parent: Context?
+    val isLeaf: Boolean
+    val pretty: String
+    val leaves: Set<Context>
+}
