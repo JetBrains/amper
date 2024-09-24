@@ -6,25 +6,25 @@ package org.jetbrains.amper.tasks.android
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.amper.cli.AmperProjectTempRoot
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
+import org.jetbrains.amper.jar.ZipInput
+import org.jetbrains.amper.jar.writeZip
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.RuntimeClasspathElementProvider
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
-import java.net.URI
-import java.nio.file.FileSystems
+import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.copyTo
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createDirectory
+import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
-import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
@@ -51,6 +51,7 @@ class AndroidAarTask(
     private val module: PotatoModule,
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
     private val taskOutputRoot: TaskOutputRoot,
+    private val tempRoot: AmperProjectTempRoot,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val jarResult = dependenciesResult.filterIsInstance<JvmClassesJarTask.Result>().singleOrNull()
@@ -76,30 +77,39 @@ class AndroidAarTask(
             outputAarPath.deleteIfExists()
             outputAarPath.createParentDirectories()
 
-            val aarUri = URI.create("jar:" + outputAarPath.toUri())
-            FileSystems.newFileSystem(aarUri, mapOf("create" to "true")).use { archiveFs ->
-                // We use libs/<name>.jar instead of plain classes.jar because the latter doesn't support jvm resources
-                val libsDir = archiveFs.getPath("libs/").createDirectory()
-                jarResult.jarPath.copyTo(libsDir.resolve(jarResult.jarPath.name))
-
-                val assetsDir = archiveFs.getPath("assets/").createDirectory()
-                additionalAssets.forEach { result ->
-                    result.assetsRoots.forEach { assetsRoot ->
-                        val relativeDirInAssets = assetsRoot.relativePackagingPath.replace("/", archiveFs.separator)
-                        val targetDir = assetsDir / relativeDirInAssets
-                        targetDir.createDirectories()
-                        assetsRoot.path.copyToRecursively(
-                            target = targetDir, overwrite = false, followLinks = false,
-                        )
-                    }
-                }
-
+            val tempDir = createTempDirectory(tempRoot.path)
+            try {
+                val manifestStubFile = tempDir / "AndroidManifest.xml"
                 // TODO: Use a user-provided Manifest if any? Require it? Require `namespace` to be set for libraries?
-                val packageName = internalPackageNameFor(module)
-                archiveFs.getPath("AndroidManifest.xml").writeText(
+                manifestStubFile.writeText(
                     """<?xml version="1.0" encoding="utf-8"?>
-                        |<manifest package="$packageName" />""".trimMargin()
+                        |<manifest package="${internalPackageNameFor(module)}" />""".trimMargin()
                 )
+                val assetsDir = Path("assets")
+                outputAarPath.writeZip(
+                    inputs = buildList {
+                        this += ZipInput(
+                            path = jarResult.jarPath,
+                            destPathInArchive = Path("libs"),
+                        )
+                        this += ZipInput(
+                            path = manifestStubFile,
+                            destPathInArchive = Path("."),
+                        )
+                        additionalAssets.forEach { asset ->
+                            asset.assetsRoots.forEach { assetsRoot ->
+                                this += ZipInput(
+                                    path = assetsRoot.path,
+                                    destPathInArchive = assetsDir / Path(
+                                        assetsRoot.relativePackagingPath.replace("/", File.separator)
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                )
+            } finally {
+                tempDir.deleteRecursively()
             }
             ExecuteOnChangedInputs.ExecutionResult(
                 outputs = listOf(outputAarPath),

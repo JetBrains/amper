@@ -7,7 +7,7 @@ package org.jetbrains.amper.tasks.jvm
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
-import org.jetbrains.amper.jar.JarInputDir
+import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jvm.findEffectiveJvmMainClass
 import org.jetbrains.amper.tasks.AbstractJarTask
 import org.jetbrains.amper.tasks.TaskOutputRoot
@@ -28,12 +28,12 @@ class JvmClassesJarTask(
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
-    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> {
+    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> {
         val compileTaskResults = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
         require(compileTaskResults.isNotEmpty()) {
             "Call Jar task without any compilation dependency"
         }
-        return compileTaskResults.map { JarInputDir(path = it.classesOutputRoot, destPathInJar = Path(".")) }
+        return compileTaskResults.map { ZipInput(path = it.classesOutputRoot, destPathInArchive = Path(".")) }
     }
 
     // TODO add version here?

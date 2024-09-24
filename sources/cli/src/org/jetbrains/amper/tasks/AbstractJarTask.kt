@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.amper.engine.Task
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
-import org.jetbrains.amper.jar.JarInputDir
+import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.jar.writeJar
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
@@ -21,7 +21,7 @@ abstract class AbstractJarTask(
     private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
 
-    protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir>
+    protected abstract fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput>
     protected abstract fun outputJarPath(): Path
     protected abstract fun jarConfig(): JarConfig
 
@@ -35,7 +35,7 @@ abstract class AbstractJarTask(
 
         val configuration: Map<String, String> = mapOf(
             "jarConfig" to Json.encodeToString(jarConfig),
-            "inputDirsDestPaths" to inputDirs.map { it.destPathInJar }.toString(),
+            "inputDirsDestPaths" to inputDirs.map { it.destPathInArchive }.toString(),
             "outputJarPath" to outputJarPath.pathString,
         )
         executeOnChangedInputs.execute(taskName.name, configuration, inputDirs.map { it.path }) {

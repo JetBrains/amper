@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.tasks
 
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
+import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.jar.JarConfig
-import org.jetbrains.amper.jar.JarInputDir
+import org.jetbrains.amper.jar.ZipInput
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -26,14 +26,14 @@ class SourcesJarTask(
     executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : AbstractJarTask(taskName, executeOnChangedInputs) {
 
-    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<JarInputDir> =
+    override fun getInputDirs(dependenciesResult: List<TaskResult>): List<ZipInput> =
         module.fragments
             .asSequence()
             .filter { !it.isTest && platform in it.platforms }
             .sortedBy { it.name }
             // To match current KMP publications, sources for common should be in "/commonMain", jvm in "/jvmMain" etc.
             // TODO check whether this is necessary, or if using the src directory name would be understood by IDEs
-            .map { JarInputDir(path = it.src, destPathInJar = Path("${it.name}Main")) }
+            .map { ZipInput(path = it.src, destPathInArchive = Path("${it.name}Main")) }
             .filter { it.path.exists() }
             .toList()
 

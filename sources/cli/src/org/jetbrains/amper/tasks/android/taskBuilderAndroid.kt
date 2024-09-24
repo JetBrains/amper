@@ -197,6 +197,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
                         executeOnChangedInputs = executeOnChangedInputs,
                         module = module,
                         taskOutputRoot = context.getTaskOutputPath(aarTaskName),
+                        tempRoot = context.projectTempRoot,
                     ),
                     dependsOn = jarTaskName,
                 )
