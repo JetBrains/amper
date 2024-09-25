@@ -9,8 +9,7 @@ import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
-import org.jetbrains.amper.tasks.CommonFragmentTaskType
-import org.jetbrains.amper.tasks.CommonGlobalTaskType
+import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.compilationTaskNamesFor
@@ -78,7 +77,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
 
         // Configure per-fragment tasks, as resources may reside in arbitrary fragments.
         module.fragments.forEach { fragment ->
-            val prepareResourcesTaskName = CommonFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
+            val prepareResourcesTaskName = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
             tasks.registerTask(
                 task = PrepareComposeResourcesTask(
                     taskName = prepareResourcesTaskName,
@@ -89,7 +88,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                 )
             )
 
-            CommonFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(fragment).let { taskName ->
+            ComposeFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(fragment).let { taskName ->
                 tasks.registerTask(
                     task = GenerateResourceAccessorsTask(
                         taskName = taskName,
@@ -108,7 +107,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
 
         // Configure tasks that generate code into the leaf-fragments
         refinedLeafFragmentsDependingOn(rootFragment).forEach { fragment ->
-            CommonFragmentTaskType.ComposeResourcesGenerateActual.getTaskName(fragment).let { taskName ->
+            ComposeFragmentTaskType.ComposeResourcesGenerateActual.getTaskName(fragment).let { taskName ->
                 tasks.registerTask(
                     task = GenerateActualResourceCollectorsTask(
                         taskName = taskName,
@@ -121,7 +120,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                     // FIXME: Maybe a bug here, if fragmentDependencies are not transitive
                     dependsOn = fragment.fragmentDependencies
                         .filter { it.type == FragmentDependencyType.REFINE }
-                        .map { CommonFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(it.target) },
+                        .map { ComposeFragmentTaskType.ComposeResourcesGenerateAccessors.getTaskName(it.target) },
                 )
                 addCodegenTaskForRegistering(fragment, taskName)
             }
@@ -164,3 +163,20 @@ private fun PotatoModule.inferPackageNameFromModule(): List<String> {
 private fun String.asUnderscoredIdentifier(): String =
     replace('-', '_')
         .let { if (it.isNotEmpty() && it.first().isDigit()) "_$it" else it }
+
+internal enum class ComposeFragmentTaskType(override val prefix: String) : FragmentTaskType {
+    ComposeResourcesPrepare("prepareComposeResourcesFor"),
+    ComposeResourcesGenerateAccessors("generateComposeResourceAccessorsFor"),
+    ComposeResourcesGenerateActual("generateActualComposeResourceCollectorsFor"),
+}
+
+internal enum class CommonGlobalTaskType(
+    private val keywordName: String,
+) {
+    // compose resources
+    ComposeResourcesGenerateResClass("generateComposeResClass"),
+    ComposeResourcesGenerateExpect("generateExpectComposeResourceCollectors"),
+    ;
+
+    fun getTaskName(module: PotatoModule) = TaskName.moduleTask(module, keywordName)
+}

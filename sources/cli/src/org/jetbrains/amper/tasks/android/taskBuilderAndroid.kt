@@ -21,13 +21,13 @@ import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.schema.ProductType
-import org.jetbrains.amper.tasks.CommonFragmentTaskType
 import org.jetbrains.amper.tasks.CommonTaskType
 import org.jetbrains.amper.tasks.FragmentTaskType
 import org.jetbrains.amper.tasks.PlatformTaskType
 import org.jetbrains.amper.tasks.ProjectTasksBuilder
 import org.jetbrains.amper.tasks.ProjectTasksBuilder.Companion.getTaskOutputPath
 import org.jetbrains.amper.tasks.TaskOutputRoot
+import org.jetbrains.amper.tasks.compose.ComposeFragmentTaskType
 import org.jetbrains.amper.tasks.compose.isComposeResourcesEnabledFor
 import org.jetbrains.amper.tasks.jvm.JvmClassesJarTask
 import org.jetbrains.amper.tasks.jvm.JvmCompileTask
@@ -222,7 +222,7 @@ fun ProjectTasksBuilder.setupAndroidTasks() {
     allModules().alsoPlatforms(Platform.ANDROID).withEach {
         if (isComposeResourcesEnabledFor(module)) {
             module.fragments.filter { Platform.ANDROID in it.platforms }.forEach { fragment ->
-                val prepareTaskName = CommonFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
+                val prepareTaskName = ComposeFragmentTaskType.ComposeResourcesPrepare.getTaskName(fragment)
                 val prepareForAndroid = AndroidFragmentTaskType.PrepareComposeResources.getTaskName(fragment)
                 tasks.registerTask(
                     task = AndroidComposeResourcesTask(
