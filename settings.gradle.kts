@@ -42,7 +42,7 @@ rootProject.name = "amper"
 gradleEnterprise {
     buildScan {
         projectId = "amper"
-        server = "https://ge.labs.jb.gg"
+        server = "https://ge.jetbrains.com"
         publishAlways()
         // background upload is bad for CI because the agent shutting down after the build could cut-off the upload
         isUploadInBackground = System.getenv("CI") == null
