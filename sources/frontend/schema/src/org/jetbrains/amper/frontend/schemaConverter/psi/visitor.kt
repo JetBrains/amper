@@ -257,7 +257,13 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitProperty(o: AmperProperty) {
-                    positionStack.push(o.name ?: "unnamed")
+                    positionStack.push(
+                        when (o.name) {
+                            "testSettings" -> "test-settings"
+                            "testDependencies" -> "test-dependencies"
+                            null -> "[unnamed]"
+                            else -> o.name
+                        })
                     visitMappingEntry(MappingEntry(o))
                     super.visitProperty(o)
                     positionStack.pop()
