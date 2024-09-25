@@ -33,6 +33,8 @@ import org.jetbrains.amper.frontend.builders.isString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
+import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -47,6 +49,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.withNullability
 
 internal data class KeyWithContext(val key: String, val contexts: Set<Context>)
 
@@ -81,6 +84,9 @@ context(Converter)
 internal fun readTypedValue(type: KType,
                             table: Map<KeyWithContext, Scalar>,
                             path: String): Any? {
+    if (type.withNullability(false) != type) {
+        return readTypedValue(type.withNullability(false), table, path)
+    }
     if (type.isSubtypeOf(TraceableEnum::class.starProjectedType)
         || type.isSubtypeOf(TraceableString::class.starProjectedType)
         || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
@@ -89,15 +95,18 @@ internal fun readTypedValue(type: KType,
             TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
                 TraceableEnum::class.primaryConstructor!!.call(it).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceableString::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+            TraceableString::class -> readTypedValue(String::class.starProjectedType, table, path)?.let {
                 TraceableString(it as String).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceablePath::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+            TraceablePath::class -> readTypedValue(Path::class.starProjectedType, table, path)?.let {
                 TraceablePath(it as Path).applyPsiTrace(scalarValue?.sourceElement)
             }
             else -> null
         }
     }
+    val applicableKeys = table.keys.filter { it.key.startsWith("$path/") }
+    if (applicableKeys.isEmpty()) return null
+
     if (type.isScalar) {
         val scalarValue = table.get(KeyWithContext(path, emptySet()))
         val text = scalarValue?.textValue ?: return null
@@ -116,23 +125,30 @@ internal fun readTypedValue(type: KType,
             type.isPath -> return text.asAbsolutePath()
         }
     }
-    val applicableKeys = table.keys.filter { it.key.startsWith("$path/") }
     if (type.isMap) {
+        if (type.arguments[0].type?.isCollection == true) {
+            return mapOf(noModifiers to readTypedValue(type.mapValueType, table, path))
+        }
         return applicableKeys.associate {
             val nextSlash = it.key.indexOf('/', "$path/".length + 1)
-            val key = if (nextSlash >= 0) it.key.substring(0, nextSlash) else it.key
-            key.substring("$path/".length, if (nextSlash >= 0) nextSlash else key.length) to readTypedValue(type.mapValueType, table, key)
+            val key = if (nextSlash >= 0) it.key.substring(nextSlash + 1,
+                it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 } ?: it.key.length)
+            else it.key
+            val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
+                ?: it.key.length
+            key to readTypedValue(type.mapValueType, table, it.key.substring(0, lastPos))
         }
     }
     if (type.isCollection)  {
         return applicableKeys.mapNotNull {
             val nextSlash = it.key.indexOf('/', "$path/".length + 1)
-            val key = if (nextSlash >= 0) it.key.substring(0, nextSlash) else it.key
-            readTypedValue(type.collectionType, table, key)
+            val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
+                ?: it.key.length
+            readTypedValue(type.collectionType, table, it.key.substring(0, lastPos))
         }
     }
     //if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        return type.instantiateType().also {
+        return type.instantiateType(table, path)?.also {
             readFromTable(it, table, path)
         }
     //}
@@ -154,13 +170,17 @@ internal fun <T : Any> readFromTable(
     }
 }
 
-private fun KType.instantiateType(): Any {
+private fun KType.instantiateType(table: Map<KeyWithContext, Scalar>, path: String): Any? {
     val kClass = unwrapKClass
     if (kClass.isSubclassOf(Set::class)) {
         return HashSet<Any>()
     }
     if (kClass.isSubclassOf(List::class)) {
         return ArrayList<Any>()
+    }
+    if (kClass.isSubclassOf(Dependency::class)) {
+        val keys = table.keys.filter { it.key.startsWith("$path/") }
+        return null
     }
     return kClass.createInstance()
 }
