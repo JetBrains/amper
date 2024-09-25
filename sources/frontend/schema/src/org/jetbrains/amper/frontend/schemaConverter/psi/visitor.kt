@@ -18,6 +18,7 @@ import com.intellij.util.containers.Stack
 import org.jetbrains.amper.frontend.Context
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -104,7 +105,7 @@ internal fun readTypedValue(type: KType,
             else -> null
         }
     }
-    val applicableKeys = table.keys.filter { it.key.startsWith("$path/") }
+    val applicableKeys = table.keys.filter { it.key.startsWith(path) }
     if (applicableKeys.isEmpty()) return null
 
     if (type.isScalar) {
@@ -147,6 +148,22 @@ internal fun readTypedValue(type: KType,
             readTypedValue(type.collectionType, table, it.key.substring(0, lastPos))
         }
     }
+
+    // "enabled" shortcut
+    if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
+        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        if (scalarValue?.textValue == "enabled") {
+            val enabledProperty = type.unwrapKClass.schemaDeclaredMemberProperties()
+                .filterIsInstance<KMutableProperty1<Any, Any?>>()
+                .singleOrNull { it.name == "enabled" }
+            if (enabledProperty != null) {
+                return type.instantiateType(table, path)?.also {
+                    enabledProperty.set(it, true)
+                }
+            }
+        }
+    }
+
     //if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         return type.instantiateType(table, path)?.also {
             readFromTable(it, table, path)
