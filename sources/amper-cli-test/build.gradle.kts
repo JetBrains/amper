@@ -22,4 +22,7 @@ tasks.withType<Test> {
     for (task in distTasks) {
         dependsOn(task)
     }
+
+    systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+    systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", 4)
 }
