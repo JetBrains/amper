@@ -18,13 +18,19 @@ import com.intellij.util.containers.Stack
 import org.jetbrains.amper.frontend.Context
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
-import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.TraceableEnum
+import org.jetbrains.amper.frontend.api.TraceablePath
+import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.applyPsiTrace
+import org.jetbrains.amper.frontend.builders.collectionType
 import org.jetbrains.amper.frontend.builders.isBoolean
 import org.jetbrains.amper.frontend.builders.isCollection
 import org.jetbrains.amper.frontend.builders.isInt
 import org.jetbrains.amper.frontend.builders.isMap
+import org.jetbrains.amper.frontend.builders.isPath
 import org.jetbrains.amper.frontend.builders.isScalar
 import org.jetbrains.amper.frontend.builders.isString
+import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -32,11 +38,14 @@ import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
+import java.nio.file.Path
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredFunctions
-import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
 
 internal data class KeyWithContext(val key: String, val contexts: Set<Context>)
@@ -68,6 +77,68 @@ internal fun Map<KeyWithContext, Scalar>.query(key: String, contexts: Set<Contex
         .firstOrNull()?.let { this[it] }
 }
 
+context(Converter)
+internal fun readTypedValue(type: KType,
+                            table: Map<KeyWithContext, Scalar>,
+                            path: String): Any? {
+    if (type.isSubtypeOf(TraceableEnum::class.starProjectedType)
+        || type.isSubtypeOf(TraceableString::class.starProjectedType)
+        || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
+        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        return when (type.unwrapKClass) {
+            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+                TraceableEnum::class.primaryConstructor!!.call(it).applyPsiTrace(scalarValue?.sourceElement)
+            }
+            TraceableString::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+                TraceableString(it as String).applyPsiTrace(scalarValue?.sourceElement)
+            }
+            TraceablePath::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+                TraceablePath(it as Path).applyPsiTrace(scalarValue?.sourceElement)
+            }
+            else -> null
+        }
+    }
+    if (type.isScalar) {
+        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        val text = scalarValue?.textValue ?: return null
+        when {
+            type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
+                (type.unwrapKClass.declaredFunctions.firstOrNull {
+                    it.name == "values"
+                }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
+                    return it
+                    //prop.set(obj, it/*TraceableEnum(it).also{ it.trace = scalarValue?.sourceElement?.let { PsiTrace(it) } }*/)
+                }
+            }
+            type.isString -> return text
+            type.isBoolean -> return text == "true"
+            type.isInt -> return text.toInt()
+            type.isPath -> return text.asAbsolutePath()
+        }
+    }
+    val applicableKeys = table.keys.filter { it.key.startsWith("$path/") }
+    if (type.isMap) {
+        return applicableKeys.associate {
+            val nextSlash = it.key.indexOf('/', "$path/".length + 1)
+            val key = if (nextSlash >= 0) it.key.substring(0, nextSlash) else it.key
+            key.substring("$path/".length, if (nextSlash >= 0) nextSlash else key.length) to readTypedValue(type.mapValueType, table, key)
+        }
+    }
+    if (type.isCollection)  {
+        return applicableKeys.mapNotNull {
+            val nextSlash = it.key.indexOf('/', "$path/".length + 1)
+            val key = if (nextSlash >= 0) it.key.substring(0, nextSlash) else it.key
+            readTypedValue(type.collectionType, table, key)
+        }
+    }
+    //if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
+        return type.instantiateType().also {
+            readFromTable(it, table, path)
+        }
+    //}
+}
+
+context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
     table: Map<KeyWithContext, Scalar>,
@@ -77,43 +148,21 @@ internal fun <T : Any> readFromTable(
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
         .forEach { prop ->
             val newPath = if (path.isEmpty()) prop.name else path + "/" + prop.name
-            if (prop.returnType.isScalar) {
-                val scalarValue = table.get(KeyWithContext(newPath, emptySet()))
-                val text = scalarValue?.textValue ?: return@forEach
-                when {
-                    prop.returnType.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
-                        (prop.returnType.unwrapKClass.declaredFunctions.firstOrNull {
-                            it.name == "values"
-                        }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
-                            prop.set(obj, it/*TraceableEnum(it).also{ it.trace = scalarValue?.sourceElement?.let { PsiTrace(it) } }*/)
-                        }
-                        prop.returnType.unwrapKClass.declaredMemberProperties.forEach {
-                            if (it.name == text) {
-                                prop.set(obj, it.getter.call(prop.returnType))
-                            }
-                        }
-                    }
-                    prop.returnType.isString -> prop.set(obj, text)
-                    prop.returnType.isBoolean -> prop.set(obj, text == "true")
-                    prop.returnType.isInt -> prop.set(obj, text.toInt())
-                }
-            }
-            if (prop.returnType.isMap) {
-                val applicableKeys = table.keys.filter { it.key.startsWith("$newPath/") }
-                prop.set(obj, applicableKeys.associate {
-                    it.key.substring("$newPath/".length) to table[it]
-                })
-            }
-            if (prop.returnType.isCollection)  {
-
-            }
-            if (prop.returnType.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-                prop.set(obj,
-                    prop.returnType.unwrapKClass.createInstance().also {
-                        readFromTable(it, table, newPath)
-                    })
+            readTypedValue(prop.returnType, table, newPath)?.let {
+                prop.set(obj, it)
             }
     }
+}
+
+private fun KType.instantiateType(): Any {
+    val kClass = unwrapKClass
+    if (kClass.isSubclassOf(Set::class)) {
+        return HashSet<Any>()
+    }
+    if (kClass.isSubclassOf(List::class)) {
+        return ArrayList<Any>()
+    }
+    return kClass.createInstance()
 }
 
 private fun Boolean.toInt() = if (this) 0 else 1
