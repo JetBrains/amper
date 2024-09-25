@@ -2,7 +2,7 @@
  * Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package org.jetbrains.amper.android.keystore
+package org.jetbrains.amper.keystore
 
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
@@ -10,7 +10,11 @@ import org.bouncycastle.cert.X509v1CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import org.slf4j.Logger
+import org.jetbrains.amper.frontend.schema.KeystoreProperty
+import org.jetbrains.amper.frontend.schema.keyAlias
+import org.jetbrains.amper.frontend.schema.keyPassword
+import org.jetbrains.amper.frontend.schema.storeFile
+import org.jetbrains.amper.frontend.schema.storePassword
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -30,23 +34,11 @@ import kotlin.io.path.notExists
 private const val asymmetricAlgorithm = "RSA"
 private const val signatureAlgorithm = "SHA1withRSA"
 
-enum class KeystoreProperty(val key: String) {
-    StoreFile("storeFile"),
-    StorePassword("storePassword"),
-    KeyAlias("keyAlias"),
-    KeyPassword("keyPassword")
-}
+internal class KeystoreGenerationException(override val message: String) : Exception(message)
 
-val Properties.storeFile: String? get() = getProperty(KeystoreProperty.StoreFile.key)
-val Properties.storePassword: String? get() = getProperty(KeystoreProperty.StorePassword.key)
-val Properties.keyAlias: String? get() = getProperty(KeystoreProperty.KeyAlias.key)
-val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPassword.key)
+private fun keystoreGenerationError(message: String): Nothing = throw KeystoreGenerationException(message)
 
-class KeystoreException(override val message: String) : Exception(message)
-
-fun keystoreGenerationError(message: String): Nothing = throw KeystoreException(message)
-
-object KeystoreHelper {
+object KeystoreGenerator {
     fun createNewKeystore(propertiesFile: Path, dn: String) {
         if (propertiesFile.notExists()) {
             keystoreGenerationError("$propertiesFile does not exist")
@@ -80,7 +72,7 @@ object KeystoreHelper {
         dn: String = "CN=${System.getProperty("user.name", "Unknown")}"
     ) {
         logger.info("Generating new keystore at $storeFile")
-        logger.info("Key Alias: $keyAlias")
+        logger.info("Key alias: $keyAlias")
         logger.info("Distinguished name: $dn")
         if (storeFile.toFile().exists()) {
             keystoreGenerationError("Keystore already exists: $storeFile")

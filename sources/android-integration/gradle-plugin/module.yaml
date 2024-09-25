@@ -7,7 +7,7 @@ apply:
 
 dependencies:
   - ../android-integration-core
-  - ../android-utils
+  - ../android-sdk-detector
   - ../../core
   - ../../core-intellij
   - ../../frontend-api

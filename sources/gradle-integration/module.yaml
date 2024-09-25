@@ -15,7 +15,7 @@ dependencies:
   - ../core-intellij
   - ../frontend-api
   - ../frontend/schema
-  - ../android-integration/android-utils
+  - ../android-integration/android-sdk-detector
   - $libs.kotlin.gradle.plugin
   - $libs.android.gradle.plugin.forGradleBased
   - $libs.kotlin.serialization.plugin

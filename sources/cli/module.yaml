@@ -14,9 +14,11 @@ dependencies:
   - ../frontend-api: exported
   - ../frontend/schema
   - ../frontend/dr
+  - ../android-integration/android-sdk-detector
   - ../android-integration/runner
-  - ../android-integration/android-utils
   - ../compose-resources
+  - $libs.bouncycastle.bcprov # for keystore generation
+  - $libs.bouncycastle.bcpkix # for keystore generation
   - $libs.intellij.amper.xcodemodel
   - $libs.intellij.parsing.core
   - $libs.intellij.platform.core

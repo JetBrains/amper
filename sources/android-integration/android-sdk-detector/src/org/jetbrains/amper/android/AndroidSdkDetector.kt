@@ -4,6 +4,7 @@
 
 package org.jetbrains.amper.android
 
+import org.jetbrains.amper.core.UsedInIdePlugin
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
@@ -12,7 +13,7 @@ import kotlin.io.path.Path
 class AndroidSdkDetector(
     private val suggesters: List<Suggester> = buildList {
         add(EnvironmentVariableSuggester("ANDROID_HOME"))
-        add(EnvironmentVariableSuggester("ANDROID_SDK_ROOT")) // old, deprecated variable but may be used
+        add(EnvironmentVariableSuggester("ANDROID_SDK_ROOT")) // old variable but may still be used
         add(DefaultSuggester())
     }
 ) {
@@ -35,6 +36,8 @@ class AndroidSdkDetector(
     }
 
     companion object {
+
+        @UsedInIdePlugin
         fun detectSdkPath() = AndroidSdkDetector().detectSdkPath()
     }
 }

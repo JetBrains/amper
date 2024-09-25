@@ -6,6 +6,7 @@ android-forGradleBased = "8.2.0" # AUTO-UPDATED by syncVersions.main.kts - DO NO
 android-forStandalone = "8.5.0"
 android-tools = "31.6.1"
 apache-commons = "1.24.0"
+bouncycastle = "1.78.1"
 clikt = "5.0.0"
 compose = "1.6.10" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
 gradle-api = "8.6" # AUTO-UPDATED by syncVersions.main.kts - DO NOT RENAME NOR UPDATE HERE
@@ -39,6 +40,8 @@ android-tools-ddmlib = { module = "com.android.tools.ddms:ddmlib", version.ref =
 android-tools-sdkCommon = { module = "com.android.tools:sdk-common", version.ref = "android-tools" }
 android-tools-sdklib = { module = "com.android.tools:sdklib", version.ref = "android-tools" }
 apacheCommons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
 gradle-api = { module = "dev.gradleplugins:gradle-api", version.ref = "gradle-api" }

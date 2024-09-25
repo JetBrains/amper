@@ -11,6 +11,7 @@ import org.jetbrains.amper.frontend.api.EnumOrderSensitive
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.Path
 
 @EnumOrderSensitive(reverse = true)
@@ -114,3 +115,15 @@ const val ANDROID_SIGNING_SETTINGS_SHORT_FORM = """
     ]
   }
 """
+
+enum class KeystoreProperty(val key: String) {
+    StoreFile("storeFile"),
+    StorePassword("storePassword"),
+    KeyAlias("keyAlias"),
+    KeyPassword("keyPassword")
+}
+
+val Properties.storeFile: String? get() = getProperty(KeystoreProperty.StoreFile.key)
+val Properties.storePassword: String? get() = getProperty(KeystoreProperty.StorePassword.key)
+val Properties.keyAlias: String? get() = getProperty(KeystoreProperty.KeyAlias.key)
+val Properties.keyPassword: String? get() = getProperty(KeystoreProperty.KeyPassword.key)

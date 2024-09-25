@@ -8,6 +8,4 @@ apply:
 
 dependencies:
   - ../../core
-  - org.bouncycastle:bcprov-jdk18on:1.78.1
-  - org.bouncycastle:bcpkix-jdk18on:1.78.1
   - $libs.slf4j.api

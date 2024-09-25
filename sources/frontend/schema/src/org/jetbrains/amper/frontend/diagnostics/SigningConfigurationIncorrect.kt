@@ -6,8 +6,6 @@ package org.jetbrains.amper.frontend.diagnostics
 
 import com.intellij.openapi.vfs.isFile
 import com.intellij.psi.PsiElement
-import org.jetbrains.amper.android.keystore.KeystoreProperty
-import org.jetbrains.amper.android.keystore.storeFile
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
 import org.jetbrains.amper.core.messages.ProblemReporterContext
@@ -20,6 +18,8 @@ import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
 import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.project.wrapperInstalled
 import org.jetbrains.amper.frontend.schema.AndroidSettings
+import org.jetbrains.amper.frontend.schema.KeystoreProperty
+import org.jetbrains.amper.frontend.schema.storeFile
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path

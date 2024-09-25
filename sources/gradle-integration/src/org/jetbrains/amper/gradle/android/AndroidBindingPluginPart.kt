@@ -9,6 +9,10 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.amper.frontend.Layout
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.keyAlias
+import org.jetbrains.amper.frontend.schema.keyPassword
+import org.jetbrains.amper.frontend.schema.storeFile
+import org.jetbrains.amper.frontend.schema.storePassword
 import org.jetbrains.amper.gradle.base.AmperNamingConventions
 import org.jetbrains.amper.gradle.base.PluginPartCtx
 import org.jetbrains.amper.gradle.base.SpecificPlatformPluginPart
@@ -29,14 +33,8 @@ import kotlin.io.path.exists
 import kotlin.io.path.pathString
 import kotlin.io.path.reader
 
-import org.jetbrains.amper.android.keystore.keyAlias
-import org.jetbrains.amper.android.keystore.keyPassword
-import org.jetbrains.amper.android.keystore.storeFile
-import org.jetbrains.amper.android.keystore.storePassword
-
 const val SIGNING_CONFIG_NAME = "sign"
 
-@Suppress("LeakingThis")
 open class AndroidAwarePart(
     ctx: PluginPartCtx,
 ) : SpecificPlatformPluginPart(ctx, Platform.ANDROID), AmperNamingConventions {

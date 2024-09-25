@@ -18,10 +18,6 @@ import org.gradle.api.provider.Property
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
 import org.jetbrains.amper.android.AndroidBuildRequest
 import org.jetbrains.amper.android.gradle.tooling.ProcessResourcesProviderTaskNameToolingModelBuilder
-import org.jetbrains.amper.android.keystore.keyAlias
-import org.jetbrains.amper.android.keystore.keyPassword
-import org.jetbrains.amper.android.keystore.storeFile
-import org.jetbrains.amper.android.keystore.storePassword
 import org.jetbrains.amper.core.Result
 import org.jetbrains.amper.frontend.LeafFragment
 import org.jetbrains.amper.frontend.Model
@@ -32,6 +28,10 @@ import org.jetbrains.amper.frontend.PotatoModuleFileSource
 import org.jetbrains.amper.frontend.aomBuilder.SchemaBasedModelImport
 import org.jetbrains.amper.frontend.project.StandaloneAmperProjectContext
 import org.jetbrains.amper.frontend.schema.ProductType
+import org.jetbrains.amper.frontend.schema.keyAlias
+import org.jetbrains.amper.frontend.schema.keyPassword
+import org.jetbrains.amper.frontend.schema.storeFile
+import org.jetbrains.amper.frontend.schema.storePassword
 import java.io.File
 import java.nio.file.Path
 import java.util.*

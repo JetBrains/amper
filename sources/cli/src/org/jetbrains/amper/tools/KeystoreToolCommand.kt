@@ -10,11 +10,11 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
-import org.jetbrains.amper.android.keystore.KeystoreException
-import org.jetbrains.amper.android.keystore.KeystoreHelper
 import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.cli.withBackend
+import org.jetbrains.amper.keystore.KeystoreGenerationException
+import org.jetbrains.amper.keystore.KeystoreGenerator
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
@@ -41,11 +41,11 @@ class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
         withBackend(commonOptions, commandName, setupEnvironment = true) {
             try {
                 propertiesFile?.let {
-                    KeystoreHelper.createNewKeystore(it, dn)
+                    KeystoreGenerator.createNewKeystore(it, dn)
                 } ?: run {
-                    KeystoreHelper.createNewKeystore(storeFile, storePassword, keyAlias, keyPassword, dn)
+                    KeystoreGenerator.createNewKeystore(storeFile, storePassword, keyAlias, keyPassword, dn)
                 }
-            } catch (e: KeystoreException) {
+            } catch (e: KeystoreGenerationException) {
                 userReadableError(e.message)
             }
         }
