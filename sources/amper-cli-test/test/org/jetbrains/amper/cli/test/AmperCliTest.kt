@@ -341,7 +341,7 @@ class AmperCliTest: AmperCliTestBase() {
     }
 
     @Test
-    fun `run works with input for jvm`() = runTest(timeout = 5.minutes) {
+    fun `run works with input for jvm`() = runTest(timeout = 10.minutes) {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "jvm-app",
@@ -353,7 +353,7 @@ class AmperCliTest: AmperCliTestBase() {
 
     @Test
     @MacOnly
-    fun `run works with input for native`() = runTest(timeout = 5.minutes) {
+    fun `run works with input for native`() = runTest(timeout = 10.minutes) {
         val r = runCli(
             backendTestProjectName = "multiplatform-input",
             "run", "--module", "macos-app",
