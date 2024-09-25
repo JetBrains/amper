@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.android
 
-import com.android.SdkConstants
 import org.jetbrains.amper.core.system.DefaultSystemInfo
 import org.jetbrains.amper.core.system.OsFamily
 import java.nio.file.Path
@@ -12,9 +11,8 @@ import kotlin.io.path.Path
 
 class AndroidSdkDetector(
     private val suggesters: List<Suggester> = buildList {
-        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_HOME_ENV))
-        @Suppress("DEPRECATION") // we still want to detect SDKs in the deprecated place
-        add(EnvironmentVariableSuggester(SdkConstants.ANDROID_SDK_ROOT_ENV))
+        add(EnvironmentVariableSuggester("ANDROID_HOME"))
+        add(EnvironmentVariableSuggester("ANDROID_SDK_ROOT")) // old, deprecated variable but may be used
         add(DefaultSuggester())
     }
 ) {
