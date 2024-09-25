@@ -11,16 +11,33 @@ import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
+import com.intellij.amper.lang.impl.propertyList
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.Stack
 import org.jetbrains.amper.frontend.Context
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.builders.isBoolean
+import org.jetbrains.amper.frontend.builders.isCollection
+import org.jetbrains.amper.frontend.builders.isInt
+import org.jetbrains.amper.frontend.builders.isMap
+import org.jetbrains.amper.frontend.builders.isScalar
+import org.jetbrains.amper.frontend.builders.isString
+import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
+import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.starProjectedType
 
 internal data class KeyWithContext(val key: String, val contexts: Set<Context>)
 
@@ -49,6 +66,54 @@ internal fun Map<KeyWithContext, Scalar>.query(key: String, contexts: Set<Contex
     if (applicableKeys.size == 1) return this[applicableKeys.single()]
     return applicableKeys.sortedWith { o1, o2 -> o1.contexts.isSubcontextOf(o2.contexts).toInt() }
         .firstOrNull()?.let { this[it] }
+}
+
+internal fun <T : Any> readFromTable(
+    obj: T,
+    table: Map<KeyWithContext, Scalar>,
+    path: String = ""
+) {
+    obj::class.schemaDeclaredMemberProperties()
+        .filterIsInstance<KMutableProperty1<Any, Any?>>()
+        .forEach { prop ->
+            val newPath = if (path.isEmpty()) prop.name else path + "/" + prop.name
+            if (prop.returnType.isScalar) {
+                val scalarValue = table.get(KeyWithContext(newPath, emptySet()))
+                val text = scalarValue?.textValue ?: return@forEach
+                when {
+                    prop.returnType.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
+                        (prop.returnType.unwrapKClass.declaredFunctions.firstOrNull {
+                            it.name == "values"
+                        }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
+                            prop.set(obj, it/*TraceableEnum(it).also{ it.trace = scalarValue?.sourceElement?.let { PsiTrace(it) } }*/)
+                        }
+                        prop.returnType.unwrapKClass.declaredMemberProperties.forEach {
+                            if (it.name == text) {
+                                prop.set(obj, it.getter.call(prop.returnType))
+                            }
+                        }
+                    }
+                    prop.returnType.isString -> prop.set(obj, text)
+                    prop.returnType.isBoolean -> prop.set(obj, text == "true")
+                    prop.returnType.isInt -> prop.set(obj, text.toInt())
+                }
+            }
+            if (prop.returnType.isMap) {
+                val applicableKeys = table.keys.filter { it.key.startsWith("$newPath/") }
+                prop.set(obj, applicableKeys.associate {
+                    it.key.substring("$newPath/".length) to table[it]
+                })
+            }
+            if (prop.returnType.isCollection)  {
+
+            }
+            if (prop.returnType.isSubtypeOf(SchemaNode::class.starProjectedType)) {
+                prop.set(obj,
+                    prop.returnType.unwrapKClass.createInstance().also {
+                        readFromTable(it, table, newPath)
+                    })
+            }
+    }
 }
 
 private fun Boolean.toInt() = if (this) 0 else 1
@@ -83,9 +148,19 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitObject(o: AmperObject) {
-                    Sequence.from(o)?.let { visitSequence(it) }
-                    MappingNode.from(o)?.let { visitMappingNode(it) }
-                    super.visitObject(o)
+                    if (o.propertyList.any { it.value == null }) {
+                        Sequence.from(o)?.let { visitSequence(it) }
+                        o.propertyList.forEachIndexed { index, amperProperty ->
+                            positionStack.push(index.toString())
+                            amperProperty.accept(this)
+                            positionStack.pop()
+                        }
+                        // do not call super here!
+                    }
+                    else {
+                        MappingNode.from(o)?.let { visitMappingNode(it) }
+                        super.visitObject(o)
+                    }
                 }
 
                 override fun visitProperty(o: AmperProperty) {
@@ -131,7 +206,12 @@ open class AmperPsiAdapterVisitor {
 
                 override fun visitSequence(sequence: YAMLSequence) {
                     visitSequence(Sequence(sequence))
-                    super.visitSequence(sequence)
+                    sequence.items.forEachIndexed { index, item ->
+                        positionStack.push(index.toString())
+                        item.value?.accept(this)
+                        positionStack.pop()
+                    }
+                    // do not call super here!
                 }
 
                 override fun visitScalar(scalar: YAMLScalar) {
