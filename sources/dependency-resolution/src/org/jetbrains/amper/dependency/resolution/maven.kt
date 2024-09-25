@@ -302,13 +302,17 @@ class MavenDependency internal constructor(
     private val mutex = Mutex()
 
     internal val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
+    private var moduleMetadata: Module? = null
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
 
     fun files(withSources: Boolean = false) =
         if (withSources)
             _files
         else
-            _filesWithoutSources.filterNot { it.fileName.endsWith("-sources.jar") || it.fileName.endsWith("-javadoc.jar") }
+            _filesWithoutSources.filterNot { it.hasSourcesFilename() }
+
+    private fun DependencyFile.hasSourcesFilename(): Boolean =
+        fileName.endsWith("-sources.jar") || fileName.endsWith("-javadoc.jar")
 
     private val _files: List<DependencyFile> by filesProvider(withSources = true)
     private val _filesWithoutSources: List<DependencyFile> by filesProvider(withSources = false)
@@ -327,9 +331,17 @@ class MavenDependency internal constructor(
                 buildList {
                     variants
                         .let { if (withSources) it else it.withoutDocumentationAndMetadata }
-                        .flatMap { it.files }
-                        .forEach {
-                            add(getDependencyFile(this@MavenDependency, it))
+                        .let {
+                            val areSourcesMissing = withSources && it.documentationOnly.isEmpty()
+                            it
+                                .flatMap { it.files }
+                                .forEach {
+                                    add(getDependencyFile(this@MavenDependency, it))
+                                    if (areSourcesMissing) {
+                                        val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
+                                        add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", "jar"))
+                                    }
+                                }
                         }
                     packaging?.takeIf { it != "pom" }?.let {
                         val nameWithoutExtension = getNameWithoutExtension(this@MavenDependency)
@@ -337,7 +349,6 @@ class MavenDependency internal constructor(
                         add(getDependencyFile(this@MavenDependency, nameWithoutExtension, extension))
                         if (extension == "jar" && withSources) {
                             add(getDependencyFile(this@MavenDependency, "$nameWithoutExtension-sources", extension))
-
                         }
                     }
                     sourceSetsFiles.let { addAll(it) }
@@ -440,7 +451,7 @@ class MavenDependency internal constructor(
                 val minUnusedAttrsCount = this.minOfOrNull { v ->
                     v.attributes.count { it.key !in usedAttributes }
                 }
-                this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount}
+                this.filter { v -> v.attributes.count { it.key !in usedAttributes } == minUnusedAttrsCount }
                     .let {
                         if (it.withoutDocumentationAndMetadata.size == 1) {
                             it
@@ -453,7 +464,10 @@ class MavenDependency internal constructor(
     }
 
     private suspend fun resolveUsingMetadata(context: Context, level: ResolutionLevel) {
-        val moduleMetadata = parseModuleMetadata(context, level) ?: return
+        val moduleMetadata = parseModuleMetadata(context, level)
+        this.moduleMetadata = moduleMetadata
+
+        if (moduleMetadata == null) return
 
         if (context.settings.platforms.isEmpty()) {
             throw AmperDependencyResolutionException("Target platform is not specified.")
@@ -510,6 +524,14 @@ class MavenDependency internal constructor(
                     ?: return  // children list is empty in case kmp common variant is not resolved
 
             resolveKmpLibrary(kmpMetadataFile, context, moduleMetadata, level, kotlinMetadataVariant)
+
+            // Add KMP sources
+            val sourcesDependencyFile = getKotlinMetadataSourcesVariant(moduleMetadata.variants, ResolutionPlatform.COMMON)
+                ?.let { getKotlinMetadataFile(it) }
+                ?.let { getDependencyFile(this, it) }
+                ?: getDependencyFile(this, "${this.moduleFile.nameWithoutExtension}-sources", "jar")
+
+            sourceSetsFiles = sourceSetsFiles.toMutableList() + listOf(sourcesDependencyFile)
         }
 
         state = level.state
@@ -524,8 +546,14 @@ class MavenDependency internal constructor(
      *
      * @return true, in case Kmp library that needs special treatment was detected and processed, false - otherwise
      */
-    private suspend fun processSpecialKmpLibraries(context: Context, moduleMetadata: Module, level: ResolutionLevel): Boolean {
-        if (isKotlinTestAnnotationsCommon()) {
+    private suspend fun processSpecialKmpLibraries(
+        context: Context,
+        moduleMetadata: Module,
+        level: ResolutionLevel
+    ): Boolean {
+        if (isKotlinTestAnnotationsCommon()
+            || isKotlinStdlibCommon())
+        {
             moduleMetadata
                 .variants
                 .let {
@@ -555,7 +583,10 @@ class MavenDependency internal constructor(
         return version?.let { context.createOrReuseDependencyConstraint(group, module, version) }
     }
 
-    private fun Dependency.toMavenDependency(context: Context, errorMessageBuilder: (String) -> String): MavenDependency? {
+    private fun Dependency.toMavenDependency(
+        context: Context,
+        errorMessageBuilder: (String) -> String
+    ): MavenDependency? {
         val resolvedVersion = resolveVersion(errorMessageBuilder)
         return resolvedVersion?.let { context.createOrReuseDependency(group, module, resolvedVersion) }
     }
@@ -568,13 +599,17 @@ class MavenDependency internal constructor(
         }
     }
 
-    private suspend fun Variant.bomDependencyConstraints(context: Context, module: Module, level: ResolutionLevel): List<MavenDependencyConstraint> =
+    private suspend fun Variant.bomDependencyConstraints(
+        context: Context,
+        module: Module,
+        level: ResolutionLevel
+    ): List<MavenDependencyConstraint> =
         dependencies.mapNotNull {
             if (!it.isBom()) {
                 null
             } else {
                 withResolvedVersion(it)
-                    .takeIf { it.version != null  }
+                    .takeIf { it.version != null }
                     ?.toMavenDependency(context, module)
                     ?.let {
                         it.resolveChildren(context, level)
@@ -583,7 +618,11 @@ class MavenDependency internal constructor(
             }
         }.flatten()
 
-    private suspend fun Variant.dependencies(context: Context, module: Module, level: ResolutionLevel): List<Dependency> =
+    private suspend fun Variant.dependencies(
+        context: Context,
+        module: Module,
+        level: ResolutionLevel
+    ): List<Dependency> =
         dependencies.map {
             withResolvedVersion(it) { bomDependencyConstraints(context, module, level) }
         }
@@ -599,7 +638,10 @@ class MavenDependency internal constructor(
      *
      * BOM dependencies are lazily resolved at this stage if a version can't be resolved via current node metadata only.
      */
-    private suspend fun Variant.withResolvedVersion(dep: Dependency, bomDependencyConstraints: suspend () -> List<MavenDependencyConstraint> = { emptyList() }): Dependency =
+    private suspend fun Variant.withResolvedVersion(
+        dep: Dependency,
+        bomDependencyConstraints: suspend () -> List<MavenDependencyConstraint> = { emptyList() }
+    ): Dependency =
         if (dep.version != null) {
             dep
         } else {
@@ -764,7 +806,7 @@ class MavenDependency internal constructor(
                                     " but its version could not be determined from corresponding module file, " +
                                     " $versionErrorMessage"
                         }
-               }
+                }
             }
 
         // todo (AB) : take kotlinMetadataVariant.dependencyConstraints into account as well? What subset on constraints should be taken into account?
@@ -797,11 +839,29 @@ class MavenDependency internal constructor(
         }
     }
 
-    // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
+    private fun getKotlinMetadataSourcesVariant(
+        validVariants: List<Variant>,
+        platform: ResolutionPlatform
+    ): Variant? {
+        if (this.isKotlinTestAnnotations()) return null
+        return validVariants.firstOrNull { it.isKotlinMetadataSources(platform) }
+    }
+
     private suspend fun SourceSet.toDependencyFile(
         kmpMetadataFile: DependencyFile,
         moduleMetadata: Module,
-        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
+        context: Context,
+        level: ResolutionLevel
+    ): DependencyFile? =
+        toDependencyFile(name, kmpMetadataFile, moduleMetadata, kotlinProjectStructureMetadata, context, level)
+
+    // todo (AB) : All this logic might be wrapped into ExecuteOnChange in order to skip metadata resolution in case targetFile exists already
+    private suspend fun toDependencyFile(
+        sourceSetName: String,
+        kmpMetadataFile: DependencyFile,
+        moduleMetadata: Module,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata? = null, // is empty for sources only
         context: Context,
         level: ResolutionLevel
     ): DependencyFile? {
@@ -813,7 +873,7 @@ class MavenDependency internal constructor(
             "sha1", null, context.settings.progress, context.resolutionCache, level
         )
             ?: kmpMetadataFile.getPath()?.let {
-                computeHash(it,"sha1").hash
+                computeHash(it, "sha1").hash
             }
             ?: run {
                 messages.asMutable() += Message(
@@ -823,8 +883,6 @@ class MavenDependency internal constructor(
                 return null
             }
 
-        val sourceSetName = name
-
         val kmpLibraryWithSourceSet = resolveKmpLibraryWithSourceSet(
             sourceSetName, kmpMetadataFile, context, kotlinProjectStructureMetadata, moduleMetadata, level
         )
@@ -833,14 +891,17 @@ class MavenDependency internal constructor(
                 return null
             }
 
+        val extension = if (kmpMetadataFile.hasSourcesFilename()) "jar" else "klib"
+        val sourcesSuffix = if (kmpMetadataFile.hasSourcesFilename()) "-sources" else ""
+
         val sourceSetFile = DependencyFile(
             kmpMetadataFile.dependency,
-            "${kmpMetadataFile.dependency.module}-$sourceSetName",
-            "klib",
+            "${kmpMetadataFile.dependency.module}-$sourceSetName$sourcesSuffix",
+            extension,
             kmpSourceSet = sourceSetName
         )
 
-        val targetFileName = "$module-$sourceSetName-$version.klib"
+        val targetFileName = "$module-$sourceSetName-$version$sourcesSuffix.$extension"
 
         val targetPath = kmpMetadataFile.dependency.settings.fileCache.amperCache
             .resolve("kotlin/kotlinTransformedMetadataLibraries/")
@@ -902,11 +963,13 @@ class MavenDependency internal constructor(
         sourceSetName: String,
         kmpMetadataFile: DependencyFile,
         context: Context,
-        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata,
+        kotlinProjectStructureMetadata: KotlinProjectStructureMetadata?,
         moduleMetadata: Module,
         level: ResolutionLevel
     ) = if (hasJarEntry(kmpMetadataFile.getPath()!!, sourceSetName) == true) {
         kmpMetadataFile.getPath()!!
+    } else if (kotlinProjectStructureMetadata == null) {
+        null
     } else {
         val contextIosPlatforms = allIosPlatforms.intersect(context.settings.platforms)
         if (contextIosPlatforms.isNotEmpty()) {
@@ -987,6 +1050,9 @@ class MavenDependency internal constructor(
 
     private fun isKotlinTestAnnotationsCommon() =
         group == "org.jetbrains.kotlin" && module == "kotlin-test-annotations-common"
+
+    private fun isKotlinStdlibCommon() =
+        group == "org.jetbrains.kotlin" && module == "kotlin-stdlib-common"
 
     private fun Variant.isGuavaException() =
         isGuava() && capabilities.sortedBy { it.name } == listOf(
@@ -1137,26 +1203,82 @@ class MavenDependency internal constructor(
 
     private val Variant.isDocumentationOrMetadata: Boolean
         get() =
-            attributes["org.gradle.category"] == "documentation"
+            isDocumentation
                     ||
                     attributes["org.gradle.usage"] == "kotlin-api"
                     && attributes["org.jetbrains.kotlin.platform.type"] == PlatformType.COMMON.value
 
+    private val Collection<Variant>.documentationOnly: List<Variant>
+        get() = filter { it.isDocumentation }
+
+    private val Variant.isDocumentation: Boolean
+        get() = attributes["org.gradle.category"] == "documentation"
+
+
     suspend fun downloadDependencies(context: Context, downloadSources: Boolean = false) {
-        val notDownloaded = files(downloadSources)
+        val allFiles = files(downloadSources)
+        val notDownloaded = allFiles
             .filter {
-                context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
+                (context.settings.platforms.size == 1 // Verification of multiplatform hash is done at the file-producing stage
+                        || it.kmpSourceSet == null) // (except for artifact with all sources that is not marked with any kmpSourceSet)
                         && !(it.isDownloaded() && it.hasMatchingChecksum(ResolutionLevel.NETWORK, context))
             }
 
         notDownloaded.forEach { it.download(context) }
+
+        allFiles.forEach { it.postProcess(context, downloadSources, ResolutionLevel.NETWORK) }
     }
+
+    private suspend fun DependencyFile.postProcess(context: Context, downloadSources: Boolean, level: ResolutionLevel) {
+        repackageKmpLibrarySources(context, downloadSources, level)
+    }
+
+    private suspend fun DependencyFile.repackageKmpLibrarySources(
+        context: Context,
+        downloadSources: Boolean,
+        level: ResolutionLevel
+    ) {
+        if (context.settings.platforms.size > 1
+            && downloadSources
+            && this.kmpSourceSet == null
+            && this.isSourcesDependencyFile()
+        ) {
+            // repackage KMP library sources.
+            val kmpSourcesFile = this
+            val sourceSetsSources = coroutineScope {
+                sourceSetsFiles
+                    .map {
+                        async(Dispatchers.IO) {
+                            val sourceSetName = it.kmpSourceSet ?: return@async null
+                            val moduleMetadata = moduleMetadata ?: error("moduleMetadata wasn't initialized")
+
+                            // Extract sources from this DependencyFile and package extracted sources to separate location
+                            toDependencyFile(
+                                sourceSetName,
+                                kmpSourcesFile,
+                                moduleMetadata,
+                                null,
+                                context,
+                                level
+                            )
+                        }
+                    }
+            }.awaitAll()
+                .mapNotNull { it }
+            // replace all-in-one sources file with per-sourceSet files
+            sourceSetsFiles = sourceSetsFiles - this + sourceSetsSources
+        }
+    }
+
+    private fun DependencyFile.isSourcesDependencyFile(): Boolean =
+        !files(withSources = false).map { it.fileName }.contains(this.fileName)
 }
 
 internal fun <E> List<E>.asMutable(): MutableList<E> = this as MutableList<E>
 
 private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "platform"
 
+// todo (AB) : This behaviour is applicable perhaps to ALL native platforms 
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
 
 // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
@@ -1168,4 +1290,4 @@ private fun String.isInterval() = startsWith("[") || startsWith("]")
 
 // todo (AB) :
 // - interval are not implemented and we need to warn/show error to user about it
-// - now nstrictly is treated as requires, should be supported properly
+// - now strictly is treated as requires, should be supported properly

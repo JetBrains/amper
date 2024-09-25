@@ -33,6 +33,7 @@ class BuildGraphTest: BaseDRTest() {
                 |kotlin-stdlib-1.9.10.jar
                 |kotlin-stdlib-common-1.9.10-sources.jar
                 |kotlin-stdlib-common-1.9.10.jar
+                |kotlin-test-1.9.10-sources.jar
                 |kotlin-test-1.9.10.jar""".trimMargin(),
             root, true
         )
@@ -53,12 +54,18 @@ class BuildGraphTest: BaseDRTest() {
                 |          \--- org.jetbrains.kotlin:kotlin-stdlib:2.0.0
             """.trimMargin()
         )
-        assertFiles(
-            """kotlin-stdlib-commonMain-2.0.0.klib
+        runBlocking {
+            downloadAndAssertFiles(
+                """kotlin-stdlib-commonMain-2.0.0-sources.jar
+                |kotlin-stdlib-commonMain-2.0.0.klib
+                |kotlin-test-annotationsCommonMain-2.0.0-sources.jar
                 |kotlin-test-annotationsCommonMain-2.0.0.klib
+                |kotlin-test-assertionsCommonMain-2.0.0-sources.jar
                 |kotlin-test-assertionsCommonMain-2.0.0.klib""".trimMargin(),
-            root
-        )
+                withSources = true,
+                root = root
+            )
+        }
     }
 
     @Test
@@ -121,6 +128,7 @@ class BuildGraphTest: BaseDRTest() {
                 |annotations-13.0.jar
                 |kotlin-stdlib-1.9.20-sources.jar
                 |kotlin-stdlib-1.9.20.jar
+                |kotlin-test-1.9.20-sources.jar
                 |kotlin-test-1.9.20.jar""".trimMargin(),
             root, true
         )
@@ -856,6 +864,7 @@ class BuildGraphTest: BaseDRTest() {
                 |error_prone_annotations-2.23.0.jar
                 |failureaccess-1.0.2-sources.jar
                 |failureaccess-1.0.2.jar
+                |guava-33.0.0-android-sources.jar
                 |guava-33.0.0-android.jar
                 |j2objc-annotations-2.8-sources.jar
                 |j2objc-annotations-2.8.jar
@@ -1830,6 +1839,7 @@ class BuildGraphTest: BaseDRTest() {
             animation-desktop-1.5.10.jar
             annotations-23.0.0-sources.jar
             annotations-23.0.0.jar
+            atomicfu-jvm-0.17.0-sources.jar
             atomicfu-jvm-0.17.0.jar
             desktop-jvm-1.5.10-sources.jar
             desktop-jvm-1.5.10.jar

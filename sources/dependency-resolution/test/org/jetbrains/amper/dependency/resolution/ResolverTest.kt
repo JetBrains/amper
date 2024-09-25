@@ -6,6 +6,7 @@ package org.jetbrains.amper.dependency.resolution
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 
 class ResolverTest: BaseDRTest() {
 
@@ -54,6 +55,74 @@ class ResolverTest: BaseDRTest() {
                 |junit-platform-commons-1.7.2.jar
                 |opentest4j-1.2.0.jar""".trimMargin(),
                 root
+            )
+        }
+    }
+
+    @Test
+    fun `kmp library sources downloaded`(testInfo: TestInfo) {
+        val kmpLibrary = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
+
+        val root = doTest(
+            testInfo,
+            dependency = listOf(kmpLibrary),
+            platform = setOf(ResolutionPlatform.IOS_ARM64, ResolutionPlatform.IOS_SIMULATOR_ARM64),
+            expected = """root
+                |\--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0
+                |     +--- org.jetbrains.kotlinx:atomicfu:0.23.1
+                |     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                |     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.21
+                |     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+                |     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21
+            """.trimMargin(),
+            verifyMessages = false,
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                withSources = true,
+                files = """
+                    |atomicfu-commonMain-0.23.1-sources.jar
+                    |atomicfu-commonMain-0.23.1.klib
+                    |atomicfu-nativeMain-0.23.1-sources.jar
+                    |atomicfu-nativeMain-0.23.1.klib
+                    |kotlin-stdlib-commonMain-1.9.21-sources.jar
+                    |kotlin-stdlib-commonMain-1.9.21.klib
+                    |kotlinx-coroutines-core-commonMain-1.8.0-sources.jar
+                    |kotlinx-coroutines-core-commonMain-1.8.0.klib
+                    |kotlinx-coroutines-core-concurrentMain-1.8.0-sources.jar
+                    |kotlinx-coroutines-core-concurrentMain-1.8.0.klib
+                    |kotlinx-coroutines-core-nativeDarwinMain-1.8.0-sources.jar
+                    |kotlinx-coroutines-core-nativeDarwinMain-1.8.0.klib
+                    |kotlinx-coroutines-core-nativeMain-1.8.0-sources.jar
+                    |kotlinx-coroutines-core-nativeMain-1.8.0.klib""".trimMargin(),
+                root = root
+            )
+        }
+    }
+
+    @Test
+    fun `sources downloaded even if variant is not defined in Gradle metadata`(testInfo: TestInfo) {
+        val library = "com.fasterxml.jackson.core:jackson-core:2.17.2"
+
+        val root = doTest(
+            testInfo,
+            dependency = listOf(library),
+            platform = setOf(ResolutionPlatform.JVM),
+            expected = """root
+                |\--- com.fasterxml.jackson.core:jackson-core:2.17.2
+                |     \--- com.fasterxml.jackson:jackson-bom:2.17.2
+            """.trimMargin(),
+            verifyMessages = false,
+        )
+
+        runBlocking {
+            downloadAndAssertFiles(
+                withSources = true,
+                files = """
+                    |jackson-core-2.17.2-sources.jar
+                    |jackson-core-2.17.2.jar""".trimMargin(),
+                root = root
             )
         }
     }

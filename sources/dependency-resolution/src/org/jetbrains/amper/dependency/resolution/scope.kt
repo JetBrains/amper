@@ -42,6 +42,10 @@ internal fun Variant.isKotlinMetadata(platform: ResolutionPlatform = ResolutionP
     attributes["org.jetbrains.kotlin.platform.type"] == platform.type.value
             && attributes["org.gradle.usage"] == "kotlin-metadata"
 
+internal fun Variant.isKotlinMetadataSources(platform: ResolutionPlatform = ResolutionPlatform.COMMON) =
+    attributes["org.jetbrains.kotlin.platform.type"] == platform.type.value
+            && attributes["org.gradle.category"] == "documentation"
+
 private fun Variant.isDocumentation() = attributes["org.gradle.category"] == "documentation"
 
 private fun Variant.isScopeAgnostic() = isKotlinMetadata() || isDocumentation()
