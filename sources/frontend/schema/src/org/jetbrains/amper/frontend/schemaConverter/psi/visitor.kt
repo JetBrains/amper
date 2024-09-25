@@ -11,7 +11,6 @@ import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
 import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
-import com.intellij.amper.lang.impl.propertyList
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.Stack
@@ -38,6 +37,7 @@ import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
@@ -131,10 +131,15 @@ internal fun readTypedValue(type: KType,
             return mapOf(noModifiers to readTypedValue(type.mapValueType, table, path))
         }
         return applicableKeys.associate {
+            val isYaml = table[it]?.sourceElement is YAMLPsiElement
             val nextSlash = it.key.indexOf('/', "$path/".length + 1)
-            val key = if (nextSlash >= 0) it.key.substring(nextSlash + 1,
-                it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 } ?: it.key.length)
-            else it.key
+            val key = if (nextSlash >= 0) {
+                if (isYaml) {
+                    it.key.substring(nextSlash + 1,
+                        it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 } ?: it.key.length)
+                }
+                else it.key.substring("$path/".length, nextSlash)
+            } else it.key
             val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
                 ?: it.key.length
             key to readTypedValue(type.mapValueType, table, it.key.substring(0, lastPos))
@@ -142,6 +147,7 @@ internal fun readTypedValue(type: KType,
     }
     if (type.isCollection)  {
         return applicableKeys.mapNotNull {
+            val isYaml = table[it]?.sourceElement is YAMLPsiElement
             val nextSlash = it.key.indexOf('/', "$path/".length + 1)
             val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
                 ?: it.key.length
@@ -234,7 +240,7 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitObject(o: AmperObject) {
-                    if (o.propertyList.any { it.value == null }) {
+                    /*if (o.propertyList.any { it.value == null }) {
                         Sequence.from(o)?.let { visitSequence(it) }
                         o.propertyList.forEachIndexed { index, amperProperty ->
                             positionStack.push(index.toString())
@@ -243,10 +249,11 @@ open class AmperPsiAdapterVisitor {
                         }
                         // do not call super here!
                     }
-                    else {
+                    else {*/
+                        Sequence.from(o)?.let { visitSequence(it) }
                         MappingNode.from(o)?.let { visitMappingNode(it) }
                         super.visitObject(o)
-                    }
+                    //}
                 }
 
                 override fun visitProperty(o: AmperProperty) {
