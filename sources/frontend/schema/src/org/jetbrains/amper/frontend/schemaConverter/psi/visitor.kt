@@ -17,6 +17,8 @@ import com.intellij.util.containers.Stack
 import org.jetbrains.amper.frontend.Context
 import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
+import org.jetbrains.amper.frontend.api.ImplicitConstructor
+import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
@@ -34,6 +36,7 @@ import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
@@ -46,6 +49,8 @@ import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.primaryConstructor
@@ -146,19 +151,42 @@ internal fun readTypedValue(type: KType,
         }
     }
     if (type.isCollection)  {
+        val visitedKeys = hashSetOf<String>()
         return applicableKeys.mapNotNull {
-            val isYaml = table[it]?.sourceElement is YAMLPsiElement
-            val nextSlash = it.key.indexOf('/', "$path/".length + 1)
-            val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
-                ?: it.key.length
-            readTypedValue(type.collectionType, table, it.key.substring(0, lastPos))
+            val nextSlash = it.key.indexOf('/', "$path/".length + 1).takeIf { it >= 0 } ?: it.key.length
+            val newKey = it.key.substring(0, nextSlash)
+            if (visitedKeys.add(newKey)) {
+                readTypedValue(type.collectionType, table, newKey)
+            } else null
         }
     }
 
     // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         val scalarValue = table.get(KeyWithContext(path, emptySet()))
-        if (scalarValue?.textValue == "enabled") {
+        val textValue = scalarValue?.textValue
+        if (textValue != null) {
+            // hack for internal dependencies, need to rethink this
+            if (textValue.startsWith("./") && type.unwrapKClass == Dependency::class) {
+                return InternalDependency().also { it.path = textValue.asAbsolutePath() }
+            }
+            // find the implicit constructor and invoke it
+            val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
+                ?: type.unwrapKClass
+
+            val param = constructedType.schemaDeclaredMemberProperties()
+                .filterIsInstance<KMutableProperty1<Any, Any?>>()
+                .singleOrNull {
+                    it.hasAnnotation<ImplicitConstructorParameter>()
+                }
+
+            if (param != null) {
+                return type.instantiateType(table, path)?.also {
+                    param.set(it, textValue)
+                }
+            }
+        }
+        if (textValue == "enabled") {
             val enabledProperty = type.unwrapKClass.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
                 .singleOrNull { it.name == "enabled" }
