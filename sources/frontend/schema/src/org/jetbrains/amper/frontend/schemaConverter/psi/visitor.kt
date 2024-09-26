@@ -14,8 +14,6 @@ import com.intellij.amper.lang.AmperProperty
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.Stack
-import org.jetbrains.amper.frontend.Context
-import org.jetbrains.amper.frontend.Platform
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
@@ -35,9 +33,9 @@ import org.jetbrains.amper.frontend.builders.isString
 import org.jetbrains.amper.frontend.builders.mapValueType
 import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
+import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
-import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -56,7 +54,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-internal data class KeyWithContext(val key: Pointer, val contexts: Set<Context>)
+internal data class KeyWithContext(val key: Pointer, val contexts: Set<String>)
 
 internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
     val table = mutableMapOf<KeyWithContext, Scalar>()
@@ -69,7 +67,7 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
     return table
 }
 
-internal fun Set<Context>.isSubcontextOf(otherSet: Set<Context>): Boolean {
+/*internal fun Set<Context>.isSubcontextOf(otherSet: Set<Context>): Boolean {
     return otherSet.flatMap { it.leaves }.containsAll(this.flatMap { it.leaves })
 }
 
@@ -83,7 +81,7 @@ internal fun Map<KeyWithContext, Scalar>.query(key: Pointer, contexts: Set<Conte
     if (applicableKeys.size == 1) return this[applicableKeys.single()]
     return applicableKeys.sortedWith { o1, o2 -> o1.contexts.isSubcontextOf(o2.contexts).toInt() }
         .firstOrNull()?.let { this[it] }
-}
+}*/
 
 class Pointer(val segmentName: String? = null,
                        var prev: Pointer? = null,
@@ -155,28 +153,29 @@ class Pointer(val segmentName: String? = null,
 context(Converter)
 internal fun readTypedValue(type: KType,
                             table: Map<KeyWithContext, Scalar>,
-                            path: Pointer): Any? {
+                            path: Pointer,
+                            contexts: Set<String>): Any? {
     if (type.withNullability(false) != type) {
-        return readTypedValue(type.withNullability(false), table, path)
+        return readTypedValue(type.withNullability(false), table, path, contexts)
     }
     if (type.isSubtypeOf(TraceableEnum::class.starProjectedType)
         || type.isSubtypeOf(TraceableString::class.starProjectedType)
         || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
         val scalarValue = table.get(KeyWithContext(path, emptySet()))
         return when (type.unwrapKClass) {
-            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(it, table, path) }?.let {
+            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(it, table, path, contexts) }?.let {
                 TraceableEnum::class.primaryConstructor!!.call(it).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceableString::class -> readTypedValue(String::class.starProjectedType, table, path)?.let {
+            TraceableString::class -> readTypedValue(String::class.starProjectedType, table, path, contexts)?.let {
                 TraceableString(it as String).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceablePath::class -> readTypedValue(Path::class.starProjectedType, table, path)?.let {
+            TraceablePath::class -> readTypedValue(Path::class.starProjectedType, table, path, contexts)?.let {
                 TraceablePath(it as Path).applyPsiTrace(scalarValue?.sourceElement)
             }
             else -> null
         }
     }
-    val applicableKeys = table.keys.filter { it.key.startsWith(path) }
+    val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts.containsAll(contexts) }
     if (applicableKeys.isEmpty()) return null
 
     if (type.isScalar) {
@@ -199,14 +198,15 @@ internal fun readTypedValue(type: KType,
     }
     if (type.isMap) {
         if (type.arguments[0].type?.isCollection == true) {
-            return mapOf(noModifiers to readTypedValue(type.mapValueType, table, path))
+            return applicableKeys.map { it.contexts }
+                .associate { it.map { TraceableString(it) }.toSet() to readTypedValue(type.mapValueType, table, path, it) }
         }
         return applicableKeys.associate {
             val name = if (
                 table[it]?.sourceElement?.language is AmperLanguage
                 || it.key.segmentName?.toIntOrNull() != null
               ) it.key.prev?.segmentName else it.key.segmentName
-            name!! to readTypedValue(type.mapValueType, table, it.key.prev!!)
+            name!! to readTypedValue(type.mapValueType, table, it.key.prev!!, contexts)
         }
     }
     if (type.isCollection)  {
@@ -215,19 +215,22 @@ internal fun readTypedValue(type: KType,
             val newKey = it.key.nextAfter(path)
             if (newKey != null && !visitedKeys.any { newKey.startsWith(it) }) {
                 visitedKeys.add(newKey)
-                readTypedValue(type.collectionType, table, newKey)
+                readTypedValue(type.collectionType, table, newKey, contexts)
             } else null
         }
     }
 
     // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        val scalarValue = table.get(KeyWithContext(path, contexts))
         val textValue = scalarValue?.textValue
         if (textValue != null) {
-            // hack for internal dependencies, need to rethink this
+            // hack for internal and catalog dependencies, need to rethink this
             if (textValue.startsWith("./") && type.unwrapKClass == Dependency::class) {
                 return InternalDependency().also { it.path = textValue.asAbsolutePath() }
+            }
+            if (textValue.startsWith("$") && type.unwrapKClass == Dependency::class) {
+                return CatalogDependency().also { it.catalogKey = textValue }
             }
             // find the implicit constructor and invoke it
             val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
@@ -258,7 +261,7 @@ internal fun readTypedValue(type: KType,
     }
 
     return type.instantiateType().also {
-        readFromTable(it, table, path)
+        readFromTable(it, table, path, contexts)
     }
 }
 
@@ -266,12 +269,13 @@ context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
     table: Map<KeyWithContext, Scalar>,
-    path: Pointer = Pointer()
+    path: Pointer = Pointer(),
+    contexts: Set<String> = emptySet()
 ) {
     obj::class.schemaDeclaredMemberProperties()
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
         .forEach { prop ->
-            readTypedValue(prop.returnType, table, path + prop.name)?.let {
+            readTypedValue(prop.returnType, table, path + prop.name, contexts)?.let {
                 prop.set(obj, it)
             }
     }
@@ -293,7 +297,7 @@ private fun Boolean.toInt() = if (this) 0 else 1
 
 open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
-    private val contextStack: Stack<Set<Context>> = Stack()
+    private val contextStack: Stack<Set<String>> = Stack()
 
     val position get() = positionStack.toList().let {
         var path = Pointer()
@@ -308,15 +312,13 @@ open class AmperPsiAdapterVisitor {
         if (element.language is AmperLanguage) {
             object: AmperElementVisitor() {
                 override fun visitContextBlock(o: AmperContextBlock) {
-                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }
-                        .mapNotNull { Platform[it] }.toSet())
+                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }.toSet())
                     super.visitContextBlock(o)
                     contextStack.pop()
                 }
 
                 override fun visitContextualStatement(o: AmperContextualStatement) {
-                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }
-                        .mapNotNull { Platform[it] }.toSet())
+                    contextStack.push(o.contextNameList.mapNotNull { it.identifier?.text }.toSet())
                     super.visitContextualStatement(o)
                     contextStack.pop()
                 }
@@ -370,8 +372,7 @@ open class AmperPsiAdapterVisitor {
                     }
                     else {
                         positionStack.push(keyValue.keyText.substring(0, atSign))
-                        contextStack.push(keyValue.keyText.substring(atSign).split('+')
-                            .mapNotNull { Platform[it] }.toSet())
+                        contextStack.push(keyValue.keyText.substring(atSign + 1).split('+').toSet())
                     }
                     visitMappingEntry(MappingEntry(keyValue))
                     super.visitKeyValue(keyValue)
