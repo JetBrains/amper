@@ -70,7 +70,7 @@ class ModuleDependencyNodeWithModule(
 
 class DirectFragmentDependencyNodeHolder(
     name: String,
-    dependencyNode: DependencyNode,
+    val dependencyNode: DependencyNode,
     val fragment: Fragment,
     notation: DefaultScopedNotation,
     templateContext: Context = Context(),

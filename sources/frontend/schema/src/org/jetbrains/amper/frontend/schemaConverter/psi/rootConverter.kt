@@ -177,8 +177,8 @@ private fun MappingNode.convertRepositoryFull(): Repository = Repository().also 
 
 context(Converter)
 private fun MappingEntry.convertDependencies() =
-    value?.asMappingNode()?.keyValues?.map { it.convertDependencyFull().applyPsiTrace(it) } ?:
-    value?.asSequenceNode()?.items?.mapNotNull { it.convertDependency()?.applyPsiTrace(it) }
+    value?.asMappingNode()?.keyValues?.map { it.convertDependencyFull().applyPsiTrace(it) }
+        ?: value?.asSequenceNode()?.items?.mapNotNull { it.convertDependency() }
 
 
 context(Converter)

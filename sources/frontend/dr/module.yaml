@@ -6,10 +6,10 @@ apply:
   - ../../common.module-template.yaml
 
 test-dependencies:
-  - ../../core
   - ../../test-base
 
 dependencies:
   - ../schema
+  - ../../core
   - ../../dependency-resolution: exported
   - $libs.slf4j.api

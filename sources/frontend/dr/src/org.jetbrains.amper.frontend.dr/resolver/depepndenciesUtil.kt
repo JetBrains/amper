@@ -4,10 +4,17 @@
 
 package org.jetbrains.amper.frontend.dr.resolver
 
+import com.intellij.psi.PsiElement
 import kotlinx.coroutines.CancellationException
+import org.jetbrains.amper.core.UsedInIdePlugin
+import org.jetbrains.amper.core.messages.BuildProblemId
+import org.jetbrains.amper.core.messages.Level
+import org.jetbrains.amper.core.messages.ProblemReporter
 import org.jetbrains.amper.dependency.resolution.DependencyNode
 import org.jetbrains.amper.dependency.resolution.MavenDependencyNode
 import org.jetbrains.amper.frontend.MavenDependency
+import org.jetbrains.amper.frontend.api.PsiTrace
+import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
 
@@ -85,5 +92,44 @@ private fun <T> resolveSafeOrNull(block: () -> T?): T? {
         throw e
     } catch (e: Throwable) {
         null
+    }
+}
+
+@UsedInIdePlugin
+fun DependencyNode.reportOverriddenDirectModuleDependencies(reporter: ProblemReporter) {
+    if (this is DirectFragmentDependencyNodeHolder
+        && this.dependencyNode is MavenDependencyNode
+        && this.dependencyNode.version != this.dependencyNode.dependency.version)
+    {
+        // for every direct module dependency referencing this dependency node
+        val psiElement = (notation?.trace as? PsiTrace)?.psiElement
+        if (psiElement != null) {
+            reporter.reportMessage(
+                ModuleDependencyWithOverriddenVersion(
+                    this.dependencyNode.version,
+                    this.dependencyNode.dependency.version,
+                    this.dependencyNode.mavenCoordinates().toString(),
+                    psiElement
+                ))
+        }
+    }
+}
+
+class ModuleDependencyWithOverriddenVersion(
+    @UsedInIdePlugin
+    val originalVersion: String,
+    @UsedInIdePlugin
+    val effectiveVersion: String,
+    @UsedInIdePlugin
+    val effectiveCoordinates: String,
+    @UsedInIdePlugin
+    override val element: PsiElement,
+) : PsiBuildProblem(Level.Warning) {
+    override val buildProblemId: BuildProblemId = ID
+    override val message: String
+        get() = "Declared dependency version is overridden, the actual version is $effectiveVersion"
+
+    companion object {
+        const val ID = "dependency.version.is.overridden"
     }
 }
