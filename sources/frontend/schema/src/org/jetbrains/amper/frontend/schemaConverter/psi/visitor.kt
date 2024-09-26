@@ -35,7 +35,10 @@ import org.jetbrains.amper.frontend.builders.schemaDeclaredMemberProperties
 import org.jetbrains.amper.frontend.builders.unwrapKClass
 import org.jetbrains.amper.frontend.schema.CatalogDependency
 import org.jetbrains.amper.frontend.schema.Dependency
+import org.jetbrains.amper.frontend.schema.DependencyScope
+import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
+import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
@@ -151,6 +154,15 @@ class Pointer(val segmentName: String? = null,
 }
 
 context(Converter)
+private fun instantiateDependency(text: String): Dependency {
+    return when {
+        text.startsWith(".") -> InternalDependency().also { it.path = text.asAbsolutePath() }
+        text.startsWith("$") -> CatalogDependency().also { it.catalogKey = text.substring(1) }
+        else -> ExternalMavenDependency().also { it.coordinates = text }
+    }
+}
+
+context(Converter)
 internal fun readTypedValue(type: KType,
                             table: Map<KeyWithContext, Scalar>,
                             path: Pointer,
@@ -179,7 +191,7 @@ internal fun readTypedValue(type: KType,
     if (applicableKeys.isEmpty()) return null
 
     if (type.isScalar) {
-        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        val scalarValue = table.get(KeyWithContext(path, contexts))
         val text = scalarValue?.textValue ?: return null
         when {
             type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
@@ -224,14 +236,13 @@ internal fun readTypedValue(type: KType,
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         val scalarValue = table.get(KeyWithContext(path, contexts))
         val textValue = scalarValue?.textValue
+
+        // hack for internal and catalog dependencies, need to rethink this
+        if (type.unwrapKClass == Dependency::class) {
+            return instantiateDependency(scalarValue, applicableKeys, path, table, contexts)
+        }
+
         if (textValue != null) {
-            // hack for internal and catalog dependencies, need to rethink this
-            if (textValue.startsWith("./") && type.unwrapKClass == Dependency::class) {
-                return InternalDependency().also { it.path = textValue.asAbsolutePath() }
-            }
-            if (textValue.startsWith("$") && type.unwrapKClass == Dependency::class) {
-                return CatalogDependency().also { it.catalogKey = textValue }
-            }
             // find the implicit constructor and invoke it
             val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
                 ?: type.unwrapKClass
@@ -248,6 +259,7 @@ internal fun readTypedValue(type: KType,
                 }
             }
         }
+
         if (textValue == "enabled") {
             val enabledProperty = type.unwrapKClass.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
@@ -260,9 +272,67 @@ internal fun readTypedValue(type: KType,
         }
     }
 
-    return type.instantiateType().also {
-        readFromTable(it, table, path, contexts)
+    return type.instantiateType().also { instance ->
+        readFromTable(instance, table, path, contexts)
     }
+}
+
+context(Converter)
+private fun instantiateDependency(
+    scalarValue: Scalar?,
+    applicableKeys: List<KeyWithContext>,
+    path: Pointer,
+    table: Map<KeyWithContext, Scalar>,
+    contexts: Set<String>
+): Any? {
+    val textValue = scalarValue?.textValue
+    if ((scalarValue?.sourceElement?.language is YAMLLanguage
+                || textValue == path.segmentName) && textValue != null) return instantiateDependency(textValue)
+    else {
+        val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
+        if (matchingKeys.size == 1) {
+            val key = matchingKeys.single()
+            val specialValue = table.get(key)?.textValue
+            val segmentName = key.key.segmentName
+            if (specialValue != null && segmentName != null) {
+                instantiateDependency(segmentName).also {
+                    when (specialValue) {
+                        "exported" -> {
+                            it.exported = true
+                            return it
+                        }
+
+                        "compile-only" -> {
+                            it.scope = DependencyScope.COMPILE_ONLY
+                            return it
+                        }
+
+                        "runtime-only" -> {
+                            it.scope = DependencyScope.RUNTIME_ONLY
+                            return it
+                        }
+
+                        "all" -> {
+                            it.scope = DependencyScope.ALL
+                            return it
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            val next = matchingKeys.map {
+                it.key.nextAfter(path)
+            }.distinct()
+            if (next.size == 1) {
+                val single = next.single()!!
+                return instantiateDependency(single.segmentName!!).also {
+                    readFromTable(it, table, single, contexts)
+                }
+            }
+        }
+    }
+    return null
 }
 
 context(Converter)
@@ -292,8 +362,6 @@ private fun KType.instantiateType(): Any {
     return kClass.findAnnotation<ImplicitConstructor>()?.constructedType?.createInstance()
         ?: kClass.createInstance()
 }
-
-private fun Boolean.toInt() = if (this) 0 else 1
 
 open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
