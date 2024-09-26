@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e -u -o pipefail
+
 WD_HUB_URL=${WD_HUB_URL:-"http://circlet:circlet@10.21.0.104:4444/wd/hub"}
 SESSION_URL="$WD_HUB_URL/session"
 SESSION_NAME="Android espresso tests"
