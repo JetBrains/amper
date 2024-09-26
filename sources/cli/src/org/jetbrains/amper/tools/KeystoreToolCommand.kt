@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tools
 
-import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
@@ -18,7 +18,7 @@ import org.jetbrains.amper.keystore.KeystoreGenerator
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
-class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
+class KeystoreToolCommand : SuspendingCliktCommand(name = "generate-keystore") {
 
     private val commonOptions by requireObject<RootCommand.CommonOptions>()
 
@@ -37,7 +37,7 @@ class KeystoreToolCommand : CliktCommand(name = "generate-keystore") {
 
     override fun help(context: Context): String = "Generate keystore"
 
-    override fun run() {
+    override suspend fun run() {
         withBackend(commonOptions, commandName, setupEnvironment = true) {
             try {
                 propertiesFile?.let {

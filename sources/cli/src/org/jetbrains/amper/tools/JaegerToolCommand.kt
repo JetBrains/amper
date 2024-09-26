@@ -4,7 +4,7 @@
 
 package org.jetbrains.amper.tools
 
-import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -18,8 +18,8 @@ import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import org.jetbrains.amper.cli.RootCommand
 import org.jetbrains.amper.cli.userReadableError
 import org.jetbrains.amper.core.downloader.Downloader
@@ -36,7 +36,7 @@ import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
-class JaegerToolCommand: CliktCommand(name = "jaeger") {
+class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
     private val openBrowser by option(
         "--open-browser",
         help = "Open Jaeger UI in browser if Jaeger successfully starts",
@@ -56,7 +56,7 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
 
     override fun helpEpilog(context: Context): String = "Use -- to separate Jaeger's arguments from Amper options"
 
-    override fun run() {
+    override suspend fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot
         val terminal = commonOptions.terminal
 
@@ -76,7 +76,7 @@ class JaegerToolCommand: CliktCommand(name = "jaeger") {
         val checkForHttpPortAvailability = openBrowser && !connectToLocalPort(port)
 
         val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$version/jaeger-${version}-$osString-$archString.tar.gz"
-        runBlocking(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, userCacheRoot)
             val root = extractFileToCacheLocation(file, userCacheRoot, ExtractOptions.STRIP_ROOT)
 

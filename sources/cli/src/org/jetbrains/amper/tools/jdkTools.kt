@@ -4,11 +4,11 @@
 
 package org.jetbrains.amper.tools
 
-import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 
-class JdkToolCommands: CliktCommand(name = "jdk") {
+class JdkToolCommands: SuspendingCliktCommand(name = "jdk") {
     init {
         subcommands(
             JdkToolCommand("jstack"),
@@ -20,5 +20,5 @@ class JdkToolCommands: CliktCommand(name = "jdk") {
 
     override fun help(context: Context): String = "Run various tools from Amper default JDK"
 
-    override fun run() = Unit
+    override suspend fun run() = Unit
 }
