@@ -7,6 +7,8 @@ package org.jetbrains.amper.frontend.schema
 import org.jetbrains.amper.frontend.EnumMap
 import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.CustomSchemaDef
+import org.jetbrains.amper.frontend.api.ImplicitConstructor
+import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaDoc
 import org.jetbrains.amper.frontend.api.SchemaNode
 import java.nio.file.Path
@@ -23,6 +25,7 @@ enum class DependencyScope(
     companion object : EnumMap<DependencyScope, String>(DependencyScope::values, DependencyScope::schemaValue)
 }
 
+@ImplicitConstructor(ExternalMavenDependency::class)
 sealed class Dependency : SchemaNode() {
 
     // TODO Replace exported flag by new scope (rethink scopes).
@@ -36,6 +39,7 @@ sealed class Dependency : SchemaNode() {
 @CustomSchemaDef(dependencySchema)
 class ExternalMavenDependency : Dependency() {
 
+    @ImplicitConstructorParameter
     @SchemaDoc("Dependency on [a Kotlin or Java library](#external-maven-dependencies) in a Maven repository")
     var coordinates by value<String>()
 }
