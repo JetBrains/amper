@@ -12,7 +12,9 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateExpectResourceCollectors
+import kotlin.io.path.pathString
 
 /**
  * See [generateExpectResourceCollectors] dir.
@@ -23,16 +25,25 @@ class GenerateExpectResourceCollectorsTask(
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
-            .apply(::cleanDirectory)
 
-        generateExpectResourceCollectors(
-            packageName = packageName,
-            makeAccessorsPublic = makeAccessorsPublic,
-            outputSourceDirectory = codeDir,
+        val config = mapOf(
+            "packageName" to packageName,
+            "makeAccessorsPublic" to makeAccessorsPublic.toString(),
+            "outputSourceDirectory" to codeDir.pathString,
         )
+        executeOnChangedInputs.execute(taskName.name, inputs = emptyList(), configuration = config) {
+            cleanDirectory(codeDir)
+            generateExpectResourceCollectors(
+                packageName = packageName,
+                makeAccessorsPublic = makeAccessorsPublic,
+                outputSourceDirectory = codeDir,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(codeDir))
+        }
 
         return Result(
             sourceRoots = listOf(

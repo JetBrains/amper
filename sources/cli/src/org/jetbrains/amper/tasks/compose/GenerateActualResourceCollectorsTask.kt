@@ -12,7 +12,9 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCollectorsPath
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateActualResourceCollectors
+import kotlin.io.path.pathString
 
 /**
  * See [generateActualResourceCollectors] step.
@@ -21,8 +23,9 @@ class GenerateActualResourceCollectorsTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
     private val packageName: String,
-    private val makeAccessorsPublic: Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
+    private val makeAccessorsPublic: Boolean,
     private val useActualModifier: Boolean,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
@@ -35,15 +38,26 @@ class GenerateActualResourceCollectorsTask(
         }
 
         val codeDir = fragment.composeResourcesGeneratedCollectorsPath(buildOutputRoot.path)
-            .apply(::cleanDirectory)
 
-        generateActualResourceCollectors(
-            packageName = packageName,
-            makeAccessorsPublic = makeAccessorsPublic,
-            accessorDirectories = resourceAccessorDirs,
-            outputSourceDirectory = codeDir,
-            useActualModifier = useActualModifier,
+        val config = mapOf(
+            "packageName" to packageName,
+            "makeAccessorsPublic" to makeAccessorsPublic.toString(),
+            "useActualModifier" to useActualModifier.toString(),
+            "outputSourceDirectory" to codeDir.pathString,
         )
+        executeOnChangedInputs.execute(taskName.name, inputs = resourceAccessorDirs, configuration = config) {
+            cleanDirectory(codeDir)
+            generateActualResourceCollectors(
+                packageName = packageName,
+                makeAccessorsPublic = makeAccessorsPublic,
+                accessorDirectories = resourceAccessorDirs,
+                outputSourceDirectory = codeDir,
+                useActualModifier = useActualModifier,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(
+                outputs = listOf(codeDir),
+            )
+        }
 
         return Result(
             sourceRoots = listOf(

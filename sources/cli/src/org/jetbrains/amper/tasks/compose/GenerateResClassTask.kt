@@ -12,7 +12,9 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedCommonResClassPath
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateResClass
+import kotlin.io.path.pathString
 
 /**
  * See [generateResClass] step.
@@ -22,19 +24,30 @@ class GenerateResClassTask(
     private val fragment: Fragment,
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
-    private val buildOutputRoot: AmperBuildOutputRoot,
     private val packagingDir: String,
+    private val buildOutputRoot: AmperBuildOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedCommonResClassPath(buildOutputRoot.path)
-            .apply(::cleanDirectory)
 
-        generateResClass(
-            packageName = packageName,
-            packagingDir = packagingDir,
-            isPublic = makeAccessorsPublic,
-            outputSourceDirectory = codeDir,
+        val config = mapOf(
+            "packageName" to packageName,
+            "packagingDir" to packagingDir,
+            "isPublic" to makeAccessorsPublic.toString(),
+            "outputSourceDirectory" to codeDir.pathString,
         )
+
+        executeOnChangedInputs.execute(taskName.name, inputs = emptyList(), configuration = config) {
+            cleanDirectory(codeDir)
+            generateResClass(
+                packageName = packageName,
+                packagingDir = packagingDir,
+                isPublic = makeAccessorsPublic,
+                outputSourceDirectory = codeDir,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(codeDir))
+        }
 
         return Result(
             sourceRoots = listOf(

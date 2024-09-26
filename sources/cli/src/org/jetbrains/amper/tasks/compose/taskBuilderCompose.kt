@@ -56,6 +56,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                     makeAccessorsPublic = makeAccessorsPublic,
                     packagingDir = packagingDir,
                     buildOutputRoot = context.buildOutputRoot,
+                    executeOnChangedInputs = executeOnChangedInputs,
                 ),
             )
             addCodegenTaskForRegistering(rootFragment, taskName)
@@ -69,6 +70,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         packageName = packageName,
                         makeAccessorsPublic = makeAccessorsPublic,
                         buildOutputRoot = context.buildOutputRoot,
+                        executeOnChangedInputs = executeOnChangedInputs,
                     ),
                 )
                 addCodegenTaskForRegistering(rootFragment, taskName)
@@ -85,6 +87,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                     originalResourcesDir = fragment.composeResourcesPath,
                     packagingDir = packagingDir,
                     taskOutputRoot = context.getTaskOutputPath(prepareResourcesTaskName),
+                    executeOnChangedInputs = executeOnChangedInputs,
                 )
             )
 
@@ -96,6 +99,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         fragment = fragment,
                         makeAccessorsPublic = makeAccessorsPublic,
                         buildOutputRoot = context.buildOutputRoot,
+                        executeOnChangedInputs = executeOnChangedInputs,
                     ),
                     dependsOn = listOf(
                         prepareResourcesTaskName,
@@ -116,6 +120,7 @@ private fun ProjectTasksBuilder.configureComposeResourcesGeneration() {
                         makeAccessorsPublic = makeAccessorsPublic,
                         buildOutputRoot = context.buildOutputRoot,
                         useActualModifier = shouldSeparateExpectActual,
+                        executeOnChangedInputs = executeOnChangedInputs,
                     ),
                     // FIXME: Maybe a bug here, if fragmentDependencies are not transitive
                     dependsOn = fragment.fragmentDependencies

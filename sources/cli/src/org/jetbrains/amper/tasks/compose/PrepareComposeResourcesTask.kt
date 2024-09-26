@@ -10,8 +10,10 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.tasks.TaskOutputRoot
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.prepareResources
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 /**
  * See [prepareResources] step.
@@ -19,19 +21,28 @@ import java.nio.file.Path
 class PrepareComposeResourcesTask(
     override val taskName: TaskName,
     private val fragment: Fragment,
-    private val taskOutputRoot: TaskOutputRoot,
     private val packagingDir: String,
     private val originalResourcesDir: Path,
+    private val taskOutputRoot: TaskOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val outputDir = taskOutputRoot.path
-            .apply(::cleanDirectory)
 
-        prepareResources(
-            qualifier = fragment.name,
-            originalResourcesDir = originalResourcesDir,
-            outputDirectory = outputDir,
+        val config = mapOf(
+            // "qualifier" - doesn't change
+            // "originalResourcesDir" - inputs
+            "outputDirectory" to outputDir.pathString,
         )
+        executeOnChangedInputs.execute(taskName.name, inputs = listOf(originalResourcesDir), configuration = config) {
+            cleanDirectory(outputDir)
+            prepareResources(
+                qualifier = fragment.name,
+                originalResourcesDir = originalResourcesDir,
+                outputDirectory = outputDir,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(outputs = listOf(outputDir))
+        }
         return Result(
             outputDir = outputDir,
             relativePackagingPath = packagingDir,

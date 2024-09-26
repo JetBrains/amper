@@ -13,7 +13,9 @@ import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.aomBuilder.composeResourcesGeneratedAccessorsPath
 import org.jetbrains.amper.tasks.AdditionalSourcesProvider
 import org.jetbrains.amper.tasks.TaskResult
+import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.jetbrains.compose.resources.generateResourceAccessors
+import kotlin.io.path.pathString
 
 /**
  * See [generateResourceAccessors] step.
@@ -24,22 +26,35 @@ class GenerateResourceAccessorsTask(
     private val packageName: String,
     private val makeAccessorsPublic: Boolean,
     private val buildOutputRoot: AmperBuildOutputRoot,
+    private val executeOnChangedInputs: ExecuteOnChangedInputs,
 ) : Task {
     override suspend fun run(dependenciesResult: List<TaskResult>): TaskResult {
         val codeDir = fragment.composeResourcesGeneratedAccessorsPath(buildOutputRoot.path)
-            .apply(::cleanDirectory)
 
         val prepareResult = dependenciesResult
             .requireSingleDependency<PrepareComposeResourcesTask.Result>()
 
-        generateResourceAccessors(
-            packageName = packageName,
-            qualifier = fragment.name,
-            makeAccessorsPublic = makeAccessorsPublic,
-            packagingDir = prepareResult.relativePackagingPath,
-            preparedResourcesDirectory = prepareResult.outputDir,
-            outputSourceDirectory = codeDir,
+        val config = mapOf(
+            "packageName" to packageName,
+            // "qualifier" - fragment can't change
+            "makeAccessorsPublic" to makeAccessorsPublic.toString(),
+            "packagingDir" to prepareResult.relativePackagingPath,
+            // "preparedResourcesDirectory" - already in inputs
+            "outputSourceDirectory" to codeDir.pathString,
         )
+
+        executeOnChangedInputs.execute(taskName.name, inputs = listOf(prepareResult.outputDir), configuration = config) {
+            cleanDirectory(codeDir)
+            generateResourceAccessors(
+                packageName = packageName,
+                qualifier = fragment.name,
+                makeAccessorsPublic = makeAccessorsPublic,
+                packagingDir = prepareResult.relativePackagingPath,
+                preparedResourcesDirectory = prepareResult.outputDir,
+                outputSourceDirectory = codeDir,
+            )
+            ExecuteOnChangedInputs.ExecutionResult(listOf(codeDir))
+        }
 
         return Result(
             sourceRoots = listOf(
