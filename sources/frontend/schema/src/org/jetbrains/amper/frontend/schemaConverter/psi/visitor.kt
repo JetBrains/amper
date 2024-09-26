@@ -40,7 +40,6 @@ import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.YAMLPsiElement
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
@@ -57,7 +56,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-internal data class KeyWithContext(val key: String, val contexts: Set<Context>)
+internal data class KeyWithContext(val key: Pointer, val contexts: Set<Context>)
 
 internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
     val table = mutableMapOf<KeyWithContext, Scalar>()
@@ -78,7 +77,7 @@ internal fun Map<KeyWithContext, Scalar>.getApplicableContexts(): List<Set<Conte
     return keys.map { it.contexts }.distinct()
 }
 
-internal fun Map<KeyWithContext, Scalar>.query(key: String, contexts: Set<Context>): Scalar? {
+internal fun Map<KeyWithContext, Scalar>.query(key: Pointer, contexts: Set<Context>): Scalar? {
     val applicableKeys = keys.filter { it.key == key && contexts.isSubcontextOf(it.contexts) }
     if (applicableKeys.isEmpty()) return null
     if (applicableKeys.size == 1) return this[applicableKeys.single()]
@@ -86,10 +85,77 @@ internal fun Map<KeyWithContext, Scalar>.query(key: String, contexts: Set<Contex
         .firstOrNull()?.let { this[it] }
 }
 
+class Pointer(val segmentName: String? = null,
+                       var prev: Pointer? = null,
+                       var next: Pointer? = null) {
+
+    val firstSegment get() = run {
+        var p: Pointer = this
+        while (p.prev != null) p = p.prev!!
+        p
+    }
+
+    operator fun plus(value: String): Pointer {
+        if (segmentName == null && prev == null && next == null) {
+            return Pointer(value)
+        }
+
+        val newPointer = Pointer(value, this)
+        this.next = newPointer
+        return newPointer
+    }
+
+    fun nextAfter(o: Pointer): Pointer? {
+        var own: Pointer? = firstSegment
+        var other: Pointer? = o.firstSegment
+        while (other != null) {
+            if (own == null || own.segmentName != other.segmentName) return null
+            if (own === this || other === o) break
+            own = own.next
+            other = other.next
+        }
+        return own?.next
+    }
+
+    fun startsWith(o: Pointer): Boolean {
+        var own: Pointer? = firstSegment
+        var other: Pointer? = o.firstSegment
+        while (other != null) {
+            if (own == null || own.segmentName != other.segmentName) return false
+            if (own === this || other === o) break
+            own = own.next
+            other = other.next
+        }
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return toString().hashCode()
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (o !is Pointer || segmentName != o.segmentName) return false
+        return toString() == o.toString()
+    }
+
+    override fun toString(): String {
+        val builder = StringBuilder()
+        val firstSegment1 = firstSegment
+        var p: Pointer? = firstSegment1
+        while (p != null) {
+            if (p !== firstSegment1) builder.append(" :: ")
+            builder.append(p.segmentName)
+            if (p === this) break
+            p = p.next
+        }
+        return builder.toString()
+    }
+}
+
 context(Converter)
 internal fun readTypedValue(type: KType,
                             table: Map<KeyWithContext, Scalar>,
-                            path: String): Any? {
+                            path: Pointer): Any? {
     if (type.withNullability(false) != type) {
         return readTypedValue(type.withNullability(false), table, path)
     }
@@ -136,26 +202,19 @@ internal fun readTypedValue(type: KType,
             return mapOf(noModifiers to readTypedValue(type.mapValueType, table, path))
         }
         return applicableKeys.associate {
-            val isYaml = table[it]?.sourceElement is YAMLPsiElement
-            val nextSlash = it.key.indexOf('/', "$path/".length + 1)
-            val key = if (nextSlash >= 0) {
-                if (isYaml) {
-                    it.key.substring(nextSlash + 1,
-                        it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 } ?: it.key.length)
-                }
-                else it.key.substring("$path/".length, nextSlash)
-            } else it.key
-            val lastPos = it.key.indexOf('/', nextSlash + 1).takeIf { it >= 0 && nextSlash >= 0 }
-                ?: it.key.length
-            key to readTypedValue(type.mapValueType, table, it.key.substring(0, lastPos))
+            val name = if (
+                table[it]?.sourceElement?.language is AmperLanguage
+                || it.key.segmentName?.toIntOrNull() != null
+              ) it.key.prev?.segmentName else it.key.segmentName
+            name!! to readTypedValue(type.mapValueType, table, it.key.prev!!)
         }
     }
     if (type.isCollection)  {
-        val visitedKeys = hashSetOf<String>()
+        val visitedKeys = hashSetOf<Pointer>()
         return applicableKeys.mapNotNull {
-            val nextSlash = it.key.indexOf('/', "$path/".length + 1).takeIf { it >= 0 } ?: it.key.length
-            val newKey = it.key.substring(0, nextSlash)
-            if (visitedKeys.add(newKey)) {
+            val newKey = it.key.nextAfter(path)
+            if (newKey != null && !visitedKeys.any { newKey.startsWith(it) }) {
+                visitedKeys.add(newKey)
                 readTypedValue(type.collectionType, table, newKey)
             } else null
         }
@@ -181,7 +240,7 @@ internal fun readTypedValue(type: KType,
                 }
 
             if (param != null) {
-                return type.instantiateType(table, path)?.also {
+                return type.instantiateType().also {
                     param.set(it, textValue)
                 }
             }
@@ -191,37 +250,34 @@ internal fun readTypedValue(type: KType,
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
                 .singleOrNull { it.name == "enabled" }
             if (enabledProperty != null) {
-                return type.instantiateType(table, path)?.also {
+                return type.instantiateType().also {
                     enabledProperty.set(it, true)
                 }
             }
         }
     }
 
-    //if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        return type.instantiateType(table, path)?.also {
-            readFromTable(it, table, path)
-        }
-    //}
+    return type.instantiateType().also {
+        readFromTable(it, table, path)
+    }
 }
 
 context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
     table: Map<KeyWithContext, Scalar>,
-    path: String = ""
+    path: Pointer = Pointer()
 ) {
     obj::class.schemaDeclaredMemberProperties()
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
         .forEach { prop ->
-            val newPath = if (path.isEmpty()) prop.name else path + "/" + prop.name
-            readTypedValue(prop.returnType, table, newPath)?.let {
+            readTypedValue(prop.returnType, table, path + prop.name)?.let {
                 prop.set(obj, it)
             }
     }
 }
 
-private fun KType.instantiateType(table: Map<KeyWithContext, Scalar>, path: String): Any? {
+private fun KType.instantiateType(): Any {
     val kClass = unwrapKClass
     if (kClass.isSubclassOf(Set::class)) {
         return HashSet<Any>()
@@ -229,11 +285,8 @@ private fun KType.instantiateType(table: Map<KeyWithContext, Scalar>, path: Stri
     if (kClass.isSubclassOf(List::class)) {
         return ArrayList<Any>()
     }
-    if (kClass.isSubclassOf(Dependency::class)) {
-        val keys = table.keys.filter { it.key.startsWith("$path/") }
-        return null
-    }
-    return kClass.createInstance()
+    return kClass.findAnnotation<ImplicitConstructor>()?.constructedType?.createInstance()
+        ?: kClass.createInstance()
 }
 
 private fun Boolean.toInt() = if (this) 0 else 1
@@ -242,7 +295,13 @@ open class AmperPsiAdapterVisitor {
     private val positionStack: Stack<String> = Stack()
     private val contextStack: Stack<Set<Context>> = Stack()
 
-    val position get() = positionStack.toList().joinToString("/")
+    val position get() = positionStack.toList().let {
+        var path = Pointer()
+        for (item in it) {
+            path += item
+        }
+        return@let path
+    }
     val context get() = contextStack.toList().flatten().toSet()
 
     fun visitElement(element: PsiElement) {
@@ -268,20 +327,9 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitObject(o: AmperObject) {
-                    /*if (o.propertyList.any { it.value == null }) {
-                        Sequence.from(o)?.let { visitSequence(it) }
-                        o.propertyList.forEachIndexed { index, amperProperty ->
-                            positionStack.push(index.toString())
-                            amperProperty.accept(this)
-                            positionStack.pop()
-                        }
-                        // do not call super here!
-                    }
-                    else {*/
-                        Sequence.from(o)?.let { visitSequence(it) }
-                        MappingNode.from(o)?.let { visitMappingNode(it) }
-                        super.visitObject(o)
-                    //}
+                    Sequence.from(o)?.let { visitSequence(it) }
+                    MappingNode.from(o)?.let { visitMappingNode(it) }
+                    super.visitObject(o)
                 }
 
                 override fun visitProperty(o: AmperProperty) {
