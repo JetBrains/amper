@@ -7,7 +7,7 @@ package org.jetbrains.amper.core.downloader
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import kotlinx.coroutines.delay
-import org.jetbrains.amper.core.tracer
+import org.jetbrains.amper.core.spanBuilder
 import org.jetbrains.amper.core.use
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -77,7 +77,7 @@ private fun nextDelay(
 }
 
 private fun defaultExceptionConsumer(attempt: Int, e: Exception) {
-    tracer.spanBuilder("Retrying action with exponential back off").use { span ->
+    spanBuilder("Retrying action with exponential back off").use { span ->
         span.addEvent("Attempt failed", Attributes.of(
             AttributeKey.longKey("attemptNumber"), attempt.toLong(),
             AttributeKey.stringKey("error"), e.toString()

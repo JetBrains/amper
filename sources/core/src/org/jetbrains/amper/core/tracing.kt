@@ -19,10 +19,10 @@ import kotlin.use
 
 private const val AMPER_SCOPE_NAME = "amper"
 
-val tracer: Tracer
+private val tracer: Tracer
     get() = GlobalOpenTelemetry.getTracer(AMPER_SCOPE_NAME)
 
-val meter: Meter
+private val meter: Meter
     get() = GlobalOpenTelemetry.getMeter(AMPER_SCOPE_NAME)
 
 /**
