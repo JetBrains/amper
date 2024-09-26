@@ -197,7 +197,7 @@ internal suspend fun withBackend(
     //  and does not handle source class names from jul LogRecord
     // JulTinylogBridge.activate()
 
-    spanBuilder("CLI Setup: install coroutines debug probes").use {
+    spanBuilder("CLI Setup: install coroutines debug probes").useWithScope {
         CliEnvironmentInitializer.setup()
     }
 
@@ -506,7 +506,7 @@ private fun checkAndGetPlatform(value: String) =
 suspend fun main(args: Array<String>) {
     try {
         TelemetryEnvironment.setup()
-        spanBuilder("Root").use {
+        spanBuilder("Root").useWithScope {
             RootCommand().main(args)
         }
     } catch (t: Throwable) {

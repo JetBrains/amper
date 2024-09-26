@@ -17,10 +17,7 @@ import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.catalogs.GradleVersionsCatalogFinder
 import org.jetbrains.amper.frontend.reportBundleError
 import org.jetbrains.amper.frontend.schema.Project
-import org.jetbrains.amper.frontend.schemaConverter.psi.ConvertCtx
-import org.jetbrains.amper.frontend.schemaConverter.psi.Converter
 import org.jetbrains.amper.frontend.schemaConverter.psi.ConverterImpl
-import org.jetbrains.amper.frontend.schemaConverter.psi.convertProject
 import java.nio.file.Path
 import java.util.regex.PatternSyntaxException
 import kotlin.io.path.relativeTo
@@ -68,8 +65,8 @@ class StandaloneAmperProjectContext(
         fun find(start: Path, project: IJProject? = null): StandaloneAmperProjectContext? {
             val frontendPathResolver = FrontendPathResolver(project)
             val result = spanBuilder("Find Amper project: presearch").use {
-                preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start)) ?: return null
-            }
+                preSearchProjectRoot(frontendPathResolver.loadVirtualFile(start))
+            } ?: return null
 
             val potentialContext = spanBuilder("Find Amper project: create").use {
                 create(result.potentialRoot, frontendPathResolver)

@@ -10,12 +10,11 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
-import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.use
 
 private const val AMPER_SCOPE_NAME = "amper"
 
@@ -48,21 +47,37 @@ internal inline fun <T> Span.useWithoutActiveScope(operation: (Span) -> T): T {
     }
 }
 
-inline fun <T> Span.use(operation: (Span) -> T): T {
-    return useWithoutActiveScope { span ->
-        span.makeCurrent().use {
-            operation(span)
-        }
+/**
+ * Runs the given [operation] under this span, in contexts that don't know about coroutines.
+ *
+ * The span is immediately started, and automatically ended when [operation] completes.
+ *
+ * **Important:** the OTel context is set in a [ThreadLocal], so we must not create coroutines inside the given
+ * [operation] unless we manually transfer the context using [asContextElement].
+ */
+// This is not 'inline' on purpose, to forbid the use of suspend functions inside (it would break OTel parent-child links)
+/* NOT inline */ fun <T> SpanBuilder.use(operation: (Span) -> T): T = startSpan().useWithoutActiveScope { span ->
+    // makeCurrent() modifies a ThreadLocal, but not the current coroutine context
+    span.makeCurrent().use {
+        operation(span)
     }
 }
 
-inline fun <T> SpanBuilder.use(operation: (Span) -> T): T {
-    return startSpan().use(operation)
-}
-
+/**
+ * Runs the given [operation] under this span, with proper context propagation.
+ *
+ * The span is immediately started, and automatically ended when [operation] completes.
+ *
+ * The running span is properly registered as [ThreadContextElement] in the nested context, so the usual
+ * [ThreadLocal]-based OTel context is available, and any OTel usage in [operation] can see it.
+ *
+ * Note: any direct modification to the OTel's [ThreadLocal] context (e.g. via [SpanBuilder.use]) will not
+ * be propagated to the coroutine context automatically. We need to keep using [useWithScope] everytime down the line
+ * of coroutines calls, unless coroutines won't be used at all.
+ */
 suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend CoroutineScope.(Span) -> T): T {
     val span = startSpan()
-    return withContext(Context.current().with(span).asContextElement()) {
+    return withContext(span.asContextElement()) {
         span.useWithoutActiveScope {
             operation(span)
         }

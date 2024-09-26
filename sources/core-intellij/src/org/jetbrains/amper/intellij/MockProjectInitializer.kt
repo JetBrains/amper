@@ -83,7 +83,7 @@ object MockProjectInitializer {
             return ourProject
         }
 
-        spanBuilder("Init mock IntelliJ project").use {
+        return spanBuilder("Init mock IntelliJ project").use {
             System.setProperty("idea.home.path", "") // TODO: Is it correct?
 
             val disposable = Disposer.newDisposable()
@@ -104,7 +104,7 @@ object MockProjectInitializer {
             Registry.markAsLoaded()
 
             latestConfigurator = intelliJApplicationConfigurator
-            return projectEnv.project.also { ourProject = it }
+            projectEnv.project.also { ourProject = it }
         }
     }
 
