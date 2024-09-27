@@ -168,7 +168,7 @@ internal fun doBuild(
         .forEach { (defaultModule, list) -> defaultModule.customTasks = list.map { it.second } }
 
     moduleTriples.onEach { triple ->
-        AomSingleModuleDiagnosticFactories.forEach { with(it) { triple.module.analyze(projectContext) } }
+        AomSingleModuleDiagnosticFactories.forEach { with(it) { triple.module.analyze() } }
     }
 
     // Fail fast if we have fatal errors.

@@ -15,14 +15,13 @@ import org.jetbrains.amper.frontend.api.SchemaValuesVisitor
 import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.project.AmperProjectContext
 import kotlin.reflect.jvm.javaField
 
 object UselessSettingValue : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId
         get() = "setting.value.overrides.nothing"
 
-    context(ProblemReporterContext) override fun PotatoModule.analyze(projectContext: AmperProjectContext) {
+    context(ProblemReporterContext) override fun PotatoModule.analyze() {
         val reportedPlaces = mutableSetOf<PsiElement>()
         val visitor = object : SchemaValuesVisitor() {
             override fun visitValue(it: ValueBase<*>) {

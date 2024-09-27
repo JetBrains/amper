@@ -4,7 +4,6 @@
 
 package org.jetbrains.amper.frontend.diagnostics
 
-import com.intellij.openapi.vfs.isFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.amper.core.messages.BuildProblemId
 import org.jetbrains.amper.core.messages.Level
@@ -15,8 +14,6 @@ import org.jetbrains.amper.frontend.SchemaBundle
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
 import org.jetbrains.amper.frontend.messages.extractPsiElementOrNull
-import org.jetbrains.amper.frontend.project.AmperProjectContext
-import org.jetbrains.amper.frontend.project.wrapperInstalled
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.KeystoreProperty
 import org.jetbrains.amper.frontend.schema.storeFile
@@ -31,15 +28,13 @@ import kotlin.reflect.KProperty0
 
 abstract class SigningConfigurationIncorrect : AomSingleModuleDiagnosticFactory {
     context(ProblemReporterContext)
-    override fun PotatoModule.analyze(projectContext: AmperProjectContext) {
-        if (projectContext.wrapperInstalled) {
-            source.moduleDir?.let { moduleDir ->
-                fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
-                    val android = fragment.settings.android
-                    val signing = android.signing
-                    if (signing.enabled) {
-                        analyze(moduleDir, android)
-                    }
+    override fun PotatoModule.analyze() {
+        this.source.moduleDir?.let { moduleDir ->
+            fragments.filter { !it.isTest }.filter { it.platforms == setOf(Platform.ANDROID) }.forEach { fragment ->
+                val android = fragment.settings.android
+                val signing = android.signing
+                if (signing.enabled) {
+                    analyze(moduleDir, android)
                 }
             }
         }

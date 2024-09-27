@@ -15,7 +15,6 @@ import org.jetbrains.amper.frontend.api.Trace
 import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.messages.PsiBuildProblem
 import org.jetbrains.amper.frontend.messages.extractPsiElement
-import org.jetbrains.amper.frontend.project.AmperProjectContext
 import org.jetbrains.amper.frontend.schema.AndroidVersion
 import kotlin.reflect.KProperty0
 
@@ -43,7 +42,7 @@ class AndroidVersionShouldBeAtLeastMinSdk(
 object AndroidVersionShouldBeAtLeastMinSdkFactory : AomSingleModuleDiagnosticFactory {
     override val diagnosticId: BuildProblemId = "android.version.should.be.at.least.min.sdk"
 
-    context(ProblemReporterContext) override fun PotatoModule.analyze(projectContext: AmperProjectContext) {
+    context(ProblemReporterContext) override fun PotatoModule.analyze() {
         val reportedPlaces = mutableSetOf<Trace?>()
         fragments.forEach { fragment ->
             val settings = fragment.settings.android
