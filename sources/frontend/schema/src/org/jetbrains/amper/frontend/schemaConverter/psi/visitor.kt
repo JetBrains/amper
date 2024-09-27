@@ -21,7 +21,9 @@ import org.jetbrains.amper.frontend.api.SchemaNode
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
+import org.jetbrains.amper.frontend.api.ValueBase
 import org.jetbrains.amper.frontend.api.applyPsiTrace
+import org.jetbrains.amper.frontend.api.valueBase
 import org.jetbrains.amper.frontend.builders.collectionType
 import org.jetbrains.amper.frontend.builders.isBoolean
 import org.jetbrains.amper.frontend.builders.isCollection
@@ -70,27 +72,10 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
     return table
 }
 
-/*internal fun Set<Context>.isSubcontextOf(otherSet: Set<Context>): Boolean {
-    return otherSet.flatMap { it.leaves }.containsAll(this.flatMap { it.leaves })
-}
-
-internal fun Map<KeyWithContext, Scalar>.getApplicableContexts(): List<Set<Context>> {
-    return keys.map { it.contexts }.distinct()
-}
-
-internal fun Map<KeyWithContext, Scalar>.query(key: Pointer, contexts: Set<Context>): Scalar? {
-    val applicableKeys = keys.filter { it.key == key && contexts.isSubcontextOf(it.contexts) }
-    if (applicableKeys.isEmpty()) return null
-    if (applicableKeys.size == 1) return this[applicableKeys.single()]
-    return applicableKeys.sortedWith { o1, o2 -> o1.contexts.isSubcontextOf(o2.contexts).toInt() }
-        .firstOrNull()?.let { this[it] }
-}*/
-
 class Pointer(val segmentName: String? = null,
                        var prev: Pointer? = null,
                        var next: Pointer? = null) {
-
-    val firstSegment get() = run {
+    private val firstSegment get() = run {
         var p: Pointer = this
         while (p.prev != null) p = p.prev!!
         p
@@ -134,9 +119,9 @@ class Pointer(val segmentName: String? = null,
         return toString().hashCode()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (o !is Pointer || segmentName != o.segmentName) return false
-        return toString() == o.toString()
+    override fun equals(other: Any?): Boolean {
+        if (other !is Pointer || segmentName != other.segmentName) return false
+        return toString() == other.toString()
     }
 
     override fun toString(): String {
@@ -163,25 +148,46 @@ private fun instantiateDependency(text: String): Dependency {
 }
 
 context(Converter)
-internal fun readTypedValue(type: KType,
-                            table: Map<KeyWithContext, Scalar>,
-                            path: Pointer,
-                            contexts: Set<String>): Any? {
+internal fun readTypedValue(
+    type: KType,
+    table: Map<KeyWithContext, Scalar>,
+    path: Pointer,
+    contexts: Set<String>,
+    valueBase: ValueBase<Any?>? = null
+): Any? {
     if (type.withNullability(false) != type) {
-        return readTypedValue(type.withNullability(false), table, path, contexts)
+        return readTypedValue(type.withNullability(false), table, path, contexts, valueBase)
     }
     if (type.isSubtypeOf(TraceableEnum::class.starProjectedType)
         || type.isSubtypeOf(TraceableString::class.starProjectedType)
         || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
-        val scalarValue = table.get(KeyWithContext(path, emptySet()))
+        val scalarValue = table[KeyWithContext(path, emptySet())]
         return when (type.unwrapKClass) {
-            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(it, table, path, contexts) }?.let {
+            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(
+                it,
+                table,
+                path,
+                contexts,
+                valueBase
+            ) }?.let {
                 TraceableEnum::class.primaryConstructor!!.call(it).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceableString::class -> readTypedValue(String::class.starProjectedType, table, path, contexts)?.let {
+            TraceableString::class -> readTypedValue(
+                String::class.starProjectedType,
+                table,
+                path,
+                contexts,
+                valueBase
+            )?.let {
                 TraceableString(it as String).applyPsiTrace(scalarValue?.sourceElement)
             }
-            TraceablePath::class -> readTypedValue(Path::class.starProjectedType, table, path, contexts)?.let {
+            TraceablePath::class -> readTypedValue(
+                Path::class.starProjectedType,
+                table,
+                path,
+                contexts,
+                valueBase
+            )?.let {
                 TraceablePath(it as Path).applyPsiTrace(scalarValue?.sourceElement)
             }
             else -> null
@@ -191,27 +197,19 @@ internal fun readTypedValue(type: KType,
     if (applicableKeys.isEmpty()) return null
 
     if (type.isScalar) {
-        val scalarValue = table.get(KeyWithContext(path, contexts))
+        val scalarValue = table[KeyWithContext(path, contexts)]
         val text = scalarValue?.textValue ?: return null
-        when {
-            type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
-                (type.unwrapKClass.declaredFunctions.firstOrNull {
-                    it.name == "values"
-                }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
-                    return it
-                    //prop.set(obj, it/*TraceableEnum(it).also{ it.trace = scalarValue?.sourceElement?.let { PsiTrace(it) } }*/)
-                }
-            }
-            type.isString -> return text
-            type.isBoolean -> return text == "true"
-            type.isInt -> return text.toInt()
-            type.isPath -> return text.asAbsolutePath()
-        }
+        return convertScalarType(type, scalarValue, text, valueBase)
     }
     if (type.isMap) {
         if (type.arguments[0].type?.isCollection == true) {
             return applicableKeys.map { it.contexts }
-                .associate { it.map { TraceableString(it) }.toSet() to readTypedValue(type.mapValueType, table, path, it) }
+                .associate { ks -> ks.map { TraceableString(it) }.toSet() to readTypedValue(
+                    type.mapValueType,
+                    table,
+                    path,
+                    ks
+                ) }
         }
         return applicableKeys.associate {
             val name = if (
@@ -223,8 +221,8 @@ internal fun readTypedValue(type: KType,
     }
     if (type.isCollection)  {
         val visitedKeys = hashSetOf<Pointer>()
-        return applicableKeys.mapNotNull {
-            val newKey = it.key.nextAfter(path)
+        return applicableKeys.mapNotNull { keyWithContext ->
+            val newKey = keyWithContext.key.nextAfter(path)
             if (newKey != null && !visitedKeys.any { newKey.startsWith(it) }) {
                 visitedKeys.add(newKey)
                 readTypedValue(type.collectionType, table, newKey, contexts)
@@ -234,7 +232,7 @@ internal fun readTypedValue(type: KType,
 
     // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        val scalarValue = table.get(KeyWithContext(path, contexts))
+        val scalarValue = table[KeyWithContext(path, contexts)]
         val textValue = scalarValue?.textValue
 
         // hack for internal and catalog dependencies, need to rethink this
@@ -278,6 +276,35 @@ internal fun readTypedValue(type: KType,
 }
 
 context(Converter)
+private fun convertScalarType(
+    type: KType,
+    scalarValue: Scalar?,
+    text: String,
+    valueBase: ValueBase<Any?>?
+): Any? {
+    scalarValue?.sourceElement?.let {
+        valueBase?.applyPsiTrace(it)
+    }
+    when {
+        type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
+            @Suppress("UNCHECKED_CAST")
+            (type.unwrapKClass.declaredFunctions.firstOrNull {
+                it.name == "values"
+            }?.call() as? Array<SchemaEnum>)?.firstOrNull { it.schemaValue == scalarValue?.textValue }?.let {
+                return it
+            }
+        }
+
+        type.isString -> return text
+        type.isBoolean -> return text == "true"
+        type.isInt -> return text.toInt()
+        type.isPath -> return text.asAbsolutePath()
+    }
+
+    return null
+}
+
+context(Converter)
 private fun instantiateDependency(
     scalarValue: Scalar?,
     applicableKeys: List<KeyWithContext>,
@@ -295,7 +322,7 @@ private fun instantiateDependency(
         val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
         if (matchingKeys.size == 1) {
             val key = matchingKeys.single()
-            val specialValue = table.get(key)?.textValue
+            val specialValue = table[key]?.textValue
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
                 instantiateDependency(segmentName).also {
@@ -348,7 +375,7 @@ internal fun <T : Any> readFromTable(
     obj::class.schemaDeclaredMemberProperties()
         .filterIsInstance<KMutableProperty1<Any, Any?>>()
         .forEach { prop ->
-            readTypedValue(prop.returnType, table, path + prop.name, contexts)?.let {
+            readTypedValue(prop.returnType, table, path + prop.name, contexts, prop.valueBase(obj))?.let {
                 prop.set(obj, it)
             }
     }
