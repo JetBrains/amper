@@ -287,8 +287,11 @@ private fun instantiateDependency(
 ): Any? {
     val textValue = scalarValue?.textValue
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
-                || textValue == path.segmentName) && textValue != null) return instantiateDependency(textValue)
-    else {
+                || textValue == path.segmentName) && textValue != null) {
+        return instantiateDependency(textValue).also {
+            readFromTable(it, table, path, contexts)
+        }
+    } else {
         val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
         if (matchingKeys.size == 1) {
             val key = matchingKeys.single()
