@@ -182,7 +182,6 @@ class ConverterTest : TestBase(Path("testResources",  "converter").absolute()) {
                     }
                 },
                 Repository().apply {
-                    id = "https://packages.jetbrains.team/maven/p/deft/deft"
                     url = "https://packages.jetbrains.team/maven/p/deft/deft"
                 },
             )
