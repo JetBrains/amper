@@ -61,12 +61,17 @@ import kotlin.reflect.full.withNullability
 
 internal data class KeyWithContext(val key: Pointer, val contexts: Set<String>)
 
-internal fun PsiElement.readValueTable(): Map<KeyWithContext, Scalar> {
-    val table = mutableMapOf<KeyWithContext, Scalar>()
+internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrapper> {
+    val table = mutableMapOf<KeyWithContext, AmperElementWrapper>()
     object : AmperPsiAdapterVisitor() {
         override fun visitScalar(node: Scalar) {
             table[KeyWithContext(position, context)] = node
             super.visitScalar(node)
+        }
+
+        override fun visitMappingEntry(node: MappingEntry) {
+            table[KeyWithContext(position, context)] = node
+            super.visitMappingEntry(node)
         }
     }.visitElement(this)
     return table
@@ -150,7 +155,7 @@ private fun instantiateDependency(text: String): Dependency {
 context(Converter)
 internal fun readTypedValue(
     type: KType,
-    table: Map<KeyWithContext, Scalar>,
+    table: Map<KeyWithContext, AmperElementWrapper>,
     path: Pointer,
     contexts: Set<String>,
     valueBase: ValueBase<Any?>? = null
@@ -197,7 +202,7 @@ internal fun readTypedValue(
     if (applicableKeys.isEmpty()) return null
 
     if (type.isScalar) {
-        val scalarValue = table[KeyWithContext(path, contexts)]
+        val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val text = scalarValue?.textValue ?: return null
         return convertScalarType(type, scalarValue, text, valueBase)
     }
@@ -211,13 +216,14 @@ internal fun readTypedValue(
                     ks
                 ) }
         }
-        return applicableKeys.associate {
+        return applicableKeys.mapNotNull {
             val name = if (
                 table[it]?.sourceElement?.language is AmperLanguage
                 || it.key.segmentName?.toIntOrNull() != null
               ) it.key.prev?.segmentName else it.key.segmentName
-            name!! to readTypedValue(type.mapValueType, table, it.key.prev!!, contexts)
-        }
+            if (name == null || it.key.prev == null) null
+            else (name to readTypedValue(type.mapValueType, table, it.key.prev!!, contexts))
+        }.toMap()
     }
     if (type.isCollection)  {
         val visitedKeys = hashSetOf<Pointer>()
@@ -232,8 +238,8 @@ internal fun readTypedValue(
 
     // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
-        val scalarValue = table[KeyWithContext(path, contexts)]
-        val textValue = scalarValue?.textValue
+        val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
+        val textValue = scalarValue?.textValue ?: return null
 
         // hack for internal and catalog dependencies, need to rethink this
         if (type.unwrapKClass == Dependency::class) {
@@ -309,42 +315,48 @@ private fun instantiateDependency(
     scalarValue: Scalar?,
     applicableKeys: List<KeyWithContext>,
     path: Pointer,
-    table: Map<KeyWithContext, Scalar>,
+    table: Map<KeyWithContext, AmperElementWrapper>,
     contexts: Set<String>
 ): Any? {
     val textValue = scalarValue?.textValue
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
                 || textValue == path.segmentName) && textValue != null) {
-        return instantiateDependency(textValue).also {
-            readFromTable(it, table, path, contexts)
+        return instantiateDependency(textValue).also { dep ->
+            table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                dep.applyPsiTrace(it)
+            }
+            readFromTable(dep, table, path, contexts)
         }
     } else {
         val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
         if (matchingKeys.size == 1) {
             val key = matchingKeys.single()
-            val specialValue = table[key]?.textValue
+            val specialValue = (table[key] as? Scalar)?.textValue
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
-                instantiateDependency(segmentName).also {
+                instantiateDependency(segmentName).also { dep ->
+                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                        dep.applyPsiTrace(it)
+                    }
                     when (specialValue) {
                         "exported" -> {
-                            it.exported = true
-                            return it
+                            dep.exported = true
+                            return dep
                         }
 
                         "compile-only" -> {
-                            it.scope = DependencyScope.COMPILE_ONLY
-                            return it
+                            dep.scope = DependencyScope.COMPILE_ONLY
+                            return dep
                         }
 
                         "runtime-only" -> {
-                            it.scope = DependencyScope.RUNTIME_ONLY
-                            return it
+                            dep.scope = DependencyScope.RUNTIME_ONLY
+                            return dep
                         }
 
                         "all" -> {
-                            it.scope = DependencyScope.ALL
-                            return it
+                            dep.scope = DependencyScope.ALL
+                            return dep
                         }
                     }
                 }
@@ -356,8 +368,11 @@ private fun instantiateDependency(
             }.distinct()
             if (next.size == 1) {
                 val single = next.single()!!
-                return instantiateDependency(single.segmentName!!).also {
-                    readFromTable(it, table, single, contexts)
+                return instantiateDependency(single.segmentName!!).also { dep ->
+                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                        dep.applyPsiTrace(it)
+                    }
+                    readFromTable(dep, table, single, contexts)
                 }
             }
         }
@@ -368,7 +383,7 @@ private fun instantiateDependency(
 context(Converter)
 internal fun <T : Any> readFromTable(
     obj: T,
-    table: Map<KeyWithContext, Scalar>,
+    table: Map<KeyWithContext, AmperElementWrapper>,
     path: Pointer = Pointer(),
     contexts: Set<String> = emptySet()
 ) {
@@ -377,6 +392,9 @@ internal fun <T : Any> readFromTable(
         .forEach { prop ->
             readTypedValue(prop.returnType, table, path + prop.name, contexts, prop.valueBase(obj))?.let {
                 prop.set(obj, it)
+                table[KeyWithContext(path + prop.name, contexts)]?.let {
+                    prop.valueBase(obj)?.applyPsiTrace(it.sourceElement)
+                }
             }
     }
 }

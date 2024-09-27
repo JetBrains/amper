@@ -15,7 +15,11 @@ import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 
-class Scalar(val sourceElement: PsiElement) {
+interface AmperElementWrapper {
+    val sourceElement: PsiElement
+}
+
+class Scalar(override val sourceElement: PsiElement): AmperElementWrapper {
     companion object {
         fun from(element: PsiElement?) =
             when (element) {
@@ -31,7 +35,7 @@ class Scalar(val sourceElement: PsiElement) {
         }
 }
 
-class Sequence(private val sourceElement: PsiElement) {
+class Sequence(override val sourceElement: PsiElement): AmperElementWrapper {
     companion object {
         fun from(element: PsiElement?) =
             when (element) {
@@ -49,7 +53,7 @@ class Sequence(private val sourceElement: PsiElement) {
     }
 }
 
-class MappingNode(sourceElement: PsiElement) {
+class MappingNode(override val sourceElement: PsiElement): AmperElementWrapper {
     companion object {
         fun from(element: PsiElement?) =
             when (element) {
@@ -88,7 +92,7 @@ internal fun getAltName(name: String) = name.split('-').mapIndexed { index, s ->
     if (index > 0) s.capitalize() else s
 }.joinToString("")
 
-class MappingEntry(val sourceElement: PsiElement) {
+class MappingEntry(override val sourceElement: PsiElement): AmperElementWrapper {
 
     val keyElement = when (sourceElement) {
         is YAMLKeyValue -> sourceElement.key
