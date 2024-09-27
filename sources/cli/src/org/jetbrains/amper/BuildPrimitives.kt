@@ -69,23 +69,22 @@ object BuildPrimitives {
             // generally, JDK developers do not think that executed command should receive the same arguments as passed to ProcessBuilder
             // see, e.g., https://bugs.openjdk.org/browse/JDK-8131908
             // this code is mostly tested by AmperBackendTest.simple multiplatform cli on jvm
-            val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
+            ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(command))
                 .directory(workingDir.toFile())
                 .also { it.environment().putAll(environment) }
                 .configureInput(input)
                 .start()
+                .withGuaranteedTermination { process ->
+                    process.provideInputIfNecessary(input)
 
-            process.withGuaranteedTermination {
-                process.provideInputIfNecessary(input)
-
-                try {
-                    process.outputStream.close()
-                } catch (t: IOException) {
-                    // we are not interested whether this operation fails
-                    logger.warn("Unable to close process stdin: ${t.message}", t)
+                    try {
+                        process.outputStream.close()
+                    } catch (t: IOException) {
+                        // we are not interested whether this operation fails
+                        logger.warn("Unable to close process stdin: ${t.message}", t)
+                    }
+                    process.awaitAndGetAllOutput(outputListener)
                 }
-                process.awaitAndGetAllOutput(outputListener)
-            }
         }
         span?.setProcessResultAttributes(result)
         return result

@@ -134,7 +134,7 @@ private suspend inline fun InputStream.readAllAndDoOnEachLine(onEachLine: (Strin
 @OptIn(ExperimentalContracts::class)
 internal suspend inline fun <T> Process.withGuaranteedTermination(
     gracePeriod: Duration = 1.seconds,
-    cancellableBlock: () -> T,
+    cancellableBlock: (Process) -> T,
 ): T {
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
@@ -143,7 +143,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
         // jump straight to the catch block if the coroutine is already cancelled
         currentCoroutineContext().ensureActive()
 
-        return cancellableBlock().also {
+        return cancellableBlock(this).also {
             onExit().await()
         }
     } catch (e: Throwable) {
