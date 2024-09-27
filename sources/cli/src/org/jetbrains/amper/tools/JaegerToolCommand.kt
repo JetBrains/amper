@@ -13,9 +13,10 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.int
-import com.github.ajalt.mordant.terminal.Terminal
+import com.github.ajalt.mordant.rendering.TextColors.green
 import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
@@ -32,6 +33,7 @@ import org.jetbrains.amper.diagnostics.DeadLockMonitor
 import org.jetbrains.amper.intellij.CommandLineUtils
 import org.jetbrains.amper.processes.PrintToTerminalProcessOutputListener
 import org.jetbrains.amper.processes.awaitAndGetAllOutput
+import org.jetbrains.amper.processes.withGuaranteedTermination
 import java.net.Socket
 import kotlin.io.path.name
 import kotlin.io.path.pathString
@@ -56,9 +58,10 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
 
     override fun helpEpilog(context: Context): String = "Use -- to separate Jaeger's arguments from Amper options"
 
+    private val terminal get() = commonOptions.terminal
+
     override suspend fun run() {
         val userCacheRoot = commonOptions.sharedCachesRoot
-        val terminal = commonOptions.terminal
 
         val os = DefaultSystemInfo.detect()
         val osString = when (os.family) {
@@ -72,11 +75,11 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
             Arch.Arm64 -> "arm64"
         }
 
-        // if port is not available, jaeger will report it by itself
-        val checkForHttpPortAvailability = openBrowser && !connectToLocalPort(port)
-
-        val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$version/jaeger-${version}-$osString-$archString.tar.gz"
         withContext(Dispatchers.IO) {
+            // if the port is already in use jaeger will report it by itself and fail (and we should not open the browser)
+            val shouldAutoOpenBrowser = openBrowser && !jaegerPortIsReady(port)
+
+            val jaegerDistUrl = "https://github.com/jaegertracing/jaeger/releases/download/v$version/jaeger-${version}-$osString-$archString.tar.gz"
             val file = Downloader.downloadFileToCacheLocation(jaegerDistUrl, userCacheRoot)
             val root = extractFileToCacheLocation(file, userCacheRoot, ExtractOptions.STRIP_ROOT)
 
@@ -85,37 +88,34 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
 
             DeadLockMonitor.disable()
 
-            val process = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
+            val result = ProcessBuilder(CommandLineUtils.quoteCommandLineForCurrentPlatform(cmd))
                 .start()
-
-            if (checkForHttpPortAvailability) {
-                launch {
-                    while (true) {
-                        if (!process.isAlive) {
-                            break
+                .withGuaranteedTermination { process ->
+                    coroutineScope {
+                        val autoOpenJob = if (shouldAutoOpenBrowser) {
+                            launch { autoOpenBrowserWhenReady() }
+                        } else {
+                            null
                         }
-
-                        if (connectToLocalPort(port)) {
-                            val url = "http://127.0.0.1:$port"
-                            terminal.println("*** Opening browser $url *** (specify --open-browser=false to disable)")
-                            openBrowser(url, terminal)
-                            break
+                        process.awaitAndGetAllOutput(PrintToTerminalProcessOutputListener(terminal)).also {
+                            autoOpenJob?.cancel()
                         }
-
-                        delay(10)
                     }
                 }
-            }
-
-            val result = process.awaitAndGetAllOutput(PrintToTerminalProcessOutputListener(terminal))
-
             if (result.exitCode != 0) {
                 userReadableError("${executable.name} exited with code ${result.exitCode}")
             }
         }
     }
 
-    private suspend fun openBrowser(url: String, t: Terminal) {
+    private suspend fun autoOpenBrowserWhenReady() {
+        awaitJaegerPortReady()
+        val url = "http://127.0.0.1:$port"
+        terminal.println("${green("*** Opening browser $url ***")} (specify --open-browser=false to disable)")
+        openBrowser(url)
+    }
+
+    private suspend fun openBrowser(url: String) {
         val cmd = when {
             OsFamily.current.isWindows -> listOf("rundll32", "url.dll,FileProtocolHandler", url)
             OsFamily.current.isLinux -> listOf("xdg-open", url)
@@ -123,7 +123,7 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
             else -> return
         }
 
-        t.println("Starting $cmd")
+        terminal.println("Starting $cmd")
 
         val process = runInterruptible {
             ProcessBuilder(cmd).inheritIO().start()
@@ -131,11 +131,17 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
 
         val exitCode = process.awaitExit()
         if (exitCode != 0) {
-            t.println("$cmd failed with exit code $exitCode")
+            terminal.println("$cmd failed with exit code $exitCode")
         }
     }
 
-    private fun connectToLocalPort(port: Int): Boolean = try {
+    private suspend fun awaitJaegerPortReady(shouldKeepTrying: () -> Boolean = { true }) {
+        while (!jaegerPortIsReady(port) && shouldKeepTrying()) {
+            delay(10)
+        }
+    }
+
+    private fun jaegerPortIsReady(port: Int): Boolean = try {
         Socket("127.0.0.1", port).use { socket -> socket.isConnected }
     } catch (_: Throwable) {
         false
