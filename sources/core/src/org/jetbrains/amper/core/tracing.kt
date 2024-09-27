@@ -25,6 +25,51 @@ private val meter: Meter
     get() = GlobalOpenTelemetry.getMeter(AMPER_SCOPE_NAME)
 
 /**
+ * Creates a [SpanBuilder] to configure a new span with the given [spanName].
+ *
+ * The span can be created and run using [SpanBuilder.useWithScope],
+ * or [SpanBuilder.use] if we won't use coroutines down the line.
+ */
+fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
+
+/**
+ * Runs the given [operation] under this span, in contexts that don't know about coroutines.
+ *
+ * The span is immediately started, and automatically ended when [operation] completes.
+ *
+ * **Important:** the OTel context is set in a [ThreadLocal], so we must not create coroutines inside the given
+ * [operation] unless we manually transfer the context using [asContextElement].
+ */
+// This is not 'inline' on purpose, to forbid the use of suspend functions inside (it would break OTel parent-child links)
+/* NOT inline */ fun <T> SpanBuilder.use(operation: (Span) -> T): T = startSpan().useWithoutActiveScope { span ->
+    // makeCurrent() modifies a ThreadLocal, but not the current coroutine context
+    span.makeCurrent().use {
+        operation(span)
+    }
+}
+
+/**
+ * Runs the given [operation] under this span, with OTel context propagation through coroutine contexts.
+ *
+ * The span is immediately started, and automatically ended when [operation] completes.
+ *
+ * The running span is registered as [ThreadContextElement] in the nested context, so the usual
+ * [ThreadLocal]-based OTel context is available, and any OTel usage in [operation] can see it.
+ *
+ * Note: any direct modification to the OTel's [ThreadLocal] context (e.g. via [SpanBuilder.use]) will not
+ * be propagated to the coroutine context automatically. We need to keep using [useWithScope] everytime down the line
+ * of coroutines calls, unless coroutines won't be used at all.
+ */
+suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend CoroutineScope.(Span) -> T): T {
+    val span = startSpan()
+    return withContext(span.asContextElement()) {
+        span.useWithoutActiveScope {
+            operation(span)
+        }
+    }
+}
+
+/**
  * Don't use this method; use [use] instead.
  */
 @PublishedApi // to be able to mark it at least 'internal' if not private, and use from a public function
@@ -46,42 +91,3 @@ internal inline fun <T> Span.useWithoutActiveScope(operation: (Span) -> T): T {
         end()
     }
 }
-
-/**
- * Runs the given [operation] under this span, in contexts that don't know about coroutines.
- *
- * The span is immediately started, and automatically ended when [operation] completes.
- *
- * **Important:** the OTel context is set in a [ThreadLocal], so we must not create coroutines inside the given
- * [operation] unless we manually transfer the context using [asContextElement].
- */
-// This is not 'inline' on purpose, to forbid the use of suspend functions inside (it would break OTel parent-child links)
-/* NOT inline */ fun <T> SpanBuilder.use(operation: (Span) -> T): T = startSpan().useWithoutActiveScope { span ->
-    // makeCurrent() modifies a ThreadLocal, but not the current coroutine context
-    span.makeCurrent().use {
-        operation(span)
-    }
-}
-
-/**
- * Runs the given [operation] under this span, with proper context propagation.
- *
- * The span is immediately started, and automatically ended when [operation] completes.
- *
- * The running span is properly registered as [ThreadContextElement] in the nested context, so the usual
- * [ThreadLocal]-based OTel context is available, and any OTel usage in [operation] can see it.
- *
- * Note: any direct modification to the OTel's [ThreadLocal] context (e.g. via [SpanBuilder.use]) will not
- * be propagated to the coroutine context automatically. We need to keep using [useWithScope] everytime down the line
- * of coroutines calls, unless coroutines won't be used at all.
- */
-suspend inline fun <T> SpanBuilder.useWithScope(crossinline operation: suspend CoroutineScope.(Span) -> T): T {
-    val span = startSpan()
-    return withContext(span.asContextElement()) {
-        span.useWithoutActiveScope {
-            operation(span)
-        }
-    }
-}
-
-fun spanBuilder(spanName: String): SpanBuilder = tracer.spanBuilder(spanName)
