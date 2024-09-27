@@ -135,7 +135,6 @@ class JaegerToolCommand: SuspendingCliktCommand(name = "jaeger") {
         }
     }
 
-    @Suppress("SameParameterValue")
     private fun connectToLocalPort(port: Int): Boolean = try {
         Socket("127.0.0.1", port).use { socket -> socket.isConnected }
     } catch (_: Throwable) {
