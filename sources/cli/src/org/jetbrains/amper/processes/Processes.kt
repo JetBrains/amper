@@ -146,7 +146,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
         return cancellableBlock(this).also {
             onExit().await()
         }
-    } catch (e: Throwable) {
+    } catch (e: Throwable) { // Intentionally catches both errors AND cancellations
         // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.
         // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on a best-efforts basis.
         killAndAwaitTermination(gracePeriod)
@@ -168,6 +168,7 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
  *
  * @throws InterruptedException if the current thread is interrupted while waiting for the process to terminate
  */
+// TODO maybe turn this into non-blocking AND keep it non-cancellable with withContext(NonCancellable) on the call site
 internal fun Process.killAndAwaitTermination(gracePeriod: Duration = 1.seconds): Int {
     destroyHierarchy()
     // the destroy operation is asynchronous, we need to give this process a chance to complete gracefully
