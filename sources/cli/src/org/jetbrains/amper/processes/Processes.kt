@@ -139,18 +139,32 @@ internal suspend inline fun <T> Process.withGuaranteedTermination(
     contract {
         callsInPlace(cancellableBlock, kind = InvocationKind.EXACTLY_ONCE)
     }
-    try {
-        // jump straight to the catch block if the coroutine is already cancelled
-        currentCoroutineContext().ensureActive()
+    // If the JVM is shut down directly (e.g. via Ctrl+C) while the process is running, we don't want to leak it
+    withShutdownHook(onJvmShudown = { destroy() }) {
+        try {
+            // jump straight to the catch block if the coroutine is already cancelled
+            currentCoroutineContext().ensureActive()
 
-        return cancellableBlock(this).also {
-            onExit().await()
+            return cancellableBlock(this).also {
+                onExit().await()
+            }
+        } catch (e: Throwable) { // Intentionally catches both errors AND cancellations
+            // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.
+            // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on a best-efforts basis.
+            killAndAwaitTermination(gracePeriod)
+            throw e
         }
-    } catch (e: Throwable) { // Intentionally catches both errors AND cancellations
-        // Intentionally non-cancellable to avoid leaking a live process while seemingly cancelling this call.
-        // For hardcore throwables (ThreadDeath, OOM...), we still attempt to kill the process on a best-efforts basis.
-        killAndAwaitTermination(gracePeriod)
-        throw e
+    }
+}
+
+private inline fun <T> withShutdownHook(crossinline onJvmShudown: () -> Unit, block: () -> T): T {
+    val hookThread = Thread { onJvmShudown() }
+    val runtime = Runtime.getRuntime()
+    try {
+        runtime.addShutdownHook(hookThread)
+        return block()
+    } finally {
+        runtime.removeShutdownHook(hookThread)
     }
 }
 
