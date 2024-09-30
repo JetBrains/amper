@@ -74,7 +74,9 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
         }
 
         override fun visitSequenceItem(item: PsiElement, index: Int) {
-            table[KeyWithContext(position, context)] = UnknownElementWrapper(item)
+            if (table[KeyWithContext(position, context)] == null) {
+                table[KeyWithContext(position, context)] = UnknownElementWrapper(item)
+            }
             super.visitSequenceItem(item, index)
         }
     }.visitElement(this)
@@ -224,10 +226,10 @@ internal fun readTypedValue(
                 ) }
         }
         return applicableKeys.mapNotNull {
-            val name = if (
-                table[it]?.sourceElement?.language is AmperLanguage
-                || it.key.segmentName?.toIntOrNull() != null
-              ) it.key.prev?.segmentName else it.key.segmentName
+            val name = it.key.nextAfter(path)?.let {
+                // hack for yaml
+                if (it.segmentName?.toIntOrNull() != null) it.next else it
+            }?.segmentName
             if (name == null || it.key.prev == null) null
             else (name to readTypedValue(type.mapValueType, table, it.key.prev!!, contexts))
         }.toMap()
@@ -349,7 +351,9 @@ private fun instantiateDependency(
             readFromTable(dep, table, path, contexts)
         }
     } else {
-        val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
+        val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }.let {
+            if (it.size > 1) it.filter { it.key != path } else it
+        }
         if (matchingKeys.size == 1) {
             val key = matchingKeys.single()
             val sourceElement = table[key]?.sourceElement
