@@ -18,6 +18,7 @@ import org.jetbrains.amper.frontend.SchemaEnum
 import org.jetbrains.amper.frontend.api.ImplicitConstructor
 import org.jetbrains.amper.frontend.api.ImplicitConstructorParameter
 import org.jetbrains.amper.frontend.api.SchemaNode
+import org.jetbrains.amper.frontend.api.Traceable
 import org.jetbrains.amper.frontend.api.TraceableEnum
 import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
@@ -260,6 +261,10 @@ internal fun readTypedValue(
             if (param != null) {
                 return type.instantiateType().also {
                     param.set(it, textValue)
+                    if (it is Traceable) {
+                        it.applyPsiTrace(scalarValue.sourceElement)
+                    }
+                    param.valueBase(it)?.applyPsiTrace(scalarValue.sourceElement)
                 }
             }
         }
@@ -271,6 +276,9 @@ internal fun readTypedValue(
             if (enabledProperty != null) {
                 return type.instantiateType().also {
                     enabledProperty.set(it, true)
+                    if (it is Traceable) {
+                        it.applyPsiTrace(scalarValue.sourceElement)
+                    }
                 }
             }
         }
@@ -319,11 +327,21 @@ private fun instantiateDependency(
     contexts: Set<String>
 ): Any? {
     val textValue = scalarValue?.textValue
+    val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
                 || textValue == path.segmentName) && textValue != null) {
         return instantiateDependency(textValue).also { dep ->
-            table[KeyWithContext(path, contexts)]?.sourceElement?.let {
-                dep.applyPsiTrace(it)
+            sourceElement?.let { e ->
+                dep.applyPsiTrace(e)
+                (dep as? ExternalMavenDependency)?.let {
+                    it::coordinates.valueBase?.applyPsiTrace(e)
+                }
+                (dep as? CatalogDependency)?.let {
+                    it::catalogKey.valueBase?.applyPsiTrace(e)
+                }
+                (dep as? InternalDependency)?.let {
+                    it::path.valueBase?.applyPsiTrace(e)
+                }
             }
             readFromTable(dep, table, path, contexts)
         }
@@ -335,27 +353,31 @@ private fun instantiateDependency(
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
                 instantiateDependency(segmentName).also { dep ->
-                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                    sourceElement?.let {
                         dep.applyPsiTrace(it)
                     }
                     when (specialValue) {
                         "exported" -> {
                             dep.exported = true
+                            dep::exported.valueBase?.applyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "compile-only" -> {
                             dep.scope = DependencyScope.COMPILE_ONLY
+                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "runtime-only" -> {
                             dep.scope = DependencyScope.RUNTIME_ONLY
+                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "all" -> {
                             dep.scope = DependencyScope.ALL
+                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
                             return dep
                         }
                     }
@@ -369,7 +391,7 @@ private fun instantiateDependency(
             if (next.size == 1) {
                 val single = next.single()!!
                 return instantiateDependency(single.segmentName!!).also { dep ->
-                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                    sourceElement?.let {
                         dep.applyPsiTrace(it)
                     }
                     readFromTable(dep, table, single, contexts)
