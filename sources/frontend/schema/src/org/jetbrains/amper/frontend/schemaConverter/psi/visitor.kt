@@ -114,7 +114,10 @@ class Pointer(val segmentName: String? = null,
         var other: Pointer? = o.firstSegment
         while (other != null) {
             if (own == null || own.segmentName != other.segmentName) return false
-            if (own === this || other === o) break
+            if (other === o) break
+            if (own == this) {
+                return other.next == null
+            }
             own = own.next
             other = other.next
         }
@@ -240,7 +243,7 @@ internal fun readTypedValue(
     // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
-        val textValue = scalarValue?.textValue ?: return null
+        val textValue = scalarValue?.textValue
 
         // hack for internal and catalog dependencies, need to rethink this
         if (type.unwrapKClass == Dependency::class) {
@@ -327,21 +330,12 @@ private fun instantiateDependency(
     contexts: Set<String>
 ): Any? {
     val textValue = scalarValue?.textValue
-    val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
     if ((scalarValue?.sourceElement?.language is YAMLLanguage
                 || textValue == path.segmentName) && textValue != null) {
+        val sourceElement = table[KeyWithContext(path, contexts)]?.sourceElement
         return instantiateDependency(textValue).also { dep ->
             sourceElement?.let { e ->
-                dep.applyPsiTrace(e)
-                (dep as? ExternalMavenDependency)?.let {
-                    it::coordinates.valueBase?.applyPsiTrace(e)
-                }
-                (dep as? CatalogDependency)?.let {
-                    it::catalogKey.valueBase?.applyPsiTrace(e)
-                }
-                (dep as? InternalDependency)?.let {
-                    it::path.valueBase?.applyPsiTrace(e)
-                }
+                applyDependencyTrace(dep, e)
             }
             readFromTable(dep, table, path, contexts)
         }
@@ -349,12 +343,13 @@ private fun instantiateDependency(
         val matchingKeys = applicableKeys.filter { it.key.startsWith(path) }
         if (matchingKeys.size == 1) {
             val key = matchingKeys.single()
+            val sourceElement = table[key]?.sourceElement
             val specialValue = (table[key] as? Scalar)?.textValue
             val segmentName = key.key.segmentName
             if (specialValue != null && segmentName != null) {
                 instantiateDependency(segmentName).also { dep ->
                     sourceElement?.let {
-                        dep.applyPsiTrace(it)
+                        applyDependencyTrace(dep, it)
                     }
                     when (specialValue) {
                         "exported" -> {
@@ -391,8 +386,8 @@ private fun instantiateDependency(
             if (next.size == 1) {
                 val single = next.single()!!
                 return instantiateDependency(single.segmentName!!).also { dep ->
-                    sourceElement?.let {
-                        dep.applyPsiTrace(it)
+                    table[KeyWithContext(single, contexts)]?.sourceElement?.let {
+                        applyDependencyTrace(dep, it)
                     }
                     readFromTable(dep, table, single, contexts)
                 }
@@ -400,6 +395,19 @@ private fun instantiateDependency(
         }
     }
     return null
+}
+
+private fun applyDependencyTrace(dep: Dependency, e: PsiElement) {
+    dep.applyPsiTrace(e)
+    (dep as? ExternalMavenDependency)?.let {
+        it::coordinates.valueBase?.applyPsiTrace(e)
+    }
+    (dep as? CatalogDependency)?.let {
+        it::catalogKey.valueBase?.applyPsiTrace(e)
+    }
+    (dep as? InternalDependency)?.let {
+        it::path.valueBase?.applyPsiTrace(e)
+    }
 }
 
 context(Converter)
