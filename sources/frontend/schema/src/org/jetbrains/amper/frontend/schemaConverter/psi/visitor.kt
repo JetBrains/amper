@@ -282,6 +282,7 @@ internal fun readTypedValue(
             if (enabledProperty != null) {
                 return type.instantiateType().also {
                     enabledProperty.set(it, true)
+                    enabledProperty.valueBase(it)?.applyPsiTrace(scalarValue.sourceElement)
                     if (it is Traceable) {
                         it.applyPsiTrace(scalarValue.sourceElement)
                     }
