@@ -268,11 +268,11 @@ internal fun readTypedValue(
 
             if (param != null) {
                 return type.instantiateType().also {
-                    param.set(it, textValue)
+                    param.set(it, convertScalarType(param.returnType, scalarValue,
+                        textValue, param.valueBase(it)))
                     if (it is Traceable) {
                         it.applyPsiTrace(scalarValue.sourceElement)
                     }
-                    param.valueBase(it)?.applyPsiTrace(scalarValue.sourceElement)
                 }
             }
         }
