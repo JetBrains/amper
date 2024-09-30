@@ -9,7 +9,6 @@ import com.intellij.amper.lang.AmperContextualStatement
 import com.intellij.amper.lang.AmperElementVisitor
 import com.intellij.amper.lang.AmperLanguage
 import com.intellij.amper.lang.AmperLiteral
-import com.intellij.amper.lang.AmperObject
 import com.intellij.amper.lang.AmperProperty
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
@@ -43,7 +42,6 @@ import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
 import org.jetbrains.amper.frontend.schema.InternalDependency
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLKeyValue
-import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
@@ -73,6 +71,11 @@ internal fun PsiElement.readValueTable(): Map<KeyWithContext, AmperElementWrappe
         override fun visitMappingEntry(node: MappingEntry) {
             table[KeyWithContext(position, context)] = node
             super.visitMappingEntry(node)
+        }
+
+        override fun visitSequenceItem(item: PsiElement, index: Int) {
+            table[KeyWithContext(position, context)] = UnknownElementWrapper(item)
+            super.visitSequenceItem(item, index)
         }
     }.visitElement(this)
     return table
@@ -288,6 +291,11 @@ internal fun readTypedValue(
     }
 
     return type.instantiateType().also { instance ->
+        if (instance is Traceable) {
+            table[KeyWithContext(path, contexts)]?.sourceElement?.let {
+                instance.applyPsiTrace(it)
+            }
+        }
         readFromTable(instance, table, path, contexts)
     }
 }
@@ -474,12 +482,6 @@ open class AmperPsiAdapterVisitor {
                     o.acceptChildren(this)
                 }
 
-                override fun visitObject(o: AmperObject) {
-                    Sequence.from(o)?.let { visitSequence(it) }
-                    MappingNode.from(o)?.let { visitMappingNode(it) }
-                    super.visitObject(o)
-                }
-
                 override fun visitProperty(o: AmperProperty) {
                     positionStack.push(
                         when (o.name) {
@@ -506,11 +508,6 @@ open class AmperPsiAdapterVisitor {
                     element.acceptChildren(this)
                 }
 
-                override fun visitMapping(mapping: YAMLMapping) {
-                    visitMappingNode(MappingNode.from(mapping)!!)
-                    super.visitMapping(mapping)
-                }
-
                 override fun visitKeyValue(keyValue: YAMLKeyValue) {
                     val atSign = keyValue.keyText.indexOf('@')
                     if (atSign < 0) {
@@ -527,10 +524,10 @@ open class AmperPsiAdapterVisitor {
                 }
 
                 override fun visitSequence(sequence: YAMLSequence) {
-                    visitSequence(Sequence(sequence))
                     sequence.items.forEachIndexed { index, item ->
                         positionStack.push(index.toString())
                         item.value?.accept(this)
+                        item.value?.let { visitSequenceItem(it, index) }
                         positionStack.pop()
                     }
                     // do not call super here!
@@ -544,8 +541,7 @@ open class AmperPsiAdapterVisitor {
         }
     }
 
-    open fun visitMappingNode(node: MappingNode) {}
+    open fun visitSequenceItem(item: PsiElement, index: Int) {}
     open fun visitMappingEntry(node: MappingEntry) {}
-    open fun visitSequence(node: Sequence) {}
     open fun visitScalar(node: Scalar) {}
 }

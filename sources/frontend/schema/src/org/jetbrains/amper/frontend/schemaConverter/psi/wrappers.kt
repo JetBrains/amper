@@ -92,6 +92,8 @@ internal fun getAltName(name: String) = name.split('-').mapIndexed { index, s ->
     if (index > 0) s.capitalize() else s
 }.joinToString("")
 
+class UnknownElementWrapper(override val sourceElement: PsiElement): AmperElementWrapper
+
 class MappingEntry(override val sourceElement: PsiElement): AmperElementWrapper {
 
     val keyElement = when (sourceElement) {
