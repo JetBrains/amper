@@ -176,36 +176,7 @@ internal fun readTypedValue(
         || type.isSubtypeOf(TraceableString::class.starProjectedType)
         || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
         val scalarValue = table[KeyWithContext(path, emptySet())]
-        return when (type.unwrapKClass) {
-            TraceableEnum::class -> type.arguments[0].type?.let { readTypedValue(
-                it,
-                table,
-                path,
-                contexts,
-                valueBase
-            ) }?.let {
-                TraceableEnum::class.primaryConstructor!!.call(it).doApplyPsiTrace(scalarValue?.sourceElement)
-            }
-            TraceableString::class -> readTypedValue(
-                String::class.starProjectedType,
-                table,
-                path,
-                contexts,
-                valueBase
-            )?.let {
-                TraceableString(it as String).doApplyPsiTrace(scalarValue?.sourceElement)
-            }
-            TraceablePath::class -> readTypedValue(
-                Path::class.starProjectedType,
-                table,
-                path,
-                contexts,
-                valueBase
-            )?.let {
-                TraceablePath(it as Path).doApplyPsiTrace(scalarValue?.sourceElement)
-            }
-            else -> null
-        }
+        return instantiateTraceableScalar(type, table, path, contexts, valueBase, scalarValue)
     }
     val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts.containsAll(contexts) }
     if (applicableKeys.isEmpty()) return null
@@ -264,27 +235,14 @@ internal fun readTypedValue(
             val param = props.singleOrNull {
                     it.hasAnnotation<ImplicitConstructorParameter>()
                 } ?: props.singleOrNull()
+                  // "enabled" shortcut
+                  ?: props.singleOrNull { it.name == "enabled" }?.takeIf { textValue == "enabled" }
 
             if (param != null) {
                 return type.instantiateType().also {
+                    val value = if (param.name == "enabled" && textValue == "enabled") "true" else textValue
                     param.set(it, convertScalarType(param.returnType, scalarValue,
-                        textValue, param.valueBase(it)))
-                    if (it is Traceable) {
-                        it.doApplyPsiTrace(scalarValue.sourceElement)
-                    }
-                }
-            }
-        }
-
-        // "enabled" shortcut
-        if (textValue == "enabled") {
-            val enabledProperty = type.unwrapKClass.schemaDeclaredMemberProperties()
-                .filterIsInstance<KMutableProperty1<Any, Any?>>()
-                .singleOrNull { it.name == "enabled" }
-            if (enabledProperty != null) {
-                return type.instantiateType().also {
-                    enabledProperty.set(it, true)
-                    enabledProperty.valueBase(it)?.doApplyPsiTrace(scalarValue.sourceElement)
+                        value, param.valueBase(it)))
                     if (it is Traceable) {
                         it.doApplyPsiTrace(scalarValue.sourceElement)
                     }
@@ -300,6 +258,52 @@ internal fun readTypedValue(
             }
         }
         readFromTable(instance, table, path, contexts)
+    }
+}
+
+context(Converter)
+private fun instantiateTraceableScalar(
+    type: KType,
+    table: Map<KeyWithContext, AmperElementWrapper>,
+    path: Pointer,
+    contexts: Set<String>,
+    valueBase: ValueBase<Any?>?,
+    scalarValue: AmperElementWrapper?
+): Traceable? {
+    return when (type.unwrapKClass) {
+        TraceableEnum::class -> type.arguments[0].type?.let {
+            readTypedValue(
+                it,
+                table,
+                path,
+                contexts,
+                valueBase
+            )
+        }?.let {
+            TraceableEnum::class.primaryConstructor!!.call(it).doApplyPsiTrace(scalarValue?.sourceElement)
+        }
+
+        TraceableString::class -> readTypedValue(
+            String::class.starProjectedType,
+            table,
+            path,
+            contexts,
+            valueBase
+        )?.let {
+            TraceableString(it as String).doApplyPsiTrace(scalarValue?.sourceElement)
+        }
+
+        TraceablePath::class -> readTypedValue(
+            Path::class.starProjectedType,
+            table,
+            path,
+            contexts,
+            valueBase
+        )?.let {
+            TraceablePath(it as Path).doApplyPsiTrace(scalarValue?.sourceElement)
+        }
+
+        else -> null
     }
 }
 
