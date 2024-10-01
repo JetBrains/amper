@@ -97,9 +97,17 @@ class Pointer(val segmentName: String? = null,
             return Pointer(value)
         }
 
-        val newPointer = Pointer(value, this)
-        this.next = newPointer
+        val copy = deepCopyWithPrev()
+        val newPointer = Pointer(value, copy)
+        copy.next = newPointer
         return newPointer
+    }
+
+    private fun deepCopyWithPrev(): Pointer {
+        val prevCopy = prev?.deepCopyWithPrev()
+        val copy = Pointer(segmentName, prevCopy)
+        prevCopy?.next = copy
+        return copy
     }
 
     fun nextAfter(o: Pointer): Pointer? {
@@ -107,7 +115,7 @@ class Pointer(val segmentName: String? = null,
         var other: Pointer? = o.firstSegment
         while (other != null) {
             if (own == null || own.segmentName != other.segmentName) return null
-            if (own === this || other === o) break
+            if (own == this || other == o) break
             own = own.next
             other = other.next
         }
@@ -119,7 +127,7 @@ class Pointer(val segmentName: String? = null,
         var other: Pointer? = o.firstSegment
         while (other != null) {
             if (own == null || own.segmentName != other.segmentName) return false
-            if (other === o) break
+            if (other == o) break
             if (own == this) {
                 return other.next == null
             }
@@ -175,7 +183,7 @@ internal fun readTypedValue(
     if (type.isSubtypeOf(TraceableEnum::class.starProjectedType)
         || type.isSubtypeOf(TraceableString::class.starProjectedType)
         || type.isSubtypeOf(TraceablePath::class.starProjectedType)) {
-        val scalarValue = table[KeyWithContext(path, emptySet())]
+        val scalarValue = table[KeyWithContext(path, contexts)]
         return instantiateTraceableScalar(type, table, path, contexts, valueBase, scalarValue)
     }
     val applicableKeys = table.keys.filter { it.key.startsWith(path) && it.contexts.containsAll(contexts) }
