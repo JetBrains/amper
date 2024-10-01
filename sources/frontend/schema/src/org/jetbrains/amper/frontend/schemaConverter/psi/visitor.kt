@@ -245,7 +245,6 @@ internal fun readTypedValue(
         }.let { if (type.isSubtypeOf(Set::class.starProjectedType)) it.toSet() else it }
     }
 
-    // "enabled" shortcut
     if (type.isSubtypeOf(SchemaNode::class.starProjectedType)) {
         val scalarValue = table[KeyWithContext(path, contexts)] as? Scalar
         val textValue = scalarValue?.textValue
@@ -260,11 +259,11 @@ internal fun readTypedValue(
             val constructedType = type.unwrapKClass.findAnnotation<ImplicitConstructor>()?.constructedType
                 ?: type.unwrapKClass
 
-            val param = constructedType.schemaDeclaredMemberProperties()
+            val props = constructedType.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
-                .singleOrNull {
+            val param = props.singleOrNull {
                     it.hasAnnotation<ImplicitConstructorParameter>()
-                }
+                } ?: props.singleOrNull()
 
             if (param != null) {
                 return type.instantiateType().also {
@@ -277,6 +276,7 @@ internal fun readTypedValue(
             }
         }
 
+        // "enabled" shortcut
         if (textValue == "enabled") {
             val enabledProperty = type.unwrapKClass.schemaDeclaredMemberProperties()
                 .filterIsInstance<KMutableProperty1<Any, Any?>>()
