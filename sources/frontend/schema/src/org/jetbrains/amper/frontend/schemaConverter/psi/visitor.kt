@@ -202,7 +202,9 @@ internal fun readTypedValue(
                 if (it.segmentName?.toIntOrNull() != null) it.next else it
             }?.segmentName
             if (name == null || it.key.prev == null) null
-            else (name to readTypedValue(type.mapValueType, table, it.key.prev!!, contexts))
+            else (name to readTypedValue(type.mapValueType, table, it.key.prev.takeIf {
+                it != path
+            } ?: it.key, contexts))
         }.toMap()
     }
     if (type.isCollection)  {
