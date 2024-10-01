@@ -304,6 +304,7 @@ class MavenDependency internal constructor(
     internal val moduleFile = getDependencyFile(this, getNameWithoutExtension(this), "module")
     private var moduleMetadata: Module? = null
     val pom = getDependencyFile(this, getNameWithoutExtension(this), "pom")
+    private var pomText : String? = null
 
     fun files(withSources: Boolean = false) =
         if (withSources)
@@ -397,6 +398,8 @@ class MavenDependency internal constructor(
             }
             null
         }
+        this.pomText = pomText
+
         // 2. If pom is missing or mentions metadata, use it.
         if (pomText == null || pomText.contains("do_not_remove: published-with-gradle-metadata")) {
             if (moduleFile.isDownloadedOrDownload(level, context)) {
@@ -616,7 +619,10 @@ class MavenDependency internal constructor(
                         it.dependencyConstraints
                     }
             }
-        }.flatten()
+        }.flatten().takeIf { it.isNotEmpty() }
+            // try to resolve constraints from '.pom' - descriptor
+            ?: pomText?.let { resolveDependenciesConstraintsUsingPom(it, context, level) }
+            ?: emptyList()
 
     private suspend fun Variant.dependencies(
         context: Context,
@@ -1076,27 +1082,9 @@ class MavenDependency internal constructor(
     private fun AvailableAt.asDependency() = Dependency(group, module, Version(version))
 
     private suspend fun resolveUsingPom(text: String, context: Context, level: ResolutionLevel) {
-        val project = try {
-            text.parsePom().resolve(context, level)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            messages.asMutable() += Message(
-                "Unable to parse pom file ${this.pom}",
-                e.toString(),
-                Severity.ERROR,
-                e,
-            )
-            return
-        }
+        val project = resolvePom(text, context, level) ?: return
 
-        (project.dependencyManagement?.dependencies?.dependencies ?: listOf()).filter {
-            it.version != null && it.optional != true
-        }.map {
-            context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version!!))
-        }.let {
-            dependencyConstraints = it
-        }
+        dependencyConstraints = project.resolveDependenciesConstraints(context)
 
         (project.dependencies?.dependencies ?: listOf()).filter {
             context.settings.scope.matches(it)
@@ -1110,6 +1098,38 @@ class MavenDependency internal constructor(
 
         packaging = project.packaging ?: "jar"
         state = level.state
+    }
+
+    private suspend fun resolvePom(
+        text: String, context: Context, level: ResolutionLevel
+    ) : Project? {
+        return try {
+            text.parsePom().resolve(context, level)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            messages.asMutable() += Message(
+                "Unable to parse pom file ${this.pom}",
+                e.toString(),
+                Severity.ERROR,
+                e,
+            )
+            return null
+        }
+    }
+
+    private suspend fun resolveDependenciesConstraintsUsingPom(
+        text: String, context: Context, level: ResolutionLevel
+    ): List<MavenDependencyConstraint> = resolvePom(text, context, level)
+        ?.resolveDependenciesConstraints(context)
+        ?: emptyList()
+
+    private fun Project.resolveDependenciesConstraints(context: Context) : List<MavenDependencyConstraint> {
+        return (dependencyManagement?.dependencies?.dependencies ?: listOf()).filter {
+            it.version != null && it.optional != true
+        }.map {
+            context.createOrReuseDependencyConstraint(it.groupId, it.artifactId, Version(requires = it.version!!))
+        }
     }
 
     /**
@@ -1173,13 +1193,18 @@ class MavenDependency internal constructor(
         val dependencies = project.dependencies
             ?.dependencies
             ?.map { dep ->
-                if (dep.version != null && dep.scope != null) return@map dep
+                if (dep.version != null && dep.scope != null) {
+                    return@map if (dep.version.resolveSingleVersion() != dep.version) {
+                        dep.copy(version = dep.version.resolveSingleVersion())
+                    } else dep
+                }
                 dependencyManagement
                     ?.find { it.groupId == dep.groupId && it.artifactId == dep.artifactId }
                     ?.let { dependencyManagementEntry ->
                         return@map dep
                             .let {
-                                if (dep.version == null && dependencyManagementEntry.version != null) it.copy(version = dependencyManagementEntry.version)
+                                val dependencyManagementEntryVersion = dependencyManagementEntry.version?.resolveSingleVersion()
+                                if (dep.version == null && dependencyManagementEntryVersion != null) it.copy(version = dependencyManagementEntryVersion)
                                 else it
                             }.let {
                                 if (dep.scope == null && dependencyManagementEntry.scope != null) it.copy(scope = dependencyManagementEntry.scope)
@@ -1282,11 +1307,16 @@ private fun Dependency.isBom(): Boolean = attributes["org.gradle.category"] == "
 private val allIosPlatforms = ResolutionPlatform.entries.filter { it.name.startsWith("IOS_") }
 
 // todo (AB) : 'strictly' should have special support (we have to take this into account during conflict resolution)
-internal fun Version.resolve() = strictly?.takeIf { !it.isInterval() }
-    ?: requires?.takeIf { !it.isInterval() }
-    ?: prefers?.takeIf { !it.isInterval() }
+internal fun Version.resolve() = strictly?.resolveSingleVersion()
+    ?: requires?.resolveSingleVersion()
+    ?: prefers?.resolveSingleVersion()
 
+private fun String.resolveSingleVersion() = removeSquareBracketsForSingleValue().takeIf { !it.isInterval() }
 private fun String.isInterval() = startsWith("[") || startsWith("]")
+private fun String.removeSquareBracketsForSingleValue() = when {
+    startsWith("[") && endsWith("]") && !contains(",") -> substring(1, length - 1)
+    else -> this
+}
 
 // todo (AB) :
 // - interval are not implemented and we need to warn/show error to user about it
