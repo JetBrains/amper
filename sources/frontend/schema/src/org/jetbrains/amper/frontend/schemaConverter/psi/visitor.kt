@@ -242,7 +242,7 @@ internal fun readTypedValue(
                 visitedKeys.add(newKey)
                 readTypedValue(type.collectionType, table, newKey, contexts)
             } else null
-        }
+        }.let { if (type.isSubtypeOf(Set::class.starProjectedType)) it.toSet() else it }
     }
 
     // "enabled" shortcut
@@ -393,16 +393,26 @@ private fun instantiateDependency(
             }
         }
         else {
-            val next = matchingKeys.map {
-                it.key.nextAfter(path)
-            }.distinct()
-            if (next.size == 1) {
-                val single = next.single()!!
-                return instantiateDependency(single.segmentName!!).also { dep ->
-                    table[KeyWithContext(single, contexts)]?.sourceElement?.let {
+            if (path.segmentName?.toIntOrNull() != null) {
+                val next = matchingKeys.map {
+                    it.key.nextAfter(path)
+                }.distinct()
+                if (next.size == 1) {
+                    val single = next.single()!!
+                    return instantiateDependency(single.segmentName!!).also { dep ->
+                        table[KeyWithContext(single, contexts)]?.sourceElement?.let {
+                            applyDependencyTrace(dep, it)
+                        }
+                        readFromTable(dep, table, single, contexts)
+                    }
+                }
+            }
+            else {
+                return instantiateDependency(path.segmentName!!).also { dep ->
+                    table[KeyWithContext(path, contexts)]?.sourceElement?.let {
                         applyDependencyTrace(dep, it)
                     }
-                    readFromTable(dep, table, single, contexts)
+                    readFromTable(dep, table, path, contexts)
                 }
             }
         }
