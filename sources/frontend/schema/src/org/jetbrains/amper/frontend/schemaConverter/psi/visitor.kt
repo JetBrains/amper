@@ -184,7 +184,7 @@ internal fun readTypedValue(
                 contexts,
                 valueBase
             ) }?.let {
-                TraceableEnum::class.primaryConstructor!!.call(it).applyPsiTrace(scalarValue?.sourceElement)
+                TraceableEnum::class.primaryConstructor!!.call(it).doApplyPsiTrace(scalarValue?.sourceElement)
             }
             TraceableString::class -> readTypedValue(
                 String::class.starProjectedType,
@@ -193,7 +193,7 @@ internal fun readTypedValue(
                 contexts,
                 valueBase
             )?.let {
-                TraceableString(it as String).applyPsiTrace(scalarValue?.sourceElement)
+                TraceableString(it as String).doApplyPsiTrace(scalarValue?.sourceElement)
             }
             TraceablePath::class -> readTypedValue(
                 Path::class.starProjectedType,
@@ -202,7 +202,7 @@ internal fun readTypedValue(
                 contexts,
                 valueBase
             )?.let {
-                TraceablePath(it as Path).applyPsiTrace(scalarValue?.sourceElement)
+                TraceablePath(it as Path).doApplyPsiTrace(scalarValue?.sourceElement)
             }
             else -> null
         }
@@ -271,7 +271,7 @@ internal fun readTypedValue(
                     param.set(it, convertScalarType(param.returnType, scalarValue,
                         textValue, param.valueBase(it)))
                     if (it is Traceable) {
-                        it.applyPsiTrace(scalarValue.sourceElement)
+                        it.doApplyPsiTrace(scalarValue.sourceElement)
                     }
                 }
             }
@@ -284,9 +284,9 @@ internal fun readTypedValue(
             if (enabledProperty != null) {
                 return type.instantiateType().also {
                     enabledProperty.set(it, true)
-                    enabledProperty.valueBase(it)?.applyPsiTrace(scalarValue.sourceElement)
+                    enabledProperty.valueBase(it)?.doApplyPsiTrace(scalarValue.sourceElement)
                     if (it is Traceable) {
-                        it.applyPsiTrace(scalarValue.sourceElement)
+                        it.doApplyPsiTrace(scalarValue.sourceElement)
                     }
                 }
             }
@@ -296,7 +296,7 @@ internal fun readTypedValue(
     return type.instantiateType().also { instance ->
         if (instance is Traceable) {
             table[KeyWithContext(path, contexts)]?.sourceElement?.let {
-                instance.applyPsiTrace(it)
+                instance.doApplyPsiTrace(it)
             }
         }
         readFromTable(instance, table, path, contexts)
@@ -311,7 +311,7 @@ private fun convertScalarType(
     valueBase: ValueBase<Any?>?
 ): Any? {
     scalarValue?.sourceElement?.let {
-        valueBase?.applyPsiTrace(it)
+        valueBase?.doApplyPsiTrace(it)
     }
     when {
         type.isSubtypeOf(SchemaEnum::class.starProjectedType) -> {
@@ -367,25 +367,25 @@ private fun instantiateDependency(
                     when (specialValue) {
                         "exported" -> {
                             dep.exported = true
-                            dep::exported.valueBase?.applyPsiTrace(sourceElement)
+                            dep::exported.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "compile-only" -> {
                             dep.scope = DependencyScope.COMPILE_ONLY
-                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
+                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "runtime-only" -> {
                             dep.scope = DependencyScope.RUNTIME_ONLY
-                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
+                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
                         }
 
                         "all" -> {
                             dep.scope = DependencyScope.ALL
-                            dep::scope.valueBase?.applyPsiTrace(sourceElement)
+                            dep::scope.valueBase?.doApplyPsiTrace(sourceElement)
                             return dep
                         }
                     }
@@ -421,15 +421,15 @@ private fun instantiateDependency(
 }
 
 private fun applyDependencyTrace(dep: Dependency, e: PsiElement) {
-    dep.applyPsiTrace(e)
+    dep.doApplyPsiTrace(e)
     (dep as? ExternalMavenDependency)?.let {
-        it::coordinates.valueBase?.applyPsiTrace(e)
+        it::coordinates.valueBase?.doApplyPsiTrace(e)
     }
     (dep as? CatalogDependency)?.let {
-        it::catalogKey.valueBase?.applyPsiTrace(e)
+        it::catalogKey.valueBase?.doApplyPsiTrace(e)
     }
     (dep as? InternalDependency)?.let {
-        it::path.valueBase?.applyPsiTrace(e)
+        it::path.valueBase?.doApplyPsiTrace(e)
     }
 }
 
@@ -446,7 +446,7 @@ internal fun <T : Any> readFromTable(
             readTypedValue(prop.returnType, table, path + prop.name, contexts, prop.valueBase(obj))?.let {
                 prop.set(obj, it)
                 table[KeyWithContext(path + prop.name, contexts)]?.let {
-                    prop.valueBase(obj)?.applyPsiTrace(it.sourceElement)
+                    prop.valueBase(obj)?.doApplyPsiTrace(it.sourceElement)
                 }
             }
     }
@@ -559,4 +559,12 @@ open class AmperPsiAdapterVisitor {
     open fun visitSequenceItem(item: PsiElement, index: Int) {}
     open fun visitMappingEntry(node: MappingEntry) {}
     open fun visitScalar(node: Scalar) {}
+}
+
+private fun <T : Traceable> T.doApplyPsiTrace(element: PsiElement?): T {
+    val adjustedElement =
+        MappingEntry.from(element)?.sourceElement ?:
+        element?.let { MappingEntry.byValue(it) }?.sourceElement ?:
+        element
+    return applyPsiTrace(adjustedElement)
 }

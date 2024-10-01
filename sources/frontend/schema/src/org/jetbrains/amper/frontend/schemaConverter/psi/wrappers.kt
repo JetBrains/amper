@@ -96,6 +96,23 @@ class UnknownElementWrapper(override val sourceElement: PsiElement): AmperElemen
 
 class MappingEntry(override val sourceElement: PsiElement): AmperElementWrapper {
 
+    companion object {
+        fun from(element: PsiElement?): MappingEntry? {
+            return when (element) {
+                is YAMLKeyValue, is AmperProperty -> MappingEntry(element)
+                else -> null
+            }
+        }
+
+        fun byValue(valueElement: PsiElement): MappingEntry? {
+            val parent = valueElement.parent
+            if (parent is YAMLKeyValue || parent is AmperProperty) {
+                return MappingEntry(parent)
+            }
+            return null
+        }
+    }
+
     val keyElement = when (sourceElement) {
         is YAMLKeyValue -> sourceElement.key
         is AmperProperty -> sourceElement.nameElement
