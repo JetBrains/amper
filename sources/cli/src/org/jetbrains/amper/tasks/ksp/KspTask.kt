@@ -145,7 +145,7 @@ internal class KspTask(
     private suspend fun resolveKspProcessorsFor(fragments: List<Fragment>): List<Path> {
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
 
-        // TODO handle catalog references and module dependencies
+        // catalog references have been handled in the frontend, so we don't need to resolve them here
         val processorCoords = fragments.flatMap { it.settings.ksp.processors }
             .filterIsInstance<MavenKspProcessorDeclaration>()
             .map { it.coordinates.value }

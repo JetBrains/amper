@@ -15,10 +15,12 @@ import org.jetbrains.amper.frontend.api.toTraceableString
 import org.jetbrains.amper.frontend.api.withTraceFrom
 import org.jetbrains.amper.frontend.schema.Base
 import org.jetbrains.amper.frontend.schema.CatalogDependency
+import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Dependency
 import org.jetbrains.amper.frontend.schema.ExternalMavenDependency
+import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.Modifiers
-
+import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 
 /**
  * Replace all [CatalogDependency] with ones, that are from actual catalog.
@@ -27,22 +29,46 @@ context(ProblemReporterContext)
 fun <T: Base> T.replaceCatalogDependencies(
     catalog: VersionCatalog,
 ) = apply {
-    fun List<Dependency>.convertCatalogDeps() = mapNotNull {
-        if (it !is CatalogDependency) return@mapNotNull it
-        val catalogValue = catalog.findInCatalogWithReport(it::catalogKey.toTraceableString()) ?: return@mapNotNull null
-        ExternalMavenDependency().apply {
-            coordinates = catalogValue.value
-            exported = it.exported
-            scope = it.scope
-        }.withTraceFrom(catalogValue)
-    }
-
-    fun Map<Modifiers, List<Dependency>>.replaceCatalogDeps() =
-        entries.associate { it.key to it.value.convertCatalogDeps() }
-
     // Actual replacement.
-    dependencies = dependencies?.replaceCatalogDeps()
-    `test-dependencies` = `test-dependencies`?.replaceCatalogDeps()
+    dependencies = dependencies?.replaceCatalogDeps(catalog)
+    `test-dependencies` = `test-dependencies`?.replaceCatalogDeps(catalog)
+
+    settings.values.forEach { fragmentSettings ->
+        fragmentSettings.ksp.processors = fragmentSettings.ksp.processors.convertCatalogProcessors(catalog)
+    }
+}
+
+context(ProblemReporterContext)
+private fun Map<Modifiers, List<Dependency>>.replaceCatalogDeps(catalog: VersionCatalog) =
+    entries.associate { it.key to it.value.convertCatalogDeps(catalog) }
+
+context(ProblemReporterContext)
+private fun List<Dependency>.convertCatalogDeps(catalog: VersionCatalog) = mapNotNull {
+    if (it is CatalogDependency) it.convertCatalogDep(catalog) else it
+}
+
+context(ProblemReporterContext)
+private fun CatalogDependency.convertCatalogDep(catalog: VersionCatalog): Dependency? {
+    val catalogDep = this
+    val catalogValue = catalog.findInCatalogWithReport(catalogDep::catalogKey.toTraceableString()) ?: return null
+    return ExternalMavenDependency().apply {
+        coordinates = catalogValue.value
+        exported = catalogDep.exported
+        scope = catalogDep.scope
+    }.withTraceFrom(catalogValue)
+}
+
+context(ProblemReporterContext)
+private fun List<KspProcessorDeclaration>.convertCatalogProcessors(
+    catalog: VersionCatalog,
+): List<KspProcessorDeclaration> = mapNotNull {
+    if (it is CatalogKspProcessorDeclaration) it.convertCatalogProcessor(catalog) else it
+}
+
+context(ProblemReporterContext)
+private fun CatalogKspProcessorDeclaration.convertCatalogProcessor(catalog: VersionCatalog): MavenKspProcessorDeclaration? {
+    val catalogValue = catalog.findInCatalogWithReport(catalogKey) ?: return null
+    return MavenKspProcessorDeclaration(catalogValue)
 }
 
 open class PredefinedCatalog(

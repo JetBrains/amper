@@ -67,6 +67,25 @@ class AmperKspTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `ksp jvm dagger with catalog refs`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-jvm-dagger-catalog")
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "ksp-jvm-dagger-catalog", fragment = "jvm")
+        generatedFilesDir.assertContainsRelativeFiles(
+            "src/ksp/java/com/sample/dagger/CoffeeMaker_Factory.java",
+            "src/ksp/java/com/sample/dagger/DaggerCoffeeShop.java",
+            "src/ksp/java/com/sample/dagger/HeaterModule_Companion_ProvideHeaterFactory.java",
+            "src/ksp/java/com/sample/dagger/Heater_Factory.java",
+        )
+
+        backend.runApplication()
+        assertStdoutContains("Heater: heating...")
+        assertStdoutContains("CoffeeMaker: brewing...")
+    }
+
+    @Test
     fun `ksp android room`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-android-room")
         val generatedSchemaPath = projectContext.projectRoot.path / "generated-db-schema"

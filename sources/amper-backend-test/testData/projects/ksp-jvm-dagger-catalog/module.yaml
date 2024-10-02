@@ -1,0 +1,9 @@
+product: jvm/app
+
+dependencies:
+  - $libs.dagger
+
+settings:
+  ksp:
+    processors:
+      - $libs.dagger.ksp
