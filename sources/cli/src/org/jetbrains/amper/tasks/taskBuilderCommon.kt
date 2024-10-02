@@ -22,6 +22,8 @@ internal enum class CommonTaskType(override val prefix: String) : PlatformTaskTy
     Publish("publish"),
     Run("run"),
     RuntimeClasspath("runtimeClasspath"),
+    KspProcessorDependencies("resolveKspProcessorDependencies"),
+    KspProcessorClasspath("kspProcessorClasspath"),
     Test("test"),
 }
 

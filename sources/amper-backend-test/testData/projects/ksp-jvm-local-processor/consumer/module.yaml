@@ -1,0 +1,11 @@
+product: jvm/app
+
+dependencies:
+  - ../my-processor-annotation
+
+settings:
+  ksp:
+    processors:
+      - ../my-processor
+    processorOptions:
+      com.sample.ksp.localprocessor.processor.reverseOrder: true

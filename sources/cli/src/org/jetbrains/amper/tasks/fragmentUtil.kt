@@ -8,6 +8,7 @@ import org.jetbrains.amper.frontend.Fragment
 import org.jetbrains.amper.frontend.FragmentDependencyType
 import org.jetbrains.amper.frontend.FragmentLink
 import org.jetbrains.amper.frontend.Platform
+import org.jetbrains.amper.frontend.PotatoModule
 import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.frontend.isDescendantOf
 import org.jetbrains.amper.tasks.native.NativeTaskType
@@ -17,32 +18,40 @@ internal fun compilationTaskNamesFor(fragment: Fragment): List<TaskName> {
     val leafPlatform = requireNotNull(fragment.platforms.singleOrNull()) {
         "Not a leaf fragment, we don't support compiling intermediate fragments"
     }
-    return when {
-        leafPlatform.isDescendantOf(Platform.ANDROID) -> BuildType.entries.map { buildType ->
-            // TODO: Don't we have fragment per buildType if applicable?
-            CommonTaskType.Compile.getTaskName(
-                module = fragment.module,
-                platform = leafPlatform,
-                isTest = fragment.isTest,
-                buildType = buildType,
-            )
-        }
-        leafPlatform.isDescendantOf(Platform.NATIVE) ->
-            listOf(
-                NativeTaskType.CompileKLib.getTaskName(
-                    module = fragment.module,
-                    platform = leafPlatform,
-                    isTest = fragment.isTest,
-                )
-            )
-        else -> listOf(
-            CommonTaskType.Compile.getTaskName(
-                module = fragment.module,
-                platform = leafPlatform,
-                isTest = fragment.isTest,
-            )
+    return compilationTaskNamesFor(fragment.module, leafPlatform, fragment.isTest)
+}
+
+internal fun compilationTaskNamesFor(
+    module: PotatoModule,
+    platform: Platform,
+    isTest: Boolean,
+) = when {
+    platform.isDescendantOf(Platform.ANDROID) -> BuildType.entries.map { buildType ->
+        // TODO: Don't we have fragment per buildType if applicable?
+        CommonTaskType.Compile.getTaskName(
+            module = module,
+            platform = platform,
+            isTest = isTest,
+            buildType = buildType,
         )
     }
+
+    platform.isDescendantOf(Platform.NATIVE) ->
+        listOf(
+            NativeTaskType.CompileKLib.getTaskName(
+                module = module,
+                platform = platform,
+                isTest = isTest,
+            )
+        )
+
+    else -> listOf(
+        CommonTaskType.Compile.getTaskName(
+            module = module,
+            platform = platform,
+            isTest = isTest,
+        )
+    )
 }
 
 internal fun refinedLeafFragmentsDependingOn(fragment: Fragment): Collection<Fragment> {

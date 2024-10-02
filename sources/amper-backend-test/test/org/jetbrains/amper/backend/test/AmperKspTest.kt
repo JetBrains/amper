@@ -48,6 +48,25 @@ class AmperKspTest : AmperIntegrationTestBase() {
     }
 
     @Test
+    fun `ksp jvm local processor`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-jvm-local-processor")
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "consumer", fragment = "jvm")
+        generatedFilesDir.assertContainsRelativeFiles(
+            "resources/ksp/com/sample/generated/annotated-classes.txt",
+        )
+
+        backend.runApplication()
+        assertStdoutTextContains("""
+            My annotated classes are:
+            org.sample.ksp.localprocessor.consumer.B
+            org.sample.ksp.localprocessor.consumer.A
+        """.trimIndent())
+    }
+
+    @Test
     fun `ksp jvm dagger`() = runTestWithCollector {
         val projectContext = setupTestDataProject("ksp-jvm-dagger")
         val backend = AmperBackend(projectContext)

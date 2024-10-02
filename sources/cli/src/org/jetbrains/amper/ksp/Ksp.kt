@@ -28,7 +28,7 @@ internal class Ksp(
      */
     suspend fun run(
         compilationType: KspCompilationType,
-        processorJars: List<Path>,
+        processorClasspath: List<Path>,
         config: KspConfig,
         tempRoot: AmperProjectTempRoot,
     ) {
@@ -37,8 +37,8 @@ internal class Ksp(
         // We relativize paths to avoid issues with absolute windows paths split on ':'
         // See: https://github.com/google/ksp/issues/2046
         // TODO stop doing that when the issue is fixed, because there is no guarantee that these paths are on the same drive
-        val processorClasspath = processorJars.joinToString(":") { it.relativeTo(workingDir).pathString }
-        val args = config.toCommandLineOptions(workingDir) + processorClasspath
+        val processorClasspathStr = processorClasspath.joinToString(":") { it.relativeTo(workingDir).pathString }
+        val args = config.toCommandLineOptions(workingDir) + processorClasspathStr
 
         logger.info("ksp $args")
         val result = jdk.runJava(

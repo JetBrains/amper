@@ -26,6 +26,7 @@ import org.jetbrains.amper.frontend.mavenRepositories
 import org.jetbrains.amper.resolver.MavenResolver
 import org.jetbrains.amper.resolver.getExternalDependencies
 import org.jetbrains.amper.tasks.CommonTaskUtils.userReadableList
+import org.jetbrains.amper.tasks.jvm.RuntimeClasspathElementProvider
 import org.jetbrains.amper.util.ExecuteOnChangedInputs
 import org.slf4j.LoggerFactory
 import java.io.File

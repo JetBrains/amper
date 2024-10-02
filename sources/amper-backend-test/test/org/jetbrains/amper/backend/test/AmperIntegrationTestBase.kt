@@ -127,6 +127,12 @@ abstract class AmperIntegrationTestBase {
         }
     }
 
+    protected fun TestCollector.assertStdoutTextContains(text: String) {
+        assertTrue("No line in stdout contains the text '$text':\n" + terminalRecorder.stdout().trim()) {
+            text in terminalRecorder.stdout()
+        }
+    }
+
     protected fun TestCollector.assertStdoutDoesNotContain(text: String) {
         assertTrue("No line in stdout should contain the text '$text':\n" + terminalRecorder.stdout().trim()) {
             terminalRecorder.stdout().lineSequence().none { text in it }

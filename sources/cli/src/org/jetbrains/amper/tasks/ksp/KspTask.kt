@@ -84,21 +84,20 @@ internal class KspTask(
         val kspJars = downloadKspCli(kspVersion)
         val ksp = Ksp(kspVersion, jdk, kspJars)
 
-        val kspProcessorJars = resolveKspProcessorsFor(fragments)
+        val kspProcessorClasspath = dependenciesResult.filterIsInstance<KspProcessorClasspathTask.Result>()
+            .flatMap { it.processorClasspath }
 
         val externalDependencies = dependenciesResult.filterIsInstance<ResolveExternalDependenciesTask.Result>()
             .flatMap { it.compileClasspath }
             .filter { it.extension != "aar" } // we get the extracted classes instead from an AdditionalClasspathProvider
 
-        // TODO in the future split those in 2 groups: dependencies for the modules, and local ksp processors.
-        //   We can use the list of ksp processors and filter the task results by module name.
-        val compileJvmModuleDependencies = dependenciesResult.filterIsInstance<JvmCompileTask.Result>()
-            .map { it.classesOutputRoot }
+        val compileJvmModuleDependencies = dependenciesResult.filterIsInstance<JvmCompileTask.Result>().map { it.classesOutputRoot }
         val compileNativeModuleDependencies = dependenciesResult.filterIsInstance<NativeCompileKlibTask.Result>()
             .flatMap { it.dependencyKlibs + listOf(it.compiledKlib) }
         val additionalClasspath = dependenciesResult.filterIsInstance<AdditionalClasspathProvider>()
             .flatMap { it.compileClasspath }
-        val compileLibraries = externalDependencies + compileJvmModuleDependencies + compileNativeModuleDependencies + additionalClasspath
+        val compileLibraries =
+            externalDependencies + compileJvmModuleDependencies + compileNativeModuleDependencies + additionalClasspath
 
         val leafFragment = fragments.find { it.platforms == setOf(platform) }
             ?: error("Cannot find leaf fragment for platform $platform")
@@ -118,7 +117,7 @@ internal class KspTask(
         ksp.runKsp(
             compileLibraries = compileLibraries,
             kspOutputPaths = kspOutputs,
-            kspProcessorJars = kspProcessorJars,
+            kspProcessorClasspath = kspProcessorClasspath,
             // TODO make sure we use the same JDK as for Kotlin compilation when it becomes customizable
             kotlinCompilationJdkHome = jdk.homeDir,
         )
@@ -142,43 +141,10 @@ internal class KspTask(
         }
     }
 
-    private suspend fun resolveKspProcessorsFor(fragments: List<Fragment>): List<Path> {
-        val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
-
-        // catalog references have been handled in the frontend, so we don't need to resolve them here
-        val processorCoords = fragments.flatMap { it.settings.ksp.processors }
-            .filterIsInstance<MavenKspProcessorDeclaration>()
-            .map { it.coordinates.value }
-
-        val configuration = mapOf(
-            "userCacheRoot" to userCacheRoot.path.pathString,
-            "repositories" to repositories.joinToString("|"),
-            "fragments" to fragments.joinToString("|") { it.name },
-            "processors" to processorCoords.joinToString("|"),
-        )
-
-        return executeOnChangedInputs.executeForFiles("${taskName.name}-resolve-ksp-processors", configuration, emptyList()) {
-            spanBuilder("resolve-ksp-processors")
-                .setAmperModule(module)
-                .setFragments(fragments)
-                .setAttribute("platform", platform.pretty)
-                .setListAttribute("ksp-processors", processorCoords)
-                .useWithScope {
-                    mavenResolver.resolve(
-                        coordinates = processorCoords,
-                        repositories = repositories.toRepositories(),
-                        platform = ResolutionPlatform.JVM,
-                        scope = ResolutionScope.RUNTIME,
-                        resolveSourceMoniker = "KSP processors for ${module.userReadableName}-${platform.pretty}",
-                    )
-                }
-        }
-    }
-
     private suspend fun Ksp.runKsp(
         compileLibraries: List<Path>,
         kspOutputPaths: KspOutputPaths,
-        kspProcessorJars: List<Path>,
+        kspProcessorClasspath: List<Path>,
         kotlinCompilationJdkHome: Path,
     ) {
         val compilationSettings = fragments.mergedCompilationSettings()
@@ -223,10 +189,10 @@ internal class KspTask(
         val configuration = mapOf(
             "kspVersion" to this.kspVersion,
             "kspCompilationType" to kspCompilationType.name,
-            "kspProcessorJars" to kspProcessorJars.joinToString("|"),
+            "kspProcessorClasspath" to kspProcessorClasspath.joinToString("|"),
             "kspConfig" to kspConfig.toCommandLineOptions(kspConfig.projectBaseDir).joinToString(" "),
         )
-        val inputFiles = kspProcessorJars + sources + compileLibraries
+        val inputFiles = kspProcessorClasspath + sources + compileLibraries
 
         executeOnChangedInputs.executeForFiles("${taskName.name}-run-ksp", configuration, inputFiles) {
             cleanDirectory(kspOutputPaths.outputsBaseDir)
@@ -236,7 +202,7 @@ internal class KspTask(
                 logger.info("Running KSP on ${fragments.identificationPhrase()}")
                 run(
                     compilationType = kspCompilationType,
-                    processorJars = kspProcessorJars,
+                    processorClasspath = kspProcessorClasspath,
                     config = kspConfig,
                     tempRoot = tempRoot,
                 )
