@@ -10,6 +10,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.problems.Problems
@@ -105,8 +106,9 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         }
 
         project.plugins.apply("com.android.application")
-
         val androidExtension = project.extensions.findByType(BaseExtension::class.java) ?: return
+        project.setArtifactBaseName()
+
         val androidFragment = module
             .fragments
             .filterIsInstance<LeafFragment>()
@@ -238,6 +240,12 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
                 }
             }
         }
+    }
+
+    private fun Project.setArtifactBaseName() {
+        val baseExtension = extensions.findByType(BasePluginExtension::class.java) ?: return
+        @Suppress("DEPRECATION") // The AGP still uses that
+        baseExtension.archivesBaseName = "gradle-project" // The IDE now relies on this name
     }
 }
 
