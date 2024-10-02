@@ -176,24 +176,30 @@ class JsonSchemaBuilder(
                 // Not all platforms could be used in aliases, but only those declared in module file in product definition
                 buildAliasesMapAsList {
                     buildSchemaCollection(uniqueElements = true, minItems = 1) {
-                        buildForScalarBased(typeOf<String>())
+                        typeOf<String>().jsonSchema()
                     }
                 }
             } else {
-                buildForScalarBased(type)
+                type.jsonSchema()
             }
         }
 
-    private fun buildForScalarBased(type: KType): String = when {
-        type.isEnum -> type.enumSchema
-        type.isTraceableEnum -> type.arguments.single().type!!.enumSchema
-        type.isString || type.isTraceableString -> stringSchema
-        type.isBoolean -> booleanSchema
-        type.isPath || type.isTraceablePath -> stringSchema
-        type.isInt -> integerSchema
-        type.isCollection -> buildSchemaCollection { buildForScalarBased(type.collectionType) }
-        type.isMap -> buildObjectWithDynamicKeys { buildForScalarBased(type.mapValueType) }
-        else -> error("Unsupported type $type") // TODO Report
+    private fun KType.jsonSchema(): String {
+        val customSchemaDef = unwrapKClassOrNull?.findAnnotation<CustomSchemaDef>()
+        return when {
+            // Bypass other checks if we already know the schema for it.
+            // This allows arbitrary classes to be used as long as they provide a CustomSchemaDef.
+            customSchemaDef != null -> customSchemaDef.json.trimIndent()
+            isEnum -> enumSchema
+            isTraceableEnum -> arguments.single().type!!.enumSchema
+            isString || isTraceableString -> stringSchema
+            isBoolean -> booleanSchema
+            isPath || isTraceablePath -> stringSchema
+            isInt -> integerSchema
+            isCollection -> buildSchemaCollection { collectionType.jsonSchema() }
+            isMap -> buildObjectWithDynamicKeys { mapValueType.jsonSchema() }
+            else -> error("Unsupported type ${this}, consider specifying a JSON schema explicitly for it using @CustomSchemaDef")
+        }
     }
 
     private val MutableList<String>?.orNew get() = this ?: mutableListOf()
