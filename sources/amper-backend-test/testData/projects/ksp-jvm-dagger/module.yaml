@@ -1,0 +1,9 @@
+product: jvm/app
+
+dependencies:
+  - com.google.dagger:dagger:2.52
+
+settings:
+  ksp:
+    processors:
+      - com.google.dagger:dagger-compiler:2.52

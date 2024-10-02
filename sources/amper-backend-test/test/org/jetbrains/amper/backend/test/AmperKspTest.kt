@@ -6,13 +6,14 @@ package org.jetbrains.amper.backend.test
 
 import org.jetbrains.amper.cli.AmperBackend
 import org.jetbrains.amper.cli.CliContext
-import org.jetbrains.amper.frontend.TaskName
 import org.jetbrains.amper.test.TestCollector
 import org.jetbrains.amper.test.TestCollector.Companion.runTestWithCollector
 import org.jetbrains.amper.test.TestUtil
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
+import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,14 +39,31 @@ class AmperKspTest : AmperIntegrationTestBase() {
         backend.build()
 
         val generatedFilesDir = projectContext.generatedFilesDir(module = "service-impl", fragment = "jvm")
-
-        val expectedGeneratedFiles = setOf(
-            generatedFilesDir / "resources/ksp/META-INF/services/com.sample.service.MyService",
+        generatedFilesDir.assertContainsRelativeFiles(
+            "resources/ksp/META-INF/services/com.sample.service.MyService",
         )
-        assertEquals(expectedGeneratedFiles, generatedFilesDir.walk().toSet())
 
         backend.runApplication()
         assertStdoutContains("Hello, service!")
+    }
+
+    @Test
+    fun `ksp jvm dagger`() = runTestWithCollector {
+        val projectContext = setupTestDataProject("ksp-jvm-dagger")
+        val backend = AmperBackend(projectContext)
+        backend.build()
+
+        val generatedFilesDir = projectContext.generatedFilesDir(module = "ksp-jvm-dagger", fragment = "jvm")
+        generatedFilesDir.assertContainsRelativeFiles(
+            "src/ksp/java/com/sample/dagger/CoffeeMaker_Factory.java",
+            "src/ksp/java/com/sample/dagger/DaggerCoffeeShop.java",
+            "src/ksp/java/com/sample/dagger/HeaterModule_Companion_ProvideHeaterFactory.java",
+            "src/ksp/java/com/sample/dagger/Heater_Factory.java",
+        )
+
+        backend.runApplication()
+        assertStdoutContains("Heater: heating...")
+        assertStdoutContains("CoffeeMaker: brewing...")
     }
 
     @Test
@@ -59,18 +77,24 @@ class AmperKspTest : AmperIntegrationTestBase() {
 
         val generatedFilesDir = projectContext.generatedFilesDir(module = "ksp-android-room", fragment = "android")
 
-        val expectedGeneratedFiles = setOf(
-            generatedFilesDir / "src/ksp/kotlin/com/jetbrains/sample/app/AppDatabase_Impl.kt",
-            generatedFilesDir / "src/ksp/kotlin/com/jetbrains/sample/app/UserDao_Impl.kt",
+        generatedFilesDir.assertContainsRelativeFiles(
+            "src/ksp/kotlin/com/jetbrains/sample/app/AppDatabase_Impl.kt",
+            "src/ksp/kotlin/com/jetbrains/sample/app/UserDao_Impl.kt",
         )
-        assertEquals(expectedGeneratedFiles, generatedFilesDir.walk().toSet())
-
-        val expectedGeneratedProjectFiles = setOf(
-            generatedSchemaPath / "com.jetbrains.sample.app.AppDatabase/1.json",
+        generatedSchemaPath.assertContainsRelativeFiles(
+            "com.jetbrains.sample.app.AppDatabase/1.json",
         )
-        assertEquals(expectedGeneratedProjectFiles, generatedSchemaPath.walk().toSet())
     }
 
     private fun CliContext.generatedFilesDir(module: String, fragment: String): Path =
         buildOutputRoot.path / "generated" / module / fragment
+}
+
+/**
+ * Asserts that the directory at this [Path] contains all the files at the given [expectedRelativePaths].
+ */
+private fun Path.assertContainsRelativeFiles(vararg expectedRelativePaths: String) {
+    val actualFiles = walk().map { it.relativeTo(this) }.toSet()
+    val expectedFiles = expectedRelativePaths.map { Path(it) }.toSet()
+    assertEquals(expectedFiles, actualFiles)
 }
