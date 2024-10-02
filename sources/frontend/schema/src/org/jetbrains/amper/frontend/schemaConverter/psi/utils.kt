@@ -16,8 +16,10 @@ import com.intellij.amper.lang.AmperProperty
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.amper.frontend.api.TraceablePath
 import org.jetbrains.amper.frontend.api.TraceableString
 import org.jetbrains.amper.frontend.api.applyPsiTrace
+import org.jetbrains.amper.frontend.api.asTraceable
 import org.jetbrains.amper.frontend.schema.Modifiers
 import org.jetbrains.amper.frontend.schema.noModifiers
 import org.jetbrains.yaml.psi.YAMLDocument
@@ -74,6 +76,13 @@ context(ConvertCtx)
 fun Scalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
 
 /**
+ * Converts this [Scalar] text value to an absolute [TraceablePath] by resolving it against the [ConvertCtx.baseFile].
+ */
+context(ConvertCtx)
+fun Scalar.asTraceableAbsolutePath(): TraceablePath =
+    textValue.asAbsolutePath().asTraceable().applyPsiTrace(sourceElement)
+
+/**
  * Same as [String.asAbsolutePath], but accepts [MappingEntry].
  */
 context(ConvertCtx)
@@ -82,7 +91,8 @@ fun MappingEntry.asAbsolutePath(): Path = keyText!!.asAbsolutePath()
 /**
  * Creates a [TraceableString] from the text value of this [PsiElement].
  */
-fun Scalar.asTraceableString(): TraceableString = TraceableString(textValue).applyPsiTrace(this.sourceElement)
+fun Scalar.asTraceableString(transform: (String) -> String = { it }): TraceableString =
+    TraceableString(transform(textValue)).applyPsiTrace(this.sourceElement)
 
 val PsiFile.topLevelValue get() = when (this) {
     is YAMLFile -> children.filterIsInstance<YAMLDocument>().firstOrNull()?.topLevelValue

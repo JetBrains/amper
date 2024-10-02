@@ -9,6 +9,7 @@ import org.jetbrains.amper.frontend.api.applyPsiTrace
 import org.jetbrains.amper.frontend.schema.AndroidSettings
 import org.jetbrains.amper.frontend.schema.AndroidSigningSettings
 import org.jetbrains.amper.frontend.schema.AndroidVersion
+import org.jetbrains.amper.frontend.schema.CatalogKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.ComposeResourcesSettings
 import org.jetbrains.amper.frontend.schema.ComposeSettings
 import org.jetbrains.amper.frontend.schema.IosFrameworkSettings
@@ -22,7 +23,10 @@ import org.jetbrains.amper.frontend.schema.KoverHtmlSettings
 import org.jetbrains.amper.frontend.schema.KoverSettings
 import org.jetbrains.amper.frontend.schema.KoverXmlSettings
 import org.jetbrains.amper.frontend.schema.KspSettings
+import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
+import org.jetbrains.amper.frontend.schema.ModuleKspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.NativeSettings
+import org.jetbrains.amper.frontend.schema.KspProcessorDeclaration
 import org.jetbrains.amper.frontend.schema.PublishingSettings
 import org.jetbrains.amper.frontend.schema.SerializationSettings
 import org.jetbrains.amper.frontend.schema.Settings
@@ -131,8 +135,15 @@ internal fun MappingNode.convertComposeResourcesSettings() =
 context(Converter)
 internal fun MappingNode.convertKspSettings() = KspSettings().apply {
     convertChildString(::version)
-    convertChildScalarCollection(::processors) { asTraceableString() }
+    convertChildScalarCollection(::processors) { convertKspProcessor() }
     convertChildMapping(::processorOptions) { convertTraceableStringMap() }
+}
+
+context(Converter)
+internal fun Scalar.convertKspProcessor(): KspProcessorDeclaration = when {
+    textValue.startsWith("$") -> CatalogKspProcessorDeclaration(asTraceableString { it.removePrefix("$") })
+    textValue.startsWith(".") -> ModuleKspProcessorDeclaration(asTraceableAbsolutePath())
+    else -> MavenKspProcessorDeclaration(asTraceableString())
 }
 
 context(Converter)
@@ -144,7 +155,6 @@ internal fun MappingNode.convertIosSettings() = IosSettings().apply {
 context(Converter)
 internal fun MappingNode.convertIosFrameworkSettings() = IosFrameworkSettings().apply {
     convertChildString(::basename)
-//    println("FOO Read basename is $basename")
     convertChildBoolean(::isStatic)
 }
 

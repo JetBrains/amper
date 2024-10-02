@@ -29,6 +29,7 @@ import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedJavaSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedKotlinSourcesPath
 import org.jetbrains.amper.frontend.aomBuilder.kspGeneratedResourcesPath
 import org.jetbrains.amper.frontend.mavenRepositories
+import org.jetbrains.amper.frontend.schema.MavenKspProcessorDeclaration
 import org.jetbrains.amper.ksp.Ksp
 import org.jetbrains.amper.ksp.KspCommonConfig
 import org.jetbrains.amper.ksp.KspCompilationType
@@ -145,7 +146,9 @@ internal class KspTask(
         val repositories = module.mavenRepositories.filter { it.resolve }.map { it.url }.distinct()
 
         // TODO handle catalog references and module dependencies
-        val processorCoords = fragments.flatMap { it.settings.ksp.processors }.map { it.value }.distinct()
+        val processorCoords = fragments.flatMap { it.settings.ksp.processors }
+            .filterIsInstance<MavenKspProcessorDeclaration>()
+            .map { it.coordinates.value }
 
         val configuration = mapOf(
             "userCacheRoot" to userCacheRoot.path.pathString,

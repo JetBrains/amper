@@ -149,7 +149,7 @@ KoverXmlSettings
 KspSettings
 -----------
 	processorOptions: Map<String, String>, default: {} - Some options to pass to KSP processors. Refer to each processor documentation for details.
-	processors: List<String>, default: [] - The list of KSP processors to use (maven coordinates or catalog references)
+	processors: List<KspProcessorDeclaration>, default: [] - The list of KSP processors to use. Each item can be a path to a local module, a catalog reference, or maven coordinates.
 	version: String, default: 2.0.20-1.0.25 - The version of KSP to use
 
 NativeSettings
