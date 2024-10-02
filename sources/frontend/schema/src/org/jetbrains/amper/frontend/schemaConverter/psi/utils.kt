@@ -53,6 +53,9 @@ fun MappingEntry.extractModifiers(): Modifiers {
         ?.takeIf { it.isNotEmpty() } ?: noModifiers
 }
 
+/**
+ * Converts this path string to an absolute [Path] by resolving it against the [ConvertCtx.baseFile].
+ */
 context(ConvertCtx)
 fun String.asAbsolutePath(): Path =
     this
@@ -62,16 +65,10 @@ fun String.asAbsolutePath(): Path =
                 .resolve(it)
                 .absolute()
                 .normalize()
-                .apply {
-                    // TODO Report non-existent paths.
-                    if (!exists()) {
-
-                    }
-                }
         }
 
 /**
- * Same as [String.asAbsolutePath], but accepts [PsiElement].
+ * Same as [String.asAbsolutePath], but accepts [Scalar].
  */
 context(ConvertCtx)
 fun Scalar.asAbsolutePath(): Path = textValue.asAbsolutePath()
