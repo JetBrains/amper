@@ -695,6 +695,53 @@ struct iosApp: App {
 }
 ```
 
+#### Release configuration for Android apps
+
+With the standalone version of Amper, you can use the `./amper task bundleAndroid` command to create a release build.
+
+In Gradle-based Amper projects, you can use the Gradle tasks provided with the release build type.
+
+When creating a release build with Amper, R8 will be used automatically, with minification and shrinking enabled. You
+can create a `proguard-rules.pro` file in the module folder to add custom rules for R8.
+
+##### Signing
+
+In a module containing an Android application (using the `android/app` product type) you can enable signing under
+settings:
+
+```yaml
+settings:
+  android:
+    signing: enabled
+```
+
+This will use a `keystore.properties` file located in the module folder for the signing details by default. This
+properties file must contain the following signing details. **Remember that these details should usually not be added
+to version control.**
+
+```properties
+storeFile=/Users/example/.keystores/release.keystore
+storePassword=store_password
+keyAlias=alias
+keyPassword=key_password
+```
+
+To customize the path to this file, you can use the `propertiesFile` option:
+
+```yaml
+settings:
+  android:
+    signing:
+      enabled: true
+      propertiesFile: ./keystore.properties # default value
+```
+
+With the standalone version of Amper, you can use `./amper tool generate-keystore` to generate a new keystore if you
+don't have one yet. This will create a new self-signed certificate, using the details in the `keystore.properties` file.
+
+> You can also pass in these details to `generate-keystore` as command line arguments. Invoke the tool with `--help`
+> to learn more.
+
 ### Tests
 
 Test code is located in the `test/` folder:
