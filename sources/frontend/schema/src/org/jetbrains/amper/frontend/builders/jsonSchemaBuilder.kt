@@ -170,15 +170,16 @@ class JsonSchemaBuilder(
 
     override fun visitCommon(prop: KProperty<*>, type: KType, default: Default<Any>?) =
         addProperty(prop) {
-            if (prop.name == "aliases")
+            if (prop.name == "aliases") {
                 // Not all platforms could be used in aliases, but only those declared in module file in product definition
                 buildAliasesMapAsList {
                     buildSchemaCollection(uniqueElements = true, minItems = 1) {
                         buildForScalarBased(typeOf<String>())
                     }
                 }
-            else
+            } else {
                 buildForScalarBased(type)
+            }
         }
 
     private fun buildForScalarBased(type: KType): String = when {
