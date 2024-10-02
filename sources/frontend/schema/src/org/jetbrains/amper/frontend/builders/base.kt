@@ -168,7 +168,6 @@ val KType.isTraceableEnum get() = unwrapKClassOrNull?.isSubclassOf(TraceableEnum
 val KType.isBoolean get() = unwrapKClassOrNull?.isSubclassOf(Boolean::class) == true
 val KType.isInt get() = unwrapKClassOrNull?.isSubclassOf(Int::class) == true
 val KType.isPath get() = unwrapKClassOrNull?.isSubclassOf(Path::class) == true
-val KType.isScalar get() = isEnum || isTraceableEnum || isString || isTraceableString || isBoolean || isInt || isPath || isTraceablePath
 
 // FiXME Here we assume that collection type will have only one type argument, that
 // generally is not true. Maybe need to add constraints of value<Type> methods.

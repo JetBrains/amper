@@ -185,20 +185,15 @@ class JsonSchemaBuilder(
         }
 
     private fun buildForScalarBased(type: KType): String = when {
-        type.isScalar -> buildScalar(type)
-        type.isCollection -> buildSchemaCollection { buildForScalarBased(type.collectionType) }
-        type.isMap -> buildObjectWithDynamicKeys { buildForScalarBased(type.mapValueType) }
-        else -> error("Unsupported type $type") // TODO Report
-    }
-
-    private fun buildScalar(type: KType) = when {
         type.isEnum -> type.enumSchema
         type.isTraceableEnum -> type.arguments.single().type!!.enumSchema
         type.isString || type.isTraceableString -> stringSchema
         type.isBoolean -> booleanSchema
         type.isPath || type.isTraceablePath -> stringSchema
         type.isInt -> integerSchema
-        else -> error("Unsupported type") // TODO reporting
+        type.isCollection -> buildSchemaCollection { buildForScalarBased(type.collectionType) }
+        type.isMap -> buildObjectWithDynamicKeys { buildForScalarBased(type.mapValueType) }
+        else -> error("Unsupported type $type") // TODO Report
     }
 
     private val MutableList<String>?.orNew get() = this ?: mutableListOf()
