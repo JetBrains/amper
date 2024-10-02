@@ -135,8 +135,7 @@ class UnresolvedMavenDependencyNode(
     override suspend fun downloadDependencies(downloadSources: Boolean) { }
 
     private fun getMessage(): Message {
-        val gradleCoordinates = gradlePrefixToSuffixMapper.entries.firstOrNull { coordinates.startsWith("${it.key}(") }
-        return if (gradleCoordinates != null) {
+        return if (parseGradleScope(coordinates) != null) {
             return Message("Dependency coordinates in a Gradle format are not supported. Please change it to an Amper-compatible format.", severity = Severity.ERROR)
         } else {
             Message("Unresolved dependency coordinates", severity = Severity.ERROR)
@@ -144,16 +143,32 @@ class UnresolvedMavenDependencyNode(
     }
 
     companion object {
-        val gradlePrefixToSuffixMapper = mapOf(
-            Pair("api", ""),
-            Pair("implementation", ""),
-            Pair("testImplementation", ""),
-            Pair("compileOnly", "compile-only"),
-            Pair("compileOnlyApi", "compile-only"),
-            Pair("testCompileOnly", "compile-only"),
-            Pair("runtimeOnly", "runtime-only"),
-            Pair("testRuntimeOnly", "runtime-only")
-        )
+        enum class GradleScope {
+            api,
+            implementation, compile,
+            testImplementation, testCompile,
+            compileOnly,
+            compileOnlyApi,
+            testCompileOnly,
+            runtimeOnly, runtime,
+            testRuntimeOnly, testRuntime
+        }
+
+        fun parseGradleScope(coordinates: String): Pair<GradleScope, String>? =
+            GradleScope.entries
+                .firstOrNull { coordinates.startsWith("${it.name}(") }
+                ?.let { gradleScope ->
+                    val gradleScopePrefix = "${gradleScope.name}("
+                    val coordinates = trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix\"", "\")")
+                        ?: trimPrefixAndSuffixOrNull(coordinates, "$gradleScopePrefix'", "')")
+                        ?: return@let null
+                    gradleScope to coordinates
+                }
+
+        fun trimPrefixAndSuffixOrNull(coordinates: String, prefix: String, suffix: String): String? =
+            coordinates
+                .takeIf { it.startsWith(prefix) && it.endsWith(suffix) }
+                ?.let { it.substringAfter(prefix).substringBefore(suffix)}
     }
 }
 
