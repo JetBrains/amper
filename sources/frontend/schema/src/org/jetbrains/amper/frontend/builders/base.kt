@@ -131,6 +131,10 @@ fun KClass<*>.schemaDeclaredMemberProperties(): Sequence<KProperty1<Any, ValueBa
         .filterIsInstance<KProperty1<Any, ValueBase<*>>>()
 }
 
+/**
+ * The effective type of this property.
+ * This is the type wrapped in [ValueBase] (if this property is of type [ValueBase]), or just the type of the property.
+ */
 val KProperty<*>.unwrapValueTypeArg: KType?
     get() {
         // TODO Handle non KClass classifier.
