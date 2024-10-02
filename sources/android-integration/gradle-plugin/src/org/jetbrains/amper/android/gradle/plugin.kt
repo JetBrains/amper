@@ -106,6 +106,11 @@ class AmperAndroidIntegrationProjectPlugin @Inject constructor(private val probl
         }
 
         project.plugins.apply("com.android.application")
+
+        if((module.buildDir / "google-services.json").exists()) {
+            project.plugins.apply("com.google.gms.google-services")
+        }
+
         val androidExtension = project.extensions.findByType(BaseExtension::class.java) ?: return
         project.setArtifactBaseName()
 

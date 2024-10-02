@@ -71,6 +71,7 @@ class AndroidBindingPluginPart(
         adjustCompilations()
         applySettings()
         adjustAndroidSourceSets()
+        applyGoogleServicesPlugin()
     }
 
     override fun applyAfterEvaluate() {
@@ -169,37 +170,38 @@ class AndroidBindingPluginPart(
         }
 
         val signing = firstAndroidFragment.settings.android.signing
-
-        if (signing.propertiesFile.exists()) {
-            val keystoreProperties = Properties().apply {
-                signing.propertiesFile.reader().use { reader ->
-                    load(reader)
+        if (signing.enabled) {
+            if (signing.propertiesFile.exists()) {
+                val keystoreProperties = Properties().apply {
+                    signing.propertiesFile.reader().use { reader ->
+                        load(reader)
+                    }
                 }
-            }
-            androidPE?.apply {
-                signingConfigs {
-                    it.create(SIGNING_CONFIG_NAME) {
-                        keystoreProperties.storeFile?.let { storeFile ->
-                            it.storeFile = Path(storeFile).toFile()
-                        }
-                        keystoreProperties.storePassword?.let { storePassword ->
-                            it.storePassword = storePassword
-                        }
-                        keystoreProperties.keyAlias?.let { keyAlias ->
-                            it.keyAlias = keyAlias
-                        }
-                        keystoreProperties.keyPassword?.let { keyPassword ->
-                            it.keyPassword = keyPassword
+                androidPE?.apply {
+                    signingConfigs {
+                        it.create(SIGNING_CONFIG_NAME) {
+                            keystoreProperties.storeFile?.let { storeFile ->
+                                it.storeFile = Path(storeFile).toFile()
+                            }
+                            keystoreProperties.storePassword?.let { storePassword ->
+                                it.storePassword = storePassword
+                            }
+                            keystoreProperties.keyAlias?.let { keyAlias ->
+                                it.keyAlias = keyAlias
+                            }
+                            keystoreProperties.keyPassword?.let { keyPassword ->
+                                it.keyPassword = keyPassword
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            val path = (project.projectDir.toPath() / signing.propertiesFile.pathString)
-                .normalize()
-                .absolutePathString()
+            } else {
+                val path = (project.projectDir.toPath() / signing.propertiesFile.pathString)
+                    .normalize()
+                    .absolutePathString()
 
-            project.logger.warn("Properties file $path not found. Signing will not be configured")
+                project.logger.warn("Properties file $path not found. Signing will not be configured")
+            }
         }
 
         leafPlatformFragments.forEach { fragment ->
@@ -230,6 +232,12 @@ class AndroidBindingPluginPart(
                     }
                 }
             }
+        }
+    }
+
+    private fun applyGoogleServicesPlugin() {
+        if ((module.moduleDir / "google-services.json").exists()) {
+            project.plugins.apply("com.google.gms.google-services")
         }
     }
 }

@@ -31,7 +31,6 @@ fun runAndroidBuild(
     debug: Boolean = false,
     eventHandler: (ProgressEvent) -> Unit,
 ): List<Path> {
-    buildPath.createDirectories()
     val settingsGradlePath = buildPath.createSettingsGradle(buildRequest)
     buildPath.createBuildGradle()
     buildPath.createLocalProperties(buildRequest)

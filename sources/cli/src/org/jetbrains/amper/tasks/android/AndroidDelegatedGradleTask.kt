@@ -24,10 +24,12 @@ import org.jetbrains.amper.util.toAndroidRequestBuildType
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.copyTo
 import kotlin.io.path.copyToRecursively
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 
 abstract class AndroidDelegatedGradleTask(
     private val module: PotatoModule,
@@ -64,30 +66,43 @@ abstract class AndroidDelegatedGradleTask(
         val androidConfig = fragments.joinToString { it.settings.android.repr }
         val configuration = mapOf("androidConfig" to androidConfig)
 
-        val executionResult =
-            executeOnChangedInputs.execute(taskName.name, configuration, runtimeClasspath + additionalInputFiles) {
-                logger.info("Using android sdk at $androidSdkPath")
-                val logFileName = UUID.randomUUID()
-                val gradleLogStdoutPath =
-                    buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stdout"
-                val gradleLogStderrPath =
-                    buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stderr"
-                gradleLogStdoutPath.createParentDirectories()
-                val result = runAndroidBuild(
-                    request,
-                    taskOutputPath.path / "gradle-project",
-                    gradleLogStdoutPath,
-                    gradleLogStderrPath,
-                    eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) })
-                ExecuteOnChangedInputs.ExecutionResult(result.filter(::outputFilterPredicate))
-            }
+        val googleServicesFileName = "google-services.json"
+        val googleServicesJson = module.source.moduleDir?.let { moduleDir ->
+            val servicesJsonPath = moduleDir / googleServicesFileName
+            if (servicesJsonPath.exists()) servicesJsonPath else null
+        }
 
+        val executionResult = executeOnChangedInputs.execute(
+            taskName.name,
+            configuration,
+            runtimeClasspath + additionalInputFiles + (googleServicesJson?.let { listOf(it) } ?: listOf()),
+        ) {
+            val gradleProjectPath = (taskOutputPath.path / "gradle-project").also { path -> path.createDirectories() }
+            googleServicesJson?.let {
+                logger.info("Using google services json at $it")
+                googleServicesJson.copyTo(gradleProjectPath / googleServicesFileName, overwrite = true)
+            }
+            logger.info("Using android sdk at $androidSdkPath")
+            val logFileName = UUID.randomUUID()
+            val gradleLogStdoutPath =
+                buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stdout"
+            val gradleLogStderrPath =
+                buildLogsRoot.path / "gradle" / "${this::class.simpleName}-$logFileName.stderr"
+            gradleLogStdoutPath.createParentDirectories()
+            val result = runAndroidBuild(
+                request,
+                gradleProjectPath,
+                gradleLogStdoutPath,
+                gradleLogStderrPath,
+                eventHandler = { it.handle(gradleLogStdoutPath, gradleLogStderrPath) })
+            ExecuteOnChangedInputs.ExecutionResult(result.filter(::outputFilterPredicate))
+        }
         taskOutputPath.path.createDirectories()
         executionResult.outputs.map {
-                it.copyToRecursively(
-                    taskOutputPath.path.resolve(it.fileName), followLinks = false, overwrite = true
-                )
-            }
+            it.copyToRecursively(
+                taskOutputPath.path.resolve(it.fileName), followLinks = false, overwrite = true
+            )
+        }
         return result(executionResult.outputs)
     }
 

@@ -84,3 +84,5 @@ tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-jul = { module = "org.tinylog:jul-tinylog", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
 xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil-serialization" }
+gradle-api-forStandalone = "dev.gradleplugins:gradle-api:8.9"
+google-services-gradle-plugin = "com.google.gms:google-services:4.4.2"

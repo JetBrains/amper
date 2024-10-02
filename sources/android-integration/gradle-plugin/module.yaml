@@ -13,7 +13,8 @@ dependencies:
   - ../../frontend-api
   - ../../frontend/schema
   - $libs.android.gradle.plugin.forStandalone
-  - dev.gradleplugins:gradle-api:8.9: compile-only
+  - $libs.google.services.gradle.plugin
+  - $libs.gradle.api.forStandalone: compile-only
 
 settings:
   kotlin:
