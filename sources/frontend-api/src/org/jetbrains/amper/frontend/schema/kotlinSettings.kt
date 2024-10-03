@@ -33,8 +33,6 @@ enum class KotlinVersion(override val schemaValue: String, override val outdated
 }
 
 class KotlinSettings : SchemaNode() {
-    @SchemaDoc("Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
-    var serialization by nullableValue<SerializationSettings>()
 
     @SchemaDoc("Source compatibility with the specified version of Kotlin")
     var languageVersion by value(KotlinVersion.Kotlin20)
@@ -71,4 +69,7 @@ class KotlinSettings : SchemaNode() {
     // TODO Replace with enum
     @SchemaDoc("Usages of API that [requires opt-in](https://kotlinlang.org/docs/opt-in-requirements.html) with a requirement annotation with the given fully qualified name")
     var optIns by nullableValue<List<TraceableString>>()
+
+    @SchemaDoc("Configure the [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)")
+    var serialization by nullableValue<SerializationSettings>()
 }
